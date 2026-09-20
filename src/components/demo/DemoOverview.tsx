@@ -188,22 +188,7 @@ export const DemoOverview: React.FC<DemoOverviewProps> = ({
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-5 border border-zinc-200 shadow-xs">
-          <div className="flex items-center justify-between text-zinc-500 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Limpiezas Pendientes</span>
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-              <Clock className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-extrabold text-amber-600 font-['Outfit']">
-            {pendingCleanings.length} tareas
-          </div>
-          <div className="mt-1 text-[11px] text-zinc-500">
-            1 en progreso actualmente
-          </div>
-        </div>
-      </div>
-
+       Check-ins de Hoy
       {/* Main Row: Today's Arrivals/Departures + Cleanings */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Today's Operations (8 cols) */}
