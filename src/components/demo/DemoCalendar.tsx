@@ -4,9 +4,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
-  Filter,
-  Info,
-  Building,
 } from 'lucide-react';
 import { DemoState, Reservation, Property, BookingPlatform } from '../../types';
 import { formatDisplayDate, getRelativeDate } from '../../data/initialData';
@@ -46,33 +43,34 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
     });
   }
 
+  const startDateStr = dates[0]?.dateStr || '';
+  const endDateStr = dates[dates.length - 1]?.dateStr || '';
+
   const filteredProperties =
     selectedPropertyId === 'all'
       ? demoState.properties
       : demoState.properties.filter((p) => p.id === selectedPropertyId);
 
-  // Helper to find reservations for a property on a given date
-  const getReservationForSlot = (propertyId: string, dateStr: string) => {
-    return demoState.reservations.find(
-      (r) =>
-        r.propertyId === propertyId &&
-        r.status !== 'cancelled' &&
-        dateStr >= r.checkIn &&
-        dateStr < r.checkOut &&
-        (platformFilter === 'all' || r.platform === platformFilter)
-    );
+  // Helper to get all reservations for a property that overlap with current visible dates
+  const getVisibleReservationsForProperty = (propertyId: string) => {
+    return demoState.reservations.filter((r) => {
+      if (r.propertyId !== propertyId || r.status === 'cancelled') return false;
+      if (platformFilter !== 'all' && r.platform !== platformFilter) return false;
+      // Overlaps visible range: checkIn <= lastVisibleDate && checkOut > firstVisibleDate
+      return r.checkIn <= endDateStr && r.checkOut > startDateStr;
+    });
   };
 
-  const getPlatformBadge = (platform: BookingPlatform) => {
+  const getPlatformColors = (platform: BookingPlatform) => {
     switch (platform) {
       case 'airbnb':
-        return 'bg-rose-500 text-white hover:bg-rose-600';
+        return 'bg-rose-500 hover:bg-rose-600 border-rose-400 text-white';
       case 'booking':
-        return 'bg-blue-600 text-white hover:bg-blue-700';
+        return 'bg-blue-600 hover:bg-blue-700 border-blue-500 text-white';
       case 'direct':
-        return 'bg-emerald-600 text-white hover:bg-emerald-700';
+        return 'bg-emerald-600 hover:bg-emerald-700 border-emerald-500 text-white';
       case 'vrbo':
-        return 'bg-indigo-600 text-white hover:bg-indigo-700';
+        return 'bg-indigo-600 hover:bg-indigo-700 border-indigo-500 text-white';
       default:
         return 'bg-zinc-600 text-white';
     }
@@ -161,7 +159,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-emerald-600 inline-block" />
-            <span>Directa (0% com)</span>
+            <span>Directa</span>
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-indigo-600 inline-block" />
@@ -169,16 +167,16 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           </span>
         </div>
         <div className="text-[11px] text-zinc-500 italic">
-          Haz clic en cualquier celda para ver detalles o agregar reserva
+          Haz clic en cualquier barra de reserva para ver detalles completos
         </div>
       </div>
 
       {/* Gantt Timeline Table */}
       <div className="overflow-x-auto">
-        <div className="min-w-[950px]">
+        <div className="min-w-[1050px]">
           {/* Header Row of Days */}
           <div className="grid grid-cols-[220px_repeat(14,1fr)] border-b border-zinc-200 bg-zinc-100/70 text-zinc-700">
-            <div className="p-3 font-bold text-xs border-r border-zinc-200 flex items-center justify-between">
+            <div className="p-3 font-bold text-xs border-r border-zinc-200 flex items-center justify-between sticky left-0 bg-zinc-100 z-20">
               <span>Propiedad</span>
               <span className="text-[10px] text-zinc-500 font-normal">Tarifa/Noche</span>
             </div>
@@ -190,7 +188,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                 }`}
               >
                 <div className="text-[10px] uppercase">{d.dayName}</div>
-                <div className={`text-sm ${d.isToday ? 'text-rose-600 underline decoration-2' : ''}`}>
+                <div className={`text-sm ${d.isToday ? 'text-rose-600 underline decoration-2 font-bold' : ''}`}>
                   {d.dayNum}
                 </div>
               </div>
@@ -198,75 +196,96 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           </div>
 
           {/* Properties Rows */}
-          {filteredProperties.map((prop) => (
-            <div
-              key={prop.id}
-              className="grid grid-cols-[220px_repeat(14,1fr)] border-b border-zinc-200 hover:bg-zinc-50/50 transition-colors"
-            >
-              {/* Property Label Column */}
-              <div className="p-3 border-r border-zinc-200 bg-white flex flex-col justify-center">
-                <div className="font-bold text-xs text-zinc-900 truncate" title={prop.name}>
-                  {prop.name}
-                </div>
-                <div className="flex items-center justify-between text-[11px] text-zinc-500 mt-1">
-                  <span>{prop.neighborhood}</span>
-                  <span className="font-semibold text-zinc-800">${prop.basePrice}/n</span>
-                </div>
-              </div>
+          {filteredProperties.map((prop) => {
+            const propertyReservations = getVisibleReservationsForProperty(prop.id);
 
-              {/* Day Cells */}
-              {dates.map((d) => {
-                const res = getReservationForSlot(prop.id, d.dateStr);
-                const isCheckInDay = res && res.checkIn === d.dateStr;
-                const isCheckOutDay = res && res.checkOut === d.dateStr;
+            return (
+              <div
+                key={prop.id}
+                className="grid grid-cols-[220px_repeat(14,1fr)] border-b border-zinc-200 relative min-h-[64px] hover:bg-zinc-50/50 transition-colors"
+              >
+                {/* Property Label Column */}
+                <div className="p-3 border-r border-zinc-200 bg-white flex flex-col justify-center sticky left-0 z-10 shadow-[2px_0_4px_rgba(0,0,0,0.02)]">
+                  <div className="font-bold text-xs text-zinc-900 truncate" title={prop.name}>
+                    {prop.name}
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-zinc-500 mt-1">
+                    <span>{prop.neighborhood}</span>
+                    <span className="font-semibold text-zinc-800">${prop.basePrice}/n</span>
+                  </div>
+                </div>
 
-                return (
+                {/* 14 Day Background Slots */}
+                {dates.map((d) => (
                   <div
                     key={d.dateStr}
-                    className={`h-16 border-r border-zinc-200 last:border-r-0 p-1 relative flex items-center justify-center ${
+                    className={`h-full border-r border-zinc-200 last:border-r-0 relative flex items-center justify-center ${
                       d.isToday ? 'bg-rose-50/30' : ''
                     }`}
                   >
-                    {res ? (
+                    <button
+                      onClick={() =>
+                        onOpenNewReservationWithProperty &&
+                        onOpenNewReservationWithProperty(prop.id, d.dateStr)
+                      }
+                      title={`Crear reserva libre el ${d.dateStr}`}
+                      className="w-full h-full opacity-0 hover:opacity-100 hover:bg-zinc-100 flex items-center justify-center text-zinc-400 hover:text-zinc-700 transition-all cursor-pointer text-xs"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+
+                {/* Continuous Reservation Bars (Spanning across full stay) */}
+                {propertyReservations.map((res) => {
+                  // Calculate start column index relative to visible dates (0 to 13)
+                  const checkInIndex = dates.findIndex((d) => d.dateStr === res.checkIn);
+                  const checkOutIndex = dates.findIndex((d) => d.dateStr === res.checkOut);
+
+                  const startIndex = checkInIndex !== -1 ? checkInIndex : 0;
+                  const endIndex = checkOutIndex !== -1 ? checkOutIndex : DAYS_TO_SHOW;
+                  const spanDays = Math.max(1, endIndex - startIndex);
+
+                  // Calculate pixel percentage: 220px fixed left column + 14 day columns
+                  const leftPercentage = `calc(220px + (100% - 220px) * ${startIndex / DAYS_TO_SHOW} + 3px)`;
+                  const widthPercentage = `calc((100% - 220px) * ${spanDays / DAYS_TO_SHOW} - 6px)`;
+
+                  return (
+                    <div
+                      key={res.id}
+                      style={{
+                        left: leftPercentage,
+                        width: widthPercentage,
+                      }}
+                      className="absolute top-2.5 bottom-2.5 z-10 flex items-center"
+                    >
                       <button
                         onClick={() => onSelectReservation(res)}
-                        className={`w-full h-12 rounded-md p-1 flex flex-col justify-center text-left text-xs font-semibold cursor-pointer shadow-xs transition-transform hover:scale-102 ${getPlatformBadge(
+                        className={`w-full h-full rounded-lg px-2.5 py-1 flex items-center justify-between text-left text-xs font-semibold cursor-pointer shadow-sm border transition-all hover:scale-[1.01] hover:shadow-md overflow-hidden ${getPlatformColors(
                           res.platform
                         )}`}
-                        title={`${res.guestName} (${res.platform.toUpperCase()}) - ${formatDisplayDate(res.checkIn)} a ${formatDisplayDate(res.checkOut)}`}
+                        title={`${res.guestName} (${res.platform.toUpperCase()}) · ${formatDisplayDate(
+                          res.checkIn
+                        )} al ${formatDisplayDate(res.checkOut)} · $${res.totalAmount}`}
                       >
-                        {isCheckInDay ? (
-                          <>
-                            <span className="text-[9px] uppercase tracking-wider font-extrabold opacity-90">
-                              Llega: {res.guestName.split(' ')[0]}
-                            </span>
-                            <span className="text-[9px] opacity-80">${res.totalAmount}</span>
-                          </>
-                        ) : (
-                          <div className="w-full text-center">
-                            <span className="text-[9px] truncate block opacity-90">
-                              {res.guestName.split(' ')[0]}
-                            </span>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-1.5 truncate pr-1">
+                          <span className="text-[10px] font-extrabold uppercase px-1 py-0.2 rounded bg-black/20 shrink-0">
+                            {res.platform}
+                          </span>
+                          <span className="font-bold text-xs truncate">
+                            {res.guestName}
+                          </span>
+                        </div>
+                        <div className="hidden sm:flex items-center gap-1.5 text-[10px] opacity-90 shrink-0 font-medium">
+                          <span>${res.totalAmount}</span>
+                        </div>
                       </button>
-                    ) : (
-                      <button
-                        onClick={() =>
-                          onOpenNewReservationWithProperty &&
-                          onOpenNewReservationWithProperty(prop.id, d.dateStr)
-                        }
-                        title={`Crear reserva libre en ${prop.neighborhood} el ${d.dateStr}`}
-                        className="w-full h-full rounded opacity-0 hover:opacity-100 hover:bg-zinc-100 flex items-center justify-center text-zinc-400 hover:text-zinc-700 transition-all cursor-pointer"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
