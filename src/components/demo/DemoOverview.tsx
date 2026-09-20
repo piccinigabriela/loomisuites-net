@@ -173,33 +173,18 @@ export const DemoOverview: React.FC<DemoOverviewProps> = ({
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-5 border border-zinc-200 shadow-xs">
+       <div className="bg-white rounded-xl p-5 border border-zinc-200 shadow-xs">
           <div className="flex items-center justify-between text-zinc-500 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Ocupación General</span>
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-              <CalendarCheck className="w-4 h-4" />
+            <span className="text-xs font-semibold uppercase tracking-wider">Check-ins de Hoy</span>
+            <div className="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center">
+              <Calendar className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-extrabold text-zinc-900 font-['Outfit']">
-            87.5%
-          </div>
-          <div className="mt-1 text-[11px] text-zinc-500">
-            28 de 32 noches reservadas en tus 4 alojamientos
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-5 border border-zinc-200 shadow-xs">
-          <div className="flex items-center justify-between text-zinc-500 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Ahorro en Comisiones</span>
-            <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
-              <Sparkles className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-extrabold text-rose-600 font-['Outfit']">
-            +{formatCurrency(directSavings)}
+            2 llegadas
           </div>
           <div className="mt-1 text-[11px] text-emerald-700 font-medium">
-            Generado gracias a tus reservas directas
+            1 ya ingresado · 1 pendiente de llegada
           </div>
         </div>
 
