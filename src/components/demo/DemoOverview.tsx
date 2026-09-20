@@ -172,12 +172,11 @@ export const DemoOverview: React.FC<DemoOverviewProps> = ({
             <span>+24.5% respecto al mes anterior</span>
           </div>
         </div>
-
-       <div className="bg-white rounded-xl p-5 border border-zinc-200 shadow-xs">
+<div className="bg-white rounded-xl p-5 border border-zinc-200 shadow-xs">
           <div className="flex items-center justify-between text-zinc-500 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Check-ins de Hoy</span>
             <div className="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center">
-              <Calendar className="w-4 h-4" />
+              <CalendarCheck className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-extrabold text-zinc-900 font-['Outfit']">
@@ -188,31 +187,21 @@ export const DemoOverview: React.FC<DemoOverviewProps> = ({
           </div>
         </div>
 
-       Check-ins de Hoy
-      {/* Main Row: Today's Arrivals/Departures + Cleanings */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Today's Operations (8 cols) */}
-        <div className="lg:col-span-8 space-y-6">
-          {/* Check-ins Section */}
-          <div className="bg-white rounded-2xl border border-zinc-200 p-5 shadow-xs">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                <h3 className="text-sm font-bold text-zinc-900 uppercase tracking-wider">
-                  Check-ins de Hoy ({todayCheckIns.length})
-                </h3>
-              </div>
-              <span className="text-xs text-zinc-500">Auto-checkin activo</span>
+        <div className="bg-white rounded-xl p-5 border border-zinc-200 shadow-xs">
+          <div className="flex items-center justify-between text-zinc-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Limpiezas Pendientes</span>
+            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+              <Clock className="w-4 h-4" />
             </div>
-
-            {todayCheckIns.length === 0 ? (
-              <p className="text-xs text-zinc-500 py-4 text-center">No hay más check-ins programados para hoy.</p>
-            ) : (
-              <div className="space-y-3">
-                {todayCheckIns.map((res) => {
-                  const prop = getProperty(res.propertyId);
-                  return (
-                    <div
+          </div>
+          <div className="text-2xl font-extrabold text-amber-600 font-['Outfit']">
+            {pendingCleanings.length} tareas
+          </div>
+          <div className="mt-1 text-[11px] text-zinc-500">
+            1 en progreso actualmente
+          </div>
+        </div>
+      </div>
                       key={res.id}
                       className="p-4 rounded-xl border border-zinc-200/80 bg-zinc-50/50 hover:bg-zinc-50 transition-colors flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
                     >
