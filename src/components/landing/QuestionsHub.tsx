@@ -1,0 +1,799 @@
+import React, { useState } from 'react';
+import {
+  HelpCircle,
+  Building2,
+  Calendar,
+  MessageSquare,
+  Sparkles,
+  ShieldCheck,
+  CheckCircle2,
+  AlertTriangle,
+  ArrowRight,
+  Play,
+  Smartphone,
+  CreditCard,
+  Clock,
+  Home,
+  Layers,
+  Zap,
+  Users,
+  Coins,
+  TrendingUp,
+  Check,
+  KeyRound,
+  Coffee,
+  PlusCircle
+} from 'lucide-react';
+
+interface QuestionsHubProps {
+  onOpenDemo: () => void;
+  onOpenContact: (planOrTopic?: string) => void;
+}
+
+type QuestionId = 'que-hacemos' | 'es-para-vos' | 'que-resuelve' | 'precios';
+
+export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenContact }) => {
+  const [activeQuestion, setActiveQuestion] = useState<QuestionId>('que-hacemos');
+  const [selectedPropertyProfile, setSelectedPropertyProfile] = useState<'cabanas' | 'deptos' | 'posadas'>('deptos');
+
+  // All plans include the exact SAME 100% complete system features
+  const commonFeatures = [
+    'Sincronización instantánea Airbnb, Booking y portales',
+    'Calendario único centralizado en tiempo real',
+    'Asistente Xenia IA para WhatsApp 24/7 (check-in, wifi, dudas)',
+    'Módulo móvil para personal de limpieza con checklist',
+    'Motor propio de reservas directas (0% de comisión)',
+    'Guía digital interactiva de bienvenida para huéspedes',
+    'Reportes de cobros, señas y liquidaciones para dueños',
+    'Acompañamiento humano en la puesta en marcha'
+  ];
+
+  const plans = [
+    {
+      id: 'plan-4-10',
+      name: '4 a 10 Propiedades',
+      range: 'Pequeños complejos y anfitriones',
+      priceMonthly: 45000,
+      description: 'El sistema completo con todas las herramientas para 4 a 10 unidades.',
+      popular: true,
+      badge: 'Más elegido'
+    },
+    {
+      id: 'plan-10-20',
+      name: '10 a 20 Propiedades',
+      range: 'Complejos medianos, aparts y posadas',
+      priceMonthly: 60000,
+      description: 'El sistema completo para el volumen de 10 a 20 unidades.',
+      popular: false,
+      badge: 'Escala media'
+    },
+    {
+      id: 'plan-20-30',
+      name: '20 a 30 Propiedades',
+      range: 'Operación profesional de alto flujo',
+      priceMonthly: 80000,
+      description: 'El sistema completo para operaciones de 20 a 30 unidades.',
+      popular: false,
+      badge: 'Alta escala'
+    }
+  ];
+
+  return (
+    <section id="preguntas-clave" className="py-12 md:py-20 bg-zinc-50 border-y border-zinc-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Section Header: Direct & Honest to the Lead */}
+        <div className="text-center max-w-3xl mx-auto mb-10 md:mb-14">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold mb-3">
+            <HelpCircle className="w-3.5 h-3.5" />
+            <span>Respuestas claras y al grano</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight">
+            Todo lo que querés saber antes de decidir
+          </h2>
+          <p className="mt-3 text-base sm:text-lg text-zinc-600">
+            Sin rodeos, sin videos eternos y con precios a la vista en pesos. Elegí la pregunta que tenés en mente:
+          </p>
+        </div>
+
+        {/* 4 Cards Grid - Directed to the Lead */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          
+          {/* Card 1: ¿Qué hacemos? */}
+          <button
+            onClick={() => setActiveQuestion('que-hacemos')}
+            className={`text-left p-5 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
+              activeQuestion === 'que-hacemos'
+                ? 'bg-white border-rose-500 shadow-lg shadow-rose-500/10 ring-2 ring-rose-500/20'
+                : 'bg-white/80 border-zinc-200 hover:border-zinc-300 hover:bg-white'
+            }`}
+          >
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-base mb-3">
+                1
+              </div>
+              <h3 className="text-base font-bold text-zinc-900">
+                ¿Qué hacemos?
+              </h3>
+              <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+                Centralizamos tus reservas, cobros, limpieza y WhatsApp en un solo lugar fácil de usar.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-rose-600">
+              <span>{activeQuestion === 'que-hacemos' ? 'Viendo detalle' : 'Ver respuesta'}</span>
+              <ArrowRight className="w-3 h-3" />
+            </div>
+          </button>
+
+          {/* Card 2: ¿Esto es para vos? */}
+          <button
+            onClick={() => setActiveQuestion('es-para-vos')}
+            className={`text-left p-5 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
+              activeQuestion === 'es-para-vos'
+                ? 'bg-white border-rose-500 shadow-lg shadow-rose-500/10 ring-2 ring-rose-500/20'
+                : 'bg-white/80 border-zinc-200 hover:border-zinc-300 hover:bg-white'
+            }`}
+          >
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-base mb-3">
+                2
+              </div>
+              <h3 className="text-base font-bold text-zinc-900">
+                ¿Esto es para vos?
+              </h3>
+              <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+                Si administrás desde 4 hasta 30+ cabañas o departamentos y querés orden real.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-blue-600">
+              <span>{activeQuestion === 'es-para-vos' ? 'Viendo detalle' : 'Ver respuesta'}</span>
+              <ArrowRight className="w-3 h-3" />
+            </div>
+          </button>
+
+          {/* Card 3: ¿Qué problema te resuelve? */}
+          <button
+            onClick={() => setActiveQuestion('que-resuelve')}
+            className={`text-left p-5 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
+              activeQuestion === 'que-resuelve'
+                ? 'bg-white border-rose-500 shadow-lg shadow-rose-500/10 ring-2 ring-rose-500/20'
+                : 'bg-white/80 border-zinc-200 hover:border-zinc-300 hover:bg-white'
+            }`}
+          >
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-base mb-3">
+                3
+              </div>
+              <h3 className="text-base font-bold text-zinc-900">
+                ¿Qué problema te resuelve?
+              </h3>
+              <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+                Cero dobles reservas, menos mensajes a medianoche y control de limpieza automático.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
+              <span>{activeQuestion === 'que-resuelve' ? 'Viendo detalle' : 'Ver respuesta'}</span>
+              <ArrowRight className="w-3 h-3" />
+            </div>
+          </button>
+
+          {/* Card 4: Precios */}
+          <button
+            onClick={() => setActiveQuestion('precios')}
+            className={`text-left p-5 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
+              activeQuestion === 'precios'
+                ? 'bg-white border-rose-500 shadow-lg shadow-rose-500/10 ring-2 ring-rose-500/20'
+                : 'bg-white/80 border-zinc-200 hover:border-zinc-300 hover:bg-white'
+            }`}
+          >
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-base mb-3">
+                $
+              </div>
+              <h3 className="text-base font-bold text-zinc-900">
+                Precios
+              </h3>
+              <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+                Desde $45.000 ARS/mes. Sin poner tarjeta para empezar. Suscripción por Mercado Pago o PayPal.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-amber-600">
+              <span>{activeQuestion === 'precios' ? 'Viendo tarifas' : 'Ver precios exactos'}</span>
+              <ArrowRight className="w-3 h-3" />
+            </div>
+          </button>
+
+        </div>
+
+        {/* Dynamic Detailed Answer Box */}
+        <div className="bg-white rounded-3xl border border-zinc-200 shadow-xl overflow-hidden">
+          
+          {/* ============================================================ */}
+          {/* 1. ¿QUÉ HACEMOS? */}
+          {/* ============================================================ */}
+          {activeQuestion === 'que-hacemos' && (
+            <div className="p-6 sm:p-10">
+              <div className="flex flex-col lg:flex-row gap-8 lg:items-center justify-between border-b border-zinc-100 pb-8">
+                <div className="max-w-2xl">
+                  <span className="text-xs font-bold uppercase tracking-wider text-rose-600">
+                    Pregunta 1 de 4
+                  </span>
+                  <h3 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 mt-1">
+                    ¿Qué hacemos en Loomi?
+                  </h3>
+                  <p className="text-zinc-600 text-base sm:text-lg mt-3 leading-relaxed">
+                    Te damos un <strong>sistema simple, visual y moderno</strong> para que gestiones tus alquileres temporarios desde el celular o la computadora. Reemplaza el cuaderno, los mensajes cruzados de WhatsApp y las planillas de Excel que te hacen perder tiempo.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={onOpenDemo}
+                    className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold px-6 py-3 rounded-xl shadow-md shadow-rose-600/20 transition-all cursor-pointer"
+                  >
+                    <Play className="w-4 h-4 fill-white" />
+                    <span>Probar Demo en Vivo</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* The 4 core tools */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200 flex gap-4 items-start">
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-zinc-200 flex items-center justify-center text-rose-600 shrink-0">
+                    <Calendar className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-zinc-900 text-base">
+                      1. Calendario unificado de reservas
+                    </h4>
+                    <p className="text-sm text-zinc-600 mt-1 leading-relaxed">
+                      Ves en una sola pantalla todas tus propiedades: quién entra hoy, quién sale y qué días están disponibles. Cargás reservas telefónicas o directas en 5 segundos.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200 flex gap-4 items-start">
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-zinc-200 flex items-center justify-center text-blue-600 shrink-0">
+                    <Zap className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-zinc-900 text-base">
+                      2. Sincronización automática con Airbnb y Booking
+                    </h4>
+                    <p className="text-sm text-zinc-600 mt-1 leading-relaxed">
+                      Si te reservan por Booking, en el mismo segundo se bloquea la fecha en Airbnb y en tu página web. Nunca más te vas a encontrar con dos huéspedes para la misma cama.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200 flex gap-4 items-start">
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-zinc-200 flex items-center justify-center text-emerald-600 shrink-0">
+                    <MessageSquare className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-zinc-900 text-base">
+                      3. Asistente con Inteligencia Artificial (Xenia)
+                    </h4>
+                    <p className="text-sm text-zinc-600 mt-1 leading-relaxed">
+                      Atiende consultas frecuentes por WhatsApp las 24 hs (clave de Wi-Fi, ubicación, horarios, reglas) para que no tengas que estar pendiente del teléfono de noche.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200 flex gap-4 items-start">
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-zinc-200 flex items-center justify-center text-purple-600 shrink-0">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-zinc-900 text-base">
+                      4. Módulo de limpieza y mucamas en el celular
+                    </h4>
+                    <p className="text-sm text-zinc-600 mt-1 leading-relaxed">
+                      Cada vez que un huésped se va, tu personal de limpieza recibe la orden de trabajo con el checklist de control (sábanas, toallas, reposición) para tener todo listo.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ============================================================ */}
+          {/* 2. ¿ESTO ES PARA VOS? */}
+          {/* ============================================================ */}
+          {activeQuestion === 'es-para-vos' && (
+            <div className="p-6 sm:p-10">
+              <div className="max-w-2xl mb-8">
+                <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
+                  Pregunta 2 de 4
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 mt-1">
+                  ¿Esto es para vos?
+                </h3>
+                <p className="text-zinc-600 text-base sm:text-lg mt-3 leading-relaxed">
+                  Loomi está pensado para <strong>anfitriones, dueños y administradores que manejan desde 4 propiedades en adelante</strong>. A partir de esa cantidad, la cabeza ya no da abasto para coordinar fechas, limpieza y mensajes manualmente.
+                </p>
+              </div>
+
+              {/* Interactive Profile Selector */}
+              <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-200 mb-6">
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3">
+                  Tocá tu tipo de alojamiento para ver cómo te ayuda:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <button
+                    onClick={() => setSelectedPropertyProfile('deptos')}
+                    className={`p-3.5 rounded-xl text-left border transition-all cursor-pointer flex items-center gap-3 ${
+                      selectedPropertyProfile === 'deptos'
+                        ? 'bg-white border-blue-500 shadow-xs ring-1 ring-blue-500 text-zinc-900'
+                        : 'bg-white/60 border-zinc-200 text-zinc-600 hover:bg-white'
+                    }`}
+                  >
+                    <Building2 className="w-5 h-5 text-blue-600 shrink-0" />
+                    <div>
+                      <p className="text-sm font-bold">Departamentos Turísticos</p>
+                      <p className="text-xs text-zinc-500">De 4 a 30+ unidades urbanas</p>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedPropertyProfile('cabanas')}
+                    className={`p-3.5 rounded-xl text-left border transition-all cursor-pointer flex items-center gap-3 ${
+                      selectedPropertyProfile === 'cabanas'
+                        ? 'bg-white border-emerald-500 shadow-xs ring-1 ring-emerald-500 text-zinc-900'
+                        : 'bg-white/60 border-zinc-200 text-zinc-600 hover:bg-white'
+                    }`}
+                  >
+                    <Home className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <div>
+                      <p className="text-sm font-bold">Complejo de Cabañas</p>
+                      <p className="text-xs text-zinc-500">En sierras, campo o lago</p>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedPropertyProfile('posadas')}
+                    className={`p-3.5 rounded-xl text-left border transition-all cursor-pointer flex items-center gap-3 ${
+                      selectedPropertyProfile === 'posadas'
+                        ? 'bg-white border-purple-500 shadow-xs ring-1 ring-purple-500 text-zinc-900'
+                        : 'bg-white/60 border-zinc-200 text-zinc-600 hover:bg-white'
+                    }`}
+                  >
+                    <Layers className="w-5 h-5 text-purple-600 shrink-0" />
+                    <div>
+                      <p className="text-sm font-bold">Posadas & Aparts</p>
+                      <p className="text-xs text-zinc-500">Con desayuno y recepción</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Profile response content */}
+              <div className="p-6 rounded-2xl bg-blue-50/50 border border-blue-100">
+                {selectedPropertyProfile === 'deptos' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-blue-900 font-bold text-lg">
+                      <Building2 className="w-5 h-5 text-blue-600" />
+                      <span>Si administrás Departamentos (como Catalinas Apartamentos):</span>
+                    </div>
+                    <p className="text-sm text-zinc-700 leading-relaxed">
+                      Tu mayor dolor suele ser la <strong>coordinación a distancia</strong>: entregar llaves tradicionales o coordinar llegada sin esperas infinitas, evitar que te reserven dos veces la misma noche mientras estás en la calle, y liquidar mensualmente a cada propietario con claridad.
+                    </p>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-semibold text-zinc-800">
+                      <li className="flex items-center gap-2">✅ Coordinación de llegada con entrega de llaves o lockbox</li>
+                      <li className="flex items-center gap-2">✅ Reportes para liquidar a los dueños de cada depto</li>
+                      <li className="flex items-center gap-2">✅ Tu propio link para reservas directas sin pagar comisiones</li>
+                      <li className="flex items-center gap-2">✅ Aviso automático a la persona de limpieza en cada check-out</li>
+                    </ul>
+                  </div>
+                )}
+
+                {selectedPropertyProfile === 'cabanas' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-emerald-900 font-bold text-lg">
+                      <Home className="w-5 h-5 text-emerald-600" />
+                      <span>Si tenés Cabañas o Lodge de Montaña / Naturaleza:</span>
+                    </div>
+                    <p className="text-sm text-zinc-700 leading-relaxed">
+                      Tus huéspedes vienen por la ruta, no tienen señal y te cuesta calcular a qué hora llegan. Con Loomi <strong>no necesitás cambiar ninguna cerradura ni gastar en aparatos raros</strong>: funciona 100% con tu llave física tradicional. Les mandás la guía interactiva con GPS y recomendaciones antes de llegar, y vos ves de un vistazo qué cabañas están libres o listas para entregar.
+                    </p>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-semibold text-zinc-800">
+                      <li className="flex items-center gap-2">✅ 100% compatible con tus llaves físicas de siempre</li>
+                      <li className="flex items-center gap-2">✅ Mapa de llegada por ruta y recomendaciones locales</li>
+                      <li className="flex items-center gap-2">✅ Estado visual de cabañas ocupadas vs. listas</li>
+                      <li className="flex items-center gap-2">✅ Control de señas y depósitos por transferencia bancaria</li>
+                    </ul>
+                  </div>
+                )}
+
+                {selectedPropertyProfile === 'posadas' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-purple-900 font-bold text-lg">
+                      <Layers className="w-5 h-5 text-purple-600" />
+                      <span>Si gestionás una Posada, Apart Hotel o Bed & Breakfast:</span>
+                    </div>
+                    <p className="text-sm text-zinc-700 leading-relaxed">
+                      El personal rota de turno y necesitan que la información no quede en un papel que alguien pierde. Loomi permite que recepción, mucamas y administración vean en tiempo real quién pagó, quién llega tarde y qué habitación necesita toallas nuevas.
+                    </p>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-semibold text-zinc-800">
+                      <li className="flex items-center gap-2">✅ Saldo y estado de cuenta por habitación en vivo</li>
+                      <li className="flex items-center gap-2">✅ Turnos de mucama y notas internas del equipo</li>
+                      <li className="flex items-center gap-2">✅ Compatible con llaves físicas o tarjetas de acceso</li>
+                      <li className="flex items-center gap-2">✅ Accesible desde cualquier celular o tablet</li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ============================================================ */}
+          {/* 3. ¿QUÉ PROBLEMA TE RESUELVE? */}
+          {/* ============================================================ */}
+          {activeQuestion === 'que-resuelve' && (
+            <div className="p-6 sm:p-10">
+              <div className="max-w-2xl mb-8">
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
+                  Pregunta 3 de 4
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 mt-1">
+                  ¿Qué problema te resuelve en el día a día?
+                </h3>
+                <p className="text-zinc-600 text-base sm:text-lg mt-3 leading-relaxed">
+                  No te llenamos de funciones que nunca vas a usar. Resolvemos exactamente los 4 dolores que te roban tiempo y tranquilidad:
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* Dolor 1 */}
+                <div className="p-5 rounded-2xl border border-zinc-200 bg-white">
+                  <div className="flex items-center gap-2 text-red-600 font-semibold text-xs mb-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>EL PROBLEMA ACTUAL</span>
+                  </div>
+                  <h4 className="font-bold text-zinc-900 text-base mb-2">
+                    El miedo constante a la doble reserva (Overbooking)
+                  </h4>
+                  <p className="text-xs text-zinc-500 mb-4">
+                    Te reservan por Booking mientras estabas durmiendo o almorzando, y ya se lo habías prometido a un conocido por WhatsApp.
+                  </p>
+                  <div className="pt-3 border-t border-zinc-100 flex items-start gap-2 text-emerald-700 bg-emerald-50/70 p-3 rounded-xl">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <p className="text-xs font-medium">
+                      <strong>Lo que resuelve Loomi:</strong> Sincronización instantánea. Entra una reserva y se cierran las fechas en los demás portales en el acto.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Dolor 2 */}
+                <div className="p-5 rounded-2xl border border-zinc-200 bg-white">
+                  <div className="flex items-center gap-2 text-red-600 font-semibold text-xs mb-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>EL PROBLEMA ACTUAL</span>
+                  </div>
+                  <h4 className="font-bold text-zinc-900 text-base mb-2">
+                    Vivir atado a WhatsApp contestando siempre lo mismo
+                  </h4>
+                  <p className="text-xs text-zinc-500 mb-4">
+                    "¿Cuál era la clave de Wi-Fi?", "¿A qué hora es el check-in?", "¿Hay secador de pelo?", "¿Cómo llego?".
+                  </p>
+                  <div className="pt-3 border-t border-zinc-100 flex items-start gap-2 text-emerald-700 bg-emerald-50/70 p-3 rounded-xl">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <p className="text-xs font-medium">
+                      <strong>Lo que resuelve Loomi:</strong> Xenia IA responde las dudas recurrentes por vos y manda la Guía Digital antes de que lleguen.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Dolor 3 */}
+                <div className="p-5 rounded-2xl border border-zinc-200 bg-white">
+                  <div className="flex items-center gap-2 text-red-600 font-semibold text-xs mb-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>EL PROBLEMA ACTUAL</span>
+                  </div>
+                  <h4 className="font-bold text-zinc-900 text-base mb-2">
+                    Tener que llamar y perseguir a la gente de limpieza
+                  </h4>
+                  <p className="text-xs text-zinc-500 mb-4">
+                    Tener que acordarte de avisar quién sale, a qué hora entra el siguiente y revisar si cambiaron las sábanas y toallas.
+                  </p>
+                  <div className="pt-3 border-t border-zinc-100 flex items-start gap-2 text-emerald-700 bg-emerald-50/70 p-3 rounded-xl">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <p className="text-xs font-medium">
+                      <strong>Lo que resuelve Loomi:</strong> Cada salida genera automáticamente la tarea en el celular de la mucama con checklist de control.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Dolor 4 */}
+                <div className="p-5 rounded-2xl border border-zinc-200 bg-white">
+                  <div className="flex items-center gap-2 text-red-600 font-semibold text-xs mb-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>EL PROBLEMA ACTUAL</span>
+                  </div>
+                  <h4 className="font-bold text-zinc-900 text-base mb-2">
+                    Dejarle el 15% al 20% de comisión a los portales
+                  </h4>
+                  <p className="text-xs text-zinc-500 mb-4">
+                    Huéspedes que ya te conocen o te recomiendan terminan pagando de más o dejándole la comisión a intermediarios.
+                  </p>
+                  <div className="pt-3 border-t border-zinc-100 flex items-start gap-2 text-emerald-700 bg-emerald-50/70 p-3 rounded-xl">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <p className="text-xs font-medium">
+                      <strong>Lo que resuelve Loomi:</strong> Tenés tu propio link de reservas directas para cobrar el 100% de la noche sin comisiones.
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* ============================================================ */}
+          {/* 4. PRECIOS (EN PESOS ARGENTINOS, AJUSTE POR IPC Y SUSCRIPCIONES) */}
+          {/* ============================================================ */}
+          {activeQuestion === 'precios' && (
+            <div className="p-6 sm:p-10">
+              
+              {/* Header */}
+              <div className="max-w-3xl mb-8 border-b border-zinc-100 pb-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold mb-3">
+                  <Coins className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>En pesos argentinos • Ajuste por IPC • 0% comisión por reserva</span>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-zinc-900">
+                  Precios transparentes en pesos argentinos
+                </h3>
+                <p className="text-zinc-600 text-sm sm:text-base mt-2 leading-relaxed">
+                  Sabemos que en Argentina cansa ver precios en dólares que cambian con cada corrida cambiaria. 
+                  En Loomi <strong>pagás en pesos</strong>, con <strong>ajuste previsible por IPC (inflación)</strong> y sin recargos de tarjeta en moneda extranjera.
+                </p>
+
+                {/* Explicit reassurance: No credit card to start + Payment methods */}
+                <div className="mt-4 p-4 rounded-2xl bg-amber-50/80 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+                      <CreditCard className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-extrabold text-amber-950 uppercase tracking-wide">
+                        ¡No necesitás poner ninguna tarjeta para comenzar!
+                      </p>
+                      <p className="text-xs text-amber-900 mt-0.5">
+                        Probás la plataforma gratis y sin compromiso. Cuando decidas activarlo, pagás cómodamente mediante <strong>suscripción automática de Mercado Pago</strong> (débito en cuenta, dinero en cuenta o tarjetas locales) o <strong>PayPal</strong>.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-zinc-800 bg-zinc-100 px-3 py-1.5 rounded-lg border border-zinc-200">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Mismo sistema 100% integral para todos: no te recortamos ninguna función según el plan.</span>
+                </div>
+              </div>
+
+              {/* 3 Explicit Pricing Cards + Custom +30 */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                {plans.map((plan) => (
+                  <div
+                    key={plan.id}
+                    className={`rounded-2xl p-6 border transition-all flex flex-col justify-between relative ${
+                      plan.popular
+                        ? 'bg-white border-rose-500 shadow-xl shadow-rose-500/10 ring-2 ring-rose-500/20'
+                        : 'bg-zinc-50 border-zinc-200'
+                    }`}
+                  >
+                    {plan.popular && (
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-rose-600 text-white text-[11px] font-black tracking-wider uppercase px-3 py-1 rounded-full shadow-xs">
+                        {plan.badge}
+                      </span>
+                    )}
+
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-extrabold text-zinc-900 text-xl">{plan.name}</h4>
+                      </div>
+                      <span className="inline-block text-xs font-semibold text-zinc-500 mt-0.5">
+                        {plan.range}
+                      </span>
+                      <p className="text-xs text-zinc-600 mt-2 min-h-[32px]">{plan.description}</p>
+
+                      {/* Price display in ARS */}
+                      <div className="mt-5 pb-5 border-b border-zinc-200">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-3xl sm:text-4xl font-black text-zinc-900">
+                            ${plan.priceMonthly.toLocaleString('es-AR')}
+                          </span>
+                          <span className="text-xs font-semibold text-zinc-500">/ mes</span>
+                        </div>
+                        <p className="text-[11px] text-zinc-500 mt-1">
+                          Abono fijo en pesos argentinos (ajustado por IPC)
+                        </p>
+                      </div>
+
+                      {/* Features List (Identical complete service for all) */}
+                      <div className="mt-5">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-3">
+                          Incluye el sistema completo:
+                        </p>
+                        <ul className="space-y-2 text-xs text-zinc-700">
+                          {commonFeatures.map((feature, idx) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* CTA Button */}
+                    <div className="mt-8 pt-4 border-t border-zinc-100">
+                      <button
+                        onClick={() => onOpenContact(`Consulta por Plan ${plan.name} ($${plan.priceMonthly.toLocaleString('es-AR')})`)}
+                        className={`w-full py-3 rounded-xl font-bold text-xs transition-all cursor-pointer text-center ${
+                          plan.popular
+                            ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/20'
+                            : 'bg-zinc-900 hover:bg-zinc-800 text-white'
+                        }`}
+                      >
+                        Empezar con {plan.name}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* +30 Properties Custom Plan Banner */}
+              <div className="p-6 rounded-2xl bg-zinc-900 text-white mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-zinc-200 text-xs font-bold mb-2">
+                    <Building2 className="w-3.5 h-3.5 text-rose-400" />
+                    <span>¿Tenés más de 30 propiedades o varias sedes?</span>
+                  </div>
+                  <h4 className="text-xl font-bold text-white">
+                    Plan Personalizado (+30 Unidades)
+                  </h4>
+                  <p className="text-zinc-400 text-xs sm:text-sm mt-1 max-w-xl">
+                    Para complejos grandes, administraciones inmobiliarias multisede y posadas con alta rotación. Coordinamos migración asistida de tus reservas y tarifa adaptada a tu escala.
+                  </p>
+                </div>
+                <button
+                  onClick={() => onOpenContact('Plan Personalizado (+30 propiedades)')}
+                  className="shrink-0 bg-white hover:bg-zinc-100 text-zinc-900 font-bold px-5 py-2.5 rounded-xl text-xs transition-all cursor-pointer"
+                >
+                  Consultar plan a medida
+                </button>
+              </div>
+
+              {/* Modular Add-ons (Módulos Opcionales: solo si los usás) */}
+              <div className="mb-8 p-6 rounded-2xl bg-white border border-zinc-200 shadow-sm">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-4 border-b border-zinc-100">
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-700 text-xs font-bold mb-1">
+                      <PlusCircle className="w-3.5 h-3.5 text-zinc-600" />
+                      <span>Módulos Opcionales (Add-ons)</span>
+                    </div>
+                    <h4 className="text-base font-bold text-zinc-900">
+                      ¿Necesitás algo específico? Solo pagás lo que usás
+                    </h4>
+                    <p className="text-xs text-zinc-500">
+                      El plan base cubre el 100% de la gestión diaria con llave tradicional. Si tu propiedad tiene servicios extra, podés sumar estos módulos opcionales:
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  {/* Modulo 1: Frigobar, Desayunos y Extras */}
+                  <div className="p-4 rounded-xl border border-zinc-200 bg-zinc-50/60 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 text-amber-700 font-bold text-sm mb-1">
+                        <Coffee className="w-4 h-4 text-amber-600" />
+                        <span>Módulo Desayunos, Frigobar & Consumos Extras</span>
+                      </div>
+                      <p className="text-xs text-zinc-600 leading-relaxed">
+                        Ideal para aparthoteles, posadas o complejos con confitería, venta de leña, minibar, spa o tours. Carga los consumos directo a la cuenta de la habitación para cobrar todo junto al check-out.
+                      </p>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-zinc-200/60 flex items-center justify-between text-xs">
+                      <span className="font-semibold text-zinc-500">Opcional para aparthoteles & posadas</span>
+                      <button
+                        onClick={() => onOpenContact('Consulta por Módulo Frigobar y Desayunos')}
+                        className="font-bold text-rose-600 hover:underline cursor-pointer"
+                      >
+                        Consultar módulo →
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Modulo 2: Cerraduras Electrónicas */}
+                  <div className="p-4 rounded-xl border border-zinc-200 bg-zinc-50/60 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 text-blue-700 font-bold text-sm mb-1">
+                        <KeyRound className="w-4 h-4 text-blue-600" />
+                        <span>Módulo Cerraduras Electrónicas & Teclados</span>
+                      </div>
+                      <p className="text-xs text-zinc-600 leading-relaxed">
+                        Pensado para departamentos urbanos que ya cuentan con cerraduras digitales (Tuya, TTLock, Yale). Envía y rota el código PIN de acceso automáticamente por WhatsApp con cada reserva.
+                      </p>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-zinc-200/60 flex items-center justify-between text-xs">
+                      <span className="font-semibold text-zinc-500">Opcional para quien ya tenga cerraduras digitales</span>
+                      <button
+                        onClick={() => onOpenContact('Consulta por Módulo Cerraduras Digitales')}
+                        className="font-bold text-rose-600 hover:underline cursor-pointer"
+                      >
+                        Consultar módulo →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Methods & Guarantees Box */}
+              <div className="p-6 rounded-2xl bg-zinc-50 border border-zinc-200">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-5 border-b border-zinc-200 mb-5">
+                  <div>
+                    <h5 className="font-bold text-zinc-900 text-sm">
+                      Formas de pago seguras y conocidas:
+                    </h5>
+                    <p className="text-xs text-zinc-500 mt-0.5">
+                      Podés adherirte a la suscripción mensual automática con las plataformas que ya usás todos los días:
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-50 border border-sky-200 text-sky-800 text-xs font-bold">
+                      <span className="w-2 h-2 rounded-full bg-sky-500"></span>
+                      Mercado Pago (Suscripción ARS)
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold">
+                      <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                      PayPal (Internacional)
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                  <div className="flex items-start gap-2.5">
+                    <CreditCard className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-zinc-900">Sin tarjeta para arrancar</p>
+                      <p className="text-zinc-500 text-[11px] mt-0.5">Probás la demo interactiva al instante sin cargar datos bancarios.</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <TrendingUp className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-zinc-900">Ajuste por IPC</p>
+                      <p className="text-zinc-500 text-[11px] mt-0.5">Precios claros y previsibles en moneda nacional.</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-zinc-900">0% de comisión</p>
+                      <p className="text-zinc-500 text-[11px] mt-0.5">Todo lo que cobres por tus reservas directas es 100% tuyo.</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <Clock className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-zinc-900">Sin permanencia</p>
+                      <p className="text-zinc-500 text-[11px] mt-0.5">Pausás o cancelás cuando quieras directamente desde tu cuenta.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+        </div>
+
+      </div>
+    </section>
+  );
+};

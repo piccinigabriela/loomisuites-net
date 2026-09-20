@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      /* Safe environment shim: Ensure window.fetch is writable and handle getter-only environments */
+      (function() {
+        try {
+          var currentFetch = typeof window.fetch === 'function' ? window.fetch.bind(window) : window.fetch;
+          
+          // Define setter on window instance
+          Object.defineProperty(window, 'fetch', {
+            configurable: true,
+            enumerable: true,
+            get: function() {
+              return currentFetch;
+            },
+            set: function(val) {
+              currentFetch = val;
+            }
+          });
+
+          // Also ensure Window.prototype has a setter if configured there
+          if (typeof Window !== 'undefined' && Window.prototype) {
+            var protoDesc = Object.getOwnPropertyDescriptor(Window.prototype, 'fetch');
+            if (protoDesc && !protoDesc.set && protoDesc.configurable) {
+              Object.defineProperty(Window.prototype, 'fetch', {
+                configurable: true,
+                enumerable: true,
+                get: function() {
+                  return currentFetch;
+                },
+                set: function(val) {
+                  currentFetch = val;
+                }
+              });
+            }
+          }
+        } catch (_) {}
+
+        // Global safeguard against unhandled errors originating from getter-only window properties
+        window.addEventListener('error', function(event) {
+          if (event && event.message && (
+            event.message.indexOf('fetch of #<Window>') !== -1 ||
+            event.message.indexOf('Cannot set property fetch') !== -1
+          )) {
+            event.preventDefault();
+            if (event.stopImmediatePropagation) {
+              event.stopImmediatePropagation();
+            }
+            return true;
+          }
+        }, true);
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loomi Suite - Software Simple para Departamentos, Cabañas, Hostales y Apart Hoteles</title>
+    <meta name="description" content="PMS simple y visual para complejos de cabañas, Bed & Breakfasts, pequeños hostales y posadas. Rack de habitaciones, extras, reservas directas y WhatsApp sin sistemas pesados." />
+    <meta property="og:title" content="Loomi Suite - Software Simple para Departamentos, Cabañas, Hostales y Apart Hoteles" />
+    <meta property="og:description" content="PMS simple y visual para complejos de cabañas, Bed & Breakfasts, pequeños hostales y posadas. Rack de habitaciones, extras, reservas directas y WhatsApp sin sistemas pesados." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

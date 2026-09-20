@@ -1,0 +1,7 @@
+{
+  "name": "Loomi Suite - Software Simple para Departamentos, Cabañas, Hostales y Apart Hoteles",
+  "description": "PMS simple y visual para complejos de cabañas, Bed & Breakfasts, pequeños hostales y posadas. Rack de habitaciones, extras, reservas directas y WhatsApp sin sistemas pesados.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
