@@ -204,7 +204,6 @@ export const DemoOverview: React.FC<DemoOverviewProps> = ({
       </div>
                       key={res.id}
                       className="p-4 rounded-xl border border-zinc-200/80 bg-zinc-50/50 hover:bg-zinc-50 transition-colors flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
-                    >
                       <div className="flex items-center gap-3">
                         <img
                           src={res.guestAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
