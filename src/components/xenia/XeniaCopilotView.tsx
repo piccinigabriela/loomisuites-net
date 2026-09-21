@@ -23,6 +23,8 @@ import {
   VolumeX,
   Square,
   Radio,
+  Sliders,
+  Play,
 } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { DemoState } from '../../types';
@@ -34,6 +36,7 @@ import {
   setStoredXeniaAvatar,
 } from './XeniaAvatar';
 import { useXeniaVoice } from '../../hooks/useXeniaVoice';
+import { isFemaleVoice, isSpainVoice } from '../../utils/xeniaVoice';
 
 interface XeniaCopilotViewProps {
   demoState: DemoState;
@@ -88,7 +91,12 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
     toggleAutoVoice,
     isRecognitionSupported,
     detectedVoiceName,
+    availableVoices,
+    selectedVoiceURI,
+    selectVoice,
   } = useXeniaVoice();
+
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
 
   // Sync transcript from speech recognition into input field
   useEffect(() => {
@@ -449,6 +457,151 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
         </div>
       )}
 
+      {/* Modal / Dialog to choose and test Latin American Voice */}
+      {showVoiceModal && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#1c1c1c] border border-[#383838] rounded-2xl max-w-lg w-full p-6 text-[#f4f2ee] shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[#2e2e2e] pb-3">
+              <div className="flex items-center gap-2">
+                <Radio className="w-5 h-5 text-[#d88d5e]" />
+                <h3 className="font-bold text-base">Voz de Xenia (Español Latinoamericano)</h3>
+              </div>
+              <button
+                onClick={() => {
+                  stopSpeaking();
+                  setShowVoiceModal(false);
+                }}
+                className="text-[#8e8c87] hover:text-[#f4f2ee] p-1 rounded-lg hover:bg-[#282828] cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="bg-[#141414] p-4 rounded-xl border border-[#2a2a2a] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#f4f2ee] flex items-center gap-1.5">
+                  <Volume2 className="w-4 h-4 text-[#d88d5e]" />
+                  <span>Voz Actual Detectada</span>
+                </span>
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[#251f1a] text-[#d88d5e] border border-[#48372b]">
+                  {detectedVoiceName || 'Voz estándar Latinoamericana (es-419)'}
+                </span>
+              </div>
+              <p className="text-[11px] text-[#8e8c87] leading-relaxed">
+                Priorizamos automáticamente las voces de mujer en <strong>Español Latinoamericano (México, Colombia, Chile, Argentina, etc.)</strong> y bloqueamos el español peninsular de España.
+              </p>
+              <div className="pt-1">
+                <button
+                  onClick={() =>
+                    speakMessage(
+                      '¡Hola! Soy Xenia, tu copiloto en Loomi Suite. Estoy lista para responder consultas sobre tus alojamientos, reservas y números del mes con acento latino.'
+                    )
+                  }
+                  className="flex items-center gap-1.5 bg-[#25201b] hover:bg-[#342921] border border-[#523d2e] text-[#d88d5e] hover:text-[#f4f2ee] text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                >
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span>Probar cómo suena esta voz</span>
+                </button>
+              </div>
+            </div>
+
+            {/* List of Available Latin Spanish Voices in the browser */}
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-[#c8c5c0] block">
+                Voces en Español disponibles en tu navegador:
+              </span>
+
+              {availableVoices.length === 0 ? (
+                <div className="bg-[#141414] p-3.5 rounded-xl border border-[#2a2a2a] text-center text-xs text-[#8e8c87]">
+                  No se detectaron voces adicionales instaladas en el sistema operativo. El navegador usará la síntesis fonética en Español Latino (es-419).
+                </div>
+              ) : (
+                <div className="max-h-52 overflow-y-auto space-y-1.5 pr-1">
+                  {availableVoices.map((v) => {
+                    const uri = v.voiceURI || v.name;
+                    const isSelected = selectedVoiceURI === uri || detectedVoiceName.includes(v.name);
+                    const isFemale = isFemaleVoice(v);
+                    const isSpain = isSpainVoice(v);
+
+                    return (
+                      <div
+                        key={uri}
+                        className={`flex items-center justify-between p-2.5 rounded-xl border text-left transition-all ${
+                          isSelected
+                            ? 'bg-[#2b221b] border-[#d88d5e] text-[#f4f2ee]'
+                            : 'bg-[#151515] border-[#292929] text-[#a8a5a0] hover:border-[#444]'
+                        }`}
+                      >
+                        <div
+                          className="flex-1 cursor-pointer"
+                          onClick={() => selectVoice(uri)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold">{v.name}</span>
+                            {isFemale && (
+                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#322319] text-[#d88d5e] font-semibold">
+                                Mujer
+                              </span>
+                            )}
+                            {isSpain ? (
+                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#332222] text-[#e07777]">
+                                España
+                              </span>
+                            ) : (
+                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#1e2e1e] text-[#86bf8a]">
+                                Latino
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-[#777] block mt-0.5">
+                            Idioma: {v.lang} {v.localService ? '• Voz Local' : '• Voz Cloud'}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2 ml-2">
+                          <button
+                            onClick={() => {
+                              selectVoice(uri);
+                              setTimeout(() => {
+                                speakMessage(
+                                  `Hola, esta es una prueba con la voz ${v.name}.`
+                                );
+                              }, 100);
+                            }}
+                            className="p-1.5 rounded-lg bg-[#222] hover:bg-[#333] text-[#d88d5e] hover:text-white transition-colors cursor-pointer"
+                            title="Probar esta voz"
+                          >
+                            <Play className="w-3 h-3 fill-current" />
+                          </button>
+                          {isSelected && (
+                            <div className="w-2 h-2 rounded-full bg-[#d88d5e]" />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="pt-2 flex justify-between items-center border-t border-[#2a2a2a]">
+              <span className="text-[11px] text-[#777]">
+                Se guardará tu preferencia para futuras consultas
+              </span>
+              <button
+                onClick={() => {
+                  stopSpeaking();
+                  setShowVoiceModal(false);
+                }}
+                className="bg-[#c46d45] hover:bg-[#d67b51] text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer transition-colors"
+              >
+                Aceptar / Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Grid: Prompts + Chat View */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Quick Action Chips */}
@@ -511,9 +664,14 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                   <span className="text-xs font-bold text-[#f0eeeb]">
                     Conversación con Xenia
                   </span>
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#202020] text-[#d88d5e] border border-[#383028]">
-                    🇦🇷 Voz Argentina (Mujer)
-                  </span>
+                  <button
+                    onClick={() => setShowVoiceModal(true)}
+                    className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#202020] hover:bg-[#2c2621] text-[#d88d5e] border border-[#383028] hover:border-[#6e503b] transition-colors flex items-center gap-1 cursor-pointer"
+                    title="Configurar y probar voz en Español Latinoamericano"
+                  >
+                    <span>🌎 Voz Latina</span>
+                    <Sliders className="w-2.5 h-2.5 opacity-70" />
+                  </button>
                 </div>
                 <span className="text-[10px] text-[#7a7874] block">Consultas por voz y texto en tiempo real</span>
               </div>
@@ -530,7 +688,7 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                 }`}
                 title={
                   autoVoice
-                    ? 'Voz automática activada (Español Argentino de mujer)'
+                    ? 'Voz automática activada (Español Latinoamericano de mujer)'
                     : 'Activar respuestas automáticas por voz'
                 }
               >
@@ -545,6 +703,15 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                     <span>Audio (OFF)</span>
                   </>
                 )}
+              </button>
+
+              <button
+                onClick={() => setShowVoiceModal(true)}
+                className="text-[11px] text-[#8e8c87] hover:text-[#d88d5e] flex items-center gap-1 px-2.5 py-1.5 rounded-xl hover:bg-[#202020] cursor-pointer transition-colors border border-transparent hover:border-[#2e2e2e]"
+                title="Elegir voz en español latino"
+              >
+                <Sliders className="w-3 h-3" />
+                <span className="hidden sm:inline">Voz</span>
               </button>
 
               <button
@@ -605,7 +772,7 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                             title={
                               isSpeaking && speakingMessageId === msg.id
                                 ? 'Detener voz de Xenia'
-                                : 'Escuchar respuesta con voz de mujer argentina'
+                                : 'Escuchar respuesta con voz de mujer en español latino'
                             }
                           >
                             {isSpeaking && speakingMessageId === msg.id ? (

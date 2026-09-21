@@ -1,4 +1,5 @@
-// Xenia Voice Engine (Reconocimiento y Síntesis de voz en Español Argentino)
+// Xenia Voice Engine (Reconocimiento y Síntesis de voz en Español Latinoamericano)
+
 export interface VoiceEngineState {
   isListening: boolean;
   isSpeaking: boolean;
@@ -10,7 +11,7 @@ export interface VoiceEngineState {
   voiceEnabled: boolean;
 }
 
-// Clean markdown and symbols into natural fluent speech for Argentine female voice
+// Clean markdown and symbols into natural fluent speech for Latin American Spanish female voice
 export function cleanTextForSpeech(text: string): string {
   if (!text) return '';
 
@@ -33,7 +34,7 @@ export function cleanTextForSpeech(text: string): string {
   clean = clean.replace(/^[\*\-•]\s+/gm, '');
   clean = clean.replace(/^\d+\.\s+/gm, '');
 
-  // Convert common hospitality abbreviations to spoken Argentine Spanish
+  // Convert common hospitality abbreviations to spoken Latin American Spanish
   clean = clean.replace(/\bARS\b/g, 'pesos');
   clean = clean.replace(/\$([0-9.]+)\s*USD/g, '$1 dólares');
   clean = clean.replace(/\$([0-9.]+)\s*ARS/g, '$1 pesos');
@@ -57,8 +58,115 @@ export function cleanTextForSpeech(text: string): string {
   return clean;
 }
 
-// Find the best Argentine / Latin female voice available in the browser
-export function getBestArgentineFemaleVoice(): SpeechSynthesisVoice | null {
+// Check if a voice is from Spain (es-ES) to strictly avoid European Spanish pronunciation
+export function isSpainVoice(voice: SpeechSynthesisVoice): boolean {
+  if (!voice) return false;
+  const lang = (voice.lang || '').toLowerCase();
+  const name = (voice.name || '').toLowerCase();
+  return (
+    lang === 'es-es' ||
+    lang === 'es_es' ||
+    name.includes('spain') ||
+    name.includes('españa') ||
+    name.includes('castilian') ||
+    name.includes('castellano (españa)') ||
+    name.includes('monica') ||
+    name.includes('conchita') ||
+    name.includes('enrique') ||
+    name.includes('manuel') ||
+    name.includes('jorge')
+  );
+}
+
+// Check if a voice is female by name or markers
+export function isFemaleVoice(voice: SpeechSynthesisVoice): boolean {
+  if (!voice) return false;
+  const name = (voice.name || '').toLowerCase();
+  return (
+    /female|mujer|paulina|sabina|dalia|mia|paola|paloma|elena|salome|catalina|luciana|camila|soledad|sofia|hilda|lupe|victoria|valeria|jimena|clara|rosa|alva/i.test(
+      name
+    ) ||
+    /natural.*(mexico|united states|colombia|chile|argentina)/i.test(name)
+  );
+}
+
+// Check if a voice is Latin American Spanish (es-419, es-MX, es-US, es-AR, es-CO, es-CL, etc.)
+export function isLatinSpanishVoice(voice: SpeechSynthesisVoice): boolean {
+  if (!voice) return false;
+  const lang = (voice.lang || '').toLowerCase();
+  const name = (voice.name || '').toLowerCase();
+
+  if (isSpainVoice(voice)) return false;
+
+  if (
+    lang.startsWith('es-419') ||
+    lang.startsWith('es-mx') ||
+    lang.startsWith('es-us') ||
+    lang.startsWith('es-ar') ||
+    lang.startsWith('es-co') ||
+    lang.startsWith('es-cl') ||
+    lang.startsWith('es-uy') ||
+    lang.startsWith('es-pe') ||
+    lang.startsWith('es-ec') ||
+    lang.startsWith('es-cr') ||
+    lang.startsWith('es-gt') ||
+    lang.startsWith('es-pa') ||
+    lang.startsWith('es-ve') ||
+    lang.startsWith('es-bo') ||
+    lang.startsWith('es-do') ||
+    lang.startsWith('es-hn') ||
+    lang.startsWith('es-ni') ||
+    lang.startsWith('es-pr') ||
+    lang.startsWith('es-py') ||
+    lang.startsWith('es-sv')
+  ) {
+    return true;
+  }
+
+  // Also include generic 'es' voices if name indicates Latin America
+  if (lang.startsWith('es') && !isSpainVoice(voice)) {
+    return true;
+  }
+
+  return false;
+}
+
+// Get all Latin American Spanish voices available in current browser
+export function getAllLatinSpanishVoices(): SpeechSynthesisVoice[] {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    return [];
+  }
+  const voices = window.speechSynthesis.getVoices() || [];
+  
+  // Latin voices first
+  const latinVoices = voices.filter(isLatinSpanishVoice);
+  if (latinVoices.length > 0) {
+    // Sort female voices first
+    return latinVoices.sort((a, b) => {
+      const aFemale = isFemaleVoice(a) ? 1 : 0;
+      const bFemale = isFemaleVoice(b) ? 1 : 0;
+      return bFemale - aFemale;
+    });
+  }
+
+  // Fallback: any spanish voices
+  return voices.filter((v) => (v.lang || '').startsWith('es'));
+}
+
+// Get user selected voice URI from localStorage
+export function getStoredSelectedVoiceURI(): string {
+  if (typeof window === 'undefined') return '';
+  return localStorage.getItem('loomi_xenia_voice_uri') || '';
+}
+
+export function setStoredSelectedVoiceURI(uri: string) {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('loomi_xenia_voice_uri', uri);
+  }
+}
+
+// Find the best Latin American female voice available in the browser (strictly non-Spain)
+export function getBestLatinFemaleVoice(): SpeechSynthesisVoice | null {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     return null;
   }
@@ -66,61 +174,48 @@ export function getBestArgentineFemaleVoice(): SpeechSynthesisVoice | null {
   const voices = window.speechSynthesis.getVoices();
   if (!voices || voices.length === 0) return null;
 
-  // 1. First priority: Argentine female voices (es-AR with female names or markers)
-  const esArFemale = voices.find(
-    (v) =>
-      (v.lang === 'es-AR' || v.lang === 'es_AR') &&
-      /female|mujer|paulina|sabina|elena|victoria|luciana|camila|soledad|google español/i.test(v.name)
-  );
-  if (esArFemale) return esArFemale;
+  // 0. Check if user explicitly selected a voice in preferences
+  const storedURI = getStoredSelectedVoiceURI();
+  if (storedURI) {
+    const custom = voices.find((v) => v.voiceURI === storedURI || v.name === storedURI);
+    if (custom) return custom;
+  }
 
-  // 2. Second priority: Any es-AR voice
-  const esAr = voices.find((v) => v.lang === 'es-AR' || v.lang === 'es_AR');
-  if (esAr) return esAr;
+  // Filter out any Spain voices (es-ES)
+  const latinVoices = voices.filter(isLatinSpanishVoice);
 
-  // 3. Third priority: Latin American Spanish female voices (es-419, es-MX, es-CL, es-UY)
-  const latinFemale = voices.find(
-    (v) =>
-      (v.lang.startsWith('es-419') ||
-        v.lang.startsWith('es-MX') ||
-        v.lang.startsWith('es-UY') ||
-        v.lang.startsWith('es-CL') ||
-        v.lang.startsWith('es-CO') ||
-        v.lang.startsWith('es-US')) &&
-      /female|mujer|paulina|sabina|lucia|mia|sofia|hilda|paloma|dalia|google/i.test(v.name)
-  );
+  // 1. Priority 1: Latin American Spanish Female Voice (es-419, es-MX, es-US, es-AR, es-CO, es-CL)
+  const latinFemale = latinVoices.find(isFemaleVoice);
   if (latinFemale) return latinFemale;
 
-  // 4. Fourth priority: Any Latin American Spanish voice
-  const latinAny = voices.find(
-    (v) =>
-      v.lang.startsWith('es-419') ||
-      v.lang.startsWith('es-MX') ||
-      v.lang.startsWith('es-UY') ||
-      v.lang.startsWith('es-CL') ||
-      v.lang.startsWith('es-CO')
-  );
-  if (latinAny) return latinAny;
+  // 2. Priority 2: Any es-419 (Neutral Latin American) voice
+  const es419 = latinVoices.find((v) => (v.lang || '').toLowerCase().startsWith('es-419'));
+  if (es419) return es419;
 
-  // 5. Fifth priority: Any Spanish female voice (es-ES, etc.)
-  const anyEsFemale = voices.find(
-    (v) =>
-      v.lang.startsWith('es') &&
-      /female|mujer|monica|laura|elena|victoria|carmen|conchita|lucia/i.test(v.name)
-  );
-  if (anyEsFemale) return anyEsFemale;
+  // 3. Priority 3: Any es-MX (Mexico) or es-US (US Latin) voice
+  const esMxOrUs = latinVoices.find((v) => {
+    const l = (v.lang || '').toLowerCase();
+    return l.startsWith('es-mx') || l.startsWith('es-us');
+  });
+  if (esMxOrUs) return esMxOrUs;
 
-  // 6. Fallback: Any Spanish voice
-  const anySpanish = voices.find((v) => v.lang.startsWith('es'));
+  // 4. Priority 4: Any other Latin American voice (es-AR, es-CO, es-CL, etc.)
+  if (latinVoices.length > 0) return latinVoices[0];
+
+  // 5. Extreme Fallback: Only if NO Latin voices exist in the OS/Browser, take any Spanish voice
+  const anySpanish = voices.find((v) => (v.lang || '').startsWith('es'));
   if (anySpanish) return anySpanish;
 
   return voices[0] || null;
 }
 
+// Alias for backward compatibility
+export const getBestArgentineFemaleVoice = getBestLatinFemaleVoice;
+
 // Current active utterance tracker for cancellation
 let currentUtterance: SpeechSynthesisUtterance | null = null;
 
-// Speak text using Argentine female parameters
+// Speak text using Latin American Spanish parameters
 export function speakXenia(
   rawText: string,
   options?: {
@@ -143,13 +238,15 @@ export function speakXenia(
   const utterance = new SpeechSynthesisUtterance(textToSpeak);
   currentUtterance = utterance;
 
-  const voice = getBestArgentineFemaleVoice();
+  const voice = getBestLatinFemaleVoice();
   if (voice) {
     utterance.voice = voice;
   }
-  utterance.lang = voice?.lang || 'es-AR';
-  utterance.rate = 1.0; // Natural pace
-  utterance.pitch = 1.08; // Warm female tone
+
+  // Force Latin American language tag (es-419) if voice is generic or default
+  utterance.lang = voice?.lang && !isSpainVoice(voice) ? voice.lang : 'es-419';
+  utterance.rate = 1.02; // Natural pace
+  utterance.pitch = 1.05; // Friendly warm tone
 
   utterance.onstart = () => {
     options?.onStart?.();

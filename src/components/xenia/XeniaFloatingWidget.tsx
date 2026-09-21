@@ -43,7 +43,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
       id: 'fw-1',
       role: 'assistant',
       content:
-        '👋 ¡Hola! Soy **Xenia**, tu asistente en Loomi Suite. Podés escribirme o **hablarme por voz con el micrófono** 🎙️ y te responderé en español argentino. ¿Qué querés consultar?',
+        '👋 ¡Hola! Soy **Xenia**, tu asistente en Loomi Suite. Podés escribirme o **hablarme por voz con el micrófono** 🎙️ y te responderé en español latinoamericano. ¿Qué querés consultar?',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -199,7 +199,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                 <div className="flex items-center gap-1.5">
                   <h3 className="font-bold text-sm leading-tight text-[#f4f2ee]">Xenia Copilot</h3>
                   <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#202d20] text-[#a4cca8] border border-[#344836]">
-                    🇦🇷 Voz AR
+                    🌎 Voz Latina
                   </span>
                 </div>
                 <p className="text-[10px] text-[#8e8c87]">

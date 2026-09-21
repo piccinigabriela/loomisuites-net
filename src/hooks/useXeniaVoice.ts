@@ -4,7 +4,12 @@ import {
   stopXeniaSpeech,
   getStoredVoiceAutoPlay,
   setStoredVoiceAutoPlay,
-  getBestArgentineFemaleVoice,
+  getBestLatinFemaleVoice,
+  getAllLatinSpanishVoices,
+  getStoredSelectedVoiceURI,
+  setStoredSelectedVoiceURI,
+  isFemaleVoice,
+  isSpainVoice,
 } from '../utils/xeniaVoice';
 
 // Declare Web Speech Recognition types for browser
@@ -24,22 +29,43 @@ export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => voi
   const [isRecognitionSupported, setIsRecognitionSupported] = useState(false);
   const [hasLoadedVoices, setHasLoadedVoices] = useState(false);
   const [detectedVoiceName, setDetectedVoiceName] = useState<string>('');
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoiceURI, setSelectedVoiceURI] = useState<string>(() => getStoredSelectedVoiceURI());
 
   const recognitionRef = useRef<any>(null);
 
   // Initialize SpeechSynthesis voices
+  const refreshVoices = useCallback(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const allLatin = getAllLatinSpanishVoices();
+      setAvailableVoices(allLatin);
+
+      const voice = getBestLatinFemaleVoice();
+      if (voice) {
+        setDetectedVoiceName(`${voice.name} (${voice.lang})`);
+        if (!selectedVoiceURI) {
+          setSelectedVoiceURI(voice.voiceURI || voice.name);
+        }
+      }
+      setHasLoadedVoices(true);
+    }
+  }, [selectedVoiceURI]);
+
   useEffect(() => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      const updateVoices = () => {
-        const voice = getBestArgentineFemaleVoice();
-        if (voice) {
-          setDetectedVoiceName(`${voice.name} (${voice.lang})`);
-        }
-        setHasLoadedVoices(true);
-      };
+      refreshVoices();
+      window.speechSynthesis.onvoiceschanged = refreshVoices;
+    }
+  }, [refreshVoices]);
 
-      updateVoices();
-      window.speechSynthesis.onvoiceschanged = updateVoices;
+  // Select a custom voice
+  const selectVoice = useCallback((uri: string) => {
+    setSelectedVoiceURI(uri);
+    setStoredSelectedVoiceURI(uri);
+    const voices = window.speechSynthesis?.getVoices() || [];
+    const chosen = voices.find((v) => v.voiceURI === uri || v.name === uri);
+    if (chosen) {
+      setDetectedVoiceName(`${chosen.name} (${chosen.lang})`);
     }
   }, []);
 
@@ -54,7 +80,7 @@ export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => voi
         const recognition = new SpeechRecognitionAPI();
         recognition.continuous = false;
         recognition.interimResults = true;
-        recognition.lang = 'es-AR'; // Argentine Spanish
+        recognition.lang = 'es-419'; // Standard Latin American Spanish
 
         recognition.onstart = () => {
           setIsListening(true);
@@ -118,7 +144,6 @@ export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => voi
         setIsListening(true);
       } catch (err) {
         console.warn('No se pudo iniciar el micrófono:', err);
-        // If already started, restart
         try {
           recognitionRef.current.abort();
           setTimeout(() => {
@@ -196,6 +221,9 @@ export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => voi
     toggleAutoVoice,
     isRecognitionSupported,
     detectedVoiceName,
+    availableVoices,
+    selectedVoiceURI,
+    selectVoice,
     hasLoadedVoices,
   };
 }
