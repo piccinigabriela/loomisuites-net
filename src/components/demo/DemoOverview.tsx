@@ -26,6 +26,7 @@ interface DemoOverviewProps {
   onNavigateTab: (tab: string) => void;
   onUpdateTaskStatus: (taskId: string, newStatus: CleaningTask['status']) => void;
   onQuickCheckIn: (resId: string) => void;
+  onOpenOnboardingWizard?: () => void;
   isEmployeeMode?: boolean;
 }
 
@@ -36,6 +37,7 @@ export const DemoOverview: React.FC<DemoOverviewProps> = ({
   onNavigateTab,
   onUpdateTaskStatus,
   onQuickCheckIn,
+  onOpenOnboardingWizard,
   isEmployeeMode = false,
 }) => {
   const today = getRelativeDate(0);
@@ -98,6 +100,36 @@ export const DemoOverview: React.FC<DemoOverviewProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Onboarding Real Properties Banner */}
+      {onOpenOnboardingWizard && (
+        <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-zinc-900 rounded-2xl p-5 text-white border border-purple-500/40 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-rose-500 flex items-center justify-center text-stone-950 font-bold shrink-0 shadow-md">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold">¿Quieres probar con tus departamentos reales?</h3>
+                <span className="text-[10px] font-semibold bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-400/30">
+                  Onboarding Guiado (3 min)
+                </span>
+              </div>
+              <p className="text-xs text-zinc-300 mt-0.5">
+                Carga los nombres de tus unidades, precios y WiFi para ver tu operación real en el calendario y la guía de huéspedes.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onOpenOnboardingWizard}
+            className="w-full sm:w-auto text-xs font-bold bg-white text-purple-950 hover:bg-purple-50 px-4 py-2.5 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md shrink-0 active:scale-98"
+          >
+            <Sparkles className="w-4 h-4 text-purple-600" />
+            <span>Configurar Mis Departamentos</span>
+            <ChevronRight className="w-4 h-4 text-purple-600" />
+          </button>
+        </div>
+      )}
 
       {/* Xenia Quick Insight Bar */}
       <div className="bg-gradient-to-r from-rose-50 via-white to-amber-50 dark:from-rose-950/40 dark:via-zinc-900 dark:to-amber-950/40 rounded-xl p-4 border border-rose-200/80 dark:border-rose-900/60 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">

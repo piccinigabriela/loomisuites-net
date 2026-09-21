@@ -68,13 +68,13 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
         <div>
           <div className="flex items-center gap-2 text-xs text-amber-400 font-bold mb-1">
             <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            <span>Panel de Control de Fernando • Los Bananos Wood Cabin</span>
+            <span>Panel de Administración • {formData.propertyName || 'Mi Complejo'}</span>
           </div>
           <h2 className="text-xl font-bold font-['Outfit']">
             Editor de la Guía de Bienvenida & Portal del Huésped
           </h2>
           <p className="text-xs text-zinc-300 mt-1 max-w-xl">
-            Modifica aquí la clave de WiFi, precios de leña, traslados y excursiones. Los cambios se actualizan en vivo en el celular de tus huéspedes.
+            Modifica aquí la clave de WiFi, normas, traslados, recomendaciones locales y datos bancarios para reservas directas. Los cambios se actualizan en vivo en el celular de tus huéspedes.
           </p>
         </div>
 

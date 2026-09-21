@@ -122,29 +122,33 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
   const getPlatformColors = (platform: BookingPlatform) => {
     switch (platform) {
       case 'airbnb':
-        return 'bg-rose-500 hover:bg-rose-600 border-rose-400 text-white';
+        // Soft pastel coral / terracotta (Airbnb)
+        return 'bg-[#c46850] hover:bg-[#b05842] border-[#d87a62] text-[#fbf7f5] shadow-xs';
       case 'booking':
-        return 'bg-blue-600 hover:bg-blue-700 border-blue-500 text-white';
+        // Soft pastel slate blue (Booking)
+        return 'bg-[#4a6b8c] hover:bg-[#3e5b78] border-[#5e82a6] text-[#f4f7fb] shadow-xs';
       case 'direct':
-        return 'bg-emerald-600 hover:bg-emerald-700 border-emerald-500 text-white';
+        // Soft pastel sage olive (Direct)
+        return 'bg-[#5c8a66] hover:bg-[#4d7555] border-[#72a37d] text-[#f2f8f3] shadow-xs';
       case 'vrbo':
-        return 'bg-indigo-600 hover:bg-indigo-700 border-indigo-500 text-white';
+        // Soft pastel dusty purple (VRBO)
+        return 'bg-[#6b5882] hover:bg-[#5a4970] border-[#816c9c] text-[#f8f5fa] shadow-xs';
       default:
-        return 'bg-zinc-600 text-white';
+        return 'bg-[#525252] text-white';
     }
   };
 
   return (
-    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xs overflow-hidden transition-colors">
+    <div className="bg-[#1c1c1c] rounded-xl border border-[#262626] shadow-2xs overflow-hidden transition-colors font-sans">
       {/* Calendar Header / Filters */}
-      <div className="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+      <div className="p-4 sm:p-5 border-b border-[#262626] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
         <div>
-          <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5 text-rose-600 dark:text-rose-500" />
-            <span>Calendario Multicanal Unificado</span>
+          <h3 className="text-lg font-bold text-[#f0eeeb] flex items-center gap-2">
+            <CalendarIcon className="w-5 h-5 text-[#c4774a]" />
+            <span>Ocupación</span>
           </h3>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-            Sincronización instantánea bidireccional entre Airbnb, Booking, VRBO y Reservas Directas.
+          <p className="text-xs text-[#8c8a85] mt-0.5">
+            Calendario — vista mensual y sincronización multicanal
           </p>
         </div>
 
@@ -154,7 +158,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           <select
             value={selectedPropertyId}
             onChange={(e) => setSelectedPropertyId(e.target.value)}
-            className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200"
+            className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-[#333333] bg-[#242424] text-[#e0deda]"
           >
             <option value="all">Todas las propiedades ({demoState.properties.length})</option>
             {demoState.properties.map((p) => (
@@ -168,52 +172,52 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           <select
             value={platformFilter}
             onChange={(e) => setPlatformFilter(e.target.value)}
-            className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200"
+            className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-[#333333] bg-[#242424] text-[#e0deda]"
           >
             <option value="all">Todos los canales</option>
-            <option value="airbnb">Airbnb</option>
-            <option value="booking">Booking.com</option>
-            <option value="direct">Directa (Web propia)</option>
-            <option value="vrbo">VRBO</option>
+            <option value="airbnb">Airbnb (Coral suave)</option>
+            <option value="booking">Booking.com (Azul suave)</option>
+            <option value="direct">Directa (Verde oliva suave)</option>
+            <option value="vrbo">VRBO (Lavanda suave)</option>
           </select>
 
           {/* Day Offset Navigator */}
-          <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
+          <div className="flex items-center gap-1 bg-[#242424] p-1 rounded-lg border border-[#333333]">
             <button
               onClick={() => setDayOffset((prev) => prev - 7)}
               title="Retroceder 7 días"
-              className="p-1 hover:bg-white dark:hover:bg-zinc-700 rounded transition-colors text-zinc-700 dark:text-zinc-300 cursor-pointer"
+              className="p-1 hover:bg-[#2e2e2e] rounded transition-colors text-[#a8a5a0] cursor-pointer"
             >
               <ChevronsLeft className="w-4 h-4" />
             </button>
             <button
               onClick={() => setDayOffset(-2)}
-              className="text-[11px] font-bold px-2 py-0.5 hover:bg-white dark:hover:bg-zinc-700 rounded transition-colors text-zinc-700 dark:text-zinc-200 cursor-pointer"
+              className="text-[11px] font-bold px-2 py-0.5 hover:bg-[#2e2e2e] rounded transition-colors text-[#e0deda] cursor-pointer"
             >
               Hoy
             </button>
             <button
               onClick={() => setDayOffset((prev) => prev + 7)}
               title="Avanzar 7 días"
-              className="p-1 hover:bg-white dark:hover:bg-zinc-700 rounded transition-colors text-zinc-700 dark:text-zinc-300 cursor-pointer"
+              className="p-1 hover:bg-[#2e2e2e] rounded transition-colors text-[#a8a5a0] cursor-pointer"
             >
               <ChevronsRight className="w-4 h-4" />
             </button>
           </div>
 
           {/* Column Width Selector: Compacta (48px) | Estándar (105px) | Amplia (185px) */}
-          <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 px-1.5 flex items-center gap-1">
-              <Columns className="w-3 h-3 text-rose-600" />
+          <div className="flex items-center gap-1 bg-[#242424] p-1 rounded-lg border border-[#333333]">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#7a7874] px-1.5 flex items-center gap-1">
+              <Columns className="w-3 h-3 text-[#c4774a]" />
               <span>Columna:</span>
             </span>
             <button
               onClick={() => setColumnMode('compact')}
-              title="Columna ultra compacta (48px) - Ideal para móvil para que no ocupe media pantalla"
+              title="Columna compacta (48px)"
               className={`text-[11px] font-bold px-2 py-1 rounded transition-colors cursor-pointer ${
                 columnMode === 'compact'
-                  ? 'bg-white dark:bg-zinc-700 text-rose-600 dark:text-rose-400 shadow-2xs'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                  ? 'bg-[#333333] text-[#e8a070] shadow-2xs'
+                  : 'text-[#8a8883] hover:text-[#d0cdc8]'
               }`}
             >
               48px
@@ -223,19 +227,19 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
               title="Columna estándar (105px)"
               className={`text-[11px] font-bold px-2 py-1 rounded transition-colors cursor-pointer ${
                 columnMode === 'medium'
-                  ? 'bg-white dark:bg-zinc-700 text-rose-600 dark:text-rose-400 shadow-2xs'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                  ? 'bg-[#333333] text-[#e8a070] shadow-2xs'
+                  : 'text-[#8a8883] hover:text-[#d0cdc8]'
               }`}
             >
               105px
             </button>
             <button
               onClick={() => setColumnMode('full')}
-              title="Columna completa (185px) con datos extendidos"
+              title="Columna completa (185px)"
               className={`text-[11px] font-bold px-2 py-1 rounded transition-colors cursor-pointer ${
                 columnMode === 'full'
-                  ? 'bg-white dark:bg-zinc-700 text-rose-600 dark:text-rose-400 shadow-2xs'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                  ? 'bg-[#333333] text-[#e8a070] shadow-2xs'
+                  : 'text-[#8a8883] hover:text-[#d0cdc8]'
               }`}
             >
               185px
@@ -245,32 +249,29 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
       </div>
 
       {/* Legend Bar & Desktop Tips */}
-      <div className="bg-zinc-50 dark:bg-zinc-800/60 px-4 sm:px-5 py-2.5 border-b border-zinc-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-zinc-700 dark:text-zinc-300">
-          <span className="font-semibold text-zinc-500 dark:text-zinc-400 text-[11px]">Canales:</span>
+      <div className="bg-[#191919] px-4 sm:px-5 py-2.5 border-b border-[#262626] flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[#a8a5a0]">
+          <span className="font-semibold text-[#7a7874] text-[11px]">Canales:</span>
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-rose-500 inline-block" />
-            <span>Airbnb</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#c46850] inline-block" />
+            <span className="text-[11px]">Airbnb</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-blue-600 inline-block" />
-            <span>Booking.com</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#4a6b8c] inline-block" />
+            <span className="text-[11px]">Booking.com</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-emerald-600 inline-block" />
-            <span>Directa</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#5c8a66] inline-block" />
+            <span className="text-[11px]">Directo</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-indigo-600 inline-block" />
-            <span>VRBO</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#6b5882] inline-block" />
+            <span className="text-[11px]">VRBO</span>
           </span>
         </div>
-        <div className="flex items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-400">
-          <span className="hidden lg:inline bg-zinc-200/70 dark:bg-zinc-700/60 px-2 py-0.5 rounded text-[10px] font-mono">
-            Shift + Rueda del mouse
-          </span>
+        <div className="flex items-center gap-2 text-[11px] text-[#706e6a]">
           <span className="italic">
-            o usa la barra deslizante para recorrer los 14 días
+            .. Desplaza la barra o haz clic sobre una reserva para ver detalle
           </span>
         </div>
       </div>

@@ -30,6 +30,8 @@ import { Footer } from './components/landing/Footer';
 import { LeadModal } from './components/landing/LeadModal';
 
 // Demo Application Components
+import { CleanSidebar } from './components/demo/CleanSidebar';
+import { CleanToday } from './components/demo/CleanToday';
 import { DemoHeader } from './components/demo/DemoHeader';
 import { DemoNavTabs } from './components/demo/DemoNavTabs';
 import { DemoOverview } from './components/demo/DemoOverview';
@@ -45,6 +47,7 @@ import { XeniaFloatingWidget } from './components/xenia/XeniaFloatingWidget';
 import { NewReservationModal } from './components/demo/NewReservationModal';
 import { ReservationDetailModal } from './components/demo/ReservationDetailModal';
 import { JsonDataModal } from './components/demo/JsonDataModal';
+import { OnboardingWizardModal } from './components/demo/OnboardingWizardModal';
 import { INITIAL_WELCOME_GUIDE } from './data/initialData';
 
 export default function App() {
@@ -54,8 +57,8 @@ export default function App() {
   // Demo active tab: default to overview
   const [demoTab, setDemoTab] = useState<string>('overview');
 
-  // Active Complex: Catalinas Apartamentos or Wood Cabin
-  const [activeComplex, setActiveComplex] = useState<'catalinas' | 'woodcabin'>('catalinas');
+  // Active Complex: Catalinas Apartamentos, Wood Cabin or Custom
+  const [activeComplex, setActiveComplex] = useState<'catalinas' | 'woodcabin' | 'custom'>('catalinas');
 
   // Employee Mode ("Modo Día a Día") - restricts access to financial metrics & rates
   const [isEmployeeMode, setIsEmployeeMode] = useState<boolean>(() => {
@@ -126,6 +129,7 @@ export default function App() {
   const [initialDateForRes, setInitialDateForRes] = useState<string | undefined>();
   const [selectedReservationForDetail, setSelectedReservationForDetail] = useState<Reservation | null>(null);
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
+  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
 
   // Toast feedback
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -142,6 +146,106 @@ export default function App() {
       saveDemoState(next);
       return next;
     });
+  };
+
+  // Handle Onboarding Completion
+  const handleCompleteOnboarding = (data: {
+    complexName: string;
+    city: string;
+    address: string;
+    wifiNetwork: string;
+    wifiPassword: string;
+    properties: any[];
+    addons: any[];
+  }) => {
+    const today = getRelativeDate(0);
+    const in2days = getRelativeDate(2);
+    const in4days = getRelativeDate(4);
+
+    // Create initial sample reservations for the user's units
+    const initialRealReservations: Reservation[] = data.properties.map((prop, idx) => {
+      const isFirst = idx === 0;
+      const cIn = isFirst ? today : in2days;
+      const cOut = isFirst ? in2days : in4days;
+      const nights = 2;
+      const totalAmount = prop.basePrice * nights + prop.cleaningFee;
+      const commissionPaid = Math.round(totalAmount * 0.03 * 10) / 10;
+      return {
+        id: `res-real-${idx + 1}`,
+        propertyId: prop.id,
+        guestName: isFirst ? 'Martín Palermo (Huésped de Prueba)' : 'Carolina Herrera',
+        guestEmail: isFirst ? 'martin.palermo@gmail.com' : 'caro.herrera@hotmail.com',
+        guestPhone: isFirst ? '+54 9 11 4455-8899' : '+54 9 351 778-9900',
+        guestAvatar: isFirst ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120' : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120',
+        checkIn: cIn,
+        checkOut: cOut,
+        nights,
+        guestsCount: Math.min(2, prop.maxGuests),
+        platform: isFirst ? 'airbnb' : 'direct',
+        totalAmount,
+        cleaningFee: prop.cleaningFee,
+        commissionPaid,
+        netRevenue: totalAmount - commissionPaid,
+        status: isFirst ? 'checked_in' : 'confirmed',
+        paymentStatus: isFirst ? 'paid' : 'deposit_only',
+        pinCode: prop.smartLock?.enabled ? '4912' : '',
+        createdAt: new Date().toISOString(),
+        earlyCheckIn: false,
+        lateCheckOut: false,
+        addons: data.addons.length > 0 ? [
+          {
+            addonId: data.addons[0].id,
+            name: data.addons[0].name,
+            category: data.addons[0].category,
+            unitPrice: data.addons[0].price,
+            quantity: 1,
+            total: data.addons[0].price,
+            status: 'entregado',
+          }
+        ] : [],
+      };
+    });
+
+    const initialRealTasks: CleaningTask[] = data.properties.map((prop, idx) => ({
+      id: `clean-real-${idx + 1}`,
+      propertyId: prop.id,
+      date: idx === 0 ? today : in2days,
+      scheduledTime: '11:00 - 13:30',
+      cleanerName: 'Equipo de Limpieza',
+      cleanerPhone: '+54 9 11 9988-7766',
+      status: idx === 0 ? 'completed' : 'pending',
+      checklist: [
+        { id: 'c1', task: 'Cambio de sábanas y toallas sanitizadas', completed: idx === 0 },
+        { id: 'c2', task: 'Limpieza profunda de baño y reposición de amenities', completed: idx === 0 },
+        { id: 'c3', task: 'Desinfección de superficies y vajilla', completed: idx === 0 },
+        { id: 'c4', task: 'Verificación de WiFi y cerradura', completed: idx === 0 },
+      ],
+      notes: `Limpieza para ${prop.name}`,
+    }));
+
+    const newCustomState: DemoState = {
+      properties: data.properties,
+      reservations: initialRealReservations,
+      cleaningTasks: initialRealTasks,
+      templates: demoState.templates || [],
+      availableAddons: data.addons,
+      addons: data.addons,
+      welcomeGuide: {
+        ...(demoState.welcomeGuide || INITIAL_WELCOME_GUIDE),
+        propertyName: data.complexName,
+        tagline: `${data.city} • Departamentos Exclusivos`,
+        locationAddress: data.address,
+        wifiNetwork: data.wifiNetwork,
+        wifiPassword: data.wifiPassword,
+      },
+      lastUpdated: new Date().toISOString(),
+    };
+
+    updateDemoState(() => newCustomState);
+    setActiveComplex('custom');
+    setIsOnboardingModalOpen(false);
+    setDemoTab('overview');
+    showToast(`🎉 ¡Felicitaciones! "${data.complexName}" configurado con éxito (${data.properties.length} unidades).`);
   };
 
   // Reset to factory defaults
@@ -404,125 +508,193 @@ export default function App() {
           </div>
         </main>
       ) : (
-        /* DEMO DASHBOARD VIEW */
-        <div className="min-h-screen flex flex-col bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors">
-          <DemoHeader
-            theme={theme}
-            onToggleTheme={toggleTheme}
-            activeComplex={activeComplex}
-            onSwitchComplex={(c) => {
-              setActiveComplex(c);
-              showToast(c === 'catalinas' ? 'Cambiado a Catalinas Apartamentos (CABA)' : 'Cambiado a Wood Cabin (Iguazú)');
-            }}
-            onBackToLanding={() => {
-              setCurrentView('landing');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onResetData={handleResetData}
+        /* CLEAN RELAXED CARBON PMS DASHBOARD VIEW */
+        <div className="min-h-screen flex bg-[#141414] text-[#e0deda] font-sans">
+          {/* Minimalist Sidebar */}
+          <CleanSidebar
+            activeTab={demoTab}
+            onSelectTab={setDemoTab}
+            pendingCleaningsCount={pendingCleaningsCount}
+            complexName={
+              activeComplex === 'catalinas'
+                ? 'Catalinas Apartamentos'
+                : activeComplex === 'woodcabin'
+                ? 'Los Bananos Wood Cabin'
+                : 'Mi Complejo Real'
+            }
             onOpenNewReservation={() => {
               setInitialPropertyForRes(undefined);
               setInitialDateForRes(undefined);
               setIsNewResModalOpen(true);
             }}
-            onOpenJsonModal={() => setIsJsonModalOpen(true)}
-            onOpenContactModal={() => {
-              setSelectedPlanForLead('Prueba Demo a Producción');
-              setIsLeadModalOpen(true);
-            }}
+            onOpenOnboardingWizard={() => setIsOnboardingModalOpen(true)}
             isEmployeeMode={isEmployeeMode}
             onToggleEmployeeMode={toggleEmployeeMode}
+            theme={theme}
+            onToggleTheme={toggleTheme}
+            onBackToLanding={() => {
+              setCurrentView('landing');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            activeComplex={activeComplex}
+            onSwitchComplex={(c) => {
+              setActiveComplex(c);
+              showToast(
+                c === 'catalinas'
+                  ? 'Cambiado a Catalinas Apartamentos'
+                  : c === 'woodcabin'
+                  ? 'Cambiado a Wood Cabin'
+                  : 'Cambiado a Mi Complejo Real'
+              );
+            }}
           />
 
-          <DemoNavTabs
-            activeTab={demoTab}
-            onSelectTab={setDemoTab}
-            pendingCleaningsCount={pendingCleaningsCount}
-            isEmployeeMode={isEmployeeMode}
-          />
+          {/* Main Content Area */}
+          <div className="flex-1 flex flex-col min-w-0 bg-[#141414] overflow-y-auto">
+            {/* Minimalist Top Sub-bar with fast actions & status */}
+            <div className="h-12 border-b border-[#242424] px-6 flex items-center justify-between bg-[#161616]/90 sticky top-0 z-20 backdrop-blur-xs">
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-[#8c8a85]">
+                  {activeComplex === 'catalinas'
+                    ? 'Catalinas Apartamentos (CABA)'
+                    : activeComplex === 'woodcabin'
+                    ? 'Wood Cabin (Iguazú)'
+                    : 'Mi Complejo Real'}
+                </span>
+                <span className="text-[#3a3a3a]">/</span>
+                <span className="text-xs font-semibold text-[#f0eeeb] capitalize">
+                  {demoTab === 'overview'
+                    ? 'Hoy'
+                    : demoTab === 'calendar'
+                    ? 'Ocupación'
+                    : demoTab === 'housekeeping'
+                    ? 'Limpiezas'
+                    : demoTab === 'finances'
+                    ? 'Rendimiento'
+                    : demoTab === 'welcome-guide'
+                    ? 'Guía Huésped'
+                    : demoTab === 'properties'
+                    ? 'Departamentos'
+                    : demoTab === 'addons'
+                    ? 'Opcionales'
+                    : demoTab === 'messages'
+                    ? 'Avisos & WhatsApp'
+                    : 'Asistente'}
+                </span>
+              </div>
 
-          {/* Demo Content Container */}
-          <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            {demoTab === 'overview' && (
-              <DemoOverview
-                demoState={demoState}
-                onSelectReservation={setSelectedReservationForDetail}
-                onOpenNewReservation={() => {
-                  setInitialPropertyForRes(undefined);
-                  setInitialDateForRes(undefined);
-                  setIsNewResModalOpen(true);
-                }}
-                onNavigateTab={setDemoTab}
-                onUpdateTaskStatus={handleUpdateTaskStatus}
-                onQuickCheckIn={handleQuickCheckIn}
-                isEmployeeMode={isEmployeeMode}
-              />
-            )}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setIsJsonModalOpen(true)}
+                  className="text-[11px] text-[#9c9994] hover:text-[#ebe8e1] transition-colors cursor-pointer"
+                >
+                  Importar / Exportar
+                </button>
+                <span className="text-[#3a3a3a]">|</span>
+                <button
+                  onClick={handleResetData}
+                  className="text-[11px] text-[#9c9994] hover:text-[#ebe8e1] transition-colors cursor-pointer"
+                >
+                  Restablecer Muestra
+                </button>
+                <span className="text-[#3a3a3a]">|</span>
+                <button
+                  onClick={() => {
+                    setInitialPropertyForRes(undefined);
+                    setInitialDateForRes(undefined);
+                    setIsNewResModalOpen(true);
+                  }}
+                  className="bg-[#2e2620] hover:bg-[#3d2e24] text-[#d88d5e] border border-[#523c2e] text-xs font-semibold px-3 py-1 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>+ Nueva Reserva</span>
+                </button>
+              </div>
+            </div>
 
-            {demoTab === 'calendar' && (
-              <DemoCalendar
-                demoState={demoState}
-                onSelectReservation={setSelectedReservationForDetail}
-                onOpenNewReservationWithProperty={handleOpenNewReservationWithProperty}
-              />
-            )}
+            {/* Main Content Body */}
+            <div className="flex-1 max-w-7xl w-full mx-auto px-6 py-6">
+              {demoTab === 'overview' && (
+                <CleanToday
+                  demoState={demoState}
+                  onSelectReservation={setSelectedReservationForDetail}
+                  onOpenNewReservation={() => {
+                    setInitialPropertyForRes(undefined);
+                    setInitialDateForRes(undefined);
+                    setIsNewResModalOpen(true);
+                  }}
+                  onNavigateTab={setDemoTab}
+                  onUpdateTaskStatus={handleUpdateTaskStatus}
+                  onQuickCheckIn={handleQuickCheckIn}
+                  isEmployeeMode={isEmployeeMode}
+                />
+              )}
 
-            {demoTab === 'housekeeping' && (
-              <DemoHousekeeping
-                demoState={demoState}
-                onToggleChecklistItem={handleToggleChecklistItem}
-                onUpdateTaskStatus={handleUpdateTaskStatus}
-              />
-            )}
+              {demoTab === 'calendar' && (
+                <DemoCalendar
+                  demoState={demoState}
+                  onSelectReservation={setSelectedReservationForDetail}
+                  onOpenNewReservationWithProperty={handleOpenNewReservationWithProperty}
+                />
+              )}
 
-            {demoTab === 'properties' && (
-              <DemoProperties
-                demoState={demoState}
-                onUpdatePropertyPrice={handleUpdatePropertyPrice}
-                isEmployeeMode={isEmployeeMode}
-              />
-            )}
+              {demoTab === 'housekeeping' && (
+                <DemoHousekeeping
+                  demoState={demoState}
+                  onToggleChecklistItem={handleToggleChecklistItem}
+                  onUpdateTaskStatus={handleUpdateTaskStatus}
+                />
+              )}
 
-            {demoTab === 'addons' && (
-              <DemoAddons
-                demoState={demoState}
-                onUpdateAddons={(updatedAddons) => {
-                  updateDemoState((prev) => ({
-                    ...prev,
-                    addons: updatedAddons,
-                    lastUpdated: new Date().toISOString(),
-                  }));
-                  showToast('Catálogo de Servicios Opcionales actualizado');
-                }}
-                isEmployeeMode={isEmployeeMode}
-              />
-            )}
+              {demoTab === 'properties' && (
+                <DemoProperties
+                  demoState={demoState}
+                  onUpdatePropertyPrice={handleUpdatePropertyPrice}
+                  isEmployeeMode={isEmployeeMode}
+                />
+              )}
 
-            {demoTab === 'messages' && (
-              <DemoMessages demoState={demoState} />
-            )}
+              {demoTab === 'addons' && (
+                <DemoAddons
+                  demoState={demoState}
+                  onUpdateAddons={(updatedAddons) => {
+                    updateDemoState((prev) => ({
+                      ...prev,
+                      addons: updatedAddons,
+                      lastUpdated: new Date().toISOString(),
+                    }));
+                    showToast('Catálogo de Servicios Opcionales actualizado');
+                  }}
+                  isEmployeeMode={isEmployeeMode}
+                />
+              )}
 
-            {demoTab === 'finances' && !isEmployeeMode && (
-              <DemoFinances demoState={demoState} />
-            )}
+              {demoTab === 'messages' && (
+                <DemoMessages demoState={demoState} />
+              )}
 
-            {demoTab === 'welcome-guide' && (
-              <WelcomeGuideHub
-                guideData={demoState.welcomeGuide || INITIAL_WELCOME_GUIDE}
-                properties={demoState.properties}
-                onUpdateGuideData={(updated) => {
-                  updateDemoState((prev) => ({
-                    ...prev,
-                    welcomeGuide: updated,
-                    lastUpdated: new Date().toISOString(),
-                  }));
-                  showToast('Guía de Bienvenida y datos actualizados en vivo');
-                }}
-              />
-            )}
+              {demoTab === 'finances' && !isEmployeeMode && (
+                <DemoFinances demoState={demoState} />
+              )}
 
-            {demoTab === 'xenia' && (
-              <XeniaCopilotView demoState={demoState} />
-            )}
+              {demoTab === 'welcome-guide' && (
+                <WelcomeGuideHub
+                  guideData={demoState.welcomeGuide || INITIAL_WELCOME_GUIDE}
+                  properties={demoState.properties}
+                  onUpdateGuideData={(updated) => {
+                    updateDemoState((prev) => ({
+                      ...prev,
+                      welcomeGuide: updated,
+                      lastUpdated: new Date().toISOString(),
+                    }));
+                    showToast('Guía de Bienvenida y datos actualizados en vivo');
+                  }}
+                />
+              )}
+
+              {demoTab === 'xenia' && (
+                <XeniaCopilotView demoState={demoState} />
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -579,6 +751,12 @@ export default function App() {
         onClose={() => setIsJsonModalOpen(false)}
         onImportData={handleImportData}
         onResetData={handleResetData}
+      />
+
+      <OnboardingWizardModal
+        isOpen={isOnboardingModalOpen}
+        onClose={() => setIsOnboardingModalOpen(false)}
+        onComplete={handleCompleteOnboarding}
       />
     </div>
   );

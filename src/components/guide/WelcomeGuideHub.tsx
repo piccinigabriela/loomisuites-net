@@ -103,7 +103,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
             }`}
           >
             <Settings className="w-4 h-4 text-rose-500" />
-            <span>2. Admin de Fernando (Editar Datos)</span>
+            <span>2. Panel de Edición (Admin Guía)</span>
           </button>
 
           <button

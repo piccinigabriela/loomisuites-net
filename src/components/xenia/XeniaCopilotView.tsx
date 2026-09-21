@@ -2,14 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   Sparkles,
   Send,
-  Bot,
   User,
   Copy,
   Check,
   DollarSign,
   BookOpen,
   MessageSquare,
-  HelpCircle,
   TrendingUp,
   ShieldCheck,
   RefreshCw,
@@ -19,6 +17,7 @@ import {
 import Markdown from 'react-markdown';
 import { DemoState } from '../../types';
 import { getClientXeniaReply } from './xeniaLocalEngine';
+import { XeniaAvatar } from './XeniaAvatar';
 
 interface XeniaCopilotViewProps {
   demoState: DemoState;
@@ -39,7 +38,7 @@ export const XeniaCopilotView: React.FC<XeniaCopilotViewProps> = ({ demoState })
       role: 'assistant',
       content: `### 👋 ¡Hola! Soy **Xenia**, tu Copiloto Inteligente de Hospitalidad
 
-Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones** y al motor de Loomi Suite. Mi función es darte respuestas inmediatas y precisas con dos capacidades centrales:
+Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas** y al motor de Loomi Suite. Mi función es darte respuestas inmediatas y precisas con dos capacidades centrales:
 
 1. **📊 Rendición de Cuentas Financieras & Huéspedes:**
    - Consulta facturación total, comisiones de OTAs (Booking / Airbnb), ingresos netos y comisiones ahorradas por reservas directas.
@@ -48,7 +47,7 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
 2. **📘 Instrucciones de Uso de Loomi Suite:**
    - Aprende a usar cada módulo del sistema al instante. Pregúntame paso a paso cómo sincronizar calendarios iCal, cómo cargar reservas telefónicas, cómo coordinar a la mucama o cómo compartir tu link de reservas directas.
 
-*Elige una de las preguntas sugeridas aquí abajo o escribe lo que necesites:*`,
+*Elige una de las preguntas sugeridas aquí al costado o escribe lo que necesites:*`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -74,9 +73,7 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
     };
 
     setMessages((prev) => [...prev, userMsg]);
-    if (!textToSend) {
-      setInputMessage('');
-    }
+    setInputMessage('');
     setIsLoading(true);
 
     try {
@@ -85,17 +82,20 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: text,
-          history: messages.map((m) => ({ role: m.role, content: m.content })),
-          contextData: {
-            properties: demoState.properties,
+          context: {
+            propertiesCount: demoState.properties.length,
+            reservationsCount: demoState.reservations.length,
+            cleaningTasksCount: demoState.cleaningTasks.length,
             reservations: demoState.reservations,
+            properties: demoState.properties,
             cleaningTasks: demoState.cleaningTasks,
+            addons: demoState.addons,
           },
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Error en servidor: ${response.status}`);
+        throw new Error('Fallback to client engine');
       }
 
       const data = await response.json();
@@ -135,7 +135,6 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
     {
       category: 'Ocupación & Reservas en Vivo',
       icon: TrendingUp,
-      color: 'text-violet-700 bg-violet-50 border-violet-200',
       prompts: [
         '¿Cuál es la ocupación actual del complejo y cuántas cabañas están ocupadas?',
         '¿Quiénes son los pasajeros alojados hoy y qué reservas tenemos registradas?',
@@ -146,10 +145,9 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
     {
       category: 'Planes, Precios & Servicios',
       icon: Tag,
-      color: 'text-rose-700 bg-rose-50 border-rose-200',
       prompts: [
         '¿Cuánto cuesta Loomi y cómo se abona la suscripción?',
-        '¿Qué incluye el abono mensual y cómo funciona con llaves físicas?',
+        '¿Qué incluye el abono mensual y cómo funciona con llaves tradicionales?',
         '¿Qué son los módulos opcionales de frigobar y cerraduras?',
         '¿Tengo que poner tarjeta de crédito para empezar?',
       ],
@@ -157,7 +155,6 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
     {
       category: 'Rendición de Cuentas',
       icon: DollarSign,
-      color: 'text-emerald-700 bg-emerald-50 border-emerald-200',
       prompts: [
         '¿Cuánto dinero ingresó este mes y qué señas hay pendientes?',
         'Detalle de facturación por canal (Booking vs Airbnb vs Directo)',
@@ -168,7 +165,6 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
     {
       category: 'Instrucciones de Uso (Manual)',
       icon: BookOpen,
-      color: 'text-blue-700 bg-blue-50 border-blue-200',
       prompts: [
         '¿Cómo sincronizo Booking y Airbnb sin dobles reservas?',
         '¿Cómo le paso las tareas a la mucama por WhatsApp sin instalar apps?',
@@ -179,7 +175,6 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
     {
       category: 'Plantillas para Huéspedes',
       icon: MessageSquare,
-      color: 'text-amber-700 bg-amber-50 border-amber-200',
       prompts: [
         'Redactar mensaje de bienvenida con WiFi y ubicación para Cabaña 1',
         'Plantilla para pedir la seña del 50% por transferencia bancaria',
@@ -196,38 +191,32 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
   return (
     <div className="space-y-6">
       {/* Top Banner introducing Xenia */}
-      <div className="bg-gradient-to-r from-rose-900 via-zinc-900 to-zinc-950 rounded-2xl p-6 text-white border border-rose-800/40 shadow-lg relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
-
+      <div className="bg-[#1c1a18] rounded-2xl p-6 text-[#f0eeeb] border border-[#383028] shadow-lg relative overflow-hidden">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-400 p-0.5 shadow-md">
-              <div className="w-full h-full bg-zinc-950 rounded-[10px] flex items-center justify-center">
-                <Bot className="w-6 h-6 text-rose-400" />
-              </div>
-            </div>
+          <div className="flex items-center gap-3.5">
+            <XeniaAvatar size="lg" />
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold tracking-tight">Xenia Copilot</h2>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Online
+                <h2 className="text-xl font-bold tracking-tight text-[#f4f2ee]">Xenia</h2>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#263024] text-[#a5c49f] border border-[#364832]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#82ba8f] animate-pulse" />
+                  Copiloto de Hospitalidad
                 </span>
               </div>
-              <p className="text-xs text-zinc-300 mt-0.5">
-                Inteligencia Artificial para Rendición de Cuentas, Huéspedes y Guía de Uso de Loomi Suite
+              <p className="text-xs text-[#a8a5a0] mt-0.5">
+                Rendición de cuentas, control de huéspedes y guía de Loomi Suite
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 text-xs">
-            <div className="bg-zinc-800/80 px-3.5 py-2 rounded-xl border border-zinc-700">
-              <span className="text-zinc-400 block text-[10px]">Facturación en Demo</span>
-              <span className="font-bold text-white text-sm">${totalGross.toLocaleString()} USD</span>
+            <div className="bg-[#141414] px-3.5 py-2 rounded-xl border border-[#2c2825]">
+              <span className="text-[#8e8c87] block text-[10px]">Facturación en Demo</span>
+              <span className="font-bold text-[#f4f2ee] text-sm">${totalGross.toLocaleString()} USD</span>
             </div>
-            <div className="bg-indigo-950/40 px-3.5 py-2 rounded-xl border border-indigo-800/40">
-              <span className="text-indigo-400 block text-[10px]">Tarifa Promedio Noche (ADR)</span>
-              <span className="font-bold text-indigo-300 text-sm">
+            <div className="bg-[#241f1c] px-3.5 py-2 rounded-xl border border-[#48372b]">
+              <span className="text-[#d88d5e] block text-[10px]">Tarifa Promedio Noche</span>
+              <span className="font-bold text-[#f0eeeb] text-sm">
                 ${averageDailyRate} USD
               </span>
             </div>
@@ -235,16 +224,16 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
         </div>
       </div>
 
-      {/* Main Chat Grid */}
+      {/* Main Grid: Prompts + Chat View */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Quick Action Chips / Cheat-sheet */}
+        {/* Left Column: Quick Action Chips */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-white rounded-2xl border border-zinc-200 p-5 shadow-xs">
-            <h3 className="text-sm font-bold text-zinc-900 flex items-center gap-2 mb-1">
-              <Zap className="w-4 h-4 text-rose-600" />
+          <div className="bg-[#1c1c1c] rounded-2xl border border-[#2a2a2a] p-5 shadow-xs">
+            <h3 className="text-sm font-bold text-[#f0eeeb] flex items-center gap-2 mb-1">
+              <Zap className="w-4 h-4 text-[#d88d5e]" />
               <span>Consultas Frecuentes</span>
             </h3>
-            <p className="text-xs text-zinc-500 mb-4">
+            <p className="text-xs text-[#8e8c87] mb-4">
               Toca cualquier pregunta para que Xenia te responda en el acto:
             </p>
 
@@ -253,8 +242,8 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
                 const Icon = cat.icon;
                 return (
                   <div key={idx} className="space-y-2">
-                    <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <Icon className="w-3.5 h-3.5" />
+                    <span className="text-[11px] font-bold text-[#7a7874] uppercase tracking-wider flex items-center gap-1.5">
+                      <Icon className="w-3.5 h-3.5 text-[#a8a5a0]" />
                       {cat.category}
                     </span>
                     <div className="space-y-1.5">
@@ -263,7 +252,7 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
                           key={pIdx}
                           onClick={() => handleSendMessage(prompt)}
                           disabled={isLoading}
-                          className="w-full text-left text-xs p-2.5 rounded-xl border border-zinc-200 hover:border-rose-400 hover:bg-rose-50/50 text-zinc-700 hover:text-rose-900 transition-all cursor-pointer leading-snug"
+                          className="w-full text-left text-xs p-2.5 rounded-xl border border-[#2c2c2c] bg-[#171717] hover:border-[#523d2e] hover:bg-[#221c17] text-[#c8c5c0] hover:text-[#f0eeeb] transition-all cursor-pointer leading-snug"
                         >
                           "{prompt}"
                         </button>
@@ -275,27 +264,27 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
             </div>
           </div>
 
-          <div className="bg-zinc-50 rounded-2xl border border-zinc-200 p-4 text-xs text-zinc-600">
-            <h4 className="font-bold text-zinc-900 mb-1 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+          <div className="bg-[#181818] rounded-2xl border border-[#282828] p-4 text-xs text-[#a8a5a0]">
+            <h4 className="font-bold text-[#f0eeeb] mb-1 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-[#82ba8f]" />
               <span>Autonomía y Claridad Total</span>
             </h4>
-            <p className="leading-relaxed text-zinc-500">
+            <p className="leading-relaxed text-[#8e8c87]">
               En lugar de buscar en planillas o consultar manuales externos, Xenia te entrega números consolidados en tiempo real y te guía paso a paso en el uso de cada función de Loomi Suite.
             </p>
           </div>
         </div>
 
         {/* Right Column: Chat Conversation */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-zinc-200 shadow-xs flex flex-col h-[640px]">
+        <div className="lg:col-span-2 bg-[#1c1c1c] rounded-2xl border border-[#2a2a2a] shadow-xs flex flex-col h-[640px]">
           {/* Chat Header */}
-          <div className="p-4 border-b border-zinc-100 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Bot className="w-4 h-4 text-rose-600" />
-              <span className="text-xs font-bold text-zinc-800">
+          <div className="p-4 border-b border-[#282828] flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <XeniaAvatar size="xs" />
+              <span className="text-xs font-bold text-[#f0eeeb]">
                 Conversación con Xenia
               </span>
-              <span className="text-[10px] text-zinc-400">• Gemini 3.8 Flash / Motor Operativo</span>
+              <span className="text-[10px] text-[#7a7874]">• Motor Operativo & Gemini</span>
             </div>
             <button
               onClick={() => {
@@ -303,12 +292,12 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
                   {
                     id: `reset-${Date.now()}`,
                     role: 'assistant',
-                    content: 'Conversación reiniciada. ¿En qué te ayudo hoy con tus cabañas o el uso de Loomi Suite?',
+                    content: 'Conversación reiniciada. ¿En qué te ayudo hoy con tus departamentos o el uso de Loomi Suite?',
                     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                   },
                 ]);
               }}
-              className="text-[11px] text-zinc-500 hover:text-rose-600 flex items-center gap-1 cursor-pointer transition-colors"
+              className="text-[11px] text-[#8e8c87] hover:text-[#d88d5e] flex items-center gap-1 cursor-pointer transition-colors"
             >
               <RefreshCw className="w-3 h-3" />
               <span>Limpiar chat</span>
@@ -323,34 +312,30 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
                 className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-500 p-0.5 shrink-0 shadow-xs">
-                    <div className="w-full h-full bg-zinc-950 rounded-[10px] flex items-center justify-center">
-                      <Bot className="w-4 h-4 text-rose-300" />
-                    </div>
-                  </div>
+                  <XeniaAvatar size="sm" showStatus={false} />
                 )}
 
                 <div
                   className={`max-w-2xl rounded-2xl p-4 text-xs sm:text-sm leading-relaxed ${
                     msg.role === 'user'
-                      ? 'bg-rose-600 text-white shadow-xs rounded-tr-xs'
-                      : 'bg-zinc-50 border border-zinc-200/80 text-zinc-800 shadow-xs rounded-tl-xs'
+                      ? 'bg-[#3d2e24] border border-[#5a4234] text-[#f4f2ee] shadow-xs rounded-tr-xs'
+                      : 'bg-[#161616] border border-[#2a2a2a] text-[#dedbd6] shadow-xs rounded-tl-xs'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-3 mb-1.5 pb-1 border-b border-black/5 dark:border-white/10 text-[10px] opacity-75">
-                    <span className="font-semibold">
-                      {msg.role === 'user' ? 'Tú (Anfitrión)' : 'Xenia Copilot'}
+                  <div className="flex items-center justify-between gap-3 mb-1.5 pb-1 border-b border-white/5 text-[10px] text-[#8e8c87]">
+                    <span className="font-semibold text-[#c8c5c0]">
+                      {msg.role === 'user' ? 'Tú (Anfitrión)' : 'Xenia'}
                     </span>
                     <div className="flex items-center gap-2">
                       <span>{msg.timestamp}</span>
                       {msg.role === 'assistant' && (
                         <button
                           onClick={() => copyToClipboard(msg.content, msg.id)}
-                          className="hover:text-rose-600 transition-colors p-0.5"
+                          className="hover:text-[#d88d5e] transition-colors p-0.5"
                           title="Copiar texto"
                         >
                           {copiedId === msg.id ? (
-                            <Check className="w-3 h-3 text-emerald-600" />
+                            <Check className="w-3 h-3 text-[#82ba8f]" />
                           ) : (
                             <Copy className="w-3 h-3" />
                           )}
@@ -359,13 +344,13 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
                     </div>
                   </div>
 
-                  <div className="prose prose-sm max-w-none text-zinc-800 dark:prose-invert">
+                  <div className="prose prose-invert prose-xs sm:prose-sm max-w-none text-[#dedbd6] prose-headings:text-[#f4f2ee] prose-strong:text-[#f4f2ee] prose-a:text-[#d88d5e]">
                     <Markdown>{msg.content}</Markdown>
                   </div>
                 </div>
 
                 {msg.role === 'user' && (
-                  <div className="w-8 h-8 rounded-xl bg-zinc-200 flex items-center justify-center text-zinc-700 shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-[#2a2622] border border-[#48372b] flex items-center justify-center text-[#d88d5e] text-xs font-bold shrink-0">
                     <User className="w-4 h-4" />
                   </div>
                 )}
@@ -373,24 +358,16 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
             ))}
 
             {isLoading && (
-              <div className="flex gap-3 justify-start">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-500 p-0.5 shrink-0">
-                  <div className="w-full h-full bg-zinc-950 rounded-[10px] flex items-center justify-center">
-                    <Bot className="w-4 h-4 text-rose-300 animate-pulse" />
-                  </div>
-                </div>
-                <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 text-xs text-zinc-500 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
-                  <span>Xenia está analizando tus datos y generando la respuesta...</span>
-                </div>
+              <div className="flex items-center gap-3 text-xs text-[#8e8c87] animate-pulse">
+                <XeniaAvatar size="sm" />
+                <span>Xenia está analizando tus reservas y preparando la respuesta...</span>
               </div>
             )}
-
             <div ref={chatBottomRef} />
           </div>
 
           {/* Input Box */}
-          <div className="p-4 border-t border-zinc-200 bg-zinc-50/50 rounded-b-2xl">
+          <div className="p-3 sm:p-4 border-t border-[#282828] bg-[#181818] rounded-b-2xl">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -402,22 +379,18 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Pregunta a Xenia sobre ingresos, huéspedes o cómo usar una función..."
-                className="flex-1 px-4 py-3 bg-white border border-zinc-300 rounded-xl text-xs sm:text-sm text-zinc-800 placeholder-zinc-400 focus:outline-hidden focus:border-rose-500 focus:ring-1 focus:ring-rose-500 shadow-xs"
+                placeholder="Pregúntale a Xenia sobre ocupación, comisiones o uso del sistema..."
                 disabled={isLoading}
+                className="flex-1 text-xs sm:text-sm bg-[#141414] border border-[#2e2e2e] focus:border-[#d88d5e] rounded-xl px-4 py-2.5 text-[#f4f2ee] placeholder-[#777] focus:outline-none transition-colors"
               />
               <button
                 type="submit"
-                disabled={isLoading || !inputMessage.trim()}
-                className="px-5 py-3 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+                disabled={!inputMessage.trim() || isLoading}
+                className="bg-[#c46d45] hover:bg-[#d67b51] disabled:opacity-40 text-white p-2.5 rounded-xl transition-all cursor-pointer shrink-0"
               >
                 <Send className="w-4 h-4" />
-                <span className="hidden sm:inline">Preguntar</span>
               </button>
             </form>
-            <p className="text-[11px] text-zinc-400 mt-2 text-center">
-              Xenia lee en tiempo real el estado de tus cabañas, reservaciones y tareas para responderte con exactitud.
-            </p>
           </div>
         </div>
       </div>

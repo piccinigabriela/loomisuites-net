@@ -20,8 +20,9 @@ interface DemoHeaderProps {
   onOpenNewReservation: () => void;
   onOpenJsonModal: () => void;
   onOpenContactModal: () => void;
-  activeComplex: 'catalinas' | 'woodcabin';
-  onSwitchComplex: (complex: 'catalinas' | 'woodcabin') => void;
+  onOpenOnboardingWizard?: () => void;
+  activeComplex: 'catalinas' | 'woodcabin' | 'custom';
+  onSwitchComplex: (complex: 'catalinas' | 'woodcabin' | 'custom') => void;
   isEmployeeMode?: boolean;
   onToggleEmployeeMode?: () => void;
   theme?: 'light' | 'dark';
@@ -34,6 +35,7 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
   onOpenNewReservation,
   onOpenJsonModal,
   onOpenContactModal,
+  onOpenOnboardingWizard,
   activeComplex,
   onSwitchComplex,
   isEmployeeMode = false,
@@ -138,11 +140,31 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
               <span>🌲 Wood Cabin</span>
               <span className="text-[10px] opacity-80 font-normal">(Iguazú)</span>
             </button>
+            {activeComplex === 'custom' && (
+              <button
+                onClick={() => onSwitchComplex('custom')}
+                className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 bg-emerald-600 text-white shadow-xs cursor-pointer"
+              >
+                <span>✨ Mi Complejo Real</span>
+              </button>
+            )}
           </div>
         </div>
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2 sm:gap-2.5">
+          {onOpenOnboardingWizard && (
+            <button
+              onClick={onOpenOnboardingWizard}
+              className="flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 active:scale-98 px-3 py-2 rounded-lg shadow-md shadow-purple-600/30 transition-all cursor-pointer border border-purple-400/30"
+              title="Cargar mis departamentos reales paso a paso"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span className="hidden sm:inline">Cargar Mis Departamentos</span>
+              <span className="inline sm:hidden">Mis Deptos</span>
+            </button>
+          )}
+
           {onToggleTheme && (
             <button
               onClick={onToggleTheme}
