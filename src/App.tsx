@@ -50,6 +50,7 @@ import { NewReservationModal } from './components/demo/NewReservationModal';
 import { ReservationDetailModal } from './components/demo/ReservationDetailModal';
 import { JsonDataModal } from './components/demo/JsonDataModal';
 import { OnboardingWizardModal } from './components/demo/OnboardingWizardModal';
+import { CalendarImportModal } from './components/demo/CalendarImportModal';
 import { INITIAL_WELCOME_GUIDE } from './data/initialData';
 
 export default function App() {
@@ -132,6 +133,7 @@ export default function App() {
   const [selectedReservationForDetail, setSelectedReservationForDetail] = useState<Reservation | null>(null);
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   // Toast feedback
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -262,6 +264,53 @@ export default function App() {
     saveDemoState(newState);
     setDemoState(newState);
     showToast('Datos personalizados cargados y guardados en localStorage.');
+  };
+
+  // Handle import from Google Calendar / CSV
+  const handleImportCalendarReservations = (newRes: Reservation[], mode: 'add' | 'replace') => {
+    updateDemoState((prev) => {
+      let finalReservations = [...prev.reservations];
+      if (mode === 'replace') {
+        finalReservations = newRes;
+      } else {
+        // Mode 'add' - filter duplicates or keep existing and append new ones
+        const existingIds = new Set(prev.reservations.map(r => `${r.propertyId}_${r.checkIn}_${r.checkOut}`));
+        const filterNew = newRes.filter(r => !existingIds.has(`${r.propertyId}_${r.checkIn}_${r.checkOut}`));
+        finalReservations = [...filterNew, ...prev.reservations];
+      }
+
+      // Also automatically create cleaning tasks for each new imported reservation!
+      const newCleaningTasks = newRes.map((r) => ({
+        id: `clean-import-${Date.now()}-${Math.random()}`,
+        propertyId: r.propertyId,
+        reservationId: r.id,
+        date: r.checkOut,
+        scheduledTime: '11:00 - 13:30',
+        cleanerName: 'Marta González',
+        cleanerPhone: '+54 9 11 5566-7788',
+        status: 'pending' as const,
+        checklist: [
+          { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
+          { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
+          { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
+          { id: 'c4', task: 'Comprobación de cerradura inteligente', completed: false },
+        ],
+        notes: `Generado automáticamente por importación de ${r.guestName}`,
+      }));
+
+      const finalCleaningTasks = mode === 'replace'
+        ? newCleaningTasks
+        : [...newCleaningTasks, ...prev.cleaningTasks];
+
+      return {
+        ...prev,
+        reservations: finalReservations,
+        cleaningTasks: finalCleaningTasks,
+        lastUpdated: new Date().toISOString(),
+      };
+    });
+
+    showToast(`🎉 ¡Éxito! Se importaron ${newRes.length} reservas y se crearon sus tareas de limpieza.`);
   };
 
   // New Reservation creation
@@ -657,6 +706,7 @@ export default function App() {
                   demoState={demoState}
                   onSelectReservation={setSelectedReservationForDetail}
                   onOpenNewReservationWithProperty={handleOpenNewReservationWithProperty}
+                  onOpenImportModal={() => setIsImportModalOpen(true)}
                 />
               )}
 
@@ -781,6 +831,13 @@ export default function App() {
         isOpen={isOnboardingModalOpen}
         onClose={() => setIsOnboardingModalOpen(false)}
         onComplete={handleCompleteOnboarding}
+      />
+
+      <CalendarImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        demoState={demoState}
+        onImport={handleImportCalendarReservations}
       />
     </div>
   );

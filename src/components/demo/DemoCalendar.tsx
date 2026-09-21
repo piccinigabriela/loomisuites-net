@@ -21,6 +21,7 @@ interface DemoCalendarProps {
   demoState: DemoState;
   onSelectReservation: (res: Reservation) => void;
   onOpenNewReservationWithProperty?: (propertyId: string, date: string) => void;
+  onOpenImportModal?: () => void;
 }
 
 type ColumnMode = 'compact' | 'medium' | 'full';
@@ -29,6 +30,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
   demoState,
   onSelectReservation,
   onOpenNewReservationWithProperty,
+  onOpenImportModal,
 }) => {
   const [dayOffset, setDayOffset] = useState<number>(-2); // Show from 2 days ago to +12 days ahead
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>('all');
@@ -197,6 +199,17 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
 
         {/* Controls Bar */}
         <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+          {onOpenImportModal && (
+            <button
+              onClick={onOpenImportModal}
+              className="text-xs font-extrabold px-3 py-1.5 rounded-lg border border-[#d88d5e]/30 bg-[#2a221b]/40 hover:bg-[#d88d5e]/15 text-[#d88d5e] flex items-center gap-1.5 transition-all cursor-pointer"
+              title="Importar reservas desde Google Calendar (.ics) o archivos CSV / Excel"
+            >
+              <CalendarIcon className="w-3.5 h-3.5 text-[#d88d5e]" />
+              <span>Importar Google Cal / CSV</span>
+            </button>
+          )}
+
           {/* Property selector */}
           <select
             value={selectedPropertyId}

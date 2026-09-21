@@ -59,6 +59,14 @@ export const ChannelIntegrations: React.FC = () => {
       icon: '💳',
       desc: 'Cobra transferencias locales, señas con tarjeta o depósitos de garantía con Mercado Pago o PayPal.',
     },
+    {
+      name: 'Google Calendar & CSV Import',
+      category: 'Migración Inmediata',
+      badge: 'Traspaso en 1 Clic',
+      color: 'border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-[#2a221b] text-blue-700 dark:text-[#d88d5e]',
+      icon: '📅',
+      desc: '¿Tenés tus reservas actuales en Google Calendar o planillas Excel? Subí tu archivo .ics o .csv y Loomi Suite importará todas tus estadías en un segundo sin superposiciones.',
+    },
   ];
 
   return (
