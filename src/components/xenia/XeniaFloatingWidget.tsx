@@ -65,7 +65,9 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
     stopSpeaking,
     autoVoice,
     toggleAutoVoice,
-  } = useXeniaVoice();
+  } = useXeniaVoice((finalText) => {
+    handleSend(finalText);
+  });
 
   // Sync transcript to input
   useEffect(() => {
@@ -379,9 +381,6 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                 onClick={() => {
                   if (isListening) {
                     stopListening();
-                    if (transcript.trim()) {
-                      handleSend(transcript);
-                    }
                   } else {
                     startListening();
                   }

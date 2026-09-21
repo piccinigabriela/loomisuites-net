@@ -35,10 +35,27 @@ export function cleanTextForSpeech(text: string): string {
   clean = clean.replace(/^\d+\.\s+/gm, '');
 
   // Convert common hospitality abbreviations to spoken Latin American Spanish
+  // Pre-emptively convert large sums with dollar signs to "pesos" or "mil pesos"
+  clean = clean.replace(/\$45\.000/g, '45 mil pesos');
+  clean = clean.replace(/\$60\.000/g, '60 mil pesos');
+  clean = clean.replace(/\$80\.000/g, '80 mil pesos');
+  clean = clean.replace(/\$45000/g, '45 mil pesos');
+  clean = clean.replace(/\$60000/g, '60 mil pesos');
+  clean = clean.replace(/\$80000/g, '80 mil pesos');
+
+  // Replace any dollar amounts >= 1000 with pesos, e.g. $45.000 -> 45 mil pesos
+  clean = clean.replace(/\$(\d{2,3})\.(\d{3})\b/g, '$1 mil pesos');
+  clean = clean.replace(/\$(\d{2,3})\,(\d{3})\b/g, '$1 mil pesos');
+  clean = clean.replace(/\$(\d{4,9})\b/g, '$1 pesos');
+
   clean = clean.replace(/\bARS\b/g, 'pesos');
   clean = clean.replace(/\$([0-9.]+)\s*USD/g, '$1 dólares');
   clean = clean.replace(/\$([0-9.]+)\s*ARS/g, '$1 pesos');
   clean = clean.replace(/\bUSD\b/g, 'dólares');
+
+  // Convert smaller dollar amounts (like $80, $150) under 1000 to "dólares"
+  clean = clean.replace(/\$(\d{1,3})\b/gi, '$1 dólares');
+
   clean = clean.replace(/\bOTAs?\b/gi, 'agencias de reserva');
   clean = clean.replace(/\biCal\b/gi, 'ai cal');
   clean = clean.replace(/\bWi-?Fi\b/gi, 'guai fai');

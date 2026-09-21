@@ -94,7 +94,9 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
     availableVoices,
     selectedVoiceURI,
     selectVoice,
-  } = useXeniaVoice();
+  } = useXeniaVoice((finalText) => {
+    handleSendMessage(finalText);
+  });
 
   const [showVoiceModal, setShowVoiceModal] = useState(false);
 
@@ -844,9 +846,6 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                   type="button"
                   onClick={() => {
                     stopListening();
-                    if (transcript.trim()) {
-                      handleSendMessage(transcript);
-                    }
                   }}
                   className="px-3 py-1.5 bg-[#d88d5e] text-[#1c1a18] font-bold rounded-xl text-xs hover:bg-[#e49c6f] cursor-pointer"
                 >
@@ -879,9 +878,6 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                 onClick={() => {
                   if (isListening) {
                     stopListening();
-                    if (transcript.trim()) {
-                      handleSendMessage(transcript);
-                    }
                   } else {
                     startListening();
                   }

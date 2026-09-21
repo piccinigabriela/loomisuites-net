@@ -33,6 +33,12 @@ export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => voi
   const [selectedVoiceURI, setSelectedVoiceURI] = useState<string>(() => getStoredSelectedVoiceURI());
 
   const recognitionRef = useRef<any>(null);
+  const onTranscriptRef = useRef(onTranscriptReceived);
+  const latestTranscriptRef = useRef('');
+
+  useEffect(() => {
+    onTranscriptRef.current = onTranscriptReceived;
+  }, [onTranscriptReceived]);
 
   // Initialize SpeechSynthesis voices
   const refreshVoices = useCallback(() => {
@@ -92,6 +98,7 @@ export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => voi
             currentTranscript += event.results[i][0].transcript;
           }
           setTranscript(currentTranscript);
+          latestTranscriptRef.current = currentTranscript;
         };
 
         recognition.onerror = (event: any) => {
@@ -101,6 +108,13 @@ export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => voi
 
         recognition.onend = () => {
           setIsListening(false);
+          const finalVal = latestTranscriptRef.current.trim();
+          if (finalVal) {
+            onTranscriptRef.current?.(finalVal);
+            // Clear ref to avoid repeating
+            latestTranscriptRef.current = '';
+            setTranscript('');
+          }
         };
 
         recognitionRef.current = recognition;
@@ -137,6 +151,7 @@ export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => voi
     setIsSpeaking(false);
     setSpeakingMessageId(null);
     setTranscript('');
+    latestTranscriptRef.current = '';
 
     if (recognitionRef.current) {
       try {
