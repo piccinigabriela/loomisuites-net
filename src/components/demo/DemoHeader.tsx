@@ -70,14 +70,6 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
           )}
           <span className="text-white/40">|</span>
           <button
-            onClick={onOpenJsonModal}
-            className="hover:underline text-[11px] font-semibold flex items-center gap-1 cursor-pointer"
-          >
-            <FileJson className="w-3.5 h-3.5" />
-            <span>Importar / Exportar Datos</span>
-          </button>
-          <span className="text-white/40">|</span>
-          <button
             onClick={onResetData}
             className="hover:underline text-[11px] font-semibold flex items-center gap-1 cursor-pointer"
           >
