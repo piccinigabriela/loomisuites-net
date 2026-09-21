@@ -9,11 +9,17 @@ import {
   Copy,
   Check,
   Maximize2,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+  Square,
 } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { DemoState } from '../../types';
 import { getClientXeniaReply } from './xeniaLocalEngine';
 import { XeniaAvatar } from './XeniaAvatar';
+import { useXeniaVoice } from '../../hooks/useXeniaVoice';
 
 interface XeniaFloatingWidgetProps {
   demoState: DemoState;
@@ -37,7 +43,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
       id: 'fw-1',
       role: 'assistant',
       content:
-        '👋 ¡Hola! Soy **Xenia**, tu asistente en Loomi Suite. Puedo **rendirte cuentas de ingresos y huéspedes**, o darte las **instrucciones de uso de la plataforma** para resolver cualquier duda al instante. ¿Qué deseas saber?',
+        '👋 ¡Hola! Soy **Xenia**, tu asistente en Loomi Suite. Podés escribirme o **hablarme por voz con el micrófono** 🎙️ y te responderé en español argentino. ¿Qué querés consultar?',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -46,15 +52,40 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  // Voice Hook
+  const {
+    isListening,
+    isSpeaking,
+    speakingMessageId,
+    transcript,
+    setTranscript,
+    startListening,
+    stopListening,
+    speakMessage,
+    stopSpeaking,
+    autoVoice,
+    toggleAutoVoice,
+  } = useXeniaVoice();
+
+  // Sync transcript to input
+  useEffect(() => {
+    if (transcript) {
+      setInput(transcript);
+    }
+  }, [transcript]);
+
   useEffect(() => {
     if (isOpen) {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [isOpen, messages, isLoading]);
+  }, [isOpen, messages, isLoading, isListening]);
 
   const handleSend = async (textToSend?: string) => {
     const text = (textToSend || input).trim();
     if (!text || isLoading) return;
+
+    if (isListening) stopListening();
+    stopSpeaking();
 
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
@@ -64,7 +95,8 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
     };
 
     setMessages((prev) => [...prev, userMsg]);
-    if (!textToSend) setInput('');
+    setInput('');
+    setTranscript('');
     setIsLoading(true);
 
     try {
@@ -87,27 +119,42 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
       }
 
       const data = await res.json();
+      const reply = data.reply || getClientXeniaReply(text, demoState);
+      const assistantMsgId = `a-${Date.now()}`;
+
       setMessages((prev) => [
         ...prev,
         {
-          id: `a-${Date.now()}`,
+          id: assistantMsgId,
           role: 'assistant',
-          content: data.reply || getClientXeniaReply(text, demoState),
+          content: reply,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         },
       ]);
+
+      if (autoVoice) {
+        setTimeout(() => {
+          speakMessage(reply, assistantMsgId);
+        }, 150);
+      }
     } catch (err) {
-      // Fallback direct local client intelligence - always guaranteed to answer
       const localReply = getClientXeniaReply(text, demoState);
+      const assistantMsgId = `a-${Date.now()}`;
       setMessages((prev) => [
         ...prev,
         {
-          id: `a-${Date.now()}`,
+          id: assistantMsgId,
           role: 'assistant',
           content: localReply,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         },
       ]);
+
+      if (autoVoice) {
+        setTimeout(() => {
+          speakMessage(localReply, assistantMsgId);
+        }, 150);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -135,7 +182,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
               <span className="w-2 h-2 rounded-full bg-[#82ba8f] animate-pulse" />
             </div>
             <span className="text-[10px] text-[#d88d5e] font-medium leading-tight">
-              Finanzas & Guía de Uso
+              Finanzas & Voz en Vivo
             </span>
           </div>
         </button>
@@ -152,19 +199,32 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                 <div className="flex items-center gap-1.5">
                   <h3 className="font-bold text-sm leading-tight text-[#f4f2ee]">Xenia Copilot</h3>
                   <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#202d20] text-[#a4cca8] border border-[#344836]">
-                    Online
+                    🇦🇷 Voz AR
                   </span>
                 </div>
                 <p className="text-[10px] text-[#8e8c87]">
-                  Rendición de Cuentas & Manual de Uso
+                  Rendición de Cuentas & Voz
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-1">
+              <button
+                onClick={toggleAutoVoice}
+                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                  autoVoice
+                    ? 'text-[#d88d5e] bg-[#2a2018]'
+                    : 'text-[#8e8c87] hover:text-white hover:bg-[#282828]'
+                }`}
+                title={autoVoice ? 'Voz de Xenia activada' : 'Activar voz'}
+              >
+                {autoVoice ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+              </button>
+
               {onOpenFullView && (
                 <button
                   onClick={() => {
+                    stopSpeaking();
                     setIsOpen(false);
                     onOpenFullView();
                   }}
@@ -175,7 +235,10 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                 </button>
               )}
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  stopSpeaking();
+                  setIsOpen(false);
+                }}
                 className="p-1.5 text-[#8e8c87] hover:text-white rounded-lg hover:bg-[#282828] transition-colors cursor-pointer"
                 title="Cerrar"
               >
@@ -212,14 +275,6 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
             </button>
             <button
               onClick={() =>
-                handleSend('¿Qué servicios incluye y cómo funciona con llaves tradicionales?')
-              }
-              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[#202020] border border-[#333] text-[#c8c5c0] hover:text-[#f4f2ee] transition-colors cursor-pointer shrink-0"
-            >
-              🔑 ¿Qué incluye?
-            </button>
-            <button
-              onClick={() =>
                 handleSend('¿Cómo sincronizo Booking y Airbnb sin dobles reservas?')
               }
               className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[#202020] border border-[#333] text-[#c8c5c0] hover:text-[#f4f2ee] transition-colors cursor-pointer shrink-0"
@@ -249,20 +304,41 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                 >
                   <div className="flex items-center justify-between gap-2 mb-1 text-[9px] opacity-70 border-b border-white/10 pb-0.5">
                     <span>{m.role === 'user' ? 'Tú' : 'Xenia'}</span>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
                       <span>{m.timestamp}</span>
                       {m.role === 'assistant' && (
-                        <button
-                          onClick={() => copyText(m.content, m.id)}
-                          className="hover:text-[#d88d5e] p-0.5"
-                          title="Copiar"
-                        >
-                          {copiedId === m.id ? (
-                            <Check className="w-2.5 h-2.5 text-[#78b37e]" />
-                          ) : (
-                            <Copy className="w-2.5 h-2.5" />
-                          )}
-                        </button>
+                        <>
+                          <button
+                            onClick={() => speakMessage(m.content, m.id)}
+                            className={`p-0.5 rounded cursor-pointer transition-colors ${
+                              isSpeaking && speakingMessageId === m.id
+                                ? 'text-[#d88d5e] font-bold animate-pulse'
+                                : 'hover:text-[#d88d5e]'
+                            }`}
+                            title={
+                              isSpeaking && speakingMessageId === m.id
+                                ? 'Detener voz'
+                                : 'Escuchar en voz alta'
+                            }
+                          >
+                            {isSpeaking && speakingMessageId === m.id ? (
+                              <Square className="w-2.5 h-2.5 fill-current" />
+                            ) : (
+                              <Volume2 className="w-2.5 h-2.5" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => copyText(m.content, m.id)}
+                            className="hover:text-[#d88d5e] p-0.5"
+                            title="Copiar"
+                          >
+                            {copiedId === m.id ? (
+                              <Check className="w-2.5 h-2.5 text-[#78b37e]" />
+                            ) : (
+                              <Copy className="w-2.5 h-2.5" />
+                            )}
+                          </button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -272,6 +348,13 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                 </div>
               </div>
             ))}
+
+            {isListening && (
+              <div className="flex items-center gap-2 text-xs text-[#d88d5e] bg-[#2b221b] border border-[#d88d5e]/50 rounded-xl p-2.5">
+                <span className="w-2 h-2 rounded-full bg-[#d88d5e] animate-ping" />
+                <span className="font-semibold">Escuchando tu voz... Hablá con libertad</span>
+              </div>
+            )}
 
             {isLoading && (
               <div className="flex items-center gap-2 text-xs text-[#8e8c87] bg-[#1c1c1c] border border-[#2e2e2e] rounded-xl p-2.5 w-fit">
@@ -291,11 +374,33 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
               }}
               className="flex items-center gap-1.5"
             >
+              <button
+                type="button"
+                onClick={() => {
+                  if (isListening) {
+                    stopListening();
+                    if (transcript.trim()) {
+                      handleSend(transcript);
+                    }
+                  } else {
+                    startListening();
+                  }
+                }}
+                className={`p-2 rounded-xl transition-all cursor-pointer ${
+                  isListening
+                    ? 'bg-red-600 text-white animate-pulse ring-2 ring-red-400'
+                    : 'bg-[#24201c] hover:bg-[#342b23] text-[#d88d5e] border border-[#48372b]'
+                }`}
+                title={isListening ? 'Detener micrófono y enviar' : 'Hablar con Xenia por voz'}
+              >
+                {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              </button>
+
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Pregunta a Xenia sobre ingresos o el uso del sistema..."
+                placeholder={isListening ? 'Escuchando tu voz...' : 'Preguntale a Xenia o tocá el micro...'}
                 className="flex-1 px-3 py-2 bg-[#121212] border border-[#333] rounded-xl text-xs text-[#f4f2ee] focus:outline-none focus:border-[#d88d5e]"
                 disabled={isLoading}
               />
@@ -314,3 +419,4 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
     </div>
   );
 };
+

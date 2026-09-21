@@ -17,6 +17,12 @@ import {
   Image as ImageIcon,
   X,
   Upload,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+  Square,
+  Radio,
 } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { DemoState } from '../../types';
@@ -27,6 +33,7 @@ import {
   getStoredXeniaAvatar,
   setStoredXeniaAvatar,
 } from './XeniaAvatar';
+import { useXeniaVoice } from '../../hooks/useXeniaVoice';
 
 interface XeniaCopilotViewProps {
   demoState: DemoState;
@@ -47,7 +54,7 @@ export const XeniaCopilotView: React.FC<XeniaCopilotViewProps> = ({ demoState })
       role: 'assistant',
       content: `### 👋 ¡Hola! Soy **Xenia**, tu Copiloto Inteligente de Hospitalidad
 
-Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas** y al motor de Loomi Suite. Mi función es darte respuestas inmediatas y precisas con dos capacidades centrales:
+Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas** y al motor de Loomi Suite. Podés escribirme o **hablarme directamente por voz con el micrófono** 🎙️ y te responderé en español argentino:
 
 1. **📊 Rendición de Cuentas Financieras & Huéspedes:**
    - Consulta facturación total, comisiones de OTAs (Booking / Airbnb), ingresos netos y comisiones ahorradas por reservas directas.
@@ -56,7 +63,7 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
 2. **📘 Instrucciones de Uso de Loomi Suite:**
    - Aprende a usar cada módulo del sistema al instante. Pregúntame paso a paso cómo sincronizar calendarios iCal, cómo cargar reservas telefónicas, cómo coordinar a la mucama o cómo compartir tu link de reservas directas.
 
-*Elige una de las preguntas sugeridas aquí al costado o escribe lo que necesites:*`,
+*Tocá el micrófono para hablar, elegí una pregunta sugerida o escribí lo que necesites:*`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -66,13 +73,42 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
+  // Voice Hook
+  const {
+    isListening,
+    isSpeaking,
+    speakingMessageId,
+    transcript,
+    setTranscript,
+    startListening,
+    stopListening,
+    speakMessage,
+    stopSpeaking,
+    autoVoice,
+    toggleAutoVoice,
+    isRecognitionSupported,
+    detectedVoiceName,
+  } = useXeniaVoice();
+
+  // Sync transcript from speech recognition into input field
+  useEffect(() => {
+    if (transcript) {
+      setInputMessage(transcript);
+    }
+  }, [transcript]);
+
   useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading]);
+  }, [messages, isLoading, isListening]);
 
   const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || inputMessage).trim();
     if (!text || isLoading) return;
+
+    if (isListening) {
+      stopListening();
+    }
+    stopSpeaking();
 
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
@@ -83,6 +119,7 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
 
     setMessages((prev) => [...prev, userMsg]);
     setInputMessage('');
+    setTranscript('');
     setIsLoading(true);
 
     try {
@@ -108,26 +145,42 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
       }
 
       const data = await response.json();
+      const replyContent = data.reply || getClientXeniaReply(text, demoState);
+      const assistantMsgId = `assistant-${Date.now()}`;
       const assistantMsg: ChatMessage = {
-        id: `assistant-${Date.now()}`,
+        id: assistantMsgId,
         role: 'assistant',
-        content: data.reply || getClientXeniaReply(text, demoState),
+        content: replyContent,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         source: data.source || 'xenia_engine',
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
+
+      // If auto-voice is enabled, speak out the reply in Argentine female voice
+      if (autoVoice) {
+        setTimeout(() => {
+          speakMessage(replyContent, assistantMsgId);
+        }, 150);
+      }
     } catch (err: any) {
       console.warn('Usando motor local de Xenia:', err);
       const localReply = getClientXeniaReply(text, demoState);
+      const assistantMsgId = `assistant-${Date.now()}`;
       const assistantMsg: ChatMessage = {
-        id: `assistant-${Date.now()}`,
+        id: assistantMsgId,
         role: 'assistant',
         content: localReply,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         source: 'xenia_instant_engine',
       };
       setMessages((prev) => [...prev, assistantMsg]);
+
+      if (autoVoice) {
+        setTimeout(() => {
+          speakMessage(localReply, assistantMsgId);
+        }, 150);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -450,30 +503,68 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
         {/* Right Column: Chat Conversation */}
         <div className="lg:col-span-2 bg-[#1c1c1c] rounded-2xl border border-[#2a2a2a] shadow-xs flex flex-col h-[640px]">
           {/* Chat Header */}
-          <div className="p-4 border-b border-[#282828] flex items-center justify-between">
+          <div className="p-4 border-b border-[#282828] flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <XeniaAvatar size="xs" />
-              <span className="text-xs font-bold text-[#f0eeeb]">
-                Conversación con Xenia
-              </span>
-              <span className="text-[10px] text-[#7a7874]">• Motor Operativo & Gemini</span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-[#f0eeeb]">
+                    Conversación con Xenia
+                  </span>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#202020] text-[#d88d5e] border border-[#383028]">
+                    🇦🇷 Voz Argentina (Mujer)
+                  </span>
+                </div>
+                <span className="text-[10px] text-[#7a7874] block">Consultas por voz y texto en tiempo real</span>
+              </div>
             </div>
-            <button
-              onClick={() => {
-                setMessages([
-                  {
-                    id: `reset-${Date.now()}`,
-                    role: 'assistant',
-                    content: 'Conversación reiniciada. ¿En qué te ayudo hoy con tus departamentos o el uso de Loomi Suite?',
-                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                  },
-                ]);
-              }}
-              className="text-[11px] text-[#8e8c87] hover:text-[#d88d5e] flex items-center gap-1 cursor-pointer transition-colors"
-            >
-              <RefreshCw className="w-3 h-3" />
-              <span>Limpiar chat</span>
-            </button>
+
+            <div className="flex items-center gap-2">
+              {/* Voice auto-play toggle */}
+              <button
+                onClick={toggleAutoVoice}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                  autoVoice
+                    ? 'bg-[#2b221b] border-[#d88d5e] text-[#f4f2ee]'
+                    : 'bg-[#141414] border-[#2c2c2c] text-[#8e8c87] hover:text-[#c8c5c0]'
+                }`}
+                title={
+                  autoVoice
+                    ? 'Voz automática activada (Español Argentino de mujer)'
+                    : 'Activar respuestas automáticas por voz'
+                }
+              >
+                {autoVoice ? (
+                  <>
+                    <Volume2 className="w-3.5 h-3.5 text-[#d88d5e]" />
+                    <span>Audio Automático (ON)</span>
+                  </>
+                ) : (
+                  <>
+                    <VolumeX className="w-3.5 h-3.5" />
+                    <span>Audio (OFF)</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={() => {
+                  stopSpeaking();
+                  setMessages([
+                    {
+                      id: `reset-${Date.now()}`,
+                      role: 'assistant',
+                      content: '¡Listo! Conversación reiniciada. ¿En qué te ayudo hoy con tus alojamientos o el uso de Loomi Suite?',
+                      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    },
+                  ]);
+                }}
+                className="text-[11px] text-[#8e8c87] hover:text-[#d88d5e] flex items-center gap-1 px-2.5 py-1.5 rounded-xl hover:bg-[#202020] cursor-pointer transition-colors"
+              >
+                <RefreshCw className="w-3 h-3" />
+                <span>Limpiar</span>
+              </button>
+            </div>
           </div>
 
           {/* Messages Stream */}
@@ -496,22 +587,56 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                 >
                   <div className="flex items-center justify-between gap-3 mb-1.5 pb-1 border-b border-white/5 text-[10px] text-[#8e8c87]">
                     <span className="font-semibold text-[#c8c5c0]">
-                      {msg.role === 'user' ? 'Tú (Anfitrión)' : 'Xenia'}
+                      {msg.role === 'user' ? 'Tú (Anfitrión)' : 'Xenia (Copiloto)'}
                     </span>
                     <div className="flex items-center gap-2">
                       <span>{msg.timestamp}</span>
+
                       {msg.role === 'assistant' && (
-                        <button
-                          onClick={() => copyToClipboard(msg.content, msg.id)}
-                          className="hover:text-[#d88d5e] transition-colors p-0.5"
-                          title="Copiar texto"
-                        >
-                          {copiedId === msg.id ? (
-                            <Check className="w-3 h-3 text-[#82ba8f]" />
-                          ) : (
-                            <Copy className="w-3 h-3" />
-                          )}
-                        </button>
+                        <>
+                          {/* Speak Button for this individual message */}
+                          <button
+                            onClick={() => speakMessage(msg.content, msg.id)}
+                            className={`flex items-center gap-1 px-2 py-0.5 rounded-md transition-all cursor-pointer ${
+                              isSpeaking && speakingMessageId === msg.id
+                                ? 'bg-[#d88d5e] text-[#1c1a18] font-bold shadow-xs'
+                                : 'hover:text-[#d88d5e] text-[#8e8c87] hover:bg-[#242424]'
+                            }`}
+                            title={
+                              isSpeaking && speakingMessageId === msg.id
+                                ? 'Detener voz de Xenia'
+                                : 'Escuchar respuesta con voz de mujer argentina'
+                            }
+                          >
+                            {isSpeaking && speakingMessageId === msg.id ? (
+                              <>
+                                <Square className="w-2.5 h-2.5 fill-current" />
+                                <span className="flex items-center gap-0.5">
+                                  <span>Hablando</span>
+                                  <span className="inline-block w-1 h-2 bg-[#1c1a18] animate-bounce" />
+                                  <span className="inline-block w-1 h-3 bg-[#1c1a18] animate-bounce delay-75" />
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <Volume2 className="w-3 h-3" />
+                                <span>Escuchar voz</span>
+                              </>
+                            )}
+                          </button>
+
+                          <button
+                            onClick={() => copyToClipboard(msg.content, msg.id)}
+                            className="hover:text-[#d88d5e] transition-colors p-0.5"
+                            title="Copiar texto"
+                          >
+                            {copiedId === msg.id ? (
+                              <Check className="w-3 h-3 text-[#82ba8f]" />
+                            ) : (
+                              <Copy className="w-3 h-3" />
+                            )}
+                          </button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -529,6 +654,40 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
               </div>
             ))}
 
+            {/* Live speech listening indicator */}
+            {isListening && (
+              <div className="flex items-center gap-3 p-3.5 bg-[#2b221b] border border-[#d88d5e]/60 rounded-2xl text-xs text-[#f4f2ee] animate-in fade-in">
+                <div className="w-8 h-8 rounded-full bg-[#d88d5e] flex items-center justify-center text-[#1c1a18] animate-pulse">
+                  <Mic className="w-4 h-4" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 font-bold text-[#d88d5e]">
+                    <span>🎙️ Xenia está escuchando tu voz (Español Argentino)...</span>
+                    <span className="flex gap-0.5">
+                      <span className="w-1 h-3 bg-[#d88d5e] animate-pulse" />
+                      <span className="w-1 h-4 bg-[#d88d5e] animate-pulse delay-75" />
+                      <span className="w-1 h-2 bg-[#d88d5e] animate-pulse delay-150" />
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#c8c5c0] mt-0.5">
+                    {transcript || 'Hablá con normalidad... (ej: "¿Cuántas reservas hay hoy?" o "¿Cómo sincronizo con Airbnb?")'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    stopListening();
+                    if (transcript.trim()) {
+                      handleSendMessage(transcript);
+                    }
+                  }}
+                  className="px-3 py-1.5 bg-[#d88d5e] text-[#1c1a18] font-bold rounded-xl text-xs hover:bg-[#e49c6f] cursor-pointer"
+                >
+                  {transcript.trim() ? 'Enviar consulta' : 'Detener'}
+                </button>
+              </div>
+            )}
+
             {isLoading && (
               <div className="flex items-center gap-3 text-xs text-[#8e8c87] animate-pulse">
                 <XeniaAvatar size="sm" />
@@ -539,7 +698,7 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
           </div>
 
           {/* Input Box */}
-          <div className="p-3 sm:p-4 border-t border-[#282828] bg-[#181818] rounded-b-2xl">
+          <div className="p-3 sm:p-4 border-t border-[#282828] bg-[#181818] rounded-b-2xl space-y-2">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -547,11 +706,52 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
               }}
               className="flex items-center gap-2"
             >
+              {/* Mic Voice Input Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (isListening) {
+                    stopListening();
+                    if (transcript.trim()) {
+                      handleSendMessage(transcript);
+                    }
+                  } else {
+                    startListening();
+                  }
+                }}
+                className={`p-2.5 rounded-xl transition-all cursor-pointer shrink-0 flex items-center gap-1.5 ${
+                  isListening
+                    ? 'bg-red-600 hover:bg-red-700 text-white animate-pulse shadow-lg shadow-red-600/30 ring-2 ring-red-400'
+                    : 'bg-[#26221e] hover:bg-[#342c25] border border-[#48372b] text-[#d88d5e] hover:text-[#f4f2ee]'
+                }`}
+                title={
+                  isListening
+                    ? 'Detener micrófono y enviar'
+                    : 'Hablar con Xenia por voz (Español Argentino)'
+                }
+              >
+                {isListening ? (
+                  <>
+                    <MicOff className="w-4 h-4" />
+                    <span className="text-xs font-bold hidden sm:inline">Escuchando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Mic className="w-4 h-4" />
+                    <span className="text-xs font-bold hidden sm:inline">Hablar</span>
+                  </>
+                )}
+              </button>
+
               <input
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Pregúntale a Xenia sobre ocupación, comisiones o uso del sistema..."
+                placeholder={
+                  isListening
+                    ? 'Escuchando tu voz...'
+                    : 'Escribí o tocá "Hablar" para consultar por voz a Xenia...'
+                }
                 disabled={isLoading}
                 className="flex-1 text-xs sm:text-sm bg-[#141414] border border-[#2e2e2e] focus:border-[#d88d5e] rounded-xl px-4 py-2.5 text-[#f4f2ee] placeholder-[#777] focus:outline-none transition-colors"
               />
@@ -559,6 +759,7 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                 type="submit"
                 disabled={!inputMessage.trim() || isLoading}
                 className="bg-[#c46d45] hover:bg-[#d67b51] disabled:opacity-40 text-white p-2.5 rounded-xl transition-all cursor-pointer shrink-0"
+                title="Enviar mensaje"
               >
                 <Send className="w-4 h-4" />
               </button>
