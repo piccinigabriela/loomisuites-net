@@ -299,7 +299,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
           {/* STEP 1: Complex Basics */}
           {currentStep === 1 && (
             <div className="space-y-4 animate-in fade-in duration-150">
-              <div className="bg-rose-50/60 dark:bg-rose-950/20 p-3.5 rounded-xl border border-rose-200/60 dark:border-rose-900/40 text-xs text-rose-900 dark:text-rose-300">
+              <div className="bg-[#f4eee7] dark:bg-[#2c221a] p-3.5 rounded-xl border border-[#e4d6c9] dark:border-[#533928] text-xs text-[#9c512a] dark:text-[#d88d5e]">
                 <p className="font-semibold">
                   Ingresa el nombre de tu complejo o grupo de departamentos y los datos de acceso para tus huéspedes.
                 </p>
@@ -348,7 +348,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
               {/* Wifi Setup */}
               <div className="p-3.5 bg-zinc-50 dark:bg-zinc-800/60 rounded-xl border border-zinc-200 dark:border-zinc-700 space-y-3">
                 <div className="flex items-center gap-2 text-xs font-bold text-zinc-800 dark:text-zinc-200">
-                  <Wifi className="w-4 h-4 text-rose-600" />
+                  <Wifi className="w-4 h-4 text-[#c46d45] dark:text-[#d88d5e]" />
                   <span>WiFi para la Guía Digital del Huésped</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -522,14 +522,14 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <label className="flex items-start gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:border-purple-300 dark:hover:border-purple-800 transition-colors">
+                <label className="flex items-start gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:border-[#c46d45]/60 dark:hover:border-[#c46d45]/60 transition-colors">
                   <input
                     type="checkbox"
                     checked={selectedAddonPresets.cochera}
                     onChange={(e) =>
                       setSelectedAddonPresets({ ...selectedAddonPresets, cochera: e.target.checked })
                     }
-                    className="mt-1 rounded text-purple-600"
+                    className="mt-1 rounded text-[#c46d45] focus:ring-[#c46d45]"
                   />
                   <div>
                     <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block">
@@ -541,14 +541,14 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                   </div>
                 </label>
 
-                <label className="flex items-start gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:border-purple-300 dark:hover:border-purple-800 transition-colors">
+                <label className="flex items-start gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:border-[#c46d45]/60 dark:hover:border-[#c46d45]/60 transition-colors">
                   <input
                     type="checkbox"
                     checked={selectedAddonPresets.transfers}
                     onChange={(e) =>
                       setSelectedAddonPresets({ ...selectedAddonPresets, transfers: e.target.checked })
                     }
-                    className="mt-1 rounded text-purple-600"
+                    className="mt-1 rounded text-[#c46d45] focus:ring-[#c46d45]"
                   />
                   <div>
                     <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block">
@@ -560,14 +560,14 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                   </div>
                 </label>
 
-                <label className="flex items-start gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:border-purple-300 dark:hover:border-purple-800 transition-colors">
+                <label className="flex items-start gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:border-[#c46d45]/60 dark:hover:border-[#c46d45]/60 transition-colors">
                   <input
                     type="checkbox"
                     checked={selectedAddonPresets.frigobar}
                     onChange={(e) =>
                       setSelectedAddonPresets({ ...selectedAddonPresets, frigobar: e.target.checked })
                     }
-                    className="mt-1 rounded text-purple-600"
+                    className="mt-1 rounded text-[#c46d45] focus:ring-[#c46d45]"
                   />
                   <div>
                     <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block">
@@ -579,14 +579,14 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                   </div>
                 </label>
 
-                <label className="flex items-start gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:border-purple-300 dark:hover:border-purple-800 transition-colors">
+                <label className="flex items-start gap-3 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:border-[#c46d45]/60 dark:hover:border-[#c46d45]/60 transition-colors">
                   <input
                     type="checkbox"
                     checked={selectedAddonPresets.desayuno}
                     onChange={(e) =>
                       setSelectedAddonPresets({ ...selectedAddonPresets, desayuno: e.target.checked })
                     }
-                    className="mt-1 rounded text-purple-600"
+                    className="mt-1 rounded text-[#c46d45] focus:ring-[#c46d45]"
                   />
                   <div>
                     <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 block">
@@ -631,7 +631,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
             <button
               type="button"
               onClick={() => setCurrentStep(currentStep + 1)}
-              className="flex items-center gap-1.5 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-xl shadow-md shadow-rose-600/30 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 text-xs font-bold bg-[#c46d45] hover:bg-[#b55e37] text-white px-5 py-2.5 rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               <span>Siguiente: {currentStep === 1 ? 'Cargar Unidades' : 'Servicios Opcionales'}</span>
               <ArrowRight className="w-4 h-4" />
@@ -640,7 +640,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
             <button
               type="button"
               onClick={handleFinishOnboarding}
-              className="flex items-center gap-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl shadow-lg shadow-emerald-600/30 transition-all cursor-pointer"
+              className="flex items-center gap-2 text-xs font-bold bg-[#3e6645] hover:bg-[#34563a] text-white px-6 py-2.5 rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               <Sparkles className="w-4 h-4" />
               <span>Finalizar y Activar Mi Complejo</span>

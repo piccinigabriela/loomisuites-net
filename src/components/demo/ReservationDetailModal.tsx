@@ -260,7 +260,7 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white dark:bg-zinc-900 w-full max-w-lg rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 overflow-hidden transition-colors flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="bg-zinc-900 text-white p-5 flex items-center justify-between border-b border-zinc-800 shrink-0">
+        <div className="bg-[#1c1b18] dark:bg-[#141414] text-white p-5 flex items-center justify-between border-b border-[#2e2a25] dark:border-[#222] shrink-0">
           <div className="flex items-center gap-3">
             {!isEditing && (
               <img
@@ -269,14 +269,14 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
                 }
                 alt={reservation.guestName}
-                className="w-10 h-10 rounded-full object-cover border border-zinc-700"
+                className="w-10 h-10 rounded-full object-cover border border-[#3e3a35]"
               />
             )}
             <div>
               <h3 className="text-base font-bold font-['Outfit'] flex items-center gap-2">
                 <span>{isEditing ? 'Editar Reserva' : reservation.guestName}</span>
                 {isEditing && (
-                  <span className="text-[10px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/40 px-2 py-0.5 rounded-full uppercase">
+                  <span className="text-[10px] font-bold bg-[#382a20] text-[#e89f78] border border-[#5a3a28] px-2 py-0.5 rounded-full uppercase">
                     Modo Edición
                   </span>
                 )}
@@ -286,22 +286,22 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                   <span
                     className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
                       reservation.platform === 'airbnb'
-                        ? 'bg-rose-500 text-white'
+                        ? 'bg-[#c46d45] text-white'
                         : reservation.platform === 'booking'
-                        ? 'bg-blue-500 text-white'
+                        ? 'bg-[#3b6088] text-white'
                         : reservation.platform === 'direct'
-                        ? 'bg-emerald-500 text-white'
-                        : 'bg-indigo-500 text-white'
+                        ? 'bg-[#3e6645] text-white'
+                        : 'bg-[#5c4a6b] text-white'
                     }`}
                   >
                     Canal: {reservation.platform}
                   </span>
-                  <span className="text-[10px] text-zinc-400 font-medium">
+                  <span className="text-[10px] text-[#8e8c87] font-medium">
                     ID: {reservation.id.slice(0, 8)}
                   </span>
                 </div>
               ) : (
-                <p className="text-xs text-zinc-400">Modifica fechas, precios, cabaña o datos del huésped</p>
+                <p className="text-xs text-[#8e8c87]">Modifica fechas, precios, cabaña o datos del huésped</p>
               )}
             </div>
           </div>
@@ -311,7 +311,7 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
               <button
                 id="btn-open-edit-reservation"
                 onClick={() => setIsEditing(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#c46d45] hover:bg-[#b55e37] text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
                 title="Editar todos los datos de la reserva"
               >
                 <Pencil className="w-3.5 h-3.5" />
@@ -321,7 +321,7 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
 
             <button
               onClick={onClose}
-              className="text-zinc-400 hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
+              className="text-[#8e8c87] hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>

@@ -51,7 +51,7 @@ export const DemoNavTabs: React.FC<DemoNavTabsProps> = ({
   const tabs = isEmployeeMode ? allTabs.filter((t) => !t.adminOnly) : allTabs;
 
   return (
-    <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 transition-colors">
+    <div className="bg-white dark:bg-[#1c1c1c] border-b border-[#ded9cd] dark:border-[#2a2a2a] transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto py-2.5 scrollbar-none">
           {tabs.map((tab) => {
@@ -63,14 +63,14 @@ export const DemoNavTabs: React.FC<DemoNavTabsProps> = ({
                 onClick={() => onSelectTab(tab.id)}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900/60 shadow-xs'
-                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 border border-transparent'
+                    ? 'bg-[#f4eee7] dark:bg-[#2c221a] text-[#9c512a] dark:text-[#d88d5e] border border-[#e4d6c9] dark:border-[#533928] shadow-2xs'
+                    : 'text-[#78746c] dark:text-[#8e8c87] hover:text-[#1c1b18] dark:hover:text-[#f4f2ee] hover:bg-[#f8f6f2] dark:hover:bg-[#252525] border border-transparent'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-rose-600 dark:text-rose-400' : 'text-zinc-400'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-[#c46d45] dark:text-[#d88d5e]' : 'text-[#a8a39b] dark:text-[#666]'}`} />
                 <span>{tab.label}</span>
                 {tab.badge && (
-                  <span className="bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-transparent dark:border-amber-800/40 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">
+                  <span className="bg-[#f8f6f2] dark:bg-[#332b24] text-[#9c512a] dark:text-[#d88d5e] border border-[#ded9cd] dark:border-[#4d3d30] text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">
                     {tab.badge}
                   </span>
                 )}

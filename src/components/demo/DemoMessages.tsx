@@ -69,12 +69,12 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-xs transition-colors">
-        <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+      <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-[#ded9cd] dark:border-[#2a2a2a] p-5 shadow-xs transition-colors">
+        <h3 className="text-base font-bold text-[#1c1b18] dark:text-[#f4f2ee] flex items-center gap-2">
+          <MessageSquare className="w-5 h-5 text-[#c46d45] dark:text-[#d88d5e]" />
           <span>Simulador de Mensajería y WhatsApp Automático</span>
         </h3>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+        <p className="text-xs text-[#78746c] dark:text-[#8e8c87] mt-0.5">
           Configura tus plantillas inteligentes. Los datos del huésped, las fechas y las contraseñas de las cerraduras se rellenan automáticamente.
         </p>
       </div>
@@ -83,14 +83,14 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
         {/* Left Side: Selectors (6 cols) */}
         <div className="lg:col-span-6 space-y-5">
           {/* Reservation Selector */}
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-xs transition-colors">
-            <label className="block text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wider mb-2">
+          <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-[#ded9cd] dark:border-[#2a2a2a] p-5 shadow-xs transition-colors">
+            <label className="block text-xs font-bold text-[#1c1b18] dark:text-[#f4f2ee] uppercase tracking-wider mb-2">
               1. Selecciona el Huésped o Reserva
             </label>
             <select
               value={selectedResId}
               onChange={(e) => setSelectedResId(e.target.value)}
-              className="w-full text-xs font-semibold p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200"
+              className="w-full text-xs font-semibold p-3 rounded-xl border border-[#ded9cd] dark:border-[#383838] bg-[#f8f6f2] dark:bg-[#252525] text-[#1c1b18] dark:text-[#f4f2ee]"
             >
               {demoState.reservations.map((r) => {
                 const prop = demoState.properties.find((p) => p.id === r.propertyId);
@@ -103,16 +103,16 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
             </select>
 
             {selectedReservation && (
-              <div className="mt-3 p-3 bg-zinc-50 dark:bg-zinc-800/80 rounded-xl border border-zinc-200/80 dark:border-zinc-700 flex items-center justify-between text-xs text-zinc-600 dark:text-zinc-300">
-                <span>Teléfono: <strong>{selectedReservation.guestPhone}</strong></span>
-                <span>PIN Cerradura: <strong className="font-mono">{selectedReservation.pinCode}</strong></span>
+              <div className="mt-3 p-3 bg-[#f8f6f2] dark:bg-[#252525] rounded-xl border border-[#ded9cd] dark:border-[#383838] flex items-center justify-between text-xs text-[#78746c] dark:text-[#8e8c87]">
+                <span>Teléfono: <strong className="text-[#1c1b18] dark:text-[#f4f2ee]">{selectedReservation.guestPhone}</strong></span>
+                <span>PIN Cerradura: <strong className="font-mono text-[#c46d45] dark:text-[#d88d5e]">{selectedReservation.pinCode}</strong></span>
               </div>
             )}
           </div>
 
           {/* Template Selector */}
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-xs transition-colors">
-            <label className="block text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wider mb-3">
+          <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-[#ded9cd] dark:border-[#2a2a2a] p-5 shadow-xs transition-colors">
+            <label className="block text-xs font-bold text-[#1c1b18] dark:text-[#f4f2ee] uppercase tracking-wider mb-3">
               2. Elige el Disparador o Plantilla
             </label>
             <div className="space-y-2.5">
@@ -122,17 +122,17 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                   onClick={() => setSelectedTemplateId(tpl.id)}
                   className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all ${
                     selectedTemplateId === tpl.id
-                      ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-600 shadow-xs'
-                      : 'bg-white dark:bg-zinc-800/90 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600'
+                      ? 'bg-[#f4eee7] dark:bg-[#2a241e] border-[#c46d45] dark:border-[#d88d5e] shadow-xs'
+                      : 'bg-white dark:bg-[#222] border-[#ded9cd] dark:border-[#333] hover:border-[#c46d45]/50 dark:hover:border-[#555]'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-zinc-900 dark:text-zinc-100">{tpl.title}</span>
-                    <span className="text-[10px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full font-semibold border border-emerald-200 dark:border-emerald-800">
+                    <span className="font-bold text-[#1c1b18] dark:text-[#f4f2ee]">{tpl.title}</span>
+                    <span className="text-[10px] bg-[#f4eee7] dark:bg-[#2a241e] text-[#9c512a] dark:text-[#d88d5e] px-2 py-0.5 rounded-full font-bold border border-[#e4d6c9] dark:border-[#523d2e]">
                       {tpl.triggerEvent}
                     </span>
                   </div>
-                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-2">{tpl.content}</p>
+                  <p className="text-[11px] text-[#78746c] dark:text-[#8e8c87] line-clamp-2">{tpl.content}</p>
                 </div>
               ))}
             </div>
@@ -141,9 +141,9 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
 
         {/* Right Side: WhatsApp Phone Mockup (6 cols) */}
         <div className="lg:col-span-6 flex justify-center">
-          <div className="w-full max-w-sm rounded-[36px] bg-zinc-900 p-3 shadow-2xl border-4 border-zinc-800 relative">
+          <div className="w-full max-w-sm rounded-[36px] bg-[#1c1b18] dark:bg-[#141414] p-3 shadow-2xl border-4 border-[#ded9cd] dark:border-[#2a2a2a] relative">
             {/* Phone notch */}
-            <div className="w-32 h-4 bg-zinc-800 rounded-b-xl mx-auto mb-2" />
+            <div className="w-32 h-4 bg-[#2c2a26] dark:bg-[#242424] rounded-b-xl mx-auto mb-2" />
 
             {/* Screen */}
             <div className="bg-[#EFEAE2] rounded-[28px] overflow-hidden flex flex-col h-[520px] shadow-inner text-zinc-900">

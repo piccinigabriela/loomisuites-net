@@ -65,21 +65,21 @@ export const JsonDataModal: React.FC<JsonDataModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white dark:bg-zinc-900 w-full max-w-2xl rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col max-h-[90vh] transition-colors">
         {/* Header */}
-        <div className="bg-zinc-900 dark:bg-zinc-950 text-white p-5 flex items-center justify-between border-b border-zinc-800">
+        <div className="bg-[#1c1b18] dark:bg-[#141414] text-white p-5 flex items-center justify-between border-b border-[#2e2a25] dark:border-[#222]">
           <div className="flex items-center gap-2.5">
-            <FileJson className="w-5 h-5 text-amber-400" />
+            <FileJson className="w-5 h-5 text-[#d88d5e]" />
             <div>
               <h3 className="text-base font-bold font-['Outfit']">
                 Administrador de Datos (JSON / LocalStorage)
               </h3>
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-[11px] text-[#8e8c87]">
                 Pega tus propios datos para cargarlos en la demo o exporta los actuales.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-zinc-400 hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
+            className="text-[#8e8c87] hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -113,7 +113,7 @@ export const JsonDataModal: React.FC<JsonDataModalProps> = ({
             value={jsonText}
             onChange={(e) => setJsonText(e.target.value)}
             rows={14}
-            className="w-full p-3 font-mono text-xs bg-zinc-900 text-emerald-400 rounded-xl border border-zinc-700 focus:outline-hidden focus:border-rose-500"
+            className="w-full p-3 font-mono text-xs bg-zinc-900 text-emerald-400 rounded-xl border border-zinc-700 focus:outline-hidden focus:border-[#d88d5e]"
             placeholder="Pega aquí el JSON con tus propiedades y reservas..."
           />
 
@@ -154,7 +154,7 @@ export const JsonDataModal: React.FC<JsonDataModalProps> = ({
             </button>
             <button
               onClick={handleApply}
-              className="text-xs font-bold px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-md cursor-pointer flex items-center gap-1.5"
+              className="text-xs font-bold px-4 py-2 bg-[#c46d45] hover:bg-[#b55e37] text-white rounded-xl shadow-2xs cursor-pointer flex items-center gap-1.5"
             >
               <Upload className="w-3.5 h-3.5" />
               <span>Guardar y Cargar en la Demo</span>

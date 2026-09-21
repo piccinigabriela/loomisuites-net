@@ -44,9 +44,9 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
   onToggleTheme,
 }) => {
   return (
-    <div className="bg-zinc-900 text-white border-b border-zinc-800 sticky top-0 z-40">
+    <div className="bg-[#1c1b18] text-white border-b border-[#2e2a25] sticky top-0 z-40">
       {/* Top Demo Banner */}
-      <div className="bg-gradient-to-r from-rose-600 to-amber-600 px-4 py-1.5 text-xs text-white flex flex-wrap items-center justify-between gap-2">
+      <div className="bg-gradient-to-r from-[#c46d45] to-[#a87848] px-4 py-1.5 text-xs text-white flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2 font-medium">
           <span className="w-2 h-2 rounded-full bg-white animate-ping shrink-0" />
           <span>
@@ -59,7 +59,7 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
               onClick={onToggleEmployeeMode}
               className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                 isEmployeeMode
-                  ? 'bg-amber-400 text-stone-950 ring-2 ring-white shadow-xs'
+                  ? 'bg-amber-300 text-stone-950 ring-2 ring-white shadow-xs'
                   : 'bg-black/30 hover:bg-black/50 text-white border border-white/30'
               }`}
               title="Alternar entre vista de Dueño/Administrador y Modo Empleado Día a Día"
@@ -93,36 +93,36 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
         <div className="flex items-center gap-4">
           <button
             onClick={onBackToLanding}
-            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-300 hover:text-white bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-semibold text-[#ded9cd] hover:text-white bg-[#2a2622] hover:bg-[#38332d] px-3 py-1.5 rounded-lg transition-colors cursor-pointer border border-[#3f3932]"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Volver a la Landing</span>
           </button>
 
-          <div className="h-6 w-px bg-zinc-700 hidden sm:block" />
+          <div className="h-6 w-px bg-[#3f3932] hidden sm:block" />
 
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-rose-600 flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-8 h-8 rounded-lg bg-[#c46d45] flex items-center justify-center text-white font-bold text-sm shadow-2xs">
               <Building2 className="w-4 h-4" />
             </div>
             <div>
               <span className="text-sm font-bold text-white tracking-tight">
-                Loomi <span className="text-rose-500">Suite</span> Demo
+                Loomi <span className="text-[#d88d5e]">Suite</span> Demo
               </span>
-              <p className="text-[10px] text-zinc-400 leading-none hidden sm:block">
+              <p className="text-[10px] text-[#a8a39b] leading-none hidden sm:block">
                 Cabañas • Departamentos • B&B • Hostales
               </p>
             </div>
           </div>
 
           {/* Property Complex Switcher */}
-          <div className="hidden md:flex items-center bg-zinc-800/90 p-1 rounded-xl border border-zinc-700/80 ml-2">
+          <div className="hidden md:flex items-center bg-[#25221e] p-1 rounded-xl border border-[#3a352e] ml-2">
             <button
               onClick={() => onSwitchComplex('catalinas')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeComplex === 'catalinas'
-                  ? 'bg-rose-600 text-white shadow-xs'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-[#c46d45] text-white shadow-xs'
+                  : 'text-[#a8a39b] hover:text-white'
               }`}
             >
               <Building2 className="w-3.5 h-3.5" />
@@ -133,8 +133,8 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
               onClick={() => onSwitchComplex('woodcabin')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeComplex === 'woodcabin'
-                  ? 'bg-amber-600 text-white shadow-xs'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-[#8d5637] text-white shadow-xs'
+                  : 'text-[#a8a39b] hover:text-white'
               }`}
             >
               <span>🌲 Wood Cabin</span>
@@ -143,7 +143,7 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
             {activeComplex === 'custom' && (
               <button
                 onClick={() => onSwitchComplex('custom')}
-                className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 bg-emerald-600 text-white shadow-xs cursor-pointer"
+                className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 bg-[#3e6645] text-white shadow-xs cursor-pointer"
               >
                 <span>✨ Mi Complejo Real</span>
               </button>
@@ -156,10 +156,10 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
           {onOpenOnboardingWizard && (
             <button
               onClick={onOpenOnboardingWizard}
-              className="flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 active:scale-98 px-3 py-2 rounded-lg shadow-md shadow-purple-600/30 transition-all cursor-pointer border border-purple-400/30"
+              className="flex items-center gap-1.5 text-xs font-bold text-white bg-[#8d5637] hover:bg-[#a16441] active:scale-98 px-3 py-2 rounded-lg shadow-2xs transition-all cursor-pointer border border-[#b87850]/40"
               title="Cargar mis departamentos reales paso a paso"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <Sparkles className="w-3.5 h-3.5 text-[#e2b896]" />
               <span className="hidden sm:inline">Cargar Mis Departamentos</span>
               <span className="inline sm:hidden">Mis Deptos</span>
             </button>
@@ -168,13 +168,13 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
           {onToggleTheme && (
             <button
               onClick={onToggleTheme}
-              className="flex items-center gap-1.5 text-xs font-semibold px-2.5 sm:px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700/80 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 text-xs font-semibold px-2.5 sm:px-3 py-2 rounded-lg bg-[#2a2622] hover:bg-[#38332d] text-[#ded9cd] border border-[#3f3932] transition-colors cursor-pointer"
               title={theme === 'dark' ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
             >
               {theme === 'dark' ? (
                 <Sun className="w-4 h-4 text-amber-400" />
               ) : (
-                <Moon className="w-4 h-4 text-indigo-300" />
+                <Moon className="w-4 h-4 text-[#d88d5e]" />
               )}
               <span className="hidden sm:inline">
                 {theme === 'dark' ? 'Modo Claro' : 'Modo Oscuro'}
@@ -184,7 +184,7 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
 
           <button
             onClick={onOpenNewReservation}
-            className="flex items-center gap-1.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-98 px-3 sm:px-3.5 py-2 rounded-lg shadow-md shadow-rose-600/30 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-bold text-white bg-[#c46d45] hover:bg-[#b55e37] active:scale-98 px-3 sm:px-3.5 py-2 rounded-lg shadow-2xs transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden xs:inline sm:inline">+ Nueva Reserva</span>
@@ -193,9 +193,9 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
 
           <button
             onClick={onOpenContactModal}
-            className="hidden md:flex items-center gap-1.5 text-xs font-bold text-zinc-900 bg-emerald-400 hover:bg-emerald-300 px-3.5 py-2 rounded-lg transition-colors cursor-pointer"
+            className="hidden md:flex items-center gap-1.5 text-xs font-bold text-white bg-[#3e6645] hover:bg-[#34563a] px-3.5 py-2 rounded-lg transition-colors cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3.5 h-3.5 text-[#b3dbb8]" />
             <span>Activar Loomi Suite</span>
           </button>
         </div>

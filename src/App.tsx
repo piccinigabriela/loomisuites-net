@@ -12,6 +12,8 @@ import {
   Plus,
   ArrowUp,
   CheckCircle2,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { DemoState, Reservation, CleaningTask, ReservationStatus } from './types';
 import {
@@ -509,7 +511,7 @@ export default function App() {
         </main>
       ) : (
         /* CLEAN RELAXED CARBON PMS DASHBOARD VIEW */
-        <div className="min-h-screen flex bg-[#141414] text-[#e0deda] font-sans">
+        <div className="min-h-screen flex bg-[#f8f6f2] dark:bg-[#141414] text-[#1c1b18] dark:text-[#e0deda] font-sans transition-colors">
           {/* Minimalist Sidebar */}
           <CleanSidebar
             activeTab={demoTab}
@@ -550,19 +552,19 @@ export default function App() {
           />
 
           {/* Main Content Area */}
-          <div className="flex-1 flex flex-col min-w-0 bg-[#141414] overflow-y-auto">
+          <div className="flex-1 flex flex-col min-w-0 bg-[#f4f1ea] dark:bg-[#141414] overflow-y-auto transition-colors">
             {/* Minimalist Top Sub-bar with fast actions & status */}
-            <div className="h-12 border-b border-[#242424] px-6 flex items-center justify-between bg-[#161616]/90 sticky top-0 z-20 backdrop-blur-xs">
+            <div className="h-12 border-b border-[#ded9cd] dark:border-[#242424] px-6 flex items-center justify-between bg-[#fbf9f5]/90 dark:bg-[#161616]/90 sticky top-0 z-20 backdrop-blur-xs transition-colors">
               <div className="flex items-center gap-3">
-                <span className="text-xs text-[#8c8a85]">
+                <span className="text-xs text-[#78746c] dark:text-[#8c8a85]">
                   {activeComplex === 'catalinas'
                     ? 'Catalinas Apartamentos (CABA)'
                     : activeComplex === 'woodcabin'
                     ? 'Wood Cabin (Iguazú)'
                     : 'Mi Complejo Real'}
                 </span>
-                <span className="text-[#3a3a3a]">/</span>
-                <span className="text-xs font-semibold text-[#f0eeeb] capitalize">
+                <span className="text-[#ded9cd] dark:text-[#3a3a3a]">/</span>
+                <span className="text-xs font-bold text-[#1c1b18] dark:text-[#f0eeeb] capitalize">
                   {demoTab === 'overview'
                     ? 'Hoy'
                     : demoTab === 'calendar'
@@ -584,27 +586,48 @@ export default function App() {
               </div>
 
               <div className="flex items-center gap-3">
+                {/* Visible Light / Dark Switcher in top sub-bar */}
+                <button
+                  onClick={toggleTheme}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-[#202020] border border-[#ded9cd] dark:border-[#333] text-[#44403a] dark:text-[#d0cdc8] hover:border-[#c46d45]/50 transition-colors cursor-pointer shadow-2xs"
+                  title="Cambiar tema"
+                >
+                  {theme === 'dark' ? (
+                    <>
+                      <Sun className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Modo Claro</span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon className="w-3.5 h-3.5 text-[#55514a]" />
+                      <span>Modo Oscuro</span>
+                    </>
+                  )}
+                </button>
+
+                <span className="text-[#ded9cd] dark:text-[#3a3a3a]">|</span>
+
                 <button
                   onClick={() => setIsJsonModalOpen(true)}
-                  className="text-[11px] text-[#9c9994] hover:text-[#ebe8e1] transition-colors cursor-pointer"
+                  className="text-[11px] font-medium text-[#78746c] dark:text-[#9c9994] hover:text-[#1c1b18] dark:hover:text-[#ebe8e1] transition-colors cursor-pointer"
                 >
                   Importar / Exportar
                 </button>
-                <span className="text-[#3a3a3a]">|</span>
+                <span className="text-[#ded9cd] dark:text-[#3a3a3a]">|</span>
                 <button
                   onClick={handleResetData}
-                  className="text-[11px] text-[#9c9994] hover:text-[#ebe8e1] transition-colors cursor-pointer"
+                  className="text-[11px] font-medium text-[#78746c] dark:text-[#9c9994] hover:text-[#1c1b18] dark:hover:text-[#ebe8e1] transition-colors cursor-pointer"
                 >
                   Restablecer Muestra
                 </button>
-                <span className="text-[#3a3a3a]">|</span>
+                <span className="text-[#ded9cd] dark:text-[#3a3a3a]">|</span>
                 <button
                   onClick={() => {
                     setInitialPropertyForRes(undefined);
                     setInitialDateForRes(undefined);
                     setIsNewResModalOpen(true);
                   }}
-                  className="bg-[#2e2620] hover:bg-[#3d2e24] text-[#d88d5e] border border-[#523c2e] text-xs font-semibold px-3 py-1 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="bg-[#c46d45] hover:bg-[#b85e35] text-white dark:bg-[#2e2620] dark:hover:bg-[#3d2e24] dark:text-[#d88d5e] border border-transparent dark:border-[#523c2e] text-xs font-bold px-3 py-1 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
                 >
                   <span>+ Nueva Reserva</span>
                 </button>

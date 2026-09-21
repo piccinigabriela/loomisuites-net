@@ -73,17 +73,17 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
   const getCategoryIcon = (category: AddonCategory) => {
     switch (category) {
       case 'frigobar':
-        return <Wine className="w-5 h-5 text-rose-500" />;
+        return <Wine className="w-5 h-5 text-[#c46d45]" />;
       case 'transfers':
-        return <Car className="w-5 h-5 text-blue-500" />;
+        return <Car className="w-5 h-5 text-[#4a7298]" />;
       case 'spa':
-        return <Sparkles className="w-5 h-5 text-purple-500" />;
+        return <Sparkles className="w-5 h-5 text-[#c46d45]" />;
       case 'desayuno':
-        return <Coffee className="w-5 h-5 text-amber-500" />;
+        return <Coffee className="w-5 h-5 text-[#a87848]" />;
       case 'experiencias':
-        return <Compass className="w-5 h-5 text-emerald-500" />;
+        return <Compass className="w-5 h-5 text-[#3e6645]" />;
       default:
-        return <ShoppingBag className="w-5 h-5 text-zinc-500" />;
+        return <ShoppingBag className="w-5 h-5 text-[#78746c]" />;
     }
   };
 
@@ -149,13 +149,13 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
+      <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-[#ded9cd] dark:border-[#2a2a2a] p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
         <div>
-          <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-            <ShoppingBag className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+          <h3 className="text-base font-bold text-[#1c1b18] dark:text-[#f4f2ee] flex items-center gap-2">
+            <ShoppingBag className="w-5 h-5 text-[#c46d45] dark:text-[#d88d5e]" />
             <span>Catálogo de Servicios Opcionales & Extras</span>
           </h3>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+          <p className="text-xs text-[#78746c] dark:text-[#8e8c87] mt-0.5">
             Configura los productos y servicios opcionales (Frigobar, Transfers, Spa, Desayunos) que puedes agregar a cualquier reserva o vender desde la Guía Digital.
           </p>
         </div>
@@ -171,7 +171,7 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
               setFormUnitLabel('por unidad');
               setFormDescription('');
             }}
-            className="flex items-center gap-1.5 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 py-2.5 rounded-xl shadow-xs transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-bold text-white bg-[#c46d45] hover:bg-[#b55e37] px-4 py-2.5 rounded-xl shadow-2xs transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Crear Nuevo Opcional</span>
@@ -181,47 +181,47 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
 
       {/* Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+        <div className="bg-white dark:bg-[#1c1c1c] rounded-xl p-4 border border-[#ded9cd] dark:border-[#2a2a2a] shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-[#78746c] dark:text-[#8e8c87] uppercase tracking-wider">
               Servicios en Catálogo
             </span>
-            <Layers className="w-4 h-4 text-purple-600" />
+            <Layers className="w-4 h-4 text-[#c46d45]" />
           </div>
-          <div className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100 font-['Outfit'] mt-1">
+          <div className="text-2xl font-extrabold text-[#1c1b18] dark:text-[#f4f2ee] mt-1">
             {addonsList.length} ítems
           </div>
-          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-[11px] text-[#78746c] dark:text-[#8e8c87] mt-1">
             Disponibles para asignar a reservas
           </p>
         </div>
 
-        <div className="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+        <div className="bg-white dark:bg-[#1c1c1c] rounded-xl p-4 border border-[#ded9cd] dark:border-[#2a2a2a] shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-[#78746c] dark:text-[#8e8c87] uppercase tracking-wider">
               Ingresos Extras Vendidos
             </span>
-            <DollarSign className="w-4 h-4 text-emerald-600" />
+            <DollarSign className="w-4 h-4 text-[#3e6645] dark:text-[#78b37e]" />
           </div>
-          <div className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-['Outfit'] mt-1">
+          <div className="text-2xl font-extrabold text-[#3e6645] dark:text-[#78b37e] mt-1">
             ${totalAddonIncome} USD
           </div>
-          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-[11px] text-[#78746c] dark:text-[#8e8c87] mt-1">
             {totalItemsOrdered} pedidos registrados en reservas activas
           </p>
         </div>
 
-        <div className="bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+        <div className="bg-white dark:bg-[#1c1c1c] rounded-xl p-4 border border-[#ded9cd] dark:border-[#2a2a2a] shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-[#78746c] dark:text-[#8e8c87] uppercase tracking-wider">
               Entregas Pendientes
             </span>
-            <Clock className="w-4 h-4 text-amber-600" />
+            <Clock className="w-4 h-4 text-[#c46d45]" />
           </div>
-          <div className="text-2xl font-extrabold text-amber-600 dark:text-amber-400 font-['Outfit'] mt-1">
+          <div className="text-2xl font-extrabold text-[#c46d45] dark:text-[#d88d5e] mt-1">
             {pendingDeliveryCount} solicitudes
           </div>
-          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-[11px] text-[#78746c] dark:text-[#8e8c87] mt-1">
             Servicios solicitados que requieren entrega al huésped
           </p>
         </div>
@@ -229,10 +229,10 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
 
       {/* Form modal or inline for Create / Edit */}
       {(isAddingNew || editingAddonId) && (
-        <div className="p-5 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900/60 shadow-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-purple-200/80 dark:border-purple-900/50 pb-3">
-            <h4 className="text-sm font-bold text-purple-950 dark:text-purple-200 flex items-center gap-2">
-              <ShoppingBag className="w-4 h-4 text-purple-600" />
+        <div className="p-5 rounded-2xl bg-[#f4eee7] dark:bg-[#1e1b18] border border-[#e4d6c9] dark:border-[#48372b] shadow-xs space-y-4">
+          <div className="flex items-center justify-between border-b border-[#ded9cd] dark:border-[#332b24] pb-3">
+            <h4 className="text-sm font-bold text-[#1c1b18] dark:text-[#f4f2ee] flex items-center gap-2">
+              <ShoppingBag className="w-4 h-4 text-[#c46d45]" />
               <span>{editingAddonId ? 'Editar Servicio Opcional' : 'Agregar Nuevo Servicio Opcional'}</span>
             </h4>
             <button
@@ -240,7 +240,7 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
                 setIsAddingNew(false);
                 setEditingAddonId(null);
               }}
-              className="text-xs font-semibold text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+              className="text-xs font-semibold text-[#78746c] hover:text-[#1c1b18] dark:hover:text-[#f4f2ee]"
             >
               Cancelar
             </button>
@@ -248,7 +248,7 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
 
           <form onSubmit={handleSaveAddon} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+              <label className="block text-xs font-bold text-[#1c1b18] dark:text-[#f4f2ee] mb-1">
                 Nombre del servicio / producto:
               </label>
               <input
@@ -257,18 +257,18 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 placeholder="Ej: Vino Malbec Reserva + Copa Bienvenida"
-                className="w-full text-xs font-medium p-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                className="w-full text-xs font-medium p-2.5 rounded-xl border border-[#ded9cd] dark:border-[#333] bg-white dark:bg-[#141414] text-[#1c1b18] dark:text-[#f4f2ee]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+              <label className="block text-xs font-bold text-[#1c1b18] dark:text-[#f4f2ee] mb-1">
                 Categoría:
               </label>
               <select
                 value={formCategory}
                 onChange={(e) => setFormCategory(e.target.value as AddonCategory)}
-                className="w-full text-xs font-medium p-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                className="w-full text-xs font-medium p-2.5 rounded-xl border border-[#ded9cd] dark:border-[#333] bg-white dark:bg-[#141414] text-[#1c1b18] dark:text-[#f4f2ee]"
               >
                 <option value="frigobar">🍷 Frigobar & Bebidas</option>
                 <option value="transfers">🚗 Transfers & Traslados</option>
@@ -280,7 +280,7 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                <label className="block text-xs font-bold text-[#1c1b18] dark:text-[#f4f2ee] mb-1">
                   Precio (USD):
                 </label>
                 <input
@@ -290,11 +290,11 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
                   required
                   value={formPrice}
                   onChange={(e) => setFormPrice(Number(e.target.value))}
-                  className="w-full text-xs font-bold p-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                  className="w-full text-xs font-bold p-2.5 rounded-xl border border-[#ded9cd] dark:border-[#333] bg-white dark:bg-[#141414] text-[#1c1b18] dark:text-[#f4f2ee]"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                <label className="block text-xs font-bold text-[#1c1b18] dark:text-[#f4f2ee] mb-1">
                   Unidad:
                 </label>
                 <input
@@ -302,13 +302,13 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
                   value={formUnitLabel}
                   onChange={(e) => setFormUnitLabel(e.target.value)}
                   placeholder="por botella"
-                  className="w-full text-xs font-medium p-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                  className="w-full text-xs font-medium p-2.5 rounded-xl border border-[#ded9cd] dark:border-[#333] bg-white dark:bg-[#141414] text-[#1c1b18] dark:text-[#f4f2ee]"
                 />
               </div>
             </div>
 
             <div className="sm:col-span-2 lg:col-span-3">
-              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+              <label className="block text-xs font-bold text-[#1c1b18] dark:text-[#f4f2ee] mb-1">
                 Descripción corta para el huésped:
               </label>
               <input
@@ -316,14 +316,14 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
                 value={formDescription}
                 onChange={(e) => setFormDescription(e.target.value)}
                 placeholder="Ej: Etiqueta seleccionada mendocina atemperada en la cabaña."
-                className="w-full text-xs font-medium p-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                className="w-full text-xs font-medium p-2.5 rounded-xl border border-[#ded9cd] dark:border-[#333] bg-white dark:bg-[#141414] text-[#1c1b18] dark:text-[#f4f2ee]"
               />
             </div>
 
             <div className="flex items-end">
               <button
                 type="submit"
-                className="w-full py-2.5 px-4 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-xl transition-colors cursor-pointer"
+                className="w-full py-2.5 px-4 text-xs font-bold text-white bg-[#c46d45] hover:bg-[#b55e37] rounded-xl transition-colors cursor-pointer shadow-2xs"
               >
                 {editingAddonId ? 'Actualizar Servicio' : 'Guardar en Catálogo'}
               </button>
@@ -345,8 +345,8 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
                 onClick={() => setActiveCategory(cat.id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer whitespace-nowrap ${
                   isActive
-                    ? 'bg-purple-600 text-white shadow-xs'
-                    : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800'
+                    ? 'bg-[#c46d45] text-white shadow-2xs'
+                    : 'bg-white dark:bg-[#1c1c1c] text-[#78746c] dark:text-[#8e8c87] hover:bg-[#f8f6f2] dark:hover:bg-[#252525] border border-[#ded9cd] dark:border-[#2a2a2a]'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -358,13 +358,13 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
 
         {/* Search */}
         <div className="relative w-full sm:w-64">
-          <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-3.5 h-3.5 text-[#78746c] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Buscar por nombre o detalle..."
-            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200"
+            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-[#ded9cd] dark:border-[#2a2a2a] bg-white dark:bg-[#1c1c1c] text-[#1c1b18] dark:text-[#f4f2ee]"
           />
         </div>
       </div>
@@ -375,55 +375,55 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
           return (
             <div
               key={addon.id}
-              className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-xs flex flex-col justify-between hover:border-purple-300 dark:hover:border-purple-700 transition-all group"
+              className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-[#ded9cd] dark:border-[#2a2a2a] p-5 shadow-xs flex flex-col justify-between hover:border-[#c46d45]/40 dark:hover:border-[#383838] transition-all group"
             >
               <div>
                 <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-900/50 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-[#f8f6f2] dark:bg-[#242424] border border-[#ded9cd] dark:border-[#333] flex items-center justify-center shrink-0">
                     {getCategoryIcon(addon.category)}
                   </div>
 
                   <div className="text-right">
-                    <span className="text-lg font-black text-purple-700 dark:text-purple-300 font-['Outfit'] block">
+                    <span className="text-lg font-black text-[#c46d45] dark:text-[#d88d5e] block">
                       ${addon.price} USD
                     </span>
-                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                    <span className="text-[10px] text-[#78746c] dark:text-[#8e8c87]">
                       {addon.unitLabel}
                     </span>
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
+                  <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#f8f6f2] dark:bg-[#252525] text-[#78746c] dark:text-[#8e8c87] border border-[#ded9cd] dark:border-[#383838]">
                     {addon.category}
                   </span>
-                  <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 leading-snug">
+                  <h4 className="text-sm font-bold text-[#1c1b18] dark:text-[#f4f2ee] leading-snug">
                     {addon.name}
                   </h4>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">
+                  <p className="text-xs text-[#78746c] dark:text-[#8e8c87] mt-1 leading-relaxed">
                     {addon.description}
                   </p>
                 </div>
               </div>
 
               {!isEmployeeMode && (
-                <div className="mt-5 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs">
-                  <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
-                    <Tag className="w-3 h-3 text-purple-600" />
+                <div className="mt-5 pt-3 border-t border-[#ded9cd] dark:border-[#282828] flex items-center justify-between text-xs">
+                  <span className="text-[11px] font-medium text-[#78746c] dark:text-[#8e8c87] flex items-center gap-1">
+                    <Tag className="w-3 h-3 text-[#c46d45]" />
                     <span>Disponible en reservas</span>
                   </span>
 
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleStartEdit(addon)}
-                      className="p-1.5 text-zinc-500 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40 rounded-lg transition-colors cursor-pointer"
+                      className="p-1.5 text-[#78746c] hover:text-[#c46d45] dark:hover:text-[#d88d5e] hover:bg-[#f8f6f2] dark:hover:bg-[#252525] rounded-lg transition-colors cursor-pointer"
                       title="Editar servicio"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => handleDeleteAddon(addon.id)}
-                      className="p-1.5 text-zinc-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer"
+                      className="p-1.5 text-[#78746c] hover:text-[#a03d3d] dark:hover:text-[#d97777] hover:bg-[#fbedea] dark:hover:bg-[#33221e] rounded-lg transition-colors cursor-pointer"
                       title="Eliminar del catálogo"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -437,15 +437,15 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
       </div>
 
       {filteredAddons.length === 0 && (
-        <div className="p-8 text-center bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 text-zinc-500 text-xs">
+        <div className="p-8 text-center bg-white dark:bg-[#1c1c1c] rounded-2xl border border-[#ded9cd] dark:border-[#2a2a2a] text-[#78746c] text-xs">
           No se encontraron servicios opcionales con los filtros seleccionados.
         </div>
       )}
 
       {/* Helper Box: How to use Add-ons */}
-      <div className="p-4 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200/60 dark:border-purple-900/40 text-xs text-purple-900 dark:text-purple-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="p-4 rounded-xl bg-[#f4eee7] dark:bg-[#1e1b18] border border-[#e4d6c9] dark:border-[#48372b] text-xs text-[#9c512a] dark:text-[#d88d5e] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-purple-600 shrink-0" />
+          <CheckCircle2 className="w-4 h-4 text-[#c46d45] shrink-0" />
           <span>
             <strong>¿Cómo se usan en el día a día?</strong> Al hacer clic en cualquier reserva del <strong>Calendario</strong> o <strong>Panel General</strong>, puedes sumar estos opcionales, modificar cantidades y cambiar su estado de entrega o cobro en 1 clic.
           </span>

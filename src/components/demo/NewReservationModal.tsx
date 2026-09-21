@@ -155,9 +155,9 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white dark:bg-zinc-900 w-full max-w-lg rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden transition-colors">
         {/* Modal Header */}
-        <div className="bg-zinc-900 dark:bg-zinc-950 text-white p-5 flex items-center justify-between border-b border-zinc-800">
+        <div className="bg-[#1c1b18] dark:bg-[#141414] text-white p-5 flex items-center justify-between border-b border-[#2e2a25] dark:border-[#222]">
           <div className="flex items-center gap-2">
-            <Plus className="w-5 h-5 text-rose-500" />
+            <Plus className="w-5 h-5 text-[#d88d5e]" />
             <h3 className="text-base font-bold font-['Outfit']">
               Crear Nueva Reserva (Demo)
             </h3>
@@ -458,7 +458,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
                 onChange={(e) => {
                   if (e.target.value) handleAddAddonItem(e.target.value);
                 }}
-                className="flex-1 text-[11px] p-2 rounded-lg border border-purple-200 dark:border-purple-800 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200"
+                className="flex-1 text-[11px] p-2 rounded-lg border border-[#ded9cd] dark:border-[#383838] bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200"
               >
                 <option value="">+ Agregar servicio opcional (Frigobar, Traslado, Spa, Desayuno)...</option>
                 {addonsCatalog.map((a) => (
@@ -483,7 +483,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
           </div>
 
           {/* Price Summary Preview */}
-          <div className="bg-zinc-50 dark:bg-zinc-800/80 p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs space-y-1.5">
+          <div className="bg-[#f8f6f2] dark:bg-zinc-800/80 p-3.5 rounded-xl border border-[#ded9cd] dark:border-zinc-700 text-xs space-y-1.5">
             <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
               <span>
                 {nights} noches x ${effectiveNightPrice} USD {isManualPrice && '(tarifa manual)'}:
@@ -501,22 +501,22 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
               <span>${cleaningFee} USD</span>
             </div>
             {earlyLateFee > 0 && (
-              <div className="flex justify-between text-amber-600 dark:text-amber-400 font-semibold">
+              <div className="flex justify-between text-[#c46d45] dark:text-[#d88d5e] font-semibold">
                 <span>Recargo Early / Late Check:</span>
                 <span>+${earlyLateFee} USD</span>
               </div>
             )}
             {addonsTotal > 0 && (
-              <div className="flex justify-between text-purple-600 dark:text-purple-400 font-semibold">
+              <div className="flex justify-between text-[#9c512a] dark:text-[#d88d5e] font-semibold">
                 <span>Servicios Opcionales ({selectedAddons.length} agregados):</span>
                 <span>+${addonsTotal} USD</span>
               </div>
             )}
-            <div className="flex justify-between font-bold text-zinc-900 dark:text-zinc-100 pt-1 border-t border-zinc-200 dark:border-zinc-700">
+            <div className="flex justify-between font-bold text-zinc-900 dark:text-zinc-100 pt-1 border-t border-[#ded9cd] dark:border-zinc-700">
               <span>Total a Cobrar:</span>
-              <span className="text-sm font-extrabold text-rose-600 dark:text-rose-400">${totalAmount} USD</span>
+              <span className="text-sm font-extrabold text-[#c46d45] dark:text-[#d88d5e]">${totalAmount} USD</span>
             </div>
-            <div className="flex justify-between text-[11px] text-zinc-500 dark:text-zinc-400 pt-1 border-t border-zinc-200 dark:border-zinc-700">
+            <div className="flex justify-between text-[11px] text-zinc-500 dark:text-zinc-400 pt-1 border-t border-[#ded9cd] dark:border-zinc-700">
               <span>Comisión ({platform === 'airbnb' ? `Airbnb ${airbnbFeeMode === 'traditional_3' ? '3% tradicional' : '15% simplificada'}` : platform.toUpperCase()}):</span>
               <span>-${commissionPaid} USD</span>
             </div>
@@ -537,7 +537,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
             </button>
             <button
               type="submit"
-              className="text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-xl shadow-md shadow-rose-600/30 transition-all cursor-pointer flex items-center gap-1.5"
+              className="text-xs font-bold bg-[#c46d45] hover:bg-[#b55e37] text-white px-5 py-2.5 rounded-xl shadow-2xs transition-all cursor-pointer flex items-center gap-1.5"
             >
               <Check className="w-4 h-4" />
               <span>Confirmar y Guardar Reserva</span>

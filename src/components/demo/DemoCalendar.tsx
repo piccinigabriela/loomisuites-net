@@ -139,15 +139,15 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
   };
 
   return (
-    <div className="bg-[#1c1c1c] rounded-xl border border-[#262626] shadow-2xs overflow-hidden transition-colors font-sans">
+    <div className="bg-white dark:bg-[#1c1c1c] rounded-xl border border-[#ded9cd] dark:border-[#262626] shadow-2xs overflow-hidden transition-colors font-sans">
       {/* Calendar Header / Filters */}
-      <div className="p-4 sm:p-5 border-b border-[#262626] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+      <div className="p-4 sm:p-5 border-b border-[#ded9cd] dark:border-[#262626] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
         <div>
-          <h3 className="text-lg font-bold text-[#f0eeeb] flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5 text-[#c4774a]" />
+          <h3 className="text-lg font-bold text-[#1c1b18] dark:text-[#f0eeeb] flex items-center gap-2">
+            <CalendarIcon className="w-5 h-5 text-[#c46d45] dark:text-[#c4774a]" />
             <span>Ocupación</span>
           </h3>
-          <p className="text-xs text-[#8c8a85] mt-0.5">
+          <p className="text-xs text-[#78746c] dark:text-[#8c8a85] mt-0.5">
             Calendario — vista mensual y sincronización multicanal
           </p>
         </div>
@@ -158,7 +158,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           <select
             value={selectedPropertyId}
             onChange={(e) => setSelectedPropertyId(e.target.value)}
-            className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-[#333333] bg-[#242424] text-[#e0deda]"
+            className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-[#ded9cd] dark:border-[#333333] bg-[#f8f6f2] dark:bg-[#242424] text-[#1c1b18] dark:text-[#e0deda] cursor-pointer"
           >
             <option value="all">Todas las propiedades ({demoState.properties.length})</option>
             {demoState.properties.map((p) => (
@@ -172,7 +172,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           <select
             value={platformFilter}
             onChange={(e) => setPlatformFilter(e.target.value)}
-            className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-[#333333] bg-[#242424] text-[#e0deda]"
+            className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-[#ded9cd] dark:border-[#333333] bg-[#f8f6f2] dark:bg-[#242424] text-[#1c1b18] dark:text-[#e0deda] cursor-pointer"
           >
             <option value="all">Todos los canales</option>
             <option value="airbnb">Airbnb (Coral suave)</option>
@@ -182,42 +182,42 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           </select>
 
           {/* Day Offset Navigator */}
-          <div className="flex items-center gap-1 bg-[#242424] p-1 rounded-lg border border-[#333333]">
+          <div className="flex items-center gap-1 bg-[#f8f6f2] dark:bg-[#242424] p-1 rounded-lg border border-[#ded9cd] dark:border-[#333333]">
             <button
               onClick={() => setDayOffset((prev) => prev - 7)}
               title="Retroceder 7 días"
-              className="p-1 hover:bg-[#2e2e2e] rounded transition-colors text-[#a8a5a0] cursor-pointer"
+              className="p-1 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#78746c] dark:text-[#a8a5a0] cursor-pointer"
             >
               <ChevronsLeft className="w-4 h-4" />
             </button>
             <button
               onClick={() => setDayOffset(-2)}
-              className="text-[11px] font-bold px-2 py-0.5 hover:bg-[#2e2e2e] rounded transition-colors text-[#e0deda] cursor-pointer"
+              className="text-[11px] font-bold px-2 py-0.5 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#1c1b18] dark:text-[#e0deda] cursor-pointer"
             >
               Hoy
             </button>
             <button
               onClick={() => setDayOffset((prev) => prev + 7)}
               title="Avanzar 7 días"
-              className="p-1 hover:bg-[#2e2e2e] rounded transition-colors text-[#a8a5a0] cursor-pointer"
+              className="p-1 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#78746c] dark:text-[#a8a5a0] cursor-pointer"
             >
               <ChevronsRight className="w-4 h-4" />
             </button>
           </div>
 
           {/* Column Width Selector: Compacta (48px) | Estándar (105px) | Amplia (185px) */}
-          <div className="flex items-center gap-1 bg-[#242424] p-1 rounded-lg border border-[#333333]">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#7a7874] px-1.5 flex items-center gap-1">
-              <Columns className="w-3 h-3 text-[#c4774a]" />
-              <span>Columna:</span>
+          <div className="flex items-center gap-1 bg-[#f8f6f2] dark:bg-[#242424] p-1 rounded-lg border border-[#ded9cd] dark:border-[#333333]">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#78746c] dark:text-[#7a7874] px-1.5 flex items-center gap-1">
+              <Columns className="w-3 h-3 text-[#c46d45]" />
+              <span>Col:</span>
             </span>
             <button
               onClick={() => setColumnMode('compact')}
               title="Columna compacta (48px)"
               className={`text-[11px] font-bold px-2 py-1 rounded transition-colors cursor-pointer ${
                 columnMode === 'compact'
-                  ? 'bg-[#333333] text-[#e8a070] shadow-2xs'
-                  : 'text-[#8a8883] hover:text-[#d0cdc8]'
+                  ? 'bg-white dark:bg-[#333333] text-[#c46d45] dark:text-[#e8a070] shadow-2xs border border-[#ded9cd] dark:border-transparent'
+                  : 'text-[#78746c] dark:text-[#8a8883] hover:text-[#1c1b18] dark:hover:text-[#d0cdc8]'
               }`}
             >
               48px
@@ -227,8 +227,8 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
               title="Columna estándar (105px)"
               className={`text-[11px] font-bold px-2 py-1 rounded transition-colors cursor-pointer ${
                 columnMode === 'medium'
-                  ? 'bg-[#333333] text-[#e8a070] shadow-2xs'
-                  : 'text-[#8a8883] hover:text-[#d0cdc8]'
+                  ? 'bg-white dark:bg-[#333333] text-[#c46d45] dark:text-[#e8a070] shadow-2xs border border-[#ded9cd] dark:border-transparent'
+                  : 'text-[#78746c] dark:text-[#8a8883] hover:text-[#1c1b18] dark:hover:text-[#d0cdc8]'
               }`}
             >
               105px
@@ -238,8 +238,8 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
               title="Columna completa (185px)"
               className={`text-[11px] font-bold px-2 py-1 rounded transition-colors cursor-pointer ${
                 columnMode === 'full'
-                  ? 'bg-[#333333] text-[#e8a070] shadow-2xs'
-                  : 'text-[#8a8883] hover:text-[#d0cdc8]'
+                  ? 'bg-white dark:bg-[#333333] text-[#c46d45] dark:text-[#e8a070] shadow-2xs border border-[#ded9cd] dark:border-transparent'
+                  : 'text-[#78746c] dark:text-[#8a8883] hover:text-[#1c1b18] dark:hover:text-[#d0cdc8]'
               }`}
             >
               185px
@@ -249,27 +249,27 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
       </div>
 
       {/* Legend Bar & Desktop Tips */}
-      <div className="bg-[#191919] px-4 sm:px-5 py-2.5 border-b border-[#262626] flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[#a8a5a0]">
-          <span className="font-semibold text-[#7a7874] text-[11px]">Canales:</span>
-          <span className="flex items-center gap-1.5">
+      <div className="bg-[#fbf9f5] dark:bg-[#191919] px-4 sm:px-5 py-2.5 border-b border-[#ded9cd] dark:border-[#262626] flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[#78746c] dark:text-[#a8a5a0]">
+          <span className="font-bold text-[#55514a] dark:text-[#7a7874] text-[11px]">Canales:</span>
+          <span className="flex items-center gap-1.5 font-medium">
             <span className="w-2.5 h-2.5 rounded-full bg-[#c46850] inline-block" />
             <span className="text-[11px]">Airbnb</span>
           </span>
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 font-medium">
             <span className="w-2.5 h-2.5 rounded-full bg-[#4a6b8c] inline-block" />
             <span className="text-[11px]">Booking.com</span>
           </span>
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 font-medium">
             <span className="w-2.5 h-2.5 rounded-full bg-[#5c8a66] inline-block" />
             <span className="text-[11px]">Directo</span>
           </span>
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 font-medium">
             <span className="w-2.5 h-2.5 rounded-full bg-[#6b5882] inline-block" />
             <span className="text-[11px]">VRBO</span>
           </span>
         </div>
-        <div className="flex items-center gap-2 text-[11px] text-[#706e6a]">
+        <div className="flex items-center gap-2 text-[11px] text-[#78746c] dark:text-[#706e6a]">
           <span className="italic">
             .. Desplaza la barra o haz clic sobre una reserva para ver detalle
           </span>
@@ -277,45 +277,45 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
       </div>
 
       {/* High-Visibility Timeline Slider & Controller (Visible on Laptop & Mobile) */}
-      <div className="bg-gradient-to-r from-rose-50/70 via-white to-amber-50/70 dark:from-rose-950/20 dark:via-zinc-900 dark:to-zinc-800/60 px-4 sm:px-5 py-2.5 border-b border-zinc-200 dark:border-zinc-700/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
+      <div className="bg-[#f8f6f2] dark:bg-[#181818] px-4 sm:px-5 py-2.5 border-b border-[#ded9cd] dark:border-[#262626] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2">
-          <SlidersHorizontal className="w-4 h-4 text-rose-600 shrink-0" />
-          <span className="font-bold text-zinc-800 dark:text-zinc-200 text-xs whitespace-nowrap">
+          <SlidersHorizontal className="w-4 h-4 text-[#c46d45] shrink-0" />
+          <span className="font-bold text-[#1c1b18] dark:text-zinc-200 text-xs whitespace-nowrap">
             Desplazamiento horizontal (14 días):
           </span>
           <div className="flex items-center gap-1">
             <button
               onClick={() => handleScrollTimeline('left')}
-              className="px-2.5 py-1 rounded-md bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 font-bold text-zinc-800 dark:text-zinc-200 text-xs flex items-center gap-1 shadow-2xs cursor-pointer transition-colors"
+              className="px-2.5 py-1 rounded-md bg-white dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] border border-[#ded9cd] dark:border-[#333] font-bold text-[#1c1b18] dark:text-zinc-200 text-xs flex items-center gap-1 shadow-2xs cursor-pointer transition-colors"
               title="Deslizar hacia la izquierda"
             >
-              <ChevronLeft className="w-3.5 h-3.5 text-rose-600" />
+              <ChevronLeft className="w-3.5 h-3.5 text-[#c46d45]" />
               <span>‹ Anterior</span>
             </button>
             <button
               onClick={() => handleScrollTimeline('right')}
-              className="px-2.5 py-1 rounded-md bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 font-bold text-zinc-800 dark:text-zinc-200 text-xs flex items-center gap-1 shadow-2xs cursor-pointer transition-colors"
+              className="px-2.5 py-1 rounded-md bg-white dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] border border-[#ded9cd] dark:border-[#333] font-bold text-[#1c1b18] dark:text-zinc-200 text-xs flex items-center gap-1 shadow-2xs cursor-pointer transition-colors"
               title="Deslizar hacia la derecha"
             >
               <span>Siguiente ›</span>
-              <ChevronRight className="w-3.5 h-3.5 text-rose-600" />
+              <ChevronRight className="w-3.5 h-3.5 text-[#c46d45]" />
             </button>
           </div>
         </div>
 
         <div className="flex items-center gap-2.5 flex-1 max-w-full sm:max-w-md">
-          <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono">Día 1</span>
+          <span className="text-[10px] text-[#78746c] dark:text-zinc-400 font-mono">Día 1</span>
           <input
             type="range"
             min="0"
             max="100"
             value={scrollProgress}
             onChange={(e) => handleSliderChange(Number(e.target.value))}
-            className="w-full h-3 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-rose-600 border border-zinc-300 dark:border-zinc-600"
+            className="w-full h-2.5 bg-[#ded9cd] dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-[#c46d45] border border-[#d2ccc0] dark:border-zinc-600"
             title="Arrastra esta barra para deslizar horizontalmente por todo el calendario"
           />
-          <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono">Día 14</span>
-          <span className="font-mono text-[11px] font-black text-rose-600 dark:text-rose-400 min-w-[36px] text-right">
+          <span className="text-[10px] text-[#78746c] dark:text-zinc-400 font-mono">Día 14</span>
+          <span className="font-mono text-[11px] font-black text-[#c46d45] dark:text-rose-400 min-w-[36px] text-right">
             {Math.round(scrollProgress)}%
           </span>
         </div>
@@ -325,32 +325,32 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
       <div
         ref={timelineContainerRef}
         onScroll={updateScrollProgress}
-        className="overflow-x-auto rounded-b-xl bg-white dark:bg-zinc-900 shadow-xs calendar-scrollbar"
+        className="overflow-x-auto rounded-b-xl bg-white dark:bg-[#1c1c1c] shadow-xs calendar-scrollbar"
       >
         <div className="min-w-[980px]">
           {/* Header Row of Days */}
-          <div className="flex border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-800/90 text-zinc-700 dark:text-zinc-300">
+          <div className="flex border-b border-[#ded9cd] dark:border-[#262626] bg-[#f8f6f2] dark:bg-[#202020] text-[#1c1b18] dark:text-zinc-300">
             {/* Responsive Sticky Property Header Column */}
-            <div className={`${getColumnWidthClass(columnMode)} font-bold text-xs border-r border-zinc-200 dark:border-zinc-700/80 flex items-center justify-between sticky left-0 bg-zinc-100 dark:bg-zinc-800 z-30 shadow-[3px_0_8px_rgba(0,0,0,0.06)] shrink-0`}>
+            <div className={`${getColumnWidthClass(columnMode)} font-bold text-xs border-r border-[#ded9cd] dark:border-[#262626] flex items-center justify-between sticky left-0 bg-[#f4f1ea] dark:bg-[#202020] z-30 shadow-[3px_0_8px_rgba(0,0,0,0.06)] shrink-0`}>
               <span className="truncate">
                 {columnMode === 'compact' ? 'Cab.' : columnMode === 'medium' ? 'Cabaña' : 'Propiedad'}
               </span>
               {columnMode === 'full' && (
-                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-normal">Tarifa/Noche</span>
+                <span className="text-[10px] text-[#78746c] dark:text-zinc-400 font-normal">Tarifa/Noche</span>
               )}
             </div>
             <div className="flex-1 grid grid-cols-[repeat(14,minmax(0,1fr))] min-w-[840px]">
               {dates.map((d) => (
                 <div
                   key={d.dateStr}
-                  className={`p-2 text-center border-r border-zinc-200 dark:border-zinc-800 last:border-r-0 ${
+                  className={`p-2 text-center border-r border-[#ded9cd] dark:border-[#262626] last:border-r-0 ${
                     d.isToday
-                      ? 'bg-rose-50 dark:bg-rose-950/40 font-bold text-rose-700 dark:text-rose-400'
+                      ? 'bg-[#f4eee7] dark:bg-rose-950/40 font-bold text-[#9c512a] dark:text-rose-400'
                       : ''
                   }`}
                 >
-                  <div className="text-[10px] uppercase font-semibold text-zinc-500 dark:text-zinc-400">{d.dayName}</div>
-                  <div className={`text-sm ${d.isToday ? 'text-rose-600 dark:text-rose-400 underline decoration-2 font-bold' : 'text-zinc-800 dark:text-zinc-200'}`}>
+                  <div className="text-[10px] uppercase font-bold text-[#78746c] dark:text-zinc-400">{d.dayName}</div>
+                  <div className={`text-sm ${d.isToday ? 'text-[#c46d45] dark:text-rose-400 underline decoration-2 font-black' : 'text-[#1c1b18] dark:text-zinc-200 font-bold'}`}>
                     {d.dayNum}
                   </div>
                 </div>
@@ -365,39 +365,39 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             return (
               <div
                 key={prop.id}
-                className="flex border-b border-zinc-200 dark:border-zinc-800 min-h-[64px] hover:bg-zinc-50/60 dark:hover:bg-zinc-800/30 transition-colors"
+                className="flex border-b border-[#ded9cd] dark:border-[#262626] min-h-[64px] hover:bg-[#fbf9f5] dark:hover:bg-zinc-800/30 transition-colors"
               >
                 {/* Property Label Column - Ultra-compact 48px on compact, 105px on medium, 185px on full */}
-                <div className={`${getColumnWidthClass(columnMode)} border-r border-zinc-200 dark:border-zinc-700/80 bg-white dark:bg-zinc-900 flex flex-col justify-center sticky left-0 z-20 shadow-[3px_0_8px_rgba(0,0,0,0.06)] shrink-0`}>
+                <div className={`${getColumnWidthClass(columnMode)} border-r border-[#ded9cd] dark:border-[#262626] bg-white dark:bg-[#1c1c1c] flex flex-col justify-center sticky left-0 z-20 shadow-[3px_0_8px_rgba(0,0,0,0.06)] shrink-0`}>
                   {columnMode === 'compact' ? (
                     <div className="flex flex-col items-center justify-center">
                       <span
-                        className="text-[11px] font-black px-1 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700 block text-center"
+                        className="text-[11px] font-black px-1 py-0.5 rounded bg-[#f4f1ea] dark:bg-[#242424] text-[#1c1b18] dark:text-zinc-100 border border-[#ded9cd] dark:border-[#333] block text-center"
                         title={prop.name}
                       >
                         {getShortName(prop.name, propIndex)}
                       </span>
-                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                      <span className="text-[10px] font-bold text-[#4f7858] dark:text-emerald-400 mt-0.5 block">
                         ${prop.basePrice}
                       </span>
                     </div>
                   ) : columnMode === 'medium' ? (
                     <div>
-                      <div className="font-bold text-xs text-zinc-900 dark:text-zinc-100 truncate" title={prop.name}>
+                      <div className="font-bold text-xs text-[#1c1b18] dark:text-zinc-100 truncate" title={prop.name}>
                         {prop.name}
                       </div>
-                      <div className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                      <div className="text-[10px] font-bold text-[#4f7858] dark:text-emerald-400 mt-0.5">
                         ${prop.basePrice}/n
                       </div>
                     </div>
                   ) : (
                     <div>
-                      <div className="font-bold text-xs text-zinc-900 dark:text-zinc-100 truncate" title={prop.name}>
+                      <div className="font-bold text-xs text-[#1c1b18] dark:text-zinc-100 truncate" title={prop.name}>
                         {prop.name}
                       </div>
-                      <div className="flex items-center justify-between text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                      <div className="flex items-center justify-between text-[10px] text-[#78746c] dark:text-zinc-400 mt-0.5">
                         <span className="truncate pr-1">{prop.neighborhood}</span>
-                        <span className="font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">${prop.basePrice}/n</span>
+                        <span className="font-bold text-[#4f7858] dark:text-emerald-400 shrink-0">${prop.basePrice}/n</span>
                       </div>
                     </div>
                   )}
@@ -409,8 +409,8 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                   {dates.map((d) => (
                     <div
                       key={d.dateStr}
-                      className={`h-full border-r border-zinc-200 dark:border-zinc-800/80 last:border-r-0 relative flex items-center justify-center ${
-                        d.isToday ? 'bg-rose-50/30 dark:bg-rose-950/20' : ''
+                      className={`h-full border-r border-[#ded9cd] dark:border-[#262626] last:border-r-0 relative flex items-center justify-center ${
+                        d.isToday ? 'bg-[#f4eee7]/50 dark:bg-rose-950/20' : ''
                       }`}
                     >
                       <button
@@ -419,7 +419,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                           onOpenNewReservationWithProperty(prop.id, d.dateStr)
                         }
                         title={`Crear reserva libre el ${d.dateStr}`}
-                        className="w-full h-full opacity-0 hover:opacity-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-all cursor-pointer text-xs"
+                        className="w-full h-full opacity-0 hover:opacity-100 hover:bg-[#f4f1ea] dark:hover:bg-zinc-800 flex items-center justify-center text-[#78746c] hover:text-[#1c1b18] dark:hover:text-zinc-200 transition-all cursor-pointer text-xs"
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>
@@ -457,7 +457,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                             isContinuingFromBefore ? 'rounded-l-none' : 'rounded-l-lg'
                           } ${
                             isContinuingAfter ? 'rounded-r-none' : 'rounded-r-lg'
-                          } px-2 sm:px-2.5 py-1 flex items-center justify-between text-left text-xs font-semibold cursor-pointer shadow-sm border transition-all hover:scale-[1.01] hover:shadow-md overflow-hidden ${getPlatformColors(
+                          } px-2 sm:px-2.5 py-1 flex items-center justify-between text-left text-xs font-semibold cursor-pointer shadow-xs border transition-all hover:scale-[1.01] hover:shadow-md overflow-hidden ${getPlatformColors(
                             res.platform
                           )}`}
                           title={`${res.guestName} (${res.platform.toUpperCase()}) · ${formatDisplayDate(
@@ -494,33 +494,33 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
       </div>
 
       {/* Interactive Horizontal Scroll Slider & Pan Bar for Laptop and Desktop */}
-      <div className="bg-zinc-100 dark:bg-zinc-800/90 border-t border-zinc-200 dark:border-zinc-700 px-4 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <div className="bg-[#f8f6f2] dark:bg-[#191919] border-t border-[#ded9cd] dark:border-[#262626] px-4 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
           <button
             onClick={() => handleScrollTimeline('left')}
-            className="flex items-center gap-1 font-bold text-xs bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 shadow-2xs cursor-pointer transition-colors"
+            className="flex items-center gap-1 font-bold text-xs bg-white dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] text-[#1c1b18] dark:text-zinc-200 px-3 py-1.5 rounded-lg border border-[#ded9cd] dark:border-[#333] shadow-2xs cursor-pointer transition-colors"
             title="Deslizar hacia días anteriores"
           >
-            <ChevronLeft className="w-4 h-4 text-rose-600" />
+            <ChevronLeft className="w-4 h-4 text-[#c46d45]" />
             <span>‹ Días anteriores</span>
           </button>
-          <span className="text-[11px] text-zinc-500 dark:text-zinc-400 sm:hidden">
+          <span className="text-[11px] text-[#78746c] dark:text-zinc-400 sm:hidden">
             Deslizar timeline
           </span>
           <button
             onClick={() => handleScrollTimeline('right')}
-            className="flex items-center gap-1 font-bold text-xs bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 shadow-2xs cursor-pointer transition-colors"
+            className="flex items-center gap-1 font-bold text-xs bg-white dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] text-[#1c1b18] dark:text-zinc-200 px-3 py-1.5 rounded-lg border border-[#ded9cd] dark:border-[#333] shadow-2xs cursor-pointer transition-colors"
             title="Deslizar hacia días siguientes"
           >
             <span>Días siguientes ›</span>
-            <ChevronRight className="w-4 h-4 text-rose-600" />
+            <ChevronRight className="w-4 h-4 text-[#c46d45]" />
           </button>
         </div>
 
         {/* Slider track for Laptops */}
         <div className="w-full sm:max-w-md flex items-center gap-3">
-          <SlidersHorizontal className="w-3.5 h-3.5 text-rose-600 shrink-0" />
-          <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 whitespace-nowrap hidden md:inline">
+          <SlidersHorizontal className="w-3.5 h-3.5 text-[#c46d45] shrink-0" />
+          <span className="text-[11px] font-bold text-[#78746c] dark:text-zinc-400 whitespace-nowrap hidden md:inline">
             Barra de desplazamiento:
           </span>
           <input
@@ -529,10 +529,10 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             max="100"
             value={scrollProgress}
             onChange={(e) => handleSliderChange(Number(e.target.value))}
-            className="w-full h-2.5 bg-zinc-300 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-rose-600"
+            className="w-full h-2.5 bg-[#ded9cd] dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-[#c46d45]"
             title="Arrastra para navegar por los 14 días"
           />
-          <span className="text-[11px] font-mono text-zinc-600 dark:text-zinc-300 font-bold min-w-[34px] text-right">
+          <span className="text-[11px] font-mono text-[#1c1b18] dark:text-zinc-300 font-bold min-w-[34px] text-right">
             {Math.round(scrollProgress)}%
           </span>
         </div>
