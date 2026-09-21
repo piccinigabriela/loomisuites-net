@@ -13,11 +13,20 @@ import {
   RefreshCw,
   Zap,
   Tag,
+  Camera,
+  Image as ImageIcon,
+  X,
+  Upload,
 } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { DemoState } from '../../types';
 import { getClientXeniaReply } from './xeniaLocalEngine';
-import { XeniaAvatar } from './XeniaAvatar';
+import {
+  XeniaAvatar,
+  XENIA_PORTRAIT_PRESETS,
+  getStoredXeniaAvatar,
+  setStoredXeniaAvatar,
+} from './XeniaAvatar';
 
 interface XeniaCopilotViewProps {
   demoState: DemoState;
@@ -183,6 +192,41 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
     },
   ];
 
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [customPhotoInput, setCustomPhotoInput] = useState('');
+  const [selectedPreset, setSelectedPreset] = useState<string>(() => getStoredXeniaAvatar());
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSelectPreset = (url: string) => {
+    setSelectedPreset(url);
+    setStoredXeniaAvatar(url);
+  };
+
+  const handleApplyCustomUrl = () => {
+    if (customPhotoInput.trim()) {
+      setSelectedPreset(customPhotoInput.trim());
+      setStoredXeniaAvatar(customPhotoInput.trim());
+      setCustomPhotoInput('');
+      setShowPhotoModal(false);
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result as string;
+        if (dataUrl) {
+          setSelectedPreset(dataUrl);
+          setStoredXeniaAvatar(dataUrl);
+          setShowPhotoModal(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // Calculate high-level stats for top pill bar
   const totalGross = demoState.reservations.reduce((acc, r) => acc + r.totalAmount, 0);
   const totalNights = demoState.reservations.reduce((acc, r) => acc + r.nights, 0);
@@ -194,7 +238,15 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
       <div className="bg-[#1c1a18] rounded-2xl p-6 text-[#f0eeeb] border border-[#383028] shadow-lg relative overflow-hidden">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative">
           <div className="flex items-center gap-3.5">
-            <XeniaAvatar size="lg" />
+            <div className="relative group cursor-pointer" onClick={() => setShowPhotoModal(true)} title="Cambiar foto de Xenia">
+              <XeniaAvatar size="lg" />
+              <button
+                className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity"
+                aria-label="Cambiar foto de Xenia"
+              >
+                <Camera className="w-4 h-4 text-[#d88d5e]" />
+              </button>
+            </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold tracking-tight text-[#f4f2ee]">Xenia</h2>
@@ -202,6 +254,13 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                   <span className="w-1.5 h-1.5 rounded-full bg-[#82ba8f] animate-pulse" />
                   Copiloto de Hospitalidad
                 </span>
+                <button
+                  onClick={() => setShowPhotoModal(true)}
+                  className="flex items-center gap-1 text-[11px] text-[#d88d5e] hover:text-[#f4f2ee] bg-[#2a221b] hover:bg-[#382b20] border border-[#48372b] px-2.5 py-1 rounded-lg transition-colors cursor-pointer ml-1"
+                >
+                  <Camera className="w-3 h-3" />
+                  <span>Personalizar Foto</span>
+                </button>
               </div>
               <p className="text-xs text-[#a8a5a0] mt-0.5">
                 Rendición de cuentas, control de huéspedes y guía de Loomi Suite
@@ -223,6 +282,119 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
           </div>
         </div>
       </div>
+
+      {/* Modal / Dialog to change Xenia's Photo */}
+      {showPhotoModal && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#1c1c1c] border border-[#383838] rounded-2xl max-w-md w-full p-6 text-[#f4f2ee] shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[#2e2e2e] pb-3">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-[#d88d5e]" />
+                <h3 className="font-bold text-base">Foto de Perfil de Xenia</h3>
+              </div>
+              <button
+                onClick={() => setShowPhotoModal(false)}
+                className="text-[#8e8c87] hover:text-[#f4f2ee] p-1 rounded-lg hover:bg-[#282828] cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-4 bg-[#141414] p-3.5 rounded-xl border border-[#2a2a2a]">
+              <XeniaAvatar size="xl" />
+              <div>
+                <span className="text-xs font-bold text-[#f4f2ee] block">Vista Previa en Vivo</span>
+                <span className="text-[11px] text-[#8e8c87]">
+                  Esta imagen se reflejará en el chat, en la barra lateral y en el asistente flotante.
+                </span>
+              </div>
+            </div>
+
+            {/* Presets Gallery */}
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-[#c8c5c0] block">
+                Selecciona uno de los retratos sugeridos:
+              </span>
+              <div className="grid grid-cols-2 gap-2.5">
+                {XENIA_PORTRAIT_PRESETS.map((preset) => {
+                  const isSelected = selectedPreset === preset.url;
+                  return (
+                    <button
+                      key={preset.id}
+                      onClick={() => handleSelectPreset(preset.url)}
+                      className={`flex items-center gap-2.5 p-2 rounded-xl border text-left cursor-pointer transition-all ${
+                        isSelected
+                          ? 'bg-[#2b221b] border-[#d88d5e] text-[#f4f2ee] ring-1 ring-[#d88d5e]'
+                          : 'bg-[#161616] border-[#2c2c2c] text-[#a8a5a0] hover:border-[#444]'
+                      }`}
+                    >
+                      <img
+                        src={preset.url}
+                        alt={preset.label}
+                        referrerPolicy="no-referrer"
+                        className="w-10 h-10 rounded-full object-cover shrink-0 border border-white/10"
+                      />
+                      <span className="text-[11px] font-semibold leading-tight line-clamp-2">
+                        {preset.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Upload own photo or URL */}
+            <div className="pt-3 border-t border-[#2e2e2e] space-y-3">
+              <span className="text-xs font-bold text-[#c8c5c0] block">
+                O sube tu propia foto / ingresa un enlace:
+              </span>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={customPhotoInput}
+                  onChange={(e) => setCustomPhotoInput(e.target.value)}
+                  placeholder="https://ejemplo.com/mi-foto.jpg"
+                  className="flex-1 bg-[#141414] border border-[#333] rounded-xl px-3 py-2 text-xs text-[#f4f2ee] focus:outline-none focus:border-[#d88d5e]"
+                />
+                <button
+                  onClick={handleApplyCustomUrl}
+                  disabled={!customPhotoInput.trim()}
+                  className="bg-[#c46d45] hover:bg-[#d67b51] disabled:opacity-50 text-white text-xs font-bold px-3 py-2 rounded-xl cursor-pointer transition-colors"
+                >
+                  Aplicar URL
+                </button>
+              </div>
+
+              <div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full flex items-center justify-center gap-2 bg-[#242424] hover:bg-[#2e2e2e] border border-[#383838] text-xs font-bold text-[#f4f2ee] py-2.5 rounded-xl cursor-pointer transition-colors"
+                >
+                  <Upload className="w-3.5 h-3.5 text-[#d88d5e]" />
+                  <span>Subir foto desde tu dispositivo</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => setShowPhotoModal(false)}
+                className="bg-[#c46d45] hover:bg-[#d67b51] text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer transition-colors"
+              >
+                Listo / Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Grid: Prompts + Chat View */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

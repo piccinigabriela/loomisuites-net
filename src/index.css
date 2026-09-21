@@ -12,46 +12,47 @@
   overflow-x: scroll !important;
   scrollbar-gutter: stable;
   scrollbar-width: auto !important;
-  scrollbar-color: #e11d48 #cbd5e1 !important;
+  scrollbar-color: #c46d45 #e5e1d8 !important;
   -webkit-overflow-scrolling: touch;
 }
 
 .dark .calendar-scrollbar {
-  scrollbar-color: #f43f5e #27272a !important;
+  scrollbar-color: #d88d5e #2a2a2a !important;
 }
 
 .calendar-scrollbar::-webkit-scrollbar {
-  height: 16px !important;
-  width: 16px !important;
+  height: 14px !important;
+  width: 14px !important;
   display: block !important;
   -webkit-appearance: none !important;
 }
 
 .calendar-scrollbar::-webkit-scrollbar-track {
-  background: #e2e8f0 !important;
+  background: #edeae2 !important;
   border-radius: 9999px;
-  border: 2px solid #cbd5e1;
+  border: 2px solid #ded9cd;
   margin: 0 4px;
 }
 
 .dark .calendar-scrollbar::-webkit-scrollbar-track {
-  background: #27272a !important;
-  border-color: #3f3f46 !important;
+  background: #1e1e1e !important;
+  border-color: #2e2e2e !important;
 }
 
 .calendar-scrollbar::-webkit-scrollbar-thumb {
-  background: #e11d48 !important;
+  background: #c46d45 !important;
   border-radius: 9999px;
-  border: 3px solid #ffffff;
+  border: 3px solid #f8f6f2;
   min-width: 80px;
 }
 
 .dark .calendar-scrollbar::-webkit-scrollbar-thumb {
-  background: #f43f5e !important;
-  border: 3px solid #18181b;
+  background: #d88d5e !important;
+  border: 3px solid #161616;
 }
 
 .calendar-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #be123c !important;
+  background: #a85a34 !important;
 }
+
 

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Building2, Sparkles, Play, ShieldCheck, MessageSquare, Sun, Moon } from 'lucide-react';
+import { Play, MessageSquare, Sun, Moon } from 'lucide-react';
+import { LoomiLogo } from '../common/LoomiLogo';
 
 interface NavbarProps {
   onOpenDemo: () => void;
@@ -9,45 +10,35 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onOpenDemo, onOpenContact, theme = 'light', onToggleTheme }) => {
+  const isDark = theme === 'dark';
+
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 shadow-xs transition-colors">
+    <header className="sticky top-0 z-40 w-full bg-[#fbf9f5]/95 dark:bg-[#161616]/95 backdrop-blur-md border-b border-[#e8e4dc] dark:border-[#282828] shadow-2xs transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center text-white shadow-md shadow-rose-500/20">
-            <Building2 className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white font-['Outfit']">
-                Loomi <span className="text-rose-600">Suite</span>
-              </span>
-              <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Demo Activa
-              </span>
-            </div>
-            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 hidden md:block">
-              Cabañas • Bed & Breakfasts • Hostales • Posadas
-            </p>
-          </div>
+          <LoomiLogo size="md" theme={isDark ? 'dark' : 'light'} />
+          <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold bg-[#edf4ed] dark:bg-[#1f2b20] text-[#3e6645] dark:text-[#a4cca8] px-2.5 py-0.5 rounded-full border border-[#d2e4d2] dark:border-[#344836]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#5a9c65] animate-pulse"></span>
+            Demo Activa
+          </span>
         </div>
 
         {/* Desktop Nav Links */}
-        <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-zinc-600 dark:text-zinc-300">
-          <a href="#preguntas-clave" className="hover:text-zinc-900 dark:hover:text-white transition-colors">
+        <nav className="hidden lg:flex items-center gap-7 text-sm font-semibold text-[#66625a] dark:text-[#a8a5a0]">
+          <a href="#preguntas-clave" className="hover:text-[#1c1b18] dark:hover:text-[#f4f2ee] transition-colors">
             ¿Qué hacemos?
           </a>
-          <a href="#preguntas-clave" className="hover:text-zinc-900 dark:hover:text-white transition-colors">
+          <a href="#preguntas-clave" className="hover:text-[#1c1b18] dark:hover:text-[#f4f2ee] transition-colors">
             ¿Esto es para vos?
           </a>
-          <a href="#preguntas-clave" className="hover:text-zinc-900 dark:hover:text-white transition-colors">
+          <a href="#preguntas-clave" className="hover:text-[#1c1b18] dark:hover:text-[#f4f2ee] transition-colors">
             ¿Qué problema te resuelve?
           </a>
-          <a href="#preguntas-clave" className="hover:text-zinc-900 dark:hover:text-white transition-colors">
+          <a href="#preguntas-clave" className="hover:text-[#1c1b18] dark:hover:text-[#f4f2ee] transition-colors">
             Precios
           </a>
-          <a href="#canales" className="hover:text-zinc-900 dark:hover:text-white transition-colors">
+          <a href="#canales" className="hover:text-[#1c1b18] dark:hover:text-[#f4f2ee] transition-colors">
             Canales OTA
           </a>
         </nav>
@@ -57,13 +48,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenDemo, onOpenContact, theme
           {onToggleTheme && (
             <button
               onClick={onToggleTheme}
-              className="p-2 rounded-lg text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer border border-transparent dark:border-zinc-700"
-              title={theme === 'dark' ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
+              className="p-2 rounded-xl text-[#66625a] dark:text-[#a8a5a0] hover:bg-[#edeae2] dark:hover:bg-[#262626] border border-[#ded9cd] dark:border-[#333] transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
+              title={isDark ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
             >
-              {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400" />
+              {isDark ? (
+                <>
+                  <Sun className="w-4 h-4 text-amber-400" />
+                  <span className="hidden md:inline text-[11px] text-[#e0deda]">Modo Claro</span>
+                </>
               ) : (
-                <Moon className="w-4 h-4 text-zinc-600" />
+                <>
+                  <Moon className="w-4 h-4 text-[#66625a]" />
+                  <span className="hidden md:inline text-[11px] text-[#55514a]">Modo Oscuro</span>
+                </>
               )}
             </button>
           )}
@@ -71,18 +68,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenDemo, onOpenContact, theme
           <button
             id="btn-nav-contact"
             onClick={onOpenContact}
-            className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-200 hover:text-zinc-900 dark:hover:text-white px-3 py-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+            className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-[#44403a] dark:text-[#d0cdc8] hover:text-[#1c1b18] dark:hover:text-[#ffffff] px-3 py-2 rounded-xl hover:bg-[#edeae2] dark:hover:bg-[#262626] border border-transparent hover:border-[#ded9cd] dark:hover:border-[#333] transition-all cursor-pointer"
           >
-            <MessageSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <MessageSquare className="w-4 h-4 text-[#4f7858] dark:text-[#78b37e]" />
             <span>Hablar con un Asesor</span>
           </button>
 
           <button
             id="btn-nav-open-demo"
             onClick={onOpenDemo}
-            className="flex items-center gap-2 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-98 px-3.5 sm:px-4.5 py-2 sm:py-2.5 rounded-xl shadow-md shadow-rose-600/25 transition-all cursor-pointer"
+            className="flex items-center gap-2 text-xs sm:text-sm font-bold text-white bg-[#c46d45] hover:bg-[#b85e35] active:scale-98 px-3.5 sm:px-4.5 py-2 sm:py-2.5 rounded-xl shadow-md shadow-[#c46d45]/20 transition-all cursor-pointer"
           >
-            <Play className="w-4 h-4 fill-white" />
+            <Play className="w-3.5 h-3.5 fill-white" />
             <span>Probar Demo</span>
           </button>
         </div>
@@ -90,4 +87,5 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenDemo, onOpenContact, theme
     </header>
   );
 };
+
 

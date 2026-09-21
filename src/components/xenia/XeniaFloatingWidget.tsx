@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Bot,
   X,
   Send,
   Sparkles,
@@ -14,6 +13,7 @@ import {
 import Markdown from 'react-markdown';
 import { DemoState } from '../../types';
 import { getClientXeniaReply } from './xeniaLocalEngine';
+import { XeniaAvatar } from './XeniaAvatar';
 
 interface XeniaFloatingWidgetProps {
   demoState: DemoState;
@@ -125,18 +125,16 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="group flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white rounded-full shadow-2xl hover:shadow-rose-500/25 transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer border border-rose-400/30"
+          className="group flex items-center gap-2.5 px-4 py-2.5 bg-[#1c1a18] hover:bg-[#25201b] text-white rounded-full shadow-2xl hover:shadow-[#c46d45]/20 transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer border border-[#48372b]"
           aria-label="Abrir Asistente Xenia"
         >
-          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-            <Bot className="w-5 h-5 text-white" />
-          </div>
+          <XeniaAvatar size="sm" showStatus={false} />
           <div className="text-left">
             <div className="flex items-center gap-1.5 leading-none">
-              <span className="font-extrabold text-sm tracking-tight">Xenia IA</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-extrabold text-xs tracking-tight text-[#f4f2ee]">Xenia Copilot</span>
+              <span className="w-2 h-2 rounded-full bg-[#82ba8f] animate-pulse" />
             </div>
-            <span className="text-[10px] text-rose-100 font-medium leading-tight">
+            <span className="text-[10px] text-[#d88d5e] font-medium leading-tight">
               Finanzas & Guía de Uso
             </span>
           </div>
@@ -145,21 +143,19 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
 
       {/* Floating Chat Modal */}
       {isOpen && (
-        <div className="w-[360px] sm:w-[420px] h-[580px] bg-white rounded-3xl shadow-2xl border border-zinc-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="w-[360px] sm:w-[420px] h-[580px] bg-[#1a1a1a] rounded-3xl shadow-2xl border border-[#333] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200 text-[#f4f2ee]">
           {/* Header */}
-          <div className="p-4 bg-gradient-to-r from-zinc-950 via-zinc-900 to-rose-950 text-white flex items-center justify-between border-b border-zinc-800">
+          <div className="p-4 bg-[#141414] text-white flex items-center justify-between border-b border-[#282828]">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-rose-600 flex items-center justify-center shadow-xs">
-                <Bot className="w-5 h-5 text-white" />
-              </div>
+              <XeniaAvatar size="sm" showStatus={false} />
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-bold text-sm leading-tight">Xenia Copilot</h3>
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  <h3 className="font-bold text-sm leading-tight text-[#f4f2ee]">Xenia Copilot</h3>
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#202d20] text-[#a4cca8] border border-[#344836]">
                     Online
                   </span>
                 </div>
-                <p className="text-[10px] text-zinc-400">
+                <p className="text-[10px] text-[#8e8c87]">
                   Rendición de Cuentas & Manual de Uso
                 </p>
               </div>
@@ -172,7 +168,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                     setIsOpen(false);
                     onOpenFullView();
                   }}
-                  className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+                  className="p-1.5 text-[#8e8c87] hover:text-white rounded-lg hover:bg-[#282828] transition-colors cursor-pointer"
                   title="Abrir vista completa"
                 >
                   <Maximize2 className="w-4 h-4" />
@@ -180,7 +176,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
               )}
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                className="p-1.5 text-[#8e8c87] hover:text-white rounded-lg hover:bg-[#282828] transition-colors cursor-pointer"
                 title="Cerrar"
               >
                 <X className="w-4 h-4" />
@@ -189,12 +185,12 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
           </div>
 
           {/* Quick Prompts Horizontal Scroll */}
-          <div className="bg-zinc-50 px-3 py-2 border-b border-zinc-200/80 flex items-center gap-1.5 overflow-x-auto scrollbar-none text-[11px]">
+          <div className="bg-[#161616] px-3 py-2 border-b border-[#282828] flex items-center gap-1.5 overflow-x-auto scrollbar-none text-[11px]">
             <button
               onClick={() =>
                 handleSend('¿Cuál es la ocupación actual y qué reservas hay?')
               }
-              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-800 hover:border-rose-400 transition-colors cursor-pointer shrink-0 font-bold"
+              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[#2a221b] border border-[#48372b] text-[#d88d5e] hover:border-[#6e503b] transition-colors cursor-pointer shrink-0 font-bold"
             >
               🛎️ Ocupación & Reservas
             </button>
@@ -202,7 +198,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
               onClick={() =>
                 handleSend('¿Cuánto cuesta Loomi y cómo se paga?')
               }
-              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-900 hover:border-amber-400 transition-colors cursor-pointer shrink-0 font-medium"
+              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[#202020] border border-[#333] text-[#c8c5c0] hover:text-[#f4f2ee] transition-colors cursor-pointer shrink-0 font-medium"
             >
               🏷️ Planes & precios ARS
             </button>
@@ -210,7 +206,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
               onClick={() =>
                 handleSend('¿Cuánto dinero ingresó este mes y qué señas hay pendientes?')
               }
-              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-white border border-zinc-200 text-zinc-700 hover:border-rose-500 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
+              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[#202020] border border-[#333] text-[#c8c5c0] hover:text-[#f4f2ee] transition-colors cursor-pointer shrink-0"
             >
               💰 Ingresos & señas
             </button>
@@ -218,7 +214,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
               onClick={() =>
                 handleSend('¿Qué servicios incluye y cómo funciona con llaves tradicionales?')
               }
-              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-white border border-zinc-200 text-zinc-700 hover:border-rose-500 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
+              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[#202020] border border-[#333] text-[#c8c5c0] hover:text-[#f4f2ee] transition-colors cursor-pointer shrink-0"
             >
               🔑 ¿Qué incluye?
             </button>
@@ -226,14 +222,14 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
               onClick={() =>
                 handleSend('¿Cómo sincronizo Booking y Airbnb sin dobles reservas?')
               }
-              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-white border border-zinc-200 text-zinc-700 hover:border-rose-500 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
+              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[#202020] border border-[#333] text-[#c8c5c0] hover:text-[#f4f2ee] transition-colors cursor-pointer shrink-0"
             >
               🔄 Sincronizar iCal
             </button>
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-zinc-50/40">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#141414]">
             {messages.map((m) => (
               <div
                 key={m.id}
@@ -242,29 +238,27 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                 }`}
               >
                 {m.role === 'assistant' && (
-                  <div className="w-6 h-6 rounded-md bg-rose-600 flex items-center justify-center text-white shrink-0 text-[10px] font-bold">
-                    X
-                  </div>
+                  <XeniaAvatar size="xs" showStatus={false} />
                 )}
                 <div
                   className={`max-w-[85%] rounded-2xl p-3 shadow-xs ${
                     m.role === 'user'
-                      ? 'bg-rose-600 text-white rounded-tr-xs'
-                      : 'bg-white border border-zinc-200 text-zinc-800 rounded-tl-xs'
+                      ? 'bg-[#c46d45] text-white rounded-tr-xs'
+                      : 'bg-[#1e1e1e] border border-[#2e2e2e] text-[#e4e2de] rounded-tl-xs'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-2 mb-1 text-[9px] opacity-70 border-b border-black/5 pb-0.5">
+                  <div className="flex items-center justify-between gap-2 mb-1 text-[9px] opacity-70 border-b border-white/10 pb-0.5">
                     <span>{m.role === 'user' ? 'Tú' : 'Xenia'}</span>
                     <div className="flex items-center gap-1">
                       <span>{m.timestamp}</span>
                       {m.role === 'assistant' && (
                         <button
                           onClick={() => copyText(m.content, m.id)}
-                          className="hover:text-rose-600 p-0.5"
+                          className="hover:text-[#d88d5e] p-0.5"
                           title="Copiar"
                         >
                           {copiedId === m.id ? (
-                            <Check className="w-2.5 h-2.5 text-emerald-600" />
+                            <Check className="w-2.5 h-2.5 text-[#78b37e]" />
                           ) : (
                             <Copy className="w-2.5 h-2.5" />
                           )}
@@ -272,7 +266,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                       )}
                     </div>
                   </div>
-                  <div className="prose prose-xs max-w-none text-zinc-800">
+                  <div className="prose prose-xs max-w-none text-[#e4e2de] prose-invert">
                     <Markdown>{m.content}</Markdown>
                   </div>
                 </div>
@@ -280,8 +274,8 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
             ))}
 
             {isLoading && (
-              <div className="flex items-center gap-2 text-xs text-zinc-500 bg-white border border-zinc-200 rounded-xl p-2.5 w-fit">
-                <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+              <div className="flex items-center gap-2 text-xs text-[#8e8c87] bg-[#1c1c1c] border border-[#2e2e2e] rounded-xl p-2.5 w-fit">
+                <span className="w-2 h-2 rounded-full bg-[#d88d5e] animate-ping" />
                 <span>Xenia está respondiendo...</span>
               </div>
             )}
@@ -289,7 +283,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
           </div>
 
           {/* Input Footer */}
-          <div className="p-3 bg-white border-t border-zinc-200">
+          <div className="p-3 bg-[#181818] border-t border-[#2a2a2a]">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -302,13 +296,13 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Pregunta a Xenia sobre ingresos o el uso del sistema..."
-                className="flex-1 px-3 py-2 bg-zinc-50 border border-zinc-300 rounded-xl text-xs text-zinc-800 focus:outline-hidden focus:border-rose-500 focus:bg-white"
+                className="flex-1 px-3 py-2 bg-[#121212] border border-[#333] rounded-xl text-xs text-[#f4f2ee] focus:outline-none focus:border-[#d88d5e]"
                 disabled={isLoading}
               />
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="p-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white rounded-xl cursor-pointer transition-colors"
+                className="p-2 bg-[#c46d45] hover:bg-[#d67b51] disabled:opacity-50 text-white rounded-xl cursor-pointer transition-colors"
                 title="Enviar"
               >
                 <Send className="w-4 h-4" />

@@ -93,19 +93,19 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
   ];
 
   return (
-    <section id="preguntas-clave" className="py-12 md:py-20 bg-zinc-50 border-y border-zinc-200">
+    <section id="preguntas-clave" className="py-12 md:py-20 bg-[#f4f1ea] dark:bg-[#111111] border-y border-[#ded9cd] dark:border-[#282828] text-[#1c1b18] dark:text-[#f4f2ee] transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header: Direct & Honest to the Lead */}
         <div className="text-center max-w-3xl mx-auto mb-10 md:mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold mb-3">
-            <HelpCircle className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#f4eee7] dark:bg-[#28201a] border border-[#e4d6c9] dark:border-[#48372b] text-[#9c512a] dark:text-[#d88d5e] text-xs font-bold mb-3 shadow-2xs">
+            <HelpCircle className="w-3.5 h-3.5 text-[#c46d45] dark:text-[#d88d5e]" />
             <span>Respuestas claras y al grano</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1c1b18] dark:text-[#ffffff] tracking-tight">
             Todo lo que querés saber antes de decidir
           </h2>
-          <p className="mt-3 text-base sm:text-lg text-zinc-600">
+          <p className="mt-3 text-base sm:text-lg text-[#66625a] dark:text-[#a8a5a0]">
             Sin rodeos, sin videos eternos y con precios a la vista en pesos. Elegí la pregunta que tenés en mente:
           </p>
         </div>
@@ -118,22 +118,22 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
             onClick={() => selectQuestion('que-hacemos')}
             className={`text-left p-5 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
               activeQuestion === 'que-hacemos'
-                ? 'bg-white border-rose-500 shadow-lg shadow-rose-500/10 ring-2 ring-rose-500/20'
-                : 'bg-white/80 border-zinc-200 hover:border-zinc-300 hover:bg-white'
+                ? 'bg-white dark:bg-[#1e1e1e] border-[#c46d45] shadow-lg shadow-[#c46d45]/10 ring-2 ring-[#c46d45]/20'
+                : 'bg-white/80 dark:bg-[#181818] border-[#ded9cd] dark:border-[#2a2a2a] hover:border-[#c46d45]/40 hover:bg-white dark:hover:bg-[#1e1e1e]'
             }`}
           >
             <div>
-              <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-base mb-3">
+              <div className="w-10 h-10 rounded-xl bg-[#f4eee7] dark:bg-[#2c2017] text-[#9c512a] dark:text-[#d88d5e] border border-[#e4d6c9] dark:border-[#48372b] flex items-center justify-center font-bold text-base mb-3">
                 1
               </div>
-              <h3 className="text-base font-bold text-zinc-900">
+              <h3 className="text-base font-bold text-[#1c1b18] dark:text-[#f4f2ee]">
                 ¿Qué hacemos?
               </h3>
-              <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+              <p className="text-xs text-[#66625a] dark:text-[#9e9b94] mt-1.5 leading-relaxed">
                 Centralizamos tus reservas, cobros, limpieza y WhatsApp en un solo lugar fácil de usar.
               </p>
             </div>
-            <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-rose-600">
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-[#c46d45] dark:text-[#d88d5e]">
               <span>{activeQuestion === 'que-hacemos' ? 'Viendo detalle' : 'Ver respuesta'}</span>
               <ArrowRight className="w-3 h-3" />
             </div>
@@ -144,22 +144,22 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
             onClick={() => selectQuestion('es-para-vos')}
             className={`text-left p-5 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
               activeQuestion === 'es-para-vos'
-                ? 'bg-white border-rose-500 shadow-lg shadow-rose-500/10 ring-2 ring-rose-500/20'
-                : 'bg-white/80 border-zinc-200 hover:border-zinc-300 hover:bg-white'
+                ? 'bg-white dark:bg-[#1e1e1e] border-[#3a6878] dark:border-[#76aab8] shadow-lg shadow-[#3a6878]/10 ring-2 ring-[#3a6878]/20'
+                : 'bg-white/80 dark:bg-[#181818] border-[#ded9cd] dark:border-[#2a2a2a] hover:border-[#3a6878]/40 hover:bg-white dark:hover:bg-[#1e1e1e]'
             }`}
           >
             <div>
-              <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-base mb-3">
+              <div className="w-10 h-10 rounded-xl bg-[#eef4f8] dark:bg-[#1a252f] text-[#2c5370] dark:text-[#76aab8] border border-[#c8d9e6] dark:border-[#2b3a48] flex items-center justify-center font-bold text-base mb-3">
                 2
               </div>
-              <h3 className="text-base font-bold text-zinc-900">
+              <h3 className="text-base font-bold text-[#1c1b18] dark:text-[#f4f2ee]">
                 ¿Esto es para vos?
               </h3>
-              <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+              <p className="text-xs text-[#66625a] dark:text-[#9e9b94] mt-1.5 leading-relaxed">
                 Si administrás desde 4 hasta 30+ cabañas o departamentos y querés orden real.
               </p>
             </div>
-            <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-blue-600">
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-[#2c5370] dark:text-[#76aab8]">
               <span>{activeQuestion === 'es-para-vos' ? 'Viendo detalle' : 'Ver respuesta'}</span>
               <ArrowRight className="w-3 h-3" />
             </div>
@@ -170,22 +170,22 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
             onClick={() => selectQuestion('que-resuelve')}
             className={`text-left p-5 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
               activeQuestion === 'que-resuelve'
-                ? 'bg-white border-rose-500 shadow-lg shadow-rose-500/10 ring-2 ring-rose-500/20'
-                : 'bg-white/80 border-zinc-200 hover:border-zinc-300 hover:bg-white'
+                ? 'bg-white dark:bg-[#1e1e1e] border-[#4f7858] dark:border-[#78b37e] shadow-lg shadow-[#4f7858]/10 ring-2 ring-[#4f7858]/20'
+                : 'bg-white/80 dark:bg-[#181818] border-[#ded9cd] dark:border-[#2a2a2a] hover:border-[#4f7858]/40 hover:bg-white dark:hover:bg-[#1e1e1e]'
             }`}
           >
             <div>
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-base mb-3">
+              <div className="w-10 h-10 rounded-xl bg-[#edf4ed] dark:bg-[#1f2b20] text-[#3e6645] dark:text-[#a4cca8] border border-[#d2e4d2] dark:border-[#344836] flex items-center justify-center font-bold text-base mb-3">
                 3
               </div>
-              <h3 className="text-base font-bold text-zinc-900">
+              <h3 className="text-base font-bold text-[#1c1b18] dark:text-[#f4f2ee]">
                 ¿Qué problema te resuelve?
               </h3>
-              <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+              <p className="text-xs text-[#66625a] dark:text-[#9e9b94] mt-1.5 leading-relaxed">
                 Cero dobles reservas, menos mensajes a medianoche y control de limpieza automático.
               </p>
             </div>
-            <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-[#4f7858] dark:text-[#78b37e]">
               <span>{activeQuestion === 'que-resuelve' ? 'Viendo detalle' : 'Ver respuesta'}</span>
               <ArrowRight className="w-3 h-3" />
             </div>
@@ -196,22 +196,22 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
             onClick={() => selectQuestion('precios')}
             className={`text-left p-5 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
               activeQuestion === 'precios'
-                ? 'bg-white border-rose-500 shadow-lg shadow-rose-500/10 ring-2 ring-rose-500/20'
-                : 'bg-white/80 border-zinc-200 hover:border-zinc-300 hover:bg-white'
+                ? 'bg-white dark:bg-[#1e1e1e] border-[#c46d45] shadow-lg shadow-[#c46d45]/10 ring-2 ring-[#c46d45]/20'
+                : 'bg-white/80 dark:bg-[#181818] border-[#ded9cd] dark:border-[#2a2a2a] hover:border-[#c46d45]/40 hover:bg-white dark:hover:bg-[#1e1e1e]'
             }`}
           >
             <div>
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-base mb-3">
+              <div className="w-10 h-10 rounded-xl bg-[#fbf5eb] dark:bg-[#282017] text-[#7d4812] dark:text-[#e4a86b] border border-[#ecd9be] dark:border-[#4d3d2c] flex items-center justify-center font-bold text-base mb-3">
                 $
               </div>
-              <h3 className="text-base font-bold text-zinc-900">
+              <h3 className="text-base font-bold text-[#1c1b18] dark:text-[#f4f2ee]">
                 Precios
               </h3>
-              <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+              <p className="text-xs text-[#66625a] dark:text-[#9e9b94] mt-1.5 leading-relaxed">
                 Desde $45.000 ARS/mes. Sin poner tarjeta para empezar. Suscripción por Mercado Pago o PayPal.
               </p>
             </div>
-            <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-amber-600">
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-[#9c512a] dark:text-[#d88d5e]">
               <span>{activeQuestion === 'precios' ? 'Viendo tarifas' : 'Ver precios exactos'}</span>
               <ArrowRight className="w-3 h-3" />
             </div>
@@ -220,7 +220,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
         </div>
 
         {/* Dynamic Detailed Answer Box */}
-        <div id="respuesta-detalle" className="bg-white rounded-3xl border border-zinc-200 shadow-xl overflow-hidden scroll-mt-24">
+        <div id="respuesta-detalle" className="bg-white dark:bg-[#191919] rounded-3xl border border-[#ded9cd] dark:border-[#2c2c2c] shadow-xl overflow-hidden scroll-mt-24 transition-colors">
           
           {/* ============================================================ */}
           {/* 1. ¿QUÉ HACEMOS? */}
