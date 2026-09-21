@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   Sun,
   Moon,
+  Menu,
 } from 'lucide-react';
 import { DemoState, Reservation, CleaningTask, ReservationStatus } from './types';
 import {
@@ -134,6 +135,7 @@ export default function App() {
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Toast feedback
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -598,13 +600,22 @@ export default function App() {
                   : 'Cambiado a Mi Complejo Real'
               );
             }}
+            isMobileOpen={isMobileSidebarOpen}
+            onMobileClose={() => setIsMobileSidebarOpen(false)}
           />
 
           {/* Main Content Area */}
           <div className="flex-1 flex flex-col min-w-0 bg-[#f4f1ea] dark:bg-[#141414] overflow-y-auto transition-colors">
             {/* Minimalist Top Sub-bar with fast actions & status */}
-            <div className="h-12 border-b border-[#ded9cd] dark:border-[#242424] px-6 flex items-center justify-between bg-[#fbf9f5]/90 dark:bg-[#161616]/90 sticky top-0 z-20 backdrop-blur-xs transition-colors">
+            <div className="h-12 border-b border-[#ded9cd] dark:border-[#242424] px-4 sm:px-6 flex items-center justify-between bg-[#fbf9f5]/90 dark:bg-[#161616]/90 sticky top-0 z-20 backdrop-blur-xs transition-colors">
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setIsMobileSidebarOpen(true)}
+                  className="lg:hidden p-1.5 rounded-lg text-[#66625a] dark:text-[#a8a5a0] hover:bg-[#edeae2] dark:hover:bg-[#222] border border-[#ded9cd] dark:border-[#333] transition-colors cursor-pointer"
+                  title="Abrir menú"
+                >
+                  <Menu className="w-4 h-4" />
+                </button>
                 <span className="text-xs text-[#78746c] dark:text-[#8c8a85]">
                   {activeComplex === 'catalinas'
                     ? 'Catalinas Apartamentos (CABA)'

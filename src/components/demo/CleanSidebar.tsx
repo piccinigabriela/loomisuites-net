@@ -16,6 +16,7 @@ import {
   Sun,
   LogOut,
   ChevronDown,
+  X,
 } from 'lucide-react';
 import { LoomiLogo } from '../common/LoomiLogo';
 import { XeniaAvatar } from '../xenia/XeniaAvatar';
@@ -34,6 +35,8 @@ interface CleanSidebarProps {
   onBackToLanding: () => void;
   activeComplex: 'catalinas' | 'woodcabin' | 'custom';
   onSwitchComplex: (complex: 'catalinas' | 'woodcabin' | 'custom') => void;
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
 export const CleanSidebar: React.FC<CleanSidebarProps> = ({
@@ -50,11 +53,20 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
   onBackToLanding,
   activeComplex,
   onSwitchComplex,
+  isMobileOpen = false,
+  onMobileClose,
 }) => {
   const isDark = theme === 'dark';
 
-  return (
-    <aside className="w-64 shrink-0 bg-[#fbf9f5] dark:bg-[#161616] text-[#3c3933] dark:text-[#e0deda] border-r border-[#ded9cd] dark:border-[#242424] flex flex-col justify-between h-screen sticky top-0 select-none overflow-y-auto z-30 font-sans transition-colors">
+  const handleTabClick = (tab: string) => {
+    onSelectTab(tab);
+    if (onMobileClose) {
+      onMobileClose();
+    }
+  };
+
+  const renderSidebarContent = () => (
+    <>
       {/* Top Header & Brand */}
       <div>
         {/* Brand Block */}
@@ -63,6 +75,15 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
           <div className="flex items-center justify-between">
             <LoomiLogo size="sm" theme={isDark ? 'dark' : 'light'} />
             <div className="flex items-center gap-1.5">
+              {isMobileOpen && onMobileClose && (
+                <button
+                  onClick={onMobileClose}
+                  className="p-1 text-[#66625a] dark:text-[#a8a5a0] hover:bg-[#edeae2] dark:hover:bg-[#222] border border-[#ded9cd] dark:border-[#333] rounded-lg transition-colors lg:hidden mr-1"
+                  title="Cerrar menú"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
               <button
                 onClick={onToggleTheme}
                 className="p-1.5 rounded-lg text-[#66625a] dark:text-[#a8a5a0] hover:bg-[#edeae2] dark:hover:bg-[#222] border border-[#ded9cd] dark:border-[#333] transition-colors"
@@ -121,7 +142,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               Principal
             </div>
             <button
-              onClick={() => onSelectTab('overview')}
+              onClick={() => handleTabClick('overview')}
               className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
                 activeTab === 'overview'
                   ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
@@ -140,7 +161,10 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
             </div>
             <div className="space-y-0.5">
               <button
-                onClick={onOpenNewReservation}
+                onClick={() => {
+                  onOpenNewReservation();
+                  if (onMobileClose) onMobileClose();
+                }}
                 className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-bold text-[#c46d45] dark:text-[#d88d5e] hover:bg-[#f4eee7] dark:hover:bg-[#26211c] transition-colors text-left"
               >
                 <span className="text-sm font-bold leading-none">+</span>
@@ -148,7 +172,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               </button>
 
               <button
-                onClick={() => onSelectTab('calendar')}
+                onClick={() => handleTabClick('calendar')}
                 className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
                   activeTab === 'calendar'
                     ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
@@ -160,7 +184,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               </button>
 
               <button
-                onClick={() => onSelectTab('housekeeping')}
+                onClick={() => handleTabClick('housekeeping')}
                 className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
                   activeTab === 'housekeeping'
                     ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
@@ -179,7 +203,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               </button>
 
               <button
-                onClick={() => onSelectTab('addons')}
+                onClick={() => handleTabClick('addons')}
                 className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
                   activeTab === 'addons'
                     ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
@@ -200,7 +224,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
             <div className="space-y-0.5">
               {!isEmployeeMode && (
                 <button
-                  onClick={() => onSelectTab('finances')}
+                  onClick={() => handleTabClick('finances')}
                   className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
                     activeTab === 'finances'
                       ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
@@ -213,7 +237,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               )}
 
               <button
-                onClick={() => onSelectTab('welcome-guide')}
+                onClick={() => handleTabClick('welcome-guide')}
                 className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
                   activeTab === 'welcome-guide'
                     ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
@@ -225,7 +249,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               </button>
 
               <button
-                onClick={() => onSelectTab('messages')}
+                onClick={() => handleTabClick('messages')}
                 className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
                   activeTab === 'messages'
                     ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
@@ -237,7 +261,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               </button>
 
               <button
-                onClick={() => onSelectTab('xenia')}
+                onClick={() => handleTabClick('xenia')}
                 className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
                   activeTab === 'xenia'
                     ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
@@ -257,12 +281,12 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
             </div>
             <div className="space-y-0.5">
               <button
-                onClick={() => onSelectTab('properties')}
+                onClick={() => handleTabClick('properties')}
                 className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
                   activeTab === 'properties'
                     ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
                     : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
-                }`}
+              }`}
               >
                 <Building2 className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
                 <span>Departamentos & iCal</span>
@@ -270,7 +294,10 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
 
               {onOpenOnboardingWizard && (
                 <button
-                  onClick={onOpenOnboardingWizard}
+                  onClick={() => {
+                    onOpenOnboardingWizard();
+                    if (onMobileClose) onMobileClose();
+                  }}
                   className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#c46d45] dark:text-[#d88d5e] hover:bg-[#f4eee7] dark:hover:bg-[#28211c] transition-colors text-left border border-dashed border-[#c46d45]/40 dark:border-[#523d2e]/60"
                 >
                   <Sliders className="w-3.5 h-3.5 text-[#c46d45] dark:text-[#d88d5e]" />
@@ -349,6 +376,31 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
           <span>v2.2 · Catalinas</span>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop Persistent Sidebar */}
+      <aside className="hidden lg:flex w-64 shrink-0 bg-[#fbf9f5] dark:bg-[#161616] text-[#3c3933] dark:text-[#e0deda] border-r border-[#ded9cd] dark:border-[#242424] flex-col justify-between h-screen sticky top-0 select-none overflow-y-auto z-30 font-sans transition-colors">
+        {renderSidebarContent()}
+      </aside>
+
+      {/* Mobile Sidebar Overlay Drawer */}
+      {isMobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex">
+          {/* Blur Backdrop */}
+          <div
+            onClick={onMobileClose}
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+          />
+
+          {/* Drawer content */}
+          <aside className="relative w-64 h-full bg-[#fbf9f5] dark:bg-[#161616] text-[#3c3933] dark:text-[#e0deda] border-r border-[#ded9cd] dark:border-[#242424] flex flex-col justify-between select-none overflow-y-auto font-sans transition-colors shadow-2xl animate-in slide-in-from-left duration-250">
+            {renderSidebarContent()}
+          </aside>
+        </div>
+      )}
+    </>
   );
 };
