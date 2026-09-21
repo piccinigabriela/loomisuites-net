@@ -526,26 +526,64 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="sm:col-span-2 p-3.5 bg-stone-50 border border-stone-200 rounded-xl space-y-1.5">
-                <label className="block text-xs font-bold text-zinc-900">
-                  Dominio Propio Conectado
-                </label>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-zinc-500 font-mono">https://</span>
-                  <input
-                    type="text"
-                    value={formData.directBookingSettings.customSlug || 'woodcabiniguazu.com.ar'}
-                    onChange={(e) => handleBookingSettingsChange('customSlug', e.target.value)}
-                    className="flex-1 text-xs p-2 rounded-lg border border-zinc-300 bg-white font-mono font-bold text-zinc-900"
-                    placeholder="tudominio.com.ar"
-                  />
-                  <span className="px-2 py-1 bg-emerald-100 text-emerald-800 rounded-md text-[10px] font-bold shrink-0">
-                    DNS Conectado
+              <div className="sm:col-span-2 p-4 bg-gradient-to-r from-stone-50 to-amber-50/40 border border-amber-200/80 rounded-2xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🌐</span>
+                    <div>
+                      <h4 className="text-xs font-bold text-zinc-900">Dominio Propio para Motor Directo & Guía</h4>
+                      <p className="text-[11px] text-zinc-500">
+                        Opcional: el cliente abona su propio dominio (ej: en Nic.ar o DonWeb ~$10 USD/año) y Loomi lo vincula gratis con SSL automático.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full text-[10px] font-bold shrink-0 border border-emerald-300">
+                    ● Conectado (SSL Activo)
                   </span>
                 </div>
-                <p className="text-[11px] text-zinc-500">
-                  Tu sitio y motor de reservas directas responden en <strong>woodcabiniguazu.com.ar</strong> con certificado SSL activo.
-                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  <div>
+                    <label className="block text-[11px] font-bold text-zinc-700 mb-1">
+                      Nombre del Dominio (.com / .com.ar)
+                    </label>
+                    <div className="flex items-center gap-1.5 bg-white border border-zinc-300 rounded-xl px-2.5 py-1.5">
+                      <span className="text-xs text-zinc-400 font-mono">https://</span>
+                      <input
+                        type="text"
+                        value={formData.directBookingSettings.customDomain || 'woodcabiniguazu.com.ar'}
+                        onChange={(e) => handleBookingSettingsChange('customDomain', e.target.value)}
+                        className="flex-1 text-xs font-mono font-bold text-zinc-900 outline-none"
+                        placeholder="tudominio.com.ar"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-zinc-700 mb-1">
+                      Registro DNS CNAME de Loomi Suite
+                    </label>
+                    <div className="flex items-center justify-between bg-zinc-100 border border-zinc-300 rounded-xl px-3 py-1.5 text-xs font-mono text-zinc-700">
+                      <span>cname.loomisuite.com</span>
+                      <span className="text-[10px] text-zinc-400 font-sans">Apunta aquí</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-zinc-600 bg-white/70 p-2.5 rounded-xl border border-zinc-200">
+                  <span>
+                    ✓ Certificado de seguridad <strong>Let's Encrypt SSL</strong> renovado automáticamente.
+                  </span>
+                  <a
+                    href="https://woodcabiniguazu.com.ar"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-bold text-rose-600 hover:underline flex items-center gap-1"
+                  >
+                    <span>Probar dominio en vivo</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
               </div>
 
               <div>

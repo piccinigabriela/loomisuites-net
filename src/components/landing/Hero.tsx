@@ -143,9 +143,9 @@ export const Hero: React.FC<HeroProps> = ({ onOpenDemo, onOpenContact }) => {
                   <span className="text-[10px] text-zinc-500 block mt-0.5">Códigos WhatsApp enviados</span>
                 </div>
                 <div className="bg-white p-3 rounded-xl border border-zinc-200 shadow-xs">
-                  <span className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider block">Ahorro en Comisiones</span>
-                  <span className="text-xl font-extrabold text-emerald-600">$595 USD</span>
-                  <span className="text-[10px] text-emerald-600 font-medium block mt-0.5">Por reservas directas</span>
+                  <span className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider block">Tarifa Promedio Noche</span>
+                  <span className="text-xl font-extrabold text-indigo-600">$85 USD</span>
+                  <span className="text-[10px] text-zinc-500 font-medium block mt-0.5">ADR sobre noches vendidas</span>
                 </div>
               </div>
 

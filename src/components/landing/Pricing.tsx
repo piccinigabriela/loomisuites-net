@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Sparkles, Zap, ShieldCheck, Play } from 'lucide-react';
+import { Check, Sparkles, Zap, ShieldCheck, Play, PlusCircle, KeyRound, Wine, Flower2, Globe } from 'lucide-react';
 
 interface PricingProps {
   onOpenDemo: () => void;
@@ -174,6 +174,114 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
               </div>
             );
           })}
+        </div>
+
+        {/* Modular Add-ons Banner */}
+        <div className="mt-16 max-w-5xl mx-auto rounded-3xl border border-zinc-200 bg-zinc-50 p-6 sm:p-8 shadow-xs">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-zinc-200">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-zinc-200 text-zinc-700 text-xs font-bold mb-2">
+                <PlusCircle className="w-3.5 h-3.5 text-rose-600" />
+                <span>Arquitectura 100% Modular</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-extrabold text-zinc-900">
+                Módulos Opcionales: Pagá solo lo que tu complejo necesita
+              </h3>
+              <p className="text-xs sm:text-sm text-zinc-600 mt-1 max-w-2xl">
+                El sistema base incluye todo lo necesario para operar con llaves físicas y reservas directas. Si brindás servicios adicionales o automatización con cerraduras, activás los add-ons con tarifa diferencial:
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mt-6">
+            {/* Add-on 1 */}
+            <div className="bg-white p-5 rounded-2xl border border-zinc-200/80 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 border border-blue-100">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <h4 className="text-sm font-bold text-zinc-900">Cerraduras Inteligentes & PIN</h4>
+                <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+                  Para unidades con cerraduras digitales (Tuya, TTLock, Yale). Genera y rota códigos numéricos dinámicos vinculados a la reserva por WhatsApp.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-zinc-400">Add-on opcional</span>
+                <button
+                  onClick={() => onOpenContact('Módulo Cerraduras Inteligentes')}
+                  className="text-xs font-bold text-rose-600 hover:underline cursor-pointer"
+                >
+                  Consultar →
+                </button>
+              </div>
+            </div>
+
+            {/* Add-on 2 */}
+            <div className="bg-white p-5 rounded-2xl border border-zinc-200/80 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-3 border border-amber-100">
+                  <Wine className="w-5 h-5" />
+                </div>
+                <h4 className="text-sm font-bold text-zinc-900">Frigobar & Consumos Extras</h4>
+                <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+                  Carga consumos de frigobar, desayunos, confitería, leña para cabañas o amenities especiales a la cuenta del huésped para liquidar al check-out.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-zinc-400">Add-on opcional</span>
+                <button
+                  onClick={() => onOpenContact('Módulo Frigobar y Consumos')}
+                  className="text-xs font-bold text-rose-600 hover:underline cursor-pointer"
+                >
+                  Consultar →
+                </button>
+              </div>
+            </div>
+
+            {/* Add-on 3 */}
+            <div className="bg-white p-5 rounded-2xl border border-zinc-200/80 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 border border-emerald-100">
+                  <Flower2 className="w-5 h-5" />
+                </div>
+                <h4 className="text-sm font-bold text-zinc-900">Spa, Turnos & Amenities</h4>
+                <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+                  Gestión de turnos de piscina climatizada, sauna, masajes, alquiler de bicicletas, kayaks o paseos guiados con cupos por horario.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-zinc-400">Add-on opcional</span>
+                <button
+                  onClick={() => onOpenContact('Módulo Spa y Turnos')}
+                  className="text-xs font-bold text-rose-600 hover:underline cursor-pointer"
+                >
+                  Consultar →
+                </button>
+              </div>
+            </div>
+
+            {/* Add-on 4: Dominio Propio */}
+            <div className="bg-white p-5 rounded-2xl border border-rose-200/80 shadow-xs flex flex-col justify-between bg-gradient-to-b from-rose-50/20 to-white">
+              <div>
+                <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-3 border border-rose-100">
+                  <Globe className="w-5 h-5" />
+                </div>
+                <h4 className="text-sm font-bold text-zinc-900">Dominio Propio (.com / .ar)</h4>
+                <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+                  Tu motor de reserva directa bajo tu propia marca (ej: <code>reservas.tucabana.com</code>). El costo de registro anual del dominio corre por cuenta del cliente; Loomi configura DNS y SSL gratis.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-emerald-700 font-mono">Costo del dominio</span>
+                <button
+                  onClick={() => onOpenContact('Dominio Propio para Motor Directo')}
+                  className="text-xs font-bold text-rose-600 hover:underline cursor-pointer"
+                >
+                  Vincular →
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Security & Support note */}

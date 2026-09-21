@@ -26,6 +26,10 @@ export const Faq: React.FC = () => {
       a: 'No exigimos que tu personal descargue aplicaciones pesadas ni recuerde contraseñas. Loomi Suite genera una vista web móvil simple que puedes enviarles automáticamente por WhatsApp con el cronograma del día, qué cabaña o habitación toca y checklist de ropa blanca y reposición.',
     },
     {
+      q: '¿Necesito cerraduras inteligentes o cambiar las puertas de mis cabañas?',
+      a: 'No, de ninguna manera. En Argentina y la región la gran mayoría de complejos y cabañas opera con llave física tradicional, llavero o candado con combinación. Loomi Suite está 100% preparado para trabajar con tus llaves físicas de siempre (podés enviar ubicación del llavero o coordinar la entrega por WhatsApp). Quienes tengan departamentos urbanos con cerraduras digitales (Tuya, Yale, TTLock) pueden activar opcionalmente el Módulo de Cerraduras Inteligentes con una tarifa adicional diferencial, pagando solo si lo usan.',
+    },
+    {
       q: '¿Cómo funciona el motor de reservas directas para ahorrar comisiones?',
       a: 'Te entregamos una página web moderna con tu propio enlace donde los huéspedes que te contactan por Instagram o WhatsApp pueden ver fotos, elegir fechas y señar directo a tu cuenta bancaria. Así te ahorras el 18% a 20% que cobran las plataformas.',
     },

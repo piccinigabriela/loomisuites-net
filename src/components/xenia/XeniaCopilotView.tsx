@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { DemoState } from '../../types';
+import { getClientXeniaReply } from './xeniaLocalEngine';
 
 interface XeniaCopilotViewProps {
   demoState: DemoState;
@@ -101,22 +102,23 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
       const assistantMsg: ChatMessage = {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
-        content: data.reply || 'No obtuve respuesta en este momento.',
+        content: data.reply || getClientXeniaReply(text, demoState),
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        source: data.source,
+        source: data.source || 'xenia_engine',
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
     } catch (err: any) {
-      console.error('Error enviando mensaje a Xenia:', err);
-      const errorMsg: ChatMessage = {
+      console.warn('Usando motor local de Xenia:', err);
+      const localReply = getClientXeniaReply(text, demoState);
+      const assistantMsg: ChatMessage = {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
-        content:
-          '⚠️ Tuve una dificultad para conectar con el servidor, pero aquí puedes ver tus finanzas y calendarios en las pestañas superiores o volver a intentar.',
+        content: localReply,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        source: 'xenia_instant_engine',
       };
-      setMessages((prev) => [...prev, errorMsg]);
+      setMessages((prev) => [...prev, assistantMsg]);
     } finally {
       setIsLoading(false);
     }
@@ -130,6 +132,17 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
 
   // Predefined prompts organized by intent
   const quickPrompts = [
+    {
+      category: 'Ocupación & Reservas en Vivo',
+      icon: TrendingUp,
+      color: 'text-violet-700 bg-violet-50 border-violet-200',
+      prompts: [
+        '¿Cuál es la ocupación actual del complejo y cuántas cabañas están ocupadas?',
+        '¿Quiénes son los pasajeros alojados hoy y qué reservas tenemos registradas?',
+        '¿Qué huéspedes tienen Early Check-in o Late Check-out confirmados?',
+        '¿Cuáles reservas son directas con descuento y cuáles vienen de Airbnb al 3% o 15%?',
+      ],
+    },
     {
       category: 'Planes, Precios & Servicios',
       icon: Tag,
@@ -177,9 +190,8 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
 
   // Calculate high-level stats for top pill bar
   const totalGross = demoState.reservations.reduce((acc, r) => acc + r.totalAmount, 0);
-  const totalSaved = demoState.reservations
-    .filter((r) => r.platform === 'direct')
-    .reduce((acc, r) => acc + r.totalAmount * 0.18, 0);
+  const totalNights = demoState.reservations.reduce((acc, r) => acc + r.nights, 0);
+  const averageDailyRate = totalNights > 0 ? Math.round(totalGross / totalNights) : 0;
 
   return (
     <div className="space-y-6">
@@ -213,10 +225,10 @@ Estoy conectada a tus **${demoState.properties.length} cabañas y habitaciones**
               <span className="text-zinc-400 block text-[10px]">Facturación en Demo</span>
               <span className="font-bold text-white text-sm">${totalGross.toLocaleString()} USD</span>
             </div>
-            <div className="bg-emerald-950/40 px-3.5 py-2 rounded-xl border border-emerald-800/40">
-              <span className="text-emerald-400 block text-[10px]">Ahorro Directo (18%)</span>
-              <span className="font-bold text-emerald-300 text-sm">
-                +${Math.round(totalSaved).toLocaleString()} USD
+            <div className="bg-indigo-950/40 px-3.5 py-2 rounded-xl border border-indigo-800/40">
+              <span className="text-indigo-400 block text-[10px]">Tarifa Promedio Noche (ADR)</span>
+              <span className="font-bold text-indigo-300 text-sm">
+                ${averageDailyRate} USD
               </span>
             </div>
           </div>

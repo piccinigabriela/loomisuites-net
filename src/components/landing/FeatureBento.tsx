@@ -109,7 +109,7 @@ export const FeatureBento: React.FC<FeatureBentoProps> = ({ onOpenDemo }) => {
               </p>
               <div className="mt-4 p-3 bg-emerald-50 rounded-xl border border-emerald-100 text-xs text-emerald-800 font-medium space-y-1">
                 <div>✓ Seña 50% directo a tu CBU/Alias bancario</div>
-                <div>✓ Ahorro de $35 a $70 USD por reserva sin OTAs</div>
+                <div>✓ Cobro íntegro directo con tus propias condiciones y extras</div>
                 <div>✓ Resuelve en el móvil del huésped el 90% de preguntas</div>
               </div>
             </div>

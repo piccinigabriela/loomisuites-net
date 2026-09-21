@@ -22,7 +22,10 @@ import {
   Check,
   KeyRound,
   Coffee,
-  PlusCircle
+  PlusCircle,
+  Flower2,
+  Wine,
+  Globe
 } from 'lucide-react';
 
 interface QuestionsHubProps {
@@ -34,6 +37,17 @@ type QuestionId = 'que-hacemos' | 'es-para-vos' | 'que-resuelve' | 'precios';
 
 export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenContact }) => {
   const [activeQuestion, setActiveQuestion] = useState<QuestionId>('que-hacemos');
+
+  const selectQuestion = (q: QuestionId) => {
+    setActiveQuestion(q);
+    // On mobile or smaller screens, smoothly scroll directly to the answer box so the user sees it immediately
+    const answerEl = document.getElementById('respuesta-detalle');
+    if (answerEl) {
+      const yOffset = -80; // Account for fixed navbar
+      const y = answerEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
   const [selectedPropertyProfile, setSelectedPropertyProfile] = useState<'cabanas' | 'deptos' | 'posadas'>('deptos');
 
   // All plans include the exact SAME 100% complete system features
@@ -101,7 +115,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
           
           {/* Card 1: ¿Qué hacemos? */}
           <button
-            onClick={() => setActiveQuestion('que-hacemos')}
+            onClick={() => selectQuestion('que-hacemos')}
             className={`text-left p-5 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
               activeQuestion === 'que-hacemos'
                 ? 'bg-white border-rose-500 shadow-lg shadow-rose-500/10 ring-2 ring-rose-500/20'
@@ -127,7 +141,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
 
           {/* Card 2: ¿Esto es para vos? */}
           <button
-            onClick={() => setActiveQuestion('es-para-vos')}
+            onClick={() => selectQuestion('es-para-vos')}
             className={`text-left p-5 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
               activeQuestion === 'es-para-vos'
                 ? 'bg-white border-rose-500 shadow-lg shadow-rose-500/10 ring-2 ring-rose-500/20'
@@ -153,7 +167,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
 
           {/* Card 3: ¿Qué problema te resuelve? */}
           <button
-            onClick={() => setActiveQuestion('que-resuelve')}
+            onClick={() => selectQuestion('que-resuelve')}
             className={`text-left p-5 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
               activeQuestion === 'que-resuelve'
                 ? 'bg-white border-rose-500 shadow-lg shadow-rose-500/10 ring-2 ring-rose-500/20'
@@ -179,7 +193,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
 
           {/* Card 4: Precios */}
           <button
-            onClick={() => setActiveQuestion('precios')}
+            onClick={() => selectQuestion('precios')}
             className={`text-left p-5 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
               activeQuestion === 'precios'
                 ? 'bg-white border-rose-500 shadow-lg shadow-rose-500/10 ring-2 ring-rose-500/20'
@@ -206,7 +220,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
         </div>
 
         {/* Dynamic Detailed Answer Box */}
-        <div className="bg-white rounded-3xl border border-zinc-200 shadow-xl overflow-hidden">
+        <div id="respuesta-detalle" className="bg-white rounded-3xl border border-zinc-200 shadow-xl overflow-hidden scroll-mt-24">
           
           {/* ============================================================ */}
           {/* 1. ¿QUÉ HACEMOS? */}
@@ -258,10 +272,10 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                   </div>
                   <div>
                     <h4 className="font-bold text-zinc-900 text-base">
-                      2. Sincronización automática con Airbnb y Booking
+                      2. Sincronización automática con Airbnb, Booking, Vrbo, TripAdvisor y Google
                     </h4>
                     <p className="text-sm text-zinc-600 mt-1 leading-relaxed">
-                      Si te reservan por Booking, en el mismo segundo se bloquea la fecha en Airbnb y en tu página web. Nunca más te vas a encontrar con dos huéspedes para la misma cama.
+                      Si te reservan por Booking o Airbnb, en el mismo instante se bloquean las fechas en Vrbo, TripAdvisor, Google Vacation Rentals y en tu motor directo. Cero riesgo de doble reserva involuntaria (overbooking) y sin pagar cargos adicionales de conexión.
                     </p>
                   </div>
                 </div>
@@ -683,47 +697,91 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                  {/* Modulo 1: Frigobar, Desayunos y Extras */}
-                  <div className="p-4 rounded-xl border border-zinc-200 bg-zinc-50/60 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 text-amber-700 font-bold text-sm mb-1">
-                        <Coffee className="w-4 h-4 text-amber-600" />
-                        <span>Módulo Desayunos, Frigobar & Consumos Extras</span>
-                      </div>
-                      <p className="text-xs text-zinc-600 leading-relaxed">
-                        Ideal para aparthoteles, posadas o complejos con confitería, venta de leña, minibar, spa o tours. Carga los consumos directo a la cuenta de la habitación para cobrar todo junto al check-out.
-                      </p>
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-zinc-200/60 flex items-center justify-between text-xs">
-                      <span className="font-semibold text-zinc-500">Opcional para aparthoteles & posadas</span>
-                      <button
-                        onClick={() => onOpenContact('Consulta por Módulo Frigobar y Desayunos')}
-                        className="font-bold text-rose-600 hover:underline cursor-pointer"
-                      >
-                        Consultar módulo →
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Modulo 2: Cerraduras Electrónicas */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                  {/* Modulo 1: Cerraduras Electrónicas */}
                   <div className="p-4 rounded-xl border border-zinc-200 bg-zinc-50/60 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center gap-2 text-blue-700 font-bold text-sm mb-1">
                         <KeyRound className="w-4 h-4 text-blue-600" />
-                        <span>Módulo Cerraduras Electrónicas & Teclados</span>
+                        <span>Cerraduras Digitales & PIN</span>
                       </div>
                       <p className="text-xs text-zinc-600 leading-relaxed">
-                        Pensado para departamentos urbanos que ya cuentan con cerraduras digitales (Tuya, TTLock, Yale). Envía y rota el código PIN de acceso automáticamente por WhatsApp con cada reserva.
+                        Para anfitriones con cerraduras inteligentes (Tuya, TTLock, Yale). Genera y envía automáticamente el PIN de acceso dinámico por WhatsApp que caduca al check-out.
                       </p>
                     </div>
-                    <div className="mt-3 pt-3 border-t border-zinc-200/60 flex items-center justify-between text-xs">
-                      <span className="font-semibold text-zinc-500">Opcional para quien ya tenga cerraduras digitales</span>
+                    <div className="mt-4 pt-3 border-t border-zinc-200/60 flex items-center justify-between text-xs">
+                      <span className="font-semibold text-zinc-500">Módulo adicional</span>
                       <button
                         onClick={() => onOpenContact('Consulta por Módulo Cerraduras Digitales')}
                         className="font-bold text-rose-600 hover:underline cursor-pointer"
                       >
-                        Consultar módulo →
+                        Consultar →
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Modulo 2: Frigobar, Desayunos y Extras */}
+                  <div className="p-4 rounded-xl border border-zinc-200 bg-zinc-50/60 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 text-amber-700 font-bold text-sm mb-1">
+                        <Wine className="w-4 h-4 text-amber-600" />
+                        <span>Frigobar & Extras</span>
+                      </div>
+                      <p className="text-xs text-zinc-600 leading-relaxed">
+                        Control de bebidas, snacks, desayunos o amenities especiales. El personal carga consumos para cobrar todo junto al check-out.
+                      </p>
+                    </div>
+                    <div className="mt-4 pt-3 border-t border-zinc-200/60 flex items-center justify-between text-xs">
+                      <span className="font-semibold text-zinc-500">Módulo adicional</span>
+                      <button
+                        onClick={() => onOpenContact('Consulta por Módulo Frigobar y Consumos')}
+                        className="font-bold text-rose-600 hover:underline cursor-pointer"
+                      >
+                        Consultar →
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Modulo 3: Spa, Masajes y Alquileres */}
+                  <div className="p-4 rounded-xl border border-zinc-200 bg-zinc-50/60 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 text-emerald-700 font-bold text-sm mb-1">
+                        <Flower2 className="w-4 h-4 text-emerald-600" />
+                        <span>Spa & Turnos</span>
+                      </div>
+                      <p className="text-xs text-zinc-600 leading-relaxed">
+                        Agenda de turnos para sauna, masajes, piscina climatizada, bicicletas o excursiones sin superponer horarios entre huéspedes.
+                      </p>
+                    </div>
+                    <div className="mt-4 pt-3 border-t border-zinc-200/60 flex items-center justify-between text-xs">
+                      <span className="font-semibold text-zinc-500">Módulo adicional</span>
+                      <button
+                        onClick={() => onOpenContact('Consulta por Módulo Spa y Turnos')}
+                        className="font-bold text-rose-600 hover:underline cursor-pointer"
+                      >
+                        Consultar →
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Modulo 4: Dominio Propio */}
+                  <div className="p-4 rounded-xl border border-rose-200 bg-rose-50/30 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 text-rose-700 font-bold text-sm mb-1">
+                        <Globe className="w-4 h-4 text-rose-600" />
+                        <span>Dominio Propio</span>
+                      </div>
+                      <p className="text-xs text-zinc-600 leading-relaxed">
+                        Tu motor directo bajo tu dominio (ej: <code>reservas.tucabana.com</code>). El costo de registro del dominio corre por el cliente; Loomi configura DNS y SSL gratis.
+                      </p>
+                    </div>
+                    <div className="mt-4 pt-3 border-t border-rose-200/60 flex items-center justify-between text-xs">
+                      <span className="font-semibold text-emerald-700">Costo del dominio</span>
+                      <button
+                        onClick={() => onOpenContact('Consulta por Dominio Propio Adicional')}
+                        className="font-bold text-rose-600 hover:underline cursor-pointer"
+                      >
+                        Vincular →
                       </button>
                     </div>
                   </div>

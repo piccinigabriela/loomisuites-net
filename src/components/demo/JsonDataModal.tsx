@@ -63,9 +63,9 @@ export const JsonDataModal: React.FC<JsonDataModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-zinc-200 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white dark:bg-zinc-900 w-full max-w-2xl rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col max-h-[90vh] transition-colors">
         {/* Header */}
-        <div className="bg-zinc-900 text-white p-5 flex items-center justify-between">
+        <div className="bg-zinc-900 dark:bg-zinc-950 text-white p-5 flex items-center justify-between border-b border-zinc-800">
           <div className="flex items-center gap-2.5">
             <FileJson className="w-5 h-5 text-amber-400" />
             <div>
@@ -88,20 +88,20 @@ export const JsonDataModal: React.FC<JsonDataModalProps> = ({
         {/* Content */}
         <div className="p-6 flex-1 overflow-y-auto space-y-4">
           <div className="flex items-center justify-between gap-3 text-xs">
-            <span className="font-semibold text-zinc-700">
+            <span className="font-semibold text-zinc-700 dark:text-zinc-300">
               Estructura de Datos en LocalStorage:
             </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleCopy}
-                className="flex items-center gap-1 text-zinc-600 hover:text-zinc-900 font-semibold px-2.5 py-1 bg-zinc-100 rounded-lg cursor-pointer"
+                className="flex items-center gap-1 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white font-semibold px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg cursor-pointer"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copied ? 'Copiado' : 'Copiar'}</span>
               </button>
               <button
                 onClick={handleDownload}
-                className="flex items-center gap-1 text-zinc-600 hover:text-zinc-900 font-semibold px-2.5 py-1 bg-zinc-100 rounded-lg cursor-pointer"
+                className="flex items-center gap-1 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white font-semibold px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Descargar .json</span>
@@ -118,14 +118,14 @@ export const JsonDataModal: React.FC<JsonDataModalProps> = ({
           />
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs flex items-center gap-2">
+            <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 rounded-xl text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {success && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-xs flex items-center gap-2">
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 text-emerald-700 dark:text-emerald-300 rounded-xl text-xs flex items-center gap-2">
               <Check className="w-4 h-4 shrink-0" />
               <span>{success}</span>
             </div>
@@ -133,13 +133,13 @@ export const JsonDataModal: React.FC<JsonDataModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-zinc-50 border-t border-zinc-200 flex flex-wrap items-center justify-between gap-3">
+        <div className="p-4 bg-zinc-50 dark:bg-zinc-900/80 border-t border-zinc-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-3">
           <button
             onClick={() => {
               onResetData();
               onClose();
             }}
-            className="text-xs font-semibold text-zinc-600 hover:text-zinc-900 flex items-center gap-1.5 cursor-pointer"
+            className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 flex items-center gap-1.5 cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Volver a los datos de muestra iniciales</span>
@@ -148,7 +148,7 @@ export const JsonDataModal: React.FC<JsonDataModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="text-xs font-semibold px-4 py-2 text-zinc-600 hover:text-zinc-900"
+              className="text-xs font-semibold px-4 py-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 cursor-pointer"
             >
               Cancelar
             </button>

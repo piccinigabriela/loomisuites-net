@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { DemoState } from '../../types';
+import { getClientXeniaReply } from './xeniaLocalEngine';
 
 interface XeniaFloatingWidgetProps {
   demoState: DemoState;
@@ -81,23 +82,29 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
         }),
       });
 
+      if (!res.ok) {
+        throw new Error('API response not ok');
+      }
+
       const data = await res.json();
       setMessages((prev) => [
         ...prev,
         {
           id: `a-${Date.now()}`,
           role: 'assistant',
-          content: data.reply || 'No pude responder en este momento.',
+          content: data.reply || getClientXeniaReply(text, demoState),
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         },
       ]);
     } catch (err) {
+      // Fallback direct local client intelligence - always guaranteed to answer
+      const localReply = getClientXeniaReply(text, demoState);
       setMessages((prev) => [
         ...prev,
         {
-          id: `err-${Date.now()}`,
+          id: `a-${Date.now()}`,
           role: 'assistant',
-          content: '⚠️ Error de conexión con Xenia. Revisa tu conexión o vuelve a intentar.',
+          content: localReply,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         },
       ]);
@@ -185,6 +192,14 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
           <div className="bg-zinc-50 px-3 py-2 border-b border-zinc-200/80 flex items-center gap-1.5 overflow-x-auto scrollbar-none text-[11px]">
             <button
               onClick={() =>
+                handleSend('¿Cuál es la ocupación actual y qué reservas hay?')
+              }
+              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-800 hover:border-rose-400 transition-colors cursor-pointer shrink-0 font-bold"
+            >
+              🛎️ Ocupación & Reservas
+            </button>
+            <button
+              onClick={() =>
                 handleSend('¿Cuánto cuesta Loomi y cómo se paga?')
               }
               className="whitespace-nowrap px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-900 hover:border-amber-400 transition-colors cursor-pointer shrink-0 font-medium"
@@ -193,19 +208,19 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
             </button>
             <button
               onClick={() =>
-                handleSend('¿Qué servicios incluye y cómo funciona con llaves tradicionales?')
-              }
-              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-white border border-zinc-200 text-zinc-700 hover:border-rose-500 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
-            >
-              🔑 ¿Qué incluye?
-            </button>
-            <button
-              onClick={() =>
                 handleSend('¿Cuánto dinero ingresó este mes y qué señas hay pendientes?')
               }
               className="whitespace-nowrap px-2.5 py-1 rounded-full bg-white border border-zinc-200 text-zinc-700 hover:border-rose-500 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
             >
               💰 Ingresos & señas
+            </button>
+            <button
+              onClick={() =>
+                handleSend('¿Qué servicios incluye y cómo funciona con llaves tradicionales?')
+              }
+              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-white border border-zinc-200 text-zinc-700 hover:border-rose-500 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
+            >
+              🔑 ¿Qué incluye?
             </button>
             <button
               onClick={() =>

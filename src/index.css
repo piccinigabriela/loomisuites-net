@@ -1,1 +1,57 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Global dark mode background and text defaults */
+.dark {
+  color-scheme: dark;
+}
+
+/* Highly visible persistent scrollbar for laptops and desktops */
+.calendar-scrollbar {
+  overflow-x: scroll !important;
+  scrollbar-gutter: stable;
+  scrollbar-width: auto !important;
+  scrollbar-color: #e11d48 #cbd5e1 !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dark .calendar-scrollbar {
+  scrollbar-color: #f43f5e #27272a !important;
+}
+
+.calendar-scrollbar::-webkit-scrollbar {
+  height: 16px !important;
+  width: 16px !important;
+  display: block !important;
+  -webkit-appearance: none !important;
+}
+
+.calendar-scrollbar::-webkit-scrollbar-track {
+  background: #e2e8f0 !important;
+  border-radius: 9999px;
+  border: 2px solid #cbd5e1;
+  margin: 0 4px;
+}
+
+.dark .calendar-scrollbar::-webkit-scrollbar-track {
+  background: #27272a !important;
+  border-color: #3f3f46 !important;
+}
+
+.calendar-scrollbar::-webkit-scrollbar-thumb {
+  background: #e11d48 !important;
+  border-radius: 9999px;
+  border: 3px solid #ffffff;
+  min-width: 80px;
+}
+
+.dark .calendar-scrollbar::-webkit-scrollbar-thumb {
+  background: #f43f5e !important;
+  border: 3px solid #18181b;
+}
+
+.calendar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #be123c !important;
+}
+

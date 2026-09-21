@@ -36,6 +36,7 @@ import { DemoOverview } from './components/demo/DemoOverview';
 import { DemoCalendar } from './components/demo/DemoCalendar';
 import { DemoHousekeeping } from './components/demo/DemoHousekeeping';
 import { DemoProperties } from './components/demo/DemoProperties';
+import { DemoAddons } from './components/demo/DemoAddons';
 import { DemoMessages } from './components/demo/DemoMessages';
 import { DemoFinances } from './components/demo/DemoFinances';
 import { WelcomeGuideHub } from './components/guide/WelcomeGuideHub';
@@ -55,6 +56,64 @@ export default function App() {
 
   // Active Complex: Catalinas Apartamentos or Wood Cabin
   const [activeComplex, setActiveComplex] = useState<'catalinas' | 'woodcabin'>('catalinas');
+
+  // Employee Mode ("Modo Día a Día") - restricts access to financial metrics & rates
+  const [isEmployeeMode, setIsEmployeeMode] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('loomi_employee_mode') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  // Theme state (Dark Mode / Light Mode)
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    try {
+      const saved = localStorage.getItem('loomi_theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    } catch {
+      return 'light';
+    }
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    try {
+      localStorage.setItem('loomi_theme', theme);
+    } catch {}
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      showToast(next === 'dark' ? '🌙 Modo Oscuro activado' : '☀️ Modo Claro activado');
+      return next;
+    });
+  };
+
+  const toggleEmployeeMode = () => {
+    setIsEmployeeMode((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('loomi_employee_mode', String(next));
+      } catch {}
+      if (next && demoTab === 'finances') {
+        setDemoTab('overview');
+      }
+      showToast(
+        next
+          ? '👷 Modo Día a Día activado: datos financieros y de propietarios ocultos para empleados.'
+          : '👑 Modo Administrador / Dueño activado: acceso total a finanzas y liquidaciones.'
+      );
+      return next;
+    });
+  };
 
   // Persistent Demo State (from localStorage)
   const [demoState, setDemoState] = useState<DemoState>(getDemoState);
@@ -132,6 +191,31 @@ export default function App() {
     showToast(`¡Reserva de ${newRes.guestName} creada y sincronizada!`);
   };
 
+  // Update full reservation details
+  const handleUpdateReservation = (updatedRes: Reservation) => {
+    updateDemoState((prev) => ({
+      ...prev,
+      reservations: prev.reservations.map((r) =>
+        r.id === updatedRes.id ? updatedRes : r
+      ),
+      // Automatically keep cleaning task synced with property and checkout date
+      cleaningTasks: prev.cleaningTasks.map((t) => {
+        if (t.reservationId === updatedRes.id) {
+          return {
+            ...t,
+            propertyId: updatedRes.propertyId,
+            date: updatedRes.checkOut,
+            notes: `Generado automáticamente por check-out de ${updatedRes.guestName}`,
+          };
+        }
+        return t;
+      }),
+      lastUpdated: new Date().toISOString(),
+    }));
+    setSelectedReservationForDetail(updatedRes);
+    showToast(`Reserva de ${updatedRes.guestName} guardada y actualizada.`);
+  };
+
   // Update reservation status
   const handleUpdateReservationStatus = (resId: string, newStatus: ReservationStatus) => {
     updateDemoState((prev) => ({
@@ -142,6 +226,33 @@ export default function App() {
       lastUpdated: new Date().toISOString(),
     }));
     showToast(`Estado de reserva actualizado a ${newStatus}`);
+  };
+
+  // Update reservation price (e.g. for iCal blocks or manual adjustments across any channel)
+  const handleUpdateReservationPrice = (resId: string, newTotal: number) => {
+    updateDemoState((prev) => ({
+      ...prev,
+      reservations: prev.reservations.map((r) => {
+        if (r.id !== resId) return r;
+        let rate = 0;
+        if (r.platform === 'airbnb') {
+          rate = r.airbnbFeeMode === 'traditional_3' ? 0.03 : 0.15;
+        } else if (r.platform === 'booking' || r.platform === 'vrbo') {
+          rate = 0.15;
+        }
+        const accommodation = Math.max(0, newTotal - (r.cleaningFee || 0));
+        const commissionPaid = Math.round(accommodation * rate * 10) / 10;
+        const netRevenue = Math.round((newTotal - commissionPaid) * 10) / 10;
+        return {
+          ...r,
+          totalAmount: newTotal,
+          commissionPaid,
+          netRevenue,
+        };
+      }),
+      lastUpdated: new Date().toISOString(),
+    }));
+    showToast(`Tarifa de la reserva actualizada a $${newTotal} USD.`);
   };
 
   // Delete reservation
@@ -215,7 +326,7 @@ export default function App() {
   ).length;
 
   return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-900 font-sans antialiased selection:bg-rose-500 selection:text-white">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans antialiased selection:bg-rose-500 selection:text-white transition-colors">
       {/* Global Toast */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 bg-zinc-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-2xl border border-zinc-700 flex items-center gap-2 animate-in slide-in-from-bottom-3">
@@ -228,6 +339,8 @@ export default function App() {
       {currentView === 'landing' ? (
         <main>
           <Navbar
+            theme={theme}
+            onToggleTheme={toggleTheme}
             onOpenDemo={() => {
               setCurrentView('demo');
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -292,8 +405,10 @@ export default function App() {
         </main>
       ) : (
         /* DEMO DASHBOARD VIEW */
-        <div className="min-h-screen flex flex-col bg-zinc-100">
+        <div className="min-h-screen flex flex-col bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors">
           <DemoHeader
+            theme={theme}
+            onToggleTheme={toggleTheme}
             activeComplex={activeComplex}
             onSwitchComplex={(c) => {
               setActiveComplex(c);
@@ -314,12 +429,15 @@ export default function App() {
               setSelectedPlanForLead('Prueba Demo a Producción');
               setIsLeadModalOpen(true);
             }}
+            isEmployeeMode={isEmployeeMode}
+            onToggleEmployeeMode={toggleEmployeeMode}
           />
 
           <DemoNavTabs
             activeTab={demoTab}
             onSelectTab={setDemoTab}
             pendingCleaningsCount={pendingCleaningsCount}
+            isEmployeeMode={isEmployeeMode}
           />
 
           {/* Demo Content Container */}
@@ -336,6 +454,7 @@ export default function App() {
                 onNavigateTab={setDemoTab}
                 onUpdateTaskStatus={handleUpdateTaskStatus}
                 onQuickCheckIn={handleQuickCheckIn}
+                isEmployeeMode={isEmployeeMode}
               />
             )}
 
@@ -359,6 +478,22 @@ export default function App() {
               <DemoProperties
                 demoState={demoState}
                 onUpdatePropertyPrice={handleUpdatePropertyPrice}
+                isEmployeeMode={isEmployeeMode}
+              />
+            )}
+
+            {demoTab === 'addons' && (
+              <DemoAddons
+                demoState={demoState}
+                onUpdateAddons={(updatedAddons) => {
+                  updateDemoState((prev) => ({
+                    ...prev,
+                    addons: updatedAddons,
+                    lastUpdated: new Date().toISOString(),
+                  }));
+                  showToast('Catálogo de Servicios Opcionales actualizado');
+                }}
+                isEmployeeMode={isEmployeeMode}
               />
             )}
 
@@ -366,7 +501,7 @@ export default function App() {
               <DemoMessages demoState={demoState} />
             )}
 
-            {demoTab === 'finances' && (
+            {demoTab === 'finances' && !isEmployeeMode && (
               <DemoFinances demoState={demoState} />
             )}
 
@@ -427,10 +562,15 @@ export default function App() {
         property={demoState.properties.find(
           (p) => p.id === selectedReservationForDetail?.propertyId
         )}
+        properties={demoState.properties}
+        availableAddons={demoState.addons || demoState.availableAddons || []}
         onClose={() => setSelectedReservationForDetail(null)}
         onUpdateStatus={handleUpdateReservationStatus}
+        onUpdatePrice={handleUpdateReservationPrice}
+        onUpdateReservation={handleUpdateReservation}
         onDeleteReservation={handleDeleteReservation}
         onOpenMessagesWithGuest={handleOpenMessagesWithGuest}
+        isEmployeeMode={isEmployeeMode}
       />
 
       <JsonDataModal

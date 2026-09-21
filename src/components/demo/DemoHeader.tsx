@@ -7,6 +7,11 @@ import {
   FileJson,
   CheckCircle2,
   Sparkles,
+  UserCheck,
+  Shield,
+  EyeOff,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 interface DemoHeaderProps {
@@ -17,6 +22,10 @@ interface DemoHeaderProps {
   onOpenContactModal: () => void;
   activeComplex: 'catalinas' | 'woodcabin';
   onSwitchComplex: (complex: 'catalinas' | 'woodcabin') => void;
+  isEmployeeMode?: boolean;
+  onToggleEmployeeMode?: () => void;
+  theme?: 'light' | 'dark';
+  onToggleTheme?: () => void;
 }
 
 export const DemoHeader: React.FC<DemoHeaderProps> = ({
@@ -27,6 +36,10 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
   onOpenContactModal,
   activeComplex,
   onSwitchComplex,
+  isEmployeeMode = false,
+  onToggleEmployeeMode,
+  theme = 'light',
+  onToggleTheme,
 }) => {
   return (
     <div className="bg-zinc-900 text-white border-b border-zinc-800 sticky top-0 z-40">
@@ -39,6 +52,21 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
           </span>
         </div>
         <div className="flex items-center gap-3">
+          {onToggleEmployeeMode && (
+            <button
+              onClick={onToggleEmployeeMode}
+              className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                isEmployeeMode
+                  ? 'bg-amber-400 text-stone-950 ring-2 ring-white shadow-xs'
+                  : 'bg-black/30 hover:bg-black/50 text-white border border-white/30'
+              }`}
+              title="Alternar entre vista de Dueño/Administrador y Modo Empleado Día a Día"
+            >
+              {isEmployeeMode ? <UserCheck className="w-3 h-3 text-stone-950" /> : <Shield className="w-3 h-3 text-emerald-300" />}
+              <span>{isEmployeeMode ? 'Modo Día a Día (Empleado Activo)' : 'Vista Dueño (Finanzas Visibles)'}</span>
+            </button>
+          )}
+          <span className="text-white/40">|</span>
           <button
             onClick={onOpenJsonModal}
             className="hover:underline text-[11px] font-semibold flex items-center gap-1 cursor-pointer"
@@ -114,13 +142,31 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {onToggleTheme && (
+            <button
+              onClick={onToggleTheme}
+              className="flex items-center gap-1.5 text-xs font-semibold px-2.5 sm:px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700/80 transition-colors cursor-pointer"
+              title={theme === 'dark' ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-indigo-300" />
+              )}
+              <span className="hidden sm:inline">
+                {theme === 'dark' ? 'Modo Claro' : 'Modo Oscuro'}
+              </span>
+            </button>
+          )}
+
           <button
             onClick={onOpenNewReservation}
-            className="flex items-center gap-1.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-98 px-3.5 py-2 rounded-lg shadow-md shadow-rose-600/30 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-98 px-3 sm:px-3.5 py-2 rounded-lg shadow-md shadow-rose-600/30 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>+ Nueva Reserva</span>
+            <span className="hidden xs:inline sm:inline">+ Nueva Reserva</span>
+            <span className="inline xs:hidden sm:hidden">+ Reserva</span>
           </button>
 
           <button

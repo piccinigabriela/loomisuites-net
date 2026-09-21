@@ -69,12 +69,12 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-2xl border border-zinc-200 p-5 shadow-xs">
-        <h3 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-emerald-600" />
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-xs transition-colors">
+        <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+          <MessageSquare className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
           <span>Simulador de Mensajería y WhatsApp Automático</span>
         </h3>
-        <p className="text-xs text-zinc-500 mt-0.5">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
           Configura tus plantillas inteligentes. Los datos del huésped, las fechas y las contraseñas de las cerraduras se rellenan automáticamente.
         </p>
       </div>
@@ -83,14 +83,14 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
         {/* Left Side: Selectors (6 cols) */}
         <div className="lg:col-span-6 space-y-5">
           {/* Reservation Selector */}
-          <div className="bg-white rounded-2xl border border-zinc-200 p-5 shadow-xs">
-            <label className="block text-xs font-bold text-zinc-800 uppercase tracking-wider mb-2">
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-xs transition-colors">
+            <label className="block text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wider mb-2">
               1. Selecciona el Huésped o Reserva
             </label>
             <select
               value={selectedResId}
               onChange={(e) => setSelectedResId(e.target.value)}
-              className="w-full text-xs font-semibold p-3 rounded-xl border border-zinc-300 bg-white text-zinc-800"
+              className="w-full text-xs font-semibold p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200"
             >
               {demoState.reservations.map((r) => {
                 const prop = demoState.properties.find((p) => p.id === r.propertyId);
@@ -103,7 +103,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
             </select>
 
             {selectedReservation && (
-              <div className="mt-3 p-3 bg-zinc-50 rounded-xl border border-zinc-200/80 flex items-center justify-between text-xs text-zinc-600">
+              <div className="mt-3 p-3 bg-zinc-50 dark:bg-zinc-800/80 rounded-xl border border-zinc-200/80 dark:border-zinc-700 flex items-center justify-between text-xs text-zinc-600 dark:text-zinc-300">
                 <span>Teléfono: <strong>{selectedReservation.guestPhone}</strong></span>
                 <span>PIN Cerradura: <strong className="font-mono">{selectedReservation.pinCode}</strong></span>
               </div>
@@ -111,8 +111,8 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
           </div>
 
           {/* Template Selector */}
-          <div className="bg-white rounded-2xl border border-zinc-200 p-5 shadow-xs">
-            <label className="block text-xs font-bold text-zinc-800 uppercase tracking-wider mb-3">
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-xs transition-colors">
+            <label className="block text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wider mb-3">
               2. Elige el Disparador o Plantilla
             </label>
             <div className="space-y-2.5">
@@ -122,17 +122,17 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                   onClick={() => setSelectedTemplateId(tpl.id)}
                   className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all ${
                     selectedTemplateId === tpl.id
-                      ? 'bg-emerald-50/70 border-emerald-400 shadow-xs'
-                      : 'bg-white border-zinc-200 hover:border-zinc-300'
+                      ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-600 shadow-xs'
+                      : 'bg-white dark:bg-zinc-800/90 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-zinc-900">{tpl.title}</span>
-                    <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">
+                    <span className="font-bold text-zinc-900 dark:text-zinc-100">{tpl.title}</span>
+                    <span className="text-[10px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full font-semibold border border-emerald-200 dark:border-emerald-800">
                       {tpl.triggerEvent}
                     </span>
                   </div>
-                  <p className="text-[11px] text-zinc-500 line-clamp-2">{tpl.content}</p>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-2">{tpl.content}</p>
                 </div>
               ))}
             </div>

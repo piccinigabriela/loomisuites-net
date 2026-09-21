@@ -1,4 +1,4 @@
-import { DemoState, Property, Reservation, CleaningTask, MessageTemplate } from '../types';
+import { DemoState, Property, Reservation, CleaningTask, MessageTemplate, WelcomeGuideData, AddonService } from '../types';
 
 // Helper to format date offset from today
 export function getRelativeDate(offsetDays: number): string {
@@ -82,7 +82,7 @@ export const INITIAL_PROPERTIES: Property[] = [
     reviewsCount: 62,
     status: 'active',
     syncStatus: { airbnb: true, booking: true, vrbo: false },
-    smartLock: { enabled: true, brand: 'Llave Manual Recepción' },
+    smartLock: { enabled: false, brand: 'Llave física tradicional (Sin cerradura digital)' },
     wifiNetwork: 'LosBananos_Huespedes_5G',
     wifiPassword: 'CataratasSelva2026',
   },
@@ -123,15 +123,29 @@ export function generateInitialReservations(): Reservation[] {
       nights: 3,
       guestsCount: 2,
       platform: 'airbnb',
-      totalAmount: 290,
-      cleaningFee: 35,
-      commissionPaid: 43.5,
-      netRevenue: 246.5,
+      totalAmount: 245,
+      cleaningFee: 15,
+      commissionPaid: 6.9, // Airbnb 3% modalidad tradicional para anfitrión
+      netRevenue: 238.1,
       status: 'confirmed',
       paymentStatus: 'paid',
       pinCode: '4821#',
-      specialNotes: 'Llega en vuelo a Ezeiza a las 14:00. Pidió cuna de viaje.',
+      specialNotes: 'Modalidad Airbnb 3% anfitrión tradicional. Llega en vuelo a las 14:00.',
       createdAt: getRelativeDate(-5),
+      earlyCheckIn: true,
+      earlyLateFee: 15,
+      airbnbFeeMode: 'traditional_3',
+      addons: [
+        {
+          addonId: 'addon-frigobar-vino',
+          name: 'Vino Malbec Reserva + Copa de Bienvenida',
+          category: 'frigobar',
+          unitPrice: 18,
+          quantity: 1,
+          total: 18,
+          status: 'entregado',
+        },
+      ],
     },
     {
       id: 'res-102',
@@ -213,13 +227,14 @@ export function generateInitialReservations(): Reservation[] {
       platform: 'airbnb',
       totalAmount: 290,
       cleaningFee: 35,
-      commissionPaid: 43.5,
-      netRevenue: 246.5,
+      commissionPaid: 8.7, // Airbnb 3% anfitrión tradicional ($290 * 0.03)
+      netRevenue: 281.3,
       status: 'confirmed',
       paymentStatus: 'paid',
       pinCode: '9082#',
-      specialNotes: 'Viene por festival de música en la ciudad.',
+      specialNotes: 'Modalidad Airbnb 3% tradicional. Viene por festival de música en la ciudad.',
       createdAt: getRelativeDate(-2),
+      airbnbFeeMode: 'traditional_3',
     },
     {
       id: 'res-106',
@@ -376,7 +391,7 @@ export const INITIAL_TEMPLATES: MessageTemplate[] = [
 
 const LOCAL_STORAGE_KEY = 'loomisuite_demo_state_v5';
 
-export const INITIAL_WELCOME_GUIDE = {
+export const INITIAL_WELCOME_GUIDE: WelcomeGuideData = {
   propertyName: 'Los Bananos - Wood Cabin Iguazú',
   tagline: 'Cabañas de Madera en la Selva Misionera • Puerto Iguazú, Argentina',
   hostName: 'Fernando',
@@ -540,6 +555,9 @@ export const INITIAL_WELCOME_GUIDE = {
   ],
   directBookingSettings: {
     customSlug: 'wood-cabin-iguazu',
+    customDomain: 'woodcabiniguazu.com.ar',
+    customDomainStatus: 'active',
+    customDomainDnsTarget: 'cname.loomisuite.com',
     depositPercentage: 50,
     bankAlias: 'CABANAS.WOOD.FER',
     cbu: '0140999803400012345678',
@@ -549,28 +567,109 @@ export const INITIAL_WELCOME_GUIDE = {
   },
 };
 
+export const INITIAL_ADDONS: AddonService[] = [
+  {
+    id: 'addon-transfer-in',
+    name: 'Transfer Aeropuerto IGR (Llegada)',
+    category: 'transfers',
+    price: 25,
+    unitLabel: 'por viaje (hasta 4 pax)',
+    description: 'Recepción personalizada en arribos con cartel y traslado directo a las cabañas en auto con A/C.',
+    iconName: 'Car',
+  },
+  {
+    id: 'addon-transfer-out',
+    name: 'Transfer a Aeropuerto IGR (Salida)',
+    category: 'transfers',
+    price: 25,
+    unitLabel: 'por viaje (hasta 4 pax)',
+    description: 'Búsqueda puntual en la cabaña para llegar con tiempo al vuelo.',
+    iconName: 'Car',
+  },
+  {
+    id: 'addon-transfer-cataratas',
+    name: 'Transfer Ida y Vuelta Parque Nacional Cataratas',
+    category: 'transfers',
+    price: 35,
+    unitLabel: 'por viaje I/V',
+    description: 'Traslado privado directo al Parque Nacional Iguazú (lado argentino) y regreso coordinado.',
+    iconName: 'Navigation',
+  },
+  {
+    id: 'addon-frigobar-vino',
+    name: 'Vino Malbec Reserva + Copa de Bienvenida',
+    category: 'frigobar',
+    price: 18,
+    unitLabel: 'por botella',
+    description: 'Etiqueta seleccionada mendocina lista y atemperada en la cabaña.',
+    iconName: 'Wine',
+  },
+  {
+    id: 'addon-frigobar-cerveza',
+    name: 'Pack Cervezas Artesanales Locales (4 un.)',
+    category: 'frigobar',
+    price: 12,
+    unitLabel: 'pack de 4',
+    description: 'Cervezas misioneras artesanales frías esperándote en la heladera.',
+    iconName: 'Beer',
+  },
+  {
+    id: 'addon-lena',
+    name: 'Bolsa de Leña Seca de Espinillo + Iniciador',
+    category: 'frigobar',
+    price: 8,
+    unitLabel: 'por bolsa 10kg',
+    description: 'Leña de alta brasa para el fogón/parrilla exterior con astillas secas e iniciador ecológico.',
+    iconName: 'Flame',
+  },
+  {
+    id: 'addon-desayuno-selva',
+    name: 'Canasta de Desayuno Misionero',
+    category: 'desayuno',
+    price: 14,
+    unitLabel: 'por persona / día',
+    description: 'Chipitas calientes, mermeladas de frutas nativas, medialunas, frutas tropicales, café y jugo fresco.',
+    iconName: 'Coffee',
+  },
+  {
+    id: 'addon-spa-masaje',
+    name: 'Masaje Relajante Descontracturante en Deck Selva',
+    category: 'spa',
+    price: 40,
+    unitLabel: 'sesión de 60 min',
+    description: 'Masoterapeuta profesional en la privacidad de tu cabaña o deck con aceites esenciales botánicos.',
+    iconName: 'Sparkles',
+  },
+  {
+    id: 'addon-spa-hidro',
+    name: 'Kit Sales Aromáticas & Espuma Relajante para Jacuzzi',
+    category: 'spa',
+    price: 15,
+    unitLabel: 'kit spa',
+    description: 'Sales minerales de lavanda y eucalipto para una inmersión reparadora.',
+    iconName: 'Droplets',
+  },
+];
+
 export function getDemoState(): DemoState {
   try {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
-      // If the saved state has old properties or old placeholder images, update to authentic Wood Cabin photos
-      const hasOldImagesOrNames = parsed.properties?.some(
-        (p: Property) =>
-          p.name?.includes('Alerce') ||
-          p.name?.includes('Coihues') ||
-          p.imageUrl?.includes('unsplash.com')
-      );
-      if (hasOldImagesOrNames) {
-        parsed.properties = INITIAL_PROPERTIES;
-        parsed.welcomeGuide = INITIAL_WELCOME_GUIDE;
-        parsed.reservations = generateInitialReservations();
-        parsed.cleaningTasks = generateInitialCleaningTasks();
-        saveDemoState(parsed);
+      // Ensure availableAddons and addons are set
+      if (!parsed.availableAddons || parsed.availableAddons.length === 0) {
+        parsed.availableAddons = INITIAL_ADDONS;
       }
-      if (!parsed.welcomeGuide) {
-        parsed.welcomeGuide = INITIAL_WELCOME_GUIDE;
+      if (!parsed.addons || parsed.addons.length === 0) {
+        parsed.addons = parsed.availableAddons || INITIAL_ADDONS;
       }
+      // Ensure property 3 smartLock matches updated status
+      const p3 = parsed.properties?.find((p: Property) => p.id === 'prop-3');
+      if (p3 && p3.smartLock?.brand?.includes('Recepción')) {
+        p3.smartLock.enabled = false;
+        p3.smartLock.brand = 'Llave física tradicional (Sin cerradura digital)';
+      }
+      saveDemoState(parsed);
       return parsed;
     }
   } catch (e) {
@@ -583,6 +682,8 @@ export function getDemoState(): DemoState {
     cleaningTasks: generateInitialCleaningTasks(),
     templates: INITIAL_TEMPLATES,
     welcomeGuide: INITIAL_WELCOME_GUIDE,
+    availableAddons: INITIAL_ADDONS,
+    addons: INITIAL_ADDONS,
     lastUpdated: new Date().toISOString(),
   };
 
@@ -605,6 +706,8 @@ export function resetDemoState(): DemoState {
     cleaningTasks: generateInitialCleaningTasks(),
     templates: INITIAL_TEMPLATES,
     welcomeGuide: INITIAL_WELCOME_GUIDE,
+    availableAddons: INITIAL_ADDONS,
+    addons: INITIAL_ADDONS,
     lastUpdated: new Date().toISOString(),
   };
   saveDemoState(freshState);

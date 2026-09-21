@@ -97,7 +97,9 @@ Loomi centraliza la gestión de tus alquileres para que no vivas atado al celula
 #### 🔑 Llaves Físicas vs. Módulos Opcionales (Add-ons):
 - **Funciona 100% con tu llave física tradicional:** No necesitás gastar en cerraduras caras ni cambiar nada en tus cabañas.
 - **Módulo Frigobar, Desayunos & Consumos Extras (Opcional):** Para posadas y aparts que venden minibar, confitería o leña.
-- **Módulo Cerraduras Electrónicas (Opcional):** Solo para departamentos urbanos que ya cuenten con teclados digitales (Tuya, TTLock, Yale).`;
+- **Módulo Cerraduras Electrónicas (Opcional):** Solo para departamentos urbanos que ya cuenten con teclados digitales (Tuya, TTLock, Yale).
+- **Dominio Propio (.com / .com.ar) para Motor Directo (Opcional):** El cliente puede conectar su propio dominio (ej: \`reservas.misalojamientos.com\`) o Loomi gestiona el alta y certificado SSL con costo directo al cliente.
+- **Modo Día a Día para Empleados:** Los colaboradores operan el rack, check-in y mucamas sin tener acceso a los números de facturación ni finanzas.`;
   }
 
   // 3. Financial / Rendición de cuentas queries
@@ -163,7 +165,7 @@ ${pendingPayments
 *¿Deseas que te desglose los ingresos por cabaña específica o ver el reporte de liquidación para propietarios?*`;
   }
 
-  // 4. Check-ins / Guests / Huéspedes queries
+  // 4. Check-ins / Guests / Huéspedes / Ocupación queries
   if (
     q.includes("huesped") ||
     q.includes("huésped") ||
@@ -171,20 +173,54 @@ ${pendingPayments
     q.includes("checkin") ||
     q.includes("check-out") ||
     q.includes("checkout") ||
+    q.includes("ocupad") ||
+    q.includes("ocupacion") ||
+    q.includes("ocupación") ||
+    q.includes("reserva") ||
+    q.includes("reservas") ||
+    q.includes("disponib") ||
+    q.includes("libre") ||
     q.includes("llega") ||
     q.includes("sale") ||
-    q.includes("hoy")
+    q.includes("hoy") ||
+    q.includes("early") ||
+    q.includes("late")
   ) {
-    return `### 🛏️ Estado de Huéspedes y Movimiento Hoy
+    const todayStr = new Date().toISOString().split("T")[0];
+    const totalProps = properties.length || 6;
+    const occupiedCount = Math.min(
+      totalProps,
+      reservations.filter((r: any) => r.status === "confirmed" || r.status === "checked_in").length
+    );
+    const occupancyRate = Math.round((occupiedCount / Math.max(1, totalProps)) * 100);
 
-**Movimientos del día:**
-- **Check-ins programados:** Hay llegadas previstas a partir de las 15:00 hs (ej: Juan Pérez en *Cabaña 1 'El Alerce'*).
-- **Check-outs matutinos:** Claire Dupont tiene salida a las 11:00 hs de *Cabaña 2 'Los Coihues'*.
-- **Ocupación general:** 3 de 4 cabañas ocupadas/reservadas (75% de ocupación).
+    const checkInsToday = reservations.filter(
+      (r: any) => r.checkIn === todayStr || (r.checkIn <= todayStr && r.checkOut > todayStr)
+    );
+    const checkOutsToday = reservations.filter((r: any) => r.checkOut === todayStr);
 
-**Acciones recomendadas para reducir WhatsApp:**
-1. Puedes enviarle la plantilla de *Auto Check-in y Clave WiFi* con 1 clic desde la pestaña **WhatsApp & Mensajería**.
-2. El personal de limpieza ya tiene asignada la preparación de Cabaña 2 para el próximo ingreso.`;
+    const listSnippet = reservations
+      .slice(0, 5)
+      .map((r: any) => {
+        const pName = properties.find((p: any) => p.id === r.propertyId)?.name || "Cabaña";
+        const feeInfo = r.airbnbFeeMode === "traditional_3" ? " (Airbnb 3% tradicional)" : "";
+        const earlyLateInfo = r.earlyCheckIn ? " [Early Check-in]" : r.lateCheckOut ? " [Late Check-out]" : "";
+        return `• **${r.guestName}** en *${pName}* (${r.platform.toUpperCase()}${feeInfo}): ${r.checkIn} al ${r.checkOut} ($${r.totalAmount} USD)${earlyLateInfo}`;
+      })
+      .join("\n");
+
+    return `### 🛏️ Estado de Ocupación y Reservas en Tiempo Real
+
+📊 **Ocupación Actual:**
+- **Nivel de Ocupación:** **${occupancyRate}%** (${occupiedCount} de ${totalProps} unidades con reservas confirmadas).
+- **Total de Reservas Activas:** **${reservations.length} reservas registradas**.
+- **Ingresos hoy:** ${checkInsToday.length > 0 ? `${checkInsToday.length} ingresos en curso o previstos` : "Sin ingresos nuevos hoy"}.
+- **Salidas hoy:** ${checkOutsToday.length > 0 ? `${checkOutsToday.length} salidas previstas` : "Sin check-outs para hoy"}.
+
+📋 **Próximas Estadías Registradas:**
+${listSnippet}
+
+💡 *Acciones operativas:* Podés filtrar reservas por canal, ver accesos con clave o llave física, y coordinar con el personal de limpieza desde el Rack de Disponibilidad.`;
   }
 
   // 5. Instructions / Cómo usar la plataforma
@@ -336,7 +372,12 @@ TUS CAPACIDADES CENTRALES SON:
    - Huéspedes que ingresan hoy (check-in), que salen hoy (check-out), ocupación actual y saldos pendientes de cobro (señas vs saldos en mostrador).
    - Usa los datos reales proporcionados a continuación en el contexto.
 
-3. INSTRUCCIONES DE USO DE LA PLATAFORMA (AUTONOMÍA & GUÍA OPERATIVA):
+3. SINCRONIZACIÓN iCAL Y PRECIOS MANUALES:
+   - Explica con total claridad que cuando se sincronizan calendarios por iCal (.ics estándar) con Airbnb o Booking, el enlace SOLO bloquea fechas para evitar overbooking. Las plataformas NO transmiten por iCal la tarifa cobrada ni el email o teléfono del huésped.
+   - Por esa razón, en Loomi la tarifa manual y la edición de importes está habilitada para TODAS las reservas (Directa, Airbnb, Booking, VRBO).
+   - El anfitrión puede abrir cualquier reserva y tocar el lápiz ✏️ para colocar el importe real facturado, y el sistema recalcula automáticamente comisiones (3% o 15% Airbnb, 15% Booking) e ingreso neto.
+
+4. INSTRUCCIONES DE USO DE LA PLATAFORMA (AUTONOMÍA & GUÍA OPERATIVA):
    - Explicar paso a paso cómo usar cada módulo de Loomi Suite (sincronización iCal con Booking/Airbnb, mucamas, link de reservas directas, carga de reservas).
    - Redactar mensajes listos para copiar y pegar para enviar a huéspedes por WhatsApp (llegada por ruta, clave de wifi, recordatorio de seña).
 

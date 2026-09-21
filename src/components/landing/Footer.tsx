@@ -61,11 +61,12 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
             </h4>
             <ul className="space-y-2 text-xs">
               <li>Airbnb Channel Partner</li>
-              <li>Booking.com Connectivity</li>
-              <li>VRBO / HomeAway</li>
+              <li>Booking.com Connectivity Oficial</li>
+              <li>VRBO / Expedia (iCal + API)</li>
+              <li>TripAdvisor & Google Vacation Rentals</li>
               <li>WhatsApp Cloud API</li>
-              <li>MercadoPago & Stripe</li>
-              <li>Tuya Smart / Yale / Nuki</li>
+              <li>Mercado Pago & PayPal</li>
+              <li>Cerraduras Digitales (Módulo Opcional)</li>
             </ul>
           </div>
 

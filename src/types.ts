@@ -32,6 +32,29 @@ export interface Property {
   wifiPassword: string;
 }
 
+export type AddonCategory = 'frigobar' | 'transfers' | 'spa' | 'desayuno' | 'experiencias';
+
+export interface AddonService {
+  id: string;
+  name: string;
+  category: AddonCategory;
+  price: number; // USD
+  unitLabel: string; // ej: "por viaje", "por botella", "por sesión 60 min", "por persona"
+  description: string;
+  iconName?: string;
+}
+
+export interface ReservationAddon {
+  addonId: string;
+  name: string;
+  category: AddonCategory;
+  unitPrice: number;
+  quantity: number;
+  total: number;
+  status: 'solicitado' | 'entregado' | 'cobrado';
+  addedAt?: string;
+}
+
 export interface Reservation {
   id: string;
   propertyId: string;
@@ -53,6 +76,15 @@ export interface Reservation {
   pinCode: string;
   specialNotes?: string;
   createdAt: string;
+  // Nuevos campos operativos y de tarifas flexibles:
+  earlyCheckIn?: boolean; // Permite ingreso anticipado
+  lateCheckOut?: boolean; // Permite salida demorada
+  earlyLateFee?: number; // Costo adicional por early/late si aplica
+  customDiscountPercent?: number; // Descuento personalizado (%) ej. directo o amigo
+  isManualPrice?: boolean; // Indica si se fijó un precio manual diferencial
+  airbnbFeeMode?: 'traditional_3' | 'simplified_15'; // Soporte para cuentas Airbnb con 3% anfitrión
+  // Módulo de Opcionales / Extras / Consumos:
+  addons?: ReservationAddon[];
 }
 
 export interface CleaningChecklistItem {
@@ -139,6 +171,9 @@ export interface WelcomeGuideData {
   }[];
   directBookingSettings: {
     customSlug: string;
+    customDomain?: string; // Dominio propio del cliente (ej: woodcabiniguazu.com.ar)
+    customDomainStatus?: 'active' | 'pending_dns' | 'not_configured'; // Estado de configuración DNS
+    customDomainDnsTarget?: string; // Target CNAME o IP de Loomi
     depositPercentage: number;
     bankAlias: string;
     cbu: string;
@@ -154,5 +189,7 @@ export interface DemoState {
   cleaningTasks: CleaningTask[];
   templates: MessageTemplate[];
   welcomeGuide?: WelcomeGuideData;
+  availableAddons?: AddonService[];
+  addons?: AddonService[];
   lastUpdated: string;
 }

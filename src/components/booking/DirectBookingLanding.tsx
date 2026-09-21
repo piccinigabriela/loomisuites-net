@@ -37,17 +37,45 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
   const [bookingConfirmed, setBookingConfirmed] = useState<boolean>(false);
   const [showSelfOnboardExplain, setShowSelfOnboardExplain] = useState<boolean>(false);
 
+  // Opciones de Early Check-in y Late Check-out
+  const [earlyCheckIn, setEarlyCheckIn] = useState<boolean>(false);
+  const [lateCheckOut, setLateCheckOut] = useState<boolean>(false);
+  // Código promocional o descuento diferencial para directos
+  const [promoCode, setPromoCode] = useState<string>('');
+  const [appliedPromo, setAppliedPromo] = useState<number>(0);
+
   const selectedCabin = properties.find((p) => p.id === selectedCabinId) || properties[0];
 
   // Pricing math
   const pricePerNight = selectedCabin?.basePrice || 95;
   const rawTotal = pricePerNight * nights;
-  const discountPercent = guideData.directBookingSettings.directDiscountPercent || 15;
-  const discountAmount = Math.round((rawTotal * discountPercent) / 100);
-  const finalTotal = rawTotal - discountAmount;
+  
+  // Early / Late fee (ej: $15 USD por early check-in desde las 10hs o late check-out hasta las 18hs)
+  const earlyFee = earlyCheckIn ? 15 : 0;
+  const lateFee = lateCheckOut ? 15 : 0;
+  const earlyLateTotal = earlyFee + lateFee;
+
+  // Base direct discount (15% por reservar directo) + descuento adicional de cupón o cliente frecuente
+  const baseDiscountPercent = guideData.directBookingSettings.directDiscountPercent || 15;
+  const totalDiscountPercent = baseDiscountPercent + appliedPromo;
+  const discountAmount = Math.round((rawTotal * totalDiscountPercent) / 100);
+
+  const finalTotal = rawTotal + earlyLateTotal - discountAmount;
   const depositPercent = guideData.directBookingSettings.depositPercentage || 50;
   const depositAmount = Math.round((finalTotal * depositPercent) / 100);
   const balanceOnArrival = finalTotal - depositAmount;
+
+  const handleApplyPromo = (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = promoCode.trim().toUpperCase();
+    if (code === 'DIRECTO' || code === 'AMIGO' || code === 'REPETIDOR') {
+      setAppliedPromo(10); // 10% adicional
+    } else if (code === 'ESPECIAL20') {
+      setAppliedPromo(5);
+    } else {
+      setAppliedPromo(0);
+    }
+  };
 
   const handleBook = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +86,9 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
     `Hola Fernando! Quiero confirmar mi reserva directa en ${guideData.propertyName}:\n` +
     `• Cabaña: ${selectedCabin?.name}\n` +
     `• Estadía: ${nights} noches (${guestsCount} personas)\n` +
-    `• Total con 15% desc directo: $${finalTotal} USD\n` +
+    `${earlyCheckIn ? '• Incluye Early Check-in (ingreso desde las 10:00 hs)\n' : ''}` +
+    `${lateCheckOut ? '• Incluye Late Check-out (salida hasta las 18:00 hs)\n' : ''}` +
+    `• Total con ${totalDiscountPercent}% desc directo: $${finalTotal} USD\n` +
     `• Seña 50% ($${depositAmount} USD) a transferir a ${guideData.directBookingSettings.bankAlias}\n` +
     `• Mi nombre: ${guestName || 'Huésped'} - Tel: ${guestPhone}`
   );
@@ -283,6 +313,78 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
               </div>
             </div>
 
+            {/* Opciones de Early Check-in y Late Check-out */}
+            <div className="p-3 bg-stone-900/90 rounded-2xl border border-stone-700/80 space-y-2 text-xs">
+              <div className="flex items-center justify-between font-semibold text-stone-300">
+                <span className="flex items-center gap-1.5 text-amber-400">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>Flexibilidad Horaria (Check-in / Check-out)</span>
+                </span>
+                <span className="text-[10px] text-stone-500">Opcional</span>
+              </div>
+              
+              <label className="flex items-start gap-2.5 p-2 rounded-xl bg-stone-800/60 border border-stone-700/50 hover:bg-stone-800 cursor-pointer transition-colors">
+                <input
+                  type="checkbox"
+                  checked={earlyCheckIn}
+                  onChange={(e) => setEarlyCheckIn(e.target.checked)}
+                  className="mt-0.5 rounded text-amber-500 focus:ring-amber-500"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-white text-[11px]">Early Check-in (ingreso 10:00 hs)</span>
+                    <span className="text-amber-400 font-mono font-bold text-[11px]">+$15 USD</span>
+                  </div>
+                  <p className="text-[10px] text-stone-400 leading-tight mt-0.5">
+                    Llegás antes para aprovechar la pileta o dejar el equipaje temprano.
+                  </p>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-2.5 p-2 rounded-xl bg-stone-800/60 border border-stone-700/50 hover:bg-stone-800 cursor-pointer transition-colors">
+                <input
+                  type="checkbox"
+                  checked={lateCheckOut}
+                  onChange={(e) => setLateCheckOut(e.target.checked)}
+                  className="mt-0.5 rounded text-amber-500 focus:ring-amber-500"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-white text-[11px]">Late Check-out (salida 18:00 hs)</span>
+                    <span className="text-amber-400 font-mono font-bold text-[11px]">+$15 USD</span>
+                  </div>
+                  <p className="text-[10px] text-stone-400 leading-tight mt-0.5">
+                    Te quedás disfrutando la tarde del último día sin apuro.
+                  </p>
+                </div>
+              </label>
+            </div>
+
+            {/* Código Promocional / Descuento Huésped Frecuente */}
+            <div className="p-3 bg-stone-900/60 rounded-xl border border-stone-800 text-xs">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Cupón: DIRECTO / AMIGO"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value)}
+                  className="flex-1 bg-stone-950 border border-stone-700 rounded-lg px-2.5 py-1.5 text-[11px] text-white uppercase placeholder:normal-case placeholder:text-stone-500"
+                />
+                <button
+                  type="button"
+                  onClick={handleApplyPromo}
+                  className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-lg font-bold text-[11px] cursor-pointer"
+                >
+                  Aplicar
+                </button>
+              </div>
+              {appliedPromo > 0 && (
+                <p className="text-[10px] text-emerald-400 mt-1 font-semibold">
+                  ✓ Descuento especial aplicado: +{appliedPromo}% extra para tu reserva directa.
+                </p>
+              )}
+            </div>
+
             {/* Selected cabin visual card */}
             {selectedCabin && (
               <div className="flex items-center gap-3 p-3 bg-stone-900/80 rounded-2xl border border-stone-700/60">
@@ -305,8 +407,20 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                 <span>{selectedCabin?.name} ({nights} noches)</span>
                 <span>${rawTotal} USD</span>
               </div>
+              {earlyCheckIn && (
+                <div className="flex justify-between text-amber-400">
+                  <span>Early Check-in (10:00 hs)</span>
+                  <span>+$15 USD</span>
+                </div>
+              )}
+              {lateCheckOut && (
+                <div className="flex justify-between text-amber-400">
+                  <span>Late Check-out (18:00 hs)</span>
+                  <span>+$15 USD</span>
+                </div>
+              )}
               <div className="flex justify-between text-emerald-400 font-medium">
-                <span>Descuento Reserva Directa (-15%)</span>
+                <span>Descuento Reserva Directa (-{totalDiscountPercent}%)</span>
                 <span>-${discountAmount} USD</span>
               </div>
               <div className="border-t border-stone-800 pt-2 flex justify-between font-bold text-white text-sm">

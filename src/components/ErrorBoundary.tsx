@@ -25,6 +25,9 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   private handleReset = () => {
+    try {
+      localStorage.removeItem('loomi_pms_demo_state');
+    } catch {}
     this.setState({ hasError: false, error: null });
     window.location.reload();
   };

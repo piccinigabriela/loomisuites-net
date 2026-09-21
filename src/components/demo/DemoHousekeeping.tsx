@@ -57,23 +57,25 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
       )}
 
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-zinc-200 p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
         <div>
-          <h3 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-600" />
+          <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400" />
             <span>Gestión Operativa de Limpieza & Mucamas</span>
           </h3>
-          <p className="text-xs text-zinc-500 mt-0.5">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
             Coordina a tu equipo sin que tengan que descargar aplicaciones. Todo mediante enlaces móviles y checklists en tiempo real.
           </p>
         </div>
 
         {/* Filter buttons */}
-        <div className="flex items-center gap-2 bg-zinc-100 p-1 rounded-xl border border-zinc-200 text-xs">
+        <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs">
           <button
             onClick={() => setFilterStatus('all')}
             className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
-              filterStatus === 'all' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-500 hover:text-zinc-900'
+              filterStatus === 'all'
+                ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-xs'
+                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
             }`}
           >
             Todas ({demoState.cleaningTasks.length})
@@ -81,7 +83,9 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
           <button
             onClick={() => setFilterStatus('in_progress')}
             className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
-              filterStatus === 'in_progress' ? 'bg-white text-amber-700 shadow-xs' : 'text-zinc-500 hover:text-zinc-900'
+              filterStatus === 'in_progress'
+                ? 'bg-white dark:bg-zinc-700 text-amber-700 dark:text-amber-400 shadow-xs'
+                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
             }`}
           >
             En Curso
@@ -89,7 +93,9 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
           <button
             onClick={() => setFilterStatus('inspected')}
             className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
-              filterStatus === 'inspected' ? 'bg-white text-emerald-700 shadow-xs' : 'text-zinc-500 hover:text-zinc-900'
+              filterStatus === 'inspected'
+                ? 'bg-white dark:bg-zinc-700 text-emerald-700 dark:text-emerald-400 shadow-xs'
+                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
             }`}
           >
             Listas
@@ -108,17 +114,17 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
           return (
             <div
               key={task.id}
-              className="bg-white rounded-2xl border border-zinc-200 p-6 shadow-xs flex flex-col justify-between hover:border-zinc-300 transition-all"
+              className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-xs flex flex-col justify-between hover:border-zinc-300 dark:hover:border-zinc-700 transition-all"
             >
               <div>
                 {/* Top Row: Property & Status badge */}
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div>
-                    <span className="text-[11px] font-bold text-rose-600 uppercase tracking-wider">
+                    <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
                       {prop?.neighborhood}
                     </span>
-                    <h4 className="text-base font-bold text-zinc-900">{prop?.name}</h4>
-                    <p className="text-xs text-zinc-500">{prop?.address}</p>
+                    <h4 className="text-base font-bold text-zinc-900 dark:text-zinc-100">{prop?.name}</h4>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{prop?.address}</p>
                   </div>
 
                   <select
@@ -128,10 +134,10 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
                     }
                     className={`text-xs font-bold px-3 py-1.5 rounded-xl border cursor-pointer ${
                       task.status === 'in_progress'
-                        ? 'bg-amber-50 text-amber-800 border-amber-300'
+                        ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700'
                         : task.status === 'inspected'
-                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                        : 'bg-zinc-100 text-zinc-700 border-zinc-300'
+                        ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
+                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-300 dark:border-zinc-700'
                     }`}
                   >
                     <option value="pending">Pendiente</option>
@@ -141,15 +147,15 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
                 </div>
 
                 {/* Cleaner Info Bar */}
-                <div className="bg-zinc-50 rounded-xl p-3 border border-zinc-200/80 flex flex-wrap items-center justify-between gap-3 text-xs mb-4">
+                <div className="bg-zinc-50 dark:bg-zinc-800/80 rounded-xl p-3 border border-zinc-200/80 dark:border-zinc-700 flex flex-wrap items-center justify-between gap-3 text-xs mb-4">
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-zinc-500" />
-                    <span className="font-semibold text-zinc-800">{task.cleanerName}</span>
+                    <User className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
+                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">{task.cleanerName}</span>
                     <span className="text-zinc-400">•</span>
-                    <span className="text-zinc-500">{task.cleanerPhone}</span>
+                    <span className="text-zinc-500 dark:text-zinc-400">{task.cleanerPhone}</span>
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-zinc-600 font-medium">
+                  <div className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 font-medium">
                     <Clock className="w-3.5 h-3.5 text-zinc-400" />
                     <span>Fecha: {formatDisplayDate(task.date)} ({task.scheduledTime})</span>
                   </div>
@@ -157,13 +163,13 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
 
                 {/* Interactive Checklist */}
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center justify-between text-xs font-bold text-zinc-700">
+                  <div className="flex items-center justify-between text-xs font-bold text-zinc-700 dark:text-zinc-300">
                     <span>Checklist de Calidad ({completedCount}/{totalCount})</span>
-                    <span className="text-emerald-600">{progressPercent}%</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">{progressPercent}%</span>
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden mb-3">
+                  <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-2 rounded-full overflow-hidden mb-3">
                     <div
                       className="bg-emerald-500 h-full rounded-full transition-all duration-300"
                       style={{ width: `${progressPercent}%` }}
@@ -176,8 +182,8 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
                         key={item.id}
                         className={`flex items-center gap-2.5 p-2 rounded-lg border text-xs cursor-pointer transition-colors ${
                           item.completed
-                            ? 'bg-emerald-50/50 border-emerald-200 text-zinc-700 line-through'
-                            : 'bg-white border-zinc-200 text-zinc-800 hover:bg-zinc-50'
+                            ? 'bg-emerald-50/50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-zinc-700 dark:text-zinc-400 line-through'
+                            : 'bg-white dark:bg-zinc-800/90 border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-750'
                         }`}
                       >
                         <input
@@ -194,24 +200,24 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
 
                 {/* Notes and Photos */}
                 {task.notes && (
-                  <p className="text-xs text-zinc-600 bg-amber-50/60 p-2.5 rounded-lg border border-amber-200/80 mb-3">
+                  <p className="text-xs text-zinc-600 dark:text-zinc-300 bg-amber-50/60 dark:bg-amber-950/30 p-2.5 rounded-lg border border-amber-200/80 dark:border-amber-800/60 mb-3">
                     <strong>Nota operativa:</strong> {task.notes}
                   </p>
                 )}
 
                 {task.photosUploaded ? (
-                  <div className="flex items-center gap-1.5 text-xs text-emerald-700 font-semibold mb-2">
-                    <Camera className="w-4 h-4 text-emerald-600" />
+                  <div className="flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-400 font-semibold mb-2">
+                    <Camera className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     <span>{task.photosUploaded} fotos de control subidas por la mucama</span>
                   </div>
                 ) : null}
               </div>
 
               {/* Bottom Actions */}
-              <div className="pt-4 border-t border-zinc-100 flex items-center justify-between gap-3">
+              <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-3">
                 <button
                   onClick={() => handleSimulateWhatsApp(task.cleanerName, prop?.name || '')}
-                  className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-2 rounded-lg transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-3 py-2 rounded-lg transition-colors cursor-pointer border border-emerald-200 dark:border-emerald-800"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>Enviar Tarea a WhatsApp</span>
@@ -224,7 +230,7 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
                       task.status === 'inspected' ? 'in_progress' : 'inspected'
                     )
                   }
-                  className="text-xs font-semibold text-zinc-700 hover:text-zinc-900 underline cursor-pointer"
+                  className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 underline cursor-pointer"
                 >
                   {task.status === 'inspected' ? 'Reabrir tarea' : 'Marcar Aprobado'}
                 </button>
