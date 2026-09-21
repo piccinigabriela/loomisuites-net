@@ -758,6 +758,7 @@ export default function App() {
           (p) => p.id === selectedReservationForDetail?.propertyId
         )}
         properties={demoState.properties}
+        allReservations={demoState.reservations}
         availableAddons={demoState.addons || demoState.availableAddons || []}
         onClose={() => setSelectedReservationForDetail(null)}
         onUpdateStatus={handleUpdateReservationStatus}

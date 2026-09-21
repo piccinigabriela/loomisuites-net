@@ -9,6 +9,10 @@ import {
   ArrowLeftRight,
   Columns,
   SlidersHorizontal,
+  RotateCw,
+  Clock,
+  Sparkles,
+  AlertCircle,
 } from 'lucide-react';
 import { DemoState, Reservation, Property, BookingPlatform } from '../../types';
 import { formatDisplayDate, getRelativeDate } from '../../data/initialData';
@@ -29,6 +33,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
   const [dayOffset, setDayOffset] = useState<number>(-2); // Show from 2 days ago to +12 days ahead
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>('all');
   const [platformFilter, setPlatformFilter] = useState<string>('all');
+  const [highlightTurnoversOnly, setHighlightTurnoversOnly] = useState<boolean>(false);
   // Column width: compact (48px) - perfect for mobile, medium (105px), full (185px)
   const [columnMode, setColumnMode] = useState<ColumnMode>('compact');
   const [scrollProgress, setScrollProgress] = useState<number>(0);
@@ -119,6 +124,38 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
     });
   };
 
+  // Detect same-day turnover (when another reservation checks out on this reservation's check-in date, or checks in on its check-out date)
+  const getTurnoverInfo = (res: Reservation) => {
+    const incomingTurnover = demoState.reservations.find(
+      (r) =>
+        r.id !== res.id &&
+        r.propertyId === res.propertyId &&
+        r.status !== 'cancelled' &&
+        r.checkOut === res.checkIn
+    );
+
+    const outgoingTurnover = demoState.reservations.find(
+      (r) =>
+        r.id !== res.id &&
+        r.propertyId === res.propertyId &&
+        r.status !== 'cancelled' &&
+        r.checkIn === res.checkOut
+    );
+
+    return {
+      incomingTurnover,
+      outgoingTurnover,
+      hasTurnover: !!incomingTurnover || !!outgoingTurnover,
+    };
+  };
+
+  // Count total turnovers in the system
+  const totalTurnoversCount = demoState.reservations.filter((r) => {
+    if (r.status === 'cancelled') return false;
+    const { hasTurnover } = getTurnoverInfo(r);
+    return hasTurnover;
+  }).length;
+
   const getPlatformColors = (platform: BookingPlatform) => {
     switch (platform) {
       case 'airbnb':
@@ -143,12 +180,18 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
       {/* Calendar Header / Filters */}
       <div className="p-4 sm:p-5 border-b border-[#ded9cd] dark:border-[#262626] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
         <div>
-          <h3 className="text-lg font-bold text-[#1c1b18] dark:text-[#f0eeeb] flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5 text-[#c46d45] dark:text-[#c4774a]" />
-            <span>Ocupación</span>
-          </h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-lg font-bold text-[#1c1b18] dark:text-[#f0eeeb] flex items-center gap-2">
+              <CalendarIcon className="w-5 h-5 text-[#c46d45] dark:text-[#c4774a]" />
+              <span>Ocupación</span>
+            </h3>
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1">
+              <RotateCw className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+              <span>Recambios Mismo Día</span>
+            </span>
+          </div>
           <p className="text-xs text-[#78746c] dark:text-[#8c8a85] mt-0.5">
-            Calendario — vista mensual y sincronización multicanal
+            Calendario Rack PMS — Check-in 14hs / Check-out 10hs con marcación visual de recambios compartidos
           </p>
         </div>
 
@@ -248,7 +291,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
         </div>
       </div>
 
-      {/* Legend Bar & Desktop Tips */}
+      {/* Legend Bar & Turnover Indicator */}
       <div className="bg-[#fbf9f5] dark:bg-[#191919] px-4 sm:px-5 py-2.5 border-b border-[#ded9cd] dark:border-[#262626] flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[#78746c] dark:text-[#a8a5a0]">
           <span className="font-bold text-[#55514a] dark:text-[#7a7874] text-[11px]">Canales:</span>
@@ -268,10 +311,20 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             <span className="w-2.5 h-2.5 rounded-full bg-[#6b5882] inline-block" />
             <span className="text-[11px]">VRBO</span>
           </span>
+
+          <span className="h-3 w-px bg-[#ded9cd] dark:bg-[#333] hidden sm:inline-block" />
+
+          {/* Special Turnover Legend Indicator */}
+          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-900 dark:text-amber-200 border border-amber-500/30 text-[11px] font-semibold">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <span className="font-bold">🔄 Recambio mismo día:</span>
+            <span>Check-out 10hs & Check-in 14hs marcados en la barra</span>
+          </div>
         </div>
+
         <div className="flex items-center gap-2 text-[11px] text-[#78746c] dark:text-[#706e6a]">
           <span className="italic">
-            .. Desplaza la barra o haz clic sobre una reserva para ver detalle
+            💡 Las reservas con recambio muestran la etiqueta <strong>🔄 Recambio</strong> y el horario de rotación
           </span>
         </div>
       </div>
@@ -365,9 +418,9 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             return (
               <div
                 key={prop.id}
-                className="flex border-b border-[#ded9cd] dark:border-[#262626] min-h-[64px] hover:bg-[#fbf9f5] dark:hover:bg-zinc-800/30 transition-colors"
+                className="flex border-b border-[#ded9cd] dark:border-[#262626] min-h-[68px] hover:bg-[#fbf9f5] dark:hover:bg-zinc-800/30 transition-colors"
               >
-                {/* Property Label Column - Ultra-compact 48px on compact, 105px on medium, 185px on full */}
+                {/* Property Label Column */}
                 <div className={`${getColumnWidthClass(columnMode)} border-r border-[#ded9cd] dark:border-[#262626] bg-white dark:bg-[#1c1c1c] flex flex-col justify-center sticky left-0 z-20 shadow-[3px_0_8px_rgba(0,0,0,0.06)] shrink-0`}>
                   {columnMode === 'compact' ? (
                     <div className="flex flex-col items-center justify-center">
@@ -406,41 +459,61 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                 {/* 14 Day Timeline Container - contains both background slots and reservation bars */}
                 <div className="flex-1 relative grid grid-cols-[repeat(14,minmax(0,1fr))] min-w-[840px]">
                   {/* 14 Day Background Slots */}
-                  {dates.map((d) => (
-                    <div
-                      key={d.dateStr}
-                      className={`h-full border-r border-[#ded9cd] dark:border-[#262626] last:border-r-0 relative flex items-center justify-center ${
-                        d.isToday ? 'bg-[#f4eee7]/50 dark:bg-rose-950/20' : ''
-                      }`}
-                    >
-                      <button
-                        onClick={() =>
-                          onOpenNewReservationWithProperty &&
-                          onOpenNewReservationWithProperty(prop.id, d.dateStr)
-                        }
-                        title={`Crear reserva libre el ${d.dateStr}`}
-                        className="w-full h-full opacity-0 hover:opacity-100 hover:bg-[#f4f1ea] dark:hover:bg-zinc-800 flex items-center justify-center text-[#78746c] hover:text-[#1c1b18] dark:hover:text-zinc-200 transition-all cursor-pointer text-xs"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ))}
+                  {dates.map((d) => {
+                    // Check if this property has a turnover on this specific day (someone checking out AND someone checking in)
+                    const hasCheckoutHere = propertyReservations.some((r) => r.checkOut === d.dateStr);
+                    const hasCheckinHere = propertyReservations.some((r) => r.checkIn === d.dateStr);
+                    const isTurnoverDayHere = hasCheckoutHere && hasCheckinHere;
 
-                  {/* Continuous Reservation Bars (contained 100% inside timeline area) */}
+                    return (
+                      <div
+                        key={d.dateStr}
+                        className={`h-full border-r border-[#ded9cd] dark:border-[#262626] last:border-r-0 relative flex items-center justify-center ${
+                          d.isToday ? 'bg-[#f4eee7]/50 dark:bg-rose-950/20' : ''
+                        } ${isTurnoverDayHere ? 'bg-amber-500/5 dark:bg-amber-500/10' : ''}`}
+                      >
+                        {/* Subtle turnover vertical guideline marker in the middle of the turnover column */}
+                        {isTurnoverDayHere && (
+                          <div
+                            className="absolute inset-y-0 left-1/2 w-0.5 border-l border-dashed border-amber-500/40 z-0 pointer-events-none"
+                            title={`Día de recambio: Salida a la mañana (10hs) y Entrada a la tarde (14hs)`}
+                          />
+                        )}
+
+                        <button
+                          onClick={() =>
+                            onOpenNewReservationWithProperty &&
+                            onOpenNewReservationWithProperty(prop.id, d.dateStr)
+                          }
+                          title={`Crear reserva libre el ${d.dateStr}`}
+                          className="w-full h-full opacity-0 hover:opacity-100 hover:bg-[#f4f1ea] dark:hover:bg-zinc-800 flex items-center justify-center text-[#78746c] hover:text-[#1c1b18] dark:hover:text-zinc-200 transition-all cursor-pointer text-xs z-0"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
+
+                  {/* Continuous Reservation Bars with PMS Half-Day Turnover Split (14hs In / 10hs Out) */}
                   {propertyReservations.map((res) => {
-                    // Calculate start column index relative to visible dates (0 to 13)
+                    const { incomingTurnover, outgoingTurnover, hasTurnover } = getTurnoverInfo(res);
+
+                    // Calculate start and end column index relative to visible dates (0 to 13)
                     const checkInIndex = dates.findIndex((d) => d.dateStr === res.checkIn);
                     const checkOutIndex = dates.findIndex((d) => d.dateStr === res.checkOut);
 
                     const isContinuingFromBefore = checkInIndex === -1;
                     const isContinuingAfter = checkOutIndex === -1;
 
-                    const startIndex = checkInIndex !== -1 ? checkInIndex : 0;
-                    const endIndex = checkOutIndex !== -1 ? checkOutIndex : DAYS_TO_SHOW;
-                    const spanDays = Math.max(1, endIndex - startIndex);
+                    // Standard PMS Half-Day Split Math:
+                    // CheckIn starts at 50% of the checkIn day (afternoon ~14hs) unless continuing from before
+                    // CheckOut ends at 50% of the checkOut day (morning ~10hs) unless continuing after
+                    const startFraction = isContinuingFromBefore ? 0 : checkInIndex + 0.45;
+                    const endFraction = isContinuingAfter ? DAYS_TO_SHOW : checkOutIndex + 0.55;
+                    const spanFraction = Math.max(0.4, endFraction - startFraction);
 
-                    const leftPercent = (startIndex / DAYS_TO_SHOW) * 100;
-                    const widthPercent = (spanDays / DAYS_TO_SHOW) * 100;
+                    const leftPercent = (startFraction / DAYS_TO_SHOW) * 100;
+                    const widthPercent = (spanFraction / DAYS_TO_SHOW) * 100;
 
                     return (
                       <div
@@ -449,37 +522,101 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                           left: `calc(${leftPercent}% + 2px)`,
                           width: `calc(${widthPercent}% - 4px)`,
                         }}
-                        className="absolute top-2.5 bottom-2.5 z-10 flex items-center"
+                        className="absolute top-2 bottom-2 z-10 flex items-center group"
                       >
                         <button
                           onClick={() => onSelectReservation(res)}
-                          className={`w-full h-full ${
+                          className={`w-full h-full relative ${
                             isContinuingFromBefore ? 'rounded-l-none' : 'rounded-l-lg'
                           } ${
                             isContinuingAfter ? 'rounded-r-none' : 'rounded-r-lg'
-                          } px-2 sm:px-2.5 py-1 flex items-center justify-between text-left text-xs font-semibold cursor-pointer shadow-xs border transition-all hover:scale-[1.01] hover:shadow-md overflow-hidden ${getPlatformColors(
+                          } px-2 sm:px-2.5 py-1 flex items-center justify-between text-left text-xs font-semibold cursor-pointer shadow-xs border transition-all hover:scale-[1.01] hover:shadow-md hover:z-20 overflow-hidden ${getPlatformColors(
                             res.platform
-                          )}`}
+                          )} ${
+                            hasTurnover
+                              ? 'ring-1.5 ring-amber-400/80 shadow-amber-500/10'
+                              : ''
+                          }`}
                           title={`${res.guestName} (${res.platform.toUpperCase()}) · ${formatDisplayDate(
                             res.checkIn
-                          )} al ${formatDisplayDate(res.checkOut)} · $${res.totalAmount}`}
+                          )} al ${formatDisplayDate(res.checkOut)} · $${res.totalAmount}${
+                            hasTurnover
+                              ? `\n🔄 RECAMBIO MISMO DÍA DETECTADO:${
+                                  incomingTurnover
+                                    ? `\n- Llega hoy 14hs luego de la salida de ${incomingTurnover.guestName} (10hs)`
+                                    : ''
+                                }${
+                                  outgoingTurnover
+                                    ? `\n- Sale hoy 10hs y entra ${outgoingTurnover.guestName} a las 14hs`
+                                    : ''
+                                }`
+                              : ''
+                          }`}
                         >
-                          <div className="flex items-center gap-1.5 truncate pr-1">
+                          {/* Visual Left-Cap Indicator for Incoming Turnover */}
+                          {incomingTurnover && (
+                            <div
+                              className="absolute left-0 top-0 bottom-0 w-2.5 bg-amber-400 flex items-center justify-center text-stone-950"
+                              title={`🔄 Recambio: Entra ${res.guestName} a las 14:00 luego del check-out de ${incomingTurnover.guestName}`}
+                            >
+                              <span className="text-[7px] font-black -rotate-90">IN</span>
+                            </div>
+                          )}
+
+                          {/* Visual Right-Cap Indicator for Outgoing Turnover */}
+                          {outgoingTurnover && (
+                            <div
+                              className="absolute right-0 top-0 bottom-0 w-2.5 bg-amber-400 flex items-center justify-center text-stone-950"
+                              title={`🔄 Recambio: Sale ${res.guestName} a las 10:00 y entra ${outgoingTurnover.guestName} a las 14:00`}
+                            >
+                              <span className="text-[7px] font-black -rotate-90">OUT</span>
+                            </div>
+                          )}
+
+                          <div
+                            className={`flex items-center gap-1.5 truncate pr-1 ${
+                              incomingTurnover ? 'pl-2' : ''
+                            } ${outgoingTurnover ? 'pr-2' : ''}`}
+                          >
+                            {/* Prominent Turnover Badge on the bar */}
+                            {hasTurnover && (
+                              <span
+                                className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-amber-300 text-stone-950 shrink-0 flex items-center gap-0.5 shadow-2xs"
+                                title="Comparte fecha de Check-in / Check-out con otra reserva en esta cabaña"
+                              >
+                                <RotateCw className="w-2.5 h-2.5" />
+                                <span className="hidden sm:inline">Recambio</span>
+                              </span>
+                            )}
+
                             {res.platform === 'airbnb' && res.airbnbFeeMode === 'traditional_3' && (
-                              <span className="text-[9px] font-extrabold px-1 py-0.2 rounded bg-white/25 text-white shrink-0" title="Comisión Airbnb 3% anfitrión tradicional">
+                              <span
+                                className="text-[9px] font-extrabold px-1 py-0.2 rounded bg-white/25 text-white shrink-0"
+                                title="Comisión Airbnb 3% anfitrión tradicional"
+                              >
                                 3%
                               </span>
                             )}
+
                             {(res.earlyCheckIn || res.lateCheckOut) && (
-                              <span className="text-[9px] font-extrabold px-1 py-0.2 rounded bg-amber-400 text-amber-950 shrink-0" title={res.earlyCheckIn ? 'Early Check-in' : 'Late Check-out'}>
+                              <span
+                                className="text-[9px] font-extrabold px-1 py-0.2 rounded bg-amber-400 text-amber-950 shrink-0"
+                                title={res.earlyCheckIn ? 'Early Check-in' : 'Late Check-out'}
+                              >
                                 {res.earlyCheckIn ? 'Early' : 'Late'}
                               </span>
                             )}
+
                             <span className="font-bold text-xs truncate">
                               {res.guestName}
                             </span>
                           </div>
-                          <div className="hidden sm:flex items-center gap-1.5 text-[10px] opacity-90 shrink-0 font-medium">
+
+                          <div
+                            className={`hidden sm:flex items-center gap-1.5 text-[10px] opacity-90 shrink-0 font-medium ${
+                              outgoingTurnover ? 'pr-2' : ''
+                            }`}
+                          >
                             <span>${res.totalAmount}</span>
                           </div>
                         </button>
@@ -540,3 +677,4 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
     </div>
   );
 };
+

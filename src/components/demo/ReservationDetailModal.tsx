@@ -13,6 +13,7 @@ import {
   Check,
   Pencil,
   RotateCcw,
+  RotateCw,
   Sparkles,
   Building2,
   Users,
@@ -26,6 +27,7 @@ import {
   Flame,
   Droplets,
   Package,
+  AlertTriangle,
 } from 'lucide-react';
 import { Reservation, Property, ReservationStatus, BookingPlatform, AddonService, ReservationAddon } from '../../types';
 import { formatCurrency, formatDisplayDate } from '../../data/initialData';
@@ -34,6 +36,7 @@ interface ReservationDetailModalProps {
   reservation: Reservation | null;
   property: Property | undefined;
   properties?: Property[];
+  allReservations?: Reservation[];
   availableAddons?: AddonService[];
   onClose: () => void;
   onUpdateStatus: (resId: string, newStatus: ReservationStatus) => void;
@@ -48,6 +51,7 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
   reservation,
   property,
   properties = [],
+  allReservations = [],
   availableAddons = [],
   onClose,
   onUpdateStatus,
@@ -115,6 +119,25 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
   }, [reservation]);
 
   if (!reservation) return null;
+
+  // Calculate turnovers with other reservations in the same property
+  const incomingTurnover = allReservations.find(
+    (r) =>
+      r.id !== reservation.id &&
+      r.propertyId === reservation.propertyId &&
+      r.status !== 'cancelled' &&
+      r.checkOut === reservation.checkIn
+  );
+
+  const outgoingTurnover = allReservations.find(
+    (r) =>
+      r.id !== reservation.id &&
+      r.propertyId === reservation.propertyId &&
+      r.status !== 'cancelled' &&
+      r.checkIn === reservation.checkOut
+  );
+
+  const hasTurnover = !!incomingTurnover || !!outgoingTurnover;
 
   // Calculate dynamic nights when editing
   const calculatedNights = Math.max(
@@ -723,6 +746,33 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                   {property?.address}, {property?.neighborhood}
                 </p>
               </div>
+
+              {/* Same-Day Turnover Alert Banner */}
+              {hasTurnover && (
+                <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800/60 rounded-xl p-3.5 flex items-start gap-2.5 text-xs text-amber-950 dark:text-amber-200 shadow-2xs">
+                  <RotateCw className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                  <div className="space-y-1 w-full">
+                    <div className="font-bold flex items-center justify-between">
+                      <span className="text-xs text-amber-900 dark:text-amber-200">
+                        🔄 Recambio el mismo día (Check-in / Check-out compartido)
+                      </span>
+                      <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200">
+                        Atención Limpieza
+                      </span>
+                    </div>
+                    {incomingTurnover && (
+                      <p className="text-[11px] leading-relaxed text-amber-900/90 dark:text-amber-200/90">
+                        • <strong>Entrada ({formatDisplayDate(reservation.checkIn)} a las 14:00):</strong> Comparte fecha con el check-out de <strong>{incomingTurnover.guestName}</strong> (10:00 hs).
+                      </p>
+                    )}
+                    {outgoingTurnover && (
+                      <p className="text-[11px] leading-relaxed text-amber-900/90 dark:text-amber-200/90">
+                        • <strong>Salida ({formatDisplayDate(reservation.checkOut)} a las 10:00):</strong> Comparte fecha con el check-in de <strong>{outgoingTurnover.guestName}</strong> (14:00 hs).
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Dates & Nights */}
               <div className="grid grid-cols-3 gap-3 text-center">

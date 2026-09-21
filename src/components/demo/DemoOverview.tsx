@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Bot,
   Compass,
+  RotateCw,
 } from 'lucide-react';
 import { DemoState, Reservation, CleaningTask } from '../../types';
 import { formatCurrency, formatDisplayDate, getRelativeDate } from '../../data/initialData';
@@ -314,6 +315,18 @@ export const DemoOverview: React.FC<DemoOverviewProps> = ({
                                 🏷️ {res.customDiscountPercent}% Desc.
                               </span>
                             ) : null}
+                            {demoState.reservations.some(
+                              (r) =>
+                                r.id !== res.id &&
+                                r.propertyId === res.propertyId &&
+                                r.status !== 'cancelled' &&
+                                r.checkOut === res.checkIn
+                            ) && (
+                              <span className="text-[10px] font-extrabold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800/80 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                                <RotateCw className="w-2.5 h-2.5 text-amber-600 animate-spin-slow" />
+                                <span>🔄 Recambio Hoy</span>
+                              </span>
+                            )}
                           </div>
                           <p className="text-xs text-[#78746c] dark:text-[#8e8c87]">
                             {prop?.name} • {res.nights} noches ({formatDisplayDate(res.checkIn)} - {formatDisplayDate(res.checkOut)})
@@ -380,6 +393,18 @@ export const DemoOverview: React.FC<DemoOverviewProps> = ({
                           {(res.lateCheckOut || res.specialNotes?.toLowerCase().includes('late')) && (
                             <span className="text-[10px] font-extrabold bg-[#f4eee7] dark:bg-[#332b24] text-[#9c512a] dark:text-[#d88d5e] border border-[#e4d6c9] dark:border-[#4d3d30] px-1.5 py-0.5 rounded-full">
                               ⏰ Late Check-out solicitado
+                            </span>
+                          )}
+                          {demoState.reservations.some(
+                            (r) =>
+                              r.id !== res.id &&
+                              r.propertyId === res.propertyId &&
+                              r.status !== 'cancelled' &&
+                              r.checkIn === res.checkOut
+                          ) && (
+                            <span className="text-[10px] font-extrabold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800/80 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                              <RotateCw className="w-2.5 h-2.5 text-amber-600 animate-spin-slow" />
+                              <span>🔄 Entra huésped hoy</span>
                             </span>
                           )}
                         </div>
