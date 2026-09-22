@@ -14,11 +14,12 @@ import {
   Volume2,
   VolumeX,
   Square,
+  Camera,
 } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { DemoState } from '../../types';
 import { getClientXeniaReply } from './xeniaLocalEngine';
-import { XeniaAvatar } from './XeniaAvatar';
+import { XeniaAvatar, setStoredXeniaAvatar } from './XeniaAvatar';
 import { useXeniaVoice } from '../../hooks/useXeniaVoice';
 
 interface XeniaFloatingWidgetProps {
@@ -51,6 +52,21 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result as string;
+        if (dataUrl) {
+          setStoredXeniaAvatar(dataUrl);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Voice Hook
   const {
@@ -170,23 +186,25 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
 
   return (
     <div className="fixed bottom-5 right-5 z-50">
-      {/* Floating Launcher Button */}
+      {/* Floating Launcher Button - Circular Chat Head style from Checkinn */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="group flex items-center gap-2.5 px-4 py-2.5 bg-[#1c1a18] hover:bg-[#25201b] text-white rounded-full shadow-2xl hover:shadow-[#c46d45]/20 transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer border border-[#48372b]"
+          className="relative group p-0.5 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer focus:outline-none"
           aria-label="Abrir Asistente Xenia"
         >
-          <XeniaAvatar size="sm" showStatus={false} />
-          <div className="text-left">
-            <div className="flex items-center gap-1.5 leading-none">
-              <span className="font-extrabold text-xs tracking-tight text-[#f4f2ee]">Xenia Copilot</span>
-              <span className="w-2 h-2 rounded-full bg-[#82ba8f] animate-pulse" />
-            </div>
-            <span className="text-[10px] text-[#d88d5e] font-medium leading-tight">
-              Finanzas & Voz en Vivo
-            </span>
+          {/* Pulsing outer ring */}
+          <span className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#c46d45]/60 to-amber-500/60 opacity-75 animate-ping" />
+          
+          {/* Inner ring & Avatar wrapper */}
+          <div className="relative p-0.5 bg-[#1a1a1a] rounded-full border border-[#c4774a]/40 group-hover:border-[#c4774a] transition-colors">
+            <XeniaAvatar size="lg" showStatus={true} className="align-middle" />
           </div>
+
+          {/* Quick tooltip on hover */}
+          <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-stone-900/95 text-white text-[10px] font-bold rounded-lg border border-stone-700/60 shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            Preguntarle a Xenia IA
+          </span>
         </button>
       )}
 
@@ -196,13 +214,34 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
           {/* Header */}
           <div className="p-4 bg-[#141414] text-white flex items-center justify-between border-b border-[#282828]">
             <div className="flex items-center gap-2.5">
-              <XeniaAvatar size="sm" showStatus={false} />
+              <div
+                className="relative group cursor-pointer"
+                onClick={() => photoInputRef.current?.click()}
+                title="Subir foto de Xenia (xenia.jpeg)"
+              >
+                <XeniaAvatar size="sm" showStatus={false} />
+                <div className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity">
+                  <Camera className="w-3 h-3 text-[#d88d5e]" />
+                </div>
+              </div>
+              <input
+                type="file"
+                ref={photoInputRef}
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarUpload}
+              />
               <div>
                 <div className="flex items-center gap-1.5">
                   <h3 className="font-bold text-sm leading-tight text-[#f4f2ee]">Xenia Copilot</h3>
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#202d20] text-[#a4cca8] border border-[#344836]">
-                    🌎 Voz Latina
-                  </span>
+                  <button
+                    onClick={() => photoInputRef.current?.click()}
+                    className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#2a221b] text-[#d88d5e] border border-[#48372b] hover:bg-[#382b20] transition-colors cursor-pointer flex items-center gap-1"
+                    title="Cargar xenia.jpeg desde tu teléfono o PC"
+                  >
+                    <Camera className="w-2.5 h-2.5" />
+                    <span>Cambiar foto</span>
+                  </button>
                 </div>
                 <p className="text-[10px] text-[#8e8c87]">
                   Rendición de Cuentas & Voz

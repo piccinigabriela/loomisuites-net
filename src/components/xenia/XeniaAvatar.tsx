@@ -10,6 +10,11 @@ interface XeniaAvatarProps {
 // Curated high quality portraits for Xenia
 export const XENIA_PORTRAIT_PRESETS = [
   {
+    id: 'xenia-oficial',
+    label: 'Xenia Oficial (Foto de Perfil)',
+    url: '/xenia.jpeg',
+  },
+  {
     id: 'concierge-warm',
     label: 'Concierge Cálida (Original)',
     url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
@@ -83,6 +88,15 @@ export const XeniaAvatar: React.FC<XeniaAvatarProps> = ({
 
   const activeUrl = currentSrc || XENIA_PORTRAIT_PRESETS[0].url;
 
+  const handleImageError = () => {
+    if (activeUrl === '/xenia.jpeg' || activeUrl === 'xenia.jpeg') {
+      // Automatic fallback to Unsplash photo which represents Xenia's exact appearance in the photo
+      setCurrentSrc('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80');
+    } else {
+      setImgError(true);
+    }
+  };
+
   return (
     <div className={`relative inline-block shrink-0 select-none ${className}`}>
       <div
@@ -93,7 +107,7 @@ export const XeniaAvatar: React.FC<XeniaAvatarProps> = ({
             src={activeUrl}
             alt="Xenia - Copiloto de Hospitalidad"
             referrerPolicy="no-referrer"
-            onError={() => setImgError(true)}
+            onError={handleImageError}
             className="w-full h-full object-cover object-center"
           />
         ) : (
