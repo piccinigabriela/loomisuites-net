@@ -52,12 +52,12 @@ export const ChannelIntegrations: React.FC = () => {
       desc: 'Para quienes no usan llave física y cuentan con cerraduras electrónicas (Tuya, Yale, Nuki). Genera PIN dinámico por reserva.',
     },
     {
-      name: 'Cobros Directos y Señas',
-      category: 'Pasarelas de Pago',
-      badge: 'Mercado Pago, PayPal & Tarjetas',
+      name: 'Cobros Directos para tus Huéspedes',
+      category: 'Pasarelas del Complejo',
+      badge: 'Mercado Pago, PayPal & CBU',
       color: 'border-[#dcd4c8] dark:border-[#3d372e] bg-[#f6f1eb] dark:bg-[#23201c] text-[#5e4b38] dark:text-[#c4b5a2]',
       icon: '💳',
-      desc: 'Cobra transferencias locales, señas con tarjeta o depósitos de garantía con Mercado Pago o PayPal.',
+      desc: 'Tus huéspedes te pagan directo a vos: integrá tu cuenta de Mercado Pago (link de pago o QR), transferencias por CBU/Alias bancario o PayPal sin intermediarios.',
     },
     {
       name: 'Google Calendar & CSV Import',

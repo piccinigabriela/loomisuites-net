@@ -179,6 +179,8 @@ export interface WelcomeGuideData {
     cbu: string;
     bankName: string;
     accountHolder: string;
+    mercadoPagoLink?: string; // Link de cobro o checkout de Mercado Pago del complejo
+    paypalLink?: string; // Link de PayPal / PayPal.me del complejo
     directDiscountPercent: number;
   };
 }

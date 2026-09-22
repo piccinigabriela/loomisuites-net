@@ -521,6 +521,8 @@ export const INITIAL_WELCOME_GUIDE: WelcomeGuideData = {
     cbu: '0140999803400012345678',
     bankName: 'Banco de la Nación Argentina',
     accountHolder: 'Gabriela - Tu Complejo',
+    mercadoPagoLink: 'https://link.mercadopago.com.ar/tucomplejodemo',
+    paypalLink: 'https://paypal.me/tucomplejodemo',
     directDiscountPercent: 10,
   },
 };

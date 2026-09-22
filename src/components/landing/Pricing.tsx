@@ -103,6 +103,18 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
               </span>
             </button>
           </div>
+
+          {/* Payment Methods Badges */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5 text-xs">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold text-[11px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+              Transferencia Bancaria Directa (CBU / CVU / Alias)
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200 font-semibold text-[11px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+              PayPal (Pagos del exterior)
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
@@ -316,8 +328,40 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
           </div>
         </div>
 
+        {/* Distinction Box: How you pay Loomi vs How your guests pay you */}
+        <div className="mt-12 max-w-4xl mx-auto p-5 sm:p-6 rounded-2xl bg-zinc-50 border border-zinc-200 text-xs text-left">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/60 px-2 py-0.5 rounded-md">
+                1. Tu Abono Mensual a Loomi
+              </span>
+              <h4 className="font-bold text-zinc-900 text-sm mt-1.5">
+                Transferencia Bancaria o PayPal
+              </h4>
+              <p className="text-zinc-600 mt-1 leading-relaxed">
+                Nosotros cobramos la suscripción del software por <strong>Transferencia Bancaria directa (CBU/CVU o Alias)</strong> para Argentina o mediante <strong>PayPal</strong> para cuentas en el exterior. Sin intermediarios ni comisiones sorpresa.
+              </p>
+            </div>
+            <div className="md:border-l md:border-zinc-200 md:pl-6">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-sky-700 bg-sky-100/60 px-2 py-0.5 rounded-md">
+                2. Los Cobros a tus Huéspedes
+              </span>
+              <h4 className="font-bold text-zinc-900 text-sm mt-1.5">
+                Mercado Pago, PayPal o Tu Propio CBU
+              </h4>
+              <p className="text-zinc-600 mt-1 leading-relaxed">
+                Vos cobrás tus reservas directas y señas con total libertad: podés integrar tu propia cuenta de <strong>Mercado Pago</strong> (link de pago o QR, el estándar local más utilizado), <strong>PayPal</strong> para extranjeros o tu CBU/Alias bancario. Todo el dinero de tus huéspedes va directo a tu cuenta.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Security & Support note */}
         <div className="mt-12 text-center flex flex-wrap items-center justify-center gap-6 text-xs text-zinc-500">
+          <span className="flex items-center gap-1.5">
+            <span className="font-bold text-emerald-600">✓</span>
+            Abono mensual por Transferencia Bancaria (CBU/CVU) o PayPal
+          </span>
           <span className="flex items-center gap-1.5">
             <ShieldCheck className="w-4 h-4 text-zinc-700" />
             14 días de garantía de satisfacción o devolución total

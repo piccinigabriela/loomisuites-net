@@ -233,6 +233,8 @@ export const CATALINAS_WELCOME_GUIDE: WelcomeGuideData = {
     cbu: '0720123988000034567890',
     bankName: 'Banco Santander Río',
     accountHolder: 'Gabriela Piccini',
+    mercadoPagoLink: 'https://link.mercadopago.com.ar/catalinasapartamentos',
+    paypalLink: 'https://paypal.me/gabrielapiccini',
     directDiscountPercent: 15,
   },
 };

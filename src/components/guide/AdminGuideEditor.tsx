@@ -602,7 +602,7 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
 
               <div>
                 <label className="block text-xs font-bold text-zinc-700 mb-1">
-                  Alias Bancario / Mercado Pago
+                  Alias Bancario / CBU / CVU (para señas)
                 </label>
                 <input
                   type="text"
@@ -645,6 +645,44 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
                   value={formData.directBookingSettings.accountHolder}
                   onChange={(e) => handleBookingSettingsChange('accountHolder', e.target.value)}
                   className="w-full text-xs p-2.5 rounded-xl border border-zinc-300 bg-white"
+                />
+              </div>
+
+              {/* Guest Payment Gateways: Mercado Pago & PayPal */}
+              <div className="pt-2 border-t border-zinc-200">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-sky-700">
+                  Pasarelas de Cobro para tus Huéspedes (Opcional)
+                </span>
+                <p className="text-[11px] text-zinc-500 mt-0.5">
+                  Tus huéspedes te pagan directo a tu cuenta sin intermediarios. Podés pegar tu link de cobro de Mercado Pago o PayPal:
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 mb-1 flex items-center justify-between">
+                  <span>Link de Cobro / Checkout Mercado Pago</span>
+                  <span className="text-[10px] text-sky-600 font-normal">Para cobrar con tarjeta o dinero en cuenta</span>
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://link.mercadopago.com.ar/tucomplejo"
+                  value={formData.directBookingSettings.mercadoPagoLink || ''}
+                  onChange={(e) => handleBookingSettingsChange('mercadoPagoLink', e.target.value)}
+                  className="w-full text-xs p-2.5 rounded-xl border border-zinc-300 bg-white placeholder:text-zinc-400 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 mb-1 flex items-center justify-between">
+                  <span>Link de Cobro PayPal (PayPal.me)</span>
+                  <span className="text-[10px] text-blue-600 font-normal">Para turistas extranjeros</span>
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://paypal.me/tucomplejo"
+                  value={formData.directBookingSettings.paypalLink || ''}
+                  onChange={(e) => handleBookingSettingsChange('paypalLink', e.target.value)}
+                  className="w-full text-xs p-2.5 rounded-xl border border-zinc-300 bg-white placeholder:text-zinc-400 font-mono"
                 />
               </div>
 

@@ -208,7 +208,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                 Precios
               </h3>
               <p className="text-xs text-[#66625a] dark:text-[#9e9b94] mt-1.5 leading-relaxed">
-                Desde $45.000 ARS/mes. Sin poner tarjeta para empezar. Suscripción por Mercado Pago o PayPal.
+                Desde $45.000 ARS/mes. Sin poner tarjeta para empezar. Pagos por Transferencia Bancaria directa o PayPal.
               </p>
             </div>
             <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-[#9c512a] dark:text-[#d88d5e]">
@@ -574,7 +574,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                         ¡No necesitás poner ninguna tarjeta para comenzar!
                       </p>
                       <p className="text-xs text-amber-900 mt-0.5">
-                        Probás la plataforma gratis y sin compromiso. Cuando decidas activarlo, pagás cómodamente mediante <strong>suscripción automática de Mercado Pago</strong> (débito en cuenta, dinero en cuenta o tarjetas locales) o <strong>PayPal</strong>.
+                        Probás la plataforma gratis y sin compromiso. Cuando decidas activarlo, pagás directamente mediante <strong>Transferencia Bancaria directa (CBU/CVU o Alias)</strong>, o mediante <strong>PayPal</strong> para clientes y cuentas del exterior.
                       </p>
                     </div>
                   </div>
@@ -825,21 +825,38 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-5 border-b border-zinc-200 mb-5">
                   <div>
                     <h5 className="font-bold text-zinc-900 text-sm">
-                      Formas de pago seguras y conocidas:
+                      Cómo se abona tu suscripción y cómo cobrás a tus huéspedes:
                     </h5>
                     <p className="text-xs text-zinc-500 mt-0.5">
-                      Podés adherirte a la suscripción mensual automática con las plataformas que ya usás todos los días:
+                      Transparencia total en ambos flujos de pago:
                     </p>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      Tu Plan: Transferencia CBU / PayPal
+                    </span>
                     <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-50 border border-sky-200 text-sky-800 text-xs font-bold">
                       <span className="w-2 h-2 rounded-full bg-sky-500"></span>
-                      Mercado Pago (Suscripción ARS)
+                      Tus Huéspedes: Mercado Pago, PayPal & CBU
                     </span>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold">
-                      <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-                      PayPal (Internacional)
-                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5 p-4 rounded-xl bg-white border border-zinc-200 text-xs">
+                  <div>
+                    <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Tu Suscripción mensual a Loomi</span>
+                    <p className="font-bold text-zinc-900 text-xs mt-0.5">Transferencia Bancaria Directa o PayPal</p>
+                    <p className="text-zinc-500 text-[11px] mt-1 leading-relaxed">
+                      Abonás tu plan por transferencia directa a nuestra cuenta bancaria en Argentina (CBU/CVU o Alias) o por PayPal para el exterior. No requerimos tarjeta de crédito para iniciar.
+                    </p>
+                  </div>
+                  <div className="md:border-l md:border-zinc-200 md:pl-4">
+                    <span className="text-[10px] font-bold text-sky-700 uppercase tracking-wider">Tus Cobros a Huéspedes (Reservas directas)</span>
+                    <p className="font-bold text-zinc-900 text-xs mt-0.5">Mercado Pago, PayPal o CBU propio</p>
+                    <p className="text-zinc-500 text-[11px] mt-1 leading-relaxed">
+                      Tus huéspedes te pagan directo a tu cuenta: integrás tu cuenta de <strong>Mercado Pago</strong> (link de pago o QR), <strong>PayPal</strong> para extranjeros o tu CBU bancario. Loomi no toca tus cobros.
+                    </p>
                   </div>
                 </div>
 
@@ -863,8 +880,8 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                   <div className="flex items-start gap-2.5">
                     <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-bold text-zinc-900">0% de comisión</p>
-                      <p className="text-zinc-500 text-[11px] mt-0.5">Todo lo que cobres por tus reservas directas es 100% tuyo.</p>
+                      <p className="font-bold text-zinc-900">Cobros 100% directos</p>
+                      <p className="text-zinc-500 text-[11px] mt-0.5">Lo que cobres por tus reservas directas entra a tu cuenta sin comisiones de Loomi.</p>
                     </div>
                   </div>
 

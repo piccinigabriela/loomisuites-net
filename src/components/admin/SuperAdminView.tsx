@@ -101,7 +101,7 @@ export const SuperAdminView: React.FC<SuperAdminViewProps> = ({
     } catch {}
     return {
       accountHolder: 'Gabriela Piccini (Loomi Suite)',
-      bankName: 'Mercado Pago / Banco Santander',
+      bankName: 'Banco Santander / Transferencia Bancaria',
       cuit: '27-XXXXXXXX-X',
       cbu: '0000003100000000000000',
       alias: 'LOOMI.SUITE.PAGOS',
@@ -662,7 +662,7 @@ ${bankingConfig.contactEmail}`
               <div className="p-5 rounded-2xl bg-[#181614] border border-[#2b251f]">
                 <span className="text-[11px] font-bold text-[#d88d5e] uppercase tracking-wider">Vencimiento Habitual</span>
                 <p className="text-2xl font-black text-white mt-1">Día {bankingConfig.dueDay} del mes</p>
-                <p className="text-xs text-[#8e8c87] mt-0.5">Transferencia CBU / CVU limpia 0%</p>
+                <p className="text-xs text-[#8e8c87] mt-0.5">Transferencia CBU / CVU directa</p>
               </div>
             </div>
 
@@ -677,7 +677,7 @@ ${bankingConfig.contactEmail}`
                     <h3 className="font-bold text-white text-sm sm:text-base flex items-center gap-2">
                       <span>Cuenta Bancaria Receptora para Transferencias</span>
                       <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded-full font-bold">
-                        0% Comisión
+                        Cobro Directo
                       </span>
                     </h3>
                     <p className="text-xs text-[#8e8c87]">

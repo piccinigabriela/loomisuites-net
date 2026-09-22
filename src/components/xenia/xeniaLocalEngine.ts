@@ -15,6 +15,11 @@ export function getClientXeniaReply(message: string, demoState: DemoState): stri
     q.includes('cuanto cuesta') ||
     q.includes('cuánto cuesta') ||
     q.includes('abono') ||
+    q.includes('transferencia') ||
+    q.includes('cbu') ||
+    q.includes('cvu') ||
+    q.includes('alias') ||
+    q.includes('banco') ||
     q.includes('mercado pago') ||
     q.includes('paypal') ||
     q.includes('stripe') ||
@@ -31,9 +36,10 @@ En Loomi tenemos **precios transparentes en pesos argentinos (ARS)** y ajustados
 - **Plan 20 a 30 Propiedades:** **$80.000 / mes** *(operaciones profesionales de alto flujo)*.
 - **Más de 30 Propiedades:** Cotización personalizada a medida.
 
-**Garantías y Modalidad:**
+**Formas de Pago y Cobro:**
+- 💳 **Tu abono a Loomi:** Se abona mensualmente mediante **Transferencia Bancaria directa** (CBU/CVU o Alias) en Argentina, o por **PayPal** para el exterior. Sin comisiones extras ni intermediarios.
+- 💰 **Cobros a tus Huéspedes:** Tus huéspedes te pagan directo a tus cuentas: podés vincular tu **Mercado Pago** (links de pago o QR, el estándar local más usado), transferencias por **CBU/Alias bancario** o **PayPal** para extranjeros. Loomi no retiene tus fondos.
 - ✅ **Sin tarjeta para arrancar:** Probás la demo interactiva sin ingresar datos de pago.
-- ✅ **Suscripción simple:** Pagás cómodamente por suscripción mensual de **Mercado Pago** o **PayPal**.
 - ✅ **Sin permanencia:** Podés pausar o dar de baja el servicio cuando quieras.
 - ✅ **100% compatible con llaves físicas tradicionales:** No requiere cerraduras digitales ni cambiar puertas.
 - 🧩 **Módulos Opcionales (Add-ons):** Quien necesite Cerraduras Digitales con PIN, Frigobar / Consumos extras o Turnos de Spa los activa de forma modular con costo diferencial.
@@ -199,7 +205,7 @@ Loomi Suite mantiene tu disponibilidad conectada de forma bidireccional:
 
 Puedo responderte al instante sobre:
 
-1. **Precios y Planes:** Planes desde $45.000 ARS/mes en pesos, ajuste IPC, suscripción Mercado Pago o PayPal.
+1. **Precios y Planes:** Planes desde $45.000 ARS/mes en pesos, ajuste IPC, pago por Transferencia Bancaria o PayPal.
 2. **Finanzas y Rendición:** Ingresos brutos, comisiones de plataformas y ahorro por reservas directas.
 3. **Operaciones:** Huéspedes de hoy, llaves físicas vs cerraduras digitales y asignación de mucamas.
 4. **Sincronización:** Cómo conectar Booking, Airbnb y portales sin dobles reservas.

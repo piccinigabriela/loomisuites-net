@@ -485,11 +485,37 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                 </p>
 
                 <div className="p-3 bg-stone-900 rounded-xl font-mono text-[11px] space-y-1 text-stone-300 border border-stone-800">
-                  <div>Alias: <strong className="text-amber-400">{guideData.directBookingSettings.bankAlias}</strong></div>
+                  <div>Alias Bancario: <strong className="text-amber-400">{guideData.directBookingSettings.bankAlias}</strong></div>
                   <div>CBU: <strong className="text-stone-200">{guideData.directBookingSettings.cbu}</strong></div>
                   <div>Banco: <strong>{guideData.directBookingSettings.bankName}</strong></div>
                   <div>Titular: <strong>{guideData.directBookingSettings.accountHolder}</strong></div>
                 </div>
+
+                {/* Optional Mercado Pago Link */}
+                {guideData.directBookingSettings.mercadoPagoLink && (
+                  <a
+                    href={guideData.directBookingSettings.mercadoPagoLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2.5 bg-sky-500 hover:bg-sky-400 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer text-xs shadow-md"
+                  >
+                    <span>Pagar Seña con Mercado Pago (Tarjetas o Saldo)</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+
+                {/* Optional PayPal Link */}
+                {guideData.directBookingSettings.paypalLink && (
+                  <a
+                    href={guideData.directBookingSettings.paypalLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer text-xs shadow-md"
+                  >
+                    <span>Pagar Seña con PayPal (Tarjetas Internacionales)</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
 
                 <a
                   href={`https://wa.me/${guideData.hostPhone.replace(/\D/g, '')}?text=${whatsappMessage}`}
@@ -498,7 +524,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                   className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer text-xs"
                 >
                   <Phone className="w-4 h-4" />
-                  <span>Enviar Comprobante a Fernando por WhatsApp</span>
+                  <span>Enviar Comprobante a {guideData.hostName} por WhatsApp</span>
                 </a>
               </div>
             )}

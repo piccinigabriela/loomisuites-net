@@ -33,6 +33,14 @@ export const Faq: React.FC = () => {
       q: '¿Cómo funciona el motor de reservas directas para ahorrar comisiones?',
       a: 'Te entregamos una página web moderna con tu propio enlace donde los huéspedes que te contactan por Instagram o WhatsApp pueden ver fotos, elegir fechas y señar directo a tu cuenta bancaria. Así te ahorras el 18% a 20% que cobran las plataformas.',
     },
+    {
+      q: '¿Cómo cobro a mis huéspedes por sus estadías y señas directas?',
+      a: 'Tus huéspedes te pagan directo a vos con la pasarela que prefieras: podés integrar tu propia cuenta de Mercado Pago (link de pago o QR, que es la forma más común en Argentina para cobrar con tarjeta o dinero en cuenta), transferencia bancaria directa a tu CBU/Alias, o PayPal para turistas extranjeros. Si usás otra billetera o sistema de cobro, también podés sumarla. Loomi no interviene en tus cobros ni te descuenta comisiones por reserva.',
+    },
+    {
+      q: '¿Cuáles son los medios de pago para abonar la suscripción de Loomi?',
+      a: 'Nosotros cobramos el abono mensual del software mediante transferencia bancaria directa (CBU, CVU o Alias) para Argentina, o a través de PayPal para anfitriones del exterior. No necesitás ingresar ninguna tarjeta de crédito para probar la demo interactiva ni para comenzar.',
+    },
   ];
 
   return (

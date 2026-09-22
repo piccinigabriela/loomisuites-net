@@ -62,7 +62,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact, onOpe
               <li>VRBO / Expedia (iCal + API)</li>
               <li>TripAdvisor & Google Vacation Rentals</li>
               <li>WhatsApp Cloud API</li>
-              <li>Mercado Pago & PayPal</li>
+              <li>Mercado Pago, PayPal & CBU (Para tus Huéspedes)</li>
               <li>Cerraduras Digitales (Módulo Opcional)</li>
             </ul>
           </div>
