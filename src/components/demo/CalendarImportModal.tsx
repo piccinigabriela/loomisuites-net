@@ -301,6 +301,15 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
   const [unitValueMapping, setUnitValueMapping] = useState<Record<string, string>>({});
   const [showMappingSettings, setShowMappingSettings] = useState(false);
 
+  // Property counts calculated via regular reduce or memoized at top level
+  const propertyCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    parsedEvents.forEach(ev => {
+      counts[ev.propertyId] = (counts[ev.propertyId] || 0) + 1;
+    });
+    return counts;
+  }, [parsedEvents]);
+
   if (!isOpen) return null;
 
   const handleDrag = (e: React.DragEvent) => {
@@ -837,14 +846,6 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
     setPastedText('');
     onClose();
   };
-
-  const propertyCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    parsedEvents.forEach(ev => {
-      counts[ev.propertyId] = (counts[ev.propertyId] || 0) + 1;
-    });
-    return counts;
-  }, [parsedEvents]);
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
