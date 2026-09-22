@@ -40,6 +40,9 @@ interface CleanSidebarProps {
   onSwitchComplex: (complex: 'catalinas' | 'woodcabin' | 'custom') => void;
   isMobileOpen?: boolean;
   onMobileClose?: () => void;
+  onOpenLogin?: () => void;
+  loggedUser?: { name: string; email: string; complexId: string; complexName: string } | null;
+  onLogout?: () => void;
 }
 
 export const CleanSidebar: React.FC<CleanSidebarProps> = ({
@@ -60,6 +63,9 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
   onSwitchComplex,
   isMobileOpen = false,
   onMobileClose,
+  onOpenLogin,
+  loggedUser,
+  onLogout,
 }) => {
   const isDark = theme === 'dark';
 
@@ -119,8 +125,9 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
 
           {/* User / Role Selector */}
           <div className="bg-white dark:bg-[#1f1f1f] rounded-lg p-2 border border-[#ded9cd] dark:border-[#2a2a2a] shadow-2xs space-y-1.5">
-            <div className="text-[9px] uppercase font-bold text-[#7a7874] dark:text-[#8e8c87] tracking-wider px-0.5">
-              Acceso de Usuario
+            <div className="text-[9px] uppercase font-bold text-[#7a7874] dark:text-[#8e8c87] tracking-wider px-0.5 flex items-center justify-between">
+              <span>Acceso de Usuario</span>
+              {loggedUser && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" title="Sesión sincronizada" />}
             </div>
             
             <select
@@ -138,6 +145,31 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               <option value="frontdesk">🛎️ Recepción / Front Desk</option>
               <option value="housekeeping">🧹 Equipo de Housekeeping</option>
             </select>
+
+            {loggedUser ? (
+              <div className="pt-1.5 border-t border-[#f2ece4] dark:border-[#2d2d2d] text-[10px] text-zinc-500 dark:text-zinc-400 flex flex-col gap-0.5 px-0.5">
+                <span className="truncate text-white font-semibold">{loggedUser.name}</span>
+                <span className="truncate text-[9px] text-[#8e8c87]">{loggedUser.email}</span>
+                {onLogout && (
+                  <button
+                    onClick={onLogout}
+                    className="mt-1.5 text-left text-[9px] font-bold text-red-500 hover:text-red-400 hover:underline cursor-pointer flex items-center gap-1"
+                  >
+                    <span>Cerrar sesión</span>
+                    <span>↩</span>
+                  </button>
+                )}
+              </div>
+            ) : (
+              onOpenLogin && (
+                <button
+                  onClick={onOpenLogin}
+                  className="w-full mt-1 px-2 py-1.5 bg-[#2a221b] border border-[#d88d5e]/30 hover:border-[#d88d5e]/50 text-[#d88d5e] text-[10px] font-bold rounded-md transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <span>🔑 Sincronizar Cuenta / Celular</span>
+                </button>
+              )
+            )}
           </div>
         </div>
       </div>

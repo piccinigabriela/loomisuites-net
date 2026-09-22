@@ -639,11 +639,46 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                     const { incomingTurnover, outgoingTurnover, hasTurnover } = getTurnoverInfo(res);
 
                     // Calculate start and end column index relative to visible dates (0 to 13)
-                    const checkInIndex = dates.findIndex((d) => d.dateStr === res.checkIn);
-                    const checkOutIndex = dates.findIndex((d) => d.dateStr === res.checkOut);
+                    const cleanCheckIn = res.checkIn ? String(res.checkIn).trim() : '';
+                    const cleanCheckOut = res.checkOut ? String(res.checkOut).trim() : '';
 
-                    const isContinuingFromBefore = checkInIndex === -1;
-                    const isContinuingAfter = checkOutIndex === -1;
+                    // Robust date index finder with timestamp fallback
+                    const findDateIndex = (rawDateStr: string) => {
+                      if (!rawDateStr) return -1;
+                      const targetStr = rawDateStr.trim();
+                      const strIdx = dates.findIndex((d) => d.dateStr === targetStr);
+                      if (strIdx !== -1) return strIdx;
+
+                      try {
+                        const targetTime = new Date(targetStr + 'T00:00:00').getTime();
+                        if (isNaN(targetTime)) return -1;
+                        return dates.findIndex((d) => {
+                          const dTime = new Date(d.dateStr + 'T00:00:00').getTime();
+                          return dTime === targetTime;
+                        });
+                      } catch {
+                        return -1;
+                      }
+                    };
+
+                    const checkInIndex = findDateIndex(cleanCheckIn);
+                    const checkOutIndex = findDateIndex(cleanCheckOut);
+
+                    // Continuing indicators (only if genuinely outside the bounds)
+                    const isContinuingFromBefore = checkInIndex === -1 && cleanCheckIn < startDateStr;
+                    const isContinuingAfter = checkOutIndex === -1 && cleanCheckOut > endDateStr;
+
+                    // Strict overlap validation to prevent rendering out-of-bounds or mismatch bars
+                    const isOverlapping = (
+                      (checkInIndex !== -1 || isContinuingFromBefore) &&
+                      (checkOutIndex !== -1 || isContinuingAfter)
+                    ) || (
+                      cleanCheckIn <= startDateStr && cleanCheckOut >= endDateStr
+                    );
+
+                    if (!isOverlapping) {
+                      return null;
+                    }
 
                     // Standard PMS Half-Day Split Math:
                     // CheckIn starts at 50% of the checkIn day (afternoon ~14hs) unless continuing from before

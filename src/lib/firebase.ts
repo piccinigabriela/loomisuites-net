@@ -155,3 +155,60 @@ export async function fetchAllLeadsFromCloud(): Promise<Array<{ id: string; data
   }
 }
 
+/**
+ * Global users/complexes registry to let mobile devices retrieve their account by email
+ */
+export async function saveRegisteredAccountToCloud(profile: any): Promise<void> {
+  if (!profile || !profile.adminEmail || !db) return;
+  try {
+    const docId = profile.adminEmail.toLowerCase().trim();
+    const ref = doc(db, 'registered_complexes', docId);
+    await setDoc(ref, {
+      ...profile,
+      updatedAt: serverTimestamp(),
+    }, { merge: true });
+  } catch (error) {
+    console.warn('Error saving registered complex to Firestore:', error);
+  }
+}
+
+/**
+ * Find registered account in Firestore by email
+ */
+export async function findRegisteredAccountInCloud(email: string): Promise<any | null> {
+  if (!email || !db) return null;
+  try {
+    const docId = email.toLowerCase().trim();
+    const ref = doc(db, 'registered_complexes', docId);
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      return snap.data();
+    }
+  } catch (error) {
+    console.warn('Error finding registered complex in Firestore:', error);
+  }
+  return null;
+}
+
+/**
+ * Scan all complexes inside /complexes for one containing the target email (fallback recovery)
+ */
+export async function findComplexByAdminEmailInCloud(email: string): Promise<{ id: string; data: any } | null> {
+  if (!email || !db) return null;
+  try {
+    const snap = await getDocs(collection(db, 'complexes'));
+    const targetEmail = email.toLowerCase().trim();
+    for (const d of snap.docs) {
+      const data = d.data();
+      // Search for email string inside full document content
+      const jsonStr = JSON.stringify(data).toLowerCase();
+      if (jsonStr.includes(targetEmail)) {
+        return { id: d.id, data };
+      }
+    }
+  } catch (e) {
+    console.warn('Error scanning complexes for email:', e);
+  }
+  return null;
+}
+

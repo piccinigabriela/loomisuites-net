@@ -301,6 +301,18 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
   const [rawFileSnippet, setRawFileSnippet] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // CSV/Excel Onboarding Assistant state & playground logic
+  const [showCSVOnboardingHelp, setShowCSVOnboardingHelp] = useState<boolean>(true);
+  const [preflightText, setPreflightText] = useState<string>('');
+
+  const getShortName = (name: string) => {
+    const letterMatch = name.match(/(?:Departamento|Depto|Unidad)?\s*([A-D])\b/i);
+    if (letterMatch) return letterMatch[1].toUpperCase();
+    const deptoNumMatch = name.match(/Depto\s*(\d+)/i);
+    if (deptoNumMatch) return `D${deptoNumMatch[1]}`;
+    return name;
+  };
+
   // Safe properties fallback
   const safeProperties = useMemo<Property[]>(() => {
     if (Array.isArray(demoState?.properties) && demoState.properties.length > 0) {
@@ -308,6 +320,128 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
     }
     return (INITIAL_PROPERTIES || []).filter(Boolean);
   }, [demoState?.properties]);
+
+  const preflightResult = useMemo(() => {
+    if (!preflightText.trim()) return null;
+
+    try {
+      let sep = ',';
+      if (preflightText.includes(';')) sep = ';';
+      else if (preflightText.includes('\t')) sep = '\t';
+      else if (preflightText.includes('|')) sep = '|';
+
+      const parts = preflightText.split(sep).map(p => p.trim().replace(/^["']|["']$/g, ''));
+      if (parts.length === 0 || parts.every(p => !p)) return null;
+
+      let guestName = 'No detectado';
+      let checkIn: string | null = null;
+      let checkOut: string | null = null;
+      let propertyName = 'No detectado';
+      let platform: BookingPlatform = 'direct';
+      let amount: number | null = null;
+      const errors: string[] = [];
+      const warnings: string[] = [];
+
+      // Find date candidates
+      const dateIndices: number[] = [];
+      parts.forEach((p, idx) => {
+        if (parseAnyDate(p)) {
+          dateIndices.push(idx);
+        }
+      });
+
+      if (dateIndices.length >= 2) {
+        checkIn = parseAnyDate(parts[dateIndices[0]]);
+        checkOut = parseAnyDate(parts[dateIndices[1]]);
+      } else if (dateIndices.length === 1) {
+        checkIn = parseAnyDate(parts[dateIndices[0]]);
+        errors.push('Falta una de las fechas. Necesitamos entrada y salida para colocar la barra en el calendario.');
+      } else {
+        errors.push('No detectamos fechas válidas. Usá formatos como DD/MM/AAAA o AAAA-MM-DD.');
+      }
+
+      // Check if dates are inverted
+      if (checkIn && checkOut) {
+        if (checkIn > checkOut) {
+          errors.push('La fecha de entrada es posterior a la de salida. ¡Están invertidas!');
+        } else {
+          const partsIn = parts[dateIndices[0]];
+          if (partsIn && partsIn.includes('/') && !partsIn.startsWith('202')) {
+            const numPart = parseInt(partsIn.split('/')[0], 10);
+            if (numPart <= 12) {
+              warnings.push('Verificá que el día y el mes estén en el orden correcto (Día/Mes/Año) para evitar desfases.');
+            }
+          }
+        }
+      }
+
+      // Find guest name
+      const guestCandidate = parts.find((p, idx) => !dateIndices.includes(idx) && isNaN(Number(p.replace(/[^0-9.,]/g, ''))) && p.length > 2);
+      if (guestCandidate) {
+        guestName = guestCandidate;
+      } else {
+        warnings.push('No identificamos el nombre del huésped. Se asignará uno por defecto.');
+      }
+
+      // Find property / cabin
+      const cabinCandidate = parts.find((p, idx) => {
+        if (dateIndices.includes(idx)) return false;
+        const norm = p.toLowerCase();
+        return norm.includes('depto') || norm.includes('cabana') || norm.includes('apt') || norm.includes('unidad') || norm.includes('room') || norm.includes('hab') ||
+               ['a', 'b', 'c', 'd', '1a', '1b', '2c', '2d', 'pb5'].includes(norm);
+      });
+
+      let matchedPropId = '';
+      if (cabinCandidate) {
+        matchedPropId = smartMatchProperty(cabinCandidate, parts, safeProperties);
+        const propObj = safeProperties.find(p => p.id === matchedPropId);
+        propertyName = propObj ? propObj.name : 'Departamento A';
+      } else {
+        matchedPropId = smartMatchProperty('', parts, safeProperties);
+        const propObj = safeProperties.find(p => p.id === matchedPropId);
+        propertyName = propObj ? `${propObj.name} (Auto-asignado)` : 'Departamento A (Auto-asignado)';
+        warnings.push('No se especificó cabaña/departamento. Se asignará al primero disponible.');
+      }
+
+      // Find platform
+      const platCandidate = parts.find((p, idx) => !dateIndices.includes(idx) && ['airbnb', 'booking', 'vrbo', 'expedia', 'directo', 'direct', 'web'].some(k => p.toLowerCase().includes(k)));
+      if (platCandidate) {
+        platform = detectPlatform(platCandidate, parts);
+      } else {
+        platform = 'direct';
+      }
+
+      // Find amount
+      const amtCandidate = parts.find((p, idx) => !dateIndices.includes(idx) && !isNaN(Number(p.replace(/[^0-9.,]/g, ''))) && Number(p.replace(/[^0-9.,]/g, '')) > 30);
+      if (amtCandidate) {
+        amount = parseFloat(amtCandidate.replace(/[^0-9.,]/g, '').replace(',', '.'));
+      }
+
+      return {
+        guestName,
+        checkIn,
+        checkOut,
+        propertyName,
+        platform,
+        amount,
+        errors,
+        warnings,
+        hasContent: true,
+      };
+    } catch {
+      return {
+        guestName: 'Error',
+        checkIn: null,
+        checkOut: null,
+        propertyName: 'Error',
+        platform: 'direct' as BookingPlatform,
+        amount: null,
+        errors: ['Error crítico de parseo. Verificá los caracteres de la línea.'],
+        warnings: [],
+        hasContent: true,
+      };
+    }
+  }, [preflightText, safeProperties]);
 
   // Raw tabular data for interactive column mapping
   const [rawHeaders, setRawHeaders] = useState<string[]>([]);
@@ -1077,6 +1211,179 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
                 </button>
               </div>
             )}
+
+            {/* Interactive Onboarding CSV / Excel Helper Card */}
+            <div className="border border-[#2a2723] rounded-xl overflow-hidden bg-[#181614] shadow-md transition-all mt-4">
+              <button
+                type="button"
+                onClick={() => setShowCSVOnboardingHelp(!showCSVOnboardingHelp)}
+                className="w-full px-4 py-3 bg-[#1d1a17] hover:bg-[#25211d] flex items-center justify-between text-left transition-colors cursor-pointer border-b border-[#2a2723]"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="p-1 bg-[#2a221b] text-[#d88d5e] rounded-md">
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-white block">
+                      💡 Guía de Ayuda para Cargar tu Planilla (Evitá Errores)
+                    </span>
+                    <span className="text-[10px] text-[#8e8c87]">
+                      Formato de fechas, columnas y simulación en tiempo real
+                    </span>
+                  </div>
+                </div>
+                <div className="text-xs font-semibold text-[#d88d5e] flex items-center gap-1 hover:underline">
+                  {showCSVOnboardingHelp ? 'Ocultar Asistente' : 'Abrir Asistente'}
+                </div>
+              </button>
+
+              {showCSVOnboardingHelp && (
+                <div className="p-4 space-y-4 animate-in slide-in-from-top-1 duration-150">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs text-zinc-300">
+                    <div className="bg-[#121212] p-3 rounded-lg border border-[#2c2c2c] space-y-1">
+                      <div className="font-bold text-[#d88d5e] flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
+                        <span className="text-stone-900 bg-[#d88d5e] rounded-full w-4 h-4 inline-flex items-center justify-center text-[10px] font-black">1</span>
+                        Fechas sin desfase
+                      </div>
+                      <p className="text-[11px] text-zinc-400 leading-relaxed">
+                        Usá siempre formatos estándar como <strong className="text-white">DD/MM/AAAA</strong> (ej: 25/09/2026) o <strong className="text-white">AAAA-MM-DD</strong>.
+                      </p>
+                      <p className="text-[10px] text-amber-400 font-medium leading-tight">
+                        ⚠️ Evitá invertir el mes y el día (formato US) para que las barras de reserva se dibujen en la semana correcta del calendario.
+                      </p>
+                    </div>
+
+                    <div className="bg-[#121212] p-3 rounded-lg border border-[#2c2c2c] space-y-1">
+                      <div className="font-bold text-[#d88d5e] flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
+                        <span className="text-stone-900 bg-[#d88d5e] rounded-full w-4 h-4 inline-flex items-center justify-center text-[10px] font-black">2</span>
+                        Nombres de Unidad
+                      </div>
+                      <p className="text-[11px] text-zinc-400 leading-relaxed">
+                        Loomi Suite asocia la columna con tus deptos ({safeProperties.map(p => getShortName(p.name)).join(', ')}).
+                      </p>
+                      <p className="text-[10px] text-[#d88d5e] font-medium leading-tight">
+                        ✨ El sistema asocia inteligentemente si tu celda contiene palabras como "Depto A", "A", "Cabaña B" o "Suite C".
+                      </p>
+                    </div>
+
+                    <div className="bg-[#121212] p-3 rounded-lg border border-[#2c2c2c] space-y-1">
+                      <div className="font-bold text-[#d88d5e] flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
+                        <span className="text-stone-900 bg-[#d88d5e] rounded-full w-4 h-4 inline-flex items-center justify-center text-[10px] font-black">3</span>
+                        Copiar y Pegar
+                      </div>
+                      <p className="text-[11px] text-zinc-400 leading-relaxed">
+                        Si tu CSV se ve desordenado, usá la pestaña <strong className="text-white">"Pegar Filas de Excel"</strong>.
+                      </p>
+                      <p className="text-[10px] text-emerald-400 font-medium leading-tight">
+                        📋 Copiá y pegá las celdas directamente desde Excel sin guardarlo como archivo. ¡Es el método más seguro!
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Preflight parsing tool inside Onboarding Card */}
+                  <div className="bg-[#121110] border border-[#d88d5e]/20 rounded-lg p-3.5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        Simulador de Lectura en Tiempo Real (Pre-flight Parser)
+                      </span>
+                      <span className="text-[10px] bg-amber-500/10 text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded-full font-semibold">
+                        Onboarding Pro
+                      </span>
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-[11px] text-[#8e8c87]">
+                        Escribí o pegá una sola fila de tu planilla abajo para verificar instantáneamente si Loomi Suite la entenderá correctamente antes de subir todo el archivo:
+                      </p>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={preflightText}
+                          onChange={e => setPreflightText(e.target.value)}
+                          placeholder="Ejemplo: Juan Perez, 24/09/2026, 28/09/2026, Depto A, Airbnb, 150"
+                          className="flex-1 bg-black border border-[#333] text-xs text-white rounded-lg p-2 font-mono placeholder:text-zinc-700 focus:border-[#d88d5e] focus:outline-hidden"
+                        />
+                        {preflightText && (
+                          <button
+                            type="button"
+                            onClick={() => setPreflightText('')}
+                            className="px-2.5 bg-[#242424] hover:bg-[#333] text-xs text-zinc-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+                          >
+                            Limpiar
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {preflightText.trim() && preflightResult && (
+                      <div className="bg-black/40 border border-[#2a2a2a] p-3 rounded-lg space-y-3 animate-in fade-in duration-200">
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
+                          <div className="bg-[#141414] p-2 rounded-lg border border-[#252525]">
+                            <span className="text-[10px] text-zinc-500 block">Huésped</span>
+                            <span className="font-bold text-white truncate block mt-0.5">
+                              👤 {preflightResult.guestName}
+                            </span>
+                          </div>
+
+                          <div className="bg-[#141414] p-2 rounded-lg border border-[#252525]">
+                            <span className="text-[10px] text-zinc-500 block">Check-In (Entrada)</span>
+                            <span className={`font-bold block mt-0.5 ${preflightResult.checkIn ? 'text-emerald-400' : 'text-red-400 font-extrabold animate-pulse'}`}>
+                              📅 {preflightResult.checkIn || 'ERROR'}
+                            </span>
+                          </div>
+
+                          <div className="bg-[#141414] p-2 rounded-lg border border-[#252525]">
+                            <span className="text-[10px] text-zinc-500 block">Check-Out (Salida)</span>
+                            <span className={`font-bold block mt-0.5 ${preflightResult.checkOut ? 'text-emerald-400' : 'text-red-400 font-extrabold animate-pulse'}`}>
+                              📅 {preflightResult.checkOut || 'ERROR'}
+                            </span>
+                          </div>
+
+                          <div className="bg-[#141414] p-2 rounded-lg border border-[#252525]">
+                            <span className="text-[10px] text-zinc-500 block">Departamento</span>
+                            <span className="font-bold text-white block mt-0.5 truncate">
+                              🏢 {preflightResult.propertyName}
+                            </span>
+                          </div>
+
+                          <div className="bg-[#141414] p-2 rounded-lg border border-[#252525]">
+                            <span className="text-[10px] text-zinc-500 block">Plataforma</span>
+                            <span className="font-bold text-amber-400 block mt-0.5 uppercase tracking-wider">
+                              🔌 {preflightResult.platform}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Diagnostics messages */}
+                        {(preflightResult.errors.length > 0 || preflightResult.warnings.length > 0) ? (
+                          <div className="space-y-1.5 pt-1.5 border-t border-[#252525]">
+                            {preflightResult.errors.map((err, i) => (
+                              <div key={i} className="flex items-center gap-1.5 text-[11px] text-red-400 bg-red-950/20 px-2 py-1 rounded border border-red-900/30">
+                                <span className="font-bold shrink-0">❌ Error de Lectura:</span>
+                                <span>{err}</span>
+                              </div>
+                            ))}
+                            {preflightResult.warnings.map((warn, i) => (
+                              <div key={i} className="flex items-center gap-1.5 text-[11px] text-amber-300 bg-amber-950/20 px-2 py-1 rounded border border-amber-900/30">
+                                <span className="font-bold shrink-0">⚠️ Sugerencia:</span>
+                                <span>{warn}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 bg-emerald-950/20 px-3 py-1.5 rounded border border-emerald-900/30">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                            <strong className="font-bold shrink-0">¡Formato Excelente!</strong>
+                            <span>Loomi Suite cargará esta reserva perfectamente y dibujará la barra en el calendario de forma impecable.</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           /* Step 2: Preview, Column Mapping & Confirmation */

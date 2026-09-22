@@ -201,6 +201,16 @@ export default function App() {
   // Persistent Demo State (from localStorage)
   const [demoState, setDemoState] = useState<DemoState>(getDemoState);
 
+  // Active logged-in user profile
+  const [loggedUser, setLoggedUser] = useState<{ name: string; email: string; complexId: string; complexName: string } | null>(() => {
+    try {
+      const raw = localStorage.getItem('loomi_logged_user');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
+
   // Modals
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
@@ -609,12 +619,35 @@ export default function App() {
     setCurrentView('demo');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
+    try {
+      const raw = localStorage.getItem('loomi_logged_user');
+      setLoggedUser(raw ? JSON.parse(raw) : null);
+      
+      const freshState = getDemoState();
+      setDemoState(freshState);
+    } catch (e) {
+      console.warn('Error syncing newly selected complex state:', e);
+    }
+
     if (isNew) {
       showToast('🎉 Complejo creado. ¡Comencemos el asistente de configuración!');
       setIsOnboardingModalOpen(true);
     } else {
       showToast('Sesión iniciada correctamente');
     }
+  };
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('loomi_logged_user');
+      localStorage.removeItem('loomi_active_complex');
+      localStorage.removeItem('loomi_demo_state');
+    } catch {}
+    setLoggedUser(null);
+    setActiveComplex('catalinas');
+    const fresh = resetDemoState();
+    setDemoState(fresh);
+    showToast('Sesión cerrada correctamente. Volviendo a Catalinas.');
   };
 
   return (
@@ -721,7 +754,7 @@ export default function App() {
                 ? 'Catalinas Apartamentos'
                 : activeComplex === 'woodcabin'
                 ? 'Tu Complejo'
-                : 'Mi Complejo Real'
+                : demoState.welcomeGuide?.propertyName || 'Mi Complejo Real'
             }
             onOpenNewReservation={() => {
               setInitialPropertyForRes(undefined);
@@ -751,6 +784,9 @@ export default function App() {
             }}
             isMobileOpen={isMobileSidebarOpen}
             onMobileClose={() => setIsMobileSidebarOpen(false)}
+            onOpenLogin={() => setIsAuthModalOpen(true)}
+            loggedUser={loggedUser}
+            onLogout={handleLogout}
           />
 
           {/* Main Content Area */}

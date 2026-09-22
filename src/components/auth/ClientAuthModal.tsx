@@ -20,6 +20,13 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { LoomiLogo } from '../common/LoomiLogo';
+import {
+  saveRegisteredAccountToCloud,
+  findRegisteredAccountInCloud,
+  findComplexByAdminEmailInCloud,
+  loadComplexFromCloud,
+} from '../../lib/firebase';
+import { saveDemoState } from '../../data/initialData';
 
 export interface ComplexProfile {
   id: string;
@@ -68,6 +75,7 @@ export const ClientAuthModal: React.FC<ClientAuthModalProps> = ({
 
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
 
@@ -96,66 +104,85 @@ export const ClientAuthModal: React.FC<ClientAuthModalProps> = ({
   const savedComplexes = getSavedComplexes();
 
   // Handler: Register New Account & Complex
-  const handleRegisterNew = (e: React.FormEvent) => {
+  const handleRegisterNew = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
-
-    if (!fullName.trim()) {
-      setErrorMsg('Por favor ingresá tu nombre y apellido.');
-      return;
-    }
-
-    if (!adminEmail.trim() || !adminEmail.includes('@')) {
-      setErrorMsg('Ingresá un correo electrónico válido para tu cuenta.');
-      return;
-    }
-
-    if (!password || password.length < 6) {
-      setErrorMsg('La contraseña debe tener al menos 6 caracteres.');
-      return;
-    }
-
-    if (!complexName.trim()) {
-      setErrorMsg('Por favor ingresá el nombre de tu complejo o alojamiento.');
-      return;
-    }
-
-    // Check if user already exists
-    const existing = savedComplexes.find(
-      (c) => c.adminEmail?.toLowerCase() === adminEmail.trim().toLowerCase()
-    );
-    if (existing) {
-      setErrorMsg('Ya existe una cuenta con este correo. Iniciá sesión.');
-      setTab('login');
-      setLoginEmail(adminEmail.trim());
-      return;
-    }
-
-    const newId = 'complex-' + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
-    const typeLabel =
-      complexType === 'cabanas'
-        ? 'Complejo de Cabañas'
-        : complexType === 'deptos'
-        ? 'Departamentos Turísticos'
-        : complexType === 'posada'
-        ? 'Posada & Apart Hotel'
-        : 'Hostal / B&B';
-
-    const newProfile: ComplexProfile = {
-      id: newId,
-      name: complexName.trim(),
-      type: typeLabel,
-      city: city.trim() || 'Buenos Aires, Argentina',
-      adminName: fullName.trim(),
-      adminEmail: adminEmail.trim(),
-      adminPhone: adminPhone.trim(),
-      password,
-      authProvider: 'password',
-      createdAt: new Date().toISOString(),
-    };
+    setIsLoading(true);
 
     try {
+      if (!fullName.trim()) {
+        setErrorMsg('Por favor ingresá tu nombre y apellido.');
+        setIsLoading(false);
+        return;
+      }
+
+      if (!adminEmail.trim() || !adminEmail.includes('@')) {
+        setErrorMsg('Ingresá un correo electrónico válido para tu cuenta.');
+        setIsLoading(false);
+        return;
+      }
+
+      if (!password || password.length < 6) {
+        setErrorMsg('La contraseña debe tener al menos 6 caracteres.');
+        setIsLoading(false);
+        return;
+      }
+
+      if (!complexName.trim()) {
+        setErrorMsg('Por favor ingresá el nombre de tu complejo o alojamiento.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Check if user already exists in local or cloud
+      const existingLocal = savedComplexes.find(
+        (c) => c.adminEmail?.toLowerCase() === adminEmail.trim().toLowerCase()
+      );
+      if (existingLocal) {
+        setErrorMsg('Ya existe una cuenta con este correo. Iniciá sesión.');
+        setTab('login');
+        setLoginEmail(adminEmail.trim());
+        setIsLoading(false);
+        return;
+      }
+
+      const cloudCheck = await findRegisteredAccountInCloud(adminEmail.trim());
+      if (cloudCheck) {
+        setErrorMsg('Ya existe una cuenta registrada en la nube con este correo. Iniciá sesión.');
+        setTab('login');
+        setLoginEmail(adminEmail.trim());
+        setIsLoading(false);
+        return;
+      }
+
+      const newId = 'complex-' + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+      const typeLabel =
+        complexType === 'cabanas'
+          ? 'Complejo de Cabañas'
+          : complexType === 'deptos'
+          ? 'Departamentos Turísticos'
+          : complexType === 'posada'
+          ? 'Posada & Apart Hotel'
+          : 'Hostal / B&B';
+
+      const newProfile: ComplexProfile = {
+        id: newId,
+        name: complexName.trim(),
+        type: typeLabel,
+        city: city.trim() || 'Buenos Aires, Argentina',
+        adminName: fullName.trim(),
+        adminEmail: adminEmail.trim(),
+        adminPhone: adminPhone.trim(),
+        password,
+        authProvider: 'password',
+        createdAt: new Date().toISOString(),
+      };
+
+      // Save to Cloud Firestore
+      await saveRegisteredAccountToCloud(newProfile);
+
+      // Save locally
       const current = getSavedComplexes();
       const updated = [newProfile, ...current.filter((c) => c.id !== newId)];
       localStorage.setItem('loomi_registered_complexes', JSON.stringify(updated));
@@ -166,50 +193,100 @@ export const ClientAuthModal: React.FC<ClientAuthModalProps> = ({
         complexId: newId,
         complexName: complexName.trim(),
       }));
-    } catch {}
 
-    setSuccessMsg('¡Cuenta creada exitosamente!');
-    onSelectComplex(newId, true);
-    onClose();
+      setSuccessMsg('¡Cuenta creada exitosamente!');
+      onSelectComplex(newId, true);
+      onClose();
+    } catch (err: any) {
+      setErrorMsg('Error al registrar la cuenta: ' + err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Handler: Google Sign Up / Sign In
-  const handleGoogleAuth = () => {
+  const handleGoogleAuth = async () => {
     setErrorMsg('');
+    setIsLoading(true);
     const userEmail = 'piccini.gabriela@gmail.com';
     const userName = 'Gabriela Piccini';
     const cName = complexName.trim() || 'Mis Departamentos';
 
-    const existing = savedComplexes.find((c) => c.adminEmail?.toLowerCase() === userEmail.toLowerCase());
-    if (existing) {
-      localStorage.setItem('loomi_active_complex', existing.id);
-      localStorage.setItem('loomi_logged_user', JSON.stringify({
-        name: existing.adminName || userName,
-        email: existing.adminEmail,
-        complexId: existing.id,
-        complexName: existing.name,
-      }));
-      onSelectComplex(existing.id, false);
-      onClose();
-      return;
-    }
-
-    // New Google account registration
-    const newId = 'complex-' + Date.now().toString(36);
-    const newProfile: ComplexProfile = {
-      id: newId,
-      name: cName,
-      type: 'Departamentos Turísticos',
-      city: 'Buenos Aires, Argentina',
-      adminName: userName,
-      adminEmail: userEmail,
-      authProvider: 'google',
-      createdAt: new Date().toISOString(),
-    };
-
     try {
+      // 1. Search local complexes first
+      let matchedProfile = savedComplexes.find((c) => c.adminEmail?.toLowerCase() === userEmail.toLowerCase());
+
+      // 2. If not local, search the registered_complexes cloud registry
+      if (!matchedProfile) {
+        const cloudAcc = await findRegisteredAccountInCloud(userEmail);
+        if (cloudAcc) {
+          matchedProfile = cloudAcc;
+        }
+      }
+
+      // 3. If still not found, do a deep scan fallback in /complexes
+      if (!matchedProfile) {
+        const deepScanned = await findComplexByAdminEmailInCloud(userEmail);
+        if (deepScanned) {
+          matchedProfile = {
+            id: deepScanned.id,
+            name: deepScanned.data?.welcomeGuide?.propertyName || 'Mis Departamentos',
+            type: 'Departamentos Turísticos',
+            city: deepScanned.data?.welcomeGuide?.locationAddress || 'Buenos Aires, Argentina',
+            adminName: userName,
+            adminEmail: userEmail,
+            authProvider: 'google',
+            createdAt: deepScanned.data?.createdAt || new Date().toISOString(),
+          };
+          // Re-sync account mapping back to Cloud registry
+          await saveRegisteredAccountToCloud(matchedProfile);
+        }
+      }
+
+      // 4. If we found a profile (either local, registry cloud, or deep scanned fallback)
+      if (matchedProfile) {
+        // Fetch complex state from Cloud Firestore
+        const cloudState = await loadComplexFromCloud(matchedProfile.id);
+        if (cloudState) {
+          // Sync state to local storage so the phone gets her exact desktop data!
+          saveDemoState(cloudState, matchedProfile.id);
+        }
+
+        // Save local session keys
+        const current = getSavedComplexes();
+        const updated = [matchedProfile, ...current.filter((c) => c.id !== matchedProfile!.id)];
+        localStorage.setItem('loomi_registered_complexes', JSON.stringify(updated));
+        localStorage.setItem('loomi_active_complex', matchedProfile.id);
+        localStorage.setItem('loomi_logged_user', JSON.stringify({
+          name: matchedProfile.adminName || userName,
+          email: matchedProfile.adminEmail,
+          complexId: matchedProfile.id,
+          complexName: matchedProfile.name,
+        }));
+
+        setSuccessMsg('¡Bienvenido de vuelta! Sincronizando datos...');
+        onSelectComplex(matchedProfile.id, false);
+        onClose();
+        return;
+      }
+
+      // 5. If brand new Google registration
+      const newId = 'complex-' + Date.now().toString(36);
+      const newProfile: ComplexProfile = {
+        id: newId,
+        name: cName,
+        type: 'Departamentos Turísticos',
+        city: 'Buenos Aires, Argentina',
+        adminName: userName,
+        adminEmail: userEmail,
+        authProvider: 'google',
+        createdAt: new Date().toISOString(),
+      };
+
+      await saveRegisteredAccountToCloud(newProfile);
+
       const current = getSavedComplexes();
-      const updated = [newProfile, ...current];
+      const updated = [newProfile, ...current.filter((c) => c.id !== newId)];
       localStorage.setItem('loomi_registered_complexes', JSON.stringify(updated));
       localStorage.setItem('loomi_active_complex', newId);
       localStorage.setItem('loomi_logged_user', JSON.stringify({
@@ -218,47 +295,99 @@ export const ClientAuthModal: React.FC<ClientAuthModalProps> = ({
         complexId: newId,
         complexName: cName,
       }));
-    } catch {}
 
-    onSelectComplex(newId, true);
-    onClose();
+      setSuccessMsg('¡Cuenta de Google registrada con éxito!');
+      onSelectComplex(newId, true);
+      onClose();
+    } catch (err: any) {
+      setErrorMsg('Error en autenticación Google: ' + err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Handler: Standard Login
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
+    setIsLoading(true);
 
     const emailQuery = loginEmail.trim().toLowerCase();
     if (!emailQuery) {
       setErrorMsg('Ingresá tu correo electrónico registrado.');
+      setIsLoading(false);
       return;
     }
 
-    const matched = savedComplexes.find(
-      (c) =>
-        (c.adminEmail && c.adminEmail.toLowerCase() === emailQuery) ||
-        c.name.toLowerCase().includes(emailQuery) ||
-        c.id.toLowerCase() === emailQuery
-    );
+    try {
+      // 1. Search local complexes first
+      let matched = savedComplexes.find(
+        (c) =>
+          (c.adminEmail && c.adminEmail.toLowerCase() === emailQuery) ||
+          c.name.toLowerCase().includes(emailQuery) ||
+          c.id.toLowerCase() === emailQuery
+      );
 
-    if (matched) {
-      if (matched.password && loginPassword && matched.password !== loginPassword) {
-        setErrorMsg('Contraseña incorrecta. Por favor verificá.');
-        return;
+      // 2. Search cloud registry by email
+      if (!matched && emailQuery.includes('@')) {
+        const cloudAcc = await findRegisteredAccountInCloud(emailQuery);
+        if (cloudAcc) {
+          matched = cloudAcc;
+        }
       }
 
-      localStorage.setItem('loomi_active_complex', matched.id);
-      localStorage.setItem('loomi_logged_user', JSON.stringify({
-        name: matched.adminName || matched.name,
-        email: matched.adminEmail || emailQuery,
-        complexId: matched.id,
-        complexName: matched.name,
-      }));
-      onSelectComplex(matched.id, false);
-      onClose();
-    } else {
-      setErrorMsg('No encontramos una cuenta con ese correo. Podés crear tu cuenta en la pestaña "Registrarse".');
+      // 3. Search via deep scanning of complexes inside /complexes
+      if (!matched) {
+        const deepScanned = await findComplexByAdminEmailInCloud(emailQuery);
+        if (deepScanned) {
+          matched = {
+            id: deepScanned.id,
+            name: deepScanned.data?.welcomeGuide?.propertyName || 'Mis Departamentos',
+            type: 'Departamentos Turísticos',
+            city: deepScanned.data?.welcomeGuide?.locationAddress || 'Buenos Aires, Argentina',
+            adminName: emailQuery.split('@')[0],
+            adminEmail: emailQuery,
+            password: '', // cloud matches passwordless or standard
+            createdAt: deepScanned.data?.createdAt || new Date().toISOString(),
+          };
+          await saveRegisteredAccountToCloud(matched);
+        }
+      }
+
+      if (matched) {
+        if (matched.password && loginPassword && matched.password !== loginPassword) {
+          setErrorMsg('Contraseña incorrecta. Por favor verificá.');
+          setIsLoading(false);
+          return;
+        }
+
+        // Fetch complex state from Cloud Firestore
+        const cloudState = await loadComplexFromCloud(matched.id);
+        if (cloudState) {
+          saveDemoState(cloudState, matched.id);
+        }
+
+        const current = getSavedComplexes();
+        const updated = [matched, ...current.filter((c) => c.id !== matched!.id)];
+        localStorage.setItem('loomi_registered_complexes', JSON.stringify(updated));
+        localStorage.setItem('loomi_active_complex', matched.id);
+        localStorage.setItem('loomi_logged_user', JSON.stringify({
+          name: matched.adminName || matched.name,
+          email: matched.adminEmail || emailQuery,
+          complexId: matched.id,
+          complexName: matched.name,
+        }));
+
+        setSuccessMsg('¡Sincronizando sesión en la nube...');
+        onSelectComplex(matched.id, false);
+        onClose();
+      } else {
+        setErrorMsg('No encontramos una cuenta con ese correo. Podés crear tu cuenta en la pestaña "Registrarse".');
+      }
+    } catch (err: any) {
+      setErrorMsg('Error al iniciar sesión: ' + err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -345,27 +474,37 @@ export const ClientAuthModal: React.FC<ClientAuthModalProps> = ({
           <button
             type="button"
             onClick={handleGoogleAuth}
-            className="w-full py-2.5 px-4 bg-[#1f1f1f] hover:bg-[#282828] text-white border border-[#333] hover:border-[#444] rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2.5 cursor-pointer shadow-2xs"
+            disabled={isLoading}
+            className="w-full py-2.5 px-4 bg-[#1f1f1f] hover:bg-[#282828] disabled:opacity-50 text-white border border-[#333] hover:border-[#444] rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2.5 cursor-pointer shadow-2xs"
           >
-            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.27 21.36 7.35 24 12 24z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.98 0 12s.46 3.84 1.26 5.42l4.02-3.15z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.27 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-              />
-            </svg>
-            <span>Continuar con Google</span>
+            {isLoading ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-[#d88d5e]/30 border-t-[#d88d5e] rounded-full animate-spin" />
+                <span>Sincronizando con Google...</span>
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.27 21.36 7.35 24 12 24z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.98 0 12s.46 3.84 1.26 5.42l4.02-3.15z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.27 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                  />
+                </svg>
+                <span>Continuar con Google</span>
+              </>
+            )}
           </button>
 
           <div className="relative flex items-center justify-center">
@@ -426,10 +565,20 @@ export const ClientAuthModal: React.FC<ClientAuthModalProps> = ({
 
                 <button
                   type="submit"
-                  className="w-full py-2.5 bg-[#d88d5e] hover:bg-[#c27c4f] text-[#141414] font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                  disabled={isLoading}
+                  className="w-full py-2.5 bg-[#d88d5e] hover:bg-[#c27c4f] disabled:bg-zinc-800 disabled:text-zinc-500 text-[#141414] font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                 >
-                  <LogIn className="w-3.5 h-3.5" />
-                  <span>Ingresar a Mi Panel</span>
+                  {isLoading ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-zinc-500 border-t-white rounded-full animate-spin" />
+                      <span>Buscando tu cuenta en la nube...</span>
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="w-3.5 h-3.5" />
+                      <span>Ingresar a Mi Panel</span>
+                    </>
+                  )}
                 </button>
               </form>
 
@@ -636,10 +785,20 @@ export const ClientAuthModal: React.FC<ClientAuthModalProps> = ({
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3 bg-[#d88d5e] hover:bg-[#c27c4f] text-[#141414] font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#d88d5e]/20"
+                  disabled={isLoading}
+                  className="w-full py-3 bg-[#d88d5e] hover:bg-[#c27c4f] disabled:bg-zinc-800 disabled:text-zinc-500 text-[#141414] font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#d88d5e]/20"
                 >
-                  <UserPlus className="w-4 h-4" />
-                  <span>Crear Cuenta y Configurar Mis Departamentos</span>
+                  {isLoading ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-zinc-500 border-t-white rounded-full animate-spin" />
+                      <span>Creando tu cuenta en la nube...</span>
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-4 h-4" />
+                      <span>Crear Cuenta y Configurar Mis Departamentos</span>
+                    </>
+                  )}
                 </button>
               </div>
 
