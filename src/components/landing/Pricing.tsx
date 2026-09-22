@@ -298,20 +298,20 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
                 ¿No tenés tiempo? Hacemos el Onboarding por vos (Servicio Llave en Mano)
               </h3>
               <p className="text-xs text-zinc-600 mt-1 leading-relaxed max-w-2xl">
-                Si no querés encargarte de cargar las fotos, registrar las cabañas, o configurar las claves iCal de tus plataformas de alquiler, nuestro equipo lo hace por vos. Nos das tus enlaces de Airbnb/Booking, fotos del complejo y nos encargamos de todo el setup inicial en 24 horas. ¡Listo para usar con soporte inicial personalizado!
+                Si no querés encargarte de cargar las fotos, registrar las cabañas, o configurar las claves iCal de tus plataformas de alquiler, nuestro equipo lo hace por vos. Nos das tus enlaces de Airbnb/Booking, fotos del complejo y nos encargamos de todo el setup inicial en 72 horas. <strong>Tarifa única personalizada según la cantidad de unidades de tu complejo.</strong> ¡Listo para usar con soporte inicial personalizado!
               </p>
             </div>
           </div>
           <div className="text-center md:text-right shrink-0">
-            <div className="text-2xl font-extrabold text-zinc-900 font-['Outfit']">
-              $49 <span className="text-xs font-semibold text-zinc-500">USD</span>
+            <div className="text-xl font-extrabold text-[#c46d45] font-['Outfit']">
+              A Cotizar
             </div>
-            <div className="text-[10px] text-zinc-400 font-medium">Pago único por complejo</div>
+            <div className="text-[10px] text-zinc-400 font-medium">Pago único proporcional</div>
             <button
-              onClick={() => onOpenContact('Servicio Concierge Onboarding Llave en Mano')}
+              onClick={() => onOpenContact('Servicio Concierge Onboarding Llave en Mano (Presupuesto)')}
               className="mt-3 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/20 cursor-pointer transition-colors"
             >
-              Contratar Puesta en Marcha
+              Consultar Puesta en Marcha
             </button>
           </div>
         </div>

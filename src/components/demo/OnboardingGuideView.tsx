@@ -202,8 +202,8 @@ export const OnboardingGuideView: React.FC<OnboardingGuideViewProps> = ({
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-[#1c1b18] dark:text-[#f4f2ee]">¿Prefectura Cero Trabajo? (Servicio Concierge)</h4>
-                <p className="text-xs text-[#78746c] dark:text-[#a8a5a0]">Nosotros configuramos todo tu complejo por vos por un costo único de $49 USD.</p>
+                <h4 className="text-sm font-bold text-[#1c1b18] dark:text-[#f4f2ee]">¿Preocupación Cero? (Servicio Concierge)</h4>
+                <p className="text-xs text-[#78746c] dark:text-[#a8a5a0]">Nosotros configuramos todo tu complejo por vos con una tarifa a medida.</p>
               </div>
             </div>
             <button className="text-xs font-bold text-white bg-[#c46d45] hover:bg-[#b55e37] px-4 py-2 rounded-xl border border-[#c46d45]/20 shrink-0 shadow-2xs">
@@ -211,7 +211,7 @@ export const OnboardingGuideView: React.FC<OnboardingGuideViewProps> = ({
             </button>
           </div>
           <p className="text-xs text-[#6e6a62] dark:text-[#9c9994] leading-relaxed pt-2 border-t border-[#ded9cd]/60 dark:border-[#2e2621]">
-            Si no querés encargarte de copiar enlaces, configurar las cerraduras inteligentes, o cargar tus fotos, nuestro equipo de onboarding se encarga del setup completo en 24hs. Solo nos proveés tus enlaces de Booking/Airbnb y nosotros te entregamos el sistema listo para operar con un soporte premium inicial de cortesía.
+            Si no querés encargarte de copiar enlaces, configurar las cerraduras inteligentes, o cargar tus fotos, nuestro equipo de onboarding se encarga del setup completo en 72hs. Solo nos proveés tus enlaces de Booking/Airbnb y nosotros te entregamos el sistema listo para operar con un soporte premium inicial de cortesía.
           </p>
         </div>
 
