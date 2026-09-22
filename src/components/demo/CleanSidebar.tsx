@@ -36,7 +36,6 @@ interface CleanSidebarProps {
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
   onBackToLanding: () => void;
-  onOpenSuperAdmin?: () => void;
   activeComplex: 'catalinas' | 'woodcabin' | 'custom';
   onSwitchComplex: (complex: 'catalinas' | 'woodcabin' | 'custom') => void;
   isMobileOpen?: boolean;
@@ -57,7 +56,6 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
   theme,
   onToggleTheme,
   onBackToLanding,
-  onOpenSuperAdmin,
   activeComplex,
   onSwitchComplex,
   isMobileOpen = false,

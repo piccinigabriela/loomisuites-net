@@ -735,10 +735,6 @@ export default function App() {
               setCurrentView('landing');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            onOpenSuperAdmin={() => {
-              setCurrentView('superadmin');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
             activeComplex={activeComplex}
             onSwitchComplex={(c) => {
               setActiveComplex(c);
