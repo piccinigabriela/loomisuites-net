@@ -23,6 +23,7 @@ import {
   ArrowLeft,
   Calendar,
   Lock,
+  Unlock,
   Receipt,
   Copy,
   Check,
@@ -31,6 +32,12 @@ import {
   Wallet,
   ChevronDown,
   ChevronUp,
+  X,
+  UserPlus,
+  MapPin,
+  Tag,
+  AlertTriangle,
+  FileText,
 } from 'lucide-react';
 import { LoomiLogo } from '../common/LoomiLogo';
 import { fetchAllComplexesFromCloud, fetchAllLeadsFromCloud } from '../../lib/firebase';
@@ -53,9 +60,10 @@ interface BankingConfig {
   dueDay: number;
 }
 
-interface ComplexItem {
+export interface ComplexItem {
   id: string;
   name: string;
+  ownerName?: string;
   type: string;
   city: string;
   adminEmail?: string;
@@ -63,9 +71,11 @@ interface ComplexItem {
   propertiesCount: number;
   reservationsCount: number;
   plan: string;
-  status: 'active' | 'trial' | 'pending';
+  status: 'active' | 'trial' | 'suspended';
   monthlyFeeArs: number;
   createdAt: string;
+  suspendedAt?: string;
+  notes?: string;
   lastCloudSyncedAt?: string;
 }
 
@@ -89,9 +99,38 @@ export const SuperAdminView: React.FC<SuperAdminViewProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'complexes' | 'billing' | 'leads' | 'economics'>('complexes');
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'trial' | 'suspended'>('all');
   const [loading, setLoading] = useState(false);
   const [complexes, setComplexes] = useState<ComplexItem[]>([]);
   const [leads, setLeads] = useState<LeadItem[]>([]);
+
+  // Modal para Cargar Nuevo Cliente
+  const [isAddClientModalOpen, setIsAddClientModalOpen] = useState(false);
+  const [newClientForm, setNewClientForm] = useState({
+    name: '',
+    ownerName: '',
+    type: 'Cabañas Turísticas',
+    city: '',
+    adminEmail: '',
+    adminPhone: '',
+    propertiesCount: 6,
+    feeTier: '35000', // '35000' | '55000' | '80000' | 'custom'
+    customFeeArs: 35000,
+    status: 'active' as 'active' | 'trial' | 'suspended',
+    notes: '',
+  });
+
+  // Modal para Editar Cliente
+  const [editingComplex, setEditingComplex] = useState<ComplexItem | null>(null);
+
+  // Modal para Confirmar Eliminación
+  const [complexToDelete, setComplexToDelete] = useState<ComplexItem | null>(null);
+
+  // Modal para Suspender / Reactivar
+  const [complexToToggleSuspend, setComplexToToggleSuspend] = useState<ComplexItem | null>(null);
+
+  // Toast notice
+  const [actionSuccessNotice, setActionSuccessNotice] = useState<string | null>(null);
 
   // Configuración de Datos Bancarios para transferencias
   const [bankingConfig, setBankingConfig] = useState<BankingConfig>(() => {
@@ -125,11 +164,27 @@ export const SuperAdminView: React.FC<SuperAdminViewProps> = ({
     };
   });
 
+  const showNotification = (msg: string) => {
+    setActionSuccessNotice(msg);
+    setTimeout(() => {
+      setActionSuccessNotice(null);
+    }, 4000);
+  };
+
+  const saveComplexesToLocalStorage = (list: ComplexItem[]) => {
+    try {
+      localStorage.setItem('loomi_registered_complexes', JSON.stringify(list));
+    } catch (err) {
+      console.error('Error saving complexes to localStorage:', err);
+    }
+  };
+
   const handleSaveBankingConfig = (e: React.FormEvent) => {
     e.preventDefault();
     setBankingConfig(bankingEditForm);
     localStorage.setItem('loomi_superadmin_banking', JSON.stringify(bankingEditForm));
     setIsEditingBanking(false);
+    showNotification('Datos bancarios de cobranza actualizados correctamente.');
   };
 
   const handleCopyText = (text: string, label: string) => {
@@ -157,13 +212,15 @@ export const SuperAdminView: React.FC<SuperAdminViewProps> = ({
   const getBillingMessageWhatsApp = (complex: ComplexItem) => {
     const currentMonth = new Date().toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
     const text = 
-`Hola ${complex.name}! 🌟
+`Hola ${complex.ownerName ? complex.ownerName : complex.name}! 🌟
 Te enviamos el aviso de abono mensual de Loomi Suite correspondiente al período: *${currentMonth.toUpperCase()}*.
 
 📌 *Detalle del Servicio:*
+• Complejo: *${complex.name}*
 • Plan: ${complex.plan}
+• Unidades gestionadas: ${complex.propertiesCount}
 • Importe total: *$${complex.monthlyFeeArs.toLocaleString('es-AR')} ARS*
-• Vencimiento: Día ${bankingConfig.dueDay} de este mes
+• Vencimiento sugerido: Día ${bankingConfig.dueDay} de este mes
 
 🏦 *Datos para Transferencia Bancaria:*
 • Titular: ${bankingConfig.accountHolder}
@@ -172,7 +229,7 @@ Te enviamos el aviso de abono mensual de Loomi Suite correspondiente al período
 • CBU/CVU: ${bankingConfig.cbu}
 • CUIT/CUIL: ${bankingConfig.cuit}
 
-Una vez realizada la transferencia, podés respondernos por este medio con el comprobante para emitir tu recibo y renovar el período en la plataforma.
+Una vez realizada la transferencia, podés respondernos por este medio con el comprobante para emitir tu recibo.
 
 ¡Muchas gracias por confiar en Loomi Suite!`;
     return encodeURIComponent(text);
@@ -182,12 +239,14 @@ Una vez realizada la transferencia, podés respondernos por este medio con el co
     const currentMonth = new Date().toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
     const subject = encodeURIComponent(`Aviso de Abono Mensual Loomi Suite - ${complex.name} (${currentMonth})`);
     const body = encodeURIComponent(
-`Estimado/a equipo de ${complex.name},
+`Estimado/a ${complex.ownerName || 'equipo de ' + complex.name},
 
 Les enviamos los datos para el abono del servicio mensual de Loomi Suite correspondiente al período ${currentMonth}.
 
 Detalle del abono:
+• Complejo: ${complex.name}
 • Plan: ${complex.plan}
+• Cantidad de unidades: ${complex.propertiesCount}
 • Importe total: $${complex.monthlyFeeArs.toLocaleString('es-AR')} ARS
 • Fecha límite sugerida: Día ${bankingConfig.dueDay}
 
@@ -198,15 +257,13 @@ Datos para transferencia bancaria:
 • CBU/CVU: ${bankingConfig.cbu}
 • CUIT: ${bankingConfig.cuit}
 
-Por favor respondan a este correo adjuntando el comprobante de transferencia para asentar el pago y extender el acceso.
-
-Muchas gracias por ser parte de Loomi Suite.
+Por favor responder a este correo adjuntando el comprobante de transferencia para actualizar su estado de cuenta.
 
 Atentamente,
 Administración Loomi Suite
-${bankingConfig.contactEmail}`
+contacto@loomisuite.net`
     );
-    return `mailto:${complex.adminEmail || bankingConfig.contactEmail}?subject=${subject}&body=${body}`;
+    return `mailto:${complex.adminEmail || 'cliente@loomisuite.net'}?subject=${subject}&body=${body}`;
   };
 
   const loadData = async () => {
@@ -220,18 +277,25 @@ ${bankingConfig.contactEmail}`
       } catch {}
 
       // Default demo complexes if empty
-      if (localList.length === 0) {
+      if (!localList || localList.length === 0) {
         localList = [
           {
             id: 'default',
             name: 'Catalinas Apartamentos',
+            ownerName: 'Gabriela Piccini',
             type: 'Departamentos Turísticos',
             city: 'Buenos Aires, CABA',
             adminEmail: 'contacto@catalinas.com',
             adminPhone: '+54 9 11 4092-5939',
+            propertiesCount: 4,
+            reservationsCount: 12,
+            plan: 'Plan 4 a 10 ($35.000/mes)',
+            status: 'active',
+            monthlyFeeArs: 35000,
             createdAt: new Date().toISOString(),
           },
         ];
+        saveComplexesToLocalStorage(localList);
       }
 
       // 2. Fetch cloud complexes from Firestore
@@ -242,18 +306,25 @@ ${bankingConfig.contactEmail}`
 
       // Add local ones
       localList.forEach((c) => {
+        const propsCount = c.propertiesCount || 4;
+        const fee = c.monthlyFeeArs || (propsCount <= 10 ? 35000 : propsCount <= 20 ? 55000 : 80000);
+        const planName = c.plan || (propsCount <= 10 ? 'Plan 4 a 10 ($35.000/mes)' : propsCount <= 20 ? 'Plan 10 a 20 ($55.000/mes)' : 'Plan 20 a 30 ($80.000/mes)');
+
         mergedMap.set(c.id, {
           id: c.id,
           name: c.name || 'Sin nombre',
+          ownerName: c.ownerName || 'Titular',
           type: c.type || 'Alojamiento',
           city: c.city || 'Argentina',
           adminEmail: c.adminEmail || 'admin@complejo.com',
           adminPhone: c.adminPhone || '+54 9 11...',
-          propertiesCount: 4,
-          reservationsCount: 12,
-          plan: 'Plan 4 a 10 ($35.000/mes)',
-          status: 'active',
-          monthlyFeeArs: 35000,
+          propertiesCount: propsCount,
+          reservationsCount: c.reservationsCount || 6,
+          plan: planName,
+          status: c.status || 'active',
+          monthlyFeeArs: fee,
+          suspendedAt: c.suspendedAt,
+          notes: c.notes || '',
           createdAt: c.createdAt || new Date().toISOString(),
         });
       });
@@ -262,14 +333,15 @@ ${bankingConfig.contactEmail}`
       cloudComplexes.forEach((doc) => {
         const d = doc.data;
         const existing = mergedMap.get(doc.id);
-        const propsCount = d.properties?.length || 4;
-        const resCount = d.reservations?.length || 0;
-        const fee = propsCount <= 10 ? 35000 : propsCount <= 20 ? 55000 : 80000;
-        const planName = propsCount <= 10 ? 'Plan 4 a 10 ($35.000/mes)' : propsCount <= 20 ? 'Plan 10 a 20 ($55.000/mes)' : 'Plan 20 a 30 ($80.000/mes)';
+        const propsCount = d.properties?.length || existing?.propertiesCount || 4;
+        const resCount = d.reservations?.length || existing?.reservationsCount || 0;
+        const fee = existing?.monthlyFeeArs || (propsCount <= 10 ? 35000 : propsCount <= 20 ? 55000 : 80000);
+        const planName = existing?.plan || (propsCount <= 10 ? 'Plan 4 a 10 ($35.000/mes)' : propsCount <= 20 ? 'Plan 10 a 20 ($55.000/mes)' : 'Plan 20 a 30 ($80.000/mes)');
 
         mergedMap.set(doc.id, {
           id: doc.id,
           name: d.welcomeGuide?.complexName || existing?.name || `Complejo ${doc.id.substring(0, 6)}`,
+          ownerName: existing?.ownerName || 'Administrador',
           type: existing?.type || 'Complejo de Alojamiento',
           city: d.welcomeGuide?.city || existing?.city || 'Argentina',
           adminEmail: existing?.adminEmail || 'admin@complejo.com',
@@ -277,8 +349,10 @@ ${bankingConfig.contactEmail}`
           propertiesCount: propsCount,
           reservationsCount: resCount,
           plan: planName,
-          status: 'active',
+          status: existing?.status || 'active',
           monthlyFeeArs: fee,
+          suspendedAt: existing?.suspendedAt,
+          notes: existing?.notes || '',
           createdAt: existing?.createdAt || d.lastCloudSyncedAt || new Date().toISOString(),
           lastCloudSyncedAt: d.lastCloudSyncedAt,
         });
@@ -337,31 +411,208 @@ ${bankingConfig.contactEmail}`
     loadData();
   }, []);
 
+  // Handler: Crear nuevo cliente / cuenta
+  const handleCreateClient = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newClientForm.name.trim()) return;
+
+    const newId = `cpx-${Date.now()}`;
+    const propsCount = Number(newClientForm.propertiesCount) || 4;
+
+    let fee = 35000;
+    let planName = 'Plan 4 a 10 ($35.000/mes)';
+
+    if (newClientForm.feeTier === '35000') {
+      fee = 35000;
+      planName = 'Plan 4 a 10 ($35.000/mes)';
+    } else if (newClientForm.feeTier === '55000') {
+      fee = 55000;
+      planName = 'Plan 10 a 20 ($55.000/mes)';
+    } else if (newClientForm.feeTier === '80000') {
+      fee = 80000;
+      planName = 'Plan 20 a 30 ($80.000/mes)';
+    } else {
+      fee = Number(newClientForm.customFeeArs) || 35000;
+      planName = `Tarifa Personalizada ($${fee.toLocaleString('es-AR')}/mes)`;
+    }
+
+    const newClient: ComplexItem = {
+      id: newId,
+      name: newClientForm.name.trim(),
+      ownerName: newClientForm.ownerName.trim() || 'Titular',
+      type: newClientForm.type || 'Cabañas Turísticas',
+      city: newClientForm.city.trim() || 'Argentina',
+      adminEmail: newClientForm.adminEmail.trim() || 'cliente@loomisuite.net',
+      adminPhone: newClientForm.adminPhone.trim() || '+54 9 11...',
+      propertiesCount: propsCount,
+      reservationsCount: 0,
+      plan: planName,
+      status: newClientForm.status,
+      monthlyFeeArs: fee,
+      notes: newClientForm.notes.trim(),
+      createdAt: new Date().toISOString(),
+    };
+
+    const updated = [newClient, ...complexes];
+    setComplexes(updated);
+    saveComplexesToLocalStorage(updated);
+
+    // Initial state setup for PMS demo
+    const initialDemoState = {
+      complexName: newClient.name,
+      properties: Array.from({ length: propsCount }).map((_, i) => ({
+        id: `prop-${i + 1}`,
+        name: `Unidad ${i + 1}`,
+        type: 'cabin',
+        basePrice: 85,
+        cleaningFee: 25,
+        capacity: 4,
+        rooms: 2,
+        bathrooms: 1,
+        floor: 'PB',
+        amenities: ['wifi', 'parking', 'kitchen', 'air_conditioning'],
+      })),
+      reservations: [],
+      welcomeGuide: {
+        complexName: newClient.name,
+        city: newClient.city,
+        wifiNetwork: `${newClient.name.replace(/\s+/g, '')}_Guest`,
+        wifiPassword: 'loomi_guest_pass',
+      },
+    };
+    try {
+      localStorage.setItem(`loomi_demo_state_${newId}`, JSON.stringify(initialDemoState));
+    } catch {}
+
+    setIsAddClientModalOpen(false);
+    setNewClientForm({
+      name: '',
+      ownerName: '',
+      type: 'Cabañas Turísticas',
+      city: '',
+      adminEmail: '',
+      adminPhone: '',
+      propertiesCount: 6,
+      feeTier: '35000',
+      customFeeArs: 35000,
+      status: 'active',
+      notes: '',
+    });
+
+    showNotification(`Cliente "${newClient.name}" creado con éxito. Ahora podés abrir su panel PMS o gestionar su cobranza.`);
+  };
+
+  // Handler: Guardar edición de cliente
+  const handleSaveEditClient = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingComplex) return;
+
+    const updated = complexes.map((c) => (c.id === editingComplex.id ? { ...editingComplex } : c));
+    setComplexes(updated);
+    saveComplexesToLocalStorage(updated);
+    setEditingComplex(null);
+    showNotification(`Datos de "${editingComplex.name}" actualizados correctamente.`);
+  };
+
+  // Handler: Toggle Suspender / Reactivar Cuenta
+  const handleToggleSuspendConfirm = () => {
+    if (!complexToToggleSuspend) return;
+
+    const isCurrentlySuspended = complexToToggleSuspend.status === 'suspended';
+    const nextStatus: 'active' | 'suspended' = isCurrentlySuspended ? 'active' : 'suspended';
+
+    const updated = complexes.map((c) => {
+      if (c.id === complexToToggleSuspend.id) {
+        return {
+          ...c,
+          status: nextStatus,
+          suspendedAt: nextStatus === 'suspended' ? new Date().toISOString() : undefined,
+        };
+      }
+      return c;
+    });
+
+    setComplexes(updated);
+    saveComplexesToLocalStorage(updated);
+
+    const complexName = complexToToggleSuspend.name;
+    setComplexToToggleSuspend(null);
+
+    if (nextStatus === 'suspended') {
+      showNotification(`Cuenta "${complexName}" SUSPENDIDA temporalmente.`);
+    } else {
+      showNotification(`Cuenta "${complexName}" REACTIVADA y habilitada.`);
+    }
+  };
+
+  // Handler: Eliminar Cuenta
+  const handleDeleteConfirm = () => {
+    if (!complexToDelete) return;
+
+    const idToRemove = complexToDelete.id;
+    const nameRemoved = complexToDelete.name;
+    const updated = complexes.filter((c) => c.id !== idToRemove);
+
+    setComplexes(updated);
+    saveComplexesToLocalStorage(updated);
+
+    try {
+      localStorage.removeItem(`loomi_demo_state_${idToRemove}`);
+    } catch {}
+
+    setComplexToDelete(null);
+    showNotification(`Cuenta de cliente "${nameRemoved}" eliminada del sistema.`);
+  };
+
   // Filtered complexes
-  const filteredComplexes = complexes.filter(
-    (c) =>
+  const filteredComplexes = complexes.filter((c) => {
+    const matchesSearch =
       c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.id.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      c.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (c.ownerName && c.ownerName.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const matchesStatus =
+      statusFilter === 'all'
+        ? true
+        : statusFilter === 'active'
+        ? c.status === 'active'
+        : statusFilter === 'trial'
+        ? c.status === 'trial'
+        : c.status === 'suspended';
+
+    return matchesSearch && matchesStatus;
+  });
 
   // Metrics
   const totalComplexes = complexes.length;
-  const totalProperties = complexes.reduce((acc, c) => acc + c.propertiesCount, 0);
-  const totalMonthlyArs = complexes.reduce((acc, c) => acc + c.monthlyFeeArs, 0);
+  const activeComplexesCount = complexes.filter((c) => c.status === 'active').length;
+  const suspendedComplexesCount = complexes.filter((c) => c.status === 'suspended').length;
+  const trialComplexesCount = complexes.filter((c) => c.status === 'trial').length;
+  const totalProperties = complexes.reduce((acc, c) => acc + (c.status !== 'suspended' ? c.propertiesCount : 0), 0);
+  const totalMonthlyArs = complexes.reduce((acc, c) => acc + (c.status !== 'suspended' ? c.monthlyFeeArs : 0), 0);
   const totalLeads = leads.length;
 
   // Billing Metrics
   const totalBilledArs = totalMonthlyArs;
   const totalCollectedArs = complexes.reduce((acc, c) => {
+    if (c.status === 'suspended') return acc;
     const isPaid = billingRecords[c.id]?.status === 'paid';
     return acc + (isPaid ? c.monthlyFeeArs : 0);
   }, 0);
   const totalPendingArs = Math.max(0, totalBilledArs - totalCollectedArs);
-  const paidCount = complexes.filter((c) => billingRecords[c.id]?.status === 'paid').length;
+  const paidCount = complexes.filter((c) => c.status !== 'suspended' && billingRecords[c.id]?.status === 'paid').length;
 
   return (
-    <div className="min-h-screen bg-[#0f0e0d] text-[#f4f2ee] font-sans">
+    <div className="min-h-screen bg-[#0f0e0d] text-[#f4f2ee] font-sans pb-16">
+      {/* Toast Notification */}
+      {actionSuccessNotice && (
+        <div className="fixed bottom-5 right-5 z-50 bg-[#1e2a20] border border-[#2d4d33] text-[#88c492] px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-fade-in">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <p className="text-xs font-bold text-white">{actionSuccessNotice}</p>
+        </div>
+      )}
+
       {/* Top SuperAdmin Bar */}
       <header className="bg-[#181614] border-b border-[#2c2722] px-4 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-3">
@@ -399,22 +650,22 @@ ${bankingConfig.contactEmail}`
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-[#25201a]">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
-              <span>Gestión Global de Clientes</span>
+              <span>Gestión de Clientes & Cuentas</span>
               <span className="text-xs font-bold text-[#8e8c87] bg-[#1f1a16] border border-[#332a22] px-3 py-1 rounded-full">
                 loomisuite.net
               </span>
             </h1>
             <p className="text-sm text-[#8e8c87] mt-1">
-              Monitoreo en vivo de complejos registrados, suscripciones activas y oportunidades de venta.
+              Panel maestro para alta de clientes, cálculo de abonos ($35.000/mes base), suspensión, baja y cobranzas por transferencia.
             </p>
           </div>
 
           <button
-            onClick={onOpenNewComplexModal}
+            onClick={() => setIsAddClientModalOpen(true)}
             className="px-4 py-2.5 bg-[#d88d5e] hover:bg-[#c27c4f] text-[#141414] font-bold text-xs rounded-xl transition-all shadow-md shadow-[#d88d5e]/20 flex items-center gap-2 cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
-            <span>Crear / Registrar Cliente</span>
+            <UserPlus className="w-4 h-4" />
+            <span>+ Cargar Datos del Cliente</span>
           </button>
         </div>
 
@@ -423,11 +674,13 @@ ${bankingConfig.contactEmail}`
           {/* Metric 1 */}
           <div className="p-5 rounded-2xl bg-[#181614] border border-[#2b251f] shadow-xs flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold text-[#8e8c87] uppercase tracking-wider">Complejos Activos</p>
+              <p className="text-xs font-bold text-[#8e8c87] uppercase tracking-wider">Total de Cuentas</p>
               <p className="text-3xl font-extrabold text-white mt-1.5">{totalComplexes}</p>
-              <p className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" />
-                <span>En la nube Firestore</span>
+              <p className="text-[11px] text-[#8e8c87] mt-1 flex items-center gap-1.5">
+                <span className="text-emerald-400 font-bold">{activeComplexesCount} activas</span>
+                {suspendedComplexesCount > 0 && (
+                  <span className="text-amber-400">• {suspendedComplexesCount} susp.</span>
+                )}
               </p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#281c15] text-[#d88d5e] border border-[#482e21] flex items-center justify-center shrink-0">
@@ -440,7 +693,7 @@ ${bankingConfig.contactEmail}`
             <div>
               <p className="text-xs font-bold text-[#8e8c87] uppercase tracking-wider">Unidades Gestionadas</p>
               <p className="text-3xl font-extrabold text-white mt-1.5">{totalProperties}</p>
-              <p className="text-[11px] text-[#8e8c87] mt-1">Cabañas y departamentos</p>
+              <p className="text-[11px] text-[#8e8c87] mt-1">Cabañas y departamentos activos</p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#1a232b] text-[#76aab8] border border-[#2a3c4c] flex items-center justify-center shrink-0">
               <Users className="w-6 h-6" />
@@ -454,7 +707,7 @@ ${bankingConfig.contactEmail}`
               <p className="text-3xl font-extrabold text-white mt-1.5">
                 ${totalMonthlyArs.toLocaleString('es-AR')}
               </p>
-              <p className="text-[11px] text-emerald-400 mt-1">Abonos en pesos con ajuste IPC</p>
+              <p className="text-[11px] text-emerald-400 mt-1">Base $35.000 por cliente</p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#1b271d] text-[#88c492] border border-[#2d4732] flex items-center justify-center shrink-0">
               <DollarSign className="w-6 h-6" />
@@ -464,7 +717,7 @@ ${bankingConfig.contactEmail}`
           {/* Metric 4 */}
           <div className="p-5 rounded-2xl bg-[#181614] border border-[#2b251f] shadow-xs flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold text-[#8e8c87] uppercase tracking-wider">Leads & Consultas</p>
+              <p className="text-xs font-bold text-[#8e8c87] uppercase tracking-wider">Consultas & Leads</p>
               <p className="text-3xl font-extrabold text-white mt-1.5">{totalLeads}</p>
               <p className="text-[11px] text-[#e88863] mt-1">Interesados vía web / WhatsApp</p>
             </div>
@@ -485,7 +738,7 @@ ${bankingConfig.contactEmail}`
             }`}
           >
             <Building2 className="w-4 h-4" />
-            <span>Listado de Complejos ({complexes.length})</span>
+            <span>Listado de Clientes y Cuentas ({complexes.length})</span>
           </button>
 
           <button
@@ -497,7 +750,7 @@ ${bankingConfig.contactEmail}`
             }`}
           >
             <Receipt className="w-4 h-4" />
-            <span>Cobranzas por Transferencia ({paidCount}/{complexes.length} al día)</span>
+            <span>Cobranzas por Transferencia ({paidCount}/{activeComplexesCount} al día)</span>
           </button>
 
           <button
@@ -528,21 +781,64 @@ ${bankingConfig.contactEmail}`
         {/* Tab 1: Complexes Table */}
         {activeTab === 'complexes' && (
           <div className="space-y-4">
-            {/* Search filter bar */}
-            <div className="flex items-center justify-between gap-4">
+            {/* Search filter and status pills bar */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <div className="relative flex-1 max-w-md">
                 <Search className="w-4 h-4 text-[#8e8c87] absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Buscar por nombre de complejo o ciudad..."
+                  placeholder="Buscar por complejo, titular o ciudad..."
                   className="w-full bg-[#181614] border border-[#2b251f] rounded-xl pl-9 pr-3.5 py-2 text-xs text-white placeholder:text-zinc-600 focus:border-[#d88d5e] focus:outline-hidden"
                 />
               </div>
 
-              <div className="text-xs text-[#8e8c87]">
-                Mostrando <strong>{filteredComplexes.length}</strong> de {complexes.length} clientes
+              {/* Status Filters */}
+              <div className="flex items-center gap-1.5 overflow-x-auto">
+                <button
+                  onClick={() => setStatusFilter('all')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    statusFilter === 'all'
+                      ? 'bg-[#332b22] text-white border border-[#4d3d2e]'
+                      : 'bg-[#181614] text-[#8e8c87] border border-[#2b251f] hover:text-white'
+                  }`}
+                >
+                  Todos ({complexes.length})
+                </button>
+                <button
+                  onClick={() => setStatusFilter('active')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                    statusFilter === 'active'
+                      ? 'bg-[#1b271d] text-[#88c492] border border-[#2d4732]'
+                      : 'bg-[#181614] text-[#8e8c87] border border-[#2b251f] hover:text-white'
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  Activos ({activeComplexesCount})
+                </button>
+                <button
+                  onClick={() => setStatusFilter('trial')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                    statusFilter === 'trial'
+                      ? 'bg-[#18232c] text-[#76aab8] border border-[#263c4c]'
+                      : 'bg-[#181614] text-[#8e8c87] border border-[#2b251f] hover:text-white'
+                  }`}
+                >
+                  <Clock className="w-3 h-3 text-cyan-400" />
+                  Prueba ({trialComplexesCount})
+                </button>
+                <button
+                  onClick={() => setStatusFilter('suspended')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                    statusFilter === 'suspended'
+                      ? 'bg-[#351c14] text-[#e88863] border border-[#582a1d]'
+                      : 'bg-[#181614] text-[#8e8c87] border border-[#2b251f] hover:text-white'
+                  }`}
+                >
+                  <Lock className="w-3 h-3 text-amber-400" />
+                  Suspendidos ({suspendedComplexesCount})
+                </button>
               </div>
             </div>
 
@@ -552,78 +848,154 @@ ${bankingConfig.contactEmail}`
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#201d19] border-b border-[#2b251f] text-[#8e8c87] uppercase font-bold text-[10px] tracking-wider">
                     <tr>
-                      <th className="px-5 py-3.5">Complejo / Alojamiento</th>
+                      <th className="px-5 py-3.5">Cliente / Complejo</th>
                       <th className="px-4 py-3.5">Tipo & Ubicación</th>
                       <th className="px-4 py-3.5 text-center">Unidades</th>
-                      <th className="px-4 py-3.5">Plan & Abono</th>
+                      <th className="px-4 py-3.5">Abono Mensual (ARS)</th>
                       <th className="px-4 py-3.5 text-center">Estado</th>
-                      <th className="px-5 py-3.5 text-right">Acción SuperAdmin</th>
+                      <th className="px-5 py-3.5 text-right">Acciones de Gestión</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#25201a]">
-                    {filteredComplexes.map((c) => (
-                      <tr key={c.id} className="hover:bg-[#1e1a17] transition-colors">
-                        {/* Name & Contact */}
-                        <td className="px-5 py-4">
-                          <div className="font-bold text-white text-sm flex items-center gap-2">
-                            <span>{c.name}</span>
-                            {c.id === currentComplexId && (
-                              <span className="text-[10px] bg-[#33251c] text-[#d88d5e] border border-[#4d3224] px-2 py-0.5 rounded-md font-semibold">
-                                Abierto actualmente
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-[11px] text-[#8e8c87] mt-0.5 flex items-center gap-2">
-                            <span>ID: <code>{c.id}</code></span>
-                            {c.adminPhone && (
-                              <>
-                                <span>•</span>
-                                <span className="text-[#a4cca8]">{c.adminPhone}</span>
-                              </>
-                            )}
-                          </div>
-                        </td>
-
-                        {/* Type & City */}
-                        <td className="px-4 py-4">
-                          <p className="text-white font-medium">{c.type}</p>
-                          <p className="text-[11px] text-[#8e8c87] mt-0.5">{c.city}</p>
-                        </td>
-
-                        {/* Units count */}
-                        <td className="px-4 py-4 text-center">
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-[#221e1a] border border-[#332d26] text-white font-bold">
-                            {c.propertiesCount} deptos/cabañas
-                          </span>
-                        </td>
-
-                        {/* Plan & Fee */}
-                        <td className="px-4 py-4">
-                          <p className="text-white font-bold">${c.monthlyFeeArs.toLocaleString('es-AR')} / mes</p>
-                          <p className="text-[11px] text-[#8e8c87]">{c.plan}</p>
-                        </td>
-
-                        {/* Status */}
-                        <td className="px-4 py-4 text-center">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#1b271d] text-[#88c492] border border-[#2d4732]">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                            Activo
-                          </span>
-                        </td>
-
-                        {/* Action: Impersonate / Open */}
-                        <td className="px-5 py-4 text-right">
-                          <button
-                            onClick={() => onOpenComplexAsAdmin(c.id)}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#281c15] hover:bg-[#38261c] text-[#d88d5e] border border-[#482e21] font-bold text-xs transition-all cursor-pointer shadow-2xs"
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                            <span>Abrir Panel PMS</span>
-                            <ArrowRight className="w-3 h-3" />
-                          </button>
+                    {filteredComplexes.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="px-5 py-8 text-center text-[#8e8c87]">
+                          No se encontraron clientes con el filtro aplicado.
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      filteredComplexes.map((c) => {
+                        const isSuspended = c.status === 'suspended';
+                        const isTrial = c.status === 'trial';
+                        const cleanPhone = (c.adminPhone || '').replace(/\D/g, '');
+                        const waUrl = cleanPhone
+                          ? `https://wa.me/${cleanPhone}?text=${getBillingMessageWhatsApp(c)}`
+                          : undefined;
+
+                        return (
+                          <tr
+                            key={c.id}
+                            className={`transition-colors ${
+                              isSuspended ? 'bg-[#181210]/60 hover:bg-[#201613]' : 'hover:bg-[#1e1a17]'
+                            }`}
+                          >
+                            {/* Name, Owner & Contact */}
+                            <td className="px-5 py-4">
+                              <div className="font-bold text-white text-sm flex items-center gap-2">
+                                <span>{c.name}</span>
+                                {c.id === currentComplexId && (
+                                  <span className="text-[10px] bg-[#33251c] text-[#d88d5e] border border-[#4d3224] px-2 py-0.5 rounded-md font-semibold">
+                                    Abierto actualmente
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-[11px] text-[#8e8c87] mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                                {c.ownerName && <span className="text-[#d88d5e] font-medium">{c.ownerName}</span>}
+                                {c.ownerName && <span>•</span>}
+                                <span>{c.adminEmail}</span>
+                                {c.adminPhone && (
+                                  <>
+                                    <span>•</span>
+                                    <span className="text-[#a4cca8] font-mono">{c.adminPhone}</span>
+                                  </>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* Type & City */}
+                            <td className="px-4 py-4">
+                              <p className="text-white font-medium">{c.type}</p>
+                              <p className="text-[11px] text-[#8e8c87] mt-0.5">{c.city}</p>
+                            </td>
+
+                            {/* Units count */}
+                            <td className="px-4 py-4 text-center">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-[#221e1a] border border-[#332d26] text-white font-bold">
+                                {c.propertiesCount} unidades
+                              </span>
+                            </td>
+
+                            {/* Plan & Fee ($35.000 / mes base) */}
+                            <td className="px-4 py-4">
+                              <p className="text-white font-bold text-sm">
+                                ${c.monthlyFeeArs.toLocaleString('es-AR')} <span className="text-xs font-normal text-[#8e8c87]">/ mes</span>
+                              </p>
+                              <p className="text-[11px] text-[#8e8c87]">{c.plan}</p>
+                            </td>
+
+                            {/* Status */}
+                            <td className="px-4 py-4 text-center">
+                              {isSuspended ? (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#381813] text-[#f87171] border border-[#6b251a]">
+                                  <Lock className="w-3 h-3 text-red-400" />
+                                  Suspendido
+                                </span>
+                              ) : isTrial ? (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#18232c] text-[#76aab8] border border-[#263c4c]">
+                                  <Clock className="w-3 h-3 text-cyan-400" />
+                                  En Prueba
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#1b271d] text-[#88c492] border border-[#2d4732]">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                  Activo
+                                </span>
+                              )}
+                            </td>
+
+                            {/* Action Buttons: Impersonate, Edit, Suspend/Reactivate, Delete */}
+                            <td className="px-5 py-4 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
+                                {/* Abrir PMS */}
+                                <button
+                                  onClick={() => onOpenComplexAsAdmin(c.id)}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#281c15] hover:bg-[#38261c] text-[#d88d5e] border border-[#482e21] font-bold text-xs transition-all cursor-pointer"
+                                  title="Abrir panel PMS del cliente"
+                                >
+                                  <Eye className="w-3.5 h-3.5" />
+                                  <span>Ver PMS</span>
+                                </button>
+
+                                {/* Editar Datos */}
+                                <button
+                                  onClick={() => setEditingComplex(c)}
+                                  className="p-1.5 rounded-lg bg-[#221e1a] hover:bg-[#2c2621] text-[#8e8c87] hover:text-white border border-[#332d26] transition-all cursor-pointer"
+                                  title="Editar datos del cliente y tarifa"
+                                >
+                                  <Edit3 className="w-3.5 h-3.5" />
+                                </button>
+
+                                {/* Suspender / Reactivar */}
+                                <button
+                                  onClick={() => setComplexToToggleSuspend(c)}
+                                  className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                                    isSuspended
+                                      ? 'bg-[#1b271d] hover:bg-[#233527] text-[#88c492] border-[#2d4732]'
+                                      : 'bg-[#2a1d17] hover:bg-[#38261e] text-[#e88863] border-[#482c1f]'
+                                  }`}
+                                  title={isSuspended ? 'Reactivar cuenta' : 'Suspender cuenta'}
+                                >
+                                  {isSuspended ? (
+                                    <Unlock className="w-3.5 h-3.5 text-emerald-400" />
+                                  ) : (
+                                    <Lock className="w-3.5 h-3.5 text-amber-400" />
+                                  )}
+                                </button>
+
+                                {/* Eliminar Cuenta */}
+                                <button
+                                  onClick={() => setComplexToDelete(c)}
+                                  className="p-1.5 rounded-lg bg-[#2a1818] hover:bg-[#3d1e1e] text-red-400 border border-[#502222] transition-all cursor-pointer"
+                                  title="Eliminar cuenta de cliente"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -639,7 +1011,7 @@ ${bankingConfig.contactEmail}`
               <div className="p-5 rounded-2xl bg-[#181614] border border-[#2b251f]">
                 <span className="text-[11px] font-bold text-[#8e8c87] uppercase tracking-wider">Abonos a Cobrar (Mes)</span>
                 <p className="text-2xl font-black text-white mt-1">${totalBilledArs.toLocaleString('es-AR')}</p>
-                <p className="text-xs text-[#8e8c87] mt-0.5">{complexes.length} clientes activos</p>
+                <p className="text-xs text-[#8e8c87] mt-0.5">{activeComplexesCount} clientes activos</p>
               </div>
 
               <div className="p-5 rounded-2xl bg-[#181614] border border-[#2b251f]">
@@ -650,13 +1022,13 @@ ${bankingConfig.contactEmail}`
                   </span>
                 </div>
                 <p className="text-2xl font-black text-emerald-400 mt-1">${totalCollectedArs.toLocaleString('es-AR')}</p>
-                <p className="text-xs text-emerald-400/80 mt-0.5">{paidCount} de {complexes.length} al día</p>
+                <p className="text-xs text-emerald-400/80 mt-0.5">{paidCount} de {activeComplexesCount} al día</p>
               </div>
 
               <div className="p-5 rounded-2xl bg-[#181614] border border-[#2b251f]">
                 <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Pendiente de Cobro</span>
                 <p className="text-2xl font-black text-amber-400 mt-1">${totalPendingArs.toLocaleString('es-AR')}</p>
-                <p className="text-xs text-amber-400/80 mt-0.5">{complexes.length - paidCount} pendientes</p>
+                <p className="text-xs text-amber-400/80 mt-0.5">{activeComplexesCount - paidCount} pendientes</p>
               </div>
 
               <div className="p-5 rounded-2xl bg-[#181614] border border-[#2b251f]">
@@ -681,7 +1053,7 @@ ${bankingConfig.contactEmail}`
                       </span>
                     </h3>
                     <p className="text-xs text-[#8e8c87]">
-                      Estos datos se insertan automáticamente al generar los avisos de WhatsApp y correo
+                      Estos datos se insertan automáticamente al generar los avisos de WhatsApp y correo para el abono de $35.000
                     </p>
                   </div>
                 </div>
@@ -752,11 +1124,13 @@ ${bankingConfig.contactEmail}`
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-[#8e8c87] mb-1">Email de Cobranzas</label>
+                    <label className="block text-[11px] font-bold text-[#8e8c87] mb-1">Día Vencimiento Mensual</label>
                     <input
-                      type="email"
-                      value={bankingEditForm.contactEmail}
-                      onChange={(e) => setBankingEditForm({ ...bankingEditForm, contactEmail: e.target.value })}
+                      type="number"
+                      min={1}
+                      max={31}
+                      value={bankingEditForm.dueDay}
+                      onChange={(e) => setBankingEditForm({ ...bankingEditForm, dueDay: Number(e.target.value) })}
                       className="w-full bg-[#141210] border border-[#332b22] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
                       required
                     />
@@ -765,73 +1139,72 @@ ${bankingConfig.contactEmail}`
                     <button
                       type="button"
                       onClick={() => setIsEditingBanking(false)}
-                      className="px-3 py-1.5 rounded-lg text-xs text-[#8e8c87] hover:text-white"
+                      className="px-3 py-1.5 rounded-lg bg-[#221e1a] text-[#8e8c87] text-xs font-bold"
                     >
                       Cancelar
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-1.5 rounded-lg bg-[#c46d45] hover:bg-[#d88d5e] text-white text-xs font-bold shadow-xs cursor-pointer"
+                      className="px-4 py-1.5 rounded-lg bg-[#d88d5e] text-[#141414] text-xs font-bold"
                     >
                       Guardar Datos Bancarios
                     </button>
                   </div>
                 </form>
               ) : (
-                /* Display of Bank Credentials */
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                  <div className="p-3 rounded-xl bg-[#201c18] border border-[#2d251e]">
-                    <span className="text-[10px] text-[#8e8c87] block font-bold uppercase">Alias</span>
-                    <div className="flex items-center justify-between gap-1 mt-0.5">
-                      <span className="font-extrabold text-[#d88d5e] text-sm truncate">{bankingConfig.alias}</span>
-                      <button
-                        onClick={() => handleCopyText(bankingConfig.alias, 'alias')}
-                        className="p-1 rounded-md text-[#8e8c87] hover:text-white hover:bg-[#2b251f] cursor-pointer"
-                        title="Copiar Alias"
-                      >
-                        {copiedField === 'alias' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                      </button>
+                /* Bank details preview grid */
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
+                  <div className="p-3 rounded-xl bg-[#201c18] border border-[#302820]">
+                    <span className="text-[10px] text-[#8e8c87] block uppercase font-bold">Titular</span>
+                    <span className="font-bold text-white mt-0.5 block truncate">{bankingConfig.accountHolder}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-[#201c18] border border-[#302820]">
+                    <span className="text-[10px] text-[#8e8c87] block uppercase font-bold">Banco</span>
+                    <span className="font-bold text-white mt-0.5 block truncate">{bankingConfig.bankName}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-[#201c18] border border-[#302820] flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-[#8e8c87] block uppercase font-bold">Alias</span>
+                      <span className="font-bold text-amber-300 mt-0.5 block">{bankingConfig.alias}</span>
                     </div>
+                    <button
+                      onClick={() => handleCopyText(bankingConfig.alias, 'alias')}
+                      className="text-[#8e8c87] hover:text-white p-1"
+                      title="Copiar Alias"
+                    >
+                      {copiedField === 'alias' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
                   </div>
-
-                  <div className="p-3 rounded-xl bg-[#201c18] border border-[#2d251e]">
-                    <span className="text-[10px] text-[#8e8c87] block font-bold uppercase">CBU / CVU</span>
-                    <div className="flex items-center justify-between gap-1 mt-0.5">
-                      <span className="font-mono text-white text-[11px] truncate">{bankingConfig.cbu}</span>
-                      <button
-                        onClick={() => handleCopyText(bankingConfig.cbu, 'cbu')}
-                        className="p-1 rounded-md text-[#8e8c87] hover:text-white hover:bg-[#2b251f] cursor-pointer"
-                        title="Copiar CBU"
-                      >
-                        {copiedField === 'cbu' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                      </button>
+                  <div className="p-3 rounded-xl bg-[#201c18] border border-[#302820] flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-[#8e8c87] block uppercase font-bold">CBU / CVU</span>
+                      <span className="font-bold text-white mt-0.5 block font-mono text-[11px] truncate max-w-[110px]">
+                        {bankingConfig.cbu}
+                      </span>
                     </div>
+                    <button
+                      onClick={() => handleCopyText(bankingConfig.cbu, 'cbu')}
+                      className="text-[#8e8c87] hover:text-white p-1"
+                      title="Copiar CBU"
+                    >
+                      {copiedField === 'cbu' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
                   </div>
-
-                  <div className="p-3 rounded-xl bg-[#201c18] border border-[#2d251e]">
-                    <span className="text-[10px] text-[#8e8c87] block font-bold uppercase">Titular & CUIT</span>
-                    <p className="font-medium text-white truncate mt-0.5">{bankingConfig.accountHolder}</p>
-                    <p className="text-[10px] text-[#8e8c87]">{bankingConfig.cuit}</p>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-[#201c18] border border-[#2d251e]">
-                    <span className="text-[10px] text-[#8e8c87] block font-bold uppercase">Entidad & Correo</span>
-                    <p className="font-medium text-white truncate mt-0.5">{bankingConfig.bankName}</p>
-                    <p className="text-[10px] text-[#8e8c87] truncate">{bankingConfig.contactEmail}</p>
+                  <div className="p-3 rounded-xl bg-[#201c18] border border-[#302820]">
+                    <span className="text-[10px] text-[#8e8c87] block uppercase font-bold">CUIT</span>
+                    <span className="font-bold text-white mt-0.5 block font-mono">{bankingConfig.cuit}</span>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Clients Billing Table */}
+            {/* List of Complexes for Invoicing */}
             <div className="bg-[#181614] border border-[#2b251f] rounded-2xl overflow-hidden shadow-xs">
-              <div className="p-4 border-b border-[#25201a] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-4 border-b border-[#25201a] flex items-center justify-between">
                 <div>
-                  <h3 className="font-bold text-white text-sm sm:text-base">
-                    Estado de Cobranzas del Período Actual ({new Date().toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })})
-                  </h3>
+                  <h3 className="font-bold text-white text-sm">Estado de Cobro por Complejo (Mes en Curso)</h3>
                   <p className="text-xs text-[#8e8c87]">
-                    Enviá el aviso con los datos de transferencia bancaria por WhatsApp o mail, y marcá el mes cuando te envíen el comprobante
+                    Podés marcar como pagado cuando recibas la transferencia o enviar el recordatorio por WhatsApp
                   </p>
                 </div>
               </div>
@@ -840,81 +1213,87 @@ ${bankingConfig.contactEmail}`
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#201d19] border-b border-[#2b251f] text-[#8e8c87] uppercase font-bold text-[10px] tracking-wider">
                     <tr>
-                      <th className="px-5 py-3.5">Complejo / Cliente</th>
-                      <th className="px-4 py-3.5">Plan & Abono</th>
-                      <th className="px-4 py-3.5 text-center">Estado del Mes</th>
-                      <th className="px-4 py-3.5 text-center">Acción Pago</th>
-                      <th className="px-5 py-3.5 text-right">Aviso de Cobro</th>
+                      <th className="px-5 py-3.5">Complejo / Titular</th>
+                      <th className="px-4 py-3.5">Plan Contratado</th>
+                      <th className="px-4 py-3.5">Monto Mensual</th>
+                      <th className="px-4 py-3.5 text-center">Estado del Pago</th>
+                      <th className="px-5 py-3.5 text-right">Avisos de Cobro</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#25201a]">
                     {complexes.map((c) => {
                       const isPaid = billingRecords[c.id]?.status === 'paid';
                       const cleanPhone = (c.adminPhone || '').replace(/\D/g, '');
-                      const waUrl = cleanPhone ? `https://wa.me/${cleanPhone}?text=${getBillingMessageWhatsApp(c)}` : null;
-                      const mailtoUrl = getBillingMailtoUrl(c);
+                      const waUrl = cleanPhone
+                        ? `https://wa.me/${cleanPhone}?text=${getBillingMessageWhatsApp(c)}`
+                        : undefined;
 
                       return (
                         <tr key={c.id} className="hover:bg-[#1e1a17] transition-colors">
                           <td className="px-5 py-4">
                             <p className="font-bold text-white text-sm">{c.name}</p>
-                            <p className="text-[11px] text-[#8e8c87]">{c.adminPhone || 'Sin teléfono'} · {c.adminEmail}</p>
+                            <p className="text-[11px] text-[#8e8c87] mt-0.5">
+                              {c.ownerName || 'Titular'} • {c.adminPhone || c.adminEmail}
+                            </p>
                           </td>
 
                           <td className="px-4 py-4">
-                            <p className="text-white font-extrabold text-sm">${c.monthlyFeeArs.toLocaleString('es-AR')}</p>
-                            <p className="text-[11px] text-[#d88d5e]">{c.plan}</p>
+                            <span className="font-medium text-white">{c.plan}</span>
+                            <span className="block text-[11px] text-[#8e8c87]">{c.propertiesCount} unidades</span>
                           </td>
 
-                          <td className="px-4 py-4 text-center">
-                            {isPaid ? (
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#172b1a] text-[#8be294] border border-[#254d2a]">
-                                <CheckCircle2 className="w-3.5 h-3.5" />
-                                <span>Al Día (Pagado)</span>
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#2e2316] text-[#e0a867] border border-[#523c23]">
-                                <Clock className="w-3.5 h-3.5" />
-                                <span>Pendiente</span>
-                              </span>
-                            )}
+                          <td className="px-4 py-4">
+                            <span className="font-bold text-white text-sm">
+                              ${c.monthlyFeeArs.toLocaleString('es-AR')} ARS
+                            </span>
                           </td>
 
                           <td className="px-4 py-4 text-center">
                             <button
                               onClick={() => toggleBillingStatus(c.id)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                                 isPaid
-                                  ? 'bg-[#1b271d] text-[#88c492] border-[#2d4732] hover:bg-[#253928]'
-                                  : 'bg-[#281c15] text-[#d88d5e] border-[#482e21] hover:bg-[#38261c]'
+                                  ? 'bg-[#1b271d] hover:bg-[#233527] text-[#88c492] border border-[#2d4732]'
+                                  : 'bg-[#352514] hover:bg-[#48321a] text-amber-300 border border-[#583a1d]'
                               }`}
                             >
-                              {isPaid ? '✓ Pagado (Cambiar)' : 'Marcar como Pagado'}
+                              {isPaid ? (
+                                <>
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                  <span>Transferencia Recibida</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Clock className="w-3.5 h-3.5 text-amber-400" />
+                                  <span>Pendiente de Pago</span>
+                                </>
+                              )}
                             </button>
                           </td>
 
                           <td className="px-5 py-4 text-right">
-                            <div className="inline-flex items-center gap-2">
+                            <div className="flex items-center justify-end gap-2">
                               {waUrl ? (
                                 <a
                                   href={waUrl}
                                   target="_blank"
                                   rel="noreferrer"
                                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1b271d] hover:bg-[#233527] text-[#88c492] border border-[#2d4732] font-bold text-xs transition-all"
-                                  title="Enviar aviso por WhatsApp con Alias y CBU"
+                                  title="Enviar aviso con datos bancarios a su WhatsApp"
                                 >
                                   <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                                  <span>WhatsApp</span>
+                                  <span>Aviso WhatsApp</span>
                                 </a>
-                              ) : null}
+                              ) : (
+                                <span className="text-[11px] text-[#8e8c87]">Sin WhatsApp</span>
+                              )}
 
                               <a
-                                href={mailtoUrl}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#221e1a] hover:bg-[#2c2621] text-white border border-[#332d26] font-bold text-xs transition-all"
+                                href={getBillingMailtoUrl(c)}
+                                className="p-2 rounded-xl bg-[#221e1a] hover:bg-[#2c2621] text-[#8e8c87] hover:text-white border border-[#332d26] transition-all"
                                 title="Enviar aviso por correo electrónico"
                               >
-                                <Mail className="w-3.5 h-3.5 text-sky-400" />
-                                <span>Email</span>
+                                <Mail className="w-3.5 h-3.5" />
                               </a>
                             </div>
                           </td>
@@ -928,15 +1307,15 @@ ${bankingConfig.contactEmail}`
           </div>
         )}
 
-        {/* Tab 3: Leads & Consultas */}
+        {/* Tab 3: Leads */}
         {activeTab === 'leads' && (
           <div className="space-y-4">
             <div className="bg-[#181614] border border-[#2b251f] rounded-2xl overflow-hidden shadow-xs">
-              <div className="p-5 border-b border-[#25201a] flex items-center justify-between">
+              <div className="p-4 border-b border-[#25201a] flex items-center justify-between">
                 <div>
-                  <h3 className="font-bold text-white text-base">Oportunidades Comerciales Recientes</h3>
-                  <p className="text-xs text-[#8e8c87] mt-0.5">
-                    Consultas recibidas a través de la web para contactar por WhatsApp o email
+                  <h3 className="font-bold text-white text-sm">Oportunidades Comerciales & Solicitudes</h3>
+                  <p className="text-xs text-[#8e8c87]">
+                    Consultas recibidas a través de la página web para contratar el servicio
                   </p>
                 </div>
               </div>
@@ -945,8 +1324,8 @@ ${bankingConfig.contactEmail}`
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#201d19] border-b border-[#2b251f] text-[#8e8c87] uppercase font-bold text-[10px] tracking-wider">
                     <tr>
-                      <th className="px-5 py-3.5">Contacto / Nombre</th>
-                      <th className="px-4 py-3.5">Complejo & Propiedades</th>
+                      <th className="px-5 py-3.5">Interesado / Contacto</th>
+                      <th className="px-4 py-3.5">Complejo / Unidades</th>
                       <th className="px-4 py-3.5">Plan de Interés</th>
                       <th className="px-4 py-3.5">Fecha</th>
                       <th className="px-5 py-3.5 text-right">Contactar por WhatsApp</th>
@@ -1006,7 +1385,8 @@ ${bankingConfig.contactEmail}`
             </div>
           </div>
         )}
-        {/* Tab 3: Economics & Cloud Costs */}
+
+        {/* Tab 4: Economics & Cloud Costs */}
         {activeTab === 'economics' && (
           <div className="space-y-6">
             {/* Financial Summary Cards */}
@@ -1015,7 +1395,7 @@ ${bankingConfig.contactEmail}`
               <div className="p-5 rounded-2xl bg-[#181614] border border-[#2b251f] space-y-2">
                 <span className="text-xs font-bold text-[#8e8c87] uppercase tracking-wider">Ingreso Mensual Bruto (MRR)</span>
                 <p className="text-3xl font-extrabold text-white">${totalMonthlyArs.toLocaleString('es-AR')}</p>
-                <p className="text-xs text-[#8e8c87]">Cobrado en ARS con {totalComplexes} clientes activos</p>
+                <p className="text-xs text-[#8e8c87]">Cobrado en ARS con {activeComplexesCount} clientes activos</p>
               </div>
 
               {/* Card 2: Costo Cloud */}
@@ -1053,7 +1433,6 @@ ${bankingConfig.contactEmail}`
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                {/* Metric 1 */}
                 <div className="p-4 rounded-xl bg-[#201c19] border border-[#332a22] space-y-2">
                   <div className="flex justify-between text-xs">
                     <span className="text-[#8e8c87] font-medium">Lecturas de base de datos</span>
@@ -1067,7 +1446,6 @@ ${bankingConfig.contactEmail}`
                   </p>
                 </div>
 
-                {/* Metric 2 */}
                 <div className="p-4 rounded-xl bg-[#201c19] border border-[#332a22] space-y-2">
                   <div className="flex justify-between text-xs">
                     <span className="text-[#8e8c87] font-medium">Escrituras de reservas</span>
@@ -1081,7 +1459,6 @@ ${bankingConfig.contactEmail}`
                   </p>
                 </div>
 
-                {/* Metric 3 */}
                 <div className="p-4 rounded-xl bg-[#201c19] border border-[#332a22] space-y-2">
                   <div className="flex justify-between text-xs">
                     <span className="text-[#8e8c87] font-medium">Almacenamiento Cloud</span>
@@ -1095,22 +1472,485 @@ ${bankingConfig.contactEmail}`
                   </p>
                 </div>
               </div>
-
-              {/* Clarification Box about Subscriptions */}
-              <div className="p-4 rounded-xl bg-[#281c15] border border-[#482e21] text-xs text-[#d88d5e] space-y-1.5">
-                <div className="font-bold flex items-center gap-1.5 text-amber-200">
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>¿Necesitás pagar o suscribirte a Google Cloud ahora mismo?</span>
-                </div>
-                <p className="text-[#c8bfb7] leading-relaxed">
-                  <strong>No.</strong> Tu base de datos Firestore ya fue creada y está activa con la capa gratuita. No te cobrará nada hasta que superes los primeros 50 clientes activos.
-                  Cuando superes ese volumen, Google Cloud sólo factura el excedente (apenas centavos de dólar por cada 100.000 operaciones adicionales).
-                </p>
-              </div>
             </div>
           </div>
         )}
       </main>
+
+      {/* ========================================================================= */}
+      {/* MODAL 1: CARGAR DATOS DEL CLIENTE (+ NUEVO CLIENTE)                       */}
+      {/* ========================================================================= */}
+      {isAddClientModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
+          <div className="bg-[#181614] border border-[#2b251f] rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl p-6 space-y-5">
+            <div className="flex items-center justify-between border-b border-[#25201a] pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#281c15] text-[#d88d5e] border border-[#482e21] flex items-center justify-center">
+                  <UserPlus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-white text-lg">Cargar Datos del Cliente</h3>
+                  <p className="text-xs text-[#8e8c87]">Alta de nuevo alojamiento en el ecosistema Loomi Suite</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsAddClientModalOpen(false)}
+                className="p-1.5 rounded-lg text-[#8e8c87] hover:text-white bg-[#221e1a] border border-[#332d26] cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateClient} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Nombre del Complejo */}
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">
+                    Nombre del Complejo o Alojamiento <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej: Cabañas Los Álamos / Altos del Valle"
+                    value={newClientForm.name}
+                    onChange={(e) => setNewClientForm({ ...newClientForm, name: e.target.value })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-hidden focus:border-[#d88d5e]"
+                  />
+                </div>
+
+                {/* Titular / Dueño */}
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">
+                    Nombre del Titular / Propietario <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej: Martín Gómez"
+                    value={newClientForm.ownerName}
+                    onChange={(e) => setNewClientForm({ ...newClientForm, ownerName: e.target.value })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-hidden focus:border-[#d88d5e]"
+                  />
+                </div>
+
+                {/* Tipo de Alojamiento */}
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">Tipo de Alojamiento</label>
+                  <select
+                    value={newClientForm.type}
+                    onChange={(e) => setNewClientForm({ ...newClientForm, type: e.target.value })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                  >
+                    <option value="Cabañas Turísticas">Cabañas Turísticas</option>
+                    <option value="Departamentos Turísticos">Departamentos Turísticos</option>
+                    <option value="Hotel Boutique & Posada">Hotel Boutique & Posada</option>
+                    <option value="Glamping & Complejo de Domos">Glamping & Complejo de Domos</option>
+                    <option value="Casas de Alquiler Temporario">Casas de Alquiler Temporario</option>
+                  </select>
+                </div>
+
+                {/* Teléfono / WhatsApp */}
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">
+                    WhatsApp de Contacto <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej: +54 9 3541 55-6677"
+                    value={newClientForm.adminPhone}
+                    onChange={(e) => setNewClientForm({ ...newClientForm, adminPhone: e.target.value })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-hidden focus:border-[#d88d5e]"
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">Email de Facturación</label>
+                  <input
+                    type="email"
+                    placeholder="Ej: martin@losalamos.com"
+                    value={newClientForm.adminEmail}
+                    onChange={(e) => setNewClientForm({ ...newClientForm, adminEmail: e.target.value })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-hidden focus:border-[#d88d5e]"
+                  />
+                </div>
+
+                {/* Ciudad / Provincia */}
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">Ciudad y Provincia</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Villa General Belgrano, Córdoba"
+                    value={newClientForm.city}
+                    onChange={(e) => setNewClientForm({ ...newClientForm, city: e.target.value })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-hidden focus:border-[#d88d5e]"
+                  />
+                </div>
+
+                {/* Cantidad de Unidades */}
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">Cantidad de Unidades</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={newClientForm.propertiesCount}
+                    onChange={(e) => setNewClientForm({ ...newClientForm, propertiesCount: Number(e.target.value) })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                  />
+                </div>
+              </div>
+
+              {/* Plan y Abono Mensual */}
+              <div className="p-4 rounded-xl bg-[#201c18] border border-[#382b20] space-y-3">
+                <label className="block text-xs font-bold text-[#d88d5e] uppercase tracking-wider">
+                  Plan Contratado & Tarifa Mensual (ARS)
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <label
+                    className={`p-3 rounded-xl border flex flex-col cursor-pointer transition-all ${
+                      newClientForm.feeTier === '35000'
+                        ? 'bg-[#2a1d17] border-[#d88d5e] text-white'
+                        : 'bg-[#141210] border-[#332b22] text-[#8e8c87]'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="feeTier"
+                      value="35000"
+                      checked={newClientForm.feeTier === '35000'}
+                      onChange={() => setNewClientForm({ ...newClientForm, feeTier: '35000' })}
+                      className="sr-only"
+                    />
+                    <span className="font-extrabold text-sm text-white">$35.000 / mes</span>
+                    <span className="text-[10px] mt-0.5">Plan 4 a 10 Unidades</span>
+                  </label>
+
+                  <label
+                    className={`p-3 rounded-xl border flex flex-col cursor-pointer transition-all ${
+                      newClientForm.feeTier === '55000'
+                        ? 'bg-[#2a1d17] border-[#d88d5e] text-white'
+                        : 'bg-[#141210] border-[#332b22] text-[#8e8c87]'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="feeTier"
+                      value="55000"
+                      checked={newClientForm.feeTier === '55000'}
+                      onChange={() => setNewClientForm({ ...newClientForm, feeTier: '55000' })}
+                      className="sr-only"
+                    />
+                    <span className="font-extrabold text-sm text-white">$55.000 / mes</span>
+                    <span className="text-[10px] mt-0.5">Plan 10 a 20 Unidades</span>
+                  </label>
+
+                  <label
+                    className={`p-3 rounded-xl border flex flex-col cursor-pointer transition-all ${
+                      newClientForm.feeTier === '80000'
+                        ? 'bg-[#2a1d17] border-[#d88d5e] text-white'
+                        : 'bg-[#141210] border-[#332b22] text-[#8e8c87]'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="feeTier"
+                      value="80000"
+                      checked={newClientForm.feeTier === '80000'}
+                      onChange={() => setNewClientForm({ ...newClientForm, feeTier: '80000' })}
+                      className="sr-only"
+                    />
+                    <span className="font-extrabold text-sm text-white">$80.000 / mes</span>
+                    <span className="text-[10px] mt-0.5">Plan 20 a 30 Unidades</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Estado Inicial */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">Estado de la Cuenta</label>
+                  <select
+                    value={newClientForm.status}
+                    onChange={(e: any) => setNewClientForm({ ...newClientForm, status: e.target.value })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                  >
+                    <option value="active">Activo (Facturación en curso)</option>
+                    <option value="trial">En Prueba (Trial 14 días)</option>
+                    <option value="suspended">Suspendido</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">Notas Internas</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Recomendado por Hotel Pinar"
+                    value={newClientForm.notes}
+                    onChange={(e) => setNewClientForm({ ...newClientForm, notes: e.target.value })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-hidden focus:border-[#d88d5e]"
+                  />
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#25201a]">
+                <button
+                  type="button"
+                  onClick={() => setIsAddClientModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl bg-[#221e1a] text-[#8e8c87] hover:text-white border border-[#332d26] text-xs font-bold transition-all cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-[#d88d5e] hover:bg-[#c27c4f] text-[#141414] text-xs font-extrabold transition-all shadow-md cursor-pointer flex items-center gap-2"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Guardar y Dar de Alta</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 2: EDITAR DATOS DEL CLIENTE                                         */}
+      {/* ========================================================================= */}
+      {editingComplex && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
+          <div className="bg-[#181614] border border-[#2b251f] rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl p-6 space-y-5">
+            <div className="flex items-center justify-between border-b border-[#25201a] pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#281c15] text-[#d88d5e] border border-[#482e21] flex items-center justify-center">
+                  <Edit3 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-white text-lg">Editar Datos del Cliente</h3>
+                  <p className="text-xs text-[#8e8c87]">Modificación de {editingComplex.name} (ID: {editingComplex.id})</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setEditingComplex(null)}
+                className="p-1.5 rounded-lg text-[#8e8c87] hover:text-white bg-[#221e1a] border border-[#332d26] cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditClient} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">Nombre del Complejo</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingComplex.name}
+                    onChange={(e) => setEditingComplex({ ...editingComplex, name: e.target.value })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">Titular / Propietario</label>
+                  <input
+                    type="text"
+                    value={editingComplex.ownerName || ''}
+                    onChange={(e) => setEditingComplex({ ...editingComplex, ownerName: e.target.value })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">Tipo de Alojamiento</label>
+                  <input
+                    type="text"
+                    value={editingComplex.type}
+                    onChange={(e) => setEditingComplex({ ...editingComplex, type: e.target.value })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">Teléfono / WhatsApp</label>
+                  <input
+                    type="text"
+                    value={editingComplex.adminPhone || ''}
+                    onChange={(e) => setEditingComplex({ ...editingComplex, adminPhone: e.target.value })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">Email de Facturación</label>
+                  <input
+                    type="email"
+                    value={editingComplex.adminEmail || ''}
+                    onChange={(e) => setEditingComplex({ ...editingComplex, adminEmail: e.target.value })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">Ciudad y Provincia</label>
+                  <input
+                    type="text"
+                    value={editingComplex.city}
+                    onChange={(e) => setEditingComplex({ ...editingComplex, city: e.target.value })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">Cantidad de Unidades</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={editingComplex.propertiesCount}
+                    onChange={(e) => setEditingComplex({ ...editingComplex, propertiesCount: Number(e.target.value) })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                  />
+                </div>
+              </div>
+
+              {/* Tarifa y Estado */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-[#201c18] border border-[#382b20]">
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">Tarifa Mensual ARS ($)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1000}
+                    value={editingComplex.monthlyFeeArs}
+                    onChange={(e) => setEditingComplex({ ...editingComplex, monthlyFeeArs: Number(e.target.value) })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-hidden focus:border-[#d88d5e]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#8e8c87] mb-1">Estado de la Cuenta</label>
+                  <select
+                    value={editingComplex.status}
+                    onChange={(e: any) => setEditingComplex({ ...editingComplex, status: e.target.value })}
+                    className="w-full bg-[#141210] border border-[#332b22] rounded-xl px-3.5 py-2.5 text-xs text-white font-bold focus:outline-hidden focus:border-[#d88d5e]"
+                  >
+                    <option value="active">Activo (Facturación regular)</option>
+                    <option value="trial">En Prueba (Trial 14 días)</option>
+                    <option value="suspended">Suspendido</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#25201a]">
+                <button
+                  type="button"
+                  onClick={() => setEditingComplex(null)}
+                  className="px-4 py-2.5 rounded-xl bg-[#221e1a] text-[#8e8c87] hover:text-white border border-[#332d26] text-xs font-bold transition-all cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-[#d88d5e] hover:bg-[#c27c4f] text-[#141414] text-xs font-extrabold transition-all shadow-md cursor-pointer flex items-center gap-2"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Guardar Cambios</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 3: CONFIRMAR SUSPENDER / REACTIVAR                                  */}
+      {/* ========================================================================= */}
+      {complexToToggleSuspend && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
+          <div className="bg-[#181614] border border-[#382b20] rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#351c14] text-[#e88863] border border-[#582a1d] flex items-center justify-center shrink-0">
+                {complexToToggleSuspend.status === 'suspended' ? (
+                  <Unlock className="w-5 h-5 text-emerald-400" />
+                ) : (
+                  <Lock className="w-5 h-5 text-amber-400" />
+                )}
+              </div>
+              <div>
+                <h3 className="font-extrabold text-white text-base">
+                  {complexToToggleSuspend.status === 'suspended' ? 'Reactivar Cuenta de Cliente' : 'Suspender Cuenta de Cliente'}
+                </h3>
+                <p className="text-xs text-[#8e8c87]">{complexToToggleSuspend.name}</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#c8bfb7] leading-relaxed">
+              {complexToToggleSuspend.status === 'suspended'
+                ? 'Al reactivar la cuenta, el complejo volverá a tener acceso regular a su panel PMS y sincronizaciones.'
+                : 'Al suspender la cuenta, el acceso al panel PMS quedará pausado por administración (por ejemplo, por falta de pago del abono mensual).'}
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#25201a]">
+              <button
+                onClick={() => setComplexToToggleSuspend(null)}
+                className="px-4 py-2 rounded-xl bg-[#221e1a] text-[#8e8c87] hover:text-white border border-[#332d26] text-xs font-bold cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleToggleSuspendConfirm}
+                className={`px-4 py-2 rounded-xl font-bold text-xs cursor-pointer ${
+                  complexToToggleSuspend.status === 'suspended'
+                    ? 'bg-emerald-500 hover:bg-emerald-600 text-black'
+                    : 'bg-amber-500 hover:bg-amber-600 text-black'
+                }`}
+              >
+                {complexToToggleSuspend.status === 'suspended' ? 'Confirmar Reactivación' : 'Confirmar Suspensión'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 4: CONFIRMAR ELIMINACIÓN DE CUENTA                                  */}
+      {/* ========================================================================= */}
+      {complexToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
+          <div className="bg-[#181614] border border-[#4d1f1f] rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#381616] text-red-400 border border-[#5c2424] flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5 text-red-400" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-white text-base">¿Eliminar Cuenta de Cliente?</h3>
+                <p className="text-xs text-red-400 font-bold">{complexToDelete.name}</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#c8bfb7] leading-relaxed">
+              Esta acción eliminará el complejo de la lista maestra de clientes y su configuración local. Esta acción no se puede deshacer.
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#25201a]">
+              <button
+                onClick={() => setComplexToDelete(null)}
+                className="px-4 py-2 rounded-xl bg-[#221e1a] text-[#8e8c87] hover:text-white border border-[#332d26] text-xs font-bold cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs cursor-pointer shadow-md"
+              >
+                Sí, Eliminar Cuenta
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

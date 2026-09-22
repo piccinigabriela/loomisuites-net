@@ -70,65 +70,74 @@ function escapeRegExp(string: string): string {
 
 // Universal Date Normalizer
 function parseAnyDate(raw: any): string | null {
-  if (!raw) return null;
+  if (raw === null || raw === undefined) return null;
 
-  // If number (e.g. Excel timestamp or epoch)
-  if (typeof raw === 'number') {
-    if (raw > 25000 && raw < 65000) {
-      const excelEpoch = new Date(1899, 11, 30);
-      const targetDate = new Date(excelEpoch.getTime() + raw * 86400000);
-      return targetDate.toISOString().split('T')[0];
+  try {
+    // If number (e.g. Excel timestamp or epoch)
+    if (typeof raw === 'number') {
+      if (raw > 25000 && raw < 65000) {
+        const excelEpoch = new Date(1899, 11, 30);
+        const targetDate = new Date(excelEpoch.getTime() + raw * 86400000);
+        if (!isNaN(targetDate.getTime())) {
+          return targetDate.toISOString().split('T')[0];
+        }
+      }
+      if (raw > 1000000000000) {
+        const d = new Date(raw);
+        if (!isNaN(d.getTime())) {
+          return d.toISOString().split('T')[0];
+        }
+      }
     }
-    if (raw > 1000000000000) {
-      return new Date(raw).toISOString().split('T')[0];
+
+    let str = String(raw).trim();
+    // Remove quotes, time portions, and leading/trailing noise
+    str = str.replace(/^["']|["']$/g, '').split('T')[0].split(' ')[0].trim();
+    if (!str) return null;
+
+    // 1. ISO format: YYYY-MM-DD or YYYY/MM/DD
+    const isoMatch = str.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+    if (isoMatch) {
+      const year = isoMatch[1];
+      const month = isoMatch[2].padStart(2, '0');
+      const day = isoMatch[3].padStart(2, '0');
+      return `${year}-${month}-${day}`;
     }
-  }
 
-  let str = String(raw).trim();
-  // Remove quotes, time portions, and leading/trailing noise
-  str = str.replace(/^["']|["']$/g, '').split('T')[0].split(' ')[0].trim();
-  if (!str) return null;
-
-  // 1. ISO format: YYYY-MM-DD or YYYY/MM/DD
-  const isoMatch = str.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
-  if (isoMatch) {
-    const year = isoMatch[1];
-    const month = isoMatch[2].padStart(2, '0');
-    const day = isoMatch[3].padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  // 2. Latin / Standard: DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
-  const latin4Match = str.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
-  if (latin4Match) {
-    const day = latin4Match[1].padStart(2, '0');
-    const month = latin4Match[2].padStart(2, '0');
-    const year = latin4Match[3];
-    return `${year}-${month}-${day}`;
-  }
-
-  // 3. 2-digit year: DD/MM/YY or DD-MM-YY or DD.MM.YY
-  const latin2Match = str.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2})$/);
-  if (latin2Match) {
-    const day = latin2Match[1].padStart(2, '0');
-    const month = latin2Match[2].padStart(2, '0');
-    let year = Number(latin2Match[3]);
-    year = year < 50 ? 2000 + year : 1900 + year;
-    return `${year}-${month}-${day}`;
-  }
-
-  // 4. Words like "15-Ene-2025" or "15/Ene/25" or "15 de enero de 2025"
-  const wordClean = str.toLowerCase().replace(/ de /g, '-').replace(/[ /.]/g, '-');
-  const wordMatch = wordClean.match(/^(\d{1,2})-([a-z]{3,12})-(\d{2,4})$/);
-  if (wordMatch) {
-    const day = wordMatch[1].padStart(2, '0');
-    const mStr = wordMatch[2].substring(0, 3);
-    const mNum = MONTH_MAP[mStr] || MONTH_MAP[wordMatch[2]] || '01';
-    let year = wordMatch[3];
-    if (year.length === 2) {
-      year = String(Number(year) < 50 ? 2000 + Number(year) : 1900 + Number(year));
+    // 2. Latin / Standard: DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
+    const latin4Match = str.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
+    if (latin4Match) {
+      const day = latin4Match[1].padStart(2, '0');
+      const month = latin4Match[2].padStart(2, '0');
+      const year = latin4Match[3];
+      return `${year}-${month}-${day}`;
     }
-    return `${year}-${mNum}-${day}`;
+
+    // 3. 2-digit year: DD/MM/YY or DD-MM-YY or DD.MM.YY
+    const latin2Match = str.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2})$/);
+    if (latin2Match) {
+      const day = latin2Match[1].padStart(2, '0');
+      const month = latin2Match[2].padStart(2, '0');
+      let year = Number(latin2Match[3]);
+      year = year < 50 ? 2000 + year : 1900 + year;
+      return `${year}-${month}-${day}`;
+    }
+
+    // 4. Words like "15-Ene-2025" or "15/Ene/25" or "15 de enero de 2025"
+    const wordClean = str.toLowerCase().replace(/ de /g, '-').replace(/[ /.]/g, '-');
+    const wordMatch = wordClean.match(/^(\d{1,2})-([a-z]{3,12})-(\d{2,4})$/);
+    if (wordMatch) {
+      const day = wordMatch[1].padStart(2, '0');
+      const mStr = wordMatch[2].substring(0, 3);
+      const mNum = MONTH_MAP[mStr] || MONTH_MAP[wordMatch[2]] || '01';
+      let year = wordMatch[3];
+      if (year.length === 2) {
+        year = String(Number(year) < 50 ? 2000 + Number(year) : 1900 + Number(year));
+      }
+      return `${year}-${mNum}-${day}`;
+    }
+  } catch {
+    return null;
   }
 
   return null;
@@ -137,26 +146,28 @@ function parseAnyDate(raw: any): string | null {
 // Smart Property Matcher that handles single letters (A, B, C), numbers (1, 2, 101), words, and avoids false greedy fallbacks
 function smartMatchProperty(
   rawCabin: string,
-  otherRowValues: string[],
-  properties: Property[]
+  otherRowValues: string[] = [],
+  properties: Property[] = []
 ): string {
-  if (!properties || properties.length === 0) return 'prop-1';
-  const defaultPropertyId = properties[0]?.id || 'prop-1';
+  const safeProps = Array.isArray(properties) && properties.length > 0
+    ? properties
+    : [{ id: 'prop-1', name: 'Unidad 1' } as any];
+  const defaultPropertyId = safeProps[0]?.id || 'prop-1';
 
   // Sort properties by name length descending so specific names like "Depto A", "Cabaña 102", "1A" match BEFORE single characters
-  const sortedByLength = [...properties].sort((a, b) => b.name.length - a.name.length);
+  const sortedByLength = [...safeProps].sort((a, b) => (b.name || '').length - (a.name || '').length);
 
-  const cleanRaw = rawCabin ? rawCabin.trim() : '';
+  const cleanRaw = rawCabin ? String(rawCabin).trim() : '';
 
   // 1. If explicit cabin string was provided
   if (cleanRaw) {
     const normRaw = normalizeString(cleanRaw);
 
     // 1a. Exact full string match with property name or ID (normalized)
-    for (const prop of properties) {
-      const propNorm = normalizeString(prop.name);
-      const propIdNorm = normalizeString(prop.id);
-      if (normRaw === propNorm || normRaw === propIdNorm) {
+    for (const prop of safeProps) {
+      const propNorm = normalizeString(prop.name || '');
+      const propIdNorm = normalizeString(prop.id || '');
+      if (normRaw && (normRaw === propNorm || normRaw === propIdNorm)) {
         return prop.id;
       }
     }
@@ -166,10 +177,10 @@ function smartMatchProperty(
     if (cleanLetterOnly.length === 1) {
       // Find property whose name or id has that single letter isolated or ending
       const letterMatch = sortedByLength.find(p => {
-        const pLetters = p.name.replace(/[^a-zA-Z]/g, '').toUpperCase();
-        const pEndsWithLetter = p.name.toUpperCase().endsWith(cleanLetterOnly);
+        const pLetters = (p.name || '').replace(/[^a-zA-Z]/g, '').toUpperCase();
+        const pEndsWithLetter = (p.name || '').toUpperCase().endsWith(cleanLetterOnly);
         const pRegex = new RegExp(`(^|[^a-zA-Z])${cleanLetterOnly}($|[^a-zA-Z])`, 'i');
-        return pLetters === cleanLetterOnly || pEndsWithLetter || pRegex.test(p.name);
+        return pLetters === cleanLetterOnly || pEndsWithLetter || pRegex.test(p.name || '');
       });
       if (letterMatch) {
         return letterMatch.id;
@@ -181,7 +192,7 @@ function smartMatchProperty(
     if (rawDigits) {
       // Find property whose digits match rawDigits exactly
       const exactDigitMatch = sortedByLength.find(p => {
-        const pDigits = p.name.replace(/\D/g, '') || p.id.replace(/\D/g, '');
+        const pDigits = (p.name || '').replace(/\D/g, '') || (p.id || '').replace(/\D/g, '');
         return pDigits === rawDigits;
       });
       if (exactDigitMatch) {
@@ -191,12 +202,14 @@ function smartMatchProperty(
 
     // 1d. Word boundary / exact token containment (tested on longest names first!)
     for (const prop of sortedByLength) {
-      const propNorm = normalizeString(prop.name);
+      const propNorm = normalizeString(prop.name || '');
       if (propNorm.length >= 2) {
-        const regex = new RegExp(`(^|[^a-z0-9])${escapeRegExp(propNorm)}($|[^a-z0-9])`, 'i');
-        if (regex.test(normRaw)) {
-          return prop.id;
-        }
+        try {
+          const regex = new RegExp(`(^|[^a-z0-9])${escapeRegExp(propNorm)}($|[^a-z0-9])`, 'i');
+          if (regex.test(normRaw)) {
+            return prop.id;
+          }
+        } catch {}
       }
     }
 
@@ -205,7 +218,7 @@ function smartMatchProperty(
       const words = cleanRaw.split(/[\s,\-_/]+/);
       for (const w of words) {
         const normW = normalizeString(w);
-        if (normW && normW.length >= 2 && normW === normalizeString(prop.name)) {
+        if (normW && normW.length >= 2 && normW === normalizeString(prop.name || '')) {
           return prop.id;
         }
       }
@@ -213,29 +226,33 @@ function smartMatchProperty(
   }
 
   // 2. Fallback: Search other cells in this row (guest name, description, etc.)
-  for (const cell of otherRowValues) {
-    const cellStr = String(cell || '').trim();
-    if (!cellStr) continue;
+  if (Array.isArray(otherRowValues)) {
+    for (const cell of otherRowValues) {
+      const cellStr = String(cell || '').trim();
+      if (!cellStr) continue;
 
-    // Check exact digits in cell
-    const cellDigits = cellStr.replace(/\D/g, '');
-    if (cellDigits && cellDigits.length >= 1 && cellDigits.length <= 4) {
-      const matchByDigit = sortedByLength.find(p => {
-        const pDigits = p.name.replace(/\D/g, '') || p.id.replace(/\D/g, '');
-        return pDigits && pDigits === cellDigits;
-      });
-      if (matchByDigit) {
-        return matchByDigit.id;
+      // Check exact digits in cell
+      const cellDigits = cellStr.replace(/\D/g, '');
+      if (cellDigits && cellDigits.length >= 1 && cellDigits.length <= 4) {
+        const matchByDigit = sortedByLength.find(p => {
+          const pDigits = (p.name || '').replace(/\D/g, '') || (p.id || '').replace(/\D/g, '');
+          return pDigits && pDigits === cellDigits;
+        });
+        if (matchByDigit) {
+          return matchByDigit.id;
+        }
       }
-    }
 
-    const cellNorm = normalizeString(cellStr);
-    for (const prop of sortedByLength) {
-      const propNorm = normalizeString(prop.name);
-      if (propNorm.length >= 2) {
-        const regex = new RegExp(`(^|[^a-z0-9])${escapeRegExp(propNorm)}($|[^a-z0-9])`, 'i');
-        if (regex.test(cellNorm)) {
-          return prop.id;
+      const cellNorm = normalizeString(cellStr);
+      for (const prop of sortedByLength) {
+        const propNorm = normalizeString(prop.name || '');
+        if (propNorm.length >= 2) {
+          try {
+            const regex = new RegExp(`(^|[^a-z0-9])${escapeRegExp(propNorm)}($|[^a-z0-9])`, 'i');
+            if (regex.test(cellNorm)) {
+              return prop.id;
+            }
+          } catch {}
         }
       }
     }
@@ -397,134 +414,152 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
     valueMap: Record<string, string>,
     platMap: Record<string, BookingPlatform> = {}
   ) => {
-    const events: ParsedEvent[] = [];
-    const properties = demoState.properties;
-    const defaultPropertyId = properties[0]?.id || 'prop-1';
+    try {
+      const events: ParsedEvent[] = [];
+      const properties = (demoState?.properties && demoState.properties.length > 0)
+        ? demoState.properties
+        : [{ id: 'prop-1', name: 'Unidad 1', type: 'apartment', basePrice: 120, cleaningFee: 35, capacity: 4, rooms: 2, bathrooms: 1, floor: '1', amenities: [] } as any];
+      const defaultPropertyId = properties[0]?.id || 'prop-1';
 
-    rows.forEach((row, i) => {
-      if (row.length < 1 || row.every(v => !v)) return;
+      if (!Array.isArray(rows)) return [];
 
-      let checkIn: string | null = null;
-      let checkOut: string | null = null;
-      let guestName = '';
-      let rawCabin = '';
-      let platformVal = '';
-      let totalAmount: number | undefined = undefined;
+      rows.forEach((row, i) => {
+        if (!Array.isArray(row) || row.length < 1 || row.every(v => !v)) return;
 
-      // Dates
-      if (inIdx !== -1 && row[inIdx]) checkIn = parseAnyDate(row[inIdx]);
-      if (outIdx !== -1 && row[outIdx]) checkOut = parseAnyDate(row[outIdx]);
+        let checkIn: string | null = null;
+        let checkOut: string | null = null;
+        let guestName = '';
+        let rawCabin = '';
+        let platformVal = '';
+        let totalAmount: number | undefined = undefined;
 
-      // If dates not found in mapped columns, attempt scan
-      if (!checkIn || !checkOut) {
-        const foundDates: string[] = [];
-        row.forEach(val => {
-          const d = parseAnyDate(val);
-          if (d && !foundDates.includes(d)) foundDates.push(d);
-        });
-        if (foundDates.length >= 2) {
-          checkIn = foundDates[0];
-          checkOut = foundDates[1];
+        // Dates
+        if (inIdx !== -1 && row[inIdx]) checkIn = parseAnyDate(row[inIdx]);
+        if (outIdx !== -1 && row[outIdx]) checkOut = parseAnyDate(row[outIdx]);
+
+        // If dates not found in mapped columns, attempt scan
+        if (!checkIn || !checkOut) {
+          const foundDates: string[] = [];
+          row.forEach(val => {
+            const d = parseAnyDate(val);
+            if (d && !foundDates.includes(d)) foundDates.push(d);
+          });
+          if (foundDates.length >= 2) {
+            checkIn = foundDates[0];
+            checkOut = foundDates[1];
+          }
         }
-      }
 
-      if (!checkIn || !checkOut) return;
+        if (!checkIn || !checkOut) return;
 
-      // Guest Name
-      if (gIdx !== -1 && row[gIdx]) {
-        guestName = row[gIdx].trim();
-      } else {
-        const candidate = row.find(v => v && !parseAnyDate(v) && isNaN(Number(v)) && v.length > 2);
-        guestName = candidate ? candidate.trim() : `Huésped #${i + 1}`;
-      }
+        // Guest Name
+        if (gIdx !== -1 && row[gIdx]) {
+          guestName = String(row[gIdx]).trim();
+        } else {
+          const candidate = row.find(v => v && !parseAnyDate(v) && isNaN(Number(v)) && String(v).length > 2);
+          guestName = candidate ? String(candidate).trim() : `Huésped #${i + 1}`;
+        }
 
-      // Cabin / Unit
-      if (cIdx !== -1 && row[cIdx]) {
-        rawCabin = row[cIdx].trim();
-      }
+        // Cabin / Unit
+        if (cIdx !== -1 && row[cIdx]) {
+          rawCabin = String(row[cIdx]).trim();
+        }
 
-      // Platform value
-      if (pIdx !== -1 && row[pIdx]) {
-        platformVal = row[pIdx].trim();
-      }
+        // Platform value
+        if (pIdx !== -1 && row[pIdx]) {
+          platformVal = String(row[pIdx]).trim();
+        }
 
-      // Amount
-      if (amtIdx !== -1 && row[amtIdx]) {
-        const cleanAmt = String(row[amtIdx]).replace(/[^0-9.,]/g, '').replace(',', '.');
-        const num = parseFloat(cleanAmt);
-        if (!isNaN(num) && num > 0) totalAmount = num;
-      }
+        // Amount
+        if (amtIdx !== -1 && row[amtIdx]) {
+          const cleanAmt = String(row[amtIdx]).replace(/[^0-9.,]/g, '').replace(',', '.');
+          const num = parseFloat(cleanAmt);
+          if (!isNaN(num) && num > 0) totalAmount = num;
+        }
 
-      const cInDate = new Date(checkIn);
-      const cOutDate = new Date(checkOut);
-      const nights = Math.max(1, Math.round((cOutDate.getTime() - cInDate.getTime()) / (1000 * 60 * 60 * 24))) || 1;
+        const cInDate = new Date(checkIn);
+        const cOutDate = new Date(checkOut);
+        let nights = 1;
+        if (!isNaN(cInDate.getTime()) && !isNaN(cOutDate.getTime())) {
+          nights = Math.max(1, Math.round((cOutDate.getTime() - cInDate.getTime()) / (1000 * 60 * 60 * 24))) || 1;
+        }
 
-      // Property assignment: check unitValueMapping first, otherwise smart match
-      let matchedPropertyId = defaultPropertyId;
-      if (rawCabin && valueMap[rawCabin]) {
-        matchedPropertyId = valueMap[rawCabin];
-      } else {
-        matchedPropertyId = smartMatchProperty(rawCabin, row, properties);
-      }
+        // Property assignment: check unitValueMapping first, otherwise smart match
+        let matchedPropertyId = defaultPropertyId;
+        if (rawCabin && valueMap && valueMap[rawCabin]) {
+          matchedPropertyId = valueMap[rawCabin];
+        } else {
+          matchedPropertyId = smartMatchProperty(rawCabin, row, properties);
+        }
 
-      // Platform assignment: check platMap first, otherwise detectPlatform
-      let platform: BookingPlatform = 'direct';
-      if (platformVal && platMap[platformVal]) {
-        platform = platMap[platformVal];
-      } else {
-        platform = detectPlatform(platformVal, row);
-      }
+        // Platform assignment: check platMap first, otherwise detectPlatform
+        let platform: BookingPlatform = 'direct';
+        if (platformVal && platMap && platMap[platformVal]) {
+          platform = platMap[platformVal];
+        } else {
+          platform = detectPlatform(platformVal, row);
+        }
 
-      events.push({
-        guestName: guestName || `Reserva #${i + 1}`,
-        checkIn,
-        checkOut,
-        propertyId: matchedPropertyId,
-        platform,
-        nights,
-        rawCabin,
-        totalAmount,
+        events.push({
+          guestName: guestName || `Reserva #${i + 1}`,
+          checkIn,
+          checkOut,
+          propertyId: matchedPropertyId,
+          platform,
+          nights,
+          rawCabin,
+          totalAmount,
+        });
       });
-    });
 
-    return events.sort((a, b) => a.checkIn.localeCompare(b.checkIn));
+      return events.sort((a, b) => a.checkIn.localeCompare(b.checkIn));
+    } catch (e) {
+      console.error('Error in recomputeEvents:', e);
+      return [];
+    }
   };
 
   // Process text from file or paste
   const processTextContent = (text: string, filename = 'reservas.csv') => {
-    setParseErrorNotice(null);
-    setRawFileSnippet(null);
+    try {
+      setParseErrorNotice(null);
+      setRawFileSnippet(null);
 
-    const clean = text.trim();
-    if (!clean) {
-      setParseErrorNotice('El archivo o texto está vacío.');
-      return;
-    }
-
-    if (filename.endsWith('.ics') || clean.includes('BEGIN:VCALENDAR')) {
-      const events = parseICS(clean);
-      if (events.length === 0) {
-        setParseErrorNotice('No se encontraron reservas con fechas válidas en el archivo .ics de calendario.');
+      const clean = (text || '').trim();
+      if (!clean) {
+        setParseErrorNotice('El archivo o texto está vacío.');
         return;
       }
-      setParsedEvents(events);
-      setStep('preview');
-      return;
-    }
 
-    if (clean.startsWith('{') || clean.startsWith('[') || filename.endsWith('.json')) {
-      const events = parseJSON(clean);
-      if (events.length === 0) {
-        setParseErrorNotice('No se encontraron reservas en el archivo JSON.');
+      if (filename.toLowerCase().endsWith('.ics') || clean.includes('BEGIN:VCALENDAR')) {
+        const events = parseICS(clean);
+        if (events.length === 0) {
+          setParseErrorNotice('No se encontraron reservas con fechas válidas en el archivo .ics de calendario.');
+          return;
+        }
+        setParsedEvents(events);
+        setStep('preview');
         return;
       }
-      setParsedEvents(events);
-      setStep('preview');
-      return;
-    }
 
-    // CSV / TSV Parsing
-    parseCSV(clean);
+      if (clean.startsWith('{') || clean.startsWith('[') || filename.toLowerCase().endsWith('.json')) {
+        const events = parseJSON(clean);
+        if (events.length === 0) {
+          setParseErrorNotice('No se encontraron reservas en el archivo JSON.');
+          return;
+        }
+        setParsedEvents(events);
+        setStep('preview');
+        return;
+      }
+
+      // CSV / TSV Parsing
+      parseCSV(clean);
+    } catch (err: any) {
+      console.error('Error processing text content:', err);
+      setParseErrorNotice(`Error al procesar el archivo: ${err?.message || 'Formato no reconocido'}. Podés usar la plantilla descargable o pegar el texto.`);
+      setStep('upload');
+    }
   };
 
   const processFile = async (selectedFile: File) => {
@@ -715,166 +750,177 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
 
   // Ultra-flexible CSV / TSV / Delimited Parser with interactive column mapping
   const parseCSV = (text: string) => {
-    const cleanText = text.replace(/^\uFEFF/, '');
-    const lines = cleanText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
-    if (lines.length < 1) {
-      setParseErrorNotice('El archivo está vacío.');
-      return;
-    }
-
-    // Auto-detect separator
-    const firstFew = lines.slice(0, 5).join('\n');
-    const commaCount = (firstFew.match(/,/g) || []).length;
-    const semiCount = (firstFew.match(/;/g) || []).length;
-    const tabCount = (firstFew.match(/\t/g) || []).length;
-    const pipeCount = (firstFew.match(/\|/g) || []).length;
-
-    let sep = ',';
-    if (semiCount > commaCount && semiCount >= tabCount) sep = ';';
-    else if (tabCount > commaCount && tabCount >= semiCount) sep = '\t';
-    else if (pipeCount > commaCount && pipeCount > semiCount) sep = '|';
-
-    const parseRow = (line: string): string[] => {
-      const values: string[] = [];
-      let current = '';
-      let insideQuotes = false;
-      for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        if (char === '"') {
-          insideQuotes = !insideQuotes;
-        } else if (char === sep && !insideQuotes) {
-          values.push(current.trim().replace(/^["']|["']$/g, ''));
-          current = '';
-        } else {
-          current += char;
-        }
+    try {
+      const cleanText = (text || '').replace(/^\uFEFF/, '');
+      const lines = cleanText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+      if (lines.length < 1) {
+        setParseErrorNotice('El archivo está vacío.');
+        return;
       }
-      values.push(current.trim().replace(/^["']|["']$/g, ''));
-      return values;
-    };
 
-    const parsedRows = lines.map(parseRow);
-    if (parsedRows.length === 0) return;
+      const safeProps = (demoState?.properties && demoState.properties.length > 0)
+        ? demoState.properties
+        : [{ id: 'prop-1', name: 'Unidad 1', type: 'apartment', basePrice: 120, cleaningFee: 35, capacity: 4, rooms: 2, bathrooms: 1, floor: '1', amenities: [] } as any];
 
-    const headerRow = parsedRows[0];
-    const headers = headerRow.map(h => h.toLowerCase());
+      // Auto-detect separator
+      const firstFew = lines.slice(0, 5).join('\n');
+      const commaCount = (firstFew.match(/,/g) || []).length;
+      const semiCount = (firstFew.match(/;/g) || []).length;
+      const tabCount = (firstFew.match(/\t/g) || []).length;
+      const pipeCount = (firstFew.match(/\|/g) || []).length;
 
-    // Header index detection with comprehensive synonyms
-    let guestIdx = headers.findIndex(h =>
-      h.includes('guest') || h.includes('nombre') || h.includes('huésped') || h.includes('huesped') ||
-      h.includes('cliente') || h.includes('pasajero') || h.includes('titular') || h.includes('viajero') ||
-      h.includes('reserva') || h.includes('summary') || h.includes('name') || h.includes('booker')
-    );
+      let sep = ',';
+      if (semiCount > commaCount && semiCount >= tabCount) sep = ';';
+      else if (tabCount > commaCount && tabCount >= semiCount) sep = '\t';
+      else if (pipeCount > commaCount && pipeCount > semiCount) sep = '|';
 
-    let startIdx = headers.findIndex(h =>
-      h.includes('start') || h.includes('desde') || h.includes('entrada') || h.includes('ingreso') ||
-      h.includes('llegada') || h.includes('checkin') || h.includes('check-in') || h.includes('check in') ||
-      h.includes('in') || h.includes('f.desde') || h.includes('f. desde') || h.includes('fecha in') ||
-      h.includes('fecha_in') || h.includes('arribo') || h.includes('arrival') || h.includes('inicio')
-    );
-
-    let endIdx = headers.findIndex(h =>
-      h.includes('end') || h.includes('hasta') || h.includes('salida') || h.includes('egreso') ||
-      h.includes('partida') || h.includes('checkout') || h.includes('check-out') || h.includes('check out') ||
-      h.includes('out') || h.includes('f.hasta') || h.includes('f. hasta') || h.includes('fecha out') ||
-      h.includes('fecha_out') || h.includes('fin') || h.includes('departure')
-    );
-
-    let cabinIdx = headers.findIndex(h =>
-      h.includes('cabin') || h.includes('cabaña') || h.includes('cabana') || h.includes('cabañas') ||
-      h.includes('depto') || h.includes('departamento') || h.includes('departamentos') || h.includes('dpto') ||
-      h.includes('dto') || h.includes('unidad') || h.includes('unidades') || h.includes('unit') ||
-      h.includes('propiedad') || h.includes('property') || h.includes('listing') || h.includes('anuncio') ||
-      h.includes('habitacion') || h.includes('habitación') || h.includes('room') || h.includes('alojamiento') ||
-      h.includes('espacio') || h.includes('inmueble') || h.includes('pms') || h.includes('code') || h.includes('codigo')
-    );
-
-    let platformIdx = headers.findIndex(h =>
-      h.includes('plataforma') || h.includes('canal') || h.includes('channel') || h.includes('origen') ||
-      h.includes('source') || h.includes('portal') || h.includes('medio')
-    );
-
-    let amountIdx = headers.findIndex(h =>
-      h.includes('total') || h.includes('precio') || h.includes('importe') || h.includes('monto') ||
-      h.includes('amount') || h.includes('price') || h.includes('tarifa') || h.includes('earnings')
-    );
-
-    // Fallback date scan
-    const sampleRows = parsedRows.slice(0, 10);
-    const dateColCandidates: number[] = [];
-
-    if (startIdx === -1 || endIdx === -1) {
-      const colCount = Math.max(...sampleRows.map(r => r.length));
-      for (let c = 0; c < colCount; c++) {
-        let validDatesInCol = 0;
-        for (const row of sampleRows) {
-          if (row[c] && parseAnyDate(row[c])) {
-            validDatesInCol++;
+      const parseRow = (line: string): string[] => {
+        const values: string[] = [];
+        let current = '';
+        let insideQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (char === '"') {
+            insideQuotes = !insideQuotes;
+          } else if (char === sep && !insideQuotes) {
+            values.push(current.trim().replace(/^["']|["']$/g, ''));
+            current = '';
+          } else {
+            current += char;
           }
         }
-        if (validDatesInCol >= Math.min(2, sampleRows.length)) {
-          dateColCandidates.push(c);
-        }
-      }
+        values.push(current.trim().replace(/^["']|["']$/g, ''));
+        return values;
+      };
 
-      if (dateColCandidates.length >= 2) {
-        if (startIdx === -1) startIdx = dateColCandidates[0];
-        if (endIdx === -1) endIdx = dateColCandidates[1];
-      } else if (dateColCandidates.length === 1 && startIdx === -1) {
-        startIdx = dateColCandidates[0];
-      }
-    }
+      const parsedRows = lines.map(parseRow);
+      if (parsedRows.length === 0) return;
 
-    let startRowIndex = 1;
-    if (parsedRows.length === 1 || (startIdx !== -1 && parseAnyDate(parsedRows[0][startIdx]))) {
-      startRowIndex = 0;
-    }
+      const headerRow = parsedRows[0];
+      const headers = headerRow.map(h => (h || '').toLowerCase());
 
-    const dataRows = parsedRows.slice(startRowIndex);
-    const displayHeaders = headerRow.map((h, i) => h.trim() || `Columna ${i + 1}`);
-
-    setRawHeaders(displayHeaders);
-    setRawRows(dataRows);
-    setSelectedGuestCol(guestIdx);
-    setSelectedCheckInCol(startIdx);
-    setSelectedCheckOutCol(endIdx);
-    setSelectedCabinCol(cabinIdx);
-    setSelectedPlatformCol(platformIdx);
-    setSelectedAmountCol(amountIdx);
-
-    // Pre-calculate unique cabin values and initial mapping
-    const initialValueMap: Record<string, string> = {};
-    if (cabinIdx !== -1) {
-      dataRows.forEach(row => {
-        const val = row[cabinIdx]?.trim();
-        if (val && !initialValueMap[val]) {
-          initialValueMap[val] = smartMatchProperty(val, row, demoState.properties);
-        }
-      });
-    }
-    setUnitValueMapping(initialValueMap);
-
-    const initialEvents = recomputeEvents(
-      dataRows,
-      guestIdx,
-      startIdx,
-      endIdx,
-      cabinIdx,
-      platformIdx,
-      amountIdx,
-      initialValueMap
-    );
-
-    if (initialEvents.length === 0) {
-      setRawFileSnippet(lines.slice(0, 8).join('\n'));
-      setParseErrorNotice(
-        'No pudimos identificar automáticamente las fechas de entrada y salida en el archivo. Podés revisar el formato de fechas o pegar las filas directamente.'
+      // Header index detection with comprehensive synonyms
+      let guestIdx = headers.findIndex(h =>
+        h.includes('guest') || h.includes('nombre') || h.includes('huésped') || h.includes('huesped') ||
+        h.includes('cliente') || h.includes('pasajero') || h.includes('titular') || h.includes('viajero') ||
+        h.includes('reserva') || h.includes('summary') || h.includes('name') || h.includes('booker')
       );
-      return;
-    }
 
-    setParsedEvents(initialEvents);
-    setStep('preview');
+      let startIdx = headers.findIndex(h =>
+        h.includes('start') || h.includes('desde') || h.includes('entrada') || h.includes('ingreso') ||
+        h.includes('llegada') || h.includes('checkin') || h.includes('check-in') || h.includes('check in') ||
+        h.includes('in') || h.includes('f.desde') || h.includes('f. desde') || h.includes('fecha in') ||
+        h.includes('fecha_in') || h.includes('arribo') || h.includes('arrival') || h.includes('inicio')
+      );
+
+      let endIdx = headers.findIndex(h =>
+        h.includes('end') || h.includes('hasta') || h.includes('salida') || h.includes('egreso') ||
+        h.includes('partida') || h.includes('checkout') || h.includes('check-out') || h.includes('check out') ||
+        h.includes('out') || h.includes('f.hasta') || h.includes('f. hasta') || h.includes('fecha out') ||
+        h.includes('fecha_out') || h.includes('fin') || h.includes('departure')
+      );
+
+      let cabinIdx = headers.findIndex(h =>
+        h.includes('cabin') || h.includes('cabaña') || h.includes('cabana') || h.includes('cabañas') ||
+        h.includes('depto') || h.includes('departamento') || h.includes('departamentos') || h.includes('dpto') ||
+        h.includes('dto') || h.includes('unidad') || h.includes('unidades') || h.includes('unit') ||
+        h.includes('propiedad') || h.includes('property') || h.includes('listing') || h.includes('anuncio') ||
+        h.includes('habitacion') || h.includes('habitación') || h.includes('room') || h.includes('alojamiento') ||
+        h.includes('espacio') || h.includes('inmueble') || h.includes('pms') || h.includes('code') || h.includes('codigo')
+      );
+
+      let platformIdx = headers.findIndex(h =>
+        h.includes('plataforma') || h.includes('canal') || h.includes('channel') || h.includes('origen') ||
+        h.includes('source') || h.includes('portal') || h.includes('medio')
+      );
+
+      let amountIdx = headers.findIndex(h =>
+        h.includes('total') || h.includes('precio') || h.includes('importe') || h.includes('monto') ||
+        h.includes('amount') || h.includes('price') || h.includes('tarifa') || h.includes('earnings')
+      );
+
+      // Fallback date scan
+      const sampleRows = parsedRows.slice(0, 10);
+      const dateColCandidates: number[] = [];
+
+      if (startIdx === -1 || endIdx === -1) {
+        const lengths = sampleRows.map(r => (Array.isArray(r) ? r.length : 0));
+        const colCount = lengths.length > 0 ? Math.max(...lengths) : 0;
+        for (let c = 0; c < colCount; c++) {
+          let validDatesInCol = 0;
+          for (const row of sampleRows) {
+            if (row && row[c] && parseAnyDate(row[c])) {
+              validDatesInCol++;
+            }
+          }
+          if (validDatesInCol >= Math.min(2, sampleRows.length)) {
+            dateColCandidates.push(c);
+          }
+        }
+
+        if (dateColCandidates.length >= 2) {
+          if (startIdx === -1) startIdx = dateColCandidates[0];
+          if (endIdx === -1) endIdx = dateColCandidates[1];
+        } else if (dateColCandidates.length === 1 && startIdx === -1) {
+          startIdx = dateColCandidates[0];
+        }
+      }
+
+      let startRowIndex = 1;
+      if (parsedRows.length === 1 || (startIdx !== -1 && parsedRows[0] && parseAnyDate(parsedRows[0][startIdx]))) {
+        startRowIndex = 0;
+      }
+
+      const dataRows = parsedRows.slice(startRowIndex);
+      const displayHeaders = headerRow.map((h, i) => (h || '').trim() || `Columna ${i + 1}`);
+
+      setRawHeaders(displayHeaders);
+      setRawRows(dataRows);
+      setSelectedGuestCol(guestIdx);
+      setSelectedCheckInCol(startIdx);
+      setSelectedCheckOutCol(endIdx);
+      setSelectedCabinCol(cabinIdx);
+      setSelectedPlatformCol(platformIdx);
+      setSelectedAmountCol(amountIdx);
+
+      // Pre-calculate unique cabin values and initial mapping
+      const initialValueMap: Record<string, string> = {};
+      if (cabinIdx !== -1) {
+        dataRows.forEach(row => {
+          const val = row[cabinIdx]?.trim();
+          if (val && !initialValueMap[val]) {
+            initialValueMap[val] = smartMatchProperty(val, row, safeProps);
+          }
+        });
+      }
+      setUnitValueMapping(initialValueMap);
+
+      const initialEvents = recomputeEvents(
+        dataRows,
+        guestIdx,
+        startIdx,
+        endIdx,
+        cabinIdx,
+        platformIdx,
+        amountIdx,
+        initialValueMap
+      );
+
+      if (initialEvents.length === 0) {
+        setRawFileSnippet(lines.slice(0, 8).join('\n'));
+        setParseErrorNotice(
+          'No pudimos identificar automáticamente las fechas de entrada y salida en el archivo. Podés revisar el formato de fechas o pegar las filas directamente.'
+        );
+        return;
+      }
+
+      setParsedEvents(initialEvents);
+      setStep('preview');
+    } catch (err: any) {
+      console.error('Error in parseCSV:', err);
+      setParseErrorNotice(`Error al procesar el archivo CSV: ${err?.message || 'Formato no soportado'}.`);
+      setStep('upload');
+    }
   };
 
   // Handle column change from UI dropdowns
