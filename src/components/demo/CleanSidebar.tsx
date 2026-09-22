@@ -412,7 +412,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
           </div>
         </div>
 
-        {/* Back to landing & SuperAdmin */}
+        {/* Back to landing */}
         <div className="flex flex-col gap-1.5 pt-1 text-[10px] text-[#78746c] dark:text-[#6e6c68]">
           <div className="flex items-center justify-between">
             <button
@@ -424,15 +424,6 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
             </button>
             <span>v2.2</span>
           </div>
-
-          {onOpenSuperAdmin && (
-            <button
-              onClick={onOpenSuperAdmin}
-              className="w-full text-left text-[10px] font-bold text-[#c46d45] dark:text-[#d88d5e] hover:underline pt-1 border-t border-[#ded9cd]/60 dark:border-[#2a2a2a] flex items-center gap-1"
-            >
-              <span>👑 Panel Maestro SuperAdmin</span>
-            </button>
-          )}
         </div>
       </div>
     </>
