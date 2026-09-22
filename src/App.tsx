@@ -49,6 +49,7 @@ import { XeniaCopilotView } from './components/xenia/XeniaCopilotView';
 import { XeniaFloatingWidget } from './components/xenia/XeniaFloatingWidget';
 import { NewReservationModal } from './components/demo/NewReservationModal';
 import { ReservationDetailModal } from './components/demo/ReservationDetailModal';
+import { DemoBookingsList } from './components/demo/DemoBookingsList';
 import { JsonDataModal } from './components/demo/JsonDataModal';
 import { OnboardingWizardModal } from './components/demo/OnboardingWizardModal';
 import { CalendarImportModal } from './components/demo/CalendarImportModal';
@@ -665,15 +666,6 @@ export default function App() {
                   )}
                 </button>
 
-                <span className="text-[#ded9cd] dark:text-[#3a3a3a]">|</span>
-
-                <button
-                  onClick={() => setIsJsonModalOpen(true)}
-                  className="text-[11px] font-medium text-[#78746c] dark:text-[#9c9994] hover:text-[#1c1b18] dark:hover:text-[#ebe8e1] transition-colors cursor-pointer"
-                >
-                  Importar / Exportar
-                </button>
-                <span className="text-[#ded9cd] dark:text-[#3a3a3a]">|</span>
                 <button
                   onClick={handleResetData}
                   className="text-[11px] font-medium text-[#78746c] dark:text-[#9c9994] hover:text-[#1c1b18] dark:hover:text-[#ebe8e1] transition-colors cursor-pointer"
@@ -718,6 +710,16 @@ export default function App() {
                   onSelectReservation={setSelectedReservationForDetail}
                   onOpenNewReservationWithProperty={handleOpenNewReservationWithProperty}
                   onOpenImportModal={() => setIsImportModalOpen(true)}
+                />
+              )}
+
+              {demoTab === 'bookings' && (
+                <DemoBookingsList
+                  demoState={demoState}
+                  onSelectReservation={setSelectedReservationForDetail}
+                  onUpdateReservationStatus={handleUpdateReservationStatus}
+                  onUpdateReservation={handleUpdateReservation}
+                  onDeleteReservation={handleDeleteReservation}
                 />
               )}
 

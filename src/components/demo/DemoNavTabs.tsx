@@ -9,6 +9,7 @@ import {
   Bot,
   Compass,
   ShoppingBag,
+  List,
 } from 'lucide-react';
 
 interface DemoNavTabsProps {
@@ -29,6 +30,7 @@ export const DemoNavTabs: React.FC<DemoNavTabsProps> = ({
   const allTabs = [
     { id: 'overview', label: 'Panel General', icon: LayoutDashboard },
     { id: 'calendar', label: 'Calendario Multicanal', icon: Calendar },
+    { id: 'bookings', label: 'Lista de Reservas', icon: List },
     {
       id: 'housekeeping',
       label: 'Limpieza & Operaciones',
