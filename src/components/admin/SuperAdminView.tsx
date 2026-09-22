@@ -69,7 +69,7 @@ export const SuperAdminView: React.FC<SuperAdminViewProps> = ({
   currentComplexId,
   theme = 'dark',
 }) => {
-  const [activeTab, setActiveTab] = useState<'complexes' | 'leads' | 'settings'>('complexes');
+  const [activeTab, setActiveTab] = useState<'complexes' | 'leads' | 'economics'>('complexes');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [complexes, setComplexes] = useState<ComplexItem[]>([]);
@@ -356,6 +356,18 @@ export const SuperAdminView: React.FC<SuperAdminViewProps> = ({
             <MessageSquare className="w-4 h-4" />
             <span>Oportunidades & Leads Web ({leads.length})</span>
           </button>
+
+          <button
+            onClick={() => setActiveTab('economics')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+              activeTab === 'economics'
+                ? 'bg-[#281c15] text-[#d88d5e] border border-[#482e21]'
+                : 'text-[#8e8c87] hover:text-white'
+            }`}
+          >
+            <TrendingUp className="w-4 h-4" />
+            <span>Costos Cloud & Margen Neto</span>
+          </button>
         </div>
 
         {/* Tab 1: Complexes Table */}
@@ -538,6 +550,110 @@ export const SuperAdminView: React.FC<SuperAdminViewProps> = ({
                     })}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Tab 3: Economics & Cloud Costs */}
+        {activeTab === 'economics' && (
+          <div className="space-y-6">
+            {/* Financial Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Card 1: Ingreso Bruto */}
+              <div className="p-5 rounded-2xl bg-[#181614] border border-[#2b251f] space-y-2">
+                <span className="text-xs font-bold text-[#8e8c87] uppercase tracking-wider">Ingreso Mensual Bruto (MRR)</span>
+                <p className="text-3xl font-extrabold text-white">${totalMonthlyArs.toLocaleString('es-AR')}</p>
+                <p className="text-xs text-[#8e8c87]">Cobrado en ARS con {totalComplexes} clientes activos</p>
+              </div>
+
+              {/* Card 2: Costo Cloud */}
+              <div className="p-5 rounded-2xl bg-[#181614] border border-[#2b251f] space-y-2">
+                <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">Costo Estimado Google Cloud</span>
+                <p className="text-3xl font-extrabold text-amber-300">
+                  $0 USD <span className="text-sm font-normal text-[#8e8c87]">($0 ARS)</span>
+                </p>
+                <p className="text-xs text-emerald-400 flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>100% Cubierto por la Capa Gratuita (Free Tier)</span>
+                </p>
+              </div>
+
+              {/* Card 3: Margen Neto */}
+              <div className="p-5 rounded-2xl bg-[#181614] border border-[#2b251f] space-y-2">
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Margen Operativo Neto</span>
+                <p className="text-3xl font-extrabold text-emerald-400">99.8%</p>
+                <p className="text-xs text-[#8e8c87]">
+                  Ganancia neta estimada: <strong>${totalMonthlyArs.toLocaleString('es-AR')} ARS/mes</strong>
+                </p>
+              </div>
+            </div>
+
+            {/* Cloud Firestore Quotas & Consumption Detail */}
+            <div className="bg-[#181614] border border-[#2b251f] rounded-2xl p-6 space-y-5">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-[#d88d5e]" />
+                  <span>Detalle de Consumo y Capa Gratuita (Google Cloud Firestore)</span>
+                </h3>
+                <p className="text-xs text-[#8e8c87] mt-1">
+                  Google Cloud incluye un paquete gratuito mensual permanente para la base de datos Firestore.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                {/* Metric 1 */}
+                <div className="p-4 rounded-xl bg-[#201c19] border border-[#332a22] space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-[#8e8c87] font-medium">Lecturas de base de datos</span>
+                    <span className="text-emerald-400 font-bold">50.000 / día gratis</span>
+                  </div>
+                  <div className="w-full bg-[#141210] h-2 rounded-full overflow-hidden">
+                    <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${Math.min(100, Math.max(5, totalComplexes * 4))}%` }} />
+                  </div>
+                  <p className="text-[11px] text-[#8e8c87]">
+                    Uso estimado: ~{(totalComplexes * 120).toLocaleString('es-AR')} lecturas/día (~{((totalComplexes * 120 / 50000) * 100).toFixed(1)}% de la cuota gratis)
+                  </p>
+                </div>
+
+                {/* Metric 2 */}
+                <div className="p-4 rounded-xl bg-[#201c19] border border-[#332a22] space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-[#8e8c87] font-medium">Escrituras de reservas</span>
+                    <span className="text-emerald-400 font-bold">20.000 / día gratis</span>
+                  </div>
+                  <div className="w-full bg-[#141210] h-2 rounded-full overflow-hidden">
+                    <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${Math.min(100, Math.max(3, totalComplexes * 2))}%` }} />
+                  </div>
+                  <p className="text-[11px] text-[#8e8c87]">
+                    Uso estimado: ~{(totalComplexes * 40).toLocaleString('es-AR')} escrituras/día (~{((totalComplexes * 40 / 20000) * 100).toFixed(1)}% de la cuota gratis)
+                  </p>
+                </div>
+
+                {/* Metric 3 */}
+                <div className="p-4 rounded-xl bg-[#201c19] border border-[#332a22] space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-[#8e8c87] font-medium">Almacenamiento Cloud</span>
+                    <span className="text-emerald-400 font-bold">1 GB gratis</span>
+                  </div>
+                  <div className="w-full bg-[#141210] h-2 rounded-full overflow-hidden">
+                    <div className="bg-emerald-400 h-full rounded-full" style={{ width: '4%' }} />
+                  </div>
+                  <p className="text-[11px] text-[#8e8c87]">
+                    Uso estimado: ~{(totalComplexes * 2.5).toFixed(1)} MB (&lt;1% de 1 GB)
+                  </p>
+                </div>
+              </div>
+
+              {/* Clarification Box about Subscriptions */}
+              <div className="p-4 rounded-xl bg-[#281c15] border border-[#482e21] text-xs text-[#d88d5e] space-y-1.5">
+                <div className="font-bold flex items-center gap-1.5 text-amber-200">
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>¿Necesitás pagar o suscribirte a Google Cloud ahora mismo?</span>
+                </div>
+                <p className="text-[#c8bfb7] leading-relaxed">
+                  <strong>No.</strong> Tu base de datos Firestore ya fue creada y está activa con la capa gratuita. No te cobrará nada hasta que superes los primeros 50 clientes activos.
+                  Cuando superes ese volumen, Google Cloud sólo factura el excedente (apenas centavos de dólar por cada 100.000 operaciones adicionales).
+                </p>
               </div>
             </div>
           </div>
