@@ -17,6 +17,7 @@ import {
   LogOut,
   ChevronDown,
   X,
+  TrendingDown,
 } from 'lucide-react';
 import { LoomiLogo } from '../common/LoomiLogo';
 import { XeniaAvatar } from '../xenia/XeniaAvatar';
@@ -30,6 +31,8 @@ interface CleanSidebarProps {
   onOpenOnboardingWizard?: () => void;
   isEmployeeMode?: boolean;
   onToggleEmployeeMode?: () => void;
+  userRole?: 'admin' | 'frontdesk' | 'housekeeping';
+  onChangeRole?: (role: 'admin' | 'frontdesk' | 'housekeeping') => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
   onBackToLanding: () => void;
@@ -48,6 +51,8 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
   onOpenOnboardingWizard,
   isEmployeeMode = false,
   onToggleEmployeeMode,
+  userRole = 'admin',
+  onChangeRole,
   theme,
   onToggleTheme,
   onBackToLanding,
@@ -112,130 +117,121 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
             <p className="text-[10px] text-[#78746c] dark:text-[#8e8c87] truncate">Gestión de alquileres</p>
           </div>
 
-          {/* User / Role Badge */}
-          <div className="flex items-center justify-between bg-white dark:bg-[#1f1f1f] rounded-lg px-2.5 py-1.5 border border-[#ded9cd] dark:border-[#2a2a2a] shadow-2xs">
-            <div>
-              <div className="text-[11px] font-semibold text-[#2c2a26] dark:text-[#c8c5c0] leading-none">
-                {isEmployeeMode ? 'Modo Mucama / Turnos' : 'Administrador'}
-              </div>
-              <div className="text-[9px] text-[#7a7874] mt-0.5">
-                {isEmployeeMode ? 'Operaciones de limpieza' : 'Acceso total'}
-              </div>
+          {/* User / Role Selector */}
+          <div className="bg-white dark:bg-[#1f1f1f] rounded-lg p-2 border border-[#ded9cd] dark:border-[#2a2a2a] shadow-2xs space-y-1.5">
+            <div className="text-[9px] uppercase font-bold text-[#7a7874] dark:text-[#8e8c87] tracking-wider px-0.5">
+              Acceso de Usuario
             </div>
-            {onToggleEmployeeMode && (
-              <button
-                onClick={onToggleEmployeeMode}
-                title={isEmployeeMode ? 'Cambiar a Administrador' : 'Cambiar a Modo Día a Día'}
-                className="text-[10px] font-bold text-[#78746c] dark:text-[#a8a5a0] hover:text-[#c46d45] dark:hover:text-[#d88d5e] transition-colors p-1"
-              >
-                ⇄
-              </button>
-            )}
+            
+            <select
+              value={userRole}
+              onChange={(e) => {
+                if (onChangeRole) {
+                  onChangeRole(e.target.value as any);
+                } else if (onToggleEmployeeMode) {
+                  onToggleEmployeeMode();
+                }
+              }}
+              className="w-full text-[11px] font-bold bg-[#fbf9f5] dark:bg-[#151515] text-[#1c1b18] dark:text-[#f4f2ee] py-1 px-1.5 rounded-md border border-[#ded9cd] dark:border-[#2c2c2c] focus:outline-none cursor-pointer"
+            >
+              <option value="admin">👑 Administrador / Dueño</option>
+              <option value="frontdesk">🛎️ Recepción / Front Desk</option>
+              <option value="housekeeping">🧹 Equipo de Housekeeping</option>
+            </select>
           </div>
         </div>
+      </div>
 
         {/* Navigation Sections */}
-        <div className="p-3 space-y-4">
-          {/* PRINCIPAL */}
+        <div className="p-3 space-y-4.5">
+          {/* RUBRO 1: OPERATIVA */}
           <div>
             <div className="px-2 pb-1.5 text-[10px] font-bold tracking-wider text-[#8e8a83] dark:text-[#6e6c68] uppercase">
-              Principal
-            </div>
-            <button
-              onClick={() => handleTabClick('overview')}
-              className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
-                activeTab === 'overview'
-                  ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                  : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
-              }`}
-            >
-              <LayoutDashboard className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
-              <span>Hoy</span>
-            </button>
-          </div>
-
-          {/* OPERACIONES */}
-          <div>
-            <div className="px-2 pb-1.5 text-[10px] font-bold tracking-wider text-[#8e8a83] dark:text-[#6e6c68] uppercase">
-              Operaciones
+              Operativa
             </div>
             <div className="space-y-0.5">
+              {/* Hoy */}
               <button
-                onClick={() => {
-                  onOpenNewReservation();
-                  if (onMobileClose) onMobileClose();
-                }}
-                className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-bold text-[#c46d45] dark:text-[#d88d5e] hover:bg-[#f4eee7] dark:hover:bg-[#26211c] transition-colors text-left"
-              >
-                <span className="text-sm font-bold leading-none">+</span>
-                <span>Nueva Reserva</span>
-              </button>
-
-              <button
-                onClick={() => handleTabClick('calendar')}
+                onClick={() => handleTabClick('overview')}
                 className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
-                  activeTab === 'calendar'
+                  activeTab === 'overview'
                     ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
                     : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
                 }`}
               >
-                <Calendar className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
-                <span>Ocupación (Calendario)</span>
+                <LayoutDashboard className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                <span>Hoy / Estado</span>
               </button>
 
-              <button
-                onClick={() => handleTabClick('housekeeping')}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
-                  activeTab === 'housekeeping'
-                    ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                    : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
-                  <span>Limpiezas</span>
-                </div>
-                {pendingCleaningsCount > 0 && (
-                  <span className="bg-[#f4eee7] dark:bg-[#3a2820] text-[#9c512a] dark:text-[#e09060] text-[10px] font-bold px-1.5 py-0.2 rounded-full border border-[#e4d6c9] dark:border-[#5a3a2a]">
-                    {pendingCleaningsCount}
-                  </span>
-                )}
-              </button>
+              {userRole !== 'housekeeping' && (
+                <>
+                  {/* Nueva Reserva Quick Button */}
+                  <button
+                    onClick={() => {
+                      onOpenNewReservation();
+                      if (onMobileClose) onMobileClose();
+                    }}
+                    className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-bold text-[#c46d45] dark:text-[#d88d5e] hover:bg-[#f4eee7] dark:hover:bg-[#26211c] transition-colors text-left"
+                  >
+                    <span className="text-sm font-bold leading-none">+</span>
+                    <span>Nueva Reserva</span>
+                  </button>
 
-              <button
-                onClick={() => handleTabClick('addons')}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
-                  activeTab === 'addons'
-                    ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                    : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
-                }`}
-              >
-                <ShoppingBag className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
-                <span>Opcionales & Extras</span>
-              </button>
-            </div>
-          </div>
+                  {/* Calendario */}
+                  <button
+                    onClick={() => handleTabClick('calendar')}
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                      activeTab === 'calendar'
+                        ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
+                        : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                    }`}
+                  >
+                    <Calendar className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                    <span>Ocupación (Calendario)</span>
+                  </button>
 
-          {/* REPORTES & COMUNICACIÓN */}
-          <div>
-            <div className="px-2 pb-1.5 text-[10px] font-bold tracking-wider text-[#8e8a83] dark:text-[#6e6c68] uppercase">
-              Reportes & Guía
-            </div>
-            <div className="space-y-0.5">
-              {!isEmployeeMode && (
-                <button
-                  onClick={() => handleTabClick('finances')}
-                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
-                    activeTab === 'finances'
-                      ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                      : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
-                  }`}
-                >
-                  <DollarSign className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
-                  <span>Rendimiento</span>
-                </button>
+                  {/* Lista de Reservas */}
+                  <button
+                    onClick={() => handleTabClick('bookings')}
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                      activeTab === 'bookings'
+                        ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
+                        : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                    }`}
+                  >
+                    <FileSpreadsheet className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                    <span>Lista de Reservas</span>
+                  </button>
+
+                  {/* Opcionales */}
+                  <button
+                    onClick={() => handleTabClick('addons')}
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                      activeTab === 'addons'
+                        ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
+                        : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                    }`}
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                    <span>Opcionales & Extras</span>
+                  </button>
+
+                  {/* Avisos & WhatsApp */}
+                  <button
+                    onClick={() => handleTabClick('messages')}
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                      activeTab === 'messages'
+                        ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
+                        : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                    }`}
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                    <span>Avisos & WhatsApp</span>
+                  </button>
+                </>
               )}
 
+              {/* Guía Huésped */}
               <button
                 onClick={() => handleTabClick('welcome-guide')}
                 className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
@@ -247,19 +243,36 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                 <Compass className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
                 <span>Guía Huésped & Web</span>
               </button>
+            </div>
+          </div>
 
+          {/* RUBRO 2: LIMPIEZA */}
+          <div>
+            <div className="px-2 pb-1.5 text-[10px] font-bold tracking-wider text-[#8e8a83] dark:text-[#6e6c68] uppercase">
+              Limpieza
+            </div>
+            <div className="space-y-0.5">
+              {/* Agenda Limpiezas */}
               <button
-                onClick={() => handleTabClick('messages')}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
-                  activeTab === 'messages'
+                onClick={() => handleTabClick('housekeeping')}
+                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                  activeTab === 'housekeeping'
                     ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
                     : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
                 }`}
               >
-                <MessageSquare className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
-                <span>Avisos & WhatsApp</span>
+                <div className="flex items-center gap-2.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                  <span>Agenda Housekeeping</span>
+                </div>
+                {pendingCleaningsCount > 0 && (
+                  <span className="bg-[#f4eee7] dark:bg-[#3a2820] text-[#9c512a] dark:text-[#e09060] text-[10px] font-bold px-1.5 py-0.2 rounded-full border border-[#e4d6c9] dark:border-[#5a3a2a]">
+                    {pendingCleaningsCount}
+                  </span>
+                )}
               </button>
 
+              {/* Xenia Copilot */}
               <button
                 onClick={() => handleTabClick('xenia')}
                 className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
@@ -269,45 +282,78 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                 }`}
               >
                 <XeniaAvatar size="xs" showStatus={false} />
-                <span>Xenia Copilot</span>
+                <span>Asistente Xenia AI</span>
               </button>
             </div>
           </div>
 
-          {/* SISTEMA */}
-          <div>
-            <div className="px-2 pb-1.5 text-[10px] font-bold tracking-wider text-[#8e8a83] dark:text-[#6e6c68] uppercase">
-              Sistema
-            </div>
-            <div className="space-y-0.5">
-              <button
-                onClick={() => handleTabClick('properties')}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
-                  activeTab === 'properties'
-                    ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                    : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
-              }`}
-              >
-                <Building2 className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
-                <span>Departamentos & iCal</span>
-              </button>
-
-              {onOpenOnboardingWizard && (
+          {/* RUBRO 3: ADMINISTRACIÓN (only visible for roles with admin capabilities or frontdesk) */}
+          {userRole !== 'housekeeping' && (
+            <div>
+              <div className="px-2 pb-1.5 text-[10px] font-bold tracking-wider text-[#8e8a83] dark:text-[#6e6c68] uppercase">
+                Administración
+              </div>
+              <div className="space-y-0.5">
+                {/* Caja Chica */}
                 <button
-                  onClick={() => {
-                    onOpenOnboardingWizard();
-                    if (onMobileClose) onMobileClose();
-                  }}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#c46d45] dark:text-[#d88d5e] hover:bg-[#f4eee7] dark:hover:bg-[#28211c] transition-colors text-left border border-dashed border-[#c46d45]/40 dark:border-[#523d2e]/60"
+                  onClick={() => handleTabClick('cash-drawer')}
+                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                    activeTab === 'cash-drawer'
+                      ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
+                      : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                  }`}
                 >
-                  <Sliders className="w-3.5 h-3.5 text-[#c46d45] dark:text-[#d88d5e]" />
-                  <span>Configurar Deptos</span>
+                  <TrendingDown className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                  <span>{userRole === 'frontdesk' ? 'Caja de Mostrador' : 'Gastos & Caja'}</span>
                 </button>
-              )}
+
+                {userRole === 'admin' && (
+                  <>
+                    {/* Rendimiento */}
+                    <button
+                      onClick={() => handleTabClick('finances')}
+                      className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                        activeTab === 'finances'
+                          ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
+                          : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                      }`}
+                    >
+                      <DollarSign className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                      <span>Rendimiento Financiero</span>
+                    </button>
+
+                    {/* Unidades */}
+                    <button
+                      onClick={() => handleTabClick('properties')}
+                      className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                        activeTab === 'properties'
+                          ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
+                          : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                      }`}
+                    >
+                      <Building2 className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                      <span>Departamentos & iCal</span>
+                    </button>
+
+                    {/* Setup Wizard */}
+                    {onOpenOnboardingWizard && (
+                      <button
+                        onClick={() => {
+                          onOpenOnboardingWizard();
+                          if (onMobileClose) onMobileClose();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#c46d45] dark:text-[#d88d5e] hover:bg-[#f4eee7] dark:hover:bg-[#28211c] transition-colors text-left border border-dashed border-[#c46d45]/40 dark:border-[#523d2e]/60"
+                      >
+                        <Sliders className="w-3.5 h-3.5 text-[#c46d45] dark:text-[#d88d5e]" />
+                        <span>Configurar Deptos</span>
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
-      </div>
 
       {/* Bottom Footer: Switcher & Theme Control */}
       <div className="p-3 border-t border-[#ded9cd] dark:border-[#242424] bg-[#f4f1ea] dark:bg-[#141414] space-y-2.5">

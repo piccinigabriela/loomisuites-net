@@ -22,6 +22,7 @@ interface CleanTodayProps {
   onUpdateTaskStatus: (taskId: string, newStatus: CleaningTask['status']) => void;
   onQuickCheckIn: (resId: string) => void;
   isEmployeeMode?: boolean;
+  userRole?: 'admin' | 'frontdesk' | 'housekeeping';
 }
 
 export const CleanToday: React.FC<CleanTodayProps> = ({
@@ -32,6 +33,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
   onUpdateTaskStatus,
   onQuickCheckIn,
   isEmployeeMode = false,
+  userRole = 'admin',
 }) => {
   const today = getRelativeDate(0);
 
@@ -39,6 +41,13 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
   const totalRevenue = demoState.reservations
     .filter((r) => r.status !== 'cancelled')
     .reduce((acc, r) => acc + r.totalAmount, 0);
+
+  // Cash drawer calculation for frontdesk preview
+  const openingCash = 50000;
+  const cashMovements = demoState.cashMovements || [];
+  const cashMovementsOnly = cashMovements.filter((m) => m.paymentMethod === 'efectivo');
+  const cashIn = cashMovementsOnly.filter((m) => m.type === 'ingreso').reduce((sum, m) => sum + m.amount, 0);
+  const currentCashBalance = openingCash + cashIn;
 
   const totalNights = demoState.reservations
     .filter((r) => r.status !== 'cancelled')
@@ -98,8 +107,8 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
           <div className="text-[11px] text-[#78746c] dark:text-[#706e6a] mt-0.5">Deptos activos</div>
         </div>
 
-        {/* Card 2: Ingresos Mes (or employee notice) */}
-        {!isEmployeeMode ? (
+        {/* Card 2: Ingresos Mes (for admin) or Caja (for frontdesk) or Employee Mode */}
+        {userRole === 'admin' ? (
           <div className="bg-white dark:bg-[#1c1c1c] rounded-xl p-4 border border-[#ded9cd] dark:border-[#262626] shadow-2xs transition-colors">
             <div className="text-[10px] font-bold text-[#78746c] dark:text-[#8a8883] uppercase tracking-wider">
               Ingresos Mes
@@ -109,6 +118,18 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
             </div>
             <div className="text-[11px] text-[#78746c] dark:text-[#706e6a] mt-0.5">
               Total facturado · neto prop. USD {(totalRevenue * 0.76).toFixed(2)}
+            </div>
+          </div>
+        ) : userRole === 'frontdesk' ? (
+          <div className="bg-white dark:bg-[#1c1c1c] rounded-xl p-4 border border-[#ded9cd] dark:border-[#262626] shadow-2xs transition-colors">
+            <div className="text-[10px] font-bold text-[#78746c] dark:text-[#8a8883] uppercase tracking-wider">
+              Caja de Mostrador
+            </div>
+            <div className="mt-2 text-2xl font-bold text-[#1c1b18] dark:text-[#f2efe9]">
+              ${currentCashBalance.toLocaleString('es-AR')} ARS
+            </div>
+            <div className="text-[11px] text-[#78746c] dark:text-[#706e6a] mt-0.5">
+              Fondo inicial: $50,000 ARS
             </div>
           </div>
         ) : (

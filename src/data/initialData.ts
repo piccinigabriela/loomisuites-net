@@ -1,4 +1,4 @@
-import { DemoState, Property, Reservation, CleaningTask, MessageTemplate, WelcomeGuideData, AddonService } from '../types';
+import { DemoState, Property, Reservation, CleaningTask, MessageTemplate, WelcomeGuideData, AddonService, CashMovement } from '../types';
 
 // Helper to format date offset from today
 export function getRelativeDate(offsetDays: number): string {
@@ -653,6 +653,64 @@ export const INITIAL_ADDONS: AddonService[] = [
   },
 ];
 
+export const INITIAL_CASH_MOVEMENTS: CashMovement[] = [
+  {
+    id: 'mov-1',
+    date: getRelativeDate(-2),
+    type: 'ingreso',
+    amount: 15000,
+    concept: 'Venta de 3 bolsas de leña - Cabaña Vista Lago',
+    paymentMethod: 'efectivo',
+    category: 'caja_chica',
+    propertyId: 'prop-1',
+    userRole: 'frontdesk',
+  },
+  {
+    id: 'mov-2',
+    date: getRelativeDate(-1),
+    type: 'egreso',
+    amount: 8500,
+    concept: 'Artículos de limpieza para reposición (Desinfectante, trapos)',
+    paymentMethod: 'efectivo',
+    category: 'insumos',
+    propertyId: 'prop-1',
+    userRole: 'frontdesk',
+  },
+  {
+    id: 'mov-3',
+    date: getRelativeDate(-1),
+    type: 'ingreso',
+    amount: 45000,
+    concept: 'Cobro Adicional Late Check-out en Efectivo - Huésped Pérez',
+    paymentMethod: 'efectivo',
+    category: 'caja_chica',
+    propertyId: 'prop-2',
+    userRole: 'frontdesk',
+  },
+  {
+    id: 'mov-4',
+    date: getRelativeDate(0),
+    type: 'egreso',
+    amount: 32000,
+    concept: 'Servicio técnico cerrajero por reparación picaporte cabaña 3',
+    paymentMethod: 'transferencia',
+    category: 'mantenimiento',
+    propertyId: 'prop-3',
+    userRole: 'admin',
+  },
+  {
+    id: 'mov-5',
+    date: getRelativeDate(0),
+    type: 'ingreso',
+    amount: 12000,
+    concept: 'Cobro de Desayuno Canasta extra en efectivo',
+    paymentMethod: 'efectivo',
+    category: 'caja_chica',
+    propertyId: 'prop-1',
+    userRole: 'frontdesk',
+  }
+];
+
 export function getDemoState(): DemoState {
   try {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -664,6 +722,9 @@ export function getDemoState(): DemoState {
       }
       if (!parsed.addons || parsed.addons.length === 0) {
         parsed.addons = parsed.availableAddons || INITIAL_ADDONS;
+      }
+      if (!parsed.cashMovements || parsed.cashMovements.length === 0) {
+        parsed.cashMovements = INITIAL_CASH_MOVEMENTS;
       }
       // Ensure property 3 smartLock matches updated status
       const p3 = parsed.properties?.find((p: Property) => p.id === 'prop-3');
@@ -686,6 +747,7 @@ export function getDemoState(): DemoState {
     welcomeGuide: INITIAL_WELCOME_GUIDE,
     availableAddons: INITIAL_ADDONS,
     addons: INITIAL_ADDONS,
+    cashMovements: INITIAL_CASH_MOVEMENTS,
     lastUpdated: new Date().toISOString(),
   };
 
@@ -710,6 +772,7 @@ export function resetDemoState(): DemoState {
     welcomeGuide: INITIAL_WELCOME_GUIDE,
     availableAddons: INITIAL_ADDONS,
     addons: INITIAL_ADDONS,
+    cashMovements: INITIAL_CASH_MOVEMENTS,
     lastUpdated: new Date().toISOString(),
   };
   saveDemoState(freshState);

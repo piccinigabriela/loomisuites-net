@@ -16,7 +16,7 @@ import {
   Moon,
   Menu,
 } from 'lucide-react';
-import { DemoState, Reservation, CleaningTask, ReservationStatus } from './types';
+import { DemoState, Reservation, CleaningTask, ReservationStatus, CashMovement } from './types';
 import {
   getDemoState,
   saveDemoState,
@@ -44,6 +44,7 @@ import { DemoProperties } from './components/demo/DemoProperties';
 import { DemoAddons } from './components/demo/DemoAddons';
 import { DemoMessages } from './components/demo/DemoMessages';
 import { DemoFinances } from './components/demo/DemoFinances';
+import { DemoCashDrawer } from './components/demo/DemoCashDrawer';
 import { WelcomeGuideHub } from './components/guide/WelcomeGuideHub';
 import { XeniaCopilotView } from './components/xenia/XeniaCopilotView';
 import { XeniaFloatingWidget } from './components/xenia/XeniaFloatingWidget';
@@ -65,14 +66,22 @@ export default function App() {
   // Active Complex: Catalinas Apartamentos, Wood Cabin or Custom
   const [activeComplex, setActiveComplex] = useState<'catalinas' | 'woodcabin' | 'custom'>('catalinas');
 
-  // Employee Mode ("Modo Día a Día") - restricts access to financial metrics & rates
-  const [isEmployeeMode, setIsEmployeeMode] = useState<boolean>(() => {
+  // User Role State: 'admin' | 'frontdesk' | 'housekeeping'
+  const [userRole, setUserRole] = useState<'admin' | 'frontdesk' | 'housekeeping'>(() => {
     try {
-      return localStorage.getItem('loomi_employee_mode') === 'true';
+      const saved = localStorage.getItem('loomi_user_role');
+      if (saved === 'admin' || saved === 'frontdesk' || saved === 'housekeeping') {
+        return saved as any;
+      }
+      // Fallback/Migration from old employee mode
+      const wasEmployee = localStorage.getItem('loomi_employee_mode') === 'true';
+      return wasEmployee ? 'housekeeping' : 'admin';
     } catch {
-      return false;
+      return 'admin';
     }
   });
+
+  const isEmployeeMode = userRole === 'housekeeping';
 
   // Theme state (Dark Mode / Light Mode)
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -105,22 +114,29 @@ export default function App() {
     });
   };
 
-  const toggleEmployeeMode = () => {
-    setIsEmployeeMode((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem('loomi_employee_mode', String(next));
-      } catch {}
-      if (next && demoTab === 'finances') {
+  const handleRoleChange = (newRole: 'admin' | 'frontdesk' | 'housekeeping') => {
+    setUserRole(newRole);
+    try {
+      localStorage.setItem('loomi_user_role', newRole);
+    } catch {}
+
+    // Redirect active tabs if they aren't accessible under the new role
+    if (newRole === 'housekeeping') {
+      if (demoTab !== 'overview' && demoTab !== 'housekeeping' && demoTab !== 'welcome-guide' && demoTab !== 'xenia') {
         setDemoTab('overview');
       }
-      showToast(
-        next
-          ? '👷 Modo Día a Día activado: datos financieros y de propietarios ocultos para empleados.'
-          : '👑 Modo Administrador / Dueño activado: acceso total a finanzas y liquidaciones.'
-      );
-      return next;
-    });
+    } else if (newRole === 'frontdesk') {
+      if (demoTab === 'finances' || demoTab === 'properties') {
+        setDemoTab('overview');
+      }
+    }
+
+    const roleNames = {
+      admin: '👑 Administrador / Dueño',
+      frontdesk: '🛎️ Recepción / Front Desk',
+      housekeeping: '🧹 Equipo de Housekeeping',
+    };
+    showToast(`Rol cambiado a: ${roleNames[newRole]}`);
   };
 
   // Persistent Demo State (from localStorage)
@@ -462,6 +478,32 @@ export default function App() {
     showToast(`Tarifa por noche actualizada a $${newPrice} USD`);
   };
 
+  // Add Cash Movement / Gasto
+  const handleAddCashMovement = (newMov: Omit<CashMovement, 'id' | 'date'>) => {
+    updateDemoState((prev) => {
+      const dateStr = new Date().toISOString().split('T')[0];
+      const added: CashMovement = {
+        ...newMov,
+        id: `mov-${Date.now()}`,
+        date: dateStr,
+      };
+      return {
+        ...prev,
+        cashMovements: [added, ...(prev.cashMovements || [])],
+        lastUpdated: new Date().toISOString(),
+      };
+    });
+  };
+
+  // Delete Cash Movement / Gasto
+  const handleDeleteCashMovement = (id: string) => {
+    updateDemoState((prev) => ({
+      ...prev,
+      cashMovements: (prev.cashMovements || []).filter((m) => m.id !== id),
+      lastUpdated: new Date().toISOString(),
+    }));
+  };
+
   // Quick check in
   const handleQuickCheckIn = (resId: string) => {
     handleUpdateReservationStatus(resId, 'checked_in');
@@ -583,7 +625,8 @@ export default function App() {
             }}
             onOpenOnboardingWizard={() => setIsOnboardingModalOpen(true)}
             isEmployeeMode={isEmployeeMode}
-            onToggleEmployeeMode={toggleEmployeeMode}
+            userRole={userRole}
+            onChangeRole={handleRoleChange}
             theme={theme}
             onToggleTheme={toggleTheme}
             onBackToLanding={() => {
@@ -691,6 +734,7 @@ export default function App() {
               {demoTab === 'overview' && (
                 <CleanToday
                   demoState={demoState}
+                  userRole={userRole}
                   onSelectReservation={setSelectedReservationForDetail}
                   onOpenNewReservation={() => {
                     setInitialPropertyForRes(undefined);
@@ -758,8 +802,17 @@ export default function App() {
                 <DemoMessages demoState={demoState} />
               )}
 
-              {demoTab === 'finances' && !isEmployeeMode && (
+              {demoTab === 'finances' && userRole === 'admin' && (
                 <DemoFinances demoState={demoState} />
+              )}
+
+              {demoTab === 'cash-drawer' && userRole !== 'housekeeping' && (
+                <DemoCashDrawer
+                  demoState={demoState}
+                  userRole={userRole}
+                  onAddCashMovement={handleAddCashMovement}
+                  onDeleteCashMovement={handleDeleteCashMovement}
+                />
               )}
 
               {demoTab === 'welcome-guide' && (

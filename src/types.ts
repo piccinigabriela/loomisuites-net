@@ -183,6 +183,18 @@ export interface WelcomeGuideData {
   };
 }
 
+export interface CashMovement {
+  id: string;
+  date: string; // YYYY-MM-DD
+  type: 'ingreso' | 'egreso';
+  amount: number;
+  concept: string;
+  paymentMethod: 'efectivo' | 'transferencia' | 'tarjeta';
+  category: 'caja_chica' | 'mantenimiento' | 'insumos' | 'servicios' | 'limpieza' | 'otros';
+  propertyId?: string;
+  userRole: 'admin' | 'frontdesk' | 'housekeeping';
+}
+
 export interface DemoState {
   properties: Property[];
   reservations: Reservation[];
@@ -191,5 +203,6 @@ export interface DemoState {
   welcomeGuide?: WelcomeGuideData;
   availableAddons?: AddonService[];
   addons?: AddonService[];
+  cashMovements?: CashMovement[];
   lastUpdated: string;
 }
