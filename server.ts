@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import path from "path";
+import fs from "fs";
 import { GoogleGenAI } from "@google/genai";
 
 const app = express();
@@ -22,6 +23,33 @@ function getGeminiClient(): GoogleGenAI | null {
 // Health check endpoint
 app.get("/api/health", (_req: Request, res: Response) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// Endpoint to permanently save Xenia's avatar to disk at public/xenia.jpeg
+app.post("/api/xenia/avatar", (req: Request, res: Response) => {
+  try {
+    const { imageBase64 } = req.body;
+    if (!imageBase64) {
+      return res.status(400).json({ error: "No image provided" });
+    }
+
+    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+    const buffer = Buffer.from(base64Data, "base64");
+
+    const publicDir = path.join(process.cwd(), "public");
+    if (!fs.existsSync(publicDir)) {
+      fs.mkdirSync(publicDir, { recursive: true });
+    }
+
+    const filePath = path.join(publicDir, "xenia.jpeg");
+    fs.writeFileSync(filePath, buffer);
+
+    console.log("Xenia avatar saved permanently to disk:", filePath);
+    res.json({ success: true, url: "/xenia.jpeg?t=" + Date.now() });
+  } catch (error: any) {
+    console.error("Error saving Xenia avatar:", error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Helper for fallback rule-based response if GEMINI_API_KEY is not configured

@@ -718,6 +718,16 @@ export default function App() {
                 <span className="text-[#ded9cd] dark:text-[#3a3a3a]">|</span>
                 <button
                   onClick={() => {
+                    setSelectedPlanForLead('Plan Cabañas & Deptos (Demo)');
+                    setIsLeadModalOpen(true);
+                  }}
+                  className="bg-white hover:bg-[#f5f2eb] text-[#1c1b18] dark:bg-[#25221e] dark:hover:bg-[#322c26] dark:text-[#d88d5e] border border-[#ded9cd] dark:border-[#48372b] text-xs font-bold px-2.5 py-1 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                  title="Solicitar plan o activación real"
+                >
+                  <span>🚀 Solicitar Plan</span>
+                </button>
+                <button
+                  onClick={() => {
                     setInitialPropertyForRes(undefined);
                     setInitialDateForRes(undefined);
                     setIsNewResModalOpen(true);
@@ -744,6 +754,11 @@ export default function App() {
                   onNavigateTab={setDemoTab}
                   onUpdateTaskStatus={handleUpdateTaskStatus}
                   onQuickCheckIn={handleQuickCheckIn}
+                  onOpenOnboardingWizard={() => setIsOnboardingModalOpen(true)}
+                  onRequestPlan={() => {
+                    setSelectedPlanForLead('Plan Cabañas & Deptos');
+                    setIsLeadModalOpen(true);
+                  }}
                   isEmployeeMode={isEmployeeMode}
                 />
               )}

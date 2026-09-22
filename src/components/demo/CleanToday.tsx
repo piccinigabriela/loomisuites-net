@@ -10,6 +10,8 @@ import {
   KeyRound,
   Eye,
   Building,
+  Send,
+  ChevronRight,
 } from 'lucide-react';
 import { DemoState, Reservation, CleaningTask } from '../../types';
 import { formatCurrency, formatDisplayDate, getRelativeDate } from '../../data/initialData';
@@ -21,6 +23,8 @@ interface CleanTodayProps {
   onNavigateTab: (tab: string) => void;
   onUpdateTaskStatus: (taskId: string, newStatus: CleaningTask['status']) => void;
   onQuickCheckIn: (resId: string) => void;
+  onOpenOnboardingWizard?: () => void;
+  onRequestPlan?: () => void;
   isEmployeeMode?: boolean;
   userRole?: 'admin' | 'frontdesk' | 'housekeeping';
 }
@@ -32,6 +36,8 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
   onNavigateTab,
   onUpdateTaskStatus,
   onQuickCheckIn,
+  onOpenOnboardingWizard,
+  onRequestPlan,
   isEmployeeMode = false,
   userRole = 'admin',
 }) => {
@@ -83,6 +89,46 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
 
   return (
     <div className="space-y-6 font-sans">
+      {/* Onboarding & Plan Request Banner */}
+      <div className="bg-[#24211d] dark:bg-[#1a1714] rounded-2xl p-4 sm:p-5 text-white border border-[#48372b] shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#d88d5e] to-[#c46d45] flex items-center justify-center text-stone-950 font-bold shrink-0 shadow-xs">
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-sm font-bold text-[#f4f2ee]">¿Querés probar con tus departamentos o cabañas reales?</h3>
+              <span className="text-[10px] font-semibold bg-[#c46d45]/20 text-[#e2b896] px-2 py-0.5 rounded-full border border-[#c46d45]/40">
+                Paso a Paso (2 min)
+              </span>
+            </div>
+            <p className="text-xs text-[#ded9cd] mt-0.5 max-w-2xl">
+              Cargá los nombres de tus unidades, tarifas y WiFi para ver tu operación real en el calendario, la guía de huéspedes y con Xenia.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 w-full md:w-auto shrink-0 flex-wrap">
+          {onOpenOnboardingWizard && (
+            <button
+              onClick={onOpenOnboardingWizard}
+              className="flex-1 md:flex-initial text-xs font-bold bg-white text-[#1c1b18] hover:bg-[#f8f6f2] px-4 py-2.5 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs shrink-0 active:scale-98"
+            >
+              <Sparkles className="w-4 h-4 text-[#c46d45]" />
+              <span>Configurar Mis Deptos</span>
+            </button>
+          )}
+          {onRequestPlan && (
+            <button
+              onClick={onRequestPlan}
+              className="flex-1 md:flex-initial text-xs font-bold bg-[#c46d45] hover:bg-[#b85e35] text-white px-4 py-2.5 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs shrink-0 active:scale-98"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>Solicitar Plan</span>
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Title & Subtitle */}
       <div>
         <h2 className="text-xl font-bold text-[#1c1b18] dark:text-[#f0eeeb] tracking-tight">Hoy</h2>

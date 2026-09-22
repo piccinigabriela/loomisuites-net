@@ -50,6 +50,17 @@ export const setStoredXeniaAvatar = (url: string) => {
   if (typeof window !== 'undefined') {
     localStorage.setItem(LOCAL_STORAGE_KEY, url);
     window.dispatchEvent(new Event('xenia-avatar-changed'));
+
+    // If it's an uploaded base64 data URL, also sync it permanently to the server disk (/public/xenia.jpeg)
+    if (url.startsWith('data:image')) {
+      fetch('/api/xenia/avatar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64: url }),
+      }).catch((err) => {
+        console.warn('Could not sync avatar to server disk:', err);
+      });
+    }
   }
 };
 
