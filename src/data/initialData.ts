@@ -1,4 +1,5 @@
 import { DemoState, Property, Reservation, CleaningTask, MessageTemplate, WelcomeGuideData, AddonService, CashMovement } from '../types';
+import { saveComplexToCloud } from '../lib/firebase';
 
 // Helper to format date offset from today
 export function getRelativeDate(offsetDays: number): string {
@@ -717,12 +718,33 @@ export function getDemoState(): DemoState {
   return defaultState;
 }
 
-export function saveDemoState(state: DemoState): void {
+export function saveDemoState(state: DemoState, complexId?: string): void {
   try {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
   } catch (e) {
     console.error('Error saving demo state to localStorage', e);
   }
+
+  // Also persist to Firebase Cloud Firestore for multi-device & multi-user sync
+  try {
+    const activeId = complexId || (typeof localStorage !== 'undefined' ? localStorage.getItem('loomi_active_complex') || 'default' : 'default');
+    saveComplexToCloud(activeId, state);
+  } catch (e) {
+    console.warn('Firestore cloud background sync notice:', e);
+  }
+
+  // Also persist to server in background for multi-device sync
+  try {
+    if (typeof window !== 'undefined' && typeof fetch === 'function') {
+      fetch('/api/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ state }),
+      }).catch((err) => {
+        console.warn('Silent server state sync notice:', err);
+      });
+    }
+  } catch {}
 }
 
 export function resetDemoState(): DemoState {

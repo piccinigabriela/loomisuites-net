@@ -9,6 +9,9 @@ import {
   Calendar,
   Sparkles,
   Info,
+  Clipboard,
+  ArrowRight,
+  RefreshCw,
 } from 'lucide-react';
 import { DemoState, Reservation, Property, BookingPlatform } from '../../types';
 
@@ -28,17 +31,103 @@ interface ParsedEvent {
   nights: number;
 }
 
+const MONTH_MAP: Record<string, string> = {
+  ene: '01', enero: '01', jan: '01', january: '01',
+  feb: '02', febrero: '02', february: '02',
+  mar: '03', marzo: '03', march: '03',
+  abr: '04', abril: '04', apr: '04', april: '04',
+  may: '05', mayo: '05',
+  jun: '06', junio: '06', june: '06',
+  jul: '07', julio: '07', july: '07',
+  ago: '08', agosto: '08', aug: '08', august: '08',
+  sep: '09', set: '09', septiembre: '09', setiembre: '09', sept: '09', september: '09',
+  oct: '10', octubre: '10', october: '10',
+  nov: '11', noviembre: '11', november: '11',
+  dic: '12', diciembre: '12', dec: '12', december: '12',
+};
+
+// Universal Date Normalizer
+function parseAnyDate(raw: any): string | null {
+  if (!raw) return null;
+
+  // If number (e.g. Excel timestamp or epoch)
+  if (typeof raw === 'number') {
+    if (raw > 25000 && raw < 65000) {
+      // Excel serial date number
+      const excelEpoch = new Date(1899, 11, 30);
+      const targetDate = new Date(excelEpoch.getTime() + raw * 86400000);
+      return targetDate.toISOString().split('T')[0];
+    }
+    if (raw > 1000000000000) {
+      return new Date(raw).toISOString().split('T')[0];
+    }
+  }
+
+  let str = String(raw).trim();
+  // Remove quotes, time portions, and leading/trailing noise
+  str = str.replace(/^["']|["']$/g, '').split('T')[0].split(' ')[0].trim();
+  if (!str) return null;
+
+  // 1. ISO format: YYYY-MM-DD or YYYY/MM/DD
+  const isoMatch = str.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+  if (isoMatch) {
+    const year = isoMatch[1];
+    const month = isoMatch[2].padStart(2, '0');
+    const day = isoMatch[3].padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // 2. Latin / Standard: DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
+  const latin4Match = str.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
+  if (latin4Match) {
+    const day = latin4Match[1].padStart(2, '0');
+    const month = latin4Match[2].padStart(2, '0');
+    const year = latin4Match[3];
+    return `${year}-${month}-${day}`;
+  }
+
+  // 3. 2-digit year: DD/MM/YY or DD-MM-YY or DD.MM.YY
+  const latin2Match = str.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2})$/);
+  if (latin2Match) {
+    const day = latin2Match[1].padStart(2, '0');
+    const month = latin2Match[2].padStart(2, '0');
+    let year = Number(latin2Match[3]);
+    year = year < 50 ? 2000 + year : 1900 + year;
+    return `${year}-${month}-${day}`;
+  }
+
+  // 4. Words like "15-Ene-2025" or "15/Ene/25" or "15 de enero de 2025"
+  const wordClean = str.toLowerCase().replace(/ de /g, '-').replace(/[ /.]/g, '-');
+  const wordMatch = wordClean.match(/^(\d{1,2})-([a-z]{3,12})-(\d{2,4})$/);
+  if (wordMatch) {
+    const day = wordMatch[1].padStart(2, '0');
+    const mStr = wordMatch[2].substring(0, 3);
+    const mNum = MONTH_MAP[mStr] || MONTH_MAP[wordMatch[2]] || '01';
+    let year = wordMatch[3];
+    if (year.length === 2) {
+      year = String(Number(year) < 50 ? 2000 + Number(year) : 1900 + Number(year));
+    }
+    return `${year}-${mNum}-${day}`;
+  }
+
+  return null;
+}
+
 export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
   isOpen,
   onClose,
   demoState,
   onImport,
 }) => {
+  const [activeTab, setActiveTab] = useState<'upload' | 'paste'>('upload');
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [pastedText, setPastedText] = useState('');
   const [parsedEvents, setParsedEvents] = useState<ParsedEvent[]>([]);
   const [importMode, setImportMode] = useState<'add' | 'replace'>('add');
   const [step, setStep] = useState<'upload' | 'preview'>('upload');
+  const [parseErrorNotice, setParseErrorNotice] = useState<string | null>(null);
+  const [rawFileSnippet, setRawFileSnippet] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
@@ -46,9 +135,9 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
+    if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true);
-    } else if (e.type === "dragleave") {
+    } else if (e.type === 'dragleave') {
       setDragActive(false);
     }
   };
@@ -69,24 +158,174 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
     }
   };
 
-  // Process and parse the Google Calendar (.ics) or CSV file
+  // Process text from file or paste
+  const processTextContent = (text: string, filename = 'reservas.csv') => {
+    setParseErrorNotice(null);
+    setRawFileSnippet(null);
+
+    const clean = text.trim();
+    if (!clean) {
+      setParseErrorNotice('El archivo o texto está vacío.');
+      return;
+    }
+
+    let events: ParsedEvent[] = [];
+
+    if (filename.endsWith('.ics') || clean.includes('BEGIN:VCALENDAR')) {
+      events = parseICS(clean);
+    } else if (clean.startsWith('{') || clean.startsWith('[') || filename.endsWith('.json')) {
+      events = parseJSON(clean);
+    } else {
+      events = parseCSV(clean);
+    }
+
+    if (events.length === 0) {
+      setRawFileSnippet(clean.split('\n').slice(0, 10).join('\n'));
+      setParseErrorNotice(
+        'No pudimos identificar automáticamente las fechas de entrada y salida en el archivo. Podés revisar las primeras filas abajo o pegar el texto directamente.'
+      );
+      return;
+    }
+
+    setParsedEvents(events);
+    setStep('preview');
+  };
+
   const processFile = async (selectedFile: File) => {
     setFile(selectedFile);
     try {
       const text = await selectedFile.text();
-      let events: ParsedEvent[] = [];
+      processTextContent(text, selectedFile.name);
+    } catch (err: any) {
+      setParseErrorNotice(`Error al leer el archivo: ${err?.message || 'Formato no legible'}`);
+    }
+  };
 
-      if (selectedFile.name.endsWith('.ics')) {
-        events = parseICS(text);
-      } else {
-        // Assume CSV
-        events = parseCSV(text);
+  // Real parsing of JSON backup files
+  const parseJSON = (text: string): ParsedEvent[] => {
+    try {
+      const data = JSON.parse(text);
+      const properties = demoState.properties;
+      const defaultPropertyId = properties[0]?.id || 'prop-1';
+      const events: ParsedEvent[] = [];
+
+      let rawList: any[] = [];
+      if (Array.isArray(data)) {
+        rawList = data;
+      } else if (data && typeof data === 'object') {
+        if (Array.isArray(data.reservations)) rawList = data.reservations;
+        else if (Array.isArray(data.bookings)) rawList = data.bookings;
+        else if (Array.isArray(data.events)) rawList = data.events;
+        else if (Array.isArray(data.records)) rawList = data.records;
+        else if (Array.isArray(data.data)) rawList = data.data;
+        else if (Array.isArray(data.items)) rawList = data.items;
+        else if (Array.isArray(data.alquileres)) rawList = data.alquileres;
+        else {
+          for (const key of Object.keys(data)) {
+            if (Array.isArray(data[key]) && data[key].length > 0) {
+              rawList = data[key];
+              break;
+            }
+          }
+        }
       }
 
-      setParsedEvents(events);
-      setStep('preview');
-    } catch (err) {
-      alert('Error al leer el archivo. Probá con otro archivo .ics o .csv válido.');
+      rawList.forEach((item, idx) => {
+        if (!item || typeof item !== 'object') return;
+
+        const guestName =
+          item.guestName ||
+          item.guest_name ||
+          item.name ||
+          item.guest ||
+          item.huesped ||
+          item.pasajero ||
+          item.cliente ||
+          item.titular ||
+          item.summary ||
+          item.title ||
+          `Huésped #${idx + 1}`;
+
+        const checkInRaw =
+          item.checkIn ||
+          item.check_in ||
+          item.startDate ||
+          item.start_date ||
+          item.start ||
+          item.entrada ||
+          item.ingreso ||
+          item.llegada ||
+          item.desde ||
+          item.from;
+
+        const checkOutRaw =
+          item.checkOut ||
+          item.check_out ||
+          item.endDate ||
+          item.end_date ||
+          item.end ||
+          item.salida ||
+          item.egreso ||
+          item.hasta ||
+          item.to;
+
+        const checkIn = parseAnyDate(checkInRaw);
+        const checkOut = parseAnyDate(checkOutRaw);
+
+        if (checkIn && checkOut) {
+          const propRef = String(
+            item.propertyId ||
+            item.property_id ||
+            item.cabin ||
+            item.cabinName ||
+            item.unit ||
+            item.depto ||
+            item.departamento ||
+            item.room ||
+            ''
+          ).toLowerCase();
+
+          let matchedPropertyId = defaultPropertyId;
+          for (const prop of properties) {
+            if (
+              propRef &&
+              (propRef.includes(prop.name.toLowerCase()) ||
+                prop.name.toLowerCase().includes(propRef) ||
+                propRef.includes(prop.id.toLowerCase()))
+            ) {
+              matchedPropertyId = prop.id;
+              break;
+            }
+          }
+
+          let platform: BookingPlatform = 'direct';
+          const platStr = String(item.platform || item.source || item.canal || item.channel || '').toLowerCase();
+          if (platStr.includes('air') || guestName.toLowerCase().includes('airbnb')) platform = 'airbnb';
+          else if (platStr.includes('book') || guestName.toLowerCase().includes('booking')) platform = 'booking';
+          else if (platStr.includes('vrbo') || platStr.includes('expedia')) platform = 'vrbo';
+
+          const cInDate = new Date(checkIn);
+          const cOutDate = new Date(checkOut);
+          const nights =
+            item.nights ||
+            Math.max(1, Math.round((cOutDate.getTime() - cInDate.getTime()) / (1000 * 60 * 60 * 24))) ||
+            1;
+
+          events.push({
+            guestName,
+            checkIn,
+            checkOut,
+            propertyId: matchedPropertyId,
+            platform,
+            nights,
+          });
+        }
+      });
+
+      return events;
+    } catch (e) {
+      console.error('Error parsing JSON backup:', e);
+      return [];
     }
   };
 
@@ -101,17 +340,14 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
 
     while ((match = veventRegex.exec(text)) !== null) {
       const block = match[1];
-      
-      // Parse SUMMARY (Guest Name)
+
       const summaryMatch = block.match(/SUMMARY:(.*)/);
       let guestName = summaryMatch ? summaryMatch[1].trim() : 'Reserva Importada';
-      // Clean names like "Reserva de Juan Pérez" or similar
       guestName = guestName
         .replace(/^(Reserva\s+de\s+|Reserva\s+-?\s*)/i, '')
-        .replace(/\\/g, '') // remove escape chars
+        .replace(/\\/g, '')
         .trim();
 
-      // Parse dates: DTSTART & DTEND
       const dtstartMatch = block.match(/DTSTART(?:;[^:]*)?:(\d{8})/);
       const dtendMatch = block.match(/DTEND(?:;[^:]*)?:(\d{8})/);
 
@@ -126,7 +362,6 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
         const checkOutDate = new Date(checkOut);
         const nights = Math.max(1, Math.round((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)));
 
-        // Look for property keywords in block (e.g. Cabaña 1, Wood Cabin, etc.)
         let matchedPropertyId = defaultPropertyId;
         const lowercaseBlock = block.toLowerCase() + guestName.toLowerCase();
         for (const prop of properties) {
@@ -136,14 +371,13 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
           }
         }
 
-        // Determine platform from keyword
         let platform: BookingPlatform = 'direct';
         if (lowercaseBlock.includes('airbnb')) platform = 'airbnb';
         else if (lowercaseBlock.includes('booking')) platform = 'booking';
         else if (lowercaseBlock.includes('vrbo') || lowercaseBlock.includes('expedia')) platform = 'vrbo';
 
         events.push({
-          guestName: guestName || 'Huésped Google Cal',
+          guestName: guestName || 'Huésped Cal',
           checkIn,
           checkOut,
           propertyId: matchedPropertyId,
@@ -153,150 +387,203 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
       }
     }
 
-    // Sort by check-in date
     return events.sort((a, b) => a.checkIn.localeCompare(b.checkIn));
   };
 
-  // Real parsing of CSV file
+  // Ultra-flexible CSV / TSV / Delimited Parser
   const parseCSV = (text: string): ParsedEvent[] => {
-    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-    if (lines.length < 2) return [];
+    const cleanText = text.replace(/^\uFEFF/, '');
+    const lines = cleanText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+    if (lines.length < 1) return [];
 
     const properties = demoState.properties;
     const defaultPropertyId = properties[0]?.id || 'prop-1';
     const events: ParsedEvent[] = [];
 
-    // Simple header matching or direct parsing
-    const headers = lines[0].toLowerCase().split(/[;,]/);
-    
-    // Find column indexes
-    const guestIdx = headers.findIndex(h => h.includes('guest') || h.includes('nombre') || h.includes('huésped') || h.includes('reserva') || h.includes('summary'));
-    const startIdx = headers.findIndex(h => h.includes('start') || h.includes('desde') || h.includes('entrada') || h.includes('checkin') || h.includes('check-in'));
-    const endIdx = headers.findIndex(h => h.includes('end') || h.includes('hasta') || h.includes('salida') || h.includes('checkout') || h.includes('check-out'));
-    const cabinIdx = headers.findIndex(h => h.includes('cabin') || h.includes('cabaña') || h.includes('propiedad') || h.includes('unidad'));
+    // Auto-detect separator
+    const firstFew = lines.slice(0, 5).join('\n');
+    const commaCount = (firstFew.match(/,/g) || []).length;
+    const semiCount = (firstFew.match(/;/g) || []).length;
+    const tabCount = (firstFew.match(/\t/g) || []).length;
+    const pipeCount = (firstFew.match(/\|/g) || []).length;
 
-    for (let i = 1; i < lines.length; i++) {
-      const row = lines[i].split(/[;,]/);
-      if (row.length < 2) continue;
+    let sep = ',';
+    if (semiCount > commaCount && semiCount >= tabCount) sep = ';';
+    else if (tabCount > commaCount && tabCount >= semiCount) sep = '\t';
+    else if (pipeCount > commaCount && pipeCount > semiCount) sep = '|';
 
-      let guestName = guestIdx !== -1 && row[guestIdx] ? row[guestIdx].replace(/"/g, '').trim() : `Reserva Fila ${i}`;
-      let checkIn = startIdx !== -1 && row[startIdx] ? row[startIdx].replace(/"/g, '').trim() : '';
-      let checkOut = endIdx !== -1 && row[endIdx] ? row[endIdx].replace(/"/g, '').trim() : '';
-      let cabinVal = cabinIdx !== -1 && row[cabinIdx] ? row[cabinIdx].replace(/"/g, '').trim().toLowerCase() : '';
+    const parseRow = (line: string): string[] => {
+      const values: string[] = [];
+      let current = '';
+      let insideQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          insideQuotes = !insideQuotes;
+        } else if (char === sep && !insideQuotes) {
+          values.push(current.trim().replace(/^["']|["']$/g, ''));
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      values.push(current.trim().replace(/^["']|["']$/g, ''));
+      return values;
+    };
 
-      // Standardize date formats: DD/MM/YYYY or YYYY-MM-DD
-      const normalizeDate = (dStr: string) => {
-        if (!dStr) return '';
-        // DD/MM/YYYY format
-        if (dStr.includes('/')) {
-          const parts = dStr.split('/');
-          if (parts.length === 3) {
-            let day = parts[0].padStart(2, '0');
-            let month = parts[1].padStart(2, '0');
-            let year = parts[2];
-            if (year.length === 2) year = '20' + year;
-            return `${year}-${month}-${day}`;
+    const parsedRows = lines.map(parseRow);
+    if (parsedRows.length === 0) return [];
+
+    const headerRow = parsedRows[0];
+    const headers = headerRow.map(h => h.toLowerCase());
+
+    // 1. Try finding by column names
+    let guestIdx = headers.findIndex(h =>
+      h.includes('guest') || h.includes('nombre') || h.includes('huésped') || h.includes('huesped') ||
+      h.includes('cliente') || h.includes('pasajero') || h.includes('titular') || h.includes('reserva') ||
+      h.includes('summary') || h.includes('name')
+    );
+
+    let startIdx = headers.findIndex(h =>
+      h.includes('start') || h.includes('desde') || h.includes('entrada') || h.includes('ingreso') ||
+      h.includes('llegada') || h.includes('checkin') || h.includes('check-in') || h.includes('in') ||
+      h.includes('f.desde') || h.includes('fecha in') || h.includes('fecha_in')
+    );
+
+    let endIdx = headers.findIndex(h =>
+      h.includes('end') || h.includes('hasta') || h.includes('salida') || h.includes('egreso') ||
+      h.includes('partida') || h.includes('checkout') || h.includes('check-out') || h.includes('out') ||
+      h.includes('f.hasta') || h.includes('fecha out') || h.includes('fecha_out')
+    );
+
+    let cabinIdx = headers.findIndex(h =>
+      h.includes('cabin') || h.includes('cabaña') || h.includes('cabana') || h.includes('depto') ||
+      h.includes('departamento') || h.includes('unidad') || h.includes('propiedad') || h.includes('habitacion') ||
+      h.includes('room') || h.includes('alojamiento')
+    );
+
+    let platformIdx = headers.findIndex(h =>
+      h.includes('plataforma') || h.includes('canal') || h.includes('channel') || h.includes('origen') || h.includes('source')
+    );
+
+    // 2. If start or end not identified by header names, scan column values for date patterns
+    const sampleRows = parsedRows.slice(0, 10);
+    const dateColCandidates: number[] = [];
+
+    if (startIdx === -1 || endIdx === -1) {
+      const colCount = Math.max(...sampleRows.map(r => r.length));
+      for (let c = 0; c < colCount; c++) {
+        let validDatesInCol = 0;
+        for (const row of sampleRows) {
+          if (row[c] && parseAnyDate(row[c])) {
+            validDatesInCol++;
           }
         }
-        return dStr; // Assume already YYYY-MM-DD
-      };
+        if (validDatesInCol >= Math.min(2, sampleRows.length)) {
+          dateColCandidates.push(c);
+        }
+      }
 
-      const normalizedIn = normalizeDate(checkIn);
-      const normalizedOut = normalizeDate(checkOut);
+      if (dateColCandidates.length >= 2) {
+        if (startIdx === -1) startIdx = dateColCandidates[0];
+        if (endIdx === -1) endIdx = dateColCandidates[1];
+      } else if (dateColCandidates.length === 1 && startIdx === -1) {
+        startIdx = dateColCandidates[0];
+      }
+    }
 
-      if (normalizedIn && normalizedOut) {
-        const cInDate = new Date(normalizedIn);
-        const cOutDate = new Date(normalizedOut);
-        const nights = Math.max(1, Math.round((cOutDate.getTime() - cInDate.getTime()) / (1000 * 60 * 60 * 24)));
+    // Determine starting row: row 0 might be a header or data
+    let startRowIndex = 1;
+    if (parsedRows.length === 1 || (startIdx !== -1 && parseAnyDate(parsedRows[0][startIdx]))) {
+      // First row itself contains valid dates -> no header row
+      startRowIndex = 0;
+    }
+
+    for (let i = startRowIndex; i < parsedRows.length; i++) {
+      const row = parsedRows[i];
+      if (row.length < 1 || row.every(v => !v)) continue;
+
+      let checkIn: string | null = null;
+      let checkOut: string | null = null;
+      let guestName = '';
+      let cabinVal = '';
+      let platformVal = '';
+
+      // Check In & Out
+      if (startIdx !== -1 && row[startIdx]) {
+        checkIn = parseAnyDate(row[startIdx]);
+      }
+      if (endIdx !== -1 && row[endIdx]) {
+        checkOut = parseAnyDate(row[endIdx]);
+      }
+
+      // If still missing, check any column in this row
+      if (!checkIn || !checkOut) {
+        const foundDates: string[] = [];
+        row.forEach(val => {
+          const d = parseAnyDate(val);
+          if (d && !foundDates.includes(d)) foundDates.push(d);
+        });
+        if (foundDates.length >= 2) {
+          checkIn = foundDates[0];
+          checkOut = foundDates[1];
+        }
+      }
+
+      // Guest Name
+      if (guestIdx !== -1 && row[guestIdx]) {
+        guestName = row[guestIdx];
+      } else {
+        // Pick first non-date, non-empty cell
+        const candidate = row.find(v => v && !parseAnyDate(v) && isNaN(Number(v)) && v.length > 2);
+        guestName = candidate || `Huésped #${i + 1}`;
+      }
+
+      if (cabinIdx !== -1 && row[cabinIdx]) {
+        cabinVal = row[cabinIdx].toLowerCase();
+      }
+      if (platformIdx !== -1 && row[platformIdx]) {
+        platformVal = row[platformIdx].toLowerCase();
+      }
+
+      if (checkIn && checkOut) {
+        const cInDate = new Date(checkIn);
+        const cOutDate = new Date(checkOut);
+        const nights = Math.max(1, Math.round((cOutDate.getTime() - cInDate.getTime()) / (1000 * 60 * 60 * 24))) || 1;
 
         let matchedPropertyId = defaultPropertyId;
         for (const prop of properties) {
-          if (cabinVal.includes(prop.name.toLowerCase()) || prop.name.toLowerCase().includes(cabinVal)) {
+          if (
+            cabinVal &&
+            (cabinVal.includes(prop.name.toLowerCase()) ||
+              prop.name.toLowerCase().includes(cabinVal) ||
+              cabinVal.includes(prop.id.toLowerCase()))
+          ) {
             matchedPropertyId = prop.id;
             break;
           }
         }
 
+        let platform: BookingPlatform = 'direct';
+        if (platformVal.includes('air') || guestName.toLowerCase().includes('airbnb')) platform = 'airbnb';
+        else if (platformVal.includes('book') || guestName.toLowerCase().includes('booking')) platform = 'booking';
+        else if (platformVal.includes('vrbo') || platformVal.includes('expedia')) platform = 'vrbo';
+
         events.push({
-          guestName,
-          checkIn: normalizedIn,
-          checkOut: normalizedOut,
+          guestName: guestName || `Reserva #${i + 1}`,
+          checkIn,
+          checkOut,
           propertyId: matchedPropertyId,
-          platform: 'direct',
+          platform,
           nights,
         });
       }
     }
 
-    return events;
-  };
-
-  // Trigger loading a demo Google Calendar file
-  const loadDemoCalendarFile = () => {
-    const today = new Date();
-    const formatDate = (daysOffset: number) => {
-      const d = new Date();
-      d.setDate(today.getDate() + daysOffset);
-      return d.toISOString().split('T')[0].replace(/-/g, '');
-    };
-
-    const properties = demoState.properties;
-    const propName1 = properties[0]?.name || 'Cabaña Bosque';
-    const propName2 = properties[1]?.name || 'Cabaña Lago';
-
-    // Simulated .ics file containing real standard Google Cal format
-    const dummyICSContent = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//Google Inc//Google Calendar 70.9054//EN
-BEGIN:VEVENT
-DTSTART;VALUE=DATE:${formatDate(3)}
-DTEND;VALUE=DATE:${formatDate(6)}
-SUMMARY:Reserva Airbnb - Lionel Messi (${propName1})
-DESCRIPTION:Contacto: lio.messi@seleccion.ar
-END:VEVENT
-BEGIN:VEVENT
-DTSTART;VALUE=DATE:${formatDate(7)}
-DTEND;VALUE=DATE:${formatDate(9)}
-SUMMARY:Reserva Booking.com - Diego Maradona (${propName2})
-DESCRIPTION:Contacto: dieguito@pelusa.com
-END:VEVENT
-BEGIN:VEVENT
-DTSTART;VALUE=DATE:${formatDate(1)}
-DTEND;VALUE=DATE:${formatDate(3)}
-SUMMARY:Reserva Directa - Gustavo Cerati (${propName1})
-DESCRIPTION:Contacto: cerati@soda.com.ar
-END:VEVENT
-BEGIN:VEVENT
-DTSTART;VALUE=DATE:${formatDate(10)}
-DTEND;VALUE=DATE:${formatDate(14)}
-SUMMARY:Reserva Directa - Gabriela Piccini (${propName2})
-DESCRIPTION:Importada por Google Calendar
-END:VEVENT
-END:VCALENDAR`;
-
-    const events = parseICS(dummyICSContent);
-    setParsedEvents(events);
-    setStep('preview');
-    setFile(new File([''], 'google_calendar_demo_export.ics'));
-  };
-
-  // Helper to check overlaps with existing system reservations
-  const checkOverlap = (ev: ParsedEvent) => {
-    return demoState.reservations.some(r => {
-      if (r.propertyId !== ev.propertyId || r.status === 'cancelled') return false;
-      
-      // Real check-in check-out overlaps
-      const startA = new Date(r.checkIn).getTime();
-      const endA = new Date(r.checkOut).getTime();
-      const startB = new Date(ev.checkIn).getTime();
-      const endB = new Date(ev.checkOut).getTime();
-
-      return (startB < endA && endB > startA);
-    });
+    return events.sort((a, b) => a.checkIn.localeCompare(b.checkIn));
   };
 
   const handleConfirmImport = () => {
-    // Generate actual complete reservation objects from parsed events
     const newReservations: Reservation[] = parsedEvents.map((ev, idx) => {
       const matchedProperty = demoState.properties.find(p => p.id === ev.propertyId) || demoState.properties[0];
       const basePrice = matchedProperty?.basePrice || 120;
@@ -308,7 +595,7 @@ END:VCALENDAR`;
         id: `imported-${Date.now()}-${idx}`,
         propertyId: ev.propertyId,
         guestName: ev.guestName,
-        guestEmail: `${ev.guestName.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+        guestEmail: `${ev.guestName.toLowerCase().replace(/[^a-z0-9]/g, '.')}@example.com`,
         guestPhone: '+54 9 11 ' + Math.floor(10000000 + Math.random() * 90000000),
         guestAvatar: `https://images.unsplash.com/photo-${1500000000000 + idx}?w=120`,
         checkIn: ev.checkIn,
@@ -330,22 +617,13 @@ END:VCALENDAR`;
     onImport(newReservations, importMode);
     setStep('upload');
     setFile(null);
+    setPastedText('');
     onClose();
-  };
-
-  const handleDownloadBackup = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(demoState, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `LoomiSuite_Backup_Reservas_${new Date().toISOString().split('T')[0]}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
   };
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div 
+      <div
         id="calendar-import-modal"
         className="bg-[#141414] border border-[#2a2a2a] text-[#f4f2ee] rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl relative transition-all"
       >
@@ -356,11 +634,11 @@ END:VCALENDAR`;
               <Calendar className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Importar Reservas (Google Calendar / CSV / .ics)</h3>
-              <p className="text-[11px] text-[#8e8c87]">Subí tu archivo exportado de Google Calendar (.ics) o tu planilla excel de reservas</p>
+              <h3 className="text-sm font-bold text-white">Importador de Reservas y Backups</h3>
+              <p className="text-[11px] text-[#8e8c87]">Subí tu archivo .csv, .json o pegá las filas de tu Excel</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="p-1.5 hover:bg-[#252525] rounded-lg text-[#8e8c87] hover:text-white transition-colors cursor-pointer"
           >
@@ -369,247 +647,242 @@ END:VCALENDAR`;
         </div>
 
         {step === 'upload' ? (
-          <div className="p-5 space-y-5">
-            {/* Formats Info Bar */}
-            <div className="bg-[#1c1a18] border border-[#2c221b] rounded-xl p-4 space-y-3.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-[#d88d5e] uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#d88d5e]" />
-                  Formatos compatibles: Archivos .ics y .csv
-                </span>
-                <span className="bg-[#241d17] border border-[#d88d5e]/25 text-[#d88d5e] text-[10px] font-extrabold px-2 py-0.5 rounded-full">
-                  {demoState.reservations.length} reservas en la app
-                </span>
-              </div>
-              
-              <ul className="space-y-2.5 text-xs text-[#c8c5c0]">
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#d88d5e] shrink-0 mt-1.5" />
-                  <span>
-                    <strong>Google Calendar (.ics o .csv):</strong> Podés exportar tu calendario desde <em>Google Calendar → Configuración → Importar y exportar</em>. Admite tanto el archivo .ics descargado como archivos .csv.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#d88d5e] shrink-0 mt-1.5" />
-                  <span>
-                    <strong>Planillas de reservas (.csv):</strong> Detecta automáticamente columnas de Cabaña, Huésped, Fechas de Entrada/Salida, Teléfono, Precio y Plataforma.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#d88d5e] shrink-0 mt-1.5" />
-                  <span>
-                    <strong>Sin superposiciones:</strong> En el siguiente paso podrás revisar si hay reservas encimadas antes de confirmar la importación definitiva.
-                  </span>
-                </li>
-              </ul>
+          <div className="p-5 space-y-4">
+            {/* Tabs: Upload vs Paste */}
+            <div className="flex bg-[#1c1c1c] p-1 rounded-xl border border-[#2c2c2c]">
+              <button
+                type="button"
+                onClick={() => setActiveTab('upload')}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+                  activeTab === 'upload'
+                    ? 'bg-[#2a221b] text-[#d88d5e] shadow-xs border border-[#d88d5e]/30'
+                    : 'text-[#8e8c87] hover:text-white'
+                }`}
+              >
+                <Upload className="w-3.5 h-3.5" />
+                Subir Archivo (.csv / .json / .ics)
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('paste')}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+                  activeTab === 'paste'
+                    ? 'bg-[#2a221b] text-[#d88d5e] shadow-xs border border-[#d88d5e]/30'
+                    : 'text-[#8e8c87] hover:text-white'
+                }`}
+              >
+                <Clipboard className="w-3.5 h-3.5" />
+                Pegar Texto / Filas de Excel
+              </button>
             </div>
 
-            {/* Drag and Drop Zone */}
-            <div
-              onDragEnter={handleDrag}
-              onDragOver={handleDrag}
-              onDragLeave={handleDrag}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-xl p-8 text-center flex flex-col items-center justify-center gap-3 cursor-pointer transition-all ${
-                dragActive
-                  ? 'border-[#d88d5e] bg-[#2a221b]/40'
-                  : 'border-[#333333] hover:border-[#444444] bg-[#121212]'
-              }`}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".ics,.csv"
-                onChange={handleFileInput}
-                className="hidden"
-              />
-              <div className="w-12 h-12 bg-[#24201c] text-[#d88d5e] rounded-full flex items-center justify-center border border-[#d88d5e]/20 shadow-xs">
-                <Upload className="w-6 h-6 animate-pulse" />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-white">Arrastrá tu archivo .ics o .csv aquí</p>
-                <p className="text-[11px] text-[#8e8c87] mt-0.5">o hacé clic para buscar en tu dispositivo (Archivos .ics, .csv, .txt)</p>
-              </div>
-            </div>
-
-            {/* Quick Demo Option */}
-            <div className="flex items-center justify-between p-3.5 bg-[#1a1c1d] border border-blue-900/30 rounded-xl">
-              <div className="flex items-start gap-2.5">
-                <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-bold text-white">¿No tenés un archivo exportado a mano?</p>
-                  <p className="text-[10px] text-[#8e8c87]">Hacé clic al costado para simular la carga con un archivo real de Google Calendar conteniendo 4 reservas de prueba.</p>
+            {/* Error diagnostic banner */}
+            {parseErrorNotice && (
+              <div className="bg-red-950/40 border border-red-800/50 rounded-xl p-3.5 text-xs text-red-200 space-y-2">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="text-red-300">Aviso de lectura:</strong>
+                    <p className="mt-0.5">{parseErrorNotice}</p>
+                  </div>
                 </div>
-              </div>
-              <button
-                type="button"
-                onClick={loadDemoCalendarFile}
-                className="px-3 py-1.5 bg-blue-950/80 hover:bg-blue-900/50 text-blue-400 hover:text-white border border-blue-800/50 rounded-lg text-xs font-bold transition-all cursor-pointer"
-              >
-                Cargar archivo demo
-              </button>
-            </div>
 
-            {/* Backup option */}
-            <div className="flex items-center justify-between border-t border-[#2a2a2a] pt-4">
-              <span className="text-[11px] text-[#8e8c87] flex items-center gap-1.5">
-                💡 ¿Querés guardar una copia de las reservas actuales antes de continuar?
-              </span>
-              <button
-                type="button"
-                onClick={handleDownloadBackup}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1c1c1c] hover:bg-[#252525] text-white border border-[#333] rounded-lg text-xs font-semibold cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Descargar Backup JSON</span>
-              </button>
-            </div>
+                {rawFileSnippet && (
+                  <div className="mt-2 bg-black/40 p-2.5 rounded-lg border border-red-900/30">
+                    <p className="text-[10px] text-red-400 font-mono mb-1 font-bold">Primeras líneas leídas del archivo:</p>
+                    <pre className="text-[10px] text-zinc-300 font-mono overflow-x-auto whitespace-pre-wrap max-h-24">
+                      {rawFileSnippet}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'upload' ? (
+              <>
+                {/* Drag and Drop Zone */}
+                <div
+                  onDragEnter={handleDrag}
+                  onDragOver={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-xl p-8 text-center flex flex-col items-center justify-center gap-3 cursor-pointer transition-all ${
+                    dragActive
+                      ? 'border-[#d88d5e] bg-[#2a221b]/40'
+                      : 'border-[#333333] hover:border-[#444444] bg-[#121212]'
+                  }`}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".json,.csv,.tsv,.txt,.ics"
+                    onChange={handleFileInput}
+                    className="hidden"
+                  />
+                  <div className="w-12 h-12 bg-[#24201c] text-[#d88d5e] rounded-full flex items-center justify-center border border-[#d88d5e]/20 shadow-xs">
+                    <Upload className="w-6 h-6 animate-pulse" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white">Arrastrá tu archivo .csv, .json o .ics aquí</p>
+                    <p className="text-[11px] text-[#8e8c87] mt-0.5">o hacé clic para buscarlo en tu dispositivo</p>
+                  </div>
+                </div>
+
+                {/* Compatibility hints */}
+                <div className="bg-[#1c1a18] border border-[#2c221b] rounded-xl p-3 text-xs text-[#c8c5c0] space-y-1.5">
+                  <div className="flex items-center gap-1.5 font-bold text-[#d88d5e] text-[11px] uppercase tracking-wider">
+                    <Sparkles className="w-3.5 h-3.5 text-[#d88d5e]" />
+                    Compatibilidad Universal
+                  </div>
+                  <p className="text-[11px] text-[#9c9a95]">
+                    Reconoce fechas en formato argentino (DD/MM/AAAA), ISO (AAAA-MM-DD), nombres de meses en español y cualquier separador (coma, punto y coma o tabulación).
+                  </p>
+                </div>
+              </>
+            ) : (
+              /* Direct Text Paste Area */
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <Clipboard className="w-3.5 h-3.5 text-[#d88d5e]" />
+                    Pegá el contenido de tu archivo o las filas copiadas de Excel:
+                  </label>
+                  <textarea
+                    rows={7}
+                    value={pastedText}
+                    onChange={e => setPastedText(e.target.value)}
+                    placeholder={`Ejemplo:\nHuésped, Entrada, Salida, Departamento\nJuan Perez, 15/10/2025, 20/10/2025, Depto 1\nMaria Gomez, 22/10/2025, 25/10/2025, Depto 2\n\n(o pega tu JSON/CSV directamente acá)`}
+                    className="w-full bg-[#121212] border border-[#333333] rounded-xl p-3 text-xs text-white font-mono placeholder:text-zinc-600 focus:border-[#d88d5e] focus:outline-hidden"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => processTextContent(pastedText, 'pasted_data.csv')}
+                  disabled={!pastedText.trim()}
+                  className="w-full py-2.5 bg-[#d88d5e] hover:bg-[#c27c4f] disabled:opacity-40 disabled:cursor-not-allowed text-[#141414] font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Procesar Texto y Ver Vista Previa
+                </button>
+              </div>
+            )}
           </div>
         ) : (
-          /* PREVIEW STEP */
+          /* Step 2: Preview & Confirmation */
           <div className="p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                <span className="text-xs font-bold text-white">Archivo analizado correctamente</span>
+            <div className="flex items-center justify-between pb-3 border-b border-[#252525]">
+              <div>
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  {parsedEvents.length} reservas listas para importar
+                </span>
+                <p className="text-[11px] text-[#8e8c87] mt-0.5">
+                  Revisá la asignación de cada departamento antes de guardar
+                </p>
               </div>
-              <span className="text-xs text-[#8e8c87]">
-                Se detectaron <strong>{parsedEvents.length}</strong> reservas para importar
-              </span>
-            </div>
 
-            {/* Event List Table */}
-            <div className="border border-[#2a2a2a] rounded-xl overflow-hidden max-h-[220px] overflow-y-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-[#1c1c1c] border-b border-[#2a2a2a] text-[10px] uppercase font-bold tracking-wider text-[#8e8c87]">
-                    <th className="p-2.5">Huésped / Canal</th>
-                    <th className="p-2.5">Check-In / Out</th>
-                    <th className="p-2.5">Cabaña Asignada</th>
-                    <th className="p-2.5 text-right">Estado / Choque</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#242424] text-xs">
-                  {parsedEvents.map((ev, idx) => {
-                    const isOverlapped = checkOverlap(ev);
-                    const matchedProp = demoState.properties.find(p => p.id === ev.propertyId);
-                    
-                    return (
-                      <tr key={idx} className="hover:bg-[#1c1c1c]">
-                        <td className="p-2.5">
-                          <div className="font-bold text-white">{ev.guestName}</div>
-                          <div className="text-[10px] text-[#8e8c87] flex items-center gap-1">
-                            <span className={`w-1.5 h-1.5 rounded-full inline-block ${
-                              ev.platform === 'airbnb' ? 'bg-[#c46850]' : ev.platform === 'booking' ? 'bg-[#4a6b8c]' : 'bg-[#5c8a66]'
-                            }`} />
-                            <span className="uppercase tracking-wider font-semibold text-[9px]">
-                              {ev.platform} ({ev.nights} noches)
-                            </span>
-                          </div>
-                        </td>
-                        <td className="p-2.5">
-                          <div className="font-semibold text-[#f4f2ee]">{ev.checkIn}</div>
-                          <div className="text-[10px] text-[#8e8c87] font-semibold">{ev.checkOut}</div>
-                        </td>
-                        <td className="p-2.5">
-                          <select
-                            value={ev.propertyId}
-                            onChange={(e) => {
-                              const updated = [...parsedEvents];
-                              updated[idx].propertyId = e.target.value;
-                              setParsedEvents(updated);
-                            }}
-                            className="text-[11px] bg-[#121212] border border-[#333] text-white px-2 py-1 rounded focus:outline-none focus:border-[#d88d5e]"
-                          >
-                            {demoState.properties.map(p => (
-                              <option key={p.id} value={p.id}>{p.name}</option>
-                            ))}
-                          </select>
-                        </td>
-                        <td className="p-2.5 text-right">
-                          {isOverlapped ? (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-red-950 border border-red-800 text-red-400 text-[9px] font-bold uppercase">
-                              <AlertTriangle className="w-3 h-3" />
-                              Choque fechas
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-400 text-[9px] font-bold uppercase">
-                              ✔ Disponible
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mode Selection */}
-            <div className="bg-[#1c1a18] border border-[#2c221b] p-3 rounded-xl space-y-3">
-              <span className="text-[11px] font-bold text-[#d88d5e] uppercase tracking-wider">
-                Configuración del Traspaso
-              </span>
-              <div className="grid grid-cols-2 gap-3">
+              {/* Mode Switcher */}
+              <div className="flex bg-[#1c1c1c] p-1 rounded-lg border border-[#2c2c2c] text-[11px]">
                 <button
                   type="button"
                   onClick={() => setImportMode('add')}
-                  className={`p-3 text-left border rounded-xl transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-md font-semibold transition-all ${
                     importMode === 'add'
-                      ? 'border-[#d88d5e] bg-[#2a221b]/40 text-white'
-                      : 'border-[#2a2a2a] hover:border-[#333] text-[#8e8c87]'
+                      ? 'bg-[#2a221b] text-[#d88d5e] border border-[#d88d5e]/30'
+                      : 'text-[#8e8c87] hover:text-white'
                   }`}
                 >
-                  <p className="text-xs font-bold text-white">Sumar al calendario actual</p>
-                  <p className="text-[10px] mt-0.5 leading-tight">Agrega estas nuevas reservas manteniendo las que ya tenés cargadas.</p>
+                  Sumar al calendario
                 </button>
-
                 <button
                   type="button"
                   onClick={() => setImportMode('replace')}
-                  className={`p-3 text-left border rounded-xl transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-md font-semibold transition-all ${
                     importMode === 'replace'
-                      ? 'border-red-500 bg-red-950/20 text-white'
-                      : 'border-[#2a2a2a] hover:border-[#333] text-[#8e8c87]'
+                      ? 'bg-red-950 text-red-300 border border-red-800/40'
+                      : 'text-[#8e8c87] hover:text-white'
                   }`}
                 >
-                  <p className="text-xs font-bold text-white">Reemplazar calendario anterior</p>
-                  <p className="text-[10px] mt-0.5 leading-tight text-red-400/90">Borra las reservas anteriores y carga únicamente estas nuevas.</p>
+                  Reemplazar todo
                 </button>
               </div>
             </div>
+
+            {/* List of parsed events */}
+            <div className="max-h-72 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+              {parsedEvents.map((ev, idx) => (
+                <div
+                  key={idx}
+                  className="p-3 bg-[#191919] border border-[#2a2a2a] rounded-xl flex items-center justify-between gap-3 text-xs hover:border-[#383838] transition-colors"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-white truncate">{ev.guestName}</span>
+                      <span
+                        className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${
+                          ev.platform === 'airbnb'
+                            ? 'bg-red-950/60 text-red-400 border border-red-800/30'
+                            : ev.platform === 'booking'
+                            ? 'bg-blue-950/60 text-blue-400 border border-blue-800/30'
+                            : 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/30'
+                        }`}
+                      >
+                        {ev.platform}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-[#8e8c87] mt-0.5 flex items-center gap-2">
+                      <span>
+                        📅 {ev.checkIn} → {ev.checkOut}
+                      </span>
+                      <span className="text-[#d88d5e] font-semibold">({ev.nights} noches)</span>
+                    </div>
+                  </div>
+
+                  {/* Property Selector */}
+                  <div className="shrink-0">
+                    <select
+                      value={ev.propertyId}
+                      onChange={e => {
+                        const newId = e.target.value;
+                        setParsedEvents(prev =>
+                          prev.map((item, i) => (i === idx ? { ...item, propertyId: newId } : item))
+                        );
+                      }}
+                      className="bg-[#242424] text-white border border-[#383838] text-[11px] rounded-lg px-2.5 py-1.5 focus:border-[#d88d5e] focus:outline-hidden"
+                    >
+                      {demoState.properties.map(p => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-between pt-3 border-t border-[#252525]">
+              <button
+                type="button"
+                onClick={() => setStep('upload')}
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-[#8e8c87] hover:text-white hover:bg-[#202020] transition-colors cursor-pointer"
+              >
+                ← Volver a elegir archivo
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmImport}
+                className="px-5 py-2.5 bg-[#d88d5e] hover:bg-[#c27c4f] text-[#141414] font-bold text-xs rounded-xl transition-colors flex items-center gap-2 cursor-pointer shadow-sm"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                Confirmar e Importar {parsedEvents.length} Reservas
+              </button>
+            </div>
           </div>
         )}
-
-        {/* Footer */}
-        <div className="px-5 py-3 bg-[#181818] border-t border-[#2a2a2a] flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => {
-              if (step === 'preview') {
-                setStep('upload');
-                setFile(null);
-              } else {
-                onClose();
-              }
-            }}
-            className="px-4 py-2 bg-[#222] hover:bg-[#2e2e2e] text-white rounded-xl text-xs font-bold transition-colors cursor-pointer border border-[#333]"
-          >
-            {step === 'preview' ? 'Atrás' : 'Cancelar'}
-          </button>
-
-          {step === 'preview' && (
-            <button
-              type="button"
-              onClick={handleConfirmImport}
-              className="px-4 py-2 bg-[#c46d45] hover:bg-[#d67b51] text-white rounded-xl text-xs font-extrabold shadow-md flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Confirmar e Importar {parsedEvents.length} Reservas</span>
-            </button>
-          )}
-        </div>
       </div>
     </div>
   );

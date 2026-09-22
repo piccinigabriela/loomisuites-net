@@ -25,30 +25,37 @@ app.get("/api/health", (_req: Request, res: Response) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// Endpoint to permanently save Xenia's avatar to disk at public/xenia.jpeg
-app.post("/api/xenia/avatar", (req: Request, res: Response) => {
+// Endpoints for persistent complex state across devices and sessions
+const STATE_FILE_PATH = path.join(process.cwd(), "data", "app_state.json");
+
+app.get("/api/state", (_req: Request, res: Response) => {
   try {
-    const { imageBase64 } = req.body;
-    if (!imageBase64) {
-      return res.status(400).json({ error: "No image provided" });
+    if (fs.existsSync(STATE_FILE_PATH)) {
+      const data = fs.readFileSync(STATE_FILE_PATH, "utf-8");
+      return res.json({ success: true, state: JSON.parse(data) });
     }
-
-    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
-    const buffer = Buffer.from(base64Data, "base64");
-
-    const publicDir = path.join(process.cwd(), "public");
-    if (!fs.existsSync(publicDir)) {
-      fs.mkdirSync(publicDir, { recursive: true });
-    }
-
-    const filePath = path.join(publicDir, "xenia.jpeg");
-    fs.writeFileSync(filePath, buffer);
-
-    console.log("Xenia avatar saved permanently to disk:", filePath);
-    res.json({ success: true, url: "/xenia.jpeg?t=" + Date.now() });
+    return res.json({ success: true, state: null });
   } catch (error: any) {
-    console.error("Error saving Xenia avatar:", error);
-    res.status(500).json({ error: error.message });
+    console.error("Error reading server state:", error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/state", (req: Request, res: Response) => {
+  try {
+    const { state } = req.body;
+    if (!state) {
+      return res.status(400).json({ error: "No state provided" });
+    }
+    const dataDir = path.join(process.cwd(), "data");
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    fs.writeFileSync(STATE_FILE_PATH, JSON.stringify(state, null, 2), "utf-8");
+    return res.json({ success: true });
+  } catch (error: any) {
+    console.error("Error saving server state:", error);
+    return res.status(500).json({ error: error.message });
   }
 });
 

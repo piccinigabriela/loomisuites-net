@@ -54,14 +54,56 @@ import { DemoBookingsList } from './components/demo/DemoBookingsList';
 import { JsonDataModal } from './components/demo/JsonDataModal';
 import { OnboardingWizardModal } from './components/demo/OnboardingWizardModal';
 import { CalendarImportModal } from './components/demo/CalendarImportModal';
+import { ClientAuthModal } from './components/auth/ClientAuthModal';
 import { INITIAL_WELCOME_GUIDE } from './data/initialData';
 
 export default function App() {
   // App view: 'landing' (clean landing site) or 'demo' (active PMS panel)
-  const [currentView, setCurrentView] = useState<'landing' | 'demo'>('landing');
+  const [currentView, setCurrentView] = useState<'landing' | 'demo'>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        if (
+          params.has('panel') ||
+          params.has('demo') ||
+          params.has('tab') ||
+          params.has('guia') ||
+          params.has('guide') ||
+          params.has('reservas') ||
+          params.has('booking') ||
+          params.has('onboarding') ||
+          params.has('wizard') ||
+          params.has('self-onboarding') ||
+          params.has('configurar') ||
+          params.has('import') ||
+          params.has('importar') ||
+          params.get('view') === 'demo'
+        ) {
+          return 'demo';
+        }
+      }
+    } catch {}
+    return 'landing';
+  });
 
-  // Demo active tab: default to overview
-  const [demoTab, setDemoTab] = useState<string>('overview');
+  // Demo active tab: default to overview or deep linked tab
+  const [demoTab, setDemoTab] = useState<string>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('guia') || params.get('tab') === 'welcome-guide' || params.get('view') === 'guide') {
+          return 'welcome-guide';
+        }
+        if (params.has('reservas') || params.get('tab') === 'direct-booking' || params.get('view') === 'booking') {
+          return 'direct-booking';
+        }
+        if (params.get('tab')) {
+          return params.get('tab')!;
+        }
+      }
+    } catch {}
+    return 'overview';
+  });
 
   // Active Complex: Catalinas Apartamentos, Wood Cabin or Custom
   const [activeComplex, setActiveComplex] = useState<'catalinas' | 'woodcabin' | 'custom'>('catalinas');
@@ -143,6 +185,7 @@ export default function App() {
   const [demoState, setDemoState] = useState<DemoState>(getDemoState);
 
   // Modals
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [selectedPlanForLead, setSelectedPlanForLead] = useState<string | undefined>();
   const [isNewResModalOpen, setIsNewResModalOpen] = useState(false);
@@ -150,8 +193,24 @@ export default function App() {
   const [initialDateForRes, setInitialDateForRes] = useState<string | undefined>();
   const [selectedReservationForDetail, setSelectedReservationForDetail] = useState<Reservation | null>(null);
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
-  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState<boolean>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        return params.has('onboarding') || params.has('self-onboarding') || params.has('wizard') || params.has('configurar');
+      }
+    } catch {}
+    return false;
+  });
+  const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        return params.has('import') || params.has('importar');
+      }
+    } catch {}
+    return false;
+  });
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Toast feedback
@@ -525,6 +584,19 @@ export default function App() {
     (c) => c.status !== 'completed' && c.status !== 'inspected'
   ).length;
 
+  const handleSelectComplex = (complexId: string, isNew?: boolean) => {
+    setActiveComplex(complexId as any);
+    setCurrentView('demo');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (isNew) {
+      showToast('🎉 Complejo creado. ¡Comencemos el asistente de configuración!');
+      setIsOnboardingModalOpen(true);
+    } else {
+      showToast('Sesión iniciada correctamente');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans antialiased selection:bg-rose-500 selection:text-white transition-colors">
       {/* Global Toast */}
@@ -541,6 +613,7 @@ export default function App() {
           <Navbar
             theme={theme}
             onToggleTheme={toggleTheme}
+            onOpenLogin={() => setIsAuthModalOpen(true)}
             onOpenDemo={() => {
               setCurrentView('demo');
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -919,6 +992,17 @@ export default function App() {
         onClose={() => setIsImportModalOpen(false)}
         demoState={demoState}
         onImport={handleImportCalendarReservations}
+      />
+
+      <ClientAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSelectComplex={handleSelectComplex}
+        onOpenDemo={() => {
+          setCurrentView('demo');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        currentComplexId={activeComplex}
       />
     </div>
   );

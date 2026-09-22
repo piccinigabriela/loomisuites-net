@@ -1,15 +1,22 @@
 import React from 'react';
-import { Play, MessageSquare, Sun, Moon } from 'lucide-react';
+import { Play, MessageSquare, Sun, Moon, LogIn, Lock } from 'lucide-react';
 import { LoomiLogo } from '../common/LoomiLogo';
 
 interface NavbarProps {
   onOpenDemo: () => void;
   onOpenContact: () => void;
+  onOpenLogin?: () => void;
   theme?: 'light' | 'dark';
   onToggleTheme?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenDemo, onOpenContact, theme = 'light', onToggleTheme }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  onOpenDemo,
+  onOpenContact,
+  onOpenLogin,
+  theme = 'light',
+  onToggleTheme,
+}) => {
   const isDark = theme === 'dark';
 
   return (
@@ -20,7 +27,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenDemo, onOpenContact, theme
           <LoomiLogo size="md" theme={isDark ? 'dark' : 'light'} />
           <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold bg-[#edf4ed] dark:bg-[#1f2b20] text-[#3e6645] dark:text-[#a4cca8] px-2.5 py-0.5 rounded-full border border-[#d2e4d2] dark:border-[#344836]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#5a9c65] animate-pulse"></span>
-            Demo Activa
+            loomisuite.net
           </span>
         </div>
 
@@ -33,7 +40,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenDemo, onOpenContact, theme
             ¿Esto es para vos?
           </a>
           <a href="#preguntas-clave" className="hover:text-[#1c1b18] dark:hover:text-[#f4f2ee] transition-colors">
-            ¿Qué problema te resuelve?
+            ¿Qué resuelve?
           </a>
           <a href="#preguntas-clave" className="hover:text-[#1c1b18] dark:hover:text-[#f4f2ee] transition-colors">
             Precios
@@ -62,6 +69,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenDemo, onOpenContact, theme
                   <span className="hidden md:inline text-[11px] text-[#55514a]">Modo Oscuro</span>
                 </>
               )}
+            </button>
+          )}
+
+          {onOpenLogin && (
+            <button
+              id="btn-nav-login"
+              onClick={onOpenLogin}
+              className="flex items-center gap-1.5 text-xs font-bold text-[#1c1b18] dark:text-[#f4f2ee] px-3 py-2 rounded-xl hover:bg-[#edeae2] dark:hover:bg-[#262626] border border-[#ded9cd] dark:border-[#333] transition-all cursor-pointer shadow-2xs"
+            >
+              <Lock className="w-3.5 h-3.5 text-[#c46d45] dark:text-[#d88d5e]" />
+              <span>Ingresar</span>
             </button>
           )}
 
