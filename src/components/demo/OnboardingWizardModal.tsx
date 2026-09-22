@@ -57,40 +57,103 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
 
-  // Step 1: Complex info
-  const [complexName, setComplexName] = useState('Mis Departamentos Reales');
-  const [city, setCity] = useState('Buenos Aires, Argentina');
-  const [address, setAddress] = useState('Av. Corrientes 1234');
-  const [wifiNetwork, setWifiNetwork] = useState('MiComplejo_Wifi_5G');
-  const [wifiPassword, setWifiPassword] = useState('Bienvenido2026');
-  const [hostName, setHostName] = useState('Administración');
-  const [hostPhone, setHostPhone] = useState('+54 9 11 1234-5678');
+  // Helper to load registered complex data
+  const getInitialComplexInfo = () => {
+    try {
+      const activeId = localStorage.getItem('loomi_active_complex') || '';
+      const raw = localStorage.getItem('loomi_registered_complexes');
+      if (raw) {
+        const complexes = JSON.parse(raw);
+        const current = complexes.find((c: any) => c.id === activeId) || complexes[0];
+        if (current) {
+          return {
+            name: current.name || 'Catalinas Apartamentos',
+            city: current.city || 'Buenos Aires, CABA',
+            hostPhone: current.adminPhone || '+54 9 11 1234-5678',
+            hostName: current.adminName || 'Administración',
+          };
+        }
+      }
+    } catch {}
+    return {
+      name: 'Catalinas Apartamentos',
+      city: 'Buenos Aires, Argentina',
+      hostPhone: '+54 9 11 1234-5678',
+      hostName: 'Administración',
+    };
+  };
 
-  // Step 2: Units / Properties
+  const initialInfo = getInitialComplexInfo();
+
+  // Step 1: Complex info
+  const [complexName, setComplexName] = useState(initialInfo.name);
+  const [city, setCity] = useState(initialInfo.city);
+  const [address, setAddress] = useState('Tres Sargentos 435');
+  const [wifiNetwork, setWifiNetwork] = useState('Catalinas_Fibra_WiFi');
+  const [wifiPassword, setWifiPassword] = useState('TresSargentos435');
+  const [hostName, setHostName] = useState(initialInfo.hostName);
+  const [hostPhone, setHostPhone] = useState(initialInfo.hostPhone);
+
+  // Sync state whenever modal opens
+  React.useEffect(() => {
+    if (isOpen) {
+      const info = getInitialComplexInfo();
+      setComplexName(info.name);
+      setCity(info.city);
+      setHostPhone(info.hostPhone);
+      setHostName(info.hostName);
+    }
+  }, [isOpen]);
+
+  // Step 2: Units / Properties (A, B, C, D defaults)
   const [units, setUnits] = useState<TempProperty[]>([
     {
-      id: 'unit-1',
-      name: 'Depto 101 - 2 Ambientes',
-      type: 'Departamento luminoso con balcón y cocina completa',
-      maxGuests: 4,
+      id: 'unit-a',
+      name: 'Departamento A',
+      type: '2 Ambientes con Cocina Completa (hasta 3 pax)',
+      maxGuests: 3,
       bedrooms: 1,
       bathrooms: 1,
-      basePrice: 60,
+      basePrice: 58,
       cleaningFee: 20,
       hasSmartLock: true,
       smartLockBrand: 'Cerradura Digital Teclado / Tuya / TTlock',
     },
     {
-      id: 'unit-2',
-      name: 'Depto 102 - Monoambiente Studio',
-      type: 'Estudio moderno equipado para ejecutivos o parejas',
+      id: 'unit-b',
+      name: 'Departamento B',
+      type: 'Estudio de Diseño con Sommier Matrimonial (2 pax)',
       maxGuests: 2,
       bedrooms: 1,
       bathrooms: 1,
-      basePrice: 45,
-      cleaningFee: 15,
-      hasSmartLock: false,
-      smartLockBrand: 'Llave física tradicional',
+      basePrice: 48,
+      cleaningFee: 18,
+      hasSmartLock: true,
+      smartLockBrand: 'Cerradura Digital Teclado / Tuya / TTlock',
+    },
+    {
+      id: 'unit-c',
+      name: 'Departamento C',
+      type: '2 Ambientes con 2 Camas Sommier Individuales (hasta 3 pax)',
+      maxGuests: 3,
+      bedrooms: 1,
+      bathrooms: 1,
+      basePrice: 58,
+      cleaningFee: 20,
+      hasSmartLock: true,
+      smartLockBrand: 'Cerradura Digital Teclado / Tuya / TTlock',
+    },
+    {
+      id: 'unit-d',
+      name: 'Departamento D',
+      type: 'Estudio con 2 Camas Sommier Individuales (2 pax)',
+      maxGuests: 2,
+      bedrooms: 1,
+      bathrooms: 1,
+      basePrice: 48,
+      cleaningFee: 18,
+      hasSmartLock: true,
+      smartLockBrand: 'Cerradura Digital Teclado / Tuya / TTlock',
     },
   ]);
 
