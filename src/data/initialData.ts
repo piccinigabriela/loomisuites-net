@@ -1,5 +1,6 @@
 import { DemoState, Property, Reservation, CleaningTask, MessageTemplate, WelcomeGuideData, AddonService, CashMovement } from '../types';
 import { saveComplexToCloud } from '../lib/firebase';
+import { IMPORTED_CATALINAS_RESERVATIONS } from './importedReservations';
 
 // Helper to format date offset from today
 export function getRelativeDate(offsetDays: number): string {
@@ -25,92 +26,96 @@ export function formatCurrency(amount: number): string {
 
 export const INITIAL_PROPERTIES: Property[] = [
   {
-    id: 'prop-1',
-    name: 'Depto 101',
-    type: 'Estudio Boutique Moderno (hasta 4 pax)',
-    address: 'Av. de Mayo 100',
-    neighborhood: 'Monserrat / Plaza de Mayo',
-    city: 'Ciudad Autónoma de Buenos Aires',
-    bedrooms: 1,
-    bathrooms: 1,
-    maxGuests: 4,
-    basePrice: 65,
-    cleaningFee: 15,
-    imageUrl: '/cabanas/cabana-terraza.jpg',
-    rating: 4.96,
-    reviewsCount: 84,
-    status: 'active',
-    syncStatus: { airbnb: true, booking: true, vrbo: false },
-    smartLock: { enabled: true, brand: 'Llave Digital / Teclado' },
-    wifiNetwork: 'TuComplejo_Wifi_Premium',
-    wifiPassword: 'BuenosAires2026',
-  },
-  {
-    id: 'prop-2',
-    name: 'Depto 102',
-    type: 'Departamento Familiar de Diseño (hasta 5 pax)',
-    address: 'Av. de Mayo 100',
-    neighborhood: 'Monserrat / Plaza de Mayo',
-    city: 'Ciudad Autónoma de Buenos Aires',
-    bedrooms: 2,
-    bathrooms: 1,
-    maxGuests: 5,
-    basePrice: 85,
-    cleaningFee: 20,
-    imageUrl: '/cabanas/deck-hamaca.jpg',
-    rating: 4.98,
-    reviewsCount: 96,
-    status: 'active',
-    syncStatus: { airbnb: true, booking: true, vrbo: false },
-    smartLock: { enabled: true, brand: 'Cerradura Teclado Digital' },
-    wifiNetwork: 'TuComplejo_Wifi_Premium',
-    wifiPassword: 'BuenosAires2026',
-  },
-  {
-    id: 'prop-3',
-    name: 'Depto 103',
-    type: 'Loft Estudio para Parejas (diseño industrial)',
-    address: 'Av. de Mayo 100',
-    neighborhood: 'Monserrat / Plaza de Mayo',
-    city: 'Ciudad Autónoma de Buenos Aires',
-    bedrooms: 1,
-    bathrooms: 1,
-    maxGuests: 2,
-    basePrice: 55,
-    cleaningFee: 15,
-    imageUrl: '/cabanas/cabana-hamaca.jpg',
-    rating: 4.95,
-    reviewsCount: 62,
-    status: 'active',
-    syncStatus: { airbnb: true, booking: true, vrbo: false },
-    smartLock: { enabled: false, brand: 'Llave física tradicional (Sin cerradura digital)' },
-    wifiNetwork: 'TuComplejo_Wifi_Premium',
-    wifiPassword: 'BuenosAires2026',
-  },
-  {
-    id: 'prop-6',
-    name: 'Depto 201',
-    type: 'Suite Ejecutiva con Balcón Terraza Privado',
-    address: 'Av. de Mayo 100',
-    neighborhood: 'Monserrat / Plaza de Mayo',
+    id: 'cat-a',
+    name: 'Departamento A',
+    type: '2 Ambientes con Cocina Completa (hasta 3 pax)',
+    address: 'Tres Sargentos 435',
+    neighborhood: 'Retiro / Catalinas Norte',
     city: 'Ciudad Autónoma de Buenos Aires',
     bedrooms: 1,
     bathrooms: 1,
     maxGuests: 3,
-    basePrice: 70,
-    cleaningFee: 15,
-    imageUrl: '/cabanas/jardin-heliconia.jpg',
+    basePrice: 58,
+    cleaningFee: 20,
+    imageUrl: '/catalinas/1dormA.jpg',
     rating: 4.97,
-    reviewsCount: 71,
+    reviewsCount: 112,
     status: 'active',
     syncStatus: { airbnb: true, booking: true, vrbo: false },
-    smartLock: { enabled: true, brand: 'Cerradura Teclado Digital' },
-    wifiNetwork: 'TuComplejo_Wifi_Premium',
-    wifiPassword: 'BuenosAires2026',
+    smartLock: { enabled: true, brand: 'Cerradura Digital Touch / Teclado' },
+    wifiNetwork: 'CatalinasAptos_Fibra_A',
+    wifiPassword: 'TresSargentos435',
+  },
+  {
+    id: 'cat-b',
+    name: 'Departamento B',
+    type: 'Estudio de Diseño con Sommier Matrimonial (2 pax)',
+    address: 'Tres Sargentos 435',
+    neighborhood: 'Retiro / Catalinas Norte',
+    city: 'Ciudad Autónoma de Buenos Aires',
+    bedrooms: 1,
+    bathrooms: 1,
+    maxGuests: 2,
+    basePrice: 48,
+    cleaningFee: 18,
+    imageUrl: '/catalinas/estudioB.jpg',
+    rating: 4.95,
+    reviewsCount: 94,
+    status: 'active',
+    syncStatus: { airbnb: true, booking: true, vrbo: false },
+    smartLock: { enabled: true, brand: 'Cerradura Digital Touch / Teclado' },
+    wifiNetwork: 'CatalinasAptos_Fibra_B',
+    wifiPassword: 'TresSargentos435',
+  },
+  {
+    id: 'cat-c',
+    name: 'Departamento C',
+    type: '2 Ambientes con 2 Camas Sommier Individuales (hasta 3 pax)',
+    address: 'Tres Sargentos 435',
+    neighborhood: 'Retiro / Catalinas Norte',
+    city: 'Ciudad Autónoma de Buenos Aires',
+    bedrooms: 1,
+    bathrooms: 1,
+    maxGuests: 3,
+    basePrice: 58,
+    cleaningFee: 20,
+    imageUrl: '/catalinas/1dormC.jpg',
+    rating: 4.98,
+    reviewsCount: 88,
+    status: 'active',
+    syncStatus: { airbnb: true, booking: true, vrbo: false },
+    smartLock: { enabled: true, brand: 'Cerradura Digital Touch / Teclado' },
+    wifiNetwork: 'CatalinasAptos_Fibra_C',
+    wifiPassword: 'TresSargentos435',
+  },
+  {
+    id: 'cat-d',
+    name: 'Departamento D',
+    type: 'Estudio con 2 Camas Sommier Individuales (2 pax)',
+    address: 'Tres Sargentos 435',
+    neighborhood: 'Retiro / Catalinas Norte',
+    city: 'Ciudad Autónoma de Buenos Aires',
+    bedrooms: 1,
+    bathrooms: 1,
+    maxGuests: 2,
+    basePrice: 48,
+    cleaningFee: 18,
+    imageUrl: '/catalinas/D.jpg',
+    rating: 4.96,
+    reviewsCount: 76,
+    status: 'active',
+    syncStatus: { airbnb: true, booking: true, vrbo: false },
+    smartLock: { enabled: true, brand: 'Cerradura Digital Touch / Teclado' },
+    wifiNetwork: 'CatalinasAptos_Fibra_D',
+    wifiPassword: 'TresSargentos435',
   },
 ];
 
 export function generateInitialReservations(): Reservation[] {
+  return [...IMPORTED_CATALINAS_RESERVATIONS];
+}
+
+function _unusedOldReservations(): Reservation[] {
   return [
     {
       id: 'res-101',
@@ -674,6 +679,16 @@ export function getDemoState(): DemoState {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
+      // Ensure properties are Depto A, B, C, D
+      const hasOldProps = !parsed.properties || parsed.properties.some((p: Property) => p.id === 'prop-1' || p.id === 'prop-2');
+      if (hasOldProps || parsed.properties.length === 0) {
+        parsed.properties = INITIAL_PROPERTIES;
+      }
+      // Ensure reservations have all real imported reservations from her CSV
+      const hasOldRes = !parsed.reservations || parsed.reservations.length < 20 || parsed.reservations.some((r: any) => r.propertyId === 'prop-1');
+      if (hasOldRes) {
+        parsed.reservations = IMPORTED_CATALINAS_RESERVATIONS;
+      }
       // Force update welcomeGuide to the new Tu Complejo setup to avoid any Iguazú mix
       if (!parsed.welcomeGuide || parsed.welcomeGuide.propertyName !== 'Tu Complejo') {
         parsed.welcomeGuide = INITIAL_WELCOME_GUIDE;

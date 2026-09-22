@@ -165,13 +165,32 @@ function smartMatchProperty(
   try {
     const safeProps = Array.isArray(properties) && properties.length > 0
       ? properties.filter(Boolean)
-      : (INITIAL_PROPERTIES || [{ id: 'prop-1', name: 'Unidad 1' } as any]);
-    const defaultPropertyId = safeProps[0]?.id || 'prop-1';
+      : (INITIAL_PROPERTIES || [{ id: 'cat-a', name: 'Departamento A' } as any]);
+    const defaultPropertyId = safeProps[0]?.id || 'cat-a';
 
     const cleanRaw = rawCabin ? String(rawCabin).trim() : '';
 
     if (cleanRaw) {
       const normRaw = normalizeString(cleanRaw);
+      const upperRaw = cleanRaw.toUpperCase().trim();
+
+      // Direct Argentine Apartment Naming (1A, 1B, 2C, 2D, PB5, Depto A, etc.)
+      if (upperRaw === '1A' || upperRaw === 'A' || upperRaw === 'DEPTO A' || upperRaw === 'DEPARTAMENTO A' || upperRaw === 'PB5' || upperRaw === 'PB 5') {
+        const propA = safeProps.find(p => p.id === 'cat-a' || p.id === 'prop-1' || p.name.includes('A'));
+        if (propA) return propA.id;
+      }
+      if (upperRaw === '1B' || upperRaw === 'B' || upperRaw === 'DEPTO B' || upperRaw === 'DEPARTAMENTO B') {
+        const propB = safeProps.find(p => p.id === 'cat-b' || p.id === 'prop-2' || p.name.includes('B'));
+        if (propB) return propB.id;
+      }
+      if (upperRaw === '2C' || upperRaw === 'C' || upperRaw === 'DEPTO C' || upperRaw === 'DEPARTAMENTO C') {
+        const propC = safeProps.find(p => p.id === 'cat-c' || p.id === 'prop-3' || p.name.includes('C'));
+        if (propC) return propC.id;
+      }
+      if (upperRaw === '2D' || upperRaw === 'D' || upperRaw === 'DEPTO D' || upperRaw === 'DEPARTAMENTO D') {
+        const propD = safeProps.find(p => p.id === 'cat-d' || p.id === 'prop-6' || p.name.includes('D'));
+        if (propD) return propD.id;
+      }
 
       // Exact name or ID match
       for (const prop of safeProps) {
@@ -182,12 +201,14 @@ function smartMatchProperty(
         }
       }
 
-      // Single letter match
-      const cleanLetterOnly = cleanRaw.replace(/[^a-zA-Z]/g, '').toUpperCase();
-      if (cleanLetterOnly.length === 1) {
+      // Single letter match (or letter after number like 1A -> A)
+      const lettersInRaw = cleanRaw.replace(/[^a-zA-Z]/g, '').toUpperCase();
+      if (lettersInRaw.length >= 1) {
+        const primaryLetter = lettersInRaw.charAt(lettersInRaw.length - 1); // e.g. '1A' -> 'A', 'A' -> 'A'
         const letterMatch = safeProps.find(p => {
-          const pLetters = (p?.name || '').replace(/[^a-zA-Z]/g, '').toUpperCase();
-          return pLetters.includes(cleanLetterOnly);
+          const pUpper = (p?.name || '').toUpperCase();
+          const pIdUpper = (p?.id || '').toUpperCase();
+          return pUpper.includes(` ${primaryLetter}`) || pUpper.includes(`(${primaryLetter})`) || pIdUpper.endsWith(`-${primaryLetter.toLowerCase()}`);
         });
         if (letterMatch) return letterMatch.id;
       }
@@ -218,7 +239,7 @@ function smartMatchProperty(
 
     return defaultPropertyId;
   } catch {
-    return 'prop-1';
+    return 'cat-a';
   }
 }
 
@@ -397,7 +418,15 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
 
   const processSheetMatrix = (matrix: any[][]) => {
     try {
-      const stringRows: string[][] = matrix
+      // Strip any sep= directive row often added by Excel
+      const filteredMatrix = matrix.filter(row => {
+        if (!Array.isArray(row) || row.length === 0) return false;
+        const firstCell = String(row[0] || '').trim().toLowerCase();
+        if (firstCell.startsWith('sep=') && row.length <= 2) return false;
+        return true;
+      });
+
+      const stringRows: string[][] = filteredMatrix
         .map(row => (Array.isArray(row) ? row.map(cell => (cell !== null && cell !== undefined ? String(cell).trim() : '')) : []))
         .filter(row => row.some(cell => cell.length > 0));
 
@@ -436,7 +465,8 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
       );
 
       let amountIdx = headers.findIndex(h =>
-        h.includes('total') || h.includes('precio') || h.includes('importe') || h.includes('monto') ||
+        h.includes('subtotal') || h.includes('total') || h.includes('precio') || h.includes('importe') ||
+        h.includes('monto') || h.includes('líquido') || h.includes('liquido') || h.includes('neto') ||
         h.includes('amount') || h.includes('price') || h.includes('tarifa')
       );
 
@@ -526,21 +556,47 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
         return;
       }
 
-      const lines = clean.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+      let lines = clean.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
       if (lines.length === 0) return;
 
-      const firstFew = lines.slice(0, 5).join('\n');
-      const commaCount = (firstFew.match(/,/g) || []).length;
-      const semiCount = (firstFew.match(/;/g) || []).length;
-      const tabCount = (firstFew.match(/\t/g) || []).length;
-      const pipeCount = (firstFew.match(/\|/g) || []).length;
-
       let sep = ',';
-      if (semiCount > commaCount && semiCount >= tabCount) sep = ';';
-      else if (tabCount > commaCount && tabCount >= semiCount) sep = '\t';
-      else if (pipeCount > commaCount && pipeCount > semiCount) sep = '|';
+      if (lines[0] && lines[0].toLowerCase().startsWith('sep=')) {
+        const match = lines[0].match(/^sep=([;,|\t])/i);
+        if (match) sep = match[1];
+        lines = lines.slice(1);
+      } else {
+        const firstFew = lines.slice(0, 5).join('\n');
+        const commaCount = (firstFew.match(/,/g) || []).length;
+        const semiCount = (firstFew.match(/;/g) || []).length;
+        const tabCount = (firstFew.match(/\t/g) || []).length;
+        const pipeCount = (firstFew.match(/\|/g) || []).length;
 
-      const matrix = lines.map(line => {
+        if (semiCount > commaCount && semiCount >= tabCount) sep = ';';
+        else if (tabCount > commaCount && tabCount >= semiCount) sep = '\t';
+        else if (pipeCount > commaCount && pipeCount > semiCount) sep = '|';
+      }
+
+      // Handle multiline rows in case notes or comments contain line breaks
+      const combinedLines: string[] = [];
+      let currentBuffer = '';
+      for (const line of lines) {
+        if (!currentBuffer) {
+          currentBuffer = line;
+        } else {
+          const sepEscaped = sep === '|' ? '\\|' : sep;
+          const sepMatches = (line.match(new RegExp(sepEscaped, 'g')) || []).length;
+          const isNewRow = sepMatches >= 4 || /^(1A|1B|2C|2D|PB5|[0-9][A-Za-z]|[A-Za-z][0-9]?|\d{4}-\d{2}-\d{2})/i.test(line);
+          if (isNewRow) {
+            combinedLines.push(currentBuffer);
+            currentBuffer = line;
+          } else {
+            currentBuffer += ' ' + line;
+          }
+        }
+      }
+      if (currentBuffer) combinedLines.push(currentBuffer);
+
+      const matrix = combinedLines.map(line => {
         const values: string[] = [];
         let current = '';
         let insideQuotes = false;

@@ -58,21 +58,37 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
     if (!prop) return { code: '??', color: 'bg-zinc-100 text-zinc-800 border-zinc-200' };
 
     const mapping: Record<string, { code: string; color: string }> = {
-      'prop-1': {
-        code: '2D',
-        color: 'bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200 dark:border-purple-900/30',
-      },
-      'prop-2': {
-        code: '2C',
-        color: 'bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300 border border-orange-200 dark:border-orange-900/30',
-      },
-      'prop-3': {
-        code: '1A',
+      'cat-a': {
+        code: 'A',
         color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/30',
       },
-      'prop-4': {
-        code: '1B',
+      'cat-b': {
+        code: 'B',
         color: 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-900/30',
+      },
+      'cat-c': {
+        code: 'C',
+        color: 'bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300 border border-orange-200 dark:border-orange-900/30',
+      },
+      'cat-d': {
+        code: 'D',
+        color: 'bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200 dark:border-purple-900/30',
+      },
+      'prop-1': {
+        code: 'A',
+        color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/30',
+      },
+      'prop-2': {
+        code: 'B',
+        color: 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-900/30',
+      },
+      'prop-3': {
+        code: 'C',
+        color: 'bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300 border border-orange-200 dark:border-orange-900/30',
+      },
+      'prop-4': {
+        code: 'D',
+        color: 'bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200 dark:border-purple-900/30',
       },
     };
 

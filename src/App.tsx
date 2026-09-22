@@ -63,13 +63,18 @@ export default function App() {
   const [currentView, setCurrentView] = useState<'landing' | 'demo' | 'superadmin'>(() => {
     try {
       if (typeof window !== 'undefined') {
+        const path = window.location.pathname.toLowerCase();
+        const hash = window.location.hash.toLowerCase();
         const params = new URLSearchParams(window.location.search);
         if (
           params.has('admin') ||
           params.has('superadmin') ||
           params.has('master') ||
           params.get('view') === 'admin' ||
-          params.get('view') === 'superadmin'
+          params.get('view') === 'superadmin' ||
+          path.includes('/admin') ||
+          path.includes('/superadmin') ||
+          hash.includes('admin')
         ) {
           return 'superadmin';
         }
@@ -87,7 +92,9 @@ export default function App() {
           params.has('configurar') ||
           params.has('import') ||
           params.has('importar') ||
-          params.get('view') === 'demo'
+          params.get('view') === 'demo' ||
+          path.includes('/panel') ||
+          path.includes('/demo')
         ) {
           return 'demo';
         }
@@ -670,10 +677,6 @@ export default function App() {
               setSelectedPlanForLead(undefined);
               setIsLeadModalOpen(true);
             }}
-            onOpenSuperAdmin={() => {
-              setCurrentView('superadmin');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
           />
 
           {/* Floating Sticky CTA Bar on Mobile/Desktop */}
@@ -1029,10 +1032,6 @@ export default function App() {
         onSelectComplex={handleSelectComplex}
         onOpenDemo={() => {
           setCurrentView('demo');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onOpenSuperAdmin={() => {
-          setCurrentView('superadmin');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         currentComplexId={activeComplex}

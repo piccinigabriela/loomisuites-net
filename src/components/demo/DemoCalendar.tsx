@@ -81,11 +81,20 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
     }
   };
 
-  // Helper to extract a short label for mobile (e.g. "Cabaña 1" -> "C1")
+  // Helper to extract a short label for units (e.g. "Departamento A" -> "A", "Depto 1" -> "D1")
   const getShortName = (name: string, index: number) => {
+    // Check for single letter department: Departamento A, Depto B, etc.
+    const letterMatch = name.match(/(?:Departamento|Depto|Unidad)?\s*([A-D])\b/i);
+    if (letterMatch) return letterMatch[1].toUpperCase();
+
+    const deptoNumMatch = name.match(/Depto\s*(\d+)/i);
+    if (deptoNumMatch) return `D${deptoNumMatch[1]}`;
+
     const match = name.match(/\b(\d+)\b/);
-    if (match) return `C${match[1]}`;
-    return `C${index + 1}`;
+    if (match) return `D${match[1]}`;
+
+    const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+    return letters[index] || `D${index + 1}`;
   };
 
   const DAYS_TO_SHOW = 14;
@@ -517,7 +526,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             {/* Responsive Sticky Property Header Column */}
             <div className={`${getColumnWidthClass(columnMode)} font-bold text-xs border-r border-[#ded9cd] dark:border-[#262626] flex items-center justify-between sticky left-0 bg-[#f4f1ea] dark:bg-[#202020] z-30 shadow-[3px_0_8px_rgba(0,0,0,0.06)] shrink-0`}>
               <span className="truncate">
-                {columnMode === 'compact' ? 'Cab.' : columnMode === 'medium' ? 'Cabaña' : 'Propiedad'}
+                {columnMode === 'compact' ? 'Depto' : columnMode === 'medium' ? 'Depto' : 'Departamento'}
               </span>
               {columnMode === 'full' && (
                 <span className="text-[10px] text-[#78746c] dark:text-zinc-400 font-normal">Tarifa/Noche</span>

@@ -1,5 +1,6 @@
 import { DemoState, Property, Reservation, CleaningTask, MessageTemplate, WelcomeGuideData } from '../types';
 import { getRelativeDate } from './initialData';
+import { IMPORTED_CATALINAS_RESERVATIONS } from './importedReservations';
 
 export const CATALINAS_PROPERTIES: Property[] = [
   {
@@ -240,96 +241,7 @@ export const CATALINAS_WELCOME_GUIDE: WelcomeGuideData = {
 };
 
 export function generateCatalinasReservations(): Reservation[] {
-  return [
-    {
-      id: 'cat-res-1',
-      propertyId: 'cat-a',
-      guestName: 'Federico Balbi',
-      guestEmail: 'fede.balbi@techhub.ar',
-      guestPhone: '+54 9 11 5566-4433',
-      guestAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-      checkIn: getRelativeDate(0),
-      checkOut: getRelativeDate(3),
-      nights: 3,
-      guestsCount: 2,
-      platform: 'airbnb',
-      totalAmount: 194,
-      cleaningFee: 20,
-      commissionPaid: 29.1,
-      netRevenue: 164.9,
-      status: 'confirmed',
-      paymentStatus: 'paid',
-      pinCode: '3321#',
-      specialNotes: 'Viaje por congreso en el Hotel Sheraton Retiro. Llega a las 15:00.',
-      createdAt: getRelativeDate(-4),
-    },
-    {
-      id: 'cat-res-2',
-      propertyId: 'cat-b',
-      guestName: 'Sophie Van Der Meer',
-      guestEmail: 'sophie.vdm@amsterdam.nl',
-      guestPhone: '+31 6 5544 3322',
-      guestAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80',
-      checkIn: getRelativeDate(-1),
-      checkOut: getRelativeDate(2),
-      nights: 3,
-      guestsCount: 1,
-      platform: 'booking',
-      totalAmount: 162,
-      cleaningFee: 18,
-      commissionPaid: 24.3,
-      netRevenue: 137.7,
-      status: 'checked_in',
-      paymentStatus: 'paid',
-      pinCode: '7740#',
-      specialNotes: 'Turista holandesa. Excelente comunicación en inglés.',
-      createdAt: getRelativeDate(-10),
-    },
-    {
-      id: 'cat-res-3',
-      propertyId: 'cat-c',
-      guestName: 'Mariana & Gonzalo Costa',
-      guestEmail: 'gonzalo.costa@cordoba.com.ar',
-      guestPhone: '+54 9 351 445-8899',
-      guestAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
-      checkIn: getRelativeDate(1),
-      checkOut: getRelativeDate(5),
-      nights: 4,
-      guestsCount: 2,
-      platform: 'direct',
-      totalAmount: 252,
-      cleaningFee: 20,
-      commissionPaid: 0,
-      netRevenue: 252,
-      status: 'confirmed',
-      paymentStatus: 'paid',
-      pinCode: '1890#',
-      specialNotes: 'Reserva directa por WhatsApp de Gabriela con 50% de seña transferida.',
-      createdAt: getRelativeDate(-2),
-    },
-    {
-      id: 'cat-res-4',
-      propertyId: 'cat-d',
-      guestName: 'Thiago Silva Santos',
-      guestEmail: 'thiago.santos@sp.gov.br',
-      guestPhone: '+55 11 98877-6655',
-      guestAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80',
-      checkIn: getRelativeDate(3),
-      checkOut: getRelativeDate(7),
-      nights: 4,
-      guestsCount: 2,
-      platform: 'airbnb',
-      totalAmount: 210,
-      cleaningFee: 18,
-      commissionPaid: 31.5,
-      netRevenue: 178.5,
-      status: 'confirmed',
-      paymentStatus: 'paid',
-      pinCode: '6520#',
-      specialNotes: 'Viene de San Pablo a ver tango y recorrer San Telmo y Recoleta.',
-      createdAt: getRelativeDate(-1),
-    },
-  ];
+  return [...IMPORTED_CATALINAS_RESERVATIONS];
 }
 
 export function generateCatalinasCleaningTasks(): CleaningTask[] {

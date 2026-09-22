@@ -1,6 +1,6 @@
 export type BookingPlatform = 'airbnb' | 'booking' | 'vrbo' | 'direct';
 export type ReservationStatus = 'confirmed' | 'checked_in' | 'checked_out' | 'cancelled';
-export type PaymentStatus = 'paid' | 'pending' | 'deposit_only';
+export type PaymentStatus = 'paid' | 'pending' | 'deposit_only' | 'unpaid';
 export type CleaningStatus = 'pending' | 'in_progress' | 'completed' | 'inspected';
 
 export interface Property {
