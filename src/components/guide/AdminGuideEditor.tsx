@@ -53,7 +53,7 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
     setTimeout(() => setIsSaved(false), 2500);
   };
 
-  const publicUrl = `https://woodcabiniguazu.com.ar/bienvenida.html`;
+  const publicUrl = `https://${formData.directBookingSettings?.customDomain || 'tucomplejo.com.ar'}/bienvenida.html`;
 
   const copyPublicUrl = () => {
     navigator.clipboard.writeText(publicUrl);
@@ -129,7 +129,7 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
               : 'text-zinc-600 hover:text-zinc-900'
           }`}
         >
-          🌊 Cataratas & Excursiones
+          ✨ Atracciones & Paseos
         </button>
 
         <button
@@ -140,7 +140,7 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
               : 'text-zinc-600 hover:text-zinc-900'
           }`}
         >
-          🍽️ Restaurantes & Deliveries
+          🛍️ Despensa & Proveeduría
         </button>
 
         <button
@@ -309,7 +309,7 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
                   rows={2}
                   value={formData.specialAnnouncement || ''}
                   onChange={(e) => handleGeneralChange('specialAnnouncement', e.target.value)}
-                  placeholder="Ej: Bienvenidos a Los Bananos. Hoy la pileta abre a las 10:00 por limpieza matinal..."
+                  placeholder="Ej: Bienvenidos a nuestro complejo. El check-out es a las 10:00 AM..."
                   className="w-full text-xs p-2.5 rounded-xl border border-zinc-300 focus:border-rose-500 focus:outline-hidden"
                 />
               </div>
@@ -416,10 +416,10 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
           <div className="space-y-4 max-w-3xl">
             <div>
               <h3 className="text-sm font-bold text-zinc-900">
-                Atracciones Locales & Recomendaciones de Cataratas
+                Atracciones Locales & Recomendaciones de Paseos
               </h3>
               <p className="text-xs text-zinc-500">
-                Los huéspedes agradecen enormemente saber cómo evitar filas y comprar la entrada oficial.
+                Recomendá los mejores lugares turísticos y cómo conseguir entradas oficiales de forma directa.
               </p>
             </div>
 
@@ -477,10 +477,10 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
           <div className="space-y-4 max-w-3xl">
             <div>
               <h3 className="text-sm font-bold text-zinc-900">
-                Gastronomía, Parrillas & Deliveries
+                Proveeduría, Despensa & Minimercados
               </h3>
               <p className="text-xs text-zinc-500">
-                Recomienda tus lugares favoritos y deliveries que llegan hasta la tranquera de Wood Cabin.
+                Detallá dónde pueden abastecerse de insumos básicos o alimentos para cocinar en su unidad, o la proveeduría interna del complejo.
               </p>
             </div>
 
@@ -489,7 +489,6 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
                 <div key={din.id} className="p-4 bg-zinc-50 rounded-xl border border-zinc-200 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-xs text-zinc-900">{din.name}</span>
-                    <span className="text-xs font-mono font-bold text-zinc-600">{din.priceRange}</span>
                   </div>
                   <input
                     type="text"
@@ -504,7 +503,22 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
                       }));
                     }}
                     className="w-full text-xs p-2 rounded-lg border border-zinc-300 bg-white"
-                    placeholder="Especialidad"
+                    placeholder="Descripción del comercio, cercanía o insumos disponibles"
+                  />
+                  <input
+                    type="text"
+                    value={din.address}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormData((prev) => ({
+                        ...prev,
+                        dining: prev.dining.map((d) =>
+                          d.id === din.id ? { ...d, address: val } : d
+                        ),
+                      }));
+                    }}
+                    className="w-full text-xs p-2 rounded-lg border border-zinc-300 bg-white"
+                    placeholder="Ubicación o dirección"
                   />
                 </div>
               ))}
@@ -551,7 +565,7 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
                       <span className="text-xs text-zinc-400 font-mono">https://</span>
                       <input
                         type="text"
-                        value={formData.directBookingSettings.customDomain || 'woodcabiniguazu.com.ar'}
+                        value={formData.directBookingSettings.customDomain || 'tucomplejo.com.ar'}
                         onChange={(e) => handleBookingSettingsChange('customDomain', e.target.value)}
                         className="flex-1 text-xs font-mono font-bold text-zinc-900 outline-none"
                         placeholder="tudominio.com.ar"
@@ -575,7 +589,7 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
                     ✓ Certificado de seguridad <strong>Let's Encrypt SSL</strong> renovado automáticamente.
                   </span>
                   <a
-                    href="https://woodcabiniguazu.com.ar"
+                    href={`https://${formData.directBookingSettings.customDomain || 'tucomplejo.com.ar'}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-bold text-rose-600 hover:underline flex items-center gap-1"
@@ -685,7 +699,7 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
               {/* Simulated QR Code Graphic */}
               <div className="my-6 p-4 bg-white rounded-2xl mx-auto w-48 h-48 flex flex-col items-center justify-center border-2 border-stone-700 shadow-inner">
                 <QrCode className="w-36 h-36 text-stone-900" />
-                <span className="text-[9px] font-mono text-zinc-600 mt-1 font-bold">woodcabiniguazu.com.ar</span>
+                <span className="text-[9px] font-mono text-zinc-600 mt-1 font-bold">{formData.directBookingSettings?.customDomain || 'tucomplejo.com.ar'}</span>
               </div>
 
               <div className="text-xs space-y-1 text-stone-300">
@@ -699,7 +713,7 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
                 onClick={() => window.print()}
                 className="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer transition-colors"
               >
-                🖨️ Imprimir Cartel para Cabaña
+                🖨️ Imprimir Cartel del Complejo / Unidad
               </button>
             </div>
           </div>

@@ -22,6 +22,8 @@ import {
   Share2,
   Home,
   Camera,
+  Store,
+  ShoppingCart,
 } from 'lucide-react';
 import { WelcomeGuideData } from '../../types';
 
@@ -34,7 +36,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
   guideData,
   isMobilePreview = false,
 }) => {
-  const [activeTab, setActiveTab] = useState<'llegar' | 'cabana' | 'atracciones' | 'comer'>('llegar');
+  const [activeTab, setActiveTab] = useState<'llegar' | 'estadia' | 'recomendaciones'>('llegar');
   const [copiedWifi, setCopiedWifi] = useState(false);
   const [woodOrdered, setWoodOrdered] = useState(false);
 
@@ -51,8 +53,10 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
         {/* Real photo background banner */}
         <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
           <img
-            src="/cabanas/cabana-terraza.jpg"
-            alt="Wood Cabin Iguazú"
+            src={guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') 
+              ? '/cabanas/cabana-terraza.jpg' 
+              : 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80'}
+            alt={guideData.propertyName}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-950/80 to-stone-950" />
@@ -84,12 +88,12 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                 {guideData.hostName[0]}
               </div>
               <div>
-                <div className="font-semibold text-white">Anfitrión: {guideData.hostName}</div>
-                <div className="text-[11px] text-stone-400">Atención personalizada en el predio</div>
+                <div className="font-semibold text-white">Anfitrión/a: {guideData.hostName}</div>
+                <div className="text-[11px] text-stone-400">Atención directa durante tu estadía</div>
               </div>
             </div>
             <a
-              href={`https://wa.me/${guideData.hostPhone.replace(/\D/g, '')}?text=Hola%20${encodeURIComponent(guideData.hostName)},%20estoy%20en%20Wood%20Cabin`}
+              href={`https://wa.me/${guideData.hostPhone.replace(/\D/g, '')}?text=Hola%20${encodeURIComponent(guideData.hostName)},%20estoy%20en%20${encodeURIComponent(guideData.propertyName)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
@@ -108,39 +112,39 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
           )}
 
           {/* WiFi Fast Access Card */}
-          <div className="mt-4 p-3.5 bg-gradient-to-r from-stone-800 to-stone-800/90 rounded-xl border border-stone-700 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
-                <Wifi className="w-4 h-4" />
+          <div className="mt-4 p-4 bg-stone-800/80 rounded-2xl border border-stone-700/70 space-y-3">
+            <div className="flex items-center gap-2 text-[10px] font-bold text-amber-400 uppercase tracking-wider">
+              <Wifi className="w-3.5 h-3.5 text-amber-400" />
+              <span>Conexión WiFi Directa</span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="p-2.5 bg-stone-900/60 rounded-xl border border-stone-800">
+                <span className="text-[10px] text-stone-500 uppercase tracking-wider font-bold block">Red WiFi</span>
+                <span className="text-xs font-bold text-white select-all block mt-0.5 truncate">{guideData.wifiNetwork}</span>
               </div>
-              <div className="text-xs">
-                <div className="text-stone-400 text-[10px] uppercase font-bold tracking-wider">Red WiFi</div>
-                <div className="font-bold text-white">{guideData.wifiNetwork}</div>
+              <div className="p-2.5 bg-stone-900/60 rounded-xl border border-stone-800">
+                <span className="text-[10px] text-stone-500 uppercase tracking-wider font-bold block">Contraseña</span>
+                <span className="text-xs font-mono font-bold text-stone-200 select-all block mt-0.5 truncate">{guideData.wifiPassword}</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="text-right text-xs hidden sm:block">
-                <div className="text-stone-400 text-[10px] uppercase font-bold tracking-wider">Clave</div>
-                <div className="font-mono text-stone-200">{guideData.wifiPassword}</div>
-              </div>
-              <button
-                onClick={copyWifiPassword}
-                className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-              >
-                {copiedWifi ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>¡Copiada!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Copiar Clave</span>
-                  </>
-                )}
-              </button>
-            </div>
+            <button
+              onClick={copyWifiPassword}
+              className="w-full py-2 bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-stone-950 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+            >
+              {copiedWifi ? (
+                <>
+                  <Check className="w-4 h-4 text-emerald-950 shrink-0" />
+                  <span className="whitespace-nowrap">¡Clave Copiada!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4 shrink-0" />
+                  <span className="whitespace-nowrap">Copiar Clave de WiFi</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>
@@ -160,39 +164,27 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
         </button>
 
         <button
-          onClick={() => setActiveTab('cabana')}
+          onClick={() => setActiveTab('estadia')}
           className={`px-3.5 py-1.5 rounded-full font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
-            activeTab === 'cabana'
+            activeTab === 'estadia'
               ? 'bg-amber-500 text-stone-950 shadow-md'
               : 'bg-stone-800 text-stone-400 hover:text-white'
           }`}
         >
-          <Flame className="w-3.5 h-3.5" />
-          <span>{guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Tu Cabaña & Servicios' : 'Tu Complejo & Servicios'}</span>
+          <Wifi className="w-3.5 h-3.5" />
+          <span>WiFi & Estadía</span>
         </button>
 
         <button
-          onClick={() => setActiveTab('atracciones')}
+          onClick={() => setActiveTab('recomendaciones')}
           className={`px-3.5 py-1.5 rounded-full font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
-            activeTab === 'atracciones'
+            activeTab === 'recomendaciones'
               ? 'bg-amber-500 text-stone-950 shadow-md'
               : 'bg-stone-800 text-stone-400 hover:text-white'
           }`}
         >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>{guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Cataratas & Paseos' : 'Atracciones & Paseos'}</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('comer')}
-          className={`px-3.5 py-1.5 rounded-full font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
-            activeTab === 'comer'
-              ? 'bg-amber-500 text-stone-950 shadow-md'
-              : 'bg-stone-800 text-stone-400 hover:text-white'
-          }`}
-        >
-          <Utensils className="w-3.5 h-3.5" />
-          <span>Dónde Comer & Compras</span>
+          <Compass className="w-3.5 h-3.5" />
+          <span>Guía Local</span>
         </button>
       </div>
 
@@ -204,7 +196,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
             <div className="p-4 bg-stone-800/70 rounded-2xl border border-stone-700/70">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
-                  Ubicación Exacta
+                  Ubicación Exacta de tu Hospedaje
                 </span>
                 <a
                   href={guideData.googleMapsUrl}
@@ -212,7 +204,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                   rel="noopener noreferrer"
                   className="text-xs font-bold text-amber-400 hover:underline flex items-center gap-1"
                 >
-                  <span>Abrir Maps</span>
+                  <span>Abrir en Google Maps</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
@@ -226,7 +218,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
             </h3>
 
             <div className="space-y-3">
-              {guideData.transportation.map((trans) => (
+              {guideData.transportation.slice(0, 3).map((trans) => (
                 <div
                   key={trans.id}
                   className="p-4 bg-stone-800/50 hover:bg-stone-800/80 rounded-2xl border border-stone-700/60 transition-all space-y-2"
@@ -264,108 +256,27 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
           </div>
         )}
 
-        {/* TAB 2: CABAÑA & SERVICIOS */}
-        {activeTab === 'cabana' && (
+        {/* TAB 2: WIFI & TU ESTADÍA */}
+        {activeTab === 'estadia' && (
           <div className="space-y-4">
-            {/* Cabins Photo Gallery */}
-            <div className="p-4 bg-stone-800/60 rounded-2xl border border-stone-700/60 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider">
-                  <Camera className="w-4 h-4 text-amber-400" />
-                  <span>{guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Nuestras Cabañas (1, 2, 3 y 6)' : 'Nuestras Unidades (Imágenes Demo)'}</span>
-                </div>
-                <span className="text-[10px] text-stone-400 font-mono">{guideData.propertyName}</span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2.5">
-                <div className="group relative rounded-xl overflow-hidden bg-stone-900 border border-stone-700/50">
-                  <img
-                    src="/cabanas/cabana-terraza.jpg"
-                    alt="Unidad 1"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="p-2 bg-stone-900/95">
-                    <div className="font-bold text-xs text-white">
-                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Cabaña 1' : 'Unidad 1'}
-                    </div>
-                    <p className="text-[10px] text-stone-400">
-                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Hasta 4 pax • Terraza en la Selva' : 'Hasta 4 pax • Terraza & Vista Externa'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="group relative rounded-xl overflow-hidden bg-stone-900 border border-stone-700/50">
-                  <img
-                    src="/cabanas/deck-hamaca.jpg"
-                    alt="Unidad 2"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="p-2 bg-stone-900/95">
-                    <div className="font-bold text-xs text-white">
-                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Cabaña 2' : 'Unidad 2'}
-                    </div>
-                    <p className="text-[10px] text-stone-400">
-                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Hasta 5 pax • Deck Familiar' : 'Hasta 5 pax • Confort Familiar'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="group relative rounded-xl overflow-hidden bg-stone-900 border border-stone-700/50">
-                  <img
-                    src="/cabanas/cabana-hamaca.jpg"
-                    alt="Unidad 3"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="p-2 bg-stone-900/95">
-                    <div className="font-bold text-xs text-white">
-                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Cabaña 3' : 'Unidad 3'}
-                    </div>
-                    <p className="text-[10px] text-stone-400">
-                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Parejas • Hamaca paraguaya' : 'Parejas • Diseño Boutique'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="group relative rounded-xl overflow-hidden bg-stone-900 border border-stone-700/50">
-                  <img
-                    src="/cabanas/jardin-heliconia.jpg"
-                    alt="Unidad 6"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="p-2 bg-stone-900/95">
-                    <div className="font-bold text-xs text-white">
-                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Cabaña 6' : 'Unidad 6'}
-                    </div>
-                    <p className="text-[10px] text-stone-400">
-                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Suite de Troncos • Heliconias' : 'Suite de Lujo • Amenities Premiums'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Quick Overview Grid */}
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-3.5 bg-stone-800/60 rounded-xl border border-stone-700/60">
                 <div className="flex items-center gap-2 text-amber-400 font-bold mb-1">
                   <Clock className="w-4 h-4" />
-                  <span>Check-out</span>
+                  <span>Horario Check-out</span>
                 </div>
                 <div className="font-extrabold text-white text-base">{guideData.checkoutHour}</div>
-                <div className="text-[11px] text-stone-400 mt-0.5">Late check-out sujeto a disponibilidad</div>
+                <div className="text-[11px] text-stone-400 mt-0.5">Consultar previamente late check-out</div>
               </div>
 
               <div className="p-3.5 bg-stone-800/60 rounded-xl border border-stone-700/60">
                 <div className="flex items-center gap-2 text-cyan-400 font-bold mb-1">
                   <Waves className="w-4 h-4" />
-                  <span>Piscina</span>
+                  <span>Piscina / Terrazas</span>
                 </div>
                 <div className="font-extrabold text-white text-base">{guideData.poolHours}</div>
-                <div className="text-[11px] text-stone-400 mt-0.5">Toallones provistos para su comodidad</div>
+                <div className="text-[11px] text-stone-400 mt-0.5">Disfrutá del espacio común</div>
               </div>
             </div>
 
@@ -373,38 +284,38 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
             <div className="p-4 bg-gradient-to-r from-amber-950/40 via-stone-800 to-stone-800 rounded-2xl border border-amber-600/30 flex items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 font-bold text-sm text-amber-300">
-                  <Flame className="w-4 h-4 text-orange-500" />
-                  <span>{guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Leña para Asado & Fogón' : 'Servicios Adicionales Opcionales'}</span>
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <span>Servicios Opcionales</span>
                 </div>
                 <p className="text-xs text-stone-300 mt-1">
-                  {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') 
-                    ? `Bolsa de leña de monte duro + carbón + iniciador de fuego: ` 
-                    : `Servicios extras de limpieza o asistencia a la unidad: `}<strong>{guideData.woodBagPrice}</strong>
+                  {guideData.woodBagPrice.includes('Mucama') || guideData.woodBagPrice.includes('Limpieza')
+                    ? guideData.woodBagPrice
+                    : `Servicios extras de limpieza o asistencia a la unidad: ` + guideData.woodBagPrice}
                 </p>
               </div>
               <button
                 onClick={() => setWoodOrdered(true)}
                 disabled={woodOrdered}
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
                   woodOrdered
                     ? 'bg-emerald-600 text-white'
                     : 'bg-amber-500 hover:bg-amber-400 text-stone-950'
                 }`}
               >
                 {woodOrdered 
-                  ? `✓ Pedido a ${guideData.hostName}` 
-                  : (guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Pedir Leña' : 'Solicitar')}
+                  ? `✓ Solicitado` 
+                  : 'Solicitar'}
               </button>
             </div>
 
             {/* Rules */}
             <h3 className="text-sm font-bold text-stone-200 uppercase tracking-wider pt-2 flex items-center gap-2">
               <ShieldAlert className="w-4 h-4 text-amber-400" />
-              <span>Normas de Convivencia & Estadía</span>
+              <span>Normas de Convivencia esenciales</span>
             </h3>
 
             <div className="space-y-2.5">
-              {guideData.rules.map((rule, idx) => (
+              {guideData.rules.slice(0, 3).map((rule, idx) => (
                 <div
                   key={idx}
                   className="p-3.5 bg-stone-800/40 rounded-xl border border-stone-700/50 text-xs"
@@ -417,19 +328,21 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
           </div>
         )}
 
-        {/* TAB 3: CATARATAS & QUÉ HACER */}
-        {activeTab === 'atracciones' && (
+        {/* TAB 3: RECOMENDACIONES & PASEOS */}
+        {activeTab === 'recomendaciones' && (
           <div className="space-y-4">
             <div className="p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-200">
-              {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? (
-                <span>💡 <strong>Consejo del Anfitrión ({guideData.hostName}):</strong> En Cataratas de Argentina las filas para comprar entradas pueden superar los 45 minutos. Compren la entrada con anticipación online para ir directo al molinete de acceso.</span>
-              ) : (
-                <span>💡 <strong>Consejo de tu Anfitriona ({guideData.hostName}):</strong> Reservá las visitas guiadas de los museos y espectáculos de la ciudad con anticipación online para asegurar tu lugar sin hacer filas.</span>
-              )}
+              <span>💡 <strong>Consejo de tu Anfitrión/a ({guideData.hostName}):</strong> Organizá tus visitas y reservas con anticipación online para disfrutar sin demoras ni filas.</span>
             </div>
 
+            {/* Attractions Section */}
             <div className="space-y-3">
-              {guideData.attractions.map((att) => (
+              <h3 className="text-sm font-bold text-stone-200 uppercase tracking-wider flex items-center gap-2">
+                <Compass className="w-4 h-4 text-amber-400" />
+                <span>Puntos de Interés Cercanos</span>
+              </h3>
+              
+              {guideData.attractions.slice(0, 3).map((att) => (
                 <div
                   key={att.id}
                   className="p-4 bg-stone-800/60 rounded-2xl border border-stone-700/60 space-y-2"
@@ -438,14 +351,9 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                     <div>
                       <h4 className="font-bold text-sm text-white">{att.title}</h4>
                       <span className="text-[11px] text-stone-400">
-                        A {att.distanceMinutes} minutos de {guideData.propertyName}
+                        A {att.distanceMinutes} minutos de tu unidad
                       </span>
                     </div>
-                    {att.ticketPrice && (
-                      <span className="text-[10px] font-semibold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded-md border border-amber-800/40 shrink-0">
-                        {att.ticketPrice}
-                      </span>
-                    )}
                   </div>
                   <p className="text-xs text-stone-300 leading-relaxed">
                     {att.description}
@@ -453,55 +361,27 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                   <div className="p-2.5 bg-stone-900/80 rounded-xl border border-stone-800 text-[11px] text-amber-300/90 leading-snug">
                     {att.tips}
                   </div>
-                  {att.officialUrl && (
-                    <div className="pt-1">
-                      <a
-                        href={att.officialUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-700 hover:bg-amber-600 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
-                      >
-                        <Ticket className="w-3.5 h-3.5" />
-                        <span>Comprar Entrada Oficial</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
-          </div>
-        )}
 
-        {/* TAB 4: DÓNDE COMER & COMPRAS */}
-        {activeTab === 'comer' && (
-          <div className="space-y-4">
-            <h3 className="text-sm font-bold text-stone-200 uppercase tracking-wider flex items-center gap-2">
-              <Utensils className="w-4 h-4 text-amber-400" />
-              <span>{guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Restaurantes & Deliveries a la Cabaña' : 'Restaurantes & Entregas de Comida'}</span>
-            </h3>
+            {/* Dining Section */}
+            <div className="space-y-3 pt-2">
+              <h3 className="text-sm font-bold text-stone-200 uppercase tracking-wider flex items-center gap-2">
+                <Store className="w-4 h-4 text-amber-400" />
+                <span>Abastecimiento & Proveeduría</span>
+              </h3>
 
-            <div className="space-y-3">
-              {guideData.dining.map((item) => (
+              {guideData.dining.slice(0, 3).map((item) => (
                 <div
                   key={item.id}
                   className="p-4 bg-stone-800/60 rounded-2xl border border-stone-700/60 space-y-2"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-sm text-white">{item.name}</h4>
-                        {item.hasDelivery && (
-                          <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800">
-                            🛵 Delivery Disponible
-                          </span>
-                        )}
-                      </div>
+                      <h4 className="font-bold text-sm text-white">{item.name}</h4>
                       <p className="text-xs text-stone-300 mt-1">{item.specialty}</p>
                     </div>
-                    <span className="text-xs font-mono font-bold text-amber-400">
-                      {item.priceRange}
-                    </span>
                   </div>
 
                   <div className="flex items-center justify-between text-[11px] text-stone-400 pt-2 border-t border-stone-700/40">
@@ -511,13 +391,13 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                     </span>
                     {item.phone && (
                       <a
-                        href={`https://wa.me/${item.phone.replace(/\D/g, '')}?text=Hola,%20quería%20hacer%20un%20pedido%20para%20${encodeURIComponent(guideData.propertyName)}`}
+                        href={`https://wa.me/${item.phone.replace(/\D/g, '')}?text=Hola,%20quería%20consultar%20por%20insumos%20para%20${encodeURIComponent(guideData.propertyName)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1 shrink-0 ml-2"
                       >
                         <Phone className="w-3 h-3" />
-                        <span>WhatsApp</span>
+                        <span>Consultar</span>
                       </a>
                     )}
                   </div>
@@ -532,7 +412,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
       <div className="p-4 text-center border-t border-stone-800 text-[11px] text-stone-500">
         <p>{guideData.propertyName} • Diseñado con Loomi Suite</p>
         <p className="text-[10px] text-stone-600 mt-0.5">
-          Guía Digital Autogestionable para Huéspedes
+          Guía Digital de Bienvenida para Huéspedes
         </p>
       </div>
     </div>

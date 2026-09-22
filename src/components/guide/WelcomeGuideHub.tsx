@@ -30,7 +30,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
   const [isMobileFrame, setIsMobileFrame] = useState<boolean>(true);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
-  const realUrl = 'https://woodcabiniguazu.com.ar/bienvenida.html';
+  const realUrl = `https://${guideData.directBookingSettings?.customDomain || 'tucomplejo.com.ar'}/bienvenida.html`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(realUrl);
@@ -149,7 +149,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
             <div className="mb-4 text-center">
               <span className="inline-flex items-center gap-1.5 text-xs text-zinc-500 bg-zinc-100 px-3 py-1 rounded-full border border-zinc-200">
                 <Info className="w-3.5 h-3.5 text-amber-600" />
-                Esta es la experiencia interactiva que ve el huésped de Los Bananos al abrir el enlace o escanear el QR en la cabaña.
+                Esta es la experiencia interactiva que ve el huésped de {guideData.propertyName} al abrir el enlace o escanear el QR en la unidad.
               </span>
             </div>
             <GuestWelcomePortal guideData={guideData} isMobilePreview={isMobileFrame} />

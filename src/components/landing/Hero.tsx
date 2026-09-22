@@ -157,7 +157,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenDemo, onOpenContact }) => {
                   </div>
                   <div>
                     <span className="font-bold text-[#7d4812] dark:text-[#e4a86b]">Próximo Check-out: Claire Dupont (Booking.com) a las 11:00 hs</span>
-                    <p className="text-[#8e5c26] dark:text-[#c49a6c] text-[11px]">Personal de limpieza notificado para Cabaña 2 (Los Bananos). Próximo ingreso a las 15:00 hs.</p>
+                    <p className="text-[#8e5c26] dark:text-[#c49a6c] text-[11px]">Personal de limpieza notificado para Depto 102. Próximo ingreso a las 15:00 hs.</p>
                   </div>
                 </div>
                 <button

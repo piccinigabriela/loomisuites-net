@@ -615,7 +615,7 @@ export default function App() {
               activeComplex === 'catalinas'
                 ? 'Catalinas Apartamentos'
                 : activeComplex === 'woodcabin'
-                ? 'Los Bananos Wood Cabin'
+                ? 'Tu Complejo'
                 : 'Mi Complejo Real'
             }
             onOpenNewReservation={() => {
@@ -664,7 +664,7 @@ export default function App() {
                   {activeComplex === 'catalinas'
                     ? 'Catalinas Apartamentos (CABA)'
                     : activeComplex === 'woodcabin'
-                    ? 'Wood Cabin (Iguazú)'
+                    ? 'Tu Complejo (Buenos Aires)'
                     : 'Mi Complejo Real'}
                 </span>
                 <span className="text-[#ded9cd] dark:text-[#3a3a3a]">/</span>

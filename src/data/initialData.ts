@@ -25,11 +25,11 @@ export function formatCurrency(amount: number): string {
 export const INITIAL_PROPERTIES: Property[] = [
   {
     id: 'prop-1',
-    name: 'Cabaña 1',
-    type: 'Cabaña de Madera en la Selva (hasta 4 pax)',
-    address: 'Calle Los Bananos y Palmeras s/n',
-    neighborhood: 'Selva Yriapú / Granjas',
-    city: 'Puerto Iguazú, Misiones',
+    name: 'Depto 101',
+    type: 'Estudio Boutique Moderno (hasta 4 pax)',
+    address: 'Av. de Mayo 100',
+    neighborhood: 'Monserrat / Plaza de Mayo',
+    city: 'Ciudad Autónoma de Buenos Aires',
     bedrooms: 1,
     bathrooms: 1,
     maxGuests: 4,
@@ -41,16 +41,16 @@ export const INITIAL_PROPERTIES: Property[] = [
     status: 'active',
     syncStatus: { airbnb: true, booking: true, vrbo: false },
     smartLock: { enabled: true, brand: 'Llave Digital / Teclado' },
-    wifiNetwork: 'LosBananos_Huespedes_5G',
-    wifiPassword: 'CataratasSelva2026',
+    wifiNetwork: 'TuComplejo_Wifi_Premium',
+    wifiPassword: 'BuenosAires2026',
   },
   {
     id: 'prop-2',
-    name: 'Cabaña 2',
-    type: 'Cabaña Familiar con Fogón y Galería (hasta 5 pax)',
-    address: 'Calle Los Bananos y Palmeras s/n',
-    neighborhood: 'Selva Yriapú / Granjas',
-    city: 'Puerto Iguazú, Misiones',
+    name: 'Depto 102',
+    type: 'Departamento Familiar de Diseño (hasta 5 pax)',
+    address: 'Av. de Mayo 100',
+    neighborhood: 'Monserrat / Plaza de Mayo',
+    city: 'Ciudad Autónoma de Buenos Aires',
     bedrooms: 2,
     bathrooms: 1,
     maxGuests: 5,
@@ -62,16 +62,16 @@ export const INITIAL_PROPERTIES: Property[] = [
     status: 'active',
     syncStatus: { airbnb: true, booking: true, vrbo: false },
     smartLock: { enabled: true, brand: 'Cerradura Teclado Digital' },
-    wifiNetwork: 'LosBananos_Huespedes_5G',
-    wifiPassword: 'CataratasSelva2026',
+    wifiNetwork: 'TuComplejo_Wifi_Premium',
+    wifiPassword: 'BuenosAires2026',
   },
   {
     id: 'prop-3',
-    name: 'Cabaña 3',
-    type: 'Cabaña Estudio Parejas con Hamaca en Deck',
-    address: 'Calle Los Bananos y Palmeras s/n',
-    neighborhood: 'Selva Yriapú / Granjas',
-    city: 'Puerto Iguazú, Misiones',
+    name: 'Depto 103',
+    type: 'Loft Estudio para Parejas (diseño industrial)',
+    address: 'Av. de Mayo 100',
+    neighborhood: 'Monserrat / Plaza de Mayo',
+    city: 'Ciudad Autónoma de Buenos Aires',
     bedrooms: 1,
     bathrooms: 1,
     maxGuests: 2,
@@ -83,16 +83,16 @@ export const INITIAL_PROPERTIES: Property[] = [
     status: 'active',
     syncStatus: { airbnb: true, booking: true, vrbo: false },
     smartLock: { enabled: false, brand: 'Llave física tradicional (Sin cerradura digital)' },
-    wifiNetwork: 'LosBananos_Huespedes_5G',
-    wifiPassword: 'CataratasSelva2026',
+    wifiNetwork: 'TuComplejo_Wifi_Premium',
+    wifiPassword: 'BuenosAires2026',
   },
   {
     id: 'prop-6',
-    name: 'Cabaña 6',
-    type: 'Cabaña Suite de Troncos con Galería de Palmeras',
-    address: 'Calle Los Bananos y Palmeras s/n',
-    neighborhood: 'Selva Yriapú / Granjas',
-    city: 'Puerto Iguazú, Misiones',
+    name: 'Depto 201',
+    type: 'Suite Ejecutiva con Balcón Terraza Privado',
+    address: 'Av. de Mayo 100',
+    neighborhood: 'Monserrat / Plaza de Mayo',
+    city: 'Ciudad Autónoma de Buenos Aires',
     bedrooms: 1,
     bathrooms: 1,
     maxGuests: 3,
@@ -104,8 +104,8 @@ export const INITIAL_PROPERTIES: Property[] = [
     status: 'active',
     syncStatus: { airbnb: true, booking: true, vrbo: false },
     smartLock: { enabled: true, brand: 'Cerradura Teclado Digital' },
-    wifiNetwork: 'LosBananos_Huespedes_5G',
-    wifiPassword: 'CataratasSelva2026',
+    wifiNetwork: 'TuComplejo_Wifi_Premium',
+    wifiPassword: 'BuenosAires2026',
   },
 ];
 
@@ -220,7 +220,7 @@ export function generateInitialReservations(): Reservation[] {
       guestEmail: 'santi.morales@outlook.com',
       guestPhone: '+54 9 351 223-9911',
       guestAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80',
-      checkIn: getRelativeDate(3), // Recambio en Cabaña 1 (Lucas sale día +3, Santiago entra día +3)
+      checkIn: getRelativeDate(3), // Recambio en Depto 101 (Lucas sale día +3, Santiago entra día +3)
       checkOut: getRelativeDate(7),
       nights: 4,
       guestsCount: 2,
@@ -243,7 +243,7 @@ export function generateInitialReservations(): Reservation[] {
       guestEmail: 'valeria.benitez@empresa.com',
       guestPhone: '+598 99 876 543',
       guestAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80',
-      checkIn: getRelativeDate(1), // Recambio en Cabaña 2 (Claire sale mañana día +1, Valeria entra mañana día +1)
+      checkIn: getRelativeDate(1), // Recambio en Depto 102 (Claire sale mañana día +1, Valeria entra mañana día +1)
       checkOut: getRelativeDate(5),
       nights: 4,
       guestsCount: 2,
@@ -265,7 +265,7 @@ export function generateInitialReservations(): Reservation[] {
       guestEmail: 'agustin.gomez@gmail.com',
       guestPhone: '+54 9 223 543-2211',
       guestAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
-      checkIn: getRelativeDate(0), // Recambio HOY en Cabaña 6 (Elena sale hoy día 0 a las 11:30, Agustín entra a las 14:00)
+      checkIn: getRelativeDate(0), // Recambio HOY en Depto 201 (Elena sale hoy día 0 a las 11:30, Agustín entra a las 14:00)
       checkOut: getRelativeDate(4),
       nights: 4,
       guestsCount: 3,
@@ -277,7 +277,7 @@ export function generateInitialReservations(): Reservation[] {
       status: 'confirmed',
       paymentStatus: 'paid',
       pinCode: '7732#',
-      specialNotes: 'Visita a Cataratas en pareja. Llega a las 14:30 hs.',
+      specialNotes: 'Visita de turismo cultural en la ciudad en pareja. Llega a las 14:30 hs.',
       createdAt: getRelativeDate(-4),
     },
   ];
@@ -473,38 +473,27 @@ export const INITIAL_WELCOME_GUIDE: WelcomeGuideData = {
   dining: [
     {
       id: 'din-1',
-      name: 'La Brigada (Parrilla Clásica)',
-      specialty: 'Parrilla tradicional en San Telmo famosa por su bife de chorizo que se corta con cuchara y su increíble ambiente futbolero lleno de historia.',
-      priceRange: '$$$' as const,
+      name: 'Proveeduría Interna del Complejo',
+      specialty: 'En recepción disponemos de insumos básicos como café, té, azúcar, galletitas, agua mineral, carbón y artículos de aseo personal sin cargo o con costo mínimo.',
+      priceRange: '$' as const,
       hasDelivery: false,
-      address: 'Estados Unidos 465, San Telmo',
-      phone: '+54 11 4361-5557',
+      address: 'Lobby / Recepción del Complejo',
     },
     {
       id: 'din-2',
-      name: 'Café Tortoni',
-      specialty: 'El café notable más antiguo de la Argentina, fundado en 1858. Un templo de la cultura porteña con espectáculos nocturnos de tango.',
-      priceRange: '$$' as const,
+      name: 'Almacén & Fiambrería El Sol (A 1 cuadra)',
+      specialty: 'Minimercado de barrio ideal para compras rápidas de insumos frescos: pan fresco, lácteos, fiambres, bebidas heladas y productos de almacén.',
+      priceRange: '$' as const,
       hasDelivery: false,
-      address: 'Av. de Mayo 825, Monserrat',
-      phone: '+54 11 4342-4328',
+      address: 'Av. de Mayo 210',
     },
     {
       id: 'din-3',
-      name: 'Pizzería Güerrín',
-      specialty: 'La pizzería más icónica de la Avenida Corrientes. Auténtica pizza al molde con abundante muzzarella, ideal para comer al paso parado en la barra.',
-      priceRange: '$' as const,
-      hasDelivery: true,
-      address: 'Av. Corrientes 1368',
-      phone: '+54 11 4371-8141',
-    },
-    {
-      id: 'din-4',
-      name: 'Mercado de San Telmo',
-      specialty: 'Antiguo mercado de abasto reciclado con locales de antigüedades, cafeterías de especialidad, comida internacional gourmet y productos frescos.',
+      name: 'Supermercado de Cercanía (A 2 cuadras)',
+      specialty: 'Supermercado express ideal para compras grandes de mercadería para cocinar en tu unidad: frutas, verduras, carnes y variedad de marcas.',
       priceRange: '$$' as const,
       hasDelivery: false,
-      address: 'Bolívar 970, San Telmo',
+      address: 'Alsina 180',
     },
   ],
   rules: [
@@ -538,29 +527,29 @@ export const INITIAL_WELCOME_GUIDE: WelcomeGuideData = {
 export const INITIAL_ADDONS: AddonService[] = [
   {
     id: 'addon-transfer-in',
-    name: 'Transfer Aeropuerto IGR (Llegada)',
+    name: 'Transfer Aeropuerto AEP/EZE (Llegada)',
     category: 'transfers',
-    price: 25,
+    price: 30,
     unitLabel: 'por viaje (hasta 4 pax)',
-    description: 'Recepción personalizada en arribos con cartel y traslado directo a las cabañas en auto con A/C.',
+    description: 'Recepción personalizada en arribos con cartel y traslado directo al complejo en auto de categoría con A/C.',
     iconName: 'Car',
   },
   {
     id: 'addon-transfer-out',
-    name: 'Transfer a Aeropuerto IGR (Salida)',
+    name: 'Transfer a Aeropuerto AEP/EZE (Salida)',
     category: 'transfers',
-    price: 25,
+    price: 30,
     unitLabel: 'por viaje (hasta 4 pax)',
-    description: 'Búsqueda puntual en la cabaña para llegar con tiempo al vuelo.',
+    description: 'Búsqueda puntual en la recepción para llegar con tiempo a tu vuelo.',
     iconName: 'Car',
   },
   {
-    id: 'addon-transfer-cataratas',
-    name: 'Transfer Ida y Vuelta Parque Nacional Cataratas',
+    id: 'addon-transfer-citytour',
+    name: 'City Tour Histórico Privado con Guía',
     category: 'transfers',
-    price: 35,
-    unitLabel: 'por viaje I/V',
-    description: 'Traslado privado directo al Parque Nacional Iguazú (lado argentino) y regreso coordinado.',
+    price: 45,
+    unitLabel: 'tour de 3 hs',
+    description: 'Recorrido privado en auto por Plaza de Mayo, San Telmo, La Boca y Recoleta, con explicaciones históricas.',
     iconName: 'Navigation',
   },
   {
@@ -569,52 +558,52 @@ export const INITIAL_ADDONS: AddonService[] = [
     category: 'frigobar',
     price: 18,
     unitLabel: 'por botella',
-    description: 'Etiqueta seleccionada mendocina lista y atemperada en la cabaña.',
+    description: 'Etiqueta seleccionada mendocina lista y atemperada en tu unidad.',
     iconName: 'Wine',
   },
   {
     id: 'addon-frigobar-cerveza',
-    name: 'Pack Cervezas Artesanales Locales (4 un.)',
+    name: 'Pack Cervezas Artesanales Porteñas (4 un.)',
     category: 'frigobar',
     price: 12,
     unitLabel: 'pack de 4',
-    description: 'Cervezas misioneras artesanales frías esperándote en la heladera.',
+    description: 'Cervezas artesanales seleccionadas frías esperándote en la heladera.',
     iconName: 'Beer',
   },
   {
     id: 'addon-lena',
-    name: 'Bolsa de Leña Seca de Espinillo + Iniciador',
+    name: 'Estacionamiento Privado Cubierto en Cochera',
     category: 'frigobar',
-    price: 8,
-    unitLabel: 'por bolsa 10kg',
-    description: 'Leña de alta brasa para el fogón/parrilla exterior con astillas secas e iniciador ecológico.',
-    iconName: 'Flame',
+    price: 15,
+    unitLabel: 'por día',
+    description: 'Acceso a cochera privada y vigilada las 24 horas a metros de tu unidad.',
+    iconName: 'Shield',
   },
   {
     id: 'addon-desayuno-selva',
-    name: 'Canasta de Desayuno Misionero',
+    name: 'Canasta de Desayuno Porteño Premium',
     category: 'desayuno',
     price: 14,
     unitLabel: 'por persona / día',
-    description: 'Chipitas calientes, mermeladas de frutas nativas, medialunas, frutas tropicales, café y jugo fresco.',
+    description: 'Medialunas recién horneadas, tostadas, mermeladas, queso crema, jugo de naranja exprimido y café.',
     iconName: 'Coffee',
   },
   {
     id: 'addon-spa-masaje',
-    name: 'Masaje Relajante Descontracturante en Deck Selva',
+    name: 'Masaje Relajante Descontracturante en tu Unidad',
     category: 'spa',
     price: 40,
     unitLabel: 'sesión de 60 min',
-    description: 'Masoterapeuta profesional en la privacidad de tu cabaña o deck con aceites esenciales botánicos.',
+    description: 'Masoterapeuta profesional en la privacidad y comodidad de tu departamento con aceites esenciales.',
     iconName: 'Sparkles',
   },
   {
     id: 'addon-spa-hidro',
-    name: 'Kit Sales Aromáticas & Espuma Relajante para Jacuzzi',
+    name: 'Kit Sales Aromáticas & Amenities Premium para Baño',
     category: 'spa',
     price: 15,
     unitLabel: 'kit spa',
-    description: 'Sales minerales de lavanda y eucalipto para una inmersión reparadora.',
+    description: 'Sales minerales de lavanda y eucalipto para una inmersión reparadora en la bañera.',
     iconName: 'Droplets',
   },
 ];
@@ -625,7 +614,7 @@ export const INITIAL_CASH_MOVEMENTS: CashMovement[] = [
     date: getRelativeDate(-2),
     type: 'ingreso',
     amount: 15000,
-    concept: 'Venta de 3 bolsas de leña - Cabaña Vista Lago',
+    concept: 'Cobro de Estacionamiento Cubierto - Depto 101',
     paymentMethod: 'efectivo',
     category: 'caja_chica',
     propertyId: 'prop-1',
@@ -658,7 +647,7 @@ export const INITIAL_CASH_MOVEMENTS: CashMovement[] = [
     date: getRelativeDate(0),
     type: 'egreso',
     amount: 32000,
-    concept: 'Servicio técnico cerrajero por reparación picaporte cabaña 3',
+    concept: 'Servicio técnico cerrajero por reparación picaporte Depto 103',
     paymentMethod: 'transferencia',
     category: 'mantenimiento',
     propertyId: 'prop-3',
@@ -669,7 +658,7 @@ export const INITIAL_CASH_MOVEMENTS: CashMovement[] = [
     date: getRelativeDate(0),
     type: 'ingreso',
     amount: 12000,
-    concept: 'Cobro de Desayuno Canasta extra en efectivo',
+    concept: 'Cobro de Desayuno Porteño extra en efectivo',
     paymentMethod: 'efectivo',
     category: 'caja_chica',
     propertyId: 'prop-1',
@@ -682,18 +671,21 @@ export function getDemoState(): DemoState {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Ensure welcomeGuide is updated to Tu Complejo if it was previously Los Bananos
-      if (!parsed.welcomeGuide || parsed.welcomeGuide.propertyName?.includes('Los Bananos')) {
+      // Force update welcomeGuide to the new Tu Complejo setup to avoid any Iguazú mix
+      if (!parsed.welcomeGuide || parsed.welcomeGuide.propertyName !== 'Tu Complejo') {
         parsed.welcomeGuide = INITIAL_WELCOME_GUIDE;
       }
-      // Ensure availableAddons and addons are set
-      if (!parsed.availableAddons || parsed.availableAddons.length === 0) {
+      // Ensure availableAddons and addons are updated to the Buenos Aires versions
+      const hasOldAddons = parsed.availableAddons?.some((a: any) => a.name?.includes('IGR') || a.name?.includes('Cataratas') || a.name?.includes('Selva') || a.name?.includes('Misionero'));
+      if (!parsed.availableAddons || parsed.availableAddons.length === 0 || hasOldAddons) {
         parsed.availableAddons = INITIAL_ADDONS;
+        parsed.addons = INITIAL_ADDONS;
       }
       if (!parsed.addons || parsed.addons.length === 0) {
         parsed.addons = parsed.availableAddons || INITIAL_ADDONS;
       }
-      if (!parsed.cashMovements || parsed.cashMovements.length === 0) {
+      const hasOldCash = parsed.cashMovements?.some((m: any) => m.concept?.includes('leña') || m.concept?.includes('cabaña') || m.concept?.includes('Canasta'));
+      if (!parsed.cashMovements || parsed.cashMovements.length === 0 || hasOldCash) {
         parsed.cashMovements = INITIAL_CASH_MOVEMENTS;
       }
       // Ensure property 3 smartLock matches updated status

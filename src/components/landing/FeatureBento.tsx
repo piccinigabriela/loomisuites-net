@@ -118,7 +118,7 @@ export const FeatureBento: React.FC<FeatureBentoProps> = ({ onOpenDemo }) => {
                 onClick={onOpenDemo}
                 className="text-xs font-bold text-zinc-800 hover:text-emerald-700 transition-colors cursor-pointer"
               >
-                Ver ejemplo real de Los Bananos Wood Cabin →
+                Ver demo de Tu Complejo en vivo →
               </button>
             </div>
           </div>

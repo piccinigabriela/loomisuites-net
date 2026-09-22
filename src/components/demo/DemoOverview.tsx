@@ -169,11 +169,11 @@ export const DemoOverview: React.FC<DemoOverviewProps> = ({
             <div className="flex items-center gap-2">
               <span className="font-bold text-xs text-white">Guía de Bienvenida & Landing de Reservas Directas</span>
               <span className="text-[10px] font-semibold text-[#d88d5e] bg-[#c46d45]/20 px-2 py-0.5 rounded-full border border-[#c46d45]/30">
-                Caso Real: Los Bananos Wood Cabin
+                Ejemplo: Tu Complejo de Departamentos
               </span>
             </div>
             <p className="text-xs text-[#ded9cd] mt-0.5">
-              Tus huéspedes tienen WiFi en 1 clic, modos de llegar, entradas a Cataratas y leña. Tú ahorras consultas repetitivas y cobras señas directas.
+              Tus huéspedes tienen WiFi en 1 clic, modos de llegar, atracciones locales y reservas de opcionales. Ahorrás consultas repetitivas y cobrás reservas directas.
             </p>
           </div>
         </div>

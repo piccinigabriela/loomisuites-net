@@ -103,13 +103,13 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
           <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
           <div className="ml-3 px-3 py-1 rounded-full bg-stone-900 border border-stone-800 flex items-center gap-2 text-stone-200 font-mono text-[11px]">
             <span className="text-emerald-400 font-bold">🔒 https://</span>
-            <span className="text-white font-bold">woodcabiniguazu.com.ar</span>
-            <span className="text-stone-500 text-[10px] hidden sm:inline">(Dominio Propio de Fernando)</span>
+            <span className="text-white font-bold">{guideData.directBookingSettings.customDomain || 'tucomplejo.com.ar'}</span>
+            <span className="text-stone-500 text-[10px] hidden sm:inline">(Dominio Propio de {guideData.hostName})</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <a
-            href="https://woodcabiniguazu.com.ar/"
+            href={`https://${guideData.directBookingSettings.customDomain || 'tucomplejo.com.ar'}/`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1 text-[11px] text-amber-400 hover:text-amber-300 font-semibold"
@@ -125,7 +125,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
         <div className="flex items-center gap-2 font-medium">
           <Sparkles className="w-4 h-4" />
           <span>
-            <strong>Motor de Reservas Directas conectado a tu dominio:</strong> Funciona directamente en <code>woodcabiniguazu.com.ar</code> sin comisiones de Booking ni Airbnb.
+            <strong>Motor de Reservas Directas conectado a tu dominio:</strong> Funciona directamente en <code>{guideData.directBookingSettings.customDomain || 'tucomplejo.com.ar'}</code> sin comisiones de Booking ni Airbnb.
           </span>
         </div>
         <button
@@ -259,10 +259,10 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
           <div className="p-4 bg-stone-800/50 rounded-2xl border border-stone-700/60 space-y-2 text-xs text-stone-300">
             <h4 className="font-bold text-white flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>Garantía de Reserva Directa con Fernando</span>
+              <span>Garantía de Reserva Directa con {guideData.hostName}</span>
             </h4>
             <p>
-              Al reservar directamente desde esta web oficial, tratas en todo momento con <strong>Fernando (dueño de Los Bananos)</strong>. No hay intermediarios, obtienes el 15% de descuento, recibes la Guía de Bienvenida digital completa para no perder tiempo en Cataratas y congelas la tarifa con el 50% de seña.
+              Al reservar directamente desde esta web oficial, tratas en todo momento con <strong>{guideData.hostName} (propietario de {guideData.propertyName})</strong>. No hay intermediarios, obtienes el 15% de descuento, recibes la Guía de Bienvenida digital completa para organizar tu estadía y congelas la tarifa con el 50% de seña.
             </p>
           </div>
         </div>
