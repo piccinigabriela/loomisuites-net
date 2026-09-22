@@ -90,8 +90,13 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
 
   const DAYS_TO_SHOW = 14;
 
+  const MONTH_NAMES = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+
   // Generate date array
-  const dates: { dateStr: string; dayNum: string; dayName: string; isToday: boolean }[] = [];
+  const dates: { dateStr: string; dayNum: string; dayName: string; isToday: boolean; monthName: string; yearNum: number }[] = [];
   const todayStr = getRelativeDate(0);
 
   const dayNamesShort = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -104,12 +109,68 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
       dateStr,
       dayNum: d.getDate().toString(),
       dayName: dayNamesShort[d.getDay()],
+      monthName: MONTH_NAMES[d.getMonth()],
+      yearNum: d.getFullYear(),
       isToday: dateStr === todayStr,
     });
   }
 
   const startDateStr = dates[0]?.dateStr || '';
   const endDateStr = dates[dates.length - 1]?.dateStr || '';
+
+  // Calculate current visible month and year based on first visible day
+  const firstDateObj = new Date();
+  firstDateObj.setDate(firstDateObj.getDate() + dayOffset);
+  const currentVisibleMonth = firstDateObj.getMonth();
+  const currentVisibleYear = firstDateObj.getFullYear();
+
+  // Jump directly to 1st of a chosen month & year
+  const handleMonthYearChange = (newMonth: number, newYear: number) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(newYear, newMonth, 1);
+    target.setHours(0, 0, 0, 0);
+    const diffTime = target.getTime() - today.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    setDayOffset(diffDays);
+  };
+
+  // Jump to previous month
+  const handlePrevMonth = () => {
+    let m = currentVisibleMonth - 1;
+    let y = currentVisibleYear;
+    if (m < 0) {
+      m = 11;
+      y -= 1;
+    }
+    handleMonthYearChange(m, y);
+  };
+
+  // Jump to next month
+  const handleNextMonth = () => {
+    let m = currentVisibleMonth + 1;
+    let y = currentVisibleYear;
+    if (m > 11) {
+      m = 0;
+      y += 1;
+    }
+    handleMonthYearChange(m, y);
+  };
+
+  // Jump to specific date chosen in datepicker
+  const handleJumpToSpecificDate = (val: string) => {
+    if (!val) return;
+    const parts = val.split('-');
+    if (parts.length === 3) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const target = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      target.setHours(0, 0, 0, 0);
+      const diffTime = target.getTime() - today.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+      setDayOffset(diffDays);
+    }
+  };
 
   const filteredProperties =
     selectedPropertyId === 'all'
@@ -210,6 +271,87 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             </button>
           )}
 
+          {/* Month & Year Navigator */}
+          <div className="flex items-center gap-1 bg-[#f8f6f2] dark:bg-[#242424] p-1 rounded-lg border border-[#ded9cd] dark:border-[#333333]">
+            <button
+              onClick={handlePrevMonth}
+              title="Mes anterior"
+              className="p-1 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#78746c] dark:text-[#a8a5a0] cursor-pointer"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            {/* Month Selector */}
+            <select
+              value={currentVisibleMonth}
+              onChange={(e) => handleMonthYearChange(Number(e.target.value), currentVisibleYear)}
+              className="text-xs font-bold px-1.5 py-0.5 bg-transparent text-[#1c1b18] dark:text-[#e0deda] border-none focus:outline-hidden cursor-pointer"
+            >
+              {MONTH_NAMES.map((m, idx) => (
+                <option key={idx} value={idx} className="bg-white dark:bg-[#242424] text-[#1c1b18] dark:text-[#e0deda]">
+                  {m}
+                </option>
+              ))}
+            </select>
+
+            {/* Year Selector */}
+            <select
+              value={currentVisibleYear}
+              onChange={(e) => handleMonthYearChange(currentVisibleMonth, Number(e.target.value))}
+              className="text-xs font-bold px-1 py-0.5 bg-transparent text-[#1c1b18] dark:text-[#e0deda] border-none focus:outline-hidden cursor-pointer"
+            >
+              {[2025, 2026, 2027, 2028, 2029, 2030].map((y) => (
+                <option key={y} value={y} className="bg-white dark:bg-[#242424] text-[#1c1b18] dark:text-[#e0deda]">
+                  {y}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={handleNextMonth}
+              title="Mes siguiente"
+              className="p-1 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#78746c] dark:text-[#a8a5a0] cursor-pointer"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Quick Day Offset Navigator */}
+          <div className="flex items-center gap-1 bg-[#f8f6f2] dark:bg-[#242424] p-1 rounded-lg border border-[#ded9cd] dark:border-[#333333]">
+            <button
+              onClick={() => setDayOffset((prev) => prev - 7)}
+              title="Retroceder 7 días"
+              className="p-1 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#78746c] dark:text-[#a8a5a0] cursor-pointer"
+            >
+              <ChevronsLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setDayOffset(-2)}
+              className="text-[11px] font-bold px-2 py-0.5 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#1c1b18] dark:text-[#e0deda] cursor-pointer"
+              title="Ir al día de hoy"
+            >
+              Hoy
+            </button>
+            <button
+              onClick={() => setDayOffset((prev) => prev + 7)}
+              title="Avanzar 7 días"
+              className="p-1 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#78746c] dark:text-[#a8a5a0] cursor-pointer"
+            >
+              <ChevronsRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Date Picker Quick Jump */}
+          <div className="flex items-center gap-1.5 bg-[#f8f6f2] dark:bg-[#242424] px-2 py-1 rounded-lg border border-[#ded9cd] dark:border-[#333333]">
+            <span className="text-[10px] font-bold text-[#78746c] dark:text-[#8c8a85]">Ir a:</span>
+            <input
+              type="date"
+              value={startDateStr}
+              onChange={(e) => handleJumpToSpecificDate(e.target.value)}
+              className="text-[11px] bg-transparent text-[#1c1b18] dark:text-[#e0deda] border-none focus:outline-hidden cursor-pointer"
+            />
+          </div>
+
           {/* Property selector */}
           <select
             value={selectedPropertyId}
@@ -231,35 +373,11 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-[#ded9cd] dark:border-[#333333] bg-[#f8f6f2] dark:bg-[#242424] text-[#1c1b18] dark:text-[#e0deda] cursor-pointer"
           >
             <option value="all">Todos los canales</option>
-            <option value="airbnb">Airbnb (Coral suave)</option>
-            <option value="booking">Booking.com (Azul suave)</option>
-            <option value="direct">Directa (Verde oliva suave)</option>
-            <option value="vrbo">VRBO (Lavanda suave)</option>
+            <option value="airbnb">Airbnb (Coral)</option>
+            <option value="booking">Booking.com (Azul)</option>
+            <option value="direct">Directa (Verde oliva)</option>
+            <option value="vrbo">VRBO (Lavanda)</option>
           </select>
-
-          {/* Day Offset Navigator */}
-          <div className="flex items-center gap-1 bg-[#f8f6f2] dark:bg-[#242424] p-1 rounded-lg border border-[#ded9cd] dark:border-[#333333]">
-            <button
-              onClick={() => setDayOffset((prev) => prev - 7)}
-              title="Retroceder 7 días"
-              className="p-1 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#78746c] dark:text-[#a8a5a0] cursor-pointer"
-            >
-              <ChevronsLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setDayOffset(-2)}
-              className="text-[11px] font-bold px-2 py-0.5 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#1c1b18] dark:text-[#e0deda] cursor-pointer"
-            >
-              Hoy
-            </button>
-            <button
-              onClick={() => setDayOffset((prev) => prev + 7)}
-              title="Avanzar 7 días"
-              className="p-1 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#78746c] dark:text-[#a8a5a0] cursor-pointer"
-            >
-              <ChevronsRight className="w-4 h-4" />
-            </button>
-          </div>
 
           {/* Column Width Selector: Compacta (48px) | Estándar (105px) | Amplia (185px) */}
           <div className="flex items-center gap-1 bg-[#f8f6f2] dark:bg-[#242424] p-1 rounded-lg border border-[#ded9cd] dark:border-[#333333]">
