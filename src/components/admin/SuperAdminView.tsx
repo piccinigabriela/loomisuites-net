@@ -23,6 +23,14 @@ import {
   ArrowLeft,
   Calendar,
   Lock,
+  Receipt,
+  Copy,
+  Check,
+  Send,
+  Edit3,
+  Wallet,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { LoomiLogo } from '../common/LoomiLogo';
 import { fetchAllComplexesFromCloud, fetchAllLeadsFromCloud } from '../../lib/firebase';
@@ -33,6 +41,16 @@ interface SuperAdminViewProps {
   onOpenNewComplexModal: () => void;
   currentComplexId?: string;
   theme?: 'light' | 'dark';
+}
+
+interface BankingConfig {
+  accountHolder: string;
+  bankName: string;
+  cuit: string;
+  cbu: string;
+  alias: string;
+  contactEmail: string;
+  dueDay: number;
 }
 
 interface ComplexItem {
@@ -69,11 +87,127 @@ export const SuperAdminView: React.FC<SuperAdminViewProps> = ({
   currentComplexId,
   theme = 'dark',
 }) => {
-  const [activeTab, setActiveTab] = useState<'complexes' | 'leads' | 'economics'>('complexes');
+  const [activeTab, setActiveTab] = useState<'complexes' | 'billing' | 'leads' | 'economics'>('complexes');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [complexes, setComplexes] = useState<ComplexItem[]>([]);
   const [leads, setLeads] = useState<LeadItem[]>([]);
+
+  // Configuración de Datos Bancarios para transferencias
+  const [bankingConfig, setBankingConfig] = useState<BankingConfig>(() => {
+    try {
+      const raw = localStorage.getItem('loomi_superadmin_banking');
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return {
+      accountHolder: 'Gabriela Piccini (Loomi Suite)',
+      bankName: 'Mercado Pago / Banco Santander',
+      cuit: '27-XXXXXXXX-X',
+      cbu: '0000003100000000000000',
+      alias: 'LOOMI.SUITE.PAGOS',
+      contactEmail: 'pagos@loomisuite.net',
+      dueDay: 10,
+    };
+  });
+
+  const [isEditingBanking, setIsEditingBanking] = useState(false);
+  const [bankingEditForm, setBankingEditForm] = useState<BankingConfig>(bankingConfig);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  // Registro de cobranzas mensuales por complejo
+  const [billingRecords, setBillingRecords] = useState<Record<string, { status: 'paid' | 'pending' | 'overdue'; paidAt?: string; note?: string }>>(() => {
+    try {
+      const raw = localStorage.getItem('loomi_superadmin_billing_records');
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return {
+      default: { status: 'paid', paidAt: new Date().toISOString() },
+    };
+  });
+
+  const handleSaveBankingConfig = (e: React.FormEvent) => {
+    e.preventDefault();
+    setBankingConfig(bankingEditForm);
+    localStorage.setItem('loomi_superadmin_banking', JSON.stringify(bankingEditForm));
+    setIsEditingBanking(false);
+  };
+
+  const handleCopyText = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(label);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
+
+  const toggleBillingStatus = (complexId: string) => {
+    setBillingRecords((prev) => {
+      const current = prev[complexId]?.status || 'pending';
+      const nextStatus: 'paid' | 'pending' = current === 'paid' ? 'pending' : 'paid';
+      const updated: Record<string, { status: 'paid' | 'pending' | 'overdue'; paidAt?: string; note?: string }> = {
+        ...prev,
+        [complexId]: {
+          status: nextStatus,
+          paidAt: nextStatus === 'paid' ? new Date().toISOString() : undefined,
+        },
+      };
+      localStorage.setItem('loomi_superadmin_billing_records', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const getBillingMessageWhatsApp = (complex: ComplexItem) => {
+    const currentMonth = new Date().toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+    const text = 
+`Hola ${complex.name}! 🌟
+Te enviamos el aviso de abono mensual de Loomi Suite correspondiente al período: *${currentMonth.toUpperCase()}*.
+
+📌 *Detalle del Servicio:*
+• Plan: ${complex.plan}
+• Importe total: *$${complex.monthlyFeeArs.toLocaleString('es-AR')} ARS*
+• Vencimiento: Día ${bankingConfig.dueDay} de este mes
+
+🏦 *Datos para Transferencia Bancaria:*
+• Titular: ${bankingConfig.accountHolder}
+• Banco: ${bankingConfig.bankName}
+• Alias: *${bankingConfig.alias}*
+• CBU/CVU: ${bankingConfig.cbu}
+• CUIT/CUIL: ${bankingConfig.cuit}
+
+Una vez realizada la transferencia, podés respondernos por este medio con el comprobante para emitir tu recibo y renovar el período en la plataforma.
+
+¡Muchas gracias por confiar en Loomi Suite!`;
+    return encodeURIComponent(text);
+  };
+
+  const getBillingMailtoUrl = (complex: ComplexItem) => {
+    const currentMonth = new Date().toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+    const subject = encodeURIComponent(`Aviso de Abono Mensual Loomi Suite - ${complex.name} (${currentMonth})`);
+    const body = encodeURIComponent(
+`Estimado/a equipo de ${complex.name},
+
+Les enviamos los datos para el abono del servicio mensual de Loomi Suite correspondiente al período ${currentMonth}.
+
+Detalle del abono:
+• Plan: ${complex.plan}
+• Importe total: $${complex.monthlyFeeArs.toLocaleString('es-AR')} ARS
+• Fecha límite sugerida: Día ${bankingConfig.dueDay}
+
+Datos para transferencia bancaria:
+• Titular: ${bankingConfig.accountHolder}
+• Banco: ${bankingConfig.bankName}
+• Alias: ${bankingConfig.alias}
+• CBU/CVU: ${bankingConfig.cbu}
+• CUIT: ${bankingConfig.cuit}
+
+Por favor respondan a este correo adjuntando el comprobante de transferencia para asentar el pago y extender el acceso.
+
+Muchas gracias por ser parte de Loomi Suite.
+
+Atentamente,
+Administración Loomi Suite
+${bankingConfig.contactEmail}`
+    );
+    return `mailto:${complex.adminEmail || bankingConfig.contactEmail}?subject=${subject}&body=${body}`;
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -217,6 +351,15 @@ export const SuperAdminView: React.FC<SuperAdminViewProps> = ({
   const totalMonthlyArs = complexes.reduce((acc, c) => acc + c.monthlyFeeArs, 0);
   const totalLeads = leads.length;
 
+  // Billing Metrics
+  const totalBilledArs = totalMonthlyArs;
+  const totalCollectedArs = complexes.reduce((acc, c) => {
+    const isPaid = billingRecords[c.id]?.status === 'paid';
+    return acc + (isPaid ? c.monthlyFeeArs : 0);
+  }, 0);
+  const totalPendingArs = Math.max(0, totalBilledArs - totalCollectedArs);
+  const paidCount = complexes.filter((c) => billingRecords[c.id]?.status === 'paid').length;
+
   return (
     <div className="min-h-screen bg-[#0f0e0d] text-[#f4f2ee] font-sans">
       {/* Top SuperAdmin Bar */}
@@ -332,22 +475,34 @@ export const SuperAdminView: React.FC<SuperAdminViewProps> = ({
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-[#25201a] pb-2">
+        <div className="flex items-center gap-2 border-b border-[#25201a] pb-2 overflow-x-auto">
           <button
             onClick={() => setActiveTab('complexes')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
               activeTab === 'complexes'
                 ? 'bg-[#281c15] text-[#d88d5e] border border-[#482e21]'
                 : 'text-[#8e8c87] hover:text-white'
             }`}
           >
             <Building2 className="w-4 h-4" />
-            <span>Listado de Complejos / Clientes ({complexes.length})</span>
+            <span>Listado de Complejos ({complexes.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('billing')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
+              activeTab === 'billing'
+                ? 'bg-[#281c15] text-[#d88d5e] border border-[#482e21]'
+                : 'text-[#8e8c87] hover:text-white'
+            }`}
+          >
+            <Receipt className="w-4 h-4" />
+            <span>Cobranzas por Transferencia ({paidCount}/{complexes.length} al día)</span>
           </button>
 
           <button
             onClick={() => setActiveTab('leads')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
               activeTab === 'leads'
                 ? 'bg-[#281c15] text-[#d88d5e] border border-[#482e21]'
                 : 'text-[#8e8c87] hover:text-white'
@@ -359,7 +514,7 @@ export const SuperAdminView: React.FC<SuperAdminViewProps> = ({
 
           <button
             onClick={() => setActiveTab('economics')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
               activeTab === 'economics'
                 ? 'bg-[#281c15] text-[#d88d5e] border border-[#482e21]'
                 : 'text-[#8e8c87] hover:text-white'
@@ -476,7 +631,304 @@ export const SuperAdminView: React.FC<SuperAdminViewProps> = ({
           </div>
         )}
 
-        {/* Tab 2: Leads & Consultas */}
+        {/* Tab 2: Billing & Bank Transfers */}
+        {activeTab === 'billing' && (
+          <div className="space-y-6">
+            {/* Billing Stats Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-5 rounded-2xl bg-[#181614] border border-[#2b251f]">
+                <span className="text-[11px] font-bold text-[#8e8c87] uppercase tracking-wider">Abonos a Cobrar (Mes)</span>
+                <p className="text-2xl font-black text-white mt-1">${totalBilledArs.toLocaleString('es-AR')}</p>
+                <p className="text-xs text-[#8e8c87] mt-0.5">{complexes.length} clientes activos</p>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-[#181614] border border-[#2b251f]">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Ya Cobrado</span>
+                  <span className="text-xs font-bold text-emerald-400 bg-[#16271a] px-2 py-0.5 rounded-full border border-[#23422a]">
+                    {totalBilledArs > 0 ? Math.round((totalCollectedArs / totalBilledArs) * 100) : 0}%
+                  </span>
+                </div>
+                <p className="text-2xl font-black text-emerald-400 mt-1">${totalCollectedArs.toLocaleString('es-AR')}</p>
+                <p className="text-xs text-emerald-400/80 mt-0.5">{paidCount} de {complexes.length} al día</p>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-[#181614] border border-[#2b251f]">
+                <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Pendiente de Cobro</span>
+                <p className="text-2xl font-black text-amber-400 mt-1">${totalPendingArs.toLocaleString('es-AR')}</p>
+                <p className="text-xs text-amber-400/80 mt-0.5">{complexes.length - paidCount} pendientes</p>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-[#181614] border border-[#2b251f]">
+                <span className="text-[11px] font-bold text-[#d88d5e] uppercase tracking-wider">Vencimiento Habitual</span>
+                <p className="text-2xl font-black text-white mt-1">Día {bankingConfig.dueDay} del mes</p>
+                <p className="text-xs text-[#8e8c87] mt-0.5">Transferencia CBU / CVU limpia 0%</p>
+              </div>
+            </div>
+
+            {/* Bank Account Config Card */}
+            <div className="bg-[#181614] border border-[#2b251f] rounded-2xl p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#25201a] pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#281c15] text-[#d88d5e] border border-[#482e21] flex items-center justify-center shrink-0">
+                    <Wallet className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-sm sm:text-base flex items-center gap-2">
+                      <span>Cuenta Bancaria Receptora para Transferencias</span>
+                      <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded-full font-bold">
+                        0% Comisión
+                      </span>
+                    </h3>
+                    <p className="text-xs text-[#8e8c87]">
+                      Estos datos se insertan automáticamente al generar los avisos de WhatsApp y correo
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setBankingEditForm(bankingConfig);
+                    setIsEditingBanking(!isEditingBanking);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#221e1a] hover:bg-[#2c2621] text-white border border-[#332d26] text-xs font-bold transition-all self-start sm:self-auto cursor-pointer"
+                >
+                  <Edit3 className="w-3.5 h-3.5 text-[#d88d5e]" />
+                  <span>{isEditingBanking ? 'Cerrar Edición' : 'Editar Datos Bancarios'}</span>
+                </button>
+              </div>
+
+              {/* Editing Form */}
+              {isEditingBanking ? (
+                <form onSubmit={handleSaveBankingConfig} className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-xl bg-[#201c18] border border-[#382b20]">
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#8e8c87] mb-1">Titular de la Cuenta</label>
+                    <input
+                      type="text"
+                      value={bankingEditForm.accountHolder}
+                      onChange={(e) => setBankingEditForm({ ...bankingEditForm, accountHolder: e.target.value })}
+                      className="w-full bg-[#141210] border border-[#332b22] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#8e8c87] mb-1">Banco / Billetera</label>
+                    <input
+                      type="text"
+                      value={bankingEditForm.bankName}
+                      onChange={(e) => setBankingEditForm({ ...bankingEditForm, bankName: e.target.value })}
+                      className="w-full bg-[#141210] border border-[#332b22] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#8e8c87] mb-1">Alias Bancario</label>
+                    <input
+                      type="text"
+                      value={bankingEditForm.alias}
+                      onChange={(e) => setBankingEditForm({ ...bankingEditForm, alias: e.target.value })}
+                      className="w-full bg-[#141210] border border-[#332b22] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#8e8c87] mb-1">CBU / CVU (22 dígitos)</label>
+                    <input
+                      type="text"
+                      value={bankingEditForm.cbu}
+                      onChange={(e) => setBankingEditForm({ ...bankingEditForm, cbu: e.target.value })}
+                      className="w-full bg-[#141210] border border-[#332b22] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#8e8c87] mb-1">CUIT / CUIL</label>
+                    <input
+                      type="text"
+                      value={bankingEditForm.cuit}
+                      onChange={(e) => setBankingEditForm({ ...bankingEditForm, cuit: e.target.value })}
+                      className="w-full bg-[#141210] border border-[#332b22] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#8e8c87] mb-1">Email de Cobranzas</label>
+                    <input
+                      type="email"
+                      value={bankingEditForm.contactEmail}
+                      onChange={(e) => setBankingEditForm({ ...bankingEditForm, contactEmail: e.target.value })}
+                      className="w-full bg-[#141210] border border-[#332b22] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-hidden focus:border-[#d88d5e]"
+                      required
+                    />
+                  </div>
+                  <div className="sm:col-span-3 flex justify-end gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingBanking(false)}
+                      className="px-3 py-1.5 rounded-lg text-xs text-[#8e8c87] hover:text-white"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-1.5 rounded-lg bg-[#c46d45] hover:bg-[#d88d5e] text-white text-xs font-bold shadow-xs cursor-pointer"
+                    >
+                      Guardar Datos Bancarios
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                /* Display of Bank Credentials */
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                  <div className="p-3 rounded-xl bg-[#201c18] border border-[#2d251e]">
+                    <span className="text-[10px] text-[#8e8c87] block font-bold uppercase">Alias</span>
+                    <div className="flex items-center justify-between gap-1 mt-0.5">
+                      <span className="font-extrabold text-[#d88d5e] text-sm truncate">{bankingConfig.alias}</span>
+                      <button
+                        onClick={() => handleCopyText(bankingConfig.alias, 'alias')}
+                        className="p-1 rounded-md text-[#8e8c87] hover:text-white hover:bg-[#2b251f] cursor-pointer"
+                        title="Copiar Alias"
+                      >
+                        {copiedField === 'alias' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-[#201c18] border border-[#2d251e]">
+                    <span className="text-[10px] text-[#8e8c87] block font-bold uppercase">CBU / CVU</span>
+                    <div className="flex items-center justify-between gap-1 mt-0.5">
+                      <span className="font-mono text-white text-[11px] truncate">{bankingConfig.cbu}</span>
+                      <button
+                        onClick={() => handleCopyText(bankingConfig.cbu, 'cbu')}
+                        className="p-1 rounded-md text-[#8e8c87] hover:text-white hover:bg-[#2b251f] cursor-pointer"
+                        title="Copiar CBU"
+                      >
+                        {copiedField === 'cbu' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-[#201c18] border border-[#2d251e]">
+                    <span className="text-[10px] text-[#8e8c87] block font-bold uppercase">Titular & CUIT</span>
+                    <p className="font-medium text-white truncate mt-0.5">{bankingConfig.accountHolder}</p>
+                    <p className="text-[10px] text-[#8e8c87]">{bankingConfig.cuit}</p>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-[#201c18] border border-[#2d251e]">
+                    <span className="text-[10px] text-[#8e8c87] block font-bold uppercase">Entidad & Correo</span>
+                    <p className="font-medium text-white truncate mt-0.5">{bankingConfig.bankName}</p>
+                    <p className="text-[10px] text-[#8e8c87] truncate">{bankingConfig.contactEmail}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Clients Billing Table */}
+            <div className="bg-[#181614] border border-[#2b251f] rounded-2xl overflow-hidden shadow-xs">
+              <div className="p-4 border-b border-[#25201a] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="font-bold text-white text-sm sm:text-base">
+                    Estado de Cobranzas del Período Actual ({new Date().toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })})
+                  </h3>
+                  <p className="text-xs text-[#8e8c87]">
+                    Enviá el aviso con los datos de transferencia bancaria por WhatsApp o mail, y marcá el mes cuando te envíen el comprobante
+                  </p>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#201d19] border-b border-[#2b251f] text-[#8e8c87] uppercase font-bold text-[10px] tracking-wider">
+                    <tr>
+                      <th className="px-5 py-3.5">Complejo / Cliente</th>
+                      <th className="px-4 py-3.5">Plan & Abono</th>
+                      <th className="px-4 py-3.5 text-center">Estado del Mes</th>
+                      <th className="px-4 py-3.5 text-center">Acción Pago</th>
+                      <th className="px-5 py-3.5 text-right">Aviso de Cobro</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#25201a]">
+                    {complexes.map((c) => {
+                      const isPaid = billingRecords[c.id]?.status === 'paid';
+                      const cleanPhone = (c.adminPhone || '').replace(/\D/g, '');
+                      const waUrl = cleanPhone ? `https://wa.me/${cleanPhone}?text=${getBillingMessageWhatsApp(c)}` : null;
+                      const mailtoUrl = getBillingMailtoUrl(c);
+
+                      return (
+                        <tr key={c.id} className="hover:bg-[#1e1a17] transition-colors">
+                          <td className="px-5 py-4">
+                            <p className="font-bold text-white text-sm">{c.name}</p>
+                            <p className="text-[11px] text-[#8e8c87]">{c.adminPhone || 'Sin teléfono'} · {c.adminEmail}</p>
+                          </td>
+
+                          <td className="px-4 py-4">
+                            <p className="text-white font-extrabold text-sm">${c.monthlyFeeArs.toLocaleString('es-AR')}</p>
+                            <p className="text-[11px] text-[#d88d5e]">{c.plan}</p>
+                          </td>
+
+                          <td className="px-4 py-4 text-center">
+                            {isPaid ? (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#172b1a] text-[#8be294] border border-[#254d2a]">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                <span>Al Día (Pagado)</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#2e2316] text-[#e0a867] border border-[#523c23]">
+                                <Clock className="w-3.5 h-3.5" />
+                                <span>Pendiente</span>
+                              </span>
+                            )}
+                          </td>
+
+                          <td className="px-4 py-4 text-center">
+                            <button
+                              onClick={() => toggleBillingStatus(c.id)}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                                isPaid
+                                  ? 'bg-[#1b271d] text-[#88c492] border-[#2d4732] hover:bg-[#253928]'
+                                  : 'bg-[#281c15] text-[#d88d5e] border-[#482e21] hover:bg-[#38261c]'
+                              }`}
+                            >
+                              {isPaid ? '✓ Pagado (Cambiar)' : 'Marcar como Pagado'}
+                            </button>
+                          </td>
+
+                          <td className="px-5 py-4 text-right">
+                            <div className="inline-flex items-center gap-2">
+                              {waUrl ? (
+                                <a
+                                  href={waUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1b271d] hover:bg-[#233527] text-[#88c492] border border-[#2d4732] font-bold text-xs transition-all"
+                                  title="Enviar aviso por WhatsApp con Alias y CBU"
+                                >
+                                  <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                                  <span>WhatsApp</span>
+                                </a>
+                              ) : null}
+
+                              <a
+                                href={mailtoUrl}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#221e1a] hover:bg-[#2c2621] text-white border border-[#332d26] font-bold text-xs transition-all"
+                                title="Enviar aviso por correo electrónico"
+                              >
+                                <Mail className="w-3.5 h-3.5 text-sky-400" />
+                                <span>Email</span>
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 3: Leads & Consultas */}
         {activeTab === 'leads' && (
           <div className="space-y-4">
             <div className="bg-[#181614] border border-[#2b251f] rounded-2xl overflow-hidden shadow-xs">
