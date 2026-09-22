@@ -56,7 +56,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
     'Calendario único centralizado en tiempo real',
     'Asistente Xenia IA para WhatsApp 24/7 (check-in, wifi, dudas)',
     'Módulo móvil para personal de limpieza con checklist',
-    'Motor propio de reservas directas (0% de comisión)',
+    'Motor propio para reservas y cobros directos',
     'Guía digital interactiva de bienvenida para huéspedes',
     'Reportes de cobros, señas y liquidaciones para dueños',
     'Acompañamiento humano en la puesta en marcha'
@@ -553,7 +553,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
               <div className="max-w-3xl mb-8 border-b border-zinc-100 pb-6">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold mb-3">
                   <Coins className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>En pesos argentinos • Ajuste por IPC • 0% comisión por reserva</span>
+                  <span>En pesos argentinos • Ajuste por IPC • Facturación transparente</span>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-extrabold text-zinc-900">
                   Precios transparentes en pesos argentinos
@@ -880,8 +880,8 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                   <div className="flex items-start gap-2.5">
                     <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-bold text-zinc-900">Cobros 100% directos</p>
-                      <p className="text-zinc-500 text-[11px] mt-0.5">Lo que cobres por tus reservas directas entra a tu cuenta sin comisiones de Loomi.</p>
+                      <p className="font-bold text-zinc-900">Cobros directos a tu cuenta</p>
+                      <p className="text-zinc-500 text-[11px] mt-0.5">Tus huéspedes abonan en tus cuentas configuradas (Mercado Pago, PayPal o CBU).</p>
                     </div>
                   </div>
 

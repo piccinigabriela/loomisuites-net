@@ -30,7 +30,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenDemo, onOpenContact }) => {
 
           {/* Subtitle */}
           <p className="mt-6 text-lg sm:text-xl text-[#66625a] dark:text-[#a8a5a0] leading-relaxed max-w-2xl mx-auto font-normal">
-            Hecho para alojamientos independientes de <strong>4 a 30+ unidades</strong>. Reemplaza el cuaderno o el Excel con un <strong>rack visual intuitivo</strong>: sincroniza Booking y Airbnb sin dobles reservas, organiza la limpieza por cabaña/habitación y cobra reservas directas por WhatsApp sin pagar 18% de comisiones.
+            Hecho para alojamientos independientes de <strong>4 a 30+ unidades</strong>. Reemplaza el cuaderno o el Excel con un <strong>rack visual intuitivo</strong>: sincroniza Booking y Airbnb sin dobles reservas, organiza la limpieza por cabaña/habitación y gestiona tus reservas directas de manera ágil.
           </p>
 
           {/* Accommodation Types Badges */}

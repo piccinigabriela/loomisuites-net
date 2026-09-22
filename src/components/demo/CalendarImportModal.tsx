@@ -134,7 +134,7 @@ function parseAnyDate(raw: any): string | null {
   return null;
 }
 
-// Smart Property Matcher that avoids greedy sub-matches (e.g. "C1" matching "C102")
+// Smart Property Matcher that handles single letters (A, B, C), numbers (1, 2, 101), words, and avoids false greedy fallbacks
 function smartMatchProperty(
   rawCabin: string,
   otherRowValues: string[],
@@ -143,7 +143,7 @@ function smartMatchProperty(
   if (!properties || properties.length === 0) return 'prop-1';
   const defaultPropertyId = properties[0]?.id || 'prop-1';
 
-  // Sort properties by name length descending so specific names like "C102" or "Cabaña 102" match BEFORE "C1" or "1"
+  // Sort properties by name length descending so specific names like "Depto A", "Cabaña 102", "1A" match BEFORE single characters
   const sortedByLength = [...properties].sort((a, b) => b.name.length - a.name.length);
 
   const cleanRaw = rawCabin ? rawCabin.trim() : '';
@@ -152,7 +152,7 @@ function smartMatchProperty(
   if (cleanRaw) {
     const normRaw = normalizeString(cleanRaw);
 
-    // 1a. Exact string match with property name or ID
+    // 1a. Exact full string match with property name or ID (normalized)
     for (const prop of properties) {
       const propNorm = normalizeString(prop.name);
       const propIdNorm = normalizeString(prop.id);
@@ -161,7 +161,22 @@ function smartMatchProperty(
       }
     }
 
-    // 1b. Exact numeric extraction (e.g., "102" or "C-102" or "C102" -> "102")
+    // 1b. Single letter or single character match (e.g., CSV has "A", "B", "C" or "Depto A" -> properties "1A", "Cabaña A", "A", etc.)
+    const cleanLetterOnly = cleanRaw.replace(/[^a-zA-Z]/g, '').toUpperCase();
+    if (cleanLetterOnly.length === 1) {
+      // Find property whose name or id has that single letter isolated or ending
+      const letterMatch = sortedByLength.find(p => {
+        const pLetters = p.name.replace(/[^a-zA-Z]/g, '').toUpperCase();
+        const pEndsWithLetter = p.name.toUpperCase().endsWith(cleanLetterOnly);
+        const pRegex = new RegExp(`(^|[^a-zA-Z])${cleanLetterOnly}($|[^a-zA-Z])`, 'i');
+        return pLetters === cleanLetterOnly || pEndsWithLetter || pRegex.test(p.name);
+      });
+      if (letterMatch) {
+        return letterMatch.id;
+      }
+    }
+
+    // 1c. Exact numeric extraction (e.g., "102" or "C-102" or "C102" -> "102")
     const rawDigits = cleanRaw.replace(/\D/g, '');
     if (rawDigits) {
       // Find property whose digits match rawDigits exactly
@@ -174,7 +189,7 @@ function smartMatchProperty(
       }
     }
 
-    // 1c. Word boundary / exact token containment (tested on longest names first!)
+    // 1d. Word boundary / exact token containment (tested on longest names first!)
     for (const prop of sortedByLength) {
       const propNorm = normalizeString(prop.name);
       if (propNorm.length >= 2) {
@@ -185,26 +200,26 @@ function smartMatchProperty(
       }
     }
 
-    // 1d. Fuzzy token match
+    // 1e. Fuzzy token match
     for (const prop of sortedByLength) {
       const words = cleanRaw.split(/[\s,\-_/]+/);
       for (const w of words) {
         const normW = normalizeString(w);
-        if (normW && normW === normalizeString(prop.name)) {
+        if (normW && normW.length >= 2 && normW === normalizeString(prop.name)) {
           return prop.id;
         }
       }
     }
   }
 
-  // 2. Fallback: Search all other cells in this row for any mention of property name or numeric code
+  // 2. Fallback: Search other cells in this row (guest name, description, etc.)
   for (const cell of otherRowValues) {
     const cellStr = String(cell || '').trim();
     if (!cellStr) continue;
 
     // Check exact digits in cell
     const cellDigits = cellStr.replace(/\D/g, '');
-    if (cellDigits && cellDigits.length <= 4) {
+    if (cellDigits && cellDigits.length >= 1 && cellDigits.length <= 4) {
       const matchByDigit = sortedByLength.find(p => {
         const pDigits = p.name.replace(/\D/g, '') || p.id.replace(/\D/g, '');
         return pDigits && pDigits === cellDigits;
@@ -229,36 +244,81 @@ function smartMatchProperty(
   return defaultPropertyId;
 }
 
-// Universal Platform Detector
+// Universal Platform Detector with comprehensive channel detection and rawVal prioritization
 function detectPlatform(rawVal: string, fallbackRow: string[] = []): BookingPlatform {
-  const combined = (rawVal + ' ' + fallbackRow.join(' ')).toLowerCase();
+  const cleanVal = (rawVal || '').toLowerCase().trim();
+  const cleanFallback = fallbackRow.join(' ').toLowerCase();
 
+  // 1. First check explicit platform column value
+  if (cleanVal) {
+    if (
+      cleanVal.includes('airbnb') ||
+      cleanVal.includes('abnb') ||
+      cleanVal.includes('air bnb') ||
+      cleanVal.includes('air-bnb') ||
+      cleanVal.includes('air')
+    ) {
+      return 'airbnb';
+    }
+
+    if (
+      cleanVal.includes('booking') ||
+      cleanVal.includes('bdc') ||
+      cleanVal.includes('bkg') ||
+      cleanVal.includes('agoda') ||
+      cleanVal.includes('priceline') ||
+      cleanVal.includes('book')
+    ) {
+      return 'booking';
+    }
+
+    if (
+      cleanVal.includes('vrbo') ||
+      cleanVal.includes('expedia') ||
+      cleanVal.includes('homeaway') ||
+      cleanVal.includes('abritel') ||
+      cleanVal.includes('stayz') ||
+      cleanVal.includes('despegar')
+    ) {
+      return 'vrbo';
+    }
+
+    if (
+      cleanVal.includes('direct') ||
+      cleanVal.includes('directa') ||
+      cleanVal.includes('whatsapp') ||
+      cleanVal.includes('wsp') ||
+      cleanVal.includes('particular') ||
+      cleanVal.includes('telefono') ||
+      cleanVal.includes('teléfono') ||
+      cleanVal.includes('propio') ||
+      cleanVal.includes('mostrador')
+    ) {
+      return 'direct';
+    }
+  }
+
+  // 2. Check fallback row cells
   if (
-    combined.includes('airbnb') ||
-    combined.includes('abnb') ||
-    combined.includes('air bnb') ||
-    combined.includes('air-bnb') ||
-    combined.includes('hospedaje air')
+    cleanFallback.includes('airbnb') ||
+    cleanFallback.includes('abnb') ||
+    cleanFallback.includes('air bnb')
   ) {
     return 'airbnb';
   }
 
   if (
-    combined.includes('booking') ||
-    combined.includes('bdc') ||
-    combined.includes('bkg') ||
-    combined.includes('agoda') ||
-    combined.includes('priceline')
+    cleanFallback.includes('booking.com') ||
+    cleanFallback.includes('booking') ||
+    cleanFallback.includes('bdc')
   ) {
     return 'booking';
   }
 
   if (
-    combined.includes('vrbo') ||
-    combined.includes('expedia') ||
-    combined.includes('homeaway') ||
-    combined.includes('abritel') ||
-    combined.includes('stayz')
+    cleanFallback.includes('vrbo') ||
+    cleanFallback.includes('expedia') ||
+    cleanFallback.includes('despegar')
   ) {
     return 'vrbo';
   }
