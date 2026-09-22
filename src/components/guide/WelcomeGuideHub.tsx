@@ -47,14 +47,14 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
             <Sparkles className="w-4 h-4" />
             <span>Módulo de Experiencia del Huésped & Venta Directa</span>
             <span className="bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-400/30 text-[10px]">
-              Caso Real: Los Bananos Wood Cabin
+              {guideData.propertyName} • Guía Interactiva
             </span>
           </div>
           <h2 className="text-xl font-bold font-['Outfit']">
             Guía Digital de Bienvenida & Landing de Reservas Directas
           </h2>
           <p className="text-xs text-stone-300 mt-1 max-w-2xl leading-relaxed">
-            Inspirada en el modelo de <strong>Fernando en Los Bananos - Wood Cabin Iguazú</strong>. Le entrega al huésped en su teléfono los modos de llegar, clave de WiFi en 1 clic, normas, compras y entradas a Cataratas; con un admin simple para cambiar tarifas o leña.
+            Le entrega al huésped en su teléfono los modos de llegar, clave de WiFi en 1 clic, normas, servicios de {guideData.propertyName} y atracciones recomendadas; con un panel administrativo simple para cambiar tarifas, servicios y configuraciones en tiempo real.
           </p>
         </div>
 

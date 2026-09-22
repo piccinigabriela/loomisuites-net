@@ -168,7 +168,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
           }`}
         >
           <Flame className="w-3.5 h-3.5" />
-          <span>Tu Cabaña & Servicios</span>
+          <span>{guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Tu Cabaña & Servicios' : 'Tu Complejo & Servicios'}</span>
         </button>
 
         <button
@@ -180,7 +180,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
           }`}
         >
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Cataratas & Paseos</span>
+          <span>{guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Cataratas & Paseos' : 'Atracciones & Paseos'}</span>
         </button>
 
         <button
@@ -272,61 +272,77 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider">
                   <Camera className="w-4 h-4 text-amber-400" />
-                  <span>Nuestras Cabañas (1, 2, 3 y 6)</span>
+                  <span>{guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Nuestras Cabañas (1, 2, 3 y 6)' : 'Nuestras Unidades (Imágenes Demo)'}</span>
                 </div>
-                <span className="text-[10px] text-stone-400 font-mono">Predio Los Bananos</span>
+                <span className="text-[10px] text-stone-400 font-mono">{guideData.propertyName}</span>
               </div>
 
               <div className="grid grid-cols-2 gap-2.5">
                 <div className="group relative rounded-xl overflow-hidden bg-stone-900 border border-stone-700/50">
                   <img
                     src="/cabanas/cabana-terraza.jpg"
-                    alt="Cabaña 1"
+                    alt="Unidad 1"
                     referrerPolicy="no-referrer"
                     className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="p-2 bg-stone-900/95">
-                    <div className="font-bold text-xs text-white">Cabaña 1</div>
-                    <p className="text-[10px] text-stone-400">Hasta 4 pax • Terraza en la Selva</p>
+                    <div className="font-bold text-xs text-white">
+                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Cabaña 1' : 'Unidad 1'}
+                    </div>
+                    <p className="text-[10px] text-stone-400">
+                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Hasta 4 pax • Terraza en la Selva' : 'Hasta 4 pax • Terraza & Vista Externa'}
+                    </p>
                   </div>
                 </div>
 
                 <div className="group relative rounded-xl overflow-hidden bg-stone-900 border border-stone-700/50">
                   <img
                     src="/cabanas/deck-hamaca.jpg"
-                    alt="Cabaña 2"
+                    alt="Unidad 2"
                     referrerPolicy="no-referrer"
                     className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="p-2 bg-stone-900/95">
-                    <div className="font-bold text-xs text-white">Cabaña 2</div>
-                    <p className="text-[10px] text-stone-400">Hasta 5 pax • Deck Familiar</p>
+                    <div className="font-bold text-xs text-white">
+                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Cabaña 2' : 'Unidad 2'}
+                    </div>
+                    <p className="text-[10px] text-stone-400">
+                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Hasta 5 pax • Deck Familiar' : 'Hasta 5 pax • Confort Familiar'}
+                    </p>
                   </div>
                 </div>
 
                 <div className="group relative rounded-xl overflow-hidden bg-stone-900 border border-stone-700/50">
                   <img
                     src="/cabanas/cabana-hamaca.jpg"
-                    alt="Cabaña 3"
+                    alt="Unidad 3"
                     referrerPolicy="no-referrer"
                     className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="p-2 bg-stone-900/95">
-                    <div className="font-bold text-xs text-white">Cabaña 3</div>
-                    <p className="text-[10px] text-stone-400">Parejas • Hamaca paraguaya</p>
+                    <div className="font-bold text-xs text-white">
+                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Cabaña 3' : 'Unidad 3'}
+                    </div>
+                    <p className="text-[10px] text-stone-400">
+                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Parejas • Hamaca paraguaya' : 'Parejas • Diseño Boutique'}
+                    </p>
                   </div>
                 </div>
 
                 <div className="group relative rounded-xl overflow-hidden bg-stone-900 border border-stone-700/50">
                   <img
                     src="/cabanas/jardin-heliconia.jpg"
-                    alt="Cabaña 6"
+                    alt="Unidad 6"
                     referrerPolicy="no-referrer"
                     className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="p-2 bg-stone-900/95">
-                    <div className="font-bold text-xs text-white">Cabaña 6</div>
-                    <p className="text-[10px] text-stone-400">Suite de Troncos • Heliconias</p>
+                    <div className="font-bold text-xs text-white">
+                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Cabaña 6' : 'Unidad 6'}
+                    </div>
+                    <p className="text-[10px] text-stone-400">
+                      {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Suite de Troncos • Heliconias' : 'Suite de Lujo • Amenities Premiums'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -349,19 +365,21 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                   <span>Piscina</span>
                 </div>
                 <div className="font-extrabold text-white text-base">{guideData.poolHours}</div>
-                <div className="text-[11px] text-stone-400 mt-0.5">Toallones provistos en el placard</div>
+                <div className="text-[11px] text-stone-400 mt-0.5">Toallones provistos para su comodidad</div>
               </div>
             </div>
 
-            {/* Firewood Service */}
+            {/* Extra Services / Amenities */}
             <div className="p-4 bg-gradient-to-r from-amber-950/40 via-stone-800 to-stone-800 rounded-2xl border border-amber-600/30 flex items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 font-bold text-sm text-amber-300">
                   <Flame className="w-4 h-4 text-orange-500" />
-                  <span>Leña para Asado & Fogón</span>
+                  <span>{guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Leña para Asado & Fogón' : 'Servicios Adicionales Opcionales'}</span>
                 </div>
                 <p className="text-xs text-stone-300 mt-1">
-                  Bolsa de leña de monte duro + carbón + iniciador de fuego: <strong>{guideData.woodBagPrice}</strong>
+                  {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') 
+                    ? `Bolsa de leña de monte duro + carbón + iniciador de fuego: ` 
+                    : `Servicios extras de limpieza o asistencia a la unidad: `}<strong>{guideData.woodBagPrice}</strong>
                 </p>
               </div>
               <button
@@ -373,14 +391,16 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                     : 'bg-amber-500 hover:bg-amber-400 text-stone-950'
                 }`}
               >
-                {woodOrdered ? '✓ Pedida a Fernando' : 'Pedir Leña'}
+                {woodOrdered 
+                  ? `✓ Pedido a ${guideData.hostName}` 
+                  : (guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Pedir Leña' : 'Solicitar')}
               </button>
             </div>
 
             {/* Rules */}
             <h3 className="text-sm font-bold text-stone-200 uppercase tracking-wider pt-2 flex items-center gap-2">
               <ShieldAlert className="w-4 h-4 text-amber-400" />
-              <span>Normas de la Cabaña & Convivencia</span>
+              <span>Normas de Convivencia & Estadía</span>
             </h3>
 
             <div className="space-y-2.5">
@@ -401,7 +421,11 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
         {activeTab === 'atracciones' && (
           <div className="space-y-4">
             <div className="p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-200">
-              💡 <strong>Consejo del Anfitrión (Fernando):</strong> En Cataratas de Argentina las filas para comprar entradas pueden superar los 45 minutos. Compren la entrada con anticipación online para ir directo al molinete de acceso.
+              {guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? (
+                <span>💡 <strong>Consejo del Anfitrión ({guideData.hostName}):</strong> En Cataratas de Argentina las filas para comprar entradas pueden superar los 45 minutos. Compren la entrada con anticipación online para ir directo al molinete de acceso.</span>
+              ) : (
+                <span>💡 <strong>Consejo de tu Anfitriona ({guideData.hostName}):</strong> Reservá las visitas guiadas de los museos y espectáculos de la ciudad con anticipación online para asegurar tu lugar sin hacer filas.</span>
+              )}
             </div>
 
             <div className="space-y-3">
@@ -414,7 +438,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                     <div>
                       <h4 className="font-bold text-sm text-white">{att.title}</h4>
                       <span className="text-[11px] text-stone-400">
-                        A {att.distanceMinutes} minutos de Wood Cabin
+                        A {att.distanceMinutes} minutos de {guideData.propertyName}
                       </span>
                     </div>
                     {att.ticketPrice && (
@@ -454,7 +478,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-stone-200 uppercase tracking-wider flex items-center gap-2">
               <Utensils className="w-4 h-4 text-amber-400" />
-              <span>Restaurantes & Deliveries a la Cabaña</span>
+              <span>{guideData.propertyName.toLowerCase().includes('cabaña') || guideData.propertyName.toLowerCase().includes('wood') ? 'Restaurantes & Deliveries a la Cabaña' : 'Restaurantes & Entregas de Comida'}</span>
             </h3>
 
             <div className="space-y-3">
@@ -469,7 +493,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                         <h4 className="font-bold text-sm text-white">{item.name}</h4>
                         {item.hasDelivery && (
                           <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800">
-                            🛵 Delivery a Cabaña
+                            🛵 Delivery Disponible
                           </span>
                         )}
                       </div>
@@ -487,7 +511,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                     </span>
                     {item.phone && (
                       <a
-                        href={`https://wa.me/${item.phone.replace(/\D/g, '')}?text=Hola,%20quería%20hacer%20un%20pedido%20para%20Wood%20Cabin%20Los%20Bananos`}
+                        href={`https://wa.me/${item.phone.replace(/\D/g, '')}?text=Hola,%20quería%20hacer%20un%20pedido%20para%20${encodeURIComponent(guideData.propertyName)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1 shrink-0 ml-2"
@@ -506,7 +530,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
 
       {/* Footer */}
       <div className="p-4 text-center border-t border-stone-800 text-[11px] text-stone-500">
-        <p>Los Bananos - Wood Cabin Iguazú • Diseñado con Loomi Suite</p>
+        <p>{guideData.propertyName} • Diseñado con Loomi Suite</p>
         <p className="text-[10px] text-stone-600 mt-0.5">
           Guía Digital Autogestionable para Huéspedes
         </p>
