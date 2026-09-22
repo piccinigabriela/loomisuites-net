@@ -114,8 +114,8 @@ export const SuperAdminView: React.FC<SuperAdminViewProps> = ({
     adminEmail: '',
     adminPhone: '',
     propertiesCount: 6,
-    feeTier: '35000', // '35000' | '55000' | '80000' | 'custom'
-    customFeeArs: 35000,
+    feeTier: '45000', // '45000' | '60000' | '80000' | 'custom'
+    customFeeArs: 45000,
     status: 'active' as 'active' | 'trial' | 'suspended',
     notes: '',
   });
@@ -289,9 +289,9 @@ contacto@loomisuite.net`
             adminPhone: '+54 9 11 4092-5939',
             propertiesCount: 4,
             reservationsCount: 12,
-            plan: 'Plan 4 a 10 ($35.000/mes)',
+            plan: 'Plan 4 a 10 ($45.000/mes)',
             status: 'active',
-            monthlyFeeArs: 35000,
+            monthlyFeeArs: 45000,
             createdAt: new Date().toISOString(),
           },
         ];
@@ -307,8 +307,8 @@ contacto@loomisuite.net`
       // Add local ones
       localList.forEach((c) => {
         const propsCount = c.propertiesCount || 4;
-        const fee = c.monthlyFeeArs || (propsCount <= 10 ? 35000 : propsCount <= 20 ? 55000 : 80000);
-        const planName = c.plan || (propsCount <= 10 ? 'Plan 4 a 10 ($35.000/mes)' : propsCount <= 20 ? 'Plan 10 a 20 ($55.000/mes)' : 'Plan 20 a 30 ($80.000/mes)');
+        const fee = c.monthlyFeeArs || (propsCount <= 10 ? 45000 : propsCount <= 20 ? 60000 : 80000);
+        const planName = c.plan || (propsCount <= 10 ? 'Plan 4 a 10 ($45.000/mes)' : propsCount <= 20 ? 'Plan 10 a 20 ($60.000/mes)' : 'Plan 20 a 30 ($80.000/mes)');
 
         mergedMap.set(c.id, {
           id: c.id,
@@ -335,8 +335,8 @@ contacto@loomisuite.net`
         const existing = mergedMap.get(doc.id);
         const propsCount = d.properties?.length || existing?.propertiesCount || 4;
         const resCount = d.reservations?.length || existing?.reservationsCount || 0;
-        const fee = existing?.monthlyFeeArs || (propsCount <= 10 ? 35000 : propsCount <= 20 ? 55000 : 80000);
-        const planName = existing?.plan || (propsCount <= 10 ? 'Plan 4 a 10 ($35.000/mes)' : propsCount <= 20 ? 'Plan 10 a 20 ($55.000/mes)' : 'Plan 20 a 30 ($80.000/mes)');
+        const fee = existing?.monthlyFeeArs || (propsCount <= 10 ? 45000 : propsCount <= 20 ? 60000 : 80000);
+        const planName = existing?.plan || (propsCount <= 10 ? 'Plan 4 a 10 ($45.000/mes)' : propsCount <= 20 ? 'Plan 10 a 20 ($60.000/mes)' : 'Plan 20 a 30 ($80.000/mes)');
 
         mergedMap.set(doc.id, {
           id: doc.id,
@@ -385,7 +385,7 @@ contacto@loomisuite.net`
             email: 'ignacio.cabanas@gmail.com',
             complexName: 'Cabañas Las Sierras',
             propertiesCount: 8,
-            planOrTopic: 'Plan 4 a 10 Propiedades ($35.000/mes)',
+            planOrTopic: 'Plan 4 a 10 Propiedades ($45.000/mes)',
             createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
           },
           {
@@ -395,7 +395,7 @@ contacto@loomisuite.net`
             email: 'valeria.bariloche@posada.com',
             complexName: 'Posada del Lago Bariloche',
             propertiesCount: 14,
-            planOrTopic: 'Plan 10 a 20 Propiedades ($55.000/mes)',
+            planOrTopic: 'Plan 10 a 20 Propiedades ($60.000/mes)',
             createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
           },
         ]);
@@ -419,20 +419,20 @@ contacto@loomisuite.net`
     const newId = `cpx-${Date.now()}`;
     const propsCount = Number(newClientForm.propertiesCount) || 4;
 
-    let fee = 35000;
-    let planName = 'Plan 4 a 10 ($35.000/mes)';
+    let fee = 45000;
+    let planName = 'Plan 4 a 10 ($45.000/mes)';
 
-    if (newClientForm.feeTier === '35000') {
-      fee = 35000;
-      planName = 'Plan 4 a 10 ($35.000/mes)';
-    } else if (newClientForm.feeTier === '55000') {
-      fee = 55000;
-      planName = 'Plan 10 a 20 ($55.000/mes)';
+    if (newClientForm.feeTier === '45000') {
+      fee = 45000;
+      planName = 'Plan 4 a 10 ($45.000/mes)';
+    } else if (newClientForm.feeTier === '60000') {
+      fee = 60000;
+      planName = 'Plan 10 a 20 ($60.000/mes)';
     } else if (newClientForm.feeTier === '80000') {
       fee = 80000;
       planName = 'Plan 20 a 30 ($80.000/mes)';
     } else {
-      fee = Number(newClientForm.customFeeArs) || 35000;
+      fee = Number(newClientForm.customFeeArs) || 45000;
       planName = `Tarifa Personalizada ($${fee.toLocaleString('es-AR')}/mes)`;
     }
 
@@ -493,8 +493,8 @@ contacto@loomisuite.net`
       adminEmail: '',
       adminPhone: '',
       propertiesCount: 6,
-      feeTier: '35000',
-      customFeeArs: 35000,
+      feeTier: '45000',
+      customFeeArs: 45000,
       status: 'active',
       notes: '',
     });
@@ -656,7 +656,7 @@ contacto@loomisuite.net`
               </span>
             </h1>
             <p className="text-sm text-[#8e8c87] mt-1">
-              Panel maestro para alta de clientes, cálculo de abonos ($35.000/mes base), suspensión, baja y cobranzas por transferencia.
+              Panel maestro para alta de clientes, abonos ($45.000, $60.000 y $80.000/mes), suspensión, baja y cobranzas por transferencia.
             </p>
           </div>
 
@@ -707,7 +707,7 @@ contacto@loomisuite.net`
               <p className="text-3xl font-extrabold text-white mt-1.5">
                 ${totalMonthlyArs.toLocaleString('es-AR')}
               </p>
-              <p className="text-[11px] text-emerald-400 mt-1">Base $35.000 por cliente</p>
+              <p className="text-[11px] text-emerald-400 mt-1">Abonos $45k, $60k y $80k</p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#1b271d] text-[#88c492] border border-[#2d4732] flex items-center justify-center shrink-0">
               <DollarSign className="w-6 h-6" />
@@ -1053,7 +1053,7 @@ contacto@loomisuite.net`
                       </span>
                     </h3>
                     <p className="text-xs text-[#8e8c87]">
-                      Estos datos se insertan automáticamente al generar los avisos de WhatsApp y correo para el abono de $35.000
+                      Estos datos se insertan automáticamente al generar los avisos de WhatsApp y correo para el abono del cliente
                     </p>
                   </div>
                 </div>
@@ -1610,7 +1610,7 @@ contacto@loomisuite.net`
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <label
                     className={`p-3 rounded-xl border flex flex-col cursor-pointer transition-all ${
-                      newClientForm.feeTier === '35000'
+                      newClientForm.feeTier === '45000'
                         ? 'bg-[#2a1d17] border-[#d88d5e] text-white'
                         : 'bg-[#141210] border-[#332b22] text-[#8e8c87]'
                     }`}
@@ -1618,18 +1618,18 @@ contacto@loomisuite.net`
                     <input
                       type="radio"
                       name="feeTier"
-                      value="35000"
-                      checked={newClientForm.feeTier === '35000'}
-                      onChange={() => setNewClientForm({ ...newClientForm, feeTier: '35000' })}
+                      value="45000"
+                      checked={newClientForm.feeTier === '45000'}
+                      onChange={() => setNewClientForm({ ...newClientForm, feeTier: '45000' })}
                       className="sr-only"
                     />
-                    <span className="font-extrabold text-sm text-white">$35.000 / mes</span>
+                    <span className="font-extrabold text-sm text-white">$45.000 / mes</span>
                     <span className="text-[10px] mt-0.5">Plan 4 a 10 Unidades</span>
                   </label>
 
                   <label
                     className={`p-3 rounded-xl border flex flex-col cursor-pointer transition-all ${
-                      newClientForm.feeTier === '55000'
+                      newClientForm.feeTier === '60000'
                         ? 'bg-[#2a1d17] border-[#d88d5e] text-white'
                         : 'bg-[#141210] border-[#332b22] text-[#8e8c87]'
                     }`}
@@ -1637,12 +1637,12 @@ contacto@loomisuite.net`
                     <input
                       type="radio"
                       name="feeTier"
-                      value="55000"
-                      checked={newClientForm.feeTier === '55000'}
-                      onChange={() => setNewClientForm({ ...newClientForm, feeTier: '55000' })}
+                      value="60000"
+                      checked={newClientForm.feeTier === '60000'}
+                      onChange={() => setNewClientForm({ ...newClientForm, feeTier: '60000' })}
                       className="sr-only"
                     />
-                    <span className="font-extrabold text-sm text-white">$55.000 / mes</span>
+                    <span className="font-extrabold text-sm text-white">$60.000 / mes</span>
                     <span className="text-[10px] mt-0.5">Plan 10 a 20 Unidades</span>
                   </label>
 
