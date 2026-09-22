@@ -16,9 +16,11 @@ import {
   Globe,
   CheckCircle2,
   Lock,
+  FileText,
 } from 'lucide-react';
 import { DemoState, Property } from '../../types';
 import { copyToClipboard } from '../../utils/clipboard';
+import { OnboardingGuideView } from './OnboardingGuideView';
 
 interface DemoPropertiesProps {
   demoState: DemoState;
@@ -39,6 +41,7 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
   const [customDomain, setCustomDomain] = useState<string>('reservas.misalojamientos.com');
   const [isDomainSaved, setIsDomainSaved] = useState<boolean>(true);
   const [showDomainConfig, setShowDomainConfig] = useState<boolean>(false);
+  const [showOnboardingGuide, setShowOnboardingGuide] = useState<boolean>(false);
 
   const handleCopyDirectLink = (propertyId: string) => {
     const link = isDomainSaved && customDomain
@@ -58,7 +61,7 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-[#ded9cd] dark:border-[#2a2a2a] p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
+      <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-[#ded9cd] dark:border-[#2a2a2a] p-5 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors">
         <div>
           <h3 className="text-base font-bold text-[#1c1b18] dark:text-[#f4f2ee] flex items-center gap-2">
             <Building2 className="w-5 h-5 text-[#c46d45] dark:text-[#d88d5e]" />
@@ -70,15 +73,32 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
         </div>
 
         {!isEmployeeMode && (
-          <button
-            onClick={() => setShowDomainConfig(!showDomainConfig)}
-            className="flex items-center gap-2 text-xs font-bold text-[#1c1b18] dark:text-[#c8c5c0] bg-[#f8f6f2] dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2c2c2c] border border-[#ded9cd] dark:border-[#333] px-3.5 py-2 rounded-xl transition-colors cursor-pointer shadow-2xs"
-          >
-            <Globe className="w-4 h-4 text-[#c46d45] dark:text-[#d88d5e]" />
-            <span>{showDomainConfig ? 'Ocultar Configuración Web' : 'Configurar Dominio Propio'}</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+            <button
+              onClick={() => setShowOnboardingGuide(!showOnboardingGuide)}
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 text-xs font-bold text-white bg-[#c46d45] hover:bg-[#b55e37] px-4 py-2.5 rounded-xl transition-colors cursor-pointer shadow-sm shadow-[#c46d45]/20"
+            >
+              <FileText className="w-4 h-4" />
+              <span>{showOnboardingGuide ? 'Ocultar Guía' : 'Ver Guía Auto-Configuración (PDF)'}</span>
+            </button>
+            <button
+              onClick={() => setShowDomainConfig(!showDomainConfig)}
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 text-xs font-bold text-[#1c1b18] dark:text-[#c8c5c0] bg-[#f8f6f2] dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2c2c2c] border border-[#ded9cd] dark:border-[#333] px-4 py-2.5 rounded-xl transition-colors cursor-pointer shadow-2xs"
+            >
+              <Globe className="w-4 h-4 text-[#c46d45] dark:text-[#d88d5e]" />
+              <span>{showDomainConfig ? 'Ocultar Dominio' : 'Configurar Dominio Propio'}</span>
+            </button>
+          </div>
         )}
       </div>
+
+      {/* Onboarding Guide printable cheat sheet card */}
+      {showOnboardingGuide && !isEmployeeMode && (
+        <OnboardingGuideView
+          complexName={demoState.welcomeGuide?.propertyName || 'Catalinas Apartamentos'}
+          onClose={() => setShowOnboardingGuide(false)}
+        />
+      )}
 
       {/* Dominio Propio Configuration Card */}
       {showDomainConfig && !isEmployeeMode && (

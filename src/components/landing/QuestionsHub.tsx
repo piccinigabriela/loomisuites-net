@@ -788,6 +788,38 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                 </div>
               </div>
 
+              {/* Onboarding Concierge Callout */}
+              <div className="mb-8 p-6 sm:p-8 rounded-3xl border-2 border-dashed border-rose-200 bg-rose-50/25 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-start gap-4 text-left">
+                  <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 border border-rose-200 shadow-xs">
+                    <Sparkles className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-rose-600 bg-rose-100/60 border border-rose-200/50 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                      Servicio Concierge
+                    </span>
+                    <h3 className="text-lg font-bold text-zinc-900 mt-1.5">
+                      ¿No tenés tiempo? Hacemos el Onboarding por vos (Servicio Llave en Mano)
+                    </h3>
+                    <p className="text-xs text-zinc-600 mt-1 leading-relaxed max-w-2xl">
+                      Si no querés encargarte de cargar las fotos, registrar las cabañas, o configurar las claves iCal de tus plataformas de alquiler, nuestro equipo lo hace por vos. Nos das tus enlaces de Airbnb/Booking, fotos del complejo y nos encargamos de todo el setup inicial en 24 horas. ¡Listo para usar con soporte inicial personalizado!
+                    </p>
+                  </div>
+                </div>
+                <div className="text-center md:text-right shrink-0 w-full md:w-auto">
+                  <div className="text-2xl font-extrabold text-zinc-900 font-['Outfit']">
+                    $49 <span className="text-xs font-semibold text-zinc-500 font-sans">USD</span>
+                  </div>
+                  <div className="text-[10px] text-zinc-400 font-medium">Pago único por complejo</div>
+                  <button
+                    onClick={() => onOpenContact('Servicio Concierge Onboarding Llave en Mano')}
+                    className="mt-3 w-full md:w-auto px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/20 cursor-pointer transition-colors"
+                  >
+                    Contratar Puesta en Marcha
+                  </button>
+                </div>
+              </div>
+
               {/* Payment Methods & Guarantees Box */}
               <div className="p-6 rounded-2xl bg-zinc-50 border border-zinc-200">
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-5 border-b border-zinc-200 mb-5">
