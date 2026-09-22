@@ -32,6 +32,7 @@ interface ClientAuthModalProps {
   onClose: () => void;
   onSelectComplex: (complexId: string, isNew?: boolean) => void;
   onOpenDemo: () => void;
+  onOpenSuperAdmin?: () => void;
   currentComplexId?: string;
 }
 
@@ -40,6 +41,7 @@ export const ClientAuthModal: React.FC<ClientAuthModalProps> = ({
   onClose,
   onSelectComplex,
   onOpenDemo,
+  onOpenSuperAdmin,
   currentComplexId = 'default',
 }) => {
   const [tab, setTab] = useState<'login' | 'register'>('login');
@@ -307,6 +309,22 @@ export const ClientAuthModal: React.FC<ClientAuthModalProps> = ({
                   Ver Demo Pública
                 </button>
               </div>
+
+              {onOpenSuperAdmin && (
+                <div className="pt-2 border-t border-[#202020] text-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onOpenSuperAdmin();
+                      onClose();
+                    }}
+                    className="text-[11px] text-[#6d6b67] hover:text-[#e88863] transition-colors cursor-pointer inline-flex items-center gap-1"
+                  >
+                    <Lock className="w-3 h-3" />
+                    <span>Acceso Administrador Plataforma (Loomi Master)</span>
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             /* Register New Complex Form (Self-Onboarding) */

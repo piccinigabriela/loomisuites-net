@@ -5,9 +5,10 @@ import { LoomiLogo } from '../common/LoomiLogo';
 interface FooterProps {
   onOpenDemo: () => void;
   onOpenContact: () => void;
+  onOpenSuperAdmin?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact, onOpenSuperAdmin }) => {
   return (
     <footer className="bg-[#141414] text-[#9e9b94] py-16 border-t border-[#262626]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -94,7 +95,18 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#78746c]">
           <p>© {new Date().getFullYear()} Loomi Suite. Todos los derechos reservados.</p>
           <div className="flex items-center gap-4 text-xs">
-            <span>Diseñado con calidez para alojamientos independientes</span>
+            <span>Diseñado para alojamientos independientes</span>
+            {onOpenSuperAdmin && (
+              <>
+                <span>•</span>
+                <button
+                  onClick={onOpenSuperAdmin}
+                  className="hover:text-white transition-colors cursor-pointer flex items-center gap-1 text-[#8e8c87]"
+                >
+                  <span>Panel Maestro SuperAdmin</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -4,10 +4,14 @@ import {
   doc,
   setDoc,
   getDoc,
+  getDocs,
   onSnapshot,
   collection,
   addDoc,
   serverTimestamp,
+  query,
+  orderBy,
+  limit,
 } from 'firebase/firestore';
 import { DemoState } from '../types';
 import firebaseConfigJson from '../../firebase-applet-config.json';
@@ -116,3 +120,38 @@ export async function saveLeadToCloud(lead: {
     console.warn('Notice saving lead to Firestore:', e);
   }
 }
+
+/**
+ * SuperAdmin: Fetch all registered complexes from Cloud Firestore
+ */
+export async function fetchAllComplexesFromCloud(): Promise<Array<{ id: string; data: any }>> {
+  if (!db) return [];
+  try {
+    const snap = await getDocs(collection(db, 'complexes'));
+    return snap.docs.map((d) => ({
+      id: d.id,
+      data: d.data(),
+    }));
+  } catch (e) {
+    console.warn('Error fetching all complexes for SuperAdmin:', e);
+    return [];
+  }
+}
+
+/**
+ * SuperAdmin: Fetch all leads from Cloud Firestore
+ */
+export async function fetchAllLeadsFromCloud(): Promise<Array<{ id: string; data: any }>> {
+  if (!db) return [];
+  try {
+    const snap = await getDocs(collection(db, 'leads'));
+    return snap.docs.map((d) => ({
+      id: d.id,
+      data: d.data(),
+    }));
+  } catch (e) {
+    console.warn('Error fetching leads for SuperAdmin:', e);
+    return [];
+  }
+}
+

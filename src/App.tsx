@@ -55,14 +55,24 @@ import { JsonDataModal } from './components/demo/JsonDataModal';
 import { OnboardingWizardModal } from './components/demo/OnboardingWizardModal';
 import { CalendarImportModal } from './components/demo/CalendarImportModal';
 import { ClientAuthModal } from './components/auth/ClientAuthModal';
+import { SuperAdminView } from './components/admin/SuperAdminView';
 import { INITIAL_WELCOME_GUIDE } from './data/initialData';
 
 export default function App() {
-  // App view: 'landing' (clean landing site) or 'demo' (active PMS panel)
-  const [currentView, setCurrentView] = useState<'landing' | 'demo'>(() => {
+  // App view: 'landing' (clean landing site), 'demo' (active PMS panel) or 'superadmin' (master control)
+  const [currentView, setCurrentView] = useState<'landing' | 'demo' | 'superadmin'>(() => {
     try {
       if (typeof window !== 'undefined') {
         const params = new URLSearchParams(window.location.search);
+        if (
+          params.has('admin') ||
+          params.has('superadmin') ||
+          params.has('master') ||
+          params.get('view') === 'admin' ||
+          params.get('view') === 'superadmin'
+        ) {
+          return 'superadmin';
+        }
         if (
           params.has('panel') ||
           params.has('demo') ||
@@ -607,7 +617,7 @@ export default function App() {
         </div>
       )}
 
-      {/* RENDER VIEW: LANDING OR DEMO */}
+      {/* RENDER VIEW: LANDING, SUPERADMIN OR DEMO PMS */}
       {currentView === 'landing' ? (
         <main>
           <Navbar
@@ -657,6 +667,10 @@ export default function App() {
               setSelectedPlanForLead(undefined);
               setIsLeadModalOpen(true);
             }}
+            onOpenSuperAdmin={() => {
+              setCurrentView('superadmin');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
           />
 
           {/* Floating Sticky CTA Bar on Mobile/Desktop */}
@@ -676,6 +690,18 @@ export default function App() {
             </button>
           </div>
         </main>
+      ) : currentView === 'superadmin' ? (
+        /* SUPERADMIN MASTER VIEW FOR PLATFORM OWNER */
+        <SuperAdminView
+          onBackToLanding={() => setCurrentView('landing')}
+          onOpenComplexAsAdmin={(complexId) => {
+            handleSelectComplex(complexId, false);
+            showToast(`👑 Accediendo al complejo como SuperAdmin (${complexId})`);
+          }}
+          onOpenNewComplexModal={() => setIsAuthModalOpen(true)}
+          currentComplexId={activeComplex}
+          theme={theme}
+        />
       ) : (
         /* CLEAN RELAXED CARBON PMS DASHBOARD VIEW */
         <div className="min-h-screen flex bg-[#f8f6f2] dark:bg-[#141414] text-[#1c1b18] dark:text-[#e0deda] font-sans transition-colors">
@@ -704,6 +730,10 @@ export default function App() {
             onToggleTheme={toggleTheme}
             onBackToLanding={() => {
               setCurrentView('landing');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onOpenSuperAdmin={() => {
+              setCurrentView('superadmin');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             activeComplex={activeComplex}
@@ -1000,6 +1030,10 @@ export default function App() {
         onSelectComplex={handleSelectComplex}
         onOpenDemo={() => {
           setCurrentView('demo');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onOpenSuperAdmin={() => {
+          setCurrentView('superadmin');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         currentComplexId={activeComplex}

@@ -36,6 +36,7 @@ interface CleanSidebarProps {
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
   onBackToLanding: () => void;
+  onOpenSuperAdmin?: () => void;
   activeComplex: 'catalinas' | 'woodcabin' | 'custom';
   onSwitchComplex: (complex: 'catalinas' | 'woodcabin' | 'custom') => void;
   isMobileOpen?: boolean;
@@ -56,6 +57,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
   theme,
   onToggleTheme,
   onBackToLanding,
+  onOpenSuperAdmin,
   activeComplex,
   onSwitchComplex,
   isMobileOpen = false,
@@ -410,16 +412,27 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
           </div>
         </div>
 
-        {/* Back to landing & Version */}
-        <div className="flex items-center justify-between pt-1 text-[10px] text-[#78746c] dark:text-[#6e6c68]">
-          <button
-            onClick={onBackToLanding}
-            className="hover:text-[#1c1b18] dark:hover:text-[#b0ada8] transition-colors flex items-center gap-1 font-semibold"
-          >
-            <LogOut className="w-3 h-3" />
-            <span>Volver a la Portada</span>
-          </button>
-          <span>v2.2 · Catalinas</span>
+        {/* Back to landing & SuperAdmin */}
+        <div className="flex flex-col gap-1.5 pt-1 text-[10px] text-[#78746c] dark:text-[#6e6c68]">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={onBackToLanding}
+              className="hover:text-[#1c1b18] dark:hover:text-[#b0ada8] transition-colors flex items-center gap-1 font-semibold"
+            >
+              <LogOut className="w-3 h-3" />
+              <span>Volver a la Portada</span>
+            </button>
+            <span>v2.2</span>
+          </div>
+
+          {onOpenSuperAdmin && (
+            <button
+              onClick={onOpenSuperAdmin}
+              className="w-full text-left text-[10px] font-bold text-[#c46d45] dark:text-[#d88d5e] hover:underline pt-1 border-t border-[#ded9cd]/60 dark:border-[#2a2a2a] flex items-center gap-1"
+            >
+              <span>👑 Panel Maestro SuperAdmin</span>
+            </button>
+          )}
         </div>
       </div>
     </>
