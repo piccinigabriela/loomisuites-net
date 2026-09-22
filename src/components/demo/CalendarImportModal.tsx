@@ -1198,79 +1198,87 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
             )}
 
             {/* List of parsed events */}
-            <div className="max-h-64 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
-              {parsedEvents.map((ev, idx) => (
-                <div
-                  key={idx}
-                  className="p-3 bg-[#191919] border border-[#2a2a2a] rounded-xl flex items-center justify-between gap-3 text-xs hover:border-[#383838] transition-colors"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-white truncate">{ev.guestName}</span>
-                      <span
-                        className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${
-                          ev.platform === 'airbnb'
-                            ? 'bg-red-950/60 text-red-400 border border-red-800/30'
-                            : ev.platform === 'booking'
-                            ? 'bg-blue-950/60 text-blue-400 border border-blue-800/30'
-                            : 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/30'
-                        }`}
-                      >
-                        {ev.platform}
-                      </span>
-                      {ev.rawCabin && (
-                        <span className="text-[10px] text-[#9e9c97] bg-[#242424] px-1.5 py-0.5 rounded border border-[#333]">
-                          En archivo: {ev.rawCabin}
+            <div className="space-y-2">
+              <div className="max-h-64 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                {parsedEvents.slice(0, 50).map((ev, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3 bg-[#191919] border border-[#2a2a2a] rounded-xl flex items-center justify-between gap-3 text-xs hover:border-[#383838] transition-colors"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white truncate">{ev.guestName}</span>
+                        <span
+                          className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${
+                            ev.platform === 'airbnb'
+                              ? 'bg-red-950/60 text-red-400 border border-red-800/30'
+                              : ev.platform === 'booking'
+                              ? 'bg-blue-950/60 text-blue-400 border border-blue-800/30'
+                              : 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/30'
+                          }`}
+                        >
+                          {ev.platform}
                         </span>
-                      )}
+                        {ev.rawCabin && (
+                          <span className="text-[10px] text-[#9e9c97] bg-[#242424] px-1.5 py-0.5 rounded border border-[#333]">
+                            En archivo: {ev.rawCabin}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[11px] text-[#8e8c87] mt-0.5 flex items-center gap-2">
+                        <span>
+                          📅 {ev.checkIn} → {ev.checkOut}
+                        </span>
+                        <span className="text-[#d88d5e] font-semibold">({ev.nights} noches)</span>
+                        {ev.totalAmount && (
+                          <span className="text-emerald-400 font-semibold">${ev.totalAmount}</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-[11px] text-[#8e8c87] mt-0.5 flex items-center gap-2">
-                      <span>
-                        📅 {ev.checkIn} → {ev.checkOut}
-                      </span>
-                      <span className="text-[#d88d5e] font-semibold">({ev.nights} noches)</span>
-                      {ev.totalAmount && (
-                        <span className="text-emerald-400 font-semibold">${ev.totalAmount}</span>
-                      )}
+
+                    <div className="shrink-0 flex items-center gap-2">
+                      <select
+                        value={ev.platform}
+                        onChange={e => {
+                          const newPlat = e.target.value as BookingPlatform;
+                          setParsedEvents(prev =>
+                            prev.map((item, i) => (i === idx ? { ...item, platform: newPlat } : item))
+                          );
+                        }}
+                        className="bg-[#242424] text-[#f4f2ee] font-medium border border-[#383838] text-[11px] rounded-lg px-2 py-1.5 focus:border-[#d88d5e]"
+                      >
+                        <option value="airbnb">Airbnb</option>
+                        <option value="booking">Booking.com</option>
+                        <option value="direct">Directa / Web</option>
+                        <option value="vrbo">VRBO / Expedia</option>
+                      </select>
+
+                      <select
+                        value={ev.propertyId}
+                        onChange={e => {
+                          const newId = e.target.value;
+                          setParsedEvents(prev =>
+                            prev.map((item, i) => (i === idx ? { ...item, propertyId: newId } : item))
+                          );
+                        }}
+                        className="bg-[#242424] text-[#f4f2ee] font-medium border border-[#48372b] text-[11px] rounded-lg px-2.5 py-1.5 focus:border-[#d88d5e]"
+                      >
+                        {safeProperties.map(p => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
+                ))}
+              </div>
 
-                  <div className="shrink-0 flex items-center gap-2">
-                    <select
-                      value={ev.platform}
-                      onChange={e => {
-                        const newPlat = e.target.value as BookingPlatform;
-                        setParsedEvents(prev =>
-                          prev.map((item, i) => (i === idx ? { ...item, platform: newPlat } : item))
-                        );
-                      }}
-                      className="bg-[#242424] text-[#f4f2ee] font-medium border border-[#383838] text-[11px] rounded-lg px-2 py-1.5 focus:border-[#d88d5e]"
-                    >
-                      <option value="airbnb">Airbnb</option>
-                      <option value="booking">Booking.com</option>
-                      <option value="direct">Directa / Web</option>
-                      <option value="vrbo">VRBO / Expedia</option>
-                    </select>
-
-                    <select
-                      value={ev.propertyId}
-                      onChange={e => {
-                        const newId = e.target.value;
-                        setParsedEvents(prev =>
-                          prev.map((item, i) => (i === idx ? { ...item, propertyId: newId } : item))
-                        );
-                      }}
-                      className="bg-[#242424] text-[#f4f2ee] font-medium border border-[#48372b] text-[11px] rounded-lg px-2.5 py-1.5 focus:border-[#d88d5e]"
-                    >
-                      {safeProperties.map(p => (
-                        <option key={p.id} value={p.id}>
-                          {p.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+              {parsedEvents.length > 50 && (
+                <div className="bg-[#1a1815] border border-[#d88d5e]/20 rounded-xl p-2.5 text-center text-[11px] text-[#c49b78]">
+                  Mostrando las primeras 50 de <strong className="text-white">{parsedEvents.length}</strong> reservas detectadas en tu archivo. Al hacer clic en <em>Confirmar e Importar</em> se guardarán las <strong>{parsedEvents.length}</strong> reservas completas en el sistema.
                 </div>
-              ))}
+              )}
             </div>
 
             {/* Actions */}

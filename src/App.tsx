@@ -357,18 +357,21 @@ export default function App() {
   // Handle import from Google Calendar / CSV
   const handleImportCalendarReservations = (newRes: Reservation[], mode: 'add' | 'replace') => {
     updateDemoState((prev) => {
-      let finalReservations = [...prev.reservations];
+      let finalReservations = [...(prev.reservations || [])];
       if (mode === 'replace') {
         finalReservations = newRes;
       } else {
         // Mode 'add' - filter duplicates or keep existing and append new ones
-        const existingIds = new Set(prev.reservations.map(r => `${r.propertyId}_${r.checkIn}_${r.checkOut}`));
+        const existingIds = new Set((prev.reservations || []).map(r => `${r.propertyId}_${r.checkIn}_${r.checkOut}`));
         const filterNew = newRes.filter(r => !existingIds.has(`${r.propertyId}_${r.checkIn}_${r.checkOut}`));
-        finalReservations = [...filterNew, ...prev.reservations];
+        finalReservations = [...filterNew, ...(prev.reservations || [])];
       }
 
-      // Also automatically create cleaning tasks for each new imported reservation!
-      const newCleaningTasks = newRes.map((r) => ({
+      // Automatically create cleaning tasks for upcoming / active reservations
+      const todayStr = new Date().toISOString().split('T')[0];
+      const activeForCleaning = newRes.filter(r => r.checkOut >= todayStr);
+
+      const newCleaningTasks = activeForCleaning.map((r) => ({
         id: `clean-import-${Date.now()}-${Math.random()}`,
         propertyId: r.propertyId,
         reservationId: r.id,
@@ -388,7 +391,7 @@ export default function App() {
 
       const finalCleaningTasks = mode === 'replace'
         ? newCleaningTasks
-        : [...newCleaningTasks, ...prev.cleaningTasks];
+        : [...newCleaningTasks, ...(prev.cleaningTasks || [])];
 
       return {
         ...prev,
@@ -398,7 +401,7 @@ export default function App() {
       };
     });
 
-    showToast(`🎉 ¡Éxito! Se importaron ${newRes.length} reservas y se crearon sus tareas de limpieza.`);
+    showToast(`🎉 ¡Éxito! Se procesaron e importaron ${newRes.length} reservas correctamente.`);
   };
 
   // New Reservation creation
