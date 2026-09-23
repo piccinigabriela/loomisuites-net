@@ -303,7 +303,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
   demoState,
   onImport,
 }) => {
-  const [activeTab, setActiveTab] = useState<'upload' | 'paste'>('upload');
+  const [activeTab, setActiveTab] = useState<'upload' | 'paste' | 'concierge'>('upload');
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [pastedText, setPastedText] = useState('');
@@ -312,6 +312,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
   const [step, setStep] = useState<'upload' | 'preview'>('upload');
   const [parseErrorNotice, setParseErrorNotice] = useState<string | null>(null);
   const [rawFileSnippet, setRawFileSnippet] = useState<string | null>(null);
+  const [conciergeSent, setConciergeSent] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // CSV/Excel Onboarding Assistant state & playground logic
@@ -1144,31 +1145,46 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
 
         {step === 'upload' ? (
           <div className="p-5 space-y-4">
-            {/* Tabs: Upload vs Paste */}
-            <div className="flex bg-[#1c1c1c] p-1 rounded-xl border border-[#2c2c2c]">
+            {/* Tabs: Upload vs Paste vs Concierge */}
+            <div className="flex bg-[#1c1c1c] p-1 rounded-xl border border-[#2c2c2c] gap-1">
               <button
                 type="button"
                 onClick={() => setActiveTab('upload')}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === 'upload'
                     ? 'bg-[#2a221b] text-[#d88d5e] shadow-xs border border-[#d88d5e]/30'
                     : 'text-[#8e8c87] hover:text-white'
                 }`}
               >
                 <Upload className="w-3.5 h-3.5" />
-                Subir Archivo (.xlsx / .csv / .ics)
+                <span className="hidden sm:inline">Subir</span> Archivo (.csv/.xlsx)
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab('paste')}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === 'paste'
                     ? 'bg-[#2a221b] text-[#d88d5e] shadow-xs border border-[#d88d5e]/30'
                     : 'text-[#8e8c87] hover:text-white'
                 }`}
               >
                 <Clipboard className="w-3.5 h-3.5" />
-                Pegar Filas Copiadas de Excel
+                Pegar Filas de Excel
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('concierge')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  activeTab === 'concierge'
+                    ? 'bg-emerald-950/80 text-emerald-300 shadow-xs border border-emerald-600/50'
+                    : 'text-emerald-400/80 hover:text-emerald-300 bg-emerald-950/20'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Migración Concierge</span>
+                <span className="text-[9px] bg-emerald-500/20 px-1.5 py-0.2 rounded-full font-bold border border-emerald-500/30">
+                  Gratis
+                </span>
               </button>
             </div>
 
@@ -1191,10 +1207,22 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
                     </pre>
                   </div>
                 )}
+                
+                {/* Concierge SOS button on error */}
+                <div className="pt-2 border-t border-red-900/40 flex items-center justify-between">
+                  <span className="text-[11px] text-zinc-400">¿Se te complica la planilla?</span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('concierge')}
+                    className="text-xs font-bold text-emerald-400 hover:text-emerald-300 underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Te la cargamos nosotros en 24hs sin costo →</span>
+                  </button>
+                </div>
               </div>
             )}
 
-            {activeTab === 'upload' ? (
+            {activeTab === 'upload' && (
               <>
                 {/* Drag and Drop Zone */}
                 <div
@@ -1246,7 +1274,9 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
                   </p>
                 </div>
               </>
-            ) : (
+            )}
+
+            {activeTab === 'paste' && (
               /* Direct Text Paste Area */
               <div className="space-y-3">
                 <div className="space-y-1.5">
@@ -1282,6 +1312,72 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
                   <Sparkles className="w-4 h-4" />
                   Procesar Texto y Ver Vista Previa
                 </button>
+              </div>
+            )}
+
+            {activeTab === 'concierge' && (
+              /* Concierge Onboarding Assistant View */
+              <div className="bg-[#121a15] border border-emerald-800/40 rounded-2xl p-6 text-white space-y-5 animate-in fade-in duration-200">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1.5">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold uppercase tracking-wider border border-emerald-500/30">
+                      <Sparkles className="w-3 h-3 text-emerald-400" />
+                      Servicio de Onboarding Llave en Mano
+                    </div>
+                    <h4 className="text-base font-bold text-white">
+                      ¿Tenés un Excel complejo o poco tiempo? Lo hacemos por vos.
+                    </h4>
+                    <p className="text-xs text-zinc-300 leading-relaxed">
+                      Sabemos que migrar reservas históricas es una de las tareas más tediosas. 
+                      Mandanos tu planilla por WhatsApp o email tal cual la tengas (en Excel, CSV, PDF o capturas) y el equipo técnico de Loomi Suite se encarga de estructurarla y cargarla en tu cuenta sin ningún costo.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div className="bg-[#0e1612] p-3.5 rounded-xl border border-emerald-900/40 space-y-1">
+                    <span className="font-extrabold text-emerald-400 block text-xs">⚡ Entrega en 24 hs</span>
+                    <p className="text-[11px] text-zinc-400">
+                      Cargamos tus reservas históricas y futuras respetando cada seña, huésped y departamento.
+                    </p>
+                  </div>
+                  <div className="bg-[#0e1612] p-3.5 rounded-xl border border-emerald-900/40 space-y-1">
+                    <span className="font-extrabold text-emerald-400 block text-xs">🛡️ 100% Sin Errores</span>
+                    <p className="text-[11px] text-zinc-400">
+                      Revisamos fechas de recambio y comisiones para que tu rack quede impecable.
+                    </p>
+                  </div>
+                  <div className="bg-[#0e1612] p-3.5 rounded-xl border border-emerald-900/40 space-y-1">
+                    <span className="font-extrabold text-emerald-400 block text-xs">🎁 100% Bonificado</span>
+                    <p className="text-[11px] text-zinc-400">
+                      Incluido sin cargo adicional para todos los usuarios de Loomi Suite.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-emerald-900/40 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <a
+                    href={`https://wa.me/5491138446459?text=${encodeURIComponent(
+                      `Hola equipo de Loomi Suite! 👋 Les escribo porque quiero que me asistan con la carga de mi archivo de reservas para mi complejo. ¿Cómo se los envío?`
+                    )}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50 cursor-pointer"
+                  >
+                    <span>💬 Enviar Planilla por WhatsApp</span>
+                  </a>
+
+                  <a
+                    href={`mailto:soporte@loomisuite.com?subject=${encodeURIComponent(
+                      'Migración Asistida de Reservas - Loomi Suite'
+                    )}&body=${encodeURIComponent(
+                      'Hola equipo de Loomi Suite!\n\nLes adjunto el archivo de reservas de mi complejo para que lo carguen en mi cuenta.\n\nNombre del complejo:\nCantidad de unidades:\n\nMuchas gracias!'
+                    )}`}
+                    className="py-3 px-4 bg-[#1e2a22] hover:bg-[#28382d] text-emerald-300 font-bold text-xs rounded-xl transition-all border border-emerald-700/50 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>✉️ Enviar por Email</span>
+                  </a>
+                </div>
               </div>
             )}
 
