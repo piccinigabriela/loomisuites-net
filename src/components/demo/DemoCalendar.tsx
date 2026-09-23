@@ -672,10 +672,9 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                     const isContinuingFromBefore = checkInIndex === -1 && cleanCheckIn < startDateStr;
                     const isContinuingAfter = checkOutIndex === -1 && cleanCheckOut > endDateStr;
 
-                    // Exact Night & Day Span Math:
-                    // A reservation from Aug 1 (checkIn) to Aug 3 (checkOut):
-                    // Starts at Aug 1 column (checkInIndex) and spans to Aug 3 column (checkOutIndex),
-                    // placing the check-out arrow cap directly inside the Aug 3 (check-out day) column!
+                    // Exact Check-out Day Span Math:
+                    // If Check-in is Aug 1 and Check-out is Aug 3:
+                    // The bar spans from Aug 1 all the way into Aug 3 (where the check-out arrow is clearly drawn).
                     const hasOutgoingTurnover = propertyReservations.some(
                       (r) => r.id !== res.id && r.checkIn === cleanCheckOut
                     );
@@ -683,14 +682,15 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                       (r) => r.id !== res.id && r.checkOut === cleanCheckIn
                     );
 
-                    // When there is a same-day turnover on check-in: start at 35% of the day to let the previous checkout arrow breathe
-                    // When there is a same-day turnover on check-out: end at 35% of the check-out day
+                    // When there is a same-day turnover: 
+                    // Outgoing reservation ends at 45% of that day (morning checkout)
+                    // Incoming reservation starts at 45% of that day (afternoon checkin)
                     const startFraction = checkInIndex >= 0 
-                      ? (hasIncomingTurnover ? checkInIndex + 0.35 : checkInIndex) 
+                      ? (hasIncomingTurnover ? checkInIndex + 0.45 : checkInIndex) 
                       : 0;
                     
                     const endFraction = checkOutIndex >= 0 
-                      ? (hasOutgoingTurnover ? checkOutIndex + 0.35 : checkOutIndex + 0.4) 
+                      ? (hasOutgoingTurnover ? checkOutIndex + 0.45 : checkOutIndex + 0.5) 
                       : DAYS_TO_SHOW;
 
                     const spanFraction = Math.max(0.4, endFraction - startFraction);
@@ -709,10 +709,13 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                       >
                         <button
                           onClick={() => onSelectReservation(res)}
+                          style={{
+                            clipPath: isContinuingAfter 
+                              ? undefined 
+                              : 'polygon(0% 0%, calc(100% - 9px) 0%, 100% 50%, calc(100% - 9px) 100%, 0% 100%)',
+                          }}
                           className={`w-full h-full relative ${
-                            isContinuingFromBefore || hasIncomingTurnover ? 'rounded-l-none' : 'rounded-l-lg'
-                          } ${
-                            isContinuingAfter ? 'rounded-r-none' : 'rounded-r-md'
+                            isContinuingFromBefore || hasIncomingTurnover ? 'rounded-l-none' : 'rounded-l-md'
                           } pl-2 sm:pl-2.5 pr-4 py-1 flex items-center justify-between text-left text-xs font-semibold cursor-pointer shadow-xs border transition-all hover:scale-[1.01] hover:brightness-110 hover:shadow-md hover:z-30 overflow-hidden ${getPlatformColors(
                             res.platform
                           )}`}
@@ -753,9 +756,9 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                           {/* Check-out Transparent Chevron Arrow Cap on the right end (Inside Check-out Day Column) */}
                           {!isContinuingAfter && (
                             <div
-                              className="absolute right-0 top-0 bottom-0 w-4 bg-black/35 dark:bg-black/50 border-l border-white/20 flex items-center justify-center pointer-events-none"
+                              className="absolute right-0 top-0 bottom-0 w-3 bg-white/25 dark:bg-black/35 border-l border-white/25 flex items-center justify-center pointer-events-none"
                               style={{
-                                clipPath: 'polygon(0% 0%, 55% 50%, 0% 100%, 45% 100%, 100% 50%, 45% 0%)',
+                                clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)',
                               }}
                               title={`Salida / Check-out: ${formatDisplayDate(res.checkOut)}`}
                             />
