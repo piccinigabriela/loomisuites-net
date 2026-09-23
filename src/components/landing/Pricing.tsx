@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Check, Sparkles, Zap, ShieldCheck, Play, PlusCircle, KeyRound, Wine, Flower2, Globe } from 'lucide-react';
+import { Check, Sparkles, Zap, ShieldCheck, Play, PlusCircle, KeyRound, Wine, Flower2, Globe, BedDouble, HelpCircle } from 'lucide-react';
+import { SpotlightCard } from './SpotlightCard';
 
 interface PricingProps {
   onOpenDemo: () => void;
@@ -8,6 +9,7 @@ interface PricingProps {
 
 export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) => {
   const [isAnnual, setIsAnnual] = useState<boolean>(true);
+  const [userNightRate, setUserNightRate] = useState<number>(65); // Default $65/night
 
   const plans = [
     {
@@ -67,26 +69,26 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
   ];
 
   return (
-    <section id="precios" className="py-20 bg-white border-b border-zinc-200">
+    <section id="precios" className="py-20 bg-white dark:bg-[#121212] border-b border-zinc-200 dark:border-zinc-800 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-12">
+        <div className="text-center max-w-3xl mx-auto mb-10">
           <span className="text-xs font-bold text-rose-600 uppercase tracking-wider">
             Planes Transparentes
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight mt-2">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight mt-2">
             Inversión fija, sin porcentajes ocultos sobre tus ventas
           </h2>
-          <p className="mt-3 text-base text-zinc-600">
+          <p className="mt-3 text-base text-zinc-600 dark:text-zinc-400">
             A diferencia de otros softwares, nosotros jamás nos quedamos con un porcentaje de tus reservas. 
             Prueba todas las funcionalidades gratis en la demo interactiva.
           </p>
 
           {/* Billing Switch */}
-          <div className="mt-8 inline-flex items-center gap-3 p-1.5 rounded-xl bg-zinc-100 border border-zinc-200 text-xs font-semibold">
+          <div className="mt-8 inline-flex items-center gap-3 p-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold">
             <button
               onClick={() => setIsAnnual(false)}
               className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${
-                !isAnnual ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-500 hover:text-zinc-900'
+                !isAnnual ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
               }`}
             >
               Facturación Mensual
@@ -94,23 +96,51 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
             <button
               onClick={() => setIsAnnual(true)}
               className={`px-4 py-2 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
-                isAnnual ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-500 hover:text-zinc-900'
+                isAnnual ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
               }`}
             >
               <span>Facturación Anual</span>
-              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+              <span className="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
                 -20% Ahorro
               </span>
             </button>
           </div>
 
+          {/* Perspective Interactive Box: ¿Qué porcentaje de 1 noche representa? */}
+          <div className="mt-8 max-w-2xl mx-auto bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-emerald-500/10 border border-rose-300/40 dark:border-rose-800/40 rounded-2xl p-5 shadow-xs">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-left space-y-1">
+                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-700 dark:text-rose-400">
+                  <BedDouble className="w-4 h-4" />
+                  <span>Ponelo en perspectiva: ¿Cuánto cobrás 1 noche en tu alojamiento?</span>
+                </div>
+                <p className="text-[11px] text-zinc-600 dark:text-zinc-300">
+                  Ingresá tu tarifa promedio para ver qué fracción de una sola noche paga todo tu mes de sistema:
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0 bg-white dark:bg-zinc-900 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-xs">
+                <span className="text-xs font-bold text-zinc-500">$</span>
+                <input
+                  type="number"
+                  min="20"
+                  max="500"
+                  value={userNightRate}
+                  onChange={(e) => setUserNightRate(Math.max(10, Number(e.target.value) || 10))}
+                  className="w-16 text-sm font-black text-zinc-900 dark:text-white bg-transparent outline-none focus:ring-0 text-center"
+                />
+                <span className="text-[11px] font-bold text-zinc-500">USD / noche</span>
+              </div>
+            </div>
+          </div>
+
           {/* Payment Methods Badges */}
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5 text-xs">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold text-[11px]">
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5 text-xs">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-semibold text-[11px]">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
               Transferencia Bancaria Directa (CBU / CVU / Alias)
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200 font-semibold text-[11px]">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 font-semibold text-[11px]">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
               PayPal (Pagos del exterior)
             </span>
@@ -120,42 +150,67 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
           {plans.map((plan) => {
             const price = isAnnual ? plan.annualPrice : plan.monthlyPrice;
+            const percentageOfNight = Math.round((price / userNightRate) * 100);
+            const nightRatio = (price / userNightRate).toFixed(1);
+
             return (
-              <div
+              <SpotlightCard
                 key={plan.id}
-                className={`rounded-2xl p-7 sm:p-8 flex flex-col justify-between transition-all relative ${
+                spotlightColor={plan.popular ? 'rgba(244, 63, 94, 0.22)' : 'rgba(24, 24, 27, 0.08)'}
+                borderColor={plan.popular ? 'rgba(244, 63, 94, 0.6)' : 'rgba(228, 228, 231, 0.8)'}
+                className={`p-7 sm:p-8 flex flex-col justify-between transition-all relative ${
                   plan.popular
-                    ? 'border-2 border-rose-500 shadow-xl bg-gradient-to-b from-rose-50/40 via-white to-white'
-                    : 'border border-zinc-200 bg-white hover:border-zinc-300 shadow-xs'
+                    ? 'border-2 border-rose-500 shadow-xl bg-gradient-to-b from-rose-50/40 via-white to-white dark:from-rose-950/20 dark:via-zinc-900 dark:to-zinc-900'
+                    : 'bg-white dark:bg-zinc-900'
                 }`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-rose-600 text-white text-[11px] font-bold px-3.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-rose-600 text-white text-[11px] font-bold px-3.5 py-1 rounded-full shadow-md flex items-center gap-1 z-20">
                     <Sparkles className="w-3 h-3" />
                     RECOMENDADO PARA SUPERHOSTS
                   </div>
                 )}
 
                 <div>
-                  <h3 className="text-xl font-bold text-zinc-900">{plan.name}</h3>
-                  <p className="text-xs text-zinc-500 mt-1">{plan.subtitle}</p>
+                  <h3 className="text-xl font-bold text-zinc-900 dark:text-white">{plan.name}</h3>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{plan.subtitle}</p>
 
-                  <div className="mt-6 flex items-baseline gap-1">
-                    <span className="text-4xl font-extrabold text-zinc-900 font-['Outfit']">${price}</span>
-                    <span className="text-sm font-medium text-zinc-500">USD / mes</span>
+                  <div className="mt-5 flex items-baseline gap-1">
+                    <span className="text-4xl font-extrabold text-zinc-900 dark:text-white font-['Outfit']">${price}</span>
+                    <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">USD / mes</span>
                   </div>
                   <p className="text-[11px] text-zinc-400 mt-1">
                     {isAnnual ? 'Facturado anualmente ($' + price * 12 + '/año)' : 'Sin compromiso de permanencia'}
                   </p>
 
-                  <div className="mt-8 pt-6 border-t border-zinc-100">
-                    <span className="text-xs font-bold text-zinc-900 uppercase tracking-wider block mb-4">
+                  {/* Night Fraction Dynamic Badge */}
+                  <div className="mt-4 p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-xs">
+                    <div className="flex items-center justify-between font-bold text-emerald-800 dark:text-emerald-300">
+                      <span className="flex items-center gap-1 text-[11px]">
+                        <BedDouble className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                        ¿Cuánto de 1 noche es?
+                      </span>
+                      <span className="text-xs font-black bg-emerald-200/80 dark:bg-emerald-900/80 px-2 py-0.5 rounded-md">
+                        {percentageOfNight}% de 1 noche
+                      </span>
+                    </div>
+                    <p className="text-[10.5px] text-emerald-700 dark:text-emerald-400 mt-1 leading-tight">
+                      {percentageOfNight <= 100 ? (
+                        <>¡Con <strong>menos de 1 noche vendida al mes</strong> ({nightRatio} noches) ya cubrís el 100% del software para tus cabañas!</>
+                      ) : (
+                        <>Se amortiza con solo <strong>{nightRatio} noches vendidas</strong> en todo el mes.</>
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="mt-6 pt-5 border-t border-zinc-100 dark:border-zinc-800">
+                    <span className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider block mb-4">
                       ¿Qué incluye?
                     </span>
                     <ul className="space-y-3">
                       {plan.features.map((feat, idx) => (
-                        <li key={idx} className="flex items-start gap-2.5 text-xs text-zinc-600">
-                          <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <li key={idx} className="flex items-start gap-2.5 text-xs text-zinc-600 dark:text-zinc-300">
+                          <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                           <span>{feat}</span>
                         </li>
                       ))}
@@ -163,13 +218,13 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
                   </div>
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-zinc-100 flex flex-col gap-2.5">
+                <div className="mt-8 pt-6 border-t border-zinc-100 dark:border-zinc-800 flex flex-col gap-2.5">
                   <button
                     onClick={() => onOpenContact(plan.name)}
                     className={`w-full py-3 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       plan.popular
-                        ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/30'
-                        : 'bg-zinc-900 hover:bg-zinc-800 text-white'
+                        ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/30 hover:scale-[1.02]'
+                        : 'bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-white text-white dark:text-zinc-900 hover:scale-[1.02]'
                     }`}
                   >
                     {plan.ctaText}
@@ -177,13 +232,13 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
 
                   <button
                     onClick={onOpenDemo}
-                    className="w-full py-2 px-3 rounded-lg text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2 px-3 rounded-lg text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Play className="w-3 h-3 text-rose-600 fill-rose-600" />
                     <span>Ver cómo se ve en la Demo</span>
                   </button>
                 </div>
-              </div>
+              </SpotlightCard>
             );
           })}
         </div>
