@@ -63,6 +63,8 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
     'Acompañamiento humano en la puesta en marcha'
   ];
 
+  const [userNightRateArs, setUserNightRateArs] = useState<number>(60000); // Default $60.000 ARS/night
+
   const plans = [
     {
       id: 'plan-4-10',
@@ -70,8 +72,8 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
       range: 'Pequeños complejos y anfitriones',
       priceMonthly: 45000,
       description: 'El sistema completo con todas las herramientas para 4 a 10 unidades.',
-      popular: true,
-      badge: 'Más elegido'
+      popular: false,
+      badge: 'Entrada'
     },
     {
       id: 'plan-10-20',
@@ -79,8 +81,8 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
       range: 'Complejos medianos, aparts y posadas',
       priceMonthly: 60000,
       description: 'El sistema completo para el volumen de 10 a 20 unidades.',
-      popular: false,
-      badge: 'Escala media'
+      popular: true,
+      badge: 'MÁS ELEGIDO'
     },
     {
       id: 'plan-20-30',
@@ -614,6 +616,33 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                   </div>
                 </div>
 
+                {/* Perspective Interactive Box: ¿Qué porcentaje de 1 noche representa? */}
+                <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-rose-500/10 to-amber-500/10 border border-emerald-300/60 dark:border-emerald-700/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="text-left space-y-0.5">
+                    <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-400">
+                      <BedDouble className="w-4 h-4 text-emerald-600" />
+                      <span>Ponelo en perspectiva: ¿Cuánto cobrás por noche en tu alojamiento?</span>
+                    </div>
+                    <p className="text-[11px] text-zinc-600 dark:text-zinc-300">
+                      Ingresá tu tarifa promedio para ver qué porcentaje de <strong>una sola noche</strong> paga todo tu abono mensual:
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0 bg-white dark:bg-zinc-900 px-3 py-1.5 rounded-xl border border-zinc-300 dark:border-zinc-700 shadow-2xs">
+                    <span className="text-xs font-bold text-zinc-500">$</span>
+                    <input
+                      type="number"
+                      min="15000"
+                      max="500000"
+                      step="5000"
+                      value={userNightRateArs}
+                      onChange={(e) => setUserNightRateArs(Math.max(5000, Number(e.target.value) || 5000))}
+                      className="w-24 text-sm font-black text-zinc-900 dark:text-white bg-transparent outline-none focus:ring-0 text-center"
+                    />
+                    <span className="text-[11px] font-bold text-zinc-500">ARS / noche</span>
+                  </div>
+                </div>
+
                 <div className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-zinc-800 bg-zinc-100 px-3 py-1.5 rounded-lg border border-zinc-200">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Mismo sistema 100% integral para todos: no te recortamos ninguna función según el plan.</span>
@@ -622,74 +651,100 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
 
               {/* 3 Explicit Pricing Cards + Custom +30 */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {plans.map((plan) => (
-                  <div
-                    key={plan.id}
-                    className={`rounded-2xl p-6 border transition-all flex flex-col justify-between relative ${
-                      plan.popular
-                        ? 'bg-white border-rose-500 shadow-xl shadow-rose-500/10 ring-2 ring-rose-500/20'
-                        : 'bg-zinc-50 border-zinc-200'
-                    }`}
-                  >
-                    {plan.popular && (
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-rose-600 text-white text-[11px] font-black tracking-wider uppercase px-3 py-1 rounded-full shadow-xs">
-                        {plan.badge}
-                      </span>
-                    )}
+                {plans.map((plan) => {
+                  const percentageOfNight = Math.round((plan.priceMonthly / userNightRateArs) * 100);
+                  const nightFraction = (plan.priceMonthly / userNightRateArs).toFixed(1);
 
-                    <div>
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-extrabold text-zinc-900 text-xl">{plan.name}</h4>
-                      </div>
-                      <span className="inline-block text-xs font-semibold text-zinc-500 mt-0.5">
-                        {plan.range}
-                      </span>
-                      <p className="text-xs text-zinc-600 mt-2 min-h-[32px]">{plan.description}</p>
+                  return (
+                    <div
+                      key={plan.id}
+                      className={`rounded-2xl p-6 border transition-all flex flex-col justify-between relative ${
+                        plan.popular
+                          ? 'bg-white border-rose-500 shadow-xl shadow-rose-500/10 ring-2 ring-rose-500/20'
+                          : 'bg-zinc-50 border-zinc-200'
+                      }`}
+                    >
+                      {plan.popular && (
+                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-rose-600 text-white text-[11px] font-black tracking-wider uppercase px-3.5 py-1 rounded-full shadow-xs flex items-center gap-1 z-10">
+                          <Sparkles className="w-3 h-3" />
+                          {plan.badge}
+                        </span>
+                      )}
 
-                      {/* Price display in ARS */}
-                      <div className="mt-5 pb-5 border-b border-zinc-200">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-3xl sm:text-4xl font-black text-zinc-900">
-                            ${plan.priceMonthly.toLocaleString('es-AR')}
-                          </span>
-                          <span className="text-xs font-semibold text-zinc-500">/ mes</span>
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-extrabold text-zinc-900 text-xl">{plan.name}</h4>
                         </div>
-                        <p className="text-[11px] text-zinc-500 mt-1">
-                          Abono fijo en pesos argentinos (ajustado por IPC)
-                        </p>
+                        <span className="inline-block text-xs font-semibold text-zinc-500 mt-0.5">
+                          {plan.range}
+                        </span>
+                        <p className="text-xs text-zinc-600 mt-2 min-h-[32px]">{plan.description}</p>
+
+                        {/* Price display in ARS */}
+                        <div className="mt-5 pb-4 border-b border-zinc-200">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-3xl sm:text-4xl font-black text-zinc-900">
+                              ${plan.priceMonthly.toLocaleString('es-AR')}
+                            </span>
+                            <span className="text-xs font-semibold text-zinc-500">/ mes</span>
+                          </div>
+                          <p className="text-[11px] text-zinc-500 mt-1">
+                            Abono fijo en pesos argentinos (ajustado por IPC)
+                          </p>
+                        </div>
+
+                        {/* Night Fraction Dynamic Badge */}
+                        <div className="mt-3 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs">
+                          <div className="flex items-center justify-between font-bold text-emerald-900">
+                            <span className="flex items-center gap-1 text-[11px]">
+                              <BedDouble className="w-3.5 h-3.5 text-emerald-600" />
+                              ¿Cuánto de 1 noche es?
+                            </span>
+                            <span className="text-xs font-black bg-emerald-200/90 text-emerald-900 px-2 py-0.5 rounded-md">
+                              {percentageOfNight}% de 1 noche
+                            </span>
+                          </div>
+                          <p className="text-[10.5px] text-emerald-800 mt-1 leading-tight">
+                            {percentageOfNight <= 100 ? (
+                              <>¡Con <strong>menos de 1 noche vendida al mes</strong> ({nightFraction} noches) ya cubrís el 100% del software!</>
+                            ) : (
+                              <>Se amortiza con solo <strong>{nightFraction} noches vendidas</strong> en todo el mes.</>
+                            )}
+                          </p>
+                        </div>
+
+                        {/* Features List (Identical complete service for all) */}
+                        <div className="mt-5">
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-3">
+                            Incluye el sistema completo:
+                          </p>
+                          <ul className="space-y-2 text-xs text-zinc-700">
+                            {commonFeatures.map((feature, idx) => (
+                              <li key={idx} className="flex items-start gap-2">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
 
-                      {/* Features List (Identical complete service for all) */}
-                      <div className="mt-5">
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-3">
-                          Incluye el sistema completo:
-                        </p>
-                        <ul className="space-y-2 text-xs text-zinc-700">
-                          {commonFeatures.map((feature, idx) => (
-                            <li key={idx} className="flex items-start gap-2">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                              <span>{feature}</span>
-                            </li>
-                          ))}
-                        </ul>
+                      {/* CTA Button */}
+                      <div className="mt-8 pt-4 border-t border-zinc-100">
+                        <button
+                          onClick={() => onOpenContact(`Consulta por Plan ${plan.name} ($${plan.priceMonthly.toLocaleString('es-AR')})`)}
+                          className={`w-full py-3 rounded-xl font-bold text-xs transition-all cursor-pointer text-center ${
+                            plan.popular
+                              ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/20'
+                              : 'bg-zinc-900 hover:bg-zinc-800 text-white'
+                          }`}
+                        >
+                          Empezar con {plan.name}
+                        </button>
                       </div>
                     </div>
-
-                    {/* CTA Button */}
-                    <div className="mt-8 pt-4 border-t border-zinc-100">
-                      <button
-                        onClick={() => onOpenContact(`Consulta por Plan ${plan.name} ($${plan.priceMonthly.toLocaleString('es-AR')})`)}
-                        className={`w-full py-3 rounded-xl font-bold text-xs transition-all cursor-pointer text-center ${
-                          plan.popular
-                            ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/20'
-                            : 'bg-zinc-900 hover:bg-zinc-800 text-white'
-                        }`}
-                      >
-                        Empezar con {plan.name}
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* +30 Properties Custom Plan Banner */}
