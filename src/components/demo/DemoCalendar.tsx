@@ -672,12 +672,11 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                     const isContinuingFromBefore = checkInIndex === -1 && cleanCheckIn < startDateStr;
                     const isContinuingAfter = checkOutIndex === -1 && cleanCheckOut > endDateStr;
 
-                    // Standard PMS Half-Day Split Math:
-                    // CheckIn starts at 50% of the check-in day column (~14hs) unless continuing from before
-                    // CheckOut ends at 50% of the check-out day column (~10hs) unless continuing after
-                    const startFraction = checkInIndex >= 0 ? checkInIndex + 0.5 : 0;
-                    const endFraction = checkOutIndex >= 0 ? checkOutIndex + 0.5 : DAYS_TO_SHOW;
-                    const spanFraction = Math.max(0.4, endFraction - startFraction);
+                    // Exact Night-Based Column Math (Every column represents the night stayed):
+                    // If check-in is day 3 and check-out is day 4 (1 night), it cleanly occupies day 3 (span = 1 column).
+                    const startFraction = checkInIndex >= 0 ? checkInIndex : 0;
+                    const endFraction = checkOutIndex >= 0 ? checkOutIndex : DAYS_TO_SHOW;
+                    const spanFraction = Math.max(1, endFraction - startFraction);
 
                     const leftPercent = (startFraction / DAYS_TO_SHOW) * 100;
                     const widthPercent = (spanFraction / DAYS_TO_SHOW) * 100;
@@ -696,31 +695,15 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                           className={`w-full h-full relative ${
                             isContinuingFromBefore ? 'rounded-l-none' : 'rounded-l-lg'
                           } ${
-                            isContinuingAfter ? 'rounded-r-none' : 'rounded-r-lg'
-                          } px-2 sm:px-2.5 py-1 flex items-center justify-between text-left text-xs font-semibold cursor-pointer shadow-xs border transition-all hover:scale-[1.01] hover:brightness-110 hover:shadow-md hover:z-30 overflow-hidden ${getPlatformColors(
+                            isContinuingAfter ? 'rounded-r-none' : 'rounded-r-md'
+                          } pl-2 sm:pl-2.5 pr-4 py-1 flex items-center justify-between text-left text-xs font-semibold cursor-pointer shadow-xs border transition-all hover:scale-[1.01] hover:brightness-110 hover:shadow-md hover:z-30 overflow-hidden ${getPlatformColors(
                             res.platform
-                          )} ${
-                            hasTurnover
-                              ? 'border-amber-400/70 dark:border-amber-400/60 shadow-amber-500/10'
-                              : ''
-                          }`}
-                          title={`${res.guestName} (${res.platform.toUpperCase()}) · ${formatDisplayDate(
+                          )}`}
+                          title={`${res.guestName} (${res.platform.toUpperCase()}) · Entrada: ${formatDisplayDate(
                             res.checkIn
-                          )} al ${formatDisplayDate(res.checkOut)} · $${res.totalAmount}${
-                            hasTurnover
-                              ? `\n\n🔄 DÍA DE RECAMBIO COMPARTIDO:${
-                                  incomingTurnover
-                                    ? `\n↘ ENTRADA: Llega a las 14:00 hs (tras el check-out de ${incomingTurnover.guestName} a las 10:00 hs)`
-                                    : ''
-                                }${
-                                  outgoingTurnover
-                                    ? `\n↗ SALIDA: Deja el depto a las 10:00 hs (ingresa ${outgoingTurnover.guestName} a las 14:00 hs)`
-                                    : ''
-                                }`
-                              : ''
-                          }`}
+                          )} · Salida: ${formatDisplayDate(res.checkOut)} · $${res.totalAmount}`}
                         >
-                          <div className="flex items-center gap-1.5 truncate min-w-0 pr-1">
+                          <div className="flex items-center gap-1.5 truncate min-w-0 pr-1 z-10">
                             {res.platform === 'airbnb' && res.airbnbFeeMode === 'traditional_3' && (
                               <span
                                 className="text-[9px] font-extrabold px-1 py-0.2 rounded bg-white/25 text-white shrink-0"
@@ -739,16 +722,27 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                               </span>
                             )}
 
-                            <span className="font-bold text-xs truncate">
+                            <span className="font-bold text-xs truncate drop-shadow-xs">
                               {res.guestName}
                             </span>
                           </div>
 
-                          <div className="hidden sm:flex items-center gap-1.5 text-[10px] opacity-90 shrink-0 font-medium">
+                          <div className="hidden sm:flex items-center gap-1.5 text-[10px] opacity-90 shrink-0 font-medium z-10 mr-1">
                             {res.totalAmount !== undefined && (
                               <span className="font-bold">${res.totalAmount}</span>
                             )}
                           </div>
+
+                          {/* Check-out Transparent Chevron Arrow Cap on the right end */}
+                          {!isContinuingAfter && (
+                            <div
+                              className="absolute right-0 top-0 bottom-0 w-3.5 bg-black/25 dark:bg-black/40 flex items-center justify-center pointer-events-none"
+                              style={{
+                                clipPath: 'polygon(0% 0%, 55% 50%, 0% 100%, 45% 100%, 100% 50%, 45% 0%)',
+                              }}
+                              title={`Check-out: ${formatDisplayDate(res.checkOut)}`}
+                            />
+                          )}
                         </button>
                       </div>
                     );
