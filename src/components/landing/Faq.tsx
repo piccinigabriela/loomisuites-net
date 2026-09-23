@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, HelpCircle } from 'lucide-react';
+import { ChevronDown, HelpCircle, Mail } from 'lucide-react';
 
 export const Faq: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -86,6 +86,22 @@ export const Faq: React.FC = () => {
               </div>
             );
           })}
+        </div>
+
+        {/* Still have questions card */}
+        <div className="mt-12 p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-center max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-left">
+            <h4 className="text-sm font-bold text-zinc-900 dark:text-white">¿Tenés otra duda o consulta particular?</h4>
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Nuestro equipo de soporte y asesores te responderá a la brevedad.</p>
+          </div>
+          <a
+            href="mailto:contacto@loomisuite.net"
+            className="shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#c46d45] hover:bg-[#b85e35] text-white text-xs font-bold transition-colors shadow-xs"
+            title="Escribir a contacto@loomisuite.net"
+          >
+            <Mail className="w-3.5 h-3.5" />
+            <span>contacto@loomisuite.net</span>
+          </a>
         </div>
       </div>
     </section>

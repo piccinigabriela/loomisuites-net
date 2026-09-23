@@ -17,7 +17,7 @@ export const FeatureBento: React.FC<FeatureBentoProps> = ({ onOpenDemo }) => {
             Todo lo que necesitas, sin los enredos de los sistemas de grandes hoteles
           </h2>
           <p className="mt-3 text-base text-zinc-600">
-            Diseñado a medida para <strong>complejos de cabañas, bed & breakfasts, pequeños hostales y posadas boutique</strong>. Fácil de entender y usar desde el primer día.
+            Diseñado a medida para <strong>complejos de cabañas, glampings, domos, departamentos y posadas boutique</strong>. Fácil de entender y usar desde el primer día.
           </p>
         </div>
 

@@ -20,32 +20,35 @@ export const Hero: React.FC<HeroProps> = ({ onOpenDemo, onOpenContact }) => {
           {/* Trust pill */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#f4eee7] dark:bg-[#28201a] border border-[#e4d6c9] dark:border-[#48372b] text-[#9c512a] dark:text-[#d88d5e] text-xs font-bold mb-6 shadow-2xs">
             <Sparkles className="w-3.5 h-3.5 text-[#c46d45] dark:text-[#d88d5e]" />
-            <span>El PMS ágil para Complejos de Cabañas, B&B, Hostales y Posadas</span>
+            <span>El PMS ágil para Cabañas, Glampings, Domos, Posadas y Departamentos</span>
           </div>
 
           {/* Main Headline */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#1c1b18] dark:text-[#ffffff] tracking-tight leading-[1.12]">
-            El software simple para tus cabañas y habitaciones, <span className="text-[#c46d45] dark:text-[#d88d5e]">sin la pesadez de los sistemas hoteleros gigantes</span>
+            El software simple para tus cabañas, glampings y departamentos, <span className="text-[#c46d45] dark:text-[#d88d5e]">sin la pesadez de los sistemas hoteleros gigantes</span>
           </h1>
 
           {/* Subtitle */}
           <p className="mt-6 text-lg sm:text-xl text-[#66625a] dark:text-[#a8a5a0] leading-relaxed max-w-2xl mx-auto font-normal">
-            Hecho para alojamientos independientes de <strong>4 a 30+ unidades</strong>. Reemplaza el cuaderno o el Excel con un <strong>rack visual intuitivo</strong>: sincroniza Booking y Airbnb sin dobles reservas, organiza la limpieza por cabaña/habitación y gestiona tus reservas directas de manera ágil.
+            Hecho para alojamientos independientes de <strong>4 a 30+ unidades</strong>. Reemplaza el cuaderno o el Excel con un <strong>rack visual intuitivo</strong>: sincroniza Booking y Airbnb sin dobles reservas, organiza la limpieza y extras de tus unidades y gestiona tus reservas directas de manera ágil.
           </p>
 
           {/* Accommodation Types Badges */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2 max-w-xl mx-auto">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2 max-w-2xl mx-auto">
             <span className="px-3 py-1 rounded-xl bg-[#edeae2] dark:bg-[#202020] border border-[#ded9cd] dark:border-[#333] text-[#3c3933] dark:text-[#d8d5cf] text-xs font-semibold">
               🌲 Complejos de cabañas
             </span>
-            <span className="px-3 py-1 rounded-xl bg-[#edeae2] dark:bg-[#202020] border border-[#ded9cd] dark:border-[#333] text-[#3c3933] dark:text-[#d8d5cf] text-xs font-semibold">
-              ☕ Bed & Breakfast (B&B)
+            <span className="px-3 py-1 rounded-xl bg-[#f8efe6] dark:bg-[#2a2017] border border-[#e2cfbd] dark:border-[#4a3625] text-[#9c512a] dark:text-[#d88d5e] text-xs font-bold">
+              ⛺ Glampings & Domos
             </span>
             <span className="px-3 py-1 rounded-xl bg-[#edeae2] dark:bg-[#202020] border border-[#ded9cd] dark:border-[#333] text-[#3c3933] dark:text-[#d8d5cf] text-xs font-semibold">
-              🛏️ Hostales independientes
+              🏢 Departamentos turísticos
             </span>
             <span className="px-3 py-1 rounded-xl bg-[#edeae2] dark:bg-[#202020] border border-[#ded9cd] dark:border-[#333] text-[#3c3933] dark:text-[#d8d5cf] text-xs font-semibold">
               🏡 Posadas y lodges turísticos
+            </span>
+            <span className="px-3 py-1 rounded-xl bg-[#edeae2] dark:bg-[#202020] border border-[#ded9cd] dark:border-[#333] text-[#3c3933] dark:text-[#d8d5cf] text-xs font-semibold">
+              ☕ Bed & Breakfast (B&B)
             </span>
           </div>
 
@@ -97,7 +100,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenDemo, onOpenContact }) => {
                 <span className="w-3 h-3 rounded-full bg-[#d88d5e] inline-block" />
                 <span className="w-3 h-3 rounded-full bg-[#d9ab6a] inline-block" />
                 <span className="w-3 h-3 rounded-full bg-[#78b37e] inline-block" />
-                <span className="ml-2 font-mono text-[11px] text-[#8e8a83] hidden sm:inline">loomisuite.com/panel/demo</span>
+                <span className="ml-2 font-mono text-[11px] text-[#8e8a83] hidden sm:inline">loomisuite.net/panel/demo</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="px-2.5 py-0.5 rounded-full bg-[#202d20] text-[#a4cca8] border border-[#344836] text-[11px] font-semibold flex items-center gap-1.5">

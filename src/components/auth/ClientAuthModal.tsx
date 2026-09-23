@@ -160,6 +160,8 @@ export const ClientAuthModal: React.FC<ClientAuthModalProps> = ({
       const typeLabel =
         complexType === 'cabanas'
           ? 'Complejo de Cabañas'
+          : complexType === 'glamping'
+          ? 'Glamping & Domos'
           : complexType === 'deptos'
           ? 'Departamentos Turísticos'
           : complexType === 'posada'
@@ -747,6 +749,7 @@ export const ClientAuthModal: React.FC<ClientAuthModalProps> = ({
                   >
                     <option value="deptos">Departamentos Turísticos</option>
                     <option value="cabanas">Complejo de Cabañas</option>
+                    <option value="glamping">Glamping & Domos Geodésicos</option>
                     <option value="posada">Posada & Apart Hotel</option>
                     <option value="hostel">Hostal / B&B</option>
                   </select>

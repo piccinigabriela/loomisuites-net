@@ -25,7 +25,8 @@ import {
   PlusCircle,
   Flower2,
   Wine,
-  Globe
+  Globe,
+  Tent
 } from 'lucide-react';
 
 interface QuestionsHubProps {
@@ -48,7 +49,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
   };
-  const [selectedPropertyProfile, setSelectedPropertyProfile] = useState<'cabanas' | 'deptos' | 'posadas'>('deptos');
+  const [selectedPropertyProfile, setSelectedPropertyProfile] = useState<'cabanas' | 'deptos' | 'posadas' | 'glamping'>('deptos');
 
   // All plans include the exact SAME 100% complete system features
   const commonFeatures = [
@@ -333,7 +334,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3">
                   Tocá tu tipo de alojamiento para ver cómo te ayuda:
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   <button
                     onClick={() => setSelectedPropertyProfile('deptos')}
                     className={`p-3.5 rounded-xl text-left border transition-all cursor-pointer flex items-center gap-3 ${
@@ -344,8 +345,8 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                   >
                     <Building2 className="w-5 h-5 text-blue-600 shrink-0" />
                     <div>
-                      <p className="text-sm font-bold">Departamentos Turísticos</p>
-                      <p className="text-xs text-zinc-500">De 4 a 30+ unidades urbanas</p>
+                      <p className="text-sm font-bold">Departamentos</p>
+                      <p className="text-xs text-zinc-500">De 4 a 30+ unidades</p>
                     </div>
                   </button>
 
@@ -359,8 +360,23 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                   >
                     <Home className="w-5 h-5 text-emerald-600 shrink-0" />
                     <div>
-                      <p className="text-sm font-bold">Complejo de Cabañas</p>
+                      <p className="text-sm font-bold">Cabañas & Lodges</p>
                       <p className="text-xs text-zinc-500">En sierras, campo o lago</p>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedPropertyProfile('glamping')}
+                    className={`p-3.5 rounded-xl text-left border transition-all cursor-pointer flex items-center gap-3 ${
+                      selectedPropertyProfile === 'glamping'
+                        ? 'bg-white border-amber-600 shadow-xs ring-1 ring-amber-600 text-zinc-900'
+                        : 'bg-white/60 border-zinc-200 text-zinc-600 hover:bg-white'
+                    }`}
+                  >
+                    <Tent className="w-5 h-5 text-amber-600 shrink-0" />
+                    <div>
+                      <p className="text-sm font-bold">Glampings & Domos</p>
+                      <p className="text-xs text-zinc-500">Tiendas, domos & pods</p>
                     </div>
                   </button>
 
@@ -415,6 +431,24 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                       <li className="flex items-center gap-2">✅ Mapa de llegada por ruta y recomendaciones locales</li>
                       <li className="flex items-center gap-2">✅ Estado visual de cabañas ocupadas vs. listas</li>
                       <li className="flex items-center gap-2">✅ Control de señas y depósitos por transferencia bancaria</li>
+                    </ul>
+                  </div>
+                )}
+
+                {selectedPropertyProfile === 'glamping' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-amber-900 font-bold text-lg">
+                      <Tent className="w-5 h-5 text-amber-600" />
+                      <span>Si gestionás un Glamping, Domos Geodésicos o Ecoalojamiento:</span>
+                    </div>
+                    <p className="text-sm text-zinc-700 leading-relaxed">
+                      Los glampings tienen una magia única y una operativa dispersa en la naturaleza: tus huéspedes necesitan indicaciones claras para llegar, cómo encender la salamandra o usar el jacuzzi nórdico, y vos necesitás coordinar leña, desayunos y limpieza sin volverte loco por WhatsApp.
+                    </p>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-semibold text-zinc-800">
+                      <li className="flex items-center gap-2">✅ Guía digital con instrucciones de estufa, jacuzzi, fogón y entorno</li>
+                      <li className="flex items-center gap-2">✅ Mapa GPS de acceso exacto antes de que pierdan señal en la ruta</li>
+                      <li className="flex items-center gap-2">✅ Control de unidades dispersas (Domo 1, Domo 2, Safari Tent)</li>
+                      <li className="flex items-center gap-2">✅ Coordinación de extras: canastas de desayuno, leña y cenas</li>
                     </ul>
                   </div>
                 )}

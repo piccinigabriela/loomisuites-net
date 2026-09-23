@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, MessageCircle, Heart } from 'lucide-react';
+import { ShieldCheck, MessageCircle, Heart, Mail } from 'lucide-react';
 import { LoomiLogo } from '../common/LoomiLogo';
 
 interface FooterProps {
@@ -23,6 +23,16 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
             <div className="mt-4 flex items-center gap-2 text-xs text-[#a4cca8] font-medium">
               <ShieldCheck className="w-4 h-4 text-[#78b37e]" />
               <span>Sincronización encriptada SSL 256-bit</span>
+            </div>
+            <div className="mt-3">
+              <a
+                href="mailto:contacto@loomisuite.net"
+                className="inline-flex items-center gap-2 text-xs text-[#d88d5e] hover:text-[#e8a378] font-medium transition-colors"
+                title="Escribir a contacto@loomisuite.net"
+              >
+                <Mail className="w-3.5 h-3.5 text-[#c46d45]" />
+                <span>contacto@loomisuite.net</span>
+              </a>
             </div>
           </div>
 
@@ -76,25 +86,41 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
             </p>
             <button
               onClick={onOpenDemo}
-              className="w-full text-xs font-bold py-2.5 px-4 bg-[#c46d45] hover:bg-[#b85e35] text-white rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer mb-3 shadow-md shadow-[#c46d45]/20"
+              className="w-full text-xs font-bold py-2.5 px-4 bg-[#c46d45] hover:bg-[#b85e35] text-white rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer mb-2.5 shadow-md shadow-[#c46d45]/20"
             >
               <span>Abrir Demo en Vivo</span>
             </button>
             <button
               onClick={onOpenContact}
-              className="w-full text-xs font-bold py-2 px-3 text-[#d0cdc8] hover:text-white hover:bg-[#202020] rounded-xl border border-[#333] flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+              className="w-full text-xs font-bold py-2 px-3 text-[#d0cdc8] hover:text-white hover:bg-[#202020] rounded-xl border border-[#333] flex items-center justify-center gap-1.5 cursor-pointer transition-all mb-2"
             >
               <MessageCircle className="w-3.5 h-3.5 text-[#78b37e]" />
               <span>Contactar Asesor Humano</span>
             </button>
+            <a
+              href="mailto:contacto@loomisuite.net"
+              className="w-full text-xs font-semibold py-2 px-3 text-[#b5b1a8] hover:text-[#f4f2ee] hover:bg-[#202020] rounded-xl border border-[#2d2a26] flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+              title="Enviar correo a contacto@loomisuite.net"
+            >
+              <Mail className="w-3.5 h-3.5 text-[#d88d5e]" />
+              <span>contacto@loomisuite.net</span>
+            </a>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#78746c]">
           <p>© {new Date().getFullYear()} Loomi Suite. Todos los derechos reservados.</p>
-          <div className="flex items-center gap-4 text-xs">
-            <span>Diseñado para alojamientos independientes</span>
+          <div className="flex flex-wrap items-center gap-4 text-xs">
+            <a
+              href="mailto:contacto@loomisuite.net"
+              className="hover:text-[#d88d5e] transition-colors flex items-center gap-1.5 text-[#9e9b94]"
+            >
+              <Mail className="w-3.5 h-3.5 text-[#c46d45]" />
+              <span>contacto@loomisuite.net</span>
+            </a>
+            <span className="hidden sm:inline">•</span>
+            <span>Diseñado para cabañas, glampings, domos y alojamientos independientes</span>
           </div>
         </div>
       </div>

@@ -23,13 +23,13 @@ export const PainVersusGain: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-14">
           <span className="text-xs font-bold text-rose-600 uppercase tracking-wider">
-            La transformación en tu complejo o posada
+            La transformación en tu complejo, glamping o posada
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight mt-2">
             Dejar el cuaderno y el Excel para tener el control total en tu celular
           </h2>
           <p className="mt-3 text-base text-zinc-600">
-            La diferencia entre vivir estresado respondiendo mensajes y gestionar tus cabañas o habitaciones con serenidad.
+            La diferencia entre vivir estresado respondiendo mensajes y gestionar tus cabañas, domos o departamentos con serenidad.
           </p>
         </div>
 

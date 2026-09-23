@@ -65,7 +65,7 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
         <div>
           <h3 className="text-base font-bold text-[#1c1b18] dark:text-[#f4f2ee] flex items-center gap-2">
             <Building2 className="w-5 h-5 text-[#c46d45] dark:text-[#d88d5e]" />
-            <span>Departamentos y Cabañas ({demoState.properties.length})</span>
+            <span>Unidades: Cabañas, Domos y Deptos ({demoState.properties.length})</span>
           </h3>
           <p className="text-xs text-[#78746c] dark:text-[#8e8c87] mt-0.5">
             Tarifas base por noche, accesos (llaves/cerraduras) y enlaces de reserva directa para WhatsApp.
