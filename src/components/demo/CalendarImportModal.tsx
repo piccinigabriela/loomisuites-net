@@ -174,21 +174,36 @@ function smartMatchProperty(
       const normRaw = normalizeString(cleanRaw);
       const upperRaw = cleanRaw.toUpperCase().trim();
 
+      // Find by explicit unit letter helper
+      const findPropByLetter = (letter: 'A' | 'B' | 'C' | 'D') => {
+        const lowerLetter = letter.toLowerCase();
+        return safeProps.find(p => {
+          const id = (p?.id || '').toLowerCase();
+          const name = (p?.name || '').toUpperCase();
+          if (id === `cat-${lowerLetter}` || id === `prop-${letter === 'A' ? 1 : letter === 'B' ? 2 : letter === 'C' ? 3 : 4}`) return true;
+          if (id.endsWith(`-${lowerLetter}`) || id.endsWith(`_${lowerLetter}`)) return true;
+          // Match standalone letter with word boundaries: "Departamento D", "Cabaña D (Estudio)"
+          if (new RegExp(`(?:\\b|\\s|\\()${letter}(?:\\b|\\s|\\))`, 'i').test(name)) return true;
+          if (name.endsWith(` ${letter}`) || name.endsWith(`(${letter})`)) return true;
+          return false;
+        });
+      };
+
       // Direct Argentine Apartment Naming (1A, 1B, 2C, 2D, PB5, Depto A, etc.)
       if (upperRaw === '1A' || upperRaw === 'A' || upperRaw === 'DEPTO A' || upperRaw === 'DEPARTAMENTO A' || upperRaw === 'PB5' || upperRaw === 'PB 5') {
-        const propA = safeProps.find(p => p.id === 'cat-a' || p.id === 'prop-1' || p.name.includes('A'));
+        const propA = findPropByLetter('A');
         if (propA) return propA.id;
       }
       if (upperRaw === '1B' || upperRaw === 'B' || upperRaw === 'DEPTO B' || upperRaw === 'DEPARTAMENTO B') {
-        const propB = safeProps.find(p => p.id === 'cat-b' || p.id === 'prop-2' || p.name.includes('B'));
+        const propB = findPropByLetter('B');
         if (propB) return propB.id;
       }
       if (upperRaw === '2C' || upperRaw === 'C' || upperRaw === 'DEPTO C' || upperRaw === 'DEPARTAMENTO C') {
-        const propC = safeProps.find(p => p.id === 'cat-c' || p.id === 'prop-3' || p.name.includes('C'));
+        const propC = findPropByLetter('C');
         if (propC) return propC.id;
       }
       if (upperRaw === '2D' || upperRaw === 'D' || upperRaw === 'DEPTO D' || upperRaw === 'DEPARTAMENTO D') {
-        const propD = safeProps.find(p => p.id === 'cat-d' || p.id === 'prop-6' || p.name.includes('D'));
+        const propD = findPropByLetter('D');
         if (propD) return propD.id;
       }
 
@@ -201,16 +216,14 @@ function smartMatchProperty(
         }
       }
 
-      // Single letter match (or letter after number like 1A -> A)
+      // Extract trailing letter (e.g. "2D" -> "D", "1B" -> "B")
       const lettersInRaw = cleanRaw.replace(/[^a-zA-Z]/g, '').toUpperCase();
       if (lettersInRaw.length >= 1) {
-        const primaryLetter = lettersInRaw.charAt(lettersInRaw.length - 1); // e.g. '1A' -> 'A', 'A' -> 'A'
-        const letterMatch = safeProps.find(p => {
-          const pUpper = (p?.name || '').toUpperCase();
-          const pIdUpper = (p?.id || '').toUpperCase();
-          return pUpper.includes(` ${primaryLetter}`) || pUpper.includes(`(${primaryLetter})`) || pIdUpper.endsWith(`-${primaryLetter.toLowerCase()}`);
-        });
-        if (letterMatch) return letterMatch.id;
+        const primaryLetter = lettersInRaw.charAt(lettersInRaw.length - 1) as 'A' | 'B' | 'C' | 'D';
+        if (['A', 'B', 'C', 'D'].includes(primaryLetter)) {
+          const letterMatch = findPropByLetter(primaryLetter);
+          if (letterMatch) return letterMatch.id;
+        }
       }
 
       // Numeric match
