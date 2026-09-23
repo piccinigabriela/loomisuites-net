@@ -672,11 +672,28 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                     const isContinuingFromBefore = checkInIndex === -1 && cleanCheckIn < startDateStr;
                     const isContinuingAfter = checkOutIndex === -1 && cleanCheckOut > endDateStr;
 
-                    // Exact Night-Based Column Math (Every column represents the night stayed):
-                    // If check-in is day 3 and check-out is day 4 (1 night), it cleanly occupies day 3 (span = 1 column).
-                    const startFraction = checkInIndex >= 0 ? checkInIndex : 0;
-                    const endFraction = checkOutIndex >= 0 ? checkOutIndex : DAYS_TO_SHOW;
-                    const spanFraction = Math.max(1, endFraction - startFraction);
+                    // Exact Night & Day Span Math:
+                    // A reservation from Aug 1 (checkIn) to Aug 3 (checkOut):
+                    // Starts at Aug 1 column (checkInIndex) and spans to Aug 3 column (checkOutIndex),
+                    // placing the check-out arrow cap directly inside the Aug 3 (check-out day) column!
+                    const hasOutgoingTurnover = propertyReservations.some(
+                      (r) => r.id !== res.id && r.checkIn === cleanCheckOut
+                    );
+                    const hasIncomingTurnover = propertyReservations.some(
+                      (r) => r.id !== res.id && r.checkOut === cleanCheckIn
+                    );
+
+                    // When there is a same-day turnover on check-in: start at 35% of the day to let the previous checkout arrow breathe
+                    // When there is a same-day turnover on check-out: end at 35% of the check-out day
+                    const startFraction = checkInIndex >= 0 
+                      ? (hasIncomingTurnover ? checkInIndex + 0.35 : checkInIndex) 
+                      : 0;
+                    
+                    const endFraction = checkOutIndex >= 0 
+                      ? (hasOutgoingTurnover ? checkOutIndex + 0.35 : checkOutIndex + 0.4) 
+                      : DAYS_TO_SHOW;
+
+                    const spanFraction = Math.max(0.4, endFraction - startFraction);
 
                     const leftPercent = (startFraction / DAYS_TO_SHOW) * 100;
                     const widthPercent = (spanFraction / DAYS_TO_SHOW) * 100;
@@ -685,15 +702,15 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                       <div
                         key={res.id}
                         style={{
-                          left: `calc(${leftPercent}% + 2px)`,
-                          width: `calc(${widthPercent}% - 4px)`,
+                          left: `calc(${leftPercent}% + 1px)`,
+                          width: `calc(${widthPercent}% - 2px)`,
                         }}
                         className="absolute top-2 bottom-2 z-10 flex items-center group"
                       >
                         <button
                           onClick={() => onSelectReservation(res)}
                           className={`w-full h-full relative ${
-                            isContinuingFromBefore ? 'rounded-l-none' : 'rounded-l-lg'
+                            isContinuingFromBefore || hasIncomingTurnover ? 'rounded-l-none' : 'rounded-l-lg'
                           } ${
                             isContinuingAfter ? 'rounded-r-none' : 'rounded-r-md'
                           } pl-2 sm:pl-2.5 pr-4 py-1 flex items-center justify-between text-left text-xs font-semibold cursor-pointer shadow-xs border transition-all hover:scale-[1.01] hover:brightness-110 hover:shadow-md hover:z-30 overflow-hidden ${getPlatformColors(
@@ -701,7 +718,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                           )}`}
                           title={`${res.guestName} (${res.platform.toUpperCase()}) · Entrada: ${formatDisplayDate(
                             res.checkIn
-                          )} · Salida: ${formatDisplayDate(res.checkOut)} · $${res.totalAmount}`}
+                          )} · Salida (Check-out): ${formatDisplayDate(res.checkOut)} · $${res.totalAmount}`}
                         >
                           <div className="flex items-center gap-1.5 truncate min-w-0 pr-1 z-10">
                             {res.platform === 'airbnb' && res.airbnbFeeMode === 'traditional_3' && (
@@ -727,20 +744,20 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                             </span>
                           </div>
 
-                          <div className="hidden sm:flex items-center gap-1.5 text-[10px] opacity-90 shrink-0 font-medium z-10 mr-1">
+                          <div className="hidden sm:flex items-center gap-1.5 text-[10px] opacity-90 shrink-0 font-medium z-10 mr-2">
                             {res.totalAmount !== undefined && (
                               <span className="font-bold">${res.totalAmount}</span>
                             )}
                           </div>
 
-                          {/* Check-out Transparent Chevron Arrow Cap on the right end */}
+                          {/* Check-out Transparent Chevron Arrow Cap on the right end (Inside Check-out Day Column) */}
                           {!isContinuingAfter && (
                             <div
-                              className="absolute right-0 top-0 bottom-0 w-3.5 bg-black/25 dark:bg-black/40 flex items-center justify-center pointer-events-none"
+                              className="absolute right-0 top-0 bottom-0 w-4 bg-black/35 dark:bg-black/50 border-l border-white/20 flex items-center justify-center pointer-events-none"
                               style={{
                                 clipPath: 'polygon(0% 0%, 55% 50%, 0% 100%, 45% 100%, 100% 50%, 45% 0%)',
                               }}
-                              title={`Check-out: ${formatDisplayDate(res.checkOut)}`}
+                              title={`Salida / Check-out: ${formatDisplayDate(res.checkOut)}`}
                             />
                           )}
                         </button>
