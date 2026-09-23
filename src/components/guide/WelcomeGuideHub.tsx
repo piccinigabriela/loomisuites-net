@@ -28,14 +28,28 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<'guest-view' | 'admin-view' | 'landing-booking'>('guest-view');
   const [isMobileFrame, setIsMobileFrame] = useState<boolean>(true);
-  const [copiedLink, setCopiedLink] = useState<boolean>(false);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  const realUrl = `https://${guideData.directBookingSettings?.customDomain || 'tucomplejo.com.ar'}/bienvenida.html`;
+  // Compute slug from property name
+  const slug = guideData.propertyName.toLowerCase().includes('wood')
+    ? 'woodcabin'
+    : guideData.propertyName.toLowerCase().includes('catalinas')
+    ? 'catalinas'
+    : guideData.propertyName.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(realUrl);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2000);
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.net';
+  
+  const directLinks = {
+    guide: `${baseUrl}/guia/${slug}`,
+    booking: `${baseUrl}/reservas/${slug}`,
+    app: `${baseUrl}/app/${slug}`,
+    housekeeping: `${baseUrl}/limpieza/${slug}`,
+  };
+
+  const handleCopy = (key: string, url: string) => {
+    navigator.clipboard.writeText(url);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
   };
 
   return (
@@ -51,31 +65,89 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
             </span>
           </div>
           <h2 className="text-xl font-bold font-['Outfit']">
-            Guía Digital de Bienvenida & Landing de Reservas Directas
+            Guía Digital de Bienvenida & Enlaces Directos del Complejo
           </h2>
           <p className="text-xs text-stone-300 mt-1 max-w-2xl leading-relaxed">
-            Le entrega al huésped en su teléfono los modos de llegar, clave de WiFi en 1 clic, normas, servicios de {guideData.propertyName} y atracciones recomendadas; con un panel administrativo simple para cambiar tarifas, servicios y configuraciones en tiempo real.
+            Compartí con tus huéspedes o tu equipo los enlaces directos y limpios para acceder en 1 toque sin pasar por páginas intermedias.
           </p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <a
-            href={realUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-3.5 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
-          >
-            <span>Ver Web Original</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-
           <button
-            onClick={handleCopyLink}
+            onClick={() => handleCopy('guide', directLinks.guide)}
             className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-stone-950 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-amber-500/20 transition-all cursor-pointer"
           >
-            {copiedLink ? <Check className="w-3.5 h-3.5 text-stone-950" /> : <Share2 className="w-3.5 h-3.5" />}
-            <span>{copiedLink ? '¡Copiado!' : 'Compartir Link'}</span>
+            {copiedKey === 'guide' ? <Check className="w-3.5 h-3.5 text-stone-950" /> : <Share2 className="w-3.5 h-3.5" />}
+            <span>{copiedKey === 'guide' ? '¡Link Copiado!' : 'Copiar Link Guía Huésped'}</span>
           </button>
+        </div>
+      </div>
+
+      {/* Clean URLs bar */}
+      <div className="bg-zinc-50 dark:bg-[#1f1e1c] border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4">
+        <p className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-2.5">
+          🔗 Enlaces Directos de tu Complejo ({guideData.propertyName})
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+          <div className="bg-white dark:bg-[#282622] p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 flex flex-col justify-between">
+            <div>
+              <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                📱 Guía del Huésped
+              </span>
+              <p className="text-xs font-mono text-zinc-600 dark:text-zinc-300 truncate mt-1">/guia/{slug}</p>
+            </div>
+            <button
+              onClick={() => handleCopy('guide_bar', directLinks.guide)}
+              className="mt-2 text-[11px] font-bold text-[#c46d45] hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              {copiedKey === 'guide_bar' ? '✓ Copiado' : 'Copiar enlace'}
+            </button>
+          </div>
+
+          <div className="bg-white dark:bg-[#282622] p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 flex flex-col justify-between">
+            <div>
+              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                📅 Motor de Reservas Directas
+              </span>
+              <p className="text-xs font-mono text-zinc-600 dark:text-zinc-300 truncate mt-1">/reservas/{slug}</p>
+            </div>
+            <button
+              onClick={() => handleCopy('booking_bar', directLinks.booking)}
+              className="mt-2 text-[11px] font-bold text-[#c46d45] hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              {copiedKey === 'booking_bar' ? '✓ Copiado' : 'Copiar enlace'}
+            </button>
+          </div>
+
+          <div className="bg-white dark:bg-[#282622] p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 flex flex-col justify-between">
+            <div>
+              <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                💼 Panel de Gestión (App)
+              </span>
+              <p className="text-xs font-mono text-zinc-600 dark:text-zinc-300 truncate mt-1">/app/{slug}</p>
+            </div>
+            <button
+              onClick={() => handleCopy('app_bar', directLinks.app)}
+              className="mt-2 text-[11px] font-bold text-[#c46d45] hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              {copiedKey === 'app_bar' ? '✓ Copiado' : 'Copiar enlace'}
+            </button>
+          </div>
+
+          <div className="bg-white dark:bg-[#282622] p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 flex flex-col justify-between">
+            <div>
+              <span className="text-[11px] font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1">
+                🧹 Checklist de Limpieza
+              </span>
+              <p className="text-xs font-mono text-zinc-600 dark:text-zinc-300 truncate mt-1">/limpieza/{slug}</p>
+            </div>
+            <button
+              onClick={() => handleCopy('clean_bar', directLinks.housekeeping)}
+              className="mt-2 text-[11px] font-bold text-[#c46d45] hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              {copiedKey === 'clean_bar' ? '✓ Copiado' : 'Copiar enlace'}
+            </button>
+          </div>
         </div>
       </div>
 

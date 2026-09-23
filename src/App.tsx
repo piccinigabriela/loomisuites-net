@@ -74,18 +74,28 @@ export default function App() {
           params.get('view') === 'superadmin' ||
           path.includes('/admin') ||
           path.includes('/superadmin') ||
-          hash.includes('admin')
+          path.includes('/master') ||
+          hash.includes('admin') ||
+          hash.includes('superadmin')
         ) {
           return 'superadmin';
         }
         if (
+          params.has('app') ||
           params.has('panel') ||
           params.has('demo') ||
+          params.has('pms') ||
+          params.has('login') ||
+          params.has('ingresar') ||
           params.has('tab') ||
           params.has('guia') ||
           params.has('guide') ||
           params.has('reservas') ||
           params.has('booking') ||
+          params.has('limpieza') ||
+          params.has('housekeeping') ||
+          params.has('calendario') ||
+          params.has('rack') ||
           params.has('onboarding') ||
           params.has('wizard') ||
           params.has('self-onboarding') ||
@@ -93,8 +103,26 @@ export default function App() {
           params.has('import') ||
           params.has('importar') ||
           params.get('view') === 'demo' ||
+          params.get('view') === 'app' ||
+          params.get('view') === 'panel' ||
+          path.includes('/app') ||
           path.includes('/panel') ||
-          path.includes('/demo')
+          path.includes('/pms') ||
+          path.includes('/demo') ||
+          path.includes('/login') ||
+          path.includes('/ingresar') ||
+          path.includes('/guia') ||
+          path.includes('/guide') ||
+          path.includes('/limpieza') ||
+          path.includes('/housekeeping') ||
+          path.includes('/reservas') ||
+          path.includes('/calendario') ||
+          path.includes('/rack') ||
+          hash.includes('app') ||
+          hash.includes('panel') ||
+          hash.includes('login') ||
+          hash.includes('guia') ||
+          hash.includes('limpieza')
         ) {
           return 'demo';
         }
@@ -107,12 +135,52 @@ export default function App() {
   const [demoTab, setDemoTab] = useState<string>(() => {
     try {
       if (typeof window !== 'undefined') {
+        const path = window.location.pathname.toLowerCase();
+        const hash = window.location.hash.toLowerCase();
         const params = new URLSearchParams(window.location.search);
-        if (params.has('guia') || params.get('tab') === 'welcome-guide' || params.get('view') === 'guide') {
+        
+        if (
+          params.has('guia') ||
+          params.has('guide') ||
+          params.get('tab') === 'welcome-guide' ||
+          params.get('view') === 'guide' ||
+          path.includes('/guia') ||
+          path.includes('/guide') ||
+          hash.includes('guia')
+        ) {
           return 'welcome-guide';
         }
-        if (params.has('reservas') || params.get('tab') === 'direct-booking' || params.get('view') === 'booking') {
+        if (
+          params.has('limpieza') ||
+          params.has('housekeeping') ||
+          params.get('tab') === 'housekeeping' ||
+          path.includes('/limpieza') ||
+          path.includes('/housekeeping') ||
+          hash.includes('limpieza')
+        ) {
+          return 'housekeeping';
+        }
+        if (
+          params.has('reservas') ||
+          params.has('booking') ||
+          params.get('tab') === 'direct-booking' ||
+          params.get('view') === 'booking' ||
+          path.includes('/reservas') ||
+          path.includes('/booking') ||
+          hash.includes('reservas')
+        ) {
           return 'direct-booking';
+        }
+        if (
+          params.has('calendario') ||
+          params.has('rack') ||
+          params.get('tab') === 'calendar' ||
+          path.includes('/calendario') ||
+          path.includes('/rack') ||
+          hash.includes('calendario') ||
+          hash.includes('rack')
+        ) {
+          return 'calendar';
         }
         if (params.get('tab')) {
           return params.get('tab')!;
@@ -123,7 +191,26 @@ export default function App() {
   });
 
   // Active Complex: Catalinas Apartamentos, Wood Cabin or Custom
-  const [activeComplex, setActiveComplex] = useState<'catalinas' | 'woodcabin' | 'custom'>('catalinas');
+  const [activeComplex, setActiveComplex] = useState<'catalinas' | 'woodcabin' | 'custom'>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const path = window.location.pathname.toLowerCase();
+        const hash = window.location.hash.toLowerCase();
+        const params = new URLSearchParams(window.location.search);
+        
+        const complexParam = params.get('complex') || params.get('c') || params.get('slug') || params.get('propiedad') || params.get('hotel');
+        if (complexParam === 'woodcabin' || path.includes('woodcabin') || hash.includes('woodcabin')) return 'woodcabin';
+        if (complexParam === 'custom' || path.includes('custom') || hash.includes('custom') || path.includes('mi-complejo') || path.includes('micomplejo')) return 'custom';
+        if (complexParam === 'catalinas' || path.includes('catalinas') || hash.includes('catalinas')) return 'catalinas';
+
+        const saved = localStorage.getItem('loomi_active_complex');
+        if (saved === 'catalinas' || saved === 'woodcabin' || saved === 'custom') {
+          return saved;
+        }
+      }
+    } catch {}
+    return 'catalinas';
+  });
 
   // User Role State: 'admin' | 'frontdesk' | 'housekeeping'
   const [userRole, setUserRole] = useState<'admin' | 'frontdesk' | 'housekeeping'>(() => {
@@ -212,7 +299,24 @@ export default function App() {
   });
 
   // Modals
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const path = window.location.pathname.toLowerCase();
+        const hash = window.location.hash.toLowerCase();
+        const params = new URLSearchParams(window.location.search);
+        return (
+          params.has('login') ||
+          params.has('ingresar') ||
+          path.includes('/login') ||
+          path.includes('/ingresar') ||
+          hash.includes('login') ||
+          hash.includes('ingresar')
+        );
+      }
+    } catch {}
+    return false;
+  });
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [selectedPlanForLead, setSelectedPlanForLead] = useState<string | undefined>();
   const [isNewResModalOpen, setIsNewResModalOpen] = useState(false);
