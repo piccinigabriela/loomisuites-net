@@ -672,107 +672,55 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                     const isContinuingFromBefore = checkInIndex === -1 && cleanCheckIn < startDateStr;
                     const isContinuingAfter = checkOutIndex === -1 && cleanCheckOut > endDateStr;
 
-                    // Standard PMS Half-Day Split Math with Diagonal Chevron Overlap:
-                    // If outgoingTurnover exists, extend the endFraction slightly to meet the incoming turnover seamlessly
-                    // If incomingTurnover exists, start from slightly earlier to interlock diagonally
-                    const startFraction = checkInIndex >= 0 
-                      ? (incomingTurnover ? checkInIndex + 0.35 : checkInIndex + 0.45) 
-                      : 0;
-                    const endFraction = checkOutIndex >= 0 
-                      ? (outgoingTurnover ? checkOutIndex + 0.65 : checkOutIndex + 0.55) 
-                      : DAYS_TO_SHOW;
+                    // Standard PMS Half-Day Split Math:
+                    // CheckIn starts at 50% of the check-in day column (~14hs) unless continuing from before
+                    // CheckOut ends at 50% of the check-out day column (~10hs) unless continuing after
+                    const startFraction = checkInIndex >= 0 ? checkInIndex + 0.5 : 0;
+                    const endFraction = checkOutIndex >= 0 ? checkOutIndex + 0.5 : DAYS_TO_SHOW;
                     const spanFraction = Math.max(0.4, endFraction - startFraction);
 
                     const leftPercent = (startFraction / DAYS_TO_SHOW) * 100;
                     const widthPercent = (spanFraction / DAYS_TO_SHOW) * 100;
 
-                    // Compute seamless diagonal cut polygon
-                    let clipPathStyle: string | undefined = undefined;
-                    if (incomingTurnover && outgoingTurnover) {
-                      clipPathStyle = 'polygon(14px 0%, 100% 0%, calc(100% - 14px) 100%, 0% 100%)';
-                    } else if (incomingTurnover) {
-                      clipPathStyle = 'polygon(14px 0%, 100% 0%, 100% 100%, 0% 100%)';
-                    } else if (outgoingTurnover) {
-                      clipPathStyle = 'polygon(0% 0%, 100% 0%, calc(100% - 14px) 100%, 0% 100%)';
-                    }
-
                     return (
                       <div
                         key={res.id}
                         style={{
-                          left: `calc(${leftPercent}% + 1px)`,
-                          width: `calc(${widthPercent}% - 2px)`,
+                          left: `calc(${leftPercent}% + 2px)`,
+                          width: `calc(${widthPercent}% - 4px)`,
                         }}
-                        className="absolute top-1.5 bottom-1.5 z-10 flex items-center group"
+                        className="absolute top-2 bottom-2 z-10 flex items-center group"
                       >
                         <button
                           onClick={() => onSelectReservation(res)}
-                          style={clipPathStyle ? { clipPath: clipPathStyle } : undefined}
                           className={`w-full h-full relative ${
-                            isContinuingFromBefore || incomingTurnover ? 'rounded-l-none' : 'rounded-l-lg'
+                            isContinuingFromBefore ? 'rounded-l-none' : 'rounded-l-lg'
                           } ${
-                            isContinuingAfter || outgoingTurnover ? 'rounded-r-none' : 'rounded-r-lg'
+                            isContinuingAfter ? 'rounded-r-none' : 'rounded-r-lg'
                           } px-2 sm:px-2.5 py-1 flex items-center justify-between text-left text-xs font-semibold cursor-pointer shadow-xs border transition-all hover:scale-[1.01] hover:brightness-110 hover:shadow-md hover:z-30 overflow-hidden ${getPlatformColors(
                             res.platform
                           )} ${
                             hasTurnover
-                              ? 'ring-1 ring-amber-400/70 shadow-amber-500/10'
+                              ? 'border-amber-400/70 dark:border-amber-400/60 shadow-amber-500/10'
                               : ''
                           }`}
                           title={`${res.guestName} (${res.platform.toUpperCase()}) · ${formatDisplayDate(
                             res.checkIn
                           )} al ${formatDisplayDate(res.checkOut)} · $${res.totalAmount}${
                             hasTurnover
-                              ? `\n\n🔄 DÍA DE RECAMBIO (MISMO DÍA):${
+                              ? `\n\n🔄 DÍA DE RECAMBIO COMPARTIDO:${
                                   incomingTurnover
-                                    ? `\n↘ ENTRADA: Llega hoy a las 14:00 hs (tras el check-out de ${incomingTurnover.guestName} a las 10:00 hs)`
+                                    ? `\n↘ ENTRADA: Llega a las 14:00 hs (tras el check-out de ${incomingTurnover.guestName} a las 10:00 hs)`
                                     : ''
                                 }${
                                   outgoingTurnover
-                                    ? `\n↗ SALIDA: Deja el depto hoy a las 10:00 hs (ingresa ${outgoingTurnover.guestName} a las 14:00 hs)`
+                                    ? `\n↗ SALIDA: Deja el depto a las 10:00 hs (ingresa ${outgoingTurnover.guestName} a las 14:00 hs)`
                                     : ''
                                 }`
                               : ''
                           }`}
                         >
-                          {/* Visual Diagonal Incoming Indicator (↘ 14hs) */}
-                          {incomingTurnover && (
-                            <div
-                              className="absolute left-0 top-0 bottom-0 w-4 bg-amber-400/90 text-amber-950 flex flex-col items-center justify-center font-black tracking-tighter text-[7.5px] leading-tight select-none pointer-events-none"
-                              title={`Llega 14:00 hs`}
-                            >
-                              <span>↘</span>
-                              <span className="text-[6.5px] font-extrabold">14h</span>
-                            </div>
-                          )}
-
-                          {/* Visual Diagonal Outgoing Indicator (↗ 10hs) */}
-                          {outgoingTurnover && (
-                            <div
-                              className="absolute right-0 top-0 bottom-0 w-4 bg-amber-400/90 text-amber-950 flex flex-col items-center justify-center font-black tracking-tighter text-[7.5px] leading-tight select-none pointer-events-none"
-                              title={`Sale 10:00 hs`}
-                            >
-                              <span>↗</span>
-                              <span className="text-[6.5px] font-extrabold">10h</span>
-                            </div>
-                          )}
-
-                          <div
-                            className={`flex items-center gap-1.5 truncate pr-1 ${
-                              incomingTurnover ? 'pl-3' : ''
-                            } ${outgoingTurnover ? 'pr-3' : ''}`}
-                          >
-                            {/* Prominent Turnover Badge on the bar */}
-                            {hasTurnover && (
-                              <span
-                                className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-amber-300 text-stone-950 shrink-0 flex items-center gap-0.5 shadow-2xs"
-                                title="Recambio mismo día: 10:00hs Salida / 14:00hs Entrada"
-                              >
-                                <RotateCw className="w-2.5 h-2.5" />
-                                <span className="hidden sm:inline">Recambio</span>
-                              </span>
-                            )}
-
+                          <div className="flex items-center gap-1.5 truncate min-w-0 pr-1">
                             {res.platform === 'airbnb' && res.airbnbFeeMode === 'traditional_3' && (
                               <span
                                 className="text-[9px] font-extrabold px-1 py-0.2 rounded bg-white/25 text-white shrink-0"
@@ -796,12 +744,10 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                             </span>
                           </div>
 
-                          <div
-                            className={`hidden sm:flex items-center gap-1.5 text-[10px] opacity-90 shrink-0 font-medium ${
-                              outgoingTurnover ? 'pr-2' : ''
-                            }`}
-                          >
-                            <span>${res.totalAmount}</span>
+                          <div className="hidden sm:flex items-center gap-1.5 text-[10px] opacity-90 shrink-0 font-medium">
+                            {res.totalAmount !== undefined && (
+                              <span className="font-bold">${res.totalAmount}</span>
+                            )}
                           </div>
                         </button>
                       </div>
