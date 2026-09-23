@@ -449,6 +449,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
   const [selectedGuestCol, setSelectedGuestCol] = useState<number>(-1);
   const [selectedCheckInCol, setSelectedCheckInCol] = useState<number>(-1);
   const [selectedCheckOutCol, setSelectedCheckOutCol] = useState<number>(-1);
+  const [selectedNightsCol, setSelectedNightsCol] = useState<number>(-1);
   const [selectedCabinCol, setSelectedCabinCol] = useState<number>(-1);
   const [selectedPlatformCol, setSelectedPlatformCol] = useState<number>(-1);
   const [selectedAmountCol, setSelectedAmountCol] = useState<number>(-1);
@@ -526,7 +527,14 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
         return;
       }
 
-      // Read Excel (.xlsx, .xls) or CSV via SheetJS
+      // If it's a CSV or text file, process as text to properly parse delimiters (;, ,, \t, |)
+      if (fileName.endsWith('.csv') || fileName.endsWith('.txt') || fileName.endsWith('.tsv')) {
+        const text = await selectedFile.text();
+        processCSVText(text);
+        return;
+      }
+
+      // Read Excel (.xlsx, .xls) via SheetJS
       const buffer = await selectedFile.arrayBuffer();
       const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
       const firstSheetName = workbook.SheetNames[0];
@@ -570,38 +578,47 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
       }
 
       const headerRow = stringRows[0] || [];
-      const headers = headerRow.map(h => (h || '').toLowerCase());
+      const headers = headerRow.map(h => (h || '').toLowerCase().trim());
 
+      // Precise column identification
       let guestIdx = headers.findIndex(h =>
-        h.includes('guest') || h.includes('nombre') || h.includes('huésped') || h.includes('huesped') ||
-        h.includes('cliente') || h.includes('pasajero') || h.includes('titular') || h.includes('name')
+        h === 'huésped' || h === 'huesped' || h === 'guest' || h === 'pasajero' || h === 'cliente' || h === 'nombre' ||
+        h.includes('huésped') || h.includes('huesped') || h.includes('nombre') || h.includes('guest') ||
+        h.includes('cliente') || h.includes('pasajero') || h.includes('titular')
       );
 
       let startIdx = headers.findIndex(h =>
-        h.includes('start') || h.includes('desde') || h.includes('entrada') || h.includes('ingreso') ||
-        h.includes('llegada') || h.includes('checkin') || h.includes('check-in') || h.includes('in')
+        h === 'check-in' || h === 'checkin' || h === 'check in' || h === 'entrada' || h === 'ingreso' || h === 'llegada' ||
+        h.includes('check-in') || h.includes('checkin') || h.includes('entrada') || h.includes('ingreso') ||
+        h.includes('llegada') || h.includes('desde') || h.includes('start')
       );
 
       let endIdx = headers.findIndex(h =>
-        h.includes('end') || h.includes('hasta') || h.includes('salida') || h.includes('egreso') ||
-        h.includes('checkout') || h.includes('check-out') || h.includes('out')
+        h === 'check-out' || h === 'checkout' || h === 'check out' || h === 'salida' || h === 'egreso' ||
+        h.includes('check-out') || h.includes('checkout') || h.includes('salida') || h.includes('egreso') ||
+        h.includes('hasta') || h.includes('end')
+      );
+
+      let nightsIdx = headers.findIndex(h =>
+        h === 'noches' || h === 'nights' || h.includes('noche') || h.includes('night')
       );
 
       let cabinIdx = headers.findIndex(h =>
-        h.includes('cabin') || h.includes('cabaña') || h.includes('cabana') || h.includes('depto') ||
-        h.includes('departamento') || h.includes('dpto') || h.includes('unidad') || h.includes('unit') ||
-        h.includes('habitacion') || h.includes('habitación') || h.includes('room')
+        h === 'depto' || h === 'departamento' || h === 'cabaña' || h === 'cabana' || h === 'unidad' || h === 'room' ||
+        h.includes('depto') || h.includes('departamento') || h.includes('cabaña') || h.includes('cabana') ||
+        h.includes('dpto') || h.includes('unidad') || h.includes('habitacion') || h.includes('habitación')
       );
 
       let platformIdx = headers.findIndex(h =>
+        h === 'plataforma' || h === 'canal' || h === 'channel' || h === 'origen' ||
         h.includes('plataforma') || h.includes('canal') || h.includes('channel') || h.includes('origen') ||
         h.includes('source')
       );
 
       let amountIdx = headers.findIndex(h =>
+        h === 'subtotal' || h === 'total' || h === 'precio' || h === 'importe' || h === 'líquido' || h === 'liquido' ||
         h.includes('subtotal') || h.includes('total') || h.includes('precio') || h.includes('importe') ||
-        h.includes('monto') || h.includes('líquido') || h.includes('liquido') || h.includes('neto') ||
-        h.includes('amount') || h.includes('price') || h.includes('tarifa')
+        h.includes('monto') || h.includes('líquido') || h.includes('liquido') || h.includes('neto')
       );
 
       // Fallback date scan
@@ -642,6 +659,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
       setSelectedGuestCol(guestIdx);
       setSelectedCheckInCol(startIdx);
       setSelectedCheckOutCol(endIdx);
+      setSelectedNightsCol(nightsIdx);
       setSelectedCabinCol(cabinIdx);
       setSelectedPlatformCol(platformIdx);
       setSelectedAmountCol(amountIdx);
@@ -662,6 +680,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
         guestIdx,
         startIdx,
         endIdx,
+        nightsIdx,
         cabinIdx,
         platformIdx,
         amountIdx,
@@ -847,6 +866,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
     gIdx: number,
     inIdx: number,
     outIdx: number,
+    nIdx: number,
     cIdx: number,
     pIdx: number,
     amtIdx: number,
@@ -854,7 +874,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
   ) => {
     try {
       const events: ParsedEvent[] = [];
-      const defaultPropertyId = safeProperties[0]?.id || 'prop-1';
+      const defaultPropertyId = safeProperties[0]?.id || 'cat-a';
 
       if (!Array.isArray(rows)) return [];
 
@@ -863,14 +883,24 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
 
         let checkIn: string | null = null;
         let checkOut: string | null = null;
+        let nightsFromRow: number | null = null;
         let guestName = '';
         let rawCabin = '';
         let platformVal = '';
         let totalAmount: number | undefined = undefined;
 
+        // Try reading explicit nights column if present
+        if (nIdx !== -1 && row[nIdx]) {
+          const parsedN = parseInt(String(row[nIdx]).replace(/[^0-9]/g, ''), 10);
+          if (!isNaN(parsedN) && parsedN > 0) {
+            nightsFromRow = parsedN;
+          }
+        }
+
         if (inIdx !== -1 && row[inIdx]) checkIn = parseAnyDate(row[inIdx]);
         if (outIdx !== -1 && row[outIdx]) checkOut = parseAnyDate(row[outIdx]);
 
+        // If dates missing or inverted, attempt recovery
         if (!checkIn || !checkOut) {
           const foundDates: string[] = [];
           row.forEach(val => {
@@ -880,7 +910,28 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
           if (foundDates.length >= 2) {
             checkIn = foundDates[0];
             checkOut = foundDates[1];
+          } else if (foundDates.length === 1 && nightsFromRow && nightsFromRow > 0) {
+            checkIn = foundDates[0];
+            const dIn = new Date(checkIn + 'T00:00:00');
+            dIn.setDate(dIn.getDate() + nightsFromRow);
+            checkOut = dIn.toISOString().split('T')[0];
           }
+        }
+
+        if (!checkIn) return;
+
+        // If checkIn > checkOut, swap them
+        if (checkIn && checkOut && checkIn > checkOut) {
+          const temp = checkIn;
+          checkIn = checkOut;
+          checkOut = temp;
+        }
+
+        // If checkOut still missing but nights exists
+        if (checkIn && !checkOut && nightsFromRow && nightsFromRow > 0) {
+          const dIn = new Date(checkIn + 'T00:00:00');
+          dIn.setDate(dIn.getDate() + nightsFromRow);
+          checkOut = dIn.toISOString().split('T')[0];
         }
 
         if (!checkIn || !checkOut) return;
@@ -901,11 +952,18 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
           if (!isNaN(num) && num > 0) totalAmount = num;
         }
 
-        const cInDate = new Date(checkIn);
-        const cOutDate = new Date(checkOut);
+        const cInDate = new Date(checkIn + 'T00:00:00');
+        const cOutDate = new Date(checkOut + 'T00:00:00');
         let nights = 1;
         if (!isNaN(cInDate.getTime()) && !isNaN(cOutDate.getTime())) {
           nights = Math.max(1, Math.round((cOutDate.getTime() - cInDate.getTime()) / (1000 * 60 * 60 * 24))) || 1;
+        }
+
+        // If nightsFromRow was provided and differs drastically from invalid checkout date, reconcile with nightsFromRow
+        if (nightsFromRow && nightsFromRow > 0 && Math.abs(nights - nightsFromRow) > 2) {
+          nights = nightsFromRow;
+          const adjustedOut = new Date(cInDate.getTime() + nightsFromRow * 86400000);
+          checkOut = adjustedOut.toISOString().split('T')[0];
         }
 
         let matchedPropertyId = defaultPropertyId;
@@ -936,12 +994,13 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
   };
 
   const handleColumnChange = (
-    type: 'guest' | 'checkIn' | 'checkOut' | 'cabin' | 'platform' | 'amount',
+    type: 'guest' | 'checkIn' | 'checkOut' | 'nights' | 'cabin' | 'platform' | 'amount',
     colIdx: number
   ) => {
     let g = selectedGuestCol;
     let ci = selectedCheckInCol;
     let co = selectedCheckOutCol;
+    let n = selectedNightsCol;
     let c = selectedCabinCol;
     let p = selectedPlatformCol;
     let a = selectedAmountCol;
@@ -949,6 +1008,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
     if (type === 'guest') { g = colIdx; setSelectedGuestCol(colIdx); }
     if (type === 'checkIn') { ci = colIdx; setSelectedCheckInCol(colIdx); }
     if (type === 'checkOut') { co = colIdx; setSelectedCheckOutCol(colIdx); }
+    if (type === 'nights') { n = colIdx; setSelectedNightsCol(colIdx); }
     if (type === 'cabin') {
       c = colIdx;
       setSelectedCabinCol(colIdx);
@@ -962,14 +1022,14 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
         });
       }
       setUnitValueMapping(newValueMap);
-      const updated = recomputeEvents(rawRows, g, ci, co, c, p, a, newValueMap);
+      const updated = recomputeEvents(rawRows, g, ci, co, n, c, p, a, newValueMap);
       setParsedEvents(updated);
       return;
     }
     if (type === 'platform') { p = colIdx; setSelectedPlatformCol(colIdx); }
     if (type === 'amount') { a = colIdx; setSelectedAmountCol(colIdx); }
 
-    const updated = recomputeEvents(rawRows, g, ci, co, c, p, a, unitValueMapping);
+    const updated = recomputeEvents(rawRows, g, ci, co, n, c, p, a, unitValueMapping);
     setParsedEvents(updated);
   };
 

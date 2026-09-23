@@ -664,27 +664,19 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                     const checkInIndex = findDateIndex(cleanCheckIn);
                     const checkOutIndex = findDateIndex(cleanCheckOut);
 
-                    // Continuing indicators (only if genuinely outside the bounds)
-                    const isContinuingFromBefore = checkInIndex === -1 && cleanCheckIn < startDateStr;
-                    const isContinuingAfter = checkOutIndex === -1 && cleanCheckOut > endDateStr;
-
-                    // Strict overlap validation to prevent rendering out-of-bounds or mismatch bars
-                    const isOverlapping = (
-                      (checkInIndex !== -1 || isContinuingFromBefore) &&
-                      (checkOutIndex !== -1 || isContinuingAfter)
-                    ) || (
-                      cleanCheckIn <= startDateStr && cleanCheckOut >= endDateStr
-                    );
-
-                    if (!isOverlapping) {
+                    // Check if reservation genuinely overlaps the 14-day window:
+                    if (cleanCheckIn >= endDateStr || cleanCheckOut <= startDateStr || cleanCheckIn >= cleanCheckOut) {
                       return null;
                     }
+
+                    const isContinuingFromBefore = checkInIndex === -1 && cleanCheckIn < startDateStr;
+                    const isContinuingAfter = checkOutIndex === -1 && cleanCheckOut > endDateStr;
 
                     // Standard PMS Half-Day Split Math:
                     // CheckIn starts at 50% of the checkIn day (afternoon ~14hs) unless continuing from before
                     // CheckOut ends at 50% of the checkOut day (morning ~10hs) unless continuing after
-                    const startFraction = isContinuingFromBefore ? 0 : checkInIndex + 0.45;
-                    const endFraction = isContinuingAfter ? DAYS_TO_SHOW : checkOutIndex + 0.55;
+                    const startFraction = checkInIndex >= 0 ? checkInIndex + 0.45 : 0;
+                    const endFraction = checkOutIndex >= 0 ? checkOutIndex + 0.55 : DAYS_TO_SHOW;
                     const spanFraction = Math.max(0.4, endFraction - startFraction);
 
                     const leftPercent = (startFraction / DAYS_TO_SHOW) * 100;
