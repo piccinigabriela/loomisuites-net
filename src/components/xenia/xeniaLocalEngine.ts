@@ -6,12 +6,46 @@ export function getClientXeniaReply(message: string, demoState: DemoState): stri
   const reservations = demoState.reservations || [];
   const cleaningTasks = demoState.cleaningTasks || [];
 
-  // 1. Precios, Planes y Métodos de Pago
+  // 1. WhatsApp, Mensajería, Plantillas y Blindaje Anti-Quejas (PRIORIDAD ALTA)
+  if (
+    q.includes('whatsapp') ||
+    q.includes('mensaje') ||
+    q.includes('mensajeria') ||
+    q.includes('mensajería') ||
+    q.includes('plantilla') ||
+    q.includes('plantillas') ||
+    q.includes('queja') ||
+    q.includes('reseña') ||
+    q.includes('resena') ||
+    q.includes('viaje') ||
+    q.includes('ruta') ||
+    q.includes('blindaje') ||
+    q.includes('comunicacion') ||
+    q.includes('comunicación')
+  ) {
+    return `### 💬 WhatsApp y Blindaje Anti-Quejas en Loomi Suite
+
+¡Hola! Te explico cómo funciona el sistema de mensajería inteligente y para qué sirve cada plantilla:
+
+1. **📱 ¿Para qué sirven las 6 Plantillas Inteligentes?**
+   - 👋 **Confirmación y Bienvenida (Día 1):** Envía el link a la Guía Digital del complejo con el mapa y recomendaciones locales.
+   - 🚗 **Coordinación en Ruta / Día de Viaje:** Para coordinar el horario de llegada en viajes largos y pedir ubicación en tiempo real.
+   - 🔑 **Acceso y Clave Wi-Fi:** Entrega la dirección exacta, el código de puerta/cerradura y los datos del Wi-Fi.
+   - 🛡️ **Control de Confort (2hs Post-Ingreso):** Mensaje clave para chequear que todo esté impecable y desactivar reclamos en privado en 10 minutos, antes de que se conviertan en una mala reseña.
+   - ⏰ **Recordatorio de Check-out:** Aviso cordial para coordinar la salida y las tareas de limpieza.
+   - 🌟 **Solicitud de Reseña 5 Estrellas:** Enviado a los huéspedes satisfechos para que califiquen con 5 estrellas e invitarlos a reservar directo.
+
+2. **⚡ Envío en 1 Toque:**
+   - No tenés que escribir nada: las plantillas toman solas el nombre del huésped, su cabaña, sus fechas y el PIN de acceso.
+   - Podés enviarlas desde la pestaña **"Avisos & WhatsApp"** o tocando el botón verde **"Chatear"** en la ficha de cualquier reserva.
+
+3. **⭐ Filtro Inteligente:**
+   - La pantalla oculta las reservas viejas y te muestra solo **"Próximas & Hoy"** o **"En Estadía"** para elegir al huésped en un segundo.`;
+  }
+
+  // 2. Precios, Planes y Métodos de Pago
   if (
     q.includes('precio') ||
-    q.includes('plan') ||
-    q.includes('planes') ||
-    q.includes('tarifa') ||
     q.includes('cuanto cuesta') ||
     q.includes('cuánto cuesta') ||
     q.includes('abono') ||
@@ -25,7 +59,11 @@ export function getClientXeniaReply(message: string, demoState: DemoState): stri
     q.includes('stripe') ||
     q.includes('tarjeta') ||
     q.includes('ipc') ||
-    q.includes('costo')
+    q.includes('costo') ||
+    ((q.includes('plan ') || q.includes('planes') || q.includes(' plan') || q === 'plan') &&
+      !q.includes('plantilla') &&
+      !q.includes('planilla')) ||
+    (q.includes('tarifa') && !q.includes('manual') && !q.includes('ical'))
   ) {
     return `### 🏷️ Planes, Precios y Formas de Pago de Loomi
 
@@ -140,45 +178,7 @@ ${activeGuests
 💡 *Tip:* Podés generar una nueva reserva con tarifas especiales o enviar la tarjeta de bienvenida por WhatsApp desde el Rack o la pestaña de Reservas.`;
   }
 
-  // 4. WhatsApp, Mensajería y Blindaje Anti-Quejas
-  if (
-    q.includes('whatsapp') ||
-    q.includes('mensaje') ||
-    q.includes('mensajeria') ||
-    q.includes('mensajería') ||
-    q.includes('plantilla') ||
-    q.includes('plantillas') ||
-    q.includes('queja') ||
-    q.includes('reseña') ||
-    q.includes('resena') ||
-    q.includes('viaje') ||
-    q.includes('ruta') ||
-    q.includes('blindaje') ||
-    q.includes('comunicacion') ||
-    q.includes('comunicación')
-  ) {
-    return `### 💬 WhatsApp y Blindaje Anti-Quejas en Loomi Suite
-
-¡Hola! Te explico cómo funciona el sistema de mensajería y contacto directo desde el Día 1:
-
-1. **📱 Envío Directo en 1 Toque:**
-   - Podés ir a la pestaña **"Avisos & WhatsApp"** o tocar el botón verde **"Chatear"** en la ficha de cualquier reserva del calendario para abrir WhatsApp con el mensaje ya redactado y los datos del huésped.
-
-2. **📋 Las 6 Plantillas Inteligentes:**
-   - 👋 **Confirmación (Día 1):** Bienvenida con link a la Guía Digital del complejo.
-   - 🚗 **Coordinación en Ruta / Día de Viaje:** Para coordinar el horario de llegada en viajes largos y pedir ubicación en tiempo real.
-   - 🔑 **Acceso y Clave Wi-Fi:** Dirección, código de cerradura y red de Wi-Fi.
-   - 🛡️ **Control de Confort (2hs Post-Ingreso):** Mensaje sutil para chequear que todo esté impecable y desactivar reclamos en privado antes de que lleguen a internet.
-   - ⏰ **Recordatorio de Check-out:** Aviso cordial para coordinar la salida y las tareas de limpieza.
-   - 🌟 **Solicitud de Reseña 5 Estrellas:** Enviado a los huéspedes satisfechos para que califiquen con 5 estrellas e invitarlos a reservar directo.
-
-3. **⭐ Filtro Inteligente de Reservas:**
-   - La pantalla filtra automáticamente las reservas viejas y te muestra solo **"Próximas & Hoy"**, **"En Estadía"** o búsqueda rápida por nombre para no tener que scrollear.
-
-💡 *Tip:* Si una reserva entró por Airbnb, pegás el teléfono en la reserva y Loomi lo limpia y formatea solo para chatear.`;
-  }
-
-  // 5. Limpieza y Mucamas
+  // 4. Limpieza y Mucamas
   if (q.includes('limpieza') || q.includes('mucama') || q.includes('ropa') || q.includes('sabana') || q.includes('toalla')) {
     return `### 🧹 Módulo de Limpieza y Mucamas en el Celular
 
