@@ -9,7 +9,7 @@ interface PricingProps {
 
 export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) => {
   const [isAnnual, setIsAnnual] = useState<boolean>(true);
-  const [userNightRate, setUserNightRate] = useState<number>(65); // Default $65/night
+  const [userNightRate, setUserNightRate] = useState<number | string>(65); // Default $65/night
 
   const plans = [
     {
@@ -122,11 +122,14 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
               <div className="flex items-center gap-2 shrink-0 bg-white dark:bg-zinc-900 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-xs">
                 <span className="text-xs font-bold text-zinc-500">$</span>
                 <input
-                  type="number"
-                  min="20"
-                  max="500"
+                  type="text"
+                  inputMode="numeric"
                   value={userNightRate}
-                  onChange={(e) => setUserNightRate(Math.max(10, Number(e.target.value) || 10))}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9]/g, '');
+                    setUserNightRate(val);
+                  }}
+                  placeholder="65"
                   className="w-16 text-sm font-black text-zinc-900 dark:text-white bg-transparent outline-none focus:ring-0 text-center"
                 />
                 <span className="text-[11px] font-bold text-zinc-500">USD / noche</span>
@@ -150,8 +153,10 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
           {plans.map((plan) => {
             const price = isAnnual ? plan.annualPrice : plan.monthlyPrice;
-            const percentageOfNight = Math.round((price / userNightRate) * 100);
-            const nightRatio = (price / userNightRate).toFixed(1);
+            const numericRate = typeof userNightRate === 'number' ? userNightRate : (Number(userNightRate) || 1);
+            const safeRate = numericRate > 0 ? numericRate : 1;
+            const percentageOfNight = Math.round((price / safeRate) * 100);
+            const nightRatio = (price / safeRate).toFixed(1);
 
             return (
               <SpotlightCard

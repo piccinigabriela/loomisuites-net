@@ -28,6 +28,7 @@ interface CleanTodayProps {
   onRequestPlan?: () => void;
   isEmployeeMode?: boolean;
   userRole?: 'admin' | 'frontdesk' | 'housekeeping';
+  isLoggedIn?: boolean;
 }
 
 export const CleanToday: React.FC<CleanTodayProps> = ({
@@ -41,6 +42,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
   onRequestPlan,
   isEmployeeMode = false,
   userRole = 'admin',
+  isLoggedIn = false,
 }) => {
   const [isBannerDismissed, setIsBannerDismissed] = useState(() => {
     try {
@@ -107,8 +109,8 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
 
   return (
     <div className="space-y-3 sm:space-y-5 font-sans">
-      {/* Onboarding & Plan Request Banner */}
-      {!isBannerDismissed && (
+      {/* Onboarding & Plan Request Banner (Only in Public Demo mode for visitors) */}
+      {!isLoggedIn && !isBannerDismissed && (
         <div className="bg-[#24211d] dark:bg-[#1a1714] rounded-xl sm:rounded-2xl p-3 sm:p-4 text-white border border-[#48372b] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-2.5 sm:gap-3 relative">
           <button
             onClick={handleDismissBanner}

@@ -26,7 +26,8 @@ import {
   Flower2,
   Wine,
   Globe,
-  Tent
+  Tent,
+  BedDouble,
 } from 'lucide-react';
 
 interface QuestionsHubProps {
@@ -63,7 +64,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
     'Acompañamiento humano en la puesta en marcha'
   ];
 
-  const [userNightRateArs, setUserNightRateArs] = useState<number>(60000); // Default $60.000 ARS/night
+  const [userNightRateArs, setUserNightRateArs] = useState<number | string>(60000); // Default $60.000 ARS/night
 
   const plans = [
     {
@@ -275,10 +276,10 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                   </div>
                   <div>
                     <h4 className="font-bold text-zinc-900 text-base">
-                      2. Sincronización automática con Airbnb, Booking, Vrbo, TripAdvisor y Google
+                      2. Sincronización automática con Airbnb, Booking, Vrbo, TripAdvisor y Portales iCal
                     </h4>
                     <p className="text-sm text-zinc-600 mt-1 leading-relaxed">
-                      Si te reservan por Booking o Airbnb, en el mismo instante se bloquean las fechas en Vrbo, TripAdvisor, Google Vacation Rentals y en tu motor directo. Cero riesgo de doble reserva involuntaria (overbooking) y sin pagar cargos adicionales de conexión.
+                      Si te reservan por Booking o Airbnb, en el mismo instante se bloquean las fechas en Vrbo, TripAdvisor, cualquier portal iCal y en tu motor directo. Cero riesgo de doble reserva involuntaria (overbooking) y sin pagar cargos adicionales de conexión.
                     </p>
                   </div>
                 </div>
@@ -631,12 +632,14 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                   <div className="flex items-center gap-2 shrink-0 bg-white dark:bg-zinc-900 px-3 py-1.5 rounded-xl border border-zinc-300 dark:border-zinc-700 shadow-2xs">
                     <span className="text-xs font-bold text-zinc-500">$</span>
                     <input
-                      type="number"
-                      min="15000"
-                      max="500000"
-                      step="5000"
+                      type="text"
+                      inputMode="numeric"
                       value={userNightRateArs}
-                      onChange={(e) => setUserNightRateArs(Math.max(5000, Number(e.target.value) || 5000))}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9]/g, '');
+                        setUserNightRateArs(val);
+                      }}
+                      placeholder="60000"
                       className="w-24 text-sm font-black text-zinc-900 dark:text-white bg-transparent outline-none focus:ring-0 text-center"
                     />
                     <span className="text-[11px] font-bold text-zinc-500">ARS / noche</span>
@@ -652,8 +655,10 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
               {/* 3 Explicit Pricing Cards + Custom +30 */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {plans.map((plan) => {
-                  const percentageOfNight = Math.round((plan.priceMonthly / userNightRateArs) * 100);
-                  const nightFraction = (plan.priceMonthly / userNightRateArs).toFixed(1);
+                  const numericRate = typeof userNightRateArs === 'number' ? userNightRateArs : (Number(userNightRateArs) || 1);
+                  const safeRate = numericRate > 0 ? numericRate : 1;
+                  const percentageOfNight = Math.round((plan.priceMonthly / safeRate) * 100);
+                  const nightFraction = (plan.priceMonthly / safeRate).toFixed(1);
 
                   return (
                     <div

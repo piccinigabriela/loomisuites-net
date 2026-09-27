@@ -28,12 +28,12 @@ export const ChannelIntegrations: React.FC = () => {
       desc: 'Sincronización de calendario iCal bidireccional incluida sin costos ocultos, y conectividad con el grupo Expedia.',
     },
     {
-      name: 'TripAdvisor & Google',
-      category: 'Búsquedas & Reseñas',
-      badge: 'Google Travel + TripAdvisor',
+      name: 'TripAdvisor & Portales iCal',
+      category: 'Portales Turísticos & OTAs',
+      badge: 'TripAdvisor + iCal Global',
       color: 'border-[#c5ded8] dark:border-[#2b443e] bg-[#ecf5f2] dark:bg-[#192b26] text-[#2b6456] dark:text-[#6cb5a2]',
       icon: '🗺️',
-      desc: 'Aparece en las búsquedas turísticas de Google Vacation Rentals y TripAdvisor sincronizando disponibilidad por iCal.',
+      desc: 'Sincronizá tu disponibilidad en TripAdvisor y en cualquier portal turístico o regional que soporte iCal sin costos extras.',
     },
     {
       name: 'WhatsApp Business',

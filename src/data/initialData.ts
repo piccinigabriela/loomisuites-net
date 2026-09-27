@@ -366,25 +366,41 @@ export const INITIAL_TEMPLATES: MessageTemplate[] = [
   {
     id: 'tpl-1',
     title: 'Confirmación y Bienvenida Anticipada',
-    triggerEvent: 'Al confirmarse la reserva',
+    triggerEvent: 'Al confirmarse la reserva (Día 1)',
     channel: 'whatsapp',
-    content: '¡Hola {nombre_huesped}! 👋 Gracias por reservar en {nombre_propiedad}. Soy tu anfitrión y estamos felices de recibirte desde el {fecha_llegada} hasta el {fecha_salida}.\n\nPara que tu llegada sea impecable y conozcas cómo llegar y moverte por la zona, te dejamos la guía digital: https://loomisuite.com/guia/{propiedad_id}\n\n¡Cualquier duda nos avisas por aquí!',
+    content: '¡Hola {nombre_huesped}! 👋 Gracias por reservar en {nombre_propiedad}. Estamos felices de recibirlos desde el {fecha_llegada} hasta el {fecha_salida}.\n\nPara que su llegada sea impecable y conozcan cómo llegar y moverse por la zona, les dejamos la guía digital: https://loomisuite.com/guia/{propiedad_id}\n\n¡Cualquier duda nos avisan por aquí!',
     variables: ['{nombre_huesped}', '{nombre_propiedad}', '{fecha_llegada}', '{fecha_salida}'],
+  },
+  {
+    id: 'tpl-5',
+    title: 'Coordinación en Ruta / Día de Viaje',
+    triggerEvent: 'Mañana del viaje / Durante el traslado',
+    channel: 'whatsapp',
+    content: '¡Hola {nombre_huesped}! 🚗 Esperamos que tengan un muy lindo viaje hacia {nombre_propiedad}.\n\nSabemos que las distancias en ruta pueden tener demoras o imprevistos. Avísennos cuando estén a unos 40 o 60 minutos de llegar (o si quieren compartan su ubicación en tiempo real) así los esperamos con la cabaña templada y todo listo para recibirlos sin demoras.\n\n¡Manejen con cuidado y cualquier cosa en el camino nos avisan por acá!',
+    variables: ['{nombre_huesped}', '{nombre_propiedad}'],
   },
   {
     id: 'tpl-2',
     title: 'Instrucciones de Auto Check-in y Código de Puerta',
-    triggerEvent: 'Mañana del Check-in (09:00 AM)',
+    triggerEvent: 'Llegada al complejo / Check-in',
     channel: 'whatsapp',
-    content: '¡Buenos días {nombre_huesped}! ☀️ Tu alojamiento ya está listo para tu llegada a partir de las 14:00 hs.\n\n🔑 Datos de Acceso Digital:\n- Dirección: {direccion_propiedad}\n- Código de Cerradura Inteligente: {codigo_cerradura}\n- Red Wi-Fi: {nombre_wifi}\n- Clave Wi-Fi: {clave_wifi}\n\nPor favor avísanos apenas hayas ingresado. ¡Que disfrutes mucho de tu estancia!',
+    content: '¡Hola {nombre_huesped}! ☀️ El alojamiento ya está listo para su llegada a partir de las 14:00 hs.\n\n🔑 Datos de Acceso Digital:\n- Dirección: {direccion_propiedad}\n- Código de Cerradura Inteligente: {codigo_cerradura}\n- Red Wi-Fi: {nombre_wifi}\n- Clave Wi-Fi: {clave_wifi}\n\nPor favor avísennos apenas hayan ingresado. ¡Que disfruten mucho de su estadía!',
     variables: ['{nombre_huesped}', '{direccion_propiedad}', '{codigo_cerradura}', '{nombre_wifi}', '{clave_wifi}'],
+  },
+  {
+    id: 'tpl-6',
+    title: 'Control de Confort (2hs Post-Ingreso) - Blindaje Anti-Quejas',
+    triggerEvent: '2 horas después de ingresar a la cabaña',
+    channel: 'whatsapp',
+    content: '¡Hola {nombre_huesped}! Esperamos que ya estén acomodados y descansando un poco del viaje. ☕✨\n\nLes escribo para consultarles si encontraron todo impecable y si necesitan algo en especial (toallas extra, leña, indicaciones o cualquier detalle).\n\nEstamos a disposición para que su estadía sea perfecta. ¡Que disfruten mucho!',
+    variables: ['{nombre_huesped}'],
   },
   {
     id: 'tpl-3',
     title: 'Recordatorio de Check-out Amable',
     triggerEvent: 'Noche anterior al Check-out (20:00 hs)',
     channel: 'whatsapp',
-    content: 'Hola {nombre_huesped}, esperamos que hayas tenido una estancia maravillosa en {nombre_propiedad}. ✨\n\nTe recordamos que el check-out es mañana a las 11:00 hs para permitir la limpieza y preparación del lugar.\n\nSolo te pedimos:\n1. Apagar luces y aire acondicionado / calefacción.\n2. Dejar las llaves o cerrar bien la puerta con cerradura electrónica.\n3. Dejar los residuos en el cesto correspondiente.\n\n¡Buen viaje de regreso y esperamos recibirte pronto!',
+    content: 'Hola {nombre_huesped}, esperamos que hayan tenido una estadía maravillosa en {nombre_propiedad}. ✨\n\nLes recordamos que el check-out es mañana a las 11:00 hs para permitir la limpieza y preparación del lugar.\n\nSolo les pedimos:\n1. Apagar luces y aire acondicionado / calefacción.\n2. Dejar las llaves o cerrar bien la puerta con cerradura electrónica.\n3. Dejar los residuos en el cesto correspondiente.\n\n¡Buen viaje de regreso y esperamos recibirlos pronto!',
     variables: ['{nombre_huesped}', '{nombre_propiedad}'],
   },
   {
@@ -392,7 +408,7 @@ export const INITIAL_TEMPLATES: MessageTemplate[] = [
     title: 'Solicitud de Reseña 5 Estrellas y Descuento Directo',
     triggerEvent: '2 horas después del Check-out',
     channel: 'whatsapp',
-    content: '¡Muchas gracias por cuidar {nombre_propiedad} con tanto cariño, {nombre_huesped}! 🌟\n\nSi te gustó la experiencia, nos ayudarías un montón dejándonos una reseña de 5 estrellas en la plataforma.\n\nY para tu próxima escapada o viaje, puedes reservar directo con nosotros sin pagar comisiones extra: https://loomisuite.com/directo/{propiedad_id}\n\n¡Hasta la próxima!',
+    content: '¡Muchas gracias por cuidar {nombre_propiedad} con tanto cariño, {nombre_huesped}! 🌟\n\nSi les gustó la experiencia, nos ayudarían un montón dejándonos una reseña de 5 estrellas en la plataforma.\n\nY para su próxima escapada o viaje, pueden reservar directo con nosotros sin pagar comisiones extra: https://loomisuite.com/directo/{propiedad_id}\n\n¡Hasta la próxima!',
     variables: ['{nombre_huesped}', '{nombre_propiedad}', '{propiedad_id}'],
   },
 ];
@@ -692,6 +708,10 @@ export function getDemoState(): DemoState {
       // Force update welcomeGuide to the new Tu Complejo setup to avoid any Iguazú mix
       if (!parsed.welcomeGuide || parsed.welcomeGuide.propertyName !== 'Tu Complejo') {
         parsed.welcomeGuide = INITIAL_WELCOME_GUIDE;
+      }
+      // Ensure templates have all up-to-date templates (including tpl-5 and tpl-6)
+      if (!parsed.templates || parsed.templates.length < INITIAL_TEMPLATES.length || !parsed.templates.some((t: any) => t.id === 'tpl-5')) {
+        parsed.templates = INITIAL_TEMPLATES;
       }
       // Ensure availableAddons and addons are updated to the Buenos Aires versions
       const hasOldAddons = parsed.availableAddons?.some((a: any) => a.name?.includes('IGR') || a.name?.includes('Cataratas') || a.name?.includes('Selva') || a.name?.includes('Misionero'));
