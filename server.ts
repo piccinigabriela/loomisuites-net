@@ -69,12 +69,46 @@ function generateRuleBasedXeniaResponse(
   const reservations = contextData?.reservations || [];
   const cleaningTasks = contextData?.cleaningTasks || [];
 
-  // 1. Landing Page, Precios, Planes y Métodos de Pago
+  // 1. WhatsApp, Mensajería, Plantillas y Blindaje Anti-Quejas (PRIORIDAD ALTA)
+  if (
+    q.includes("whatsapp") ||
+    q.includes("mensaje") ||
+    q.includes("mensajeria") ||
+    q.includes("mensajería") ||
+    q.includes("plantilla") ||
+    q.includes("plantillas") ||
+    q.includes("queja") ||
+    q.includes("reseña") ||
+    q.includes("resena") ||
+    q.includes("viaje") ||
+    q.includes("ruta") ||
+    q.includes("blindaje") ||
+    q.includes("comunicacion") ||
+    q.includes("comunicación")
+  ) {
+    return `### 💬 WhatsApp y Blindaje Anti-Quejas en Loomi Suite
+
+¡Hola! Te explico cómo funciona el sistema de mensajería inteligente y para qué sirve cada plantilla:
+
+1. **📱 ¿Para qué sirven las 6 Plantillas Inteligentes?**
+   - 👋 **Confirmación y Bienvenida (Día 1):** Envía el link a la Guía Digital del complejo con el mapa y recomendaciones locales.
+   - 🚗 **Coordinación en Ruta / Día de Viaje:** Para coordinar el horario de llegada en viajes largos y pedir ubicación en tiempo real.
+   - 🔑 **Acceso y Clave Wi-Fi:** Entrega la dirección exacta, el código de puerta/cerradura y los datos del Wi-Fi.
+   - 🛡️ **Control de Confort (2hs Post-Ingreso):** Mensaje clave para chequear que todo esté impecable y desactivar reclamos en privado en 10 minutos, antes de que se conviertan en una mala reseña.
+   - ⏰ **Recordatorio de Check-out:** Aviso cordial para coordinar la salida y las tareas de limpieza.
+   - 🌟 **Solicitud de Reseña 5 Estrellas:** Enviado a los huéspedes satisfechos para que califiquen con 5 estrellas e invitarlos a reservar directo.
+
+2. **⚡ Envío en 1 Toque:**
+   - No tenés que escribir nada: las plantillas toman solas el nombre del huésped, su cabaña, sus fechas y el PIN de acceso.
+   - Podés enviarlas desde la pestaña **"Avisos & WhatsApp"** o tocando el botón verde **"Chatear"** en la ficha de cualquier reserva.
+
+3. **⭐ Filtro Inteligente:**
+   - La pantalla oculta las reservas viejas y te muestra solo **"Próximas & Hoy"** o **"En Estadía"** para elegir al huésped en un segundo.`;
+  }
+
+  // 2. Landing Page, Precios, Planes y Métodos de Pago
   if (
     q.includes("precio") ||
-    q.includes("plan") ||
-    q.includes("planes") ||
-    q.includes("tarifa") ||
     q.includes("cuanto cuesta") ||
     q.includes("cuánto cuesta") ||
     q.includes("abono") ||
@@ -84,7 +118,11 @@ function generateRuleBasedXeniaResponse(
     q.includes("ipc") ||
     q.includes("inflacion") ||
     q.includes("inflación") ||
-    q.includes("costo")
+    q.includes("costo") ||
+    ((q.includes("plan ") || q.includes("planes") || q.includes(" plan") || q === "plan") &&
+      !q.includes("plantilla") &&
+      !q.includes("planilla")) ||
+    (q.includes("tarifa") && !q.includes("manual") && !q.includes("ical"))
   ) {
     return `### 🏷️ Planes, Precios y Formas de Pago de Loomi
 
@@ -412,9 +450,18 @@ TUS CAPACIDADES CENTRALES SON:
    - Por esa razón, en Loomi la tarifa manual y la edición de importes está habilitada para TODAS las reservas (Directa, Airbnb, Booking, VRBO).
    - El anfitrión puede abrir cualquier reserva y tocar el lápiz ✏️ para colocar el importe real facturado, y el sistema recalcula automáticamente comisiones (3% o 15% Airbnb, 15% Booking) e ingreso neto.
 
-4. INSTRUCCIONES DE USO DE LA PLATAFORMA (AUTONOMÍA & GUÍA OPERATIVA):
+4. WHATSAPP, PLANTILLAS INTELIGENTES & BLINDAJE ANTI-QUEJAS:
+   - Explicar las 6 plantillas automáticas de Loomi Suite:
+     1. 👋 Confirmación y Bienvenida (Día 1 con link a Guía Digital)
+     2. 🚗 Coordinación en Ruta / Día de Viaje (para viajes largos y ubicación en tiempo real)
+     3. 🔑 Instrucciones de Acceso y Wi-Fi
+     4. 🛡️ Control de Confort (2hs Post-Ingreso) - Blindaje para resolver detalles en privado antes de que se transformen en una queja pública
+     5. ⏰ Recordatorio de Check-out Amable
+     6. 🌟 Pedido de Reseña 5 Estrellas y Descuento Directo
+   - Explicar que se envían en 1 toque desde la pestaña 'Avisos & WhatsApp' o tocando el botón verde 'Chatear' en la ficha de cualquier reserva.
+
+5. INSTRUCCIONES DE USO DE LA PLATAFORMA (AUTONOMÍA & GUÍA OPERATIVA):
    - Explicar paso a paso cómo usar cada módulo de Loomi Suite (sincronización iCal con Booking/Airbnb, mucamas, link de reservas directas, carga de reservas).
-   - Redactar mensajes listos para copiar y pegar para enviar a huéspedes por WhatsApp (llegada por ruta, clave de wifi, recordatorio de seña).
 
 DATOS EN VIVO DEL ALOJAMIENTO:
 --- CABAÑAS Y HABITACIONES ---
