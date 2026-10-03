@@ -296,50 +296,50 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
   const averageDailyRate = totalNights > 0 ? Math.round(totalGross / totalNights) : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 font-sans">
       {/* Top Banner introducing Xenia */}
-      <div className="bg-[#1c1a18] rounded-2xl p-6 text-[#f0eeeb] border border-[#383028] shadow-lg relative overflow-hidden">
+      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-5 sm:p-6 text-[#18181B] dark:text-[#EFECE5] border border-[#C8C4B7] dark:border-[#222328] shadow-2xs relative transition-colors">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative">
           <div className="flex items-center gap-3.5">
             <div className="relative group cursor-pointer" onClick={() => setShowPhotoModal(true)} title="Cambiar foto de Xenia">
               <XeniaAvatar size="lg" />
               <button
-                className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity"
+                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity cursor-pointer"
                 aria-label="Cambiar foto de Xenia"
               >
-                <Camera className="w-4 h-4 text-[#d88d5e]" />
+                <Camera className="w-4 h-4 text-[#E1500A]" />
               </button>
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold tracking-tight text-[#f4f2ee]">Xenia</h2>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#263024] text-[#a5c49f] border border-[#364832]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#82ba8f] animate-pulse" />
-                  Copiloto de Hospitalidad
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-xl font-black uppercase tracking-tight text-[#18181B] dark:text-white">Xenia Copilot</h2>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-[10px] font-black bg-[#E1500A]/15 text-[#E1500A] border border-[#E1500A]/30 uppercase tracking-wider">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E1500A] animate-pulse" />
+                  Copiloto Inteligente
                 </span>
                 <button
                   onClick={() => setShowPhotoModal(true)}
-                  className="flex items-center gap-1 text-[11px] text-[#d88d5e] hover:text-[#f4f2ee] bg-[#2a221b] hover:bg-[#382b20] border border-[#48372b] px-2.5 py-1 rounded-lg transition-colors cursor-pointer ml-1"
+                  className="flex items-center gap-1 text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white bg-white dark:bg-[#18181B] hover:border-[#E1500A] border border-[#C8C4B7] dark:border-[#222328] px-2 py-0.5 rounded-none transition-colors cursor-pointer ml-1 uppercase"
                 >
-                  <Camera className="w-3 h-3" />
-                  <span>Personalizar Foto</span>
+                  <Camera className="w-2.5 h-2.5" />
+                  <span>Foto</span>
                 </button>
               </div>
-              <p className="text-xs text-[#a8a5a0] mt-0.5">
+              <p className="text-xs text-[#71717A] dark:text-[#8E8E93] mt-0.5 font-bold">
                 Rendición de cuentas, control de huéspedes y guía de Loomi Suite
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 text-xs">
-            <div className="bg-[#141414] px-3.5 py-2 rounded-xl border border-[#2c2825]">
-              <span className="text-[#8e8c87] block text-[10px]">Facturación en Demo</span>
-              <span className="font-bold text-[#f4f2ee] text-sm">${totalGross.toLocaleString()} USD</span>
+            <div className="bg-white dark:bg-[#18181B] px-3.5 py-2 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
+              <span className="text-[#71717A] dark:text-[#8E8E93] block text-[9px] font-black uppercase tracking-wider">Facturación Muestra</span>
+              <span className="font-black text-[#18181B] dark:text-white text-sm">USD ${totalGross.toLocaleString()}</span>
             </div>
-            <div className="bg-[#241f1c] px-3.5 py-2 rounded-xl border border-[#48372b]">
-              <span className="text-[#d88d5e] block text-[10px]">Tarifa Promedio Noche</span>
-              <span className="font-bold text-[#f0eeeb] text-sm">
-                ${averageDailyRate} USD
+            <div className="bg-white dark:bg-[#18181B] px-3.5 py-2 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
+              <span className="text-[#E1500A] block text-[9px] font-black uppercase tracking-wider">Tarifa Promedio</span>
+              <span className="font-black text-[#18181B] dark:text-white text-sm">
+                USD ${averageDailyRate} / noche
               </span>
             </div>
           </div>
@@ -349,33 +349,33 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
       {/* Modal / Dialog to change Xenia's Photo */}
       {showPhotoModal && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#1c1c1c] border border-[#383838] rounded-2xl max-w-md w-full p-6 text-[#f4f2ee] shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-[#2e2e2e] pb-3">
+          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#C8C4B7] dark:border-[#222328] rounded-none max-w-md w-full p-6 text-[#18181B] dark:text-[#EFECE5] shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[#C8C4B7] dark:border-[#222328] pb-3">
               <div className="flex items-center gap-2">
-                <ImageIcon className="w-5 h-5 text-[#d88d5e]" />
-                <h3 className="font-bold text-base">Foto de Perfil de Xenia</h3>
+                <ImageIcon className="w-4 h-4 text-[#E1500A]" />
+                <h3 className="font-black text-sm uppercase tracking-wider">Foto de Perfil de Xenia</h3>
               </div>
               <button
                 onClick={() => setShowPhotoModal(false)}
-                className="text-[#8e8c87] hover:text-[#f4f2ee] p-1 rounded-lg hover:bg-[#282828] cursor-pointer"
+                className="text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white p-1 rounded-none hover:bg-[#DCD8CE] dark:hover:bg-[#18181B] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="flex items-center gap-4 bg-[#141414] p-3.5 rounded-xl border border-[#2a2a2a]">
+            <div className="flex items-center gap-4 bg-white dark:bg-[#18181B] p-3.5 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
               <XeniaAvatar size="xl" />
               <div>
-                <span className="text-xs font-bold text-[#f4f2ee] block">Vista Previa en Vivo</span>
-                <span className="text-[11px] text-[#8e8c87]">
-                  Esta imagen se reflejará en el chat, en la barra lateral y en el asistente flotante.
+                <span className="text-xs font-black uppercase tracking-wider block">Vista Previa</span>
+                <span className="text-[10px] text-[#71717A] dark:text-[#8E8E93]">
+                  Se actualizará instantáneamente en el chat, portada y barra lateral.
                 </span>
               </div>
             </div>
 
             {/* Presets Gallery */}
             <div className="space-y-2">
-              <span className="text-xs font-bold text-[#c8c5c0] block">
+              <span className="text-xs font-bold text-[#71717A] dark:text-[#8E8E93] block">
                 Selecciona uno de los retratos sugeridos:
               </span>
               <div className="grid grid-cols-2 gap-2.5">
@@ -385,19 +385,19 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                     <button
                       key={preset.id}
                       onClick={() => handleSelectPreset(preset.url)}
-                      className={`flex items-center gap-2.5 p-2 rounded-xl border text-left cursor-pointer transition-all ${
+                      className={`flex items-center gap-2.5 p-2 rounded-none border text-left cursor-pointer transition-all ${
                         isSelected
-                          ? 'bg-[#2b221b] border-[#d88d5e] text-[#f4f2ee] ring-1 ring-[#d88d5e]'
-                          : 'bg-[#161616] border-[#2c2c2c] text-[#a8a5a0] hover:border-[#444]'
+                          ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white'
+                          : 'bg-white dark:bg-[#18181B] border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-[#EFECE5] hover:border-[#E1500A]'
                       }`}
                     >
                       <img
                         src={preset.url}
                         alt={preset.label}
                         referrerPolicy="no-referrer"
-                        className="w-10 h-10 rounded-full object-cover shrink-0 border border-white/10"
+                        className="w-10 h-10 object-cover shrink-0 border border-[#C8C4B7] dark:border-[#222328]"
                       />
-                      <span className="text-[11px] font-semibold leading-tight line-clamp-2">
+                      <span className="text-[11px] font-bold leading-tight line-clamp-2">
                         {preset.label}
                       </span>
                     </button>
@@ -407,8 +407,8 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
             </div>
 
             {/* Upload own photo or URL */}
-            <div className="pt-3 border-t border-[#2e2e2e] space-y-3">
-              <span className="text-xs font-bold text-[#c8c5c0] block">
+            <div className="pt-3 border-t border-[#C8C4B7] dark:border-[#222328] space-y-3">
+              <span className="text-xs font-bold text-[#71717A] dark:text-[#8E8E93] block">
                 O sube tu propia foto / ingresa un enlace:
               </span>
 
@@ -417,15 +417,15 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                   type="text"
                   value={customPhotoInput}
                   onChange={(e) => setCustomPhotoInput(e.target.value)}
-                  placeholder="https://ejemplo.com/mi-foto.jpg"
-                  className="flex-1 bg-[#141414] border border-[#333] rounded-xl px-3 py-2 text-xs text-[#f4f2ee] focus:outline-none focus:border-[#d88d5e]"
+                  placeholder="https://ejemplo.com/foto.jpg"
+                  className="flex-1 bg-white dark:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] rounded-none px-3 py-2 text-xs text-[#18181B] dark:text-white focus:outline-none focus:border-[#E1500A]"
                 />
                 <button
                   onClick={handleApplyCustomUrl}
                   disabled={!customPhotoInput.trim()}
-                  className="bg-[#c46d45] hover:bg-[#d67b51] disabled:opacity-50 text-white text-xs font-bold px-3 py-2 rounded-xl cursor-pointer transition-colors"
+                  className="bg-[#E1500A] hover:bg-[#C94305] disabled:opacity-50 text-white text-xs font-black uppercase tracking-wider px-3 py-2 rounded-none cursor-pointer transition-colors"
                 >
-                  Aplicar URL
+                  Aplicar
                 </button>
               </div>
 
@@ -439,9 +439,9 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full flex items-center justify-center gap-2 bg-[#242424] hover:bg-[#2e2e2e] border border-[#383838] text-xs font-bold text-[#f4f2ee] py-2.5 rounded-xl cursor-pointer transition-colors"
+                  className="w-full flex items-center justify-center gap-2 bg-white dark:bg-[#18181B] hover:bg-[#DCD8CE] dark:hover:bg-[#222328] border border-[#C8C4B7] dark:border-[#222328] text-xs font-black uppercase tracking-wider text-[#18181B] dark:text-white py-2.5 rounded-none cursor-pointer transition-colors"
                 >
-                  <Upload className="w-3.5 h-3.5 text-[#d88d5e]" />
+                  <Upload className="w-3.5 h-3.5 text-[#E1500A]" />
                   <span>Subir foto desde tu dispositivo</span>
                 </button>
               </div>
@@ -450,7 +450,7 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setShowPhotoModal(false)}
-                className="bg-[#c46d45] hover:bg-[#d67b51] text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer transition-colors"
+                className="bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] hover:bg-[#E1500A] dark:hover:bg-[#E1500A] dark:hover:text-white font-black text-xs px-5 py-2.5 rounded-none cursor-pointer transition-colors uppercase tracking-wider"
               >
                 Listo / Guardar
               </button>
@@ -462,35 +462,35 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
       {/* Modal / Dialog to choose and test Latin American Voice */}
       {showVoiceModal && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#1c1c1c] border border-[#383838] rounded-2xl max-w-lg w-full p-6 text-[#f4f2ee] shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-[#2e2e2e] pb-3">
+          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#C8C4B7] dark:border-[#222328] rounded-none max-w-lg w-full p-6 text-[#18181B] dark:text-[#EFECE5] shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[#C8C4B7] dark:border-[#222328] pb-3">
               <div className="flex items-center gap-2">
-                <Radio className="w-5 h-5 text-[#d88d5e]" />
-                <h3 className="font-bold text-base">Voz de Xenia (Español Latinoamericano)</h3>
+                <Radio className="w-4 h-4 text-[#E1500A]" />
+                <h3 className="font-black text-sm uppercase tracking-wider">Voz de Xenia (Español)</h3>
               </div>
               <button
                 onClick={() => {
                   stopSpeaking();
                   setShowVoiceModal(false);
                 }}
-                className="text-[#8e8c87] hover:text-[#f4f2ee] p-1 rounded-lg hover:bg-[#282828] cursor-pointer"
+                className="text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white p-1 rounded-none hover:bg-[#DCD8CE] dark:hover:bg-[#18181B] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="bg-[#141414] p-4 rounded-xl border border-[#2a2a2a] space-y-2">
+            <div className="bg-white dark:bg-[#18181B] p-4 rounded-none border border-[#C8C4B7] dark:border-[#222328] space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#f4f2ee] flex items-center gap-1.5">
-                  <Volume2 className="w-4 h-4 text-[#d88d5e]" />
+                <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
+                  <Volume2 className="w-3.5 h-3.5 text-[#E1500A]" />
                   <span>Voz Actual Detectada</span>
                 </span>
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[#251f1a] text-[#d88d5e] border border-[#48372b]">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-none bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-white">
                   {detectedVoiceName || 'Voz estándar Latinoamericana (es-419)'}
                 </span>
               </div>
-              <p className="text-[11px] text-[#8e8c87] leading-relaxed">
-                Priorizamos automáticamente las voces de mujer en <strong>Español Latinoamericano (México, Colombia, Chile, Argentina, etc.)</strong> y bloqueamos el español peninsular de España.
+              <p className="text-[11px] text-[#71717A] dark:text-[#8E8E93] leading-relaxed">
+                Priorizamos automáticamente las voces de mujer en <strong>Español Latinoamericano (Argentina, México, etc.)</strong>.
               </p>
               <div className="pt-1">
                 <button
@@ -499,9 +499,9 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                       '¡Hola! Soy Xenia, tu copiloto en Loomi Suite. Estoy lista para responder consultas sobre tus alojamientos, reservas y números del mes con acento latino.'
                     )
                   }
-                  className="flex items-center gap-1.5 bg-[#25201b] hover:bg-[#342921] border border-[#523d2e] text-[#d88d5e] hover:text-[#f4f2ee] text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 bg-[#EAE8E3] dark:bg-[#0C0D0F] hover:border-[#E1500A] border border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-white text-xs font-black uppercase tracking-wider px-3 py-1.5 rounded-none transition-colors cursor-pointer"
                 >
-                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <Play className="w-3 h-3 fill-current text-[#E1500A]" />
                   <span>Probar cómo suena esta voz</span>
                 </button>
               </div>
@@ -509,13 +509,13 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
 
             {/* List of Available Latin Spanish Voices in the browser */}
             <div className="space-y-2">
-              <span className="text-xs font-bold text-[#c8c5c0] block">
-                Voces en Español disponibles en tu navegador:
+              <span className="text-xs font-bold text-[#71717A] dark:text-[#8E8E93] block">
+                Voces disponibles en tu navegador:
               </span>
 
               {availableVoices.length === 0 ? (
-                <div className="bg-[#141414] p-3.5 rounded-xl border border-[#2a2a2a] text-center text-xs text-[#8e8c87]">
-                  No se detectaron voces adicionales instaladas en el sistema operativo. El navegador usará la síntesis fonética en Español Latino (es-419).
+                <div className="bg-white dark:bg-[#18181B] p-3.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] text-center text-xs text-[#71717A] dark:text-[#8E8E93]">
+                  No se detectaron voces adicionales. El navegador usará la síntesis fonética en Español Latino (es-419).
                 </div>
               ) : (
                 <div className="max-h-52 overflow-y-auto space-y-1.5 pr-1">
@@ -528,10 +528,10 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                     return (
                       <div
                         key={uri}
-                        className={`flex items-center justify-between p-2.5 rounded-xl border text-left transition-all ${
+                        className={`flex items-center justify-between p-2.5 rounded-none border text-left transition-all ${
                           isSelected
-                            ? 'bg-[#2b221b] border-[#d88d5e] text-[#f4f2ee]'
-                            : 'bg-[#151515] border-[#292929] text-[#a8a5a0] hover:border-[#444]'
+                            ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white'
+                            : 'bg-white dark:bg-[#18181B] border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-[#EFECE5] hover:border-[#E1500A]'
                         }`}
                       >
                         <div
@@ -541,22 +541,22 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-bold">{v.name}</span>
                             {isFemale && (
-                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#322319] text-[#d88d5e] font-semibold">
+                              <span className="text-[9px] px-1.5 py-0.2 rounded-none bg-[#E1500A]/15 text-[#E1500A] font-black uppercase">
                                 Mujer
                               </span>
                             )}
                             {isSpain ? (
-                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#332222] text-[#e07777]">
+                              <span className="text-[9px] px-1.5 py-0.2 rounded-none bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 font-black uppercase">
                                 España
                               </span>
                             ) : (
-                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#1e2e1e] text-[#86bf8a]">
+                              <span className="text-[9px] px-1.5 py-0.2 rounded-none bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-black uppercase">
                                 Latino
                               </span>
                             )}
                           </div>
-                          <span className="text-[10px] text-[#777] block mt-0.5">
-                            Idioma: {v.lang} {v.localService ? '• Voz Local' : '• Voz Cloud'}
+                          <span className="text-[10px] text-[#71717A] dark:text-[#8E8E93] block mt-0.5">
+                            {v.lang} {v.localService ? '• Local' : '• Cloud'}
                           </span>
                         </div>
 
@@ -570,14 +570,11 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                                 );
                               }, 100);
                             }}
-                            className="p-1.5 rounded-lg bg-[#222] hover:bg-[#333] text-[#d88d5e] hover:text-white transition-colors cursor-pointer"
+                            className="p-1.5 rounded-none bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#C8C4B7] dark:border-[#222328] hover:border-[#E1500A] transition-colors cursor-pointer"
                             title="Probar esta voz"
                           >
-                            <Play className="w-3 h-3 fill-current" />
+                            <Play className="w-3 h-3 fill-current text-[#E1500A]" />
                           </button>
-                          {isSelected && (
-                            <div className="w-2 h-2 rounded-full bg-[#d88d5e]" />
-                          )}
                         </div>
                       </div>
                     );
@@ -586,16 +583,16 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
               )}
             </div>
 
-            <div className="pt-2 flex justify-between items-center border-t border-[#2a2a2a]">
-              <span className="text-[11px] text-[#777]">
-                Se guardará tu preferencia para futuras consultas
+            <div className="pt-2 flex justify-between items-center border-t border-[#C8C4B7] dark:border-[#222328]">
+              <span className="text-[11px] text-[#71717A] dark:text-[#8E8E93]">
+                Preferencia guardada
               </span>
               <button
                 onClick={() => {
                   stopSpeaking();
                   setShowVoiceModal(false);
                 }}
-                className="bg-[#c46d45] hover:bg-[#d67b51] text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer transition-colors"
+                className="bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] hover:bg-[#E1500A] dark:hover:bg-[#E1500A] dark:hover:text-white font-black text-xs px-5 py-2.5 rounded-none cursor-pointer transition-colors uppercase tracking-wider"
               >
                 Aceptar / Guardar
               </button>
@@ -605,15 +602,15 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
       )}
 
       {/* Main Grid: Prompts + Chat View */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Column: Quick Action Chips */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-[#1c1c1c] rounded-2xl border border-[#2a2a2a] p-5 shadow-xs">
-            <h3 className="text-sm font-bold text-[#f0eeeb] flex items-center gap-2 mb-1">
-              <Zap className="w-4 h-4 text-[#d88d5e]" />
+          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-4 sm:p-5 shadow-2xs">
+            <h3 className="text-xs font-black uppercase tracking-wider text-[#18181B] dark:text-white flex items-center gap-2 mb-1">
+              <Zap className="w-3.5 h-3.5 text-[#E1500A]" />
               <span>Consultas Frecuentes</span>
             </h3>
-            <p className="text-xs text-[#8e8c87] mb-4">
+            <p className="text-xs text-[#71717A] dark:text-[#8E8E93] mb-4 font-medium">
               Toca cualquier pregunta para que Xenia te responda en el acto:
             </p>
 
@@ -622,8 +619,8 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                 const Icon = cat.icon;
                 return (
                   <div key={idx} className="space-y-2">
-                    <span className="text-[11px] font-bold text-[#7a7874] uppercase tracking-wider flex items-center gap-1.5">
-                      <Icon className="w-3.5 h-3.5 text-[#a8a5a0]" />
+                    <span className="text-[10px] font-black text-[#71717A] dark:text-[#8E8E93] uppercase tracking-widest flex items-center gap-1.5">
+                      <Icon className="w-3 h-3 text-[#E1500A]" />
                       {cat.category}
                     </span>
                     <div className="space-y-1.5">
@@ -632,7 +629,7 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                           key={pIdx}
                           onClick={() => handleSendMessage(prompt)}
                           disabled={isLoading}
-                          className="w-full text-left text-xs p-2.5 rounded-xl border border-[#2c2c2c] bg-[#171717] hover:border-[#523d2e] hover:bg-[#221c17] text-[#c8c5c0] hover:text-[#f0eeeb] transition-all cursor-pointer leading-snug"
+                          className="w-full text-left text-xs p-2.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] hover:border-[#E1500A] text-[#18181B] dark:text-[#EFECE5] transition-all cursor-pointer leading-snug font-medium"
                         >
                           "{prompt}"
                         </button>
@@ -644,38 +641,38 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
             </div>
           </div>
 
-          <div className="bg-[#181818] rounded-2xl border border-[#282828] p-4 text-xs text-[#a8a5a0]">
-            <h4 className="font-bold text-[#f0eeeb] mb-1 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#82ba8f]" />
+          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-4 text-xs text-[#71717A] dark:text-[#8E8E93]">
+            <h4 className="font-black text-[#18181B] dark:text-white mb-1 flex items-center gap-1.5 uppercase text-[10px] tracking-wider">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
               <span>Autonomía y Claridad Total</span>
             </h4>
-            <p className="leading-relaxed text-[#8e8c87]">
+            <p className="leading-relaxed">
               En lugar de buscar en planillas o consultar manuales externos, Xenia te entrega números consolidados en tiempo real y te guía paso a paso en el uso de cada función de Loomi Suite.
             </p>
           </div>
         </div>
 
         {/* Right Column: Chat Conversation */}
-        <div className="lg:col-span-2 bg-[#1c1c1c] rounded-2xl border border-[#2a2a2a] shadow-xs flex flex-col h-[640px]">
+        <div className="lg:col-span-2 bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-2xs flex flex-col h-[640px]">
           {/* Chat Header */}
-          <div className="p-4 border-b border-[#282828] flex flex-wrap items-center justify-between gap-3">
+          <div className="p-3.5 sm:p-4 border-b border-[#C8C4B7] dark:border-[#222328] flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <XeniaAvatar size="xs" />
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-[#f0eeeb]">
+                  <span className="text-xs font-black uppercase tracking-wider text-[#18181B] dark:text-white">
                     Conversación con Xenia
                   </span>
                   <button
                     onClick={() => setShowVoiceModal(true)}
-                    className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#202020] hover:bg-[#2c2621] text-[#d88d5e] border border-[#383028] hover:border-[#6e503b] transition-colors flex items-center gap-1 cursor-pointer"
-                    title="Configurar y probar voz en Español Latinoamericano"
+                    className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-none bg-white dark:bg-[#18181B] hover:border-[#E1500A] text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white border border-[#C8C4B7] dark:border-[#222328] transition-colors flex items-center gap-1 cursor-pointer"
+                    title="Configurar y probar voz"
                   >
-                    <span>🌎 Voz Latina</span>
-                    <Sliders className="w-2.5 h-2.5 opacity-70" />
+                    <span>Voz Latina</span>
+                    <Sliders className="w-2.5 h-2.5 text-[#E1500A]" />
                   </button>
                 </div>
-                <span className="text-[10px] text-[#7a7874] block">Consultas por voz y texto en tiempo real</span>
+                <span className="text-[10px] text-[#71717A] dark:text-[#8E8E93] block">Consultas por voz y texto en tiempo real</span>
               </div>
             </div>
 
@@ -683,37 +680,28 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
               {/* Voice auto-play toggle */}
               <button
                 onClick={toggleAutoVoice}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-black uppercase tracking-wider border transition-all cursor-pointer ${
                   autoVoice
-                    ? 'bg-[#2b221b] border-[#d88d5e] text-[#f4f2ee]'
-                    : 'bg-[#141414] border-[#2c2c2c] text-[#8e8c87] hover:text-[#c8c5c0]'
+                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white'
+                    : 'bg-white dark:bg-[#18181B] border-[#C8C4B7] dark:border-[#222328] text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white'
                 }`}
                 title={
                   autoVoice
-                    ? 'Voz automática activada (Español Latinoamericano de mujer)'
+                    ? 'Voz automática activada'
                     : 'Activar respuestas automáticas por voz'
                 }
               >
                 {autoVoice ? (
                   <>
-                    <Volume2 className="w-3.5 h-3.5 text-[#d88d5e]" />
-                    <span>Audio Automático (ON)</span>
+                    <Volume2 className="w-3.5 h-3.5 text-[#E1500A]" />
+                    <span>Audio ON</span>
                   </>
                 ) : (
                   <>
                     <VolumeX className="w-3.5 h-3.5" />
-                    <span>Audio (OFF)</span>
+                    <span>Audio OFF</span>
                   </>
                 )}
-              </button>
-
-              <button
-                onClick={() => setShowVoiceModal(true)}
-                className="text-[11px] text-[#8e8c87] hover:text-[#d88d5e] flex items-center gap-1 px-2.5 py-1.5 rounded-xl hover:bg-[#202020] cursor-pointer transition-colors border border-transparent hover:border-[#2e2e2e]"
-                title="Elegir voz en español latino"
-              >
-                <Sliders className="w-3 h-3" />
-                <span className="hidden sm:inline">Voz</span>
               </button>
 
               <button
@@ -728,7 +716,7 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                     },
                   ]);
                 }}
-                className="text-[11px] text-[#8e8c87] hover:text-[#d88d5e] flex items-center gap-1 px-2.5 py-1.5 rounded-xl hover:bg-[#202020] cursor-pointer transition-colors"
+                className="text-[11px] font-black uppercase tracking-wider text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white flex items-center gap-1 px-2.5 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] hover:border-[#E1500A] cursor-pointer transition-colors"
               >
                 <RefreshCw className="w-3 h-3" />
                 <span>Limpiar</span>
@@ -737,7 +725,7 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
           </div>
 
           {/* Messages Stream */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-[#ECEAE4] dark:bg-[#0E0F12]">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -748,14 +736,14 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                 )}
 
                 <div
-                  className={`max-w-2xl rounded-2xl p-4 text-xs sm:text-sm leading-relaxed ${
+                  className={`max-w-2xl rounded-none p-4 text-xs sm:text-sm leading-relaxed border ${
                     msg.role === 'user'
-                      ? 'bg-[#3d2e24] border border-[#5a4234] text-[#f4f2ee] shadow-xs rounded-tr-xs'
-                      : 'bg-[#161616] border border-[#2a2a2a] text-[#dedbd6] shadow-xs rounded-tl-xs'
+                      ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                      : 'bg-[#EAE8E3] dark:bg-[#0C0D0F] border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-[#EFECE5]'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-3 mb-1.5 pb-1 border-b border-white/5 text-[10px] text-[#8e8c87]">
-                    <span className="font-semibold text-[#c8c5c0]">
+                  <div className="flex items-center justify-between gap-3 mb-2 pb-1 border-b border-[#C8C4B7]/40 dark:border-[#222328] text-[9px] font-black uppercase tracking-wider opacity-70">
+                    <span>
                       {msg.role === 'user' ? 'Tú (Anfitrión)' : 'Xenia (Copiloto)'}
                     </span>
                     <div className="flex items-center gap-2">
@@ -766,41 +754,37 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                           {/* Speak Button for this individual message */}
                           <button
                             onClick={() => speakMessage(msg.content, msg.id)}
-                            className={`flex items-center gap-1 px-2 py-0.5 rounded-md transition-all cursor-pointer ${
+                            className={`flex items-center gap-1 px-2 py-0.5 rounded-none transition-all cursor-pointer ${
                               isSpeaking && speakingMessageId === msg.id
-                                ? 'bg-[#d88d5e] text-[#1c1a18] font-bold shadow-xs'
-                                : 'hover:text-[#d88d5e] text-[#8e8c87] hover:bg-[#242424]'
+                                ? 'bg-[#E1500A] text-white font-black'
+                                : 'hover:text-[#E1500A] text-[#71717A] dark:text-[#8E8E93]'
                             }`}
                             title={
                               isSpeaking && speakingMessageId === msg.id
                                 ? 'Detener voz de Xenia'
-                                : 'Escuchar respuesta con voz de mujer en español latino'
+                                : 'Escuchar respuesta'
                             }
                           >
                             {isSpeaking && speakingMessageId === msg.id ? (
                               <>
                                 <Square className="w-2.5 h-2.5 fill-current" />
-                                <span className="flex items-center gap-0.5">
-                                  <span>Hablando</span>
-                                  <span className="inline-block w-1 h-2 bg-[#1c1a18] animate-bounce" />
-                                  <span className="inline-block w-1 h-3 bg-[#1c1a18] animate-bounce delay-75" />
-                                </span>
+                                <span>Hablando</span>
                               </>
                             ) : (
                               <>
                                 <Volume2 className="w-3 h-3" />
-                                <span>Escuchar voz</span>
+                                <span>Escuchar</span>
                               </>
                             )}
                           </button>
 
                           <button
                             onClick={() => copyToClipboard(msg.content, msg.id)}
-                            className="hover:text-[#d88d5e] transition-colors p-0.5"
+                            className="hover:text-[#E1500A] transition-colors p-0.5"
                             title="Copiar texto"
                           >
                             {copiedId === msg.id ? (
-                              <Check className="w-3 h-3 text-[#82ba8f]" />
+                              <Check className="w-3 h-3 text-emerald-500" />
                             ) : (
                               <Copy className="w-3 h-3" />
                             )}
@@ -810,13 +794,13 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                     </div>
                   </div>
 
-                  <div className="prose prose-invert prose-xs sm:prose-sm max-w-none text-[#dedbd6] prose-headings:text-[#f4f2ee] prose-strong:text-[#f4f2ee] prose-a:text-[#d88d5e]">
+                  <div className="prose prose-xs sm:prose-sm max-w-none text-current dark:prose-invert">
                     <Markdown>{msg.content}</Markdown>
                   </div>
                 </div>
 
                 {msg.role === 'user' && (
-                  <div className="w-8 h-8 rounded-full bg-[#2a2622] border border-[#48372b] flex items-center justify-center text-[#d88d5e] text-xs font-bold shrink-0">
+                  <div className="w-8 h-8 rounded-none bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] border border-[#18181B] dark:border-white flex items-center justify-center text-xs font-bold shrink-0">
                     <User className="w-4 h-4" />
                   </div>
                 )}
@@ -825,21 +809,16 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
 
             {/* Live speech listening indicator */}
             {isListening && (
-              <div className="flex items-center gap-3 p-3.5 bg-[#2b221b] border border-[#d88d5e]/60 rounded-2xl text-xs text-[#f4f2ee] animate-in fade-in">
-                <div className="w-8 h-8 rounded-full bg-[#d88d5e] flex items-center justify-center text-[#1c1a18] animate-pulse">
+              <div className="flex items-center gap-3 p-3.5 bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#E1500A] rounded-none text-xs text-[#18181B] dark:text-white animate-in fade-in">
+                <div className="w-8 h-8 bg-[#E1500A] flex items-center justify-center text-white animate-pulse">
                   <Mic className="w-4 h-4" />
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 font-bold text-[#d88d5e]">
-                    <span>🎙️ Xenia está escuchando tu voz (Español Argentino)...</span>
-                    <span className="flex gap-0.5">
-                      <span className="w-1 h-3 bg-[#d88d5e] animate-pulse" />
-                      <span className="w-1 h-4 bg-[#d88d5e] animate-pulse delay-75" />
-                      <span className="w-1 h-2 bg-[#d88d5e] animate-pulse delay-150" />
-                    </span>
+                  <div className="flex items-center gap-2 font-black uppercase text-[#E1500A] tracking-wider">
+                    <span>🎙️ Xenia está escuchando tu voz (Español)...</span>
                   </div>
-                  <p className="text-[11px] text-[#c8c5c0] mt-0.5">
-                    {transcript || 'Hablá con normalidad... (ej: "¿Cuántas reservas hay hoy?" o "¿Cómo sincronizo con Airbnb?")'}
+                  <p className="text-[11px] text-[#71717A] dark:text-[#8E8E93] mt-0.5 font-bold">
+                    {transcript || 'Hablá con normalidad...'}
                   </p>
                 </div>
                 <button
@@ -847,7 +826,7 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                   onClick={() => {
                     stopListening();
                   }}
-                  className="px-3 py-1.5 bg-[#d88d5e] text-[#1c1a18] font-bold rounded-xl text-xs hover:bg-[#e49c6f] cursor-pointer"
+                  className="px-3 py-1.5 bg-[#E1500A] text-white font-black uppercase tracking-wider rounded-none text-xs hover:bg-[#C94305] cursor-pointer"
                 >
                   {transcript.trim() ? 'Enviar consulta' : 'Detener'}
                 </button>
@@ -855,16 +834,16 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
             )}
 
             {isLoading && (
-              <div className="flex items-center gap-3 text-xs text-[#8e8c87] animate-pulse">
+              <div className="flex items-center gap-3 text-xs text-[#71717A] dark:text-[#8E8E93] animate-pulse bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#C8C4B7] dark:border-[#222328] p-3">
                 <XeniaAvatar size="sm" />
-                <span>Xenia está analizando tus reservas y preparando la respuesta...</span>
+                <span className="font-bold">Xenia está analizando tus reservas y preparando la respuesta...</span>
               </div>
             )}
             <div ref={chatBottomRef} />
           </div>
 
           {/* Input Box */}
-          <div className="p-3 sm:p-4 border-t border-[#282828] bg-[#181818] rounded-b-2xl space-y-2">
+          <div className="p-3 sm:p-4 border-t border-[#C8C4B7] dark:border-[#222328] bg-[#EAE8E3] dark:bg-[#0C0D0F] space-y-2">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -882,26 +861,26 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                     startListening();
                   }
                 }}
-                className={`p-2.5 rounded-xl transition-all cursor-pointer shrink-0 flex items-center gap-1.5 ${
+                className={`p-2.5 transition-all cursor-pointer shrink-0 flex items-center gap-1.5 border ${
                   isListening
-                    ? 'bg-red-600 hover:bg-red-700 text-white animate-pulse shadow-lg shadow-red-600/30 ring-2 ring-red-400'
-                    : 'bg-[#26221e] hover:bg-[#342c25] border border-[#48372b] text-[#d88d5e] hover:text-[#f4f2ee]'
+                    ? 'bg-red-600 hover:bg-red-700 text-white animate-pulse border-red-500'
+                    : 'bg-white dark:bg-[#18181B] hover:bg-[#E1500A] hover:text-white border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-white'
                 }`}
                 title={
                   isListening
                     ? 'Detener micrófono y enviar'
-                    : 'Hablar con Xenia por voz (Español Argentino)'
+                    : 'Hablar con Xenia por voz'
                 }
               >
                 {isListening ? (
                   <>
                     <MicOff className="w-4 h-4" />
-                    <span className="text-xs font-bold hidden sm:inline">Escuchando...</span>
+                    <span className="text-xs font-black uppercase hidden sm:inline">Escuchando...</span>
                   </>
                 ) : (
                   <>
                     <Mic className="w-4 h-4" />
-                    <span className="text-xs font-bold hidden sm:inline">Hablar</span>
+                    <span className="text-xs font-black uppercase hidden sm:inline">Hablar</span>
                   </>
                 )}
               </button>
@@ -916,12 +895,12 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
                     : 'Escribí o tocá "Hablar" para consultar por voz a Xenia...'
                 }
                 disabled={isLoading}
-                className="flex-1 text-xs sm:text-sm bg-[#141414] border border-[#2e2e2e] focus:border-[#d88d5e] rounded-xl px-4 py-2.5 text-[#f4f2ee] placeholder-[#777] focus:outline-none transition-colors"
+                className="flex-1 text-xs sm:text-sm bg-white dark:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] focus:border-[#E1500A] rounded-none px-4 py-2.5 text-[#18181B] dark:text-white placeholder-[#71717A] dark:placeholder-[#8E8E93] focus:outline-none transition-colors"
               />
               <button
                 type="submit"
                 disabled={!inputMessage.trim() || isLoading}
-                className="bg-[#c46d45] hover:bg-[#d67b51] disabled:opacity-40 text-white p-2.5 rounded-xl transition-all cursor-pointer shrink-0"
+                className="bg-[#E1500A] hover:bg-[#C94305] disabled:opacity-40 text-white p-2.5 rounded-none transition-all cursor-pointer shrink-0"
                 title="Enviar mensaje"
               >
                 <Send className="w-4 h-4" />

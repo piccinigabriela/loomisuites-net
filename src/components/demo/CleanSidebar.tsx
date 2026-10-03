@@ -81,7 +81,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
       {/* Top Header & Brand */}
       <div>
         {/* Brand Block */}
-        <div className="p-4 border-b border-[#ded9cd]/80 dark:border-[#242424]/80 space-y-3">
+        <div className="p-4 border-b border-[#C8C4B7] dark:border-[#222328] space-y-3">
           {/* Official Loomi Suite Brand */}
           <div className="flex items-center justify-between">
             <LoomiLogo size="sm" theme={isDark ? 'dark' : 'light'} />
@@ -89,7 +89,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               {isMobileOpen && onMobileClose && (
                 <button
                   onClick={onMobileClose}
-                  className="p-1 text-[#66625a] dark:text-[#a8a5a0] hover:bg-[#edeae2] dark:hover:bg-[#222] border border-[#ded9cd] dark:border-[#333] rounded-lg transition-colors lg:hidden mr-1"
+                  className="p-1 text-[#71717A] dark:text-[#8E8E93] hover:bg-[#DCD8CE] dark:hover:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] rounded-none transition-colors lg:hidden mr-1 cursor-pointer"
                   title="Cerrar menú"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -97,18 +97,18 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               )}
               <button
                 onClick={onToggleTheme}
-                className="p-1.5 rounded-lg text-[#66625a] dark:text-[#a8a5a0] hover:bg-[#edeae2] dark:hover:bg-[#222] border border-[#ded9cd] dark:border-[#333] transition-colors"
+                className="p-1.5 rounded-none text-[#71717A] dark:text-[#8E8E93] hover:bg-[#DCD8CE] dark:hover:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] transition-colors cursor-pointer"
                 title={isDark ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
               >
                 {isDark ? (
-                  <Sun className="w-3.5 h-3.5 text-amber-400" />
+                  <Sun className="w-3.5 h-3.5 text-[#E1500A]" />
                 ) : (
-                  <Moon className="w-3.5 h-3.5 text-[#55514a]" />
+                  <Moon className="w-3.5 h-3.5 text-[#18181B]" />
                 )}
               </button>
               <button
                 onClick={onBackToLanding}
-                className="text-[11px] font-semibold text-[#7a7874] hover:text-[#c46d45] dark:hover:text-[#d88d5e] transition-colors px-1.5 py-1 rounded hover:bg-[#edeae2] dark:hover:bg-[#222]"
+                className="text-[11px] font-black uppercase tracking-wider text-[#71717A] hover:text-[#E1500A] dark:hover:text-white transition-colors px-2 py-1 rounded-none border border-[#C8C4B7] dark:border-[#222328] hover:bg-[#DCD8CE] dark:hover:bg-[#18181B] cursor-pointer"
                 title="Volver a la portada"
               >
                 Web ↗
@@ -116,18 +116,18 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
             </div>
           </div>
 
-          <div className="pt-2 border-t border-[#ded9cd] dark:border-[#222]">
-            <h1 className="text-xs font-bold text-[#1c1b18] dark:text-[#f0eeeb] truncate leading-tight tracking-tight">
+          <div className="pt-2 border-t border-[#C8C4B7] dark:border-[#222328]">
+            <h1 className="text-xs font-black text-[#18181B] dark:text-white truncate leading-tight tracking-tight uppercase">
               {complexName || 'Catalinas Apartamentos'}
             </h1>
-            <p className="text-[10px] text-[#78746c] dark:text-[#8e8c87] truncate">Gestión de alquileres</p>
+            <p className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] truncate">Gestión de alquileres</p>
           </div>
 
           {/* User / Role Selector */}
-          <div className="bg-white dark:bg-[#1f1f1f] rounded-lg p-2 border border-[#ded9cd] dark:border-[#2a2a2a] shadow-2xs space-y-1.5">
-            <div className="text-[9px] uppercase font-bold text-[#7a7874] dark:text-[#8e8c87] tracking-wider px-0.5 flex items-center justify-between">
+          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-2 border border-[#C8C4B7] dark:border-[#222328] space-y-1.5">
+            <div className="text-[9px] uppercase font-black text-[#71717A] dark:text-[#8E8E93] tracking-widest px-0.5 flex items-center justify-between">
               <span>Acceso de Usuario</span>
-              {loggedUser && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" title="Sesión sincronizada" />}
+              {loggedUser && <span className="w-1.5 h-1.5 rounded-full bg-[#E1500A] animate-pulse" title="Sesión sincronizada" />}
             </div>
             
             <select
@@ -139,7 +139,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                   onToggleEmployeeMode();
                 }
               }}
-              className="w-full text-[11px] font-bold bg-[#fbf9f5] dark:bg-[#151515] text-[#1c1b18] dark:text-[#f4f2ee] py-1 px-1.5 rounded-md border border-[#ded9cd] dark:border-[#2c2c2c] focus:outline-none cursor-pointer"
+              className="w-full text-[11px] font-bold bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white py-1 px-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] focus:outline-none cursor-pointer"
             >
               <option value="admin">👑 Administrador / Dueño</option>
               <option value="frontdesk">🛎️ Recepción / Front Desk</option>
@@ -147,13 +147,13 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
             </select>
 
             {loggedUser ? (
-              <div className="pt-1.5 border-t border-[#f2ece4] dark:border-[#2d2d2d] text-[10px] text-zinc-500 dark:text-zinc-400 flex flex-col gap-0.5 px-0.5">
-                <span className="truncate text-white font-semibold">{loggedUser.name}</span>
-                <span className="truncate text-[9px] text-[#8e8c87]">{loggedUser.email}</span>
+              <div className="pt-1.5 border-t border-[#C8C4B7] dark:border-[#222328] text-[10px] text-[#71717A] dark:text-[#8E8E93] flex flex-col gap-0.5 px-0.5">
+                <span className="truncate text-[#18181B] dark:text-white font-black">{loggedUser.name}</span>
+                <span className="truncate text-[9px] text-[#71717A] dark:text-[#8E8E93]">{loggedUser.email}</span>
                 {onLogout && (
                   <button
                     onClick={onLogout}
-                    className="mt-1.5 text-left text-[9px] font-bold text-red-500 hover:text-red-400 hover:underline cursor-pointer flex items-center gap-1"
+                    className="mt-1.5 text-left text-[9px] font-black text-[#E1500A] hover:underline cursor-pointer flex items-center gap-1"
                   >
                     <span>Cerrar sesión</span>
                     <span>↩</span>
@@ -164,7 +164,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               onOpenLogin && (
                 <button
                   onClick={onOpenLogin}
-                  className="w-full mt-1 px-2 py-1.5 bg-[#2a221b] border border-[#d88d5e]/30 hover:border-[#d88d5e]/50 text-[#d88d5e] text-[10px] font-bold rounded-md transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                  className="w-full mt-1 px-2 py-1.5 bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] hover:bg-[#E1500A] dark:hover:bg-[#E1500A] dark:hover:text-white text-[10px] font-black rounded-none transition-colors flex items-center justify-center gap-1 cursor-pointer"
                 >
                   <span>🔑 Sincronizar Cuenta / Celular</span>
                 </button>
@@ -175,23 +175,23 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
       </div>
 
         {/* Navigation Sections */}
-        <div className="p-3 space-y-4.5">
+        <div className="p-3 space-y-4">
           {/* RUBRO 1: OPERATIVA */}
           <div>
-            <div className="px-2 pb-1.5 text-[10px] font-bold tracking-wider text-[#8e8a83] dark:text-[#6e6c68] uppercase">
+            <div className="px-2 pb-1.5 text-[10px] font-black tracking-widest text-[#71717A] dark:text-[#8E8E93] uppercase">
               Operativa
             </div>
-            <div className="space-y-0.5">
+            <div className="space-y-1">
               {/* Hoy */}
               <button
                 onClick={() => handleTabClick('overview')}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
                   activeTab === 'overview'
-                    ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                    : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                    : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
                 }`}
               >
-                <LayoutDashboard className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                <LayoutDashboard className="w-3.5 h-3.5 shrink-0" />
                 <span>Hoy / Estado</span>
               </button>
 
@@ -203,61 +203,64 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                       onOpenNewReservation();
                       if (onMobileClose) onMobileClose();
                     }}
-                    className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-bold text-[#c46d45] dark:text-[#d88d5e] hover:bg-[#f4eee7] dark:hover:bg-[#26211c] transition-colors text-left"
+                    className="w-full flex items-center justify-between px-2.5 py-2 rounded-none text-xs font-black bg-[#E1500A] hover:bg-[#C94305] text-white transition-all text-left shadow-xs cursor-pointer active:scale-95"
                   >
-                    <span className="text-sm font-bold leading-none">+</span>
-                    <span>Nueva Reserva</span>
+                    <span className="flex items-center gap-1.5">
+                      <PlusCircle className="w-3.5 h-3.5" />
+                      <span>Nueva Reserva</span>
+                    </span>
+                    <span className="text-xs font-black">→</span>
                   </button>
 
                   {/* Calendario */}
                   <button
                     onClick={() => handleTabClick('calendar')}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
                       activeTab === 'calendar'
-                        ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                        : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                        ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                        : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
                     }`}
                   >
-                    <Calendar className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                    <Calendar className="w-3.5 h-3.5 shrink-0" />
                     <span>Ocupación (Calendario)</span>
                   </button>
 
                   {/* Lista de Reservas */}
                   <button
                     onClick={() => handleTabClick('bookings')}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
                       activeTab === 'bookings'
-                        ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                        : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                        ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                        : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
                     }`}
                   >
-                    <FileSpreadsheet className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                    <FileSpreadsheet className="w-3.5 h-3.5 shrink-0" />
                     <span>Lista de Reservas</span>
                   </button>
 
                   {/* Opcionales */}
                   <button
                     onClick={() => handleTabClick('addons')}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
                       activeTab === 'addons'
-                        ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                        : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                        ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                        : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
                     }`}
                   >
-                    <ShoppingBag className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                    <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
                     <span>Opcionales & Extras</span>
                   </button>
 
                   {/* Avisos & WhatsApp */}
                   <button
                     onClick={() => handleTabClick('messages')}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
                       activeTab === 'messages'
-                        ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                        : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                        ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                        : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
                     }`}
                   >
-                    <MessageSquare className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                    <MessageSquare className="w-3.5 h-3.5 shrink-0" />
                     <span>Avisos & WhatsApp</span>
                   </button>
                 </>
@@ -266,13 +269,13 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               {/* Guía Huésped */}
               <button
                 onClick={() => handleTabClick('welcome-guide')}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
                   activeTab === 'welcome-guide'
-                    ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                    : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                    : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
                 }`}
               >
-                <Compass className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                <Compass className="w-3.5 h-3.5 shrink-0" />
                 <span>Guía Huésped & Web</span>
               </button>
             </div>
@@ -280,25 +283,25 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
 
           {/* RUBRO 2: LIMPIEZA */}
           <div>
-            <div className="px-2 pb-1.5 text-[10px] font-bold tracking-wider text-[#8e8a83] dark:text-[#6e6c68] uppercase">
-              Limpieza
+            <div className="px-2 pb-1.5 text-[10px] font-black tracking-widest text-[#71717A] dark:text-[#8E8E93] uppercase">
+              Limpieza & Asistente
             </div>
-            <div className="space-y-0.5">
+            <div className="space-y-1">
               {/* Agenda Limpiezas */}
               <button
                 onClick={() => handleTabClick('housekeeping')}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
                   activeTab === 'housekeeping'
-                    ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                    : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                    : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                  <Sparkles className="w-3.5 h-3.5 shrink-0" />
                   <span>Agenda Housekeeping</span>
                 </div>
                 {pendingCleaningsCount > 0 && (
-                  <span className="bg-[#f4eee7] dark:bg-[#3a2820] text-[#9c512a] dark:text-[#e09060] text-[10px] font-bold px-1.5 py-0.2 rounded-full border border-[#e4d6c9] dark:border-[#5a3a2a]">
+                  <span className="bg-[#E1500A] text-white text-[10px] font-black px-1.5 py-0.5 rounded-none">
                     {pendingCleaningsCount}
                   </span>
                 )}
@@ -307,10 +310,10 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               {/* Xenia Copilot */}
               <button
                 onClick={() => handleTabClick('xenia')}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
                   activeTab === 'xenia'
-                    ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                    : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                    : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
                 }`}
               >
                 <XeniaAvatar size="xs" showStatus={false} />
@@ -319,23 +322,23 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
             </div>
           </div>
 
-          {/* RUBRO 3: ADMINISTRACIÓN (only visible for roles with admin capabilities or frontdesk) */}
+          {/* RUBRO 3: ADMINISTRACIÓN */}
           {userRole !== 'housekeeping' && (
             <div>
-              <div className="px-2 pb-1.5 text-[10px] font-bold tracking-wider text-[#8e8a83] dark:text-[#6e6c68] uppercase">
+              <div className="px-2 pb-1.5 text-[10px] font-black tracking-widest text-[#71717A] dark:text-[#8E8E93] uppercase">
                 Administración
               </div>
-              <div className="space-y-0.5">
+              <div className="space-y-1">
                 {/* Caja Chica */}
                 <button
                   onClick={() => handleTabClick('cash-drawer')}
-                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                  className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
                     activeTab === 'cash-drawer'
-                      ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                      : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                      ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                      : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
                   }`}
                 >
-                  <TrendingDown className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                  <TrendingDown className="w-3.5 h-3.5 shrink-0" />
                   <span>{userRole === 'frontdesk' ? 'Caja de Mostrador' : 'Gastos & Caja'}</span>
                 </button>
 
@@ -344,26 +347,26 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                     {/* Rendimiento */}
                     <button
                       onClick={() => handleTabClick('finances')}
-                      className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                      className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
                         activeTab === 'finances'
-                          ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                          : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                          ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                          : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
                       }`}
                     >
-                      <DollarSign className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                      <DollarSign className="w-3.5 h-3.5 shrink-0" />
                       <span>Rendimiento Financiero</span>
                     </button>
 
                     {/* Unidades */}
                     <button
                       onClick={() => handleTabClick('properties')}
-                      className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors text-left ${
+                      className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
                         activeTab === 'properties'
-                          ? 'bg-[#edeae2] dark:bg-[#262422] text-[#1c1b18] dark:text-[#f2efe9] shadow-2xs border border-[#ded9cd] dark:border-[#38322c]'
-                          : 'text-[#66625a] dark:text-[#9c9994] hover:bg-[#edeae2]/60 dark:hover:bg-[#1e1e1e] hover:text-[#1c1b18] dark:hover:text-[#e4e1dc]'
+                          ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                          : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
                       }`}
                     >
-                      <Building2 className="w-3.5 h-3.5 text-[#78746c] dark:text-[#a8a49e]" />
+                      <Building2 className="w-3.5 h-3.5 shrink-0" />
                       <span>Departamentos & iCal</span>
                     </button>
 
@@ -374,9 +377,9 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                           onOpenOnboardingWizard();
                           if (onMobileClose) onMobileClose();
                         }}
-                        className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#c46d45] dark:text-[#d88d5e] hover:bg-[#f4eee7] dark:hover:bg-[#28211c] transition-colors text-left border border-dashed border-[#c46d45]/40 dark:border-[#523d2e]/60"
+                        className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold text-[#E1500A] hover:bg-[#E1500A] hover:text-white transition-colors text-left border border-[#E1500A]/40"
                       >
-                        <Sliders className="w-3.5 h-3.5 text-[#c46d45] dark:text-[#d88d5e]" />
+                        <Sliders className="w-3.5 h-3.5" />
                         <span>Configurar Deptos</span>
                       </button>
                     )}
@@ -388,45 +391,45 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
         </div>
 
       {/* Bottom Footer: Switcher & Theme Control */}
-      <div className="p-3 border-t border-[#ded9cd] dark:border-[#242424] bg-[#f4f1ea] dark:bg-[#141414] space-y-2.5">
+      <div className="p-3 border-t border-[#C8C4B7] dark:border-[#222328] bg-[#EAE8E3] dark:bg-[#0C0D0F] space-y-2.5">
         {/* Quick Theme Switcher Pill in Footer */}
         <button
           onClick={onToggleTheme}
-          className="w-full py-1.5 px-2.5 rounded-lg bg-white dark:bg-[#1f1f1f] border border-[#ded9cd] dark:border-[#2a2a2a] text-xs font-semibold text-[#44403a] dark:text-[#d0cdc8] hover:border-[#c46d45]/50 flex items-center justify-between transition-colors shadow-2xs cursor-pointer"
+          className="w-full py-1.5 px-2.5 rounded-none bg-white dark:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] text-xs font-black text-[#18181B] dark:text-white hover:border-[#E1500A] flex items-center justify-between transition-colors shadow-2xs cursor-pointer"
         >
           <div className="flex items-center gap-2">
             {isDark ? (
-              <Moon className="w-3.5 h-3.5 text-amber-400" />
+              <Moon className="w-3.5 h-3.5 text-[#E1500A]" />
             ) : (
-              <Sun className="w-3.5 h-3.5 text-[#c46d45]" />
+              <Sun className="w-3.5 h-3.5 text-[#E1500A]" />
             )}
             <span>{isDark ? 'Modo Oscuro' : 'Modo Claro'}</span>
           </div>
-          <span className="text-[10px] text-[#8e8a83] bg-[#edeae2] dark:bg-[#292929] px-1.5 py-0.5 rounded font-mono">
+          <span className="text-[10px] text-[#71717A] dark:text-[#8E8E93] bg-[#EAE8E3] dark:bg-[#0C0D0F] px-1.5 py-0.5 rounded-none font-mono">
             {isDark ? 'Oscuro' : 'Claro'}
           </span>
         </button>
 
         {/* Complex Selector */}
-        <div className="flex items-center justify-between text-[11px] text-[#7a7874] px-1">
+        <div className="flex items-center justify-between text-[11px] text-[#71717A] dark:text-[#8E8E93] px-1 font-bold">
           <span>Complejo:</span>
           <div className="flex items-center gap-1">
             <button
               onClick={() => onSwitchComplex('catalinas')}
-              className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+              className={`px-1.5 py-0.5 rounded-none text-[10px] font-black ${
                 activeComplex === 'catalinas'
-                  ? 'bg-[#c46d45] text-white dark:bg-[#2e2a26] dark:text-[#e8a070]'
-                  : 'hover:text-[#1c1b18] dark:hover:text-[#b8b5b0]'
+                  ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B]'
+                  : 'hover:text-[#18181B] dark:hover:text-white'
               }`}
             >
               Catalinas
             </button>
             <button
               onClick={() => onSwitchComplex('woodcabin')}
-              className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+              className={`px-1.5 py-0.5 rounded-none text-[10px] font-black ${
                 activeComplex === 'woodcabin'
-                  ? 'bg-[#c46d45] text-white dark:bg-[#2e2a26] dark:text-[#e8a070]'
-                  : 'hover:text-[#1c1b18] dark:hover:text-[#b8b5b0]'
+                  ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B]'
+                  : 'hover:text-[#18181B] dark:hover:text-white'
               }`}
             >
               Wood
@@ -434,7 +437,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
             {activeComplex === 'custom' && (
               <button
                 onClick={() => onSwitchComplex('custom')}
-                className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#2e5235] text-white dark:bg-[#1e2e22] dark:text-[#80cf9b]"
+                className="px-1.5 py-0.5 rounded-none text-[10px] font-black bg-[#E1500A] text-white"
               >
                 Real
               </button>
@@ -443,16 +446,16 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
         </div>
 
         {/* Back to landing */}
-        <div className="flex flex-col gap-1.5 pt-1 text-[10px] text-[#78746c] dark:text-[#6e6c68]">
+        <div className="flex flex-col gap-1.5 pt-1 text-[10px] text-[#71717A] dark:text-[#8E8E93]">
           <div className="flex items-center justify-between">
             <button
               onClick={onBackToLanding}
-              className="hover:text-[#1c1b18] dark:hover:text-[#b0ada8] transition-colors flex items-center gap-1 font-semibold"
+              className="hover:text-[#E1500A] transition-colors flex items-center gap-1 font-black"
             >
               <LogOut className="w-3 h-3" />
               <span>Volver a la Portada</span>
             </button>
-            <span>v2.2</span>
+            <span className="font-bold">v2.2</span>
           </div>
         </div>
       </div>
@@ -462,7 +465,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
   return (
     <>
       {/* Desktop Persistent Sidebar */}
-      <aside className="hidden lg:flex w-64 shrink-0 bg-[#fbf9f5] dark:bg-[#161616] text-[#3c3933] dark:text-[#e0deda] border-r border-[#ded9cd] dark:border-[#242424] flex-col justify-between h-screen sticky top-0 select-none overflow-y-auto z-30 font-sans transition-colors">
+      <aside className="hidden lg:flex w-64 shrink-0 bg-[#EAE8E3] dark:bg-[#0C0D0F] text-[#18181B] dark:text-[#EFECE5] border-r border-[#C8C4B7] dark:border-[#222328] flex-col justify-between h-screen sticky top-0 select-none overflow-y-auto z-30 font-sans transition-colors">
         {renderSidebarContent()}
       </aside>
 
@@ -472,11 +475,11 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
           {/* Blur Backdrop */}
           <div
             onClick={onMobileClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
           />
 
           {/* Drawer content */}
-          <aside className="relative w-64 h-full bg-[#fbf9f5] dark:bg-[#161616] text-[#3c3933] dark:text-[#e0deda] border-r border-[#ded9cd] dark:border-[#242424] flex flex-col justify-between select-none overflow-y-auto font-sans transition-colors shadow-2xl animate-in slide-in-from-left duration-250">
+          <aside className="relative w-64 h-full bg-[#EAE8E3] dark:bg-[#0C0D0F] text-[#18181B] dark:text-[#EFECE5] border-r border-[#C8C4B7] dark:border-[#222328] flex flex-col justify-between select-none overflow-y-auto font-sans transition-colors shadow-2xl animate-in slide-in-from-left duration-250">
             {renderSidebarContent()}
           </aside>
         </div>

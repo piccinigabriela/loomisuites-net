@@ -281,10 +281,10 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-zinc-900 w-full max-w-lg rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 overflow-hidden transition-colors flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200 font-sans">
+      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] w-full max-w-lg rounded-none shadow-2xl border border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-[#EFECE5] overflow-hidden transition-colors flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="bg-[#1c1b18] dark:bg-[#141414] text-white p-5 flex items-center justify-between border-b border-[#2e2a25] dark:border-[#222] shrink-0">
+        <div className="bg-[#18181B] dark:bg-[#141518] text-white p-4 sm:p-5 flex items-center justify-between border-b border-[#222328] shrink-0">
           <div className="flex items-center gap-3">
             {!isEditing && (
               <img
@@ -293,14 +293,14 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
                 }
                 alt={reservation.guestName}
-                className="w-10 h-10 rounded-full object-cover border border-[#3e3a35]"
+                className="w-10 h-10 rounded-none object-cover border border-[#3A3C44]"
               />
             )}
             <div>
-              <h3 className="text-base font-bold font-['Outfit'] flex items-center gap-2">
+              <h3 className="text-base font-bold flex items-center gap-2 uppercase tracking-wide">
                 <span>{isEditing ? 'Editar Reserva' : reservation.guestName}</span>
                 {isEditing && (
-                  <span className="text-[10px] font-bold bg-[#382a20] text-[#e89f78] border border-[#5a3a28] px-2 py-0.5 rounded-full uppercase">
+                  <span className="text-[10px] font-black bg-[#E1500A] text-white px-2 py-0.5 rounded-none uppercase">
                     Modo Edición
                   </span>
                 )}
@@ -308,24 +308,24 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
               {!isEditing ? (
                 <div className="flex items-center gap-2 mt-0.5">
                   <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-none uppercase ${
                       reservation.platform === 'airbnb'
-                        ? 'bg-[#c46d45] text-white'
+                        ? 'bg-[#E1500A] text-white'
                         : reservation.platform === 'booking'
-                        ? 'bg-[#3b6088] text-white'
+                        ? 'bg-[#2563EB] text-white'
                         : reservation.platform === 'direct'
-                        ? 'bg-[#3e6645] text-white'
-                        : 'bg-[#5c4a6b] text-white'
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-purple-600 text-white'
                     }`}
                   >
                     Canal: {reservation.platform}
                   </span>
-                  <span className="text-[10px] text-[#8e8c87] font-medium">
+                  <span className="text-[10px] text-[#8E8E93] font-mono">
                     ID: {reservation.id.slice(0, 8)}
                   </span>
                 </div>
               ) : (
-                <p className="text-xs text-[#8e8c87]">Modifica fechas, precios, cabaña o datos del huésped</p>
+                <p className="text-xs text-[#8E8E93]">Modifica fechas, precios, cabaña o datos del huésped</p>
               )}
             </div>
           </div>
@@ -335,7 +335,7 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
               <button
                 id="btn-open-edit-reservation"
                 onClick={() => setIsEditing(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#c46d45] hover:bg-[#b55e37] text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-[#E1500A] hover:bg-[#C44307] text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-xs"
                 title="Editar todos los datos de la reserva"
               >
                 <Pencil className="w-3.5 h-3.5" />
@@ -345,7 +345,7 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
 
             <button
               onClick={onClose}
-              className="text-[#8e8c87] hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
+              className="text-[#71717A] hover:text-white p-1 rounded-none transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -1058,16 +1058,16 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
               )}
 
               {/* Action triggers */}
-              <div className="pt-2 flex flex-col gap-2">
-                {/* Prominent Edit button at the bottom as well */}
+              <div className="pt-2 flex flex-col gap-2 font-sans">
+                {/* Prominent Edit button at the bottom */}
                 {onUpdateReservation && (
                   <button
                     id="btn-edit-reservation-footer"
                     onClick={() => setIsEditing(true)}
-                    className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 border border-zinc-300 dark:border-zinc-700 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full py-2.5 px-4 rounded-none bg-white hover:bg-[#DCD8CE] dark:bg-[#141518] dark:hover:bg-[#222328] text-[#18181B] dark:text-[#EFECE5] border border-[#C8C4B7] dark:border-[#222328] text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 shadow-2xs"
                   >
-                    <Pencil className="w-3.5 h-3.5 text-rose-500" />
-                    <span>Editar Datos de la Reserva (Fechas, Precios, Cabaña)</span>
+                    <Pencil className="w-3.5 h-3.5 text-[#E1500A]" />
+                    <span>Editar Datos de la Reserva</span>
                   </button>
                 )}
 
@@ -1076,10 +1076,10 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                     onClose();
                     onOpenMessagesWithGuest(reservation.id);
                   }}
-                  className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs"
+                  className="w-full py-2.5 px-4 rounded-none bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>Abrir Plantilla de WhatsApp para este Huésped</span>
+                  <span>Abrir Plantilla de WhatsApp</span>
                 </button>
 
                 {/* Status updates */}
@@ -1092,7 +1092,7 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                       );
                       onClose();
                     }}
-                    className="py-2 px-3 rounded-xl border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-xs font-semibold text-zinc-800 dark:text-zinc-200 transition-colors cursor-pointer text-center"
+                    className="py-2 px-3 rounded-none border border-[#C8C4B7] dark:border-[#222328] hover:bg-white dark:hover:bg-[#141518] text-xs font-bold uppercase tracking-wider text-[#18181B] dark:text-[#EFECE5] transition-colors cursor-pointer text-center"
                   >
                     {reservation.status === 'checked_in' ? 'Marcar Check-out' : 'Marcar Check-in'}
                   </button>
@@ -1102,7 +1102,7 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                       onDeleteReservation(reservation.id);
                       onClose();
                     }}
-                    className="py-2 px-3 rounded-xl border border-red-200 dark:border-red-900/60 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1"
+                    className="py-2 px-3 rounded-none border border-rose-300 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Eliminar Reserva</span>

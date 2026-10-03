@@ -15,9 +15,9 @@ export const XENIA_PORTRAIT_PRESETS = [
     url: '/xenia.jpeg',
   },
   {
-    id: 'concierge-warm',
-    label: 'Concierge Cálida (Original)',
-    url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+    id: 'executive-warm',
+    label: 'Xenia Ejecutiva Boutique',
+    url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: 'reception-friendly',
@@ -25,9 +25,9 @@ export const XENIA_PORTRAIT_PRESETS = [
     url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80',
   },
   {
-    id: 'host-professional',
-    label: 'Anfitriona Profesional',
-    url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=400&q=80',
+    id: 'contemporary-host',
+    label: 'Anfitriona Contemporánea',
+    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: 'lodging-specialist',

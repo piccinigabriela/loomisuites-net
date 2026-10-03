@@ -218,16 +218,16 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 font-sans">
       {/* Search and Filters Header */}
-      <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-[#ded9cd] dark:border-[#2a2a2a] p-5 shadow-xs space-y-4 print:hidden transition-colors">
+      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-4 sm:p-5 shadow-2xs space-y-4 print:hidden transition-colors">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div>
-            <h3 className="text-base font-bold text-[#1c1b18] dark:text-[#f4f2ee] flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-[#c46d45] dark:text-[#d88d5e]" />
+            <h3 className="text-base font-bold text-[#18181B] dark:text-[#EFECE5] flex items-center gap-2 tracking-tight">
+              <Calendar className="w-5 h-5 text-[#E1500A]" />
               <span>Lista de Reservas del Complejo</span>
             </h3>
-            <p className="text-xs text-[#78746c] dark:text-[#8e8c87] mt-0.5">
+            <p className="text-xs text-[#71717A] dark:text-[#8E8E93] mt-0.5">
               Gestión total, filtros de estado, buscador de clientes y registración de cobros.
             </p>
           </div>
@@ -235,30 +235,30 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
           <div className="flex items-center gap-2 w-full lg:w-auto shrink-0">
             <button
               onClick={handleExportCSV}
-              className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 text-xs font-bold text-[#1c1b18] dark:text-[#c8c5c0] bg-[#f8f6f2] dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2c2c2c] border border-[#ded9cd] dark:border-[#333] px-3.5 py-2 rounded-xl transition-colors cursor-pointer"
+              className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#18181B] dark:text-[#EFECE5] bg-white dark:bg-[#18181B] hover:bg-[#DCD8CE] dark:hover:bg-[#222328] border border-[#C8C4B7] dark:border-[#222328] px-3.5 py-2 rounded-none transition-colors cursor-pointer"
             >
-              <Download className="w-4 h-4 text-zinc-500" />
+              <Download className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93]" />
               <span>Exportar CSV</span>
             </button>
             <button
               onClick={handlePrint}
-              className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 text-xs font-bold text-[#1c1b18] dark:text-[#c8c5c0] bg-[#f8f6f2] dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2c2c2c] border border-[#ded9cd] dark:border-[#333] px-3.5 py-2 rounded-xl transition-colors cursor-pointer"
+              className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#18181B] dark:text-[#EFECE5] bg-white dark:bg-[#18181B] hover:bg-[#DCD8CE] dark:hover:bg-[#222328] border border-[#C8C4B7] dark:border-[#222328] px-3.5 py-2 rounded-none transition-colors cursor-pointer"
             >
-              <Printer className="w-4 h-4 text-[#c46d45] dark:text-[#d88d5e]" />
+              <Printer className="w-4 h-4 text-[#E1500A]" />
               <span>Imprimir / PDF</span>
             </button>
           </div>
         </div>
 
         {/* Filters Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {/* Property Select */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-[#78746c] dark:text-[#8e8c87] uppercase tracking-wider block">Propiedad</label>
+            <label className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider block">Propiedad</label>
             <select
               value={propertyFilter}
               onChange={(e) => setPropertyFilter(e.target.value)}
-              className="w-full text-xs font-semibold bg-[#fbf9f5] dark:bg-[#222] border border-[#ded9cd] dark:border-[#333] rounded-xl px-3 py-2 text-[#1c1b18] dark:text-[#e0deda] focus:outline-none focus:border-[#c46d45] transition-colors"
+              className="w-full text-xs font-bold bg-[#F4F2EE] dark:bg-[#141518] border border-[#C8C4B7] dark:border-[#222328] rounded-none px-3 py-2 text-[#18181B] dark:text-[#EFECE5] focus:outline-none focus:border-[#E1500A] transition-colors cursor-pointer"
             >
               <option value="todos">Todas las unidades</option>
               {demoState.properties.map((p) => (
@@ -271,11 +271,11 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
 
           {/* Status Select */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-[#78746c] dark:text-[#8e8c87] uppercase tracking-wider block">Estado Reserva</label>
+            <label className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider block">Estado Reserva</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full text-xs font-semibold bg-[#fbf9f5] dark:bg-[#222] border border-[#ded9cd] dark:border-[#333] rounded-xl px-3 py-2 text-[#1c1b18] dark:text-[#e0deda] focus:outline-none focus:border-[#c46d45] transition-colors"
+              className="w-full text-xs font-bold bg-[#F4F2EE] dark:bg-[#141518] border border-[#C8C4B7] dark:border-[#222328] rounded-none px-3 py-2 text-[#18181B] dark:text-[#EFECE5] focus:outline-none focus:border-[#E1500A] transition-colors cursor-pointer"
             >
               <option value="todos">Todos los Estados</option>
               <option value="confirmed">Confirmada</option>
@@ -287,46 +287,46 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
 
           {/* Check-In Start */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-[#78746c] dark:text-[#8e8c87] uppercase tracking-wider block">Check-in Desde</label>
+            <label className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider block">Check-in Desde</label>
             <div className="relative">
               <input
                 type="date"
                 value={checkInStart}
                 onChange={(e) => setCheckInStart(e.target.value)}
-                className="w-full text-xs font-semibold bg-[#fbf9f5] dark:bg-[#222] border border-[#ded9cd] dark:border-[#333] rounded-xl px-3 py-2 text-[#1c1b18] dark:text-[#e0deda] focus:outline-none focus:border-[#c46d45] transition-colors"
+                className="w-full text-xs font-bold bg-[#F4F2EE] dark:bg-[#141518] border border-[#C8C4B7] dark:border-[#222328] rounded-none px-3 py-2 text-[#18181B] dark:text-[#EFECE5] focus:outline-none focus:border-[#E1500A] transition-colors font-mono cursor-pointer"
               />
             </div>
           </div>
 
           {/* Check-In End */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-[#78746c] dark:text-[#8e8c87] uppercase tracking-wider block">Check-in Hasta</label>
+            <label className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider block">Check-in Hasta</label>
             <div className="relative">
               <input
                 type="date"
                 value={checkInEnd}
                 onChange={(e) => setCheckInEnd(e.target.value)}
-                className="w-full text-xs font-semibold bg-[#fbf9f5] dark:bg-[#222] border border-[#ded9cd] dark:border-[#333] rounded-xl px-3 py-2 text-[#1c1b18] dark:text-[#e0deda] focus:outline-none focus:border-[#c46d45] transition-colors"
+                className="w-full text-xs font-bold bg-[#F4F2EE] dark:bg-[#141518] border border-[#C8C4B7] dark:border-[#222328] rounded-none px-3 py-2 text-[#18181B] dark:text-[#EFECE5] focus:outline-none focus:border-[#E1500A] transition-colors font-mono cursor-pointer"
               />
             </div>
           </div>
 
           {/* Search Term */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-[#78746c] dark:text-[#8e8c87] uppercase tracking-wider block">Buscar Huésped</label>
+            <label className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider block">Buscar Huésped</label>
             <div className="relative">
-              <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-3 top-2.5" />
+              <Search className="w-3.5 h-3.5 text-[#71717A] dark:text-[#8E8E93] absolute left-3 top-2.5" />
               <input
                 type="text"
                 placeholder="Buscar por nombre..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full text-xs font-semibold bg-[#fbf9f5] dark:bg-[#222] border border-[#ded9cd] dark:border-[#333] rounded-xl pl-9 pr-8 py-2 text-[#1c1b18] dark:text-[#e0deda] focus:outline-none focus:border-[#c46d45] transition-colors"
+                className="w-full text-xs font-bold bg-[#F4F2EE] dark:bg-[#141518] border border-[#C8C4B7] dark:border-[#222328] rounded-none pl-9 pr-8 py-2 text-[#18181B] dark:text-[#EFECE5] focus:outline-none focus:border-[#E1500A] transition-colors"
               />
               {(searchTerm || statusFilter !== 'todos' || propertyFilter !== 'todos' || checkInStart || checkInEnd) && (
                 <button
                   onClick={handleClearFilters}
-                  className="absolute right-2.5 top-2.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer"
+                  className="absolute right-2.5 top-2.5 text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white cursor-pointer"
                   title="Limpiar Filtros"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -338,12 +338,12 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
       </div>
 
       {/* Main Bookings Table Card */}
-      <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-[#ded9cd] dark:border-[#2a2a2a] shadow-xs overflow-hidden transition-colors">
+      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-2xs overflow-hidden transition-colors">
         {/* Responsive Table Wrapper */}
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-[#ded9cd] dark:border-[#2a2a2a] bg-[#fbf9f5] dark:bg-[#1e1e1e] text-[#78746c] dark:text-[#8e8c87] text-[10px] font-bold uppercase tracking-wider transition-colors">
+              <tr className="border-b border-[#C8C4B7] dark:border-[#222328] bg-[#DEDBD2] dark:bg-[#141518] text-[#71717A] dark:text-[#8E8E93] text-[10px] font-black uppercase tracking-wider transition-colors">
                 <th className="py-3 px-4 text-center w-10">#</th>
                 <th className="py-3 px-4 w-16">Depto</th>
                 <th className="py-3 px-4">Huésped</th>
@@ -359,16 +359,16 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                 <th className="py-3 px-4 text-center print:hidden">Acción</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#ded9cd]/60 dark:divide-[#2a2a2a]/60 text-xs text-[#1c1b18] dark:text-[#e0deda] transition-colors">
+            <tbody className="divide-y divide-[#C8C4B7]/40 dark:divide-[#222328] text-xs text-[#18181B] dark:text-[#EFECE5] transition-colors">
               {filteredReservations.length === 0 ? (
                 <tr>
-                  <td colSpan={13} className="py-12 text-center text-[#78746c] dark:text-[#8e8c87]">
+                  <td colSpan={13} className="py-12 text-center text-[#71717A] dark:text-[#8E8E93]">
                     <div className="flex flex-col items-center justify-center gap-2">
-                      <Calendar className="w-8 h-8 text-zinc-300" />
-                      <span className="font-semibold text-sm">No se encontraron reservas con los filtros aplicados</span>
+                      <Calendar className="w-8 h-8 text-[#71717A] dark:text-[#8E8E93]" />
+                      <span className="font-bold text-sm">No se encontraron reservas con los filtros aplicados</span>
                       <button
                         onClick={handleClearFilters}
-                        className="text-xs text-[#c46d45] dark:text-[#d88d5e] hover:underline font-bold"
+                        className="text-xs text-[#E1500A] hover:underline font-bold"
                       >
                         Limpiar todos los filtros
                       </button>
@@ -385,68 +385,68 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                   return (
                     <tr
                       key={res.id}
-                      className="hover:bg-[#fbf9f5]/50 dark:hover:bg-[#222]/30 transition-colors group"
+                      className="hover:bg-[#DEDBD2]/30 dark:hover:bg-[#141518]/60 transition-colors group"
                     >
                       {/* # Index */}
-                      <td className="py-3.5 px-4 text-center font-medium text-[#7a7874]">
+                      <td className="py-3.5 px-4 text-center font-bold font-mono text-[#71717A] dark:text-[#8E8E93]">
                         {index + 1}
                       </td>
 
                       {/* Depto badge */}
                       <td className="py-3.5 px-4">
-                        <span className={`inline-flex items-center justify-center w-7 h-7 text-[10px] font-black rounded-lg ${badge.color}`}>
+                        <span className={`inline-flex items-center justify-center w-7 h-7 text-[10px] font-black rounded-none ${badge.color}`}>
                           {badge.code}
                         </span>
                       </td>
 
                       {/* Guest info */}
-                      <td className="py-3.5 px-4 font-semibold text-zinc-900 dark:text-[#f4f2ee]">
+                      <td className="py-3.5 px-4 font-semibold text-[#18181B] dark:text-[#EFECE5]">
                         <div>
-                          <p className="font-bold">{res.guestName}</p>
-                          <p className="text-[10px] text-zinc-400 font-medium group-hover:text-zinc-500 transition-colors">
+                          <p className="font-black tracking-tight">{res.guestName}</p>
+                          <p className="text-[10px] text-[#71717A] dark:text-[#8E8E93] font-mono group-hover:text-[#18181B] dark:group-hover:text-white transition-colors">
                             {res.guestPhone}
                           </p>
                         </div>
                       </td>
 
                       {/* Check-In */}
-                      <td className="py-3.5 px-4 font-medium font-mono text-zinc-700 dark:text-zinc-300">
+                      <td className="py-3.5 px-4 font-bold font-mono text-[#18181B] dark:text-[#EFECE5]">
                         {formatDisplayDate(res.checkIn)}
                       </td>
 
                       {/* Check-Out */}
-                      <td className="py-3.5 px-4 font-medium font-mono text-zinc-700 dark:text-zinc-300">
+                      <td className="py-3.5 px-4 font-bold font-mono text-[#18181B] dark:text-[#EFECE5]">
                         {formatDisplayDate(res.checkOut)}
                       </td>
 
                       {/* Noches count */}
-                      <td className="py-3.5 px-3 text-center font-extrabold text-zinc-800 dark:text-zinc-200">
+                      <td className="py-3.5 px-3 text-center font-black text-[#18181B] dark:text-[#EFECE5]">
                         {res.nights}
                       </td>
 
                       {/* Nightly rate in USD */}
-                      <td className="py-3.5 px-4 text-right font-medium font-mono text-zinc-600 dark:text-zinc-400">
+                      <td className="py-3.5 px-4 text-right font-bold font-mono text-[#71717A] dark:text-[#8E8E93]">
                         USD {nightlyRate.toFixed(2)}
                       </td>
 
                       {/* Subtotal amount */}
-                      <td className="py-3.5 px-4 text-right font-bold font-mono text-zinc-900 dark:text-[#f4f2ee]">
+                      <td className="py-3.5 px-4 text-right font-black font-mono text-[#18181B] dark:text-[#EFECE5]">
                         USD {res.totalAmount.toFixed(2)}
                       </td>
 
                       {/* Platform / Canal */}
                       <td className="py-3.5 px-4 text-center">
-                        <div className="inline-flex items-center justify-center px-2 py-1 rounded-md bg-[#fcfaf7] dark:bg-[#1a1a1a] border border-[#ded9cd]/40 dark:border-[#333]">
+                        <div className="inline-flex items-center justify-center px-2 py-1 rounded-none bg-white dark:bg-[#141518] border border-[#C8C4B7] dark:border-[#222328]">
                           {getPlatformIcon(res.platform)}
                         </div>
                       </td>
 
-                      {/* Neto revenue after agency fee */}
-                      <td className="py-3.5 px-4 text-right font-bold font-mono text-zinc-900 dark:text-[#f4f2ee]">
+                      {/* Neto revenue */}
+                      <td className="py-3.5 px-4 text-right font-black font-mono text-[#18181B] dark:text-[#EFECE5]">
                         USD {res.netRevenue.toFixed(2)}
                       </td>
 
-                      {/* Cobro / payment dropdown selector */}
+                      {/* Cobro / payment dropdown */}
                       <td className="py-3.5 px-4 text-center relative print:pointer-events-none">
                         <div className="relative inline-block text-left">
                           <button
@@ -454,29 +454,29 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                               setActivePaymentDropdown(activePaymentDropdown === res.id ? null : res.id);
                               setActiveStatusDropdown(null);
                             }}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all cursor-pointer ${paymentInfo.color}`}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none text-[10px] font-bold border transition-all cursor-pointer ${paymentInfo.color}`}
                           >
                             <span>{paymentInfo.label}</span>
                             <ChevronDown className="w-3 h-3 opacity-60" />
                           </button>
 
                           {activePaymentDropdown === res.id && (
-                            <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-lg z-50 overflow-hidden text-left py-1 animate-in fade-in slide-in-from-top-1">
+                            <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-[#141518] rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-lg z-50 overflow-hidden text-left py-1 animate-in fade-in slide-in-from-top-1">
                               <button
                                 onClick={() => handleUpdatePaymentStatusInline(res.id, 'paid')}
-                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 hover:bg-[#DEDBD2] dark:hover:bg-[#222328] transition-colors"
                               >
                                 Pagado
                               </button>
                               <button
                                 onClick={() => handleUpdatePaymentStatusInline(res.id, 'pending')}
-                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-amber-700 dark:text-amber-400 hover:bg-[#DEDBD2] dark:hover:bg-[#222328] transition-colors"
                               >
                                 Pendiente
                               </button>
                               <button
                                 onClick={() => handleUpdatePaymentStatusInline(res.id, 'deposit_only')}
-                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-blue-700 dark:text-blue-400 hover:bg-[#DEDBD2] dark:hover:bg-[#222328] transition-colors"
                               >
                                 Seña Cobrada
                               </button>
@@ -493,20 +493,20 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                               setActiveStatusDropdown(activeStatusDropdown === res.id ? null : res.id);
                               setActivePaymentDropdown(null);
                             }}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all cursor-pointer ${statusInfo.color}`}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none text-[10px] font-bold border transition-all cursor-pointer ${statusInfo.color}`}
                           >
                             <span>{statusInfo.label}</span>
                             <ChevronDown className="w-3 h-3 opacity-60" />
                           </button>
 
                           {activeStatusDropdown === res.id && (
-                            <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-lg z-50 overflow-hidden text-left py-1 animate-in fade-in slide-in-from-top-1">
+                            <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-[#141518] rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-lg z-50 overflow-hidden text-left py-1 animate-in fade-in slide-in-from-top-1">
                               <button
                                 onClick={() => {
                                   onUpdateReservationStatus(res.id, 'confirmed');
                                   setActiveStatusDropdown(null);
                                 }}
-                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-emerald-700 hover:bg-[#DEDBD2] dark:hover:bg-[#222328] transition-colors"
                               >
                                 Confirmada
                               </button>
@@ -515,7 +515,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                                   onUpdateReservationStatus(res.id, 'checked_in');
                                   setActiveStatusDropdown(null);
                                 }}
-                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-blue-700 hover:bg-[#DEDBD2] dark:hover:bg-[#222328] transition-colors"
                               >
                                 En Cabaña
                               </button>
@@ -524,7 +524,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                                   onUpdateReservationStatus(res.id, 'checked_out');
                                   setActiveStatusDropdown(null);
                                 }}
-                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-[#71717A] hover:bg-[#DEDBD2] dark:hover:bg-[#222328] transition-colors"
                               >
                                 Salida
                               </button>
@@ -533,7 +533,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                                   onUpdateReservationStatus(res.id, 'cancelled');
                                   setActiveStatusDropdown(null);
                                 }}
-                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-rose-700 hover:bg-[#DEDBD2] dark:hover:bg-[#222328] transition-colors"
                               >
                                 Cancelar
                               </button>
@@ -547,7 +547,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                         <div className="flex items-center justify-center gap-1">
                           <button
                             onClick={() => onSelectReservation(res)}
-                            className="p-1.5 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-[#71717A] dark:text-[#8E8E93] hover:bg-[#DEDBD2] dark:hover:bg-[#222328] rounded-none transition-colors cursor-pointer"
                             title="Ver Ficha / Editar Cobros"
                           >
                             <Eye className="w-3.5 h-3.5" />
@@ -558,7 +558,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                                 onDeleteReservation(res.id);
                               }
                             }}
-                            className="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-none transition-colors cursor-pointer"
                             title="Eliminar Reserva"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -570,11 +570,11 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                 })
               )}
             </tbody>
-            {/* Total Footer row for high-contrast overview */}
+            {/* Total Footer row */}
             {filteredReservations.length > 0 && (
               <tfoot>
-                <tr className="border-t border-[#ded9cd] dark:border-[#2a2a2a] bg-[#fbf9f5]/80 dark:bg-[#1a1a1a] font-bold text-xs text-[#1c1b18] dark:text-[#f4f2ee] transition-colors">
-                  <td colSpan={3} className="py-3 px-4 font-bold text-left text-[#78746c] dark:text-[#8e8c87]">
+                <tr className="border-t border-[#C8C4B7] dark:border-[#222328] bg-[#DEDBD2] dark:bg-[#141518] font-bold text-xs text-[#18181B] dark:text-[#EFECE5] transition-colors">
+                  <td colSpan={3} className="py-3 px-4 font-black uppercase text-left text-[#71717A] dark:text-[#8E8E93]">
                     Totales Filtrados
                   </td>
                   <td colSpan={2} className="py-3 px-4"></td>
@@ -582,11 +582,11 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                     {filteredReservations.reduce((sum, r) => sum + r.nights, 0)}
                   </td>
                   <td className="py-3 px-4"></td>
-                  <td className="py-3 px-4 text-right font-black font-mono text-[#1c1b18] dark:text-[#f4f2ee]">
+                  <td className="py-3 px-4 text-right font-black font-mono text-[#18181B] dark:text-[#EFECE5]">
                     USD {totalSubtotal.toFixed(2)}
                   </td>
                   <td className="py-3 px-4"></td>
-                  <td className="py-3 px-4 text-right font-black font-mono text-emerald-700 dark:text-emerald-400">
+                  <td className="py-3 px-4 text-right font-black font-mono text-emerald-600 dark:text-emerald-400">
                     USD {totalNet.toFixed(2)}
                   </td>
                   <td colSpan={3} className="py-3 px-4"></td>

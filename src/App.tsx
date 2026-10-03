@@ -26,9 +26,7 @@ import {
 
 // Landing Page Components
 import { Navbar } from './components/landing/Navbar';
-import { Hero } from './components/landing/Hero';
-import { QuestionsHub } from './components/landing/QuestionsHub';
-import { ChannelIntegrations } from './components/landing/ChannelIntegrations';
+import { BentoLanding } from './components/landing/BentoLanding';
 import { Footer } from './components/landing/Footer';
 import { LeadModal } from './components/landing/LeadModal';
 
@@ -766,7 +764,7 @@ export default function App() {
 
       {/* RENDER VIEW: LANDING, SUPERADMIN OR DEMO PMS */}
       {currentView === 'landing' ? (
-        <main>
+        <main className="bg-[#ECEAE4] dark:bg-[#0E0F12] min-h-screen transition-colors">
           <Navbar
             theme={theme}
             onToggleTheme={toggleTheme}
@@ -781,18 +779,8 @@ export default function App() {
             }}
           />
 
-          <Hero
-            onOpenDemo={() => {
-              setCurrentView('demo');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onOpenContact={() => {
-              setSelectedPlanForLead(undefined);
-              setIsLeadModalOpen(true);
-            }}
-          />
-
-          <QuestionsHub
+          <BentoLanding
+            theme={theme}
             onOpenDemo={() => {
               setCurrentView('demo');
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -801,9 +789,8 @@ export default function App() {
               setSelectedPlanForLead(planOrTopic || 'Consulta General');
               setIsLeadModalOpen(true);
             }}
+            onOpenLogin={() => setIsAuthModalOpen(true)}
           />
-
-          <ChannelIntegrations />
 
           <Footer
             onOpenDemo={() => {
@@ -817,16 +804,16 @@ export default function App() {
           />
 
           {/* Floating Sticky CTA Bar on Mobile/Desktop */}
-          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 bg-zinc-900/95 backdrop-blur-md text-white px-4 py-2.5 rounded-full shadow-2xl border border-zinc-700 flex items-center gap-3">
-            <span className="text-xs font-medium hidden sm:inline text-zinc-300">
-              ¿Quieres ver cómo funciona en la vida real?
+          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 bg-[#18181B]/95 backdrop-blur-md text-[#EFECE5] px-4 py-2.5 rounded-full shadow-2xl border border-[#27272A] flex items-center gap-3">
+            <span className="text-xs font-bold hidden sm:inline text-[#DCD8CE]">
+              ¿Querés ver cómo funciona en la vida real?
             </span>
             <button
               onClick={() => {
                 setCurrentView('demo');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-bold px-4 py-1.5 rounded-full flex items-center gap-1.5 transition-all cursor-pointer shadow-md shadow-rose-600/30"
+              className="bg-[#E1500A] hover:bg-[#C94305] active:scale-95 text-white text-xs font-black px-4 py-1.5 rounded-full flex items-center gap-1.5 transition-all cursor-pointer shadow-md shadow-[#E1500A]/25"
             >
               <Play className="w-3 h-3 fill-white" />
               <span>Probar Demo en Vivo</span>
@@ -846,8 +833,8 @@ export default function App() {
           theme={theme}
         />
       ) : (
-        /* CLEAN RELAXED CARBON PMS DASHBOARD VIEW */
-        <div className="min-h-screen flex bg-[#f8f6f2] dark:bg-[#141414] text-[#1c1b18] dark:text-[#e0deda] font-sans transition-colors">
+        /* CLEAN ARCHITECTURAL MONOCHROMATIC PMS DASHBOARD VIEW */
+        <div className="min-h-screen flex bg-[#ECEAE4] dark:bg-[#0E0F12] text-[#18181B] dark:text-[#EFECE5] font-sans transition-colors">
           {/* Minimalist Sidebar */}
           <CleanSidebar
             activeTab={demoTab}
@@ -894,26 +881,26 @@ export default function App() {
           />
 
           {/* Main Content Area */}
-          <div className="flex-1 flex flex-col min-w-0 bg-[#f4f1ea] dark:bg-[#141414] overflow-y-auto transition-colors">
-            {/* Minimalist Top Sub-bar with fast actions & status */}
-            <div className="h-12 border-b border-[#ded9cd] dark:border-[#242424] px-4 sm:px-6 flex items-center justify-between bg-[#fbf9f5]/90 dark:bg-[#161616]/90 sticky top-0 z-20 backdrop-blur-xs transition-colors">
+          <div className="flex-1 flex flex-col min-w-0 bg-[#ECEAE4] dark:bg-[#0E0F12] overflow-y-auto transition-colors">
+            {/* Minimalist Architectural Top Sub-bar with fast actions & status */}
+            <div className="h-12 border-b border-[#C8C4B7] dark:border-[#222328] px-4 sm:px-6 flex items-center justify-between bg-[#EAE8E3]/95 dark:bg-[#0C0D0F]/95 sticky top-0 z-20 backdrop-blur-xs transition-colors">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setIsMobileSidebarOpen(true)}
-                  className="lg:hidden p-1.5 rounded-lg text-[#66625a] dark:text-[#a8a5a0] hover:bg-[#edeae2] dark:hover:bg-[#222] border border-[#ded9cd] dark:border-[#333] transition-colors cursor-pointer"
+                  className="lg:hidden p-1.5 rounded-none text-[#71717A] dark:text-[#8E8E93] hover:bg-[#DCD8CE] dark:hover:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] transition-colors cursor-pointer"
                   title="Abrir menú"
                 >
                   <Menu className="w-4 h-4" />
                 </button>
-                <span className="text-xs text-[#78746c] dark:text-[#8c8a85]">
+                <span className="text-xs font-bold text-[#71717A] dark:text-[#8E8E93]">
                   {activeComplex === 'catalinas'
                     ? 'Catalinas Apartamentos (CABA)'
                     : activeComplex === 'woodcabin'
                     ? 'Tu Complejo (Buenos Aires)'
                     : 'Mi Complejo Real'}
                 </span>
-                <span className="text-[#ded9cd] dark:text-[#3a3a3a]">/</span>
-                <span className="text-xs font-bold text-[#1c1b18] dark:text-[#f0eeeb] capitalize">
+                <span className="text-[#C8C4B7] dark:text-[#222328]">/</span>
+                <span className="text-xs font-black text-[#18181B] dark:text-white uppercase tracking-wider">
                   {demoTab === 'overview'
                     ? 'Hoy'
                     : demoTab === 'calendar'
@@ -938,17 +925,17 @@ export default function App() {
                 {/* Visible Light / Dark Switcher in top sub-bar */}
                 <button
                   onClick={toggleTheme}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-[#202020] border border-[#ded9cd] dark:border-[#333] text-[#44403a] dark:text-[#d0cdc8] hover:border-[#c46d45]/50 transition-colors cursor-pointer shadow-2xs"
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-none text-xs font-black bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-white hover:border-[#E1500A] transition-colors cursor-pointer shadow-2xs"
                   title="Cambiar tema"
                 >
                   {theme === 'dark' ? (
                     <>
-                      <Sun className="w-3.5 h-3.5 text-amber-400" />
+                      <Sun className="w-3.5 h-3.5 text-[#E1500A]" />
                       <span>Modo Claro</span>
                     </>
                   ) : (
                     <>
-                      <Moon className="w-3.5 h-3.5 text-[#55514a]" />
+                      <Moon className="w-3.5 h-3.5 text-[#18181B]" />
                       <span>Modo Oscuro</span>
                     </>
                   )}
@@ -958,17 +945,17 @@ export default function App() {
                   <>
                     <button
                       onClick={handleResetData}
-                      className="text-[11px] font-medium text-[#78746c] dark:text-[#9c9994] hover:text-[#1c1b18] dark:hover:text-[#ebe8e1] transition-colors cursor-pointer"
+                      className="text-[11px] font-bold text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white transition-colors cursor-pointer"
                     >
                       Restablecer Muestra
                     </button>
-                    <span className="text-[#ded9cd] dark:text-[#3a3a3a]">|</span>
+                    <span className="text-[#C8C4B7] dark:text-[#222328]">|</span>
                     <button
                       onClick={() => {
                         setSelectedPlanForLead('Plan Cabañas & Deptos (Demo)');
                         setIsLeadModalOpen(true);
                       }}
-                      className="bg-white hover:bg-[#f5f2eb] text-[#1c1b18] dark:bg-[#25221e] dark:hover:bg-[#322c26] dark:text-[#d88d5e] border border-[#ded9cd] dark:border-[#48372b] text-xs font-bold px-2.5 py-1 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                      className="bg-white hover:bg-[#DCD8CE] text-[#18181B] dark:bg-[#18181B] dark:hover:bg-[#27272A] dark:text-white border border-[#C8C4B7] dark:border-[#222328] text-xs font-black px-2.5 py-1 rounded-none transition-colors cursor-pointer flex items-center gap-1 shadow-2xs uppercase tracking-wider"
                       title="Solicitar plan o activación real"
                     >
                       <span>🚀 Solicitar Plan</span>
@@ -981,7 +968,7 @@ export default function App() {
                     setInitialDateForRes(undefined);
                     setIsNewResModalOpen(true);
                   }}
-                  className="bg-[#c46d45] hover:bg-[#b85e35] text-white dark:bg-[#2e2620] dark:hover:bg-[#3d2e24] dark:text-[#d88d5e] border border-transparent dark:border-[#523c2e] text-xs font-bold px-3 py-1 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                  className="bg-[#E1500A] hover:bg-[#C94305] text-white text-xs font-black px-3 py-1 rounded-none transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs uppercase tracking-wider"
                 >
                   <span>+ Nueva Reserva</span>
                 </button>

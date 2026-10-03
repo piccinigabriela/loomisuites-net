@@ -248,22 +248,27 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-[#1c1c1c] rounded-xl border border-[#ded9cd] dark:border-[#262626] shadow-2xs overflow-hidden transition-colors font-sans">
+    <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-2xs overflow-hidden transition-colors font-sans">
       {/* Calendar Header / Filters */}
-      <div className="p-4 sm:p-5 border-b border-[#ded9cd] dark:border-[#262626] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+      <div className="p-4 sm:p-5 border-b border-[#C8C4B7] dark:border-[#222328] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-bold text-[#1c1b18] dark:text-[#f0eeeb] flex items-center gap-2">
-              <CalendarIcon className="w-5 h-5 text-[#c46d45] dark:text-[#c4774a]" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93]">
+              RACK MULTICANAL / EN VIVO
+            </span>
+          </div>
+          <div className="flex items-center gap-2 mt-1">
+            <h3 className="text-xl font-black text-[#18181B] dark:text-white flex items-center gap-2">
+              <CalendarIcon className="w-5 h-5 text-[#E1500A]" />
               <span>Ocupación</span>
             </h3>
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1">
-              <RotateCw className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-none bg-[#E1500A]/15 text-[#E1500A] border border-[#E1500A]/30 flex items-center gap-1">
+              <RotateCw className="w-3 h-3 text-[#E1500A]" />
               <span>Recambios Mismo Día</span>
             </span>
           </div>
-          <p className="text-xs text-[#78746c] dark:text-[#8c8a85] mt-0.5">
-            Calendario Rack PMS — Check-in 14hs / Check-out 10hs con marcación visual de recambios compartidos
+          <p className="text-xs text-[#71717A] dark:text-[#8E8E93] mt-0.5 font-bold">
+            Calendario Rack PMS — Check-in 14hs / Check-out 10hs sincronizado en tiempo real
           </p>
         </div>
 
@@ -272,20 +277,20 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           {onOpenImportModal && (
             <button
               onClick={onOpenImportModal}
-              className="text-xs font-extrabold px-3 py-1.5 rounded-lg border border-[#d88d5e]/30 bg-[#2a221b]/40 hover:bg-[#d88d5e]/15 text-[#d88d5e] flex items-center gap-1.5 transition-all cursor-pointer"
+              className="text-xs font-black uppercase tracking-wider px-3 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] hover:border-[#E1500A] text-[#18181B] dark:text-white flex items-center gap-1.5 transition-all cursor-pointer"
               title="Importar reservas desde Google Calendar (.ics) o archivos CSV / Excel"
             >
-              <CalendarIcon className="w-3.5 h-3.5 text-[#d88d5e]" />
+              <CalendarIcon className="w-3.5 h-3.5 text-[#E1500A]" />
               <span>Importar Google Cal / CSV</span>
             </button>
           )}
 
           {/* Month & Year Navigator */}
-          <div className="flex items-center gap-1 bg-[#f8f6f2] dark:bg-[#242424] p-1 rounded-lg border border-[#ded9cd] dark:border-[#333333]">
+          <div className="flex items-center gap-1 bg-white dark:bg-[#18181B] p-1 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
             <button
               onClick={handlePrevMonth}
               title="Mes anterior"
-              className="p-1 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#78746c] dark:text-[#a8a5a0] cursor-pointer"
+              className="p-1 hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] rounded-none transition-colors text-[#71717A] dark:text-[#8E8E93] cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -294,10 +299,10 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             <select
               value={currentVisibleMonth}
               onChange={(e) => handleMonthYearChange(Number(e.target.value), currentVisibleYear)}
-              className="text-xs font-bold px-1.5 py-0.5 bg-transparent text-[#1c1b18] dark:text-[#e0deda] border-none focus:outline-hidden cursor-pointer"
+              className="text-xs font-black px-1.5 py-0.5 bg-transparent text-[#18181B] dark:text-white border-none focus:outline-hidden cursor-pointer uppercase"
             >
               {MONTH_NAMES.map((m, idx) => (
-                <option key={idx} value={idx} className="bg-white dark:bg-[#242424] text-[#1c1b18] dark:text-[#e0deda]">
+                <option key={idx} value={idx} className="bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white font-bold">
                   {m}
                 </option>
               ))}
@@ -307,10 +312,10 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             <select
               value={currentVisibleYear}
               onChange={(e) => handleMonthYearChange(currentVisibleMonth, Number(e.target.value))}
-              className="text-xs font-bold px-1 py-0.5 bg-transparent text-[#1c1b18] dark:text-[#e0deda] border-none focus:outline-hidden cursor-pointer"
+              className="text-xs font-black px-1 py-0.5 bg-transparent text-[#18181B] dark:text-white border-none focus:outline-hidden cursor-pointer"
             >
               {[2025, 2026, 2027, 2028, 2029, 2030].map((y) => (
-                <option key={y} value={y} className="bg-white dark:bg-[#242424] text-[#1c1b18] dark:text-[#e0deda]">
+                <option key={y} value={y} className="bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white font-bold">
                   {y}
                 </option>
               ))}
@@ -319,24 +324,24 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             <button
               onClick={handleNextMonth}
               title="Mes siguiente"
-              className="p-1 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#78746c] dark:text-[#a8a5a0] cursor-pointer"
+              className="p-1 hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] rounded-none transition-colors text-[#71717A] dark:text-[#8E8E93] cursor-pointer"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
           {/* Quick Day Offset Navigator */}
-          <div className="flex items-center gap-1 bg-[#f8f6f2] dark:bg-[#242424] p-1 rounded-lg border border-[#ded9cd] dark:border-[#333333]">
+          <div className="flex items-center gap-1 bg-white dark:bg-[#18181B] p-1 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
             <button
               onClick={() => setDayOffset((prev) => prev - 7)}
               title="Retroceder 7 días"
-              className="p-1 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#78746c] dark:text-[#a8a5a0] cursor-pointer"
+              className="p-1 hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] rounded-none transition-colors text-[#71717A] dark:text-[#8E8E93] cursor-pointer"
             >
               <ChevronsLeft className="w-4 h-4" />
             </button>
             <button
               onClick={() => setDayOffset(-2)}
-              className="text-[11px] font-bold px-2 py-0.5 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#1c1b18] dark:text-[#e0deda] cursor-pointer"
+              className="text-[11px] font-black uppercase px-2 py-0.5 hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] rounded-none transition-colors text-[#18181B] dark:text-white cursor-pointer"
               title="Ir al día de hoy"
             >
               Hoy
@@ -344,20 +349,20 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             <button
               onClick={() => setDayOffset((prev) => prev + 7)}
               title="Avanzar 7 días"
-              className="p-1 hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] rounded transition-colors text-[#78746c] dark:text-[#a8a5a0] cursor-pointer"
+              className="p-1 hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] rounded-none transition-colors text-[#71717A] dark:text-[#8E8E93] cursor-pointer"
             >
               <ChevronsRight className="w-4 h-4" />
             </button>
           </div>
 
           {/* Date Picker Quick Jump */}
-          <div className="flex items-center gap-1.5 bg-[#f8f6f2] dark:bg-[#242424] px-2 py-1 rounded-lg border border-[#ded9cd] dark:border-[#333333]">
-            <span className="text-[10px] font-bold text-[#78746c] dark:text-[#8c8a85]">Ir a:</span>
+          <div className="flex items-center gap-1.5 bg-white dark:bg-[#18181B] px-2 py-1 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
+            <span className="text-[10px] font-black uppercase tracking-wider text-[#71717A] dark:text-[#8E8E93]">Ir a:</span>
             <input
               type="date"
               value={startDateStr}
               onChange={(e) => handleJumpToSpecificDate(e.target.value)}
-              className="text-[11px] bg-transparent text-[#1c1b18] dark:text-[#e0deda] border-none focus:outline-hidden cursor-pointer"
+              className="text-[11px] bg-transparent text-[#18181B] dark:text-white border-none focus:outline-hidden cursor-pointer font-mono"
             />
           </div>
 
@@ -365,9 +370,9 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           <select
             value={selectedPropertyId}
             onChange={(e) => setSelectedPropertyId(e.target.value)}
-            className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-[#ded9cd] dark:border-[#333333] bg-[#f8f6f2] dark:bg-[#242424] text-[#1c1b18] dark:text-[#e0deda] cursor-pointer"
+            className="text-xs font-bold px-2.5 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white cursor-pointer focus:outline-hidden"
           >
-            <option value="all">Todas las propiedades ({demoState.properties.length})</option>
+            <option value="all">Todas las unidades ({demoState.properties.length})</option>
             {demoState.properties.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name} (${p.basePrice}/n)
@@ -379,28 +384,28 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           <select
             value={platformFilter}
             onChange={(e) => setPlatformFilter(e.target.value)}
-            className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-[#ded9cd] dark:border-[#333333] bg-[#f8f6f2] dark:bg-[#242424] text-[#1c1b18] dark:text-[#e0deda] cursor-pointer"
+            className="text-xs font-bold px-2.5 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white cursor-pointer focus:outline-hidden"
           >
             <option value="all">Todos los canales</option>
-            <option value="airbnb">Airbnb (Coral)</option>
-            <option value="booking">Booking.com (Azul)</option>
-            <option value="direct">Directa (Verde oliva)</option>
-            <option value="vrbo">VRBO (Lavanda)</option>
+            <option value="airbnb">Airbnb</option>
+            <option value="booking">Booking.com</option>
+            <option value="direct">Directa</option>
+            <option value="vrbo">VRBO</option>
           </select>
 
           {/* Column Width Selector: Compacta (48px) | Estándar (105px) | Amplia (185px) */}
-          <div className="flex items-center gap-1 bg-[#f8f6f2] dark:bg-[#242424] p-1 rounded-lg border border-[#ded9cd] dark:border-[#333333]">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#78746c] dark:text-[#7a7874] px-1.5 flex items-center gap-1">
-              <Columns className="w-3 h-3 text-[#c46d45]" />
+          <div className="flex items-center gap-1 bg-white dark:bg-[#18181B] p-1 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
+            <span className="text-[10px] font-black uppercase tracking-wider text-[#71717A] dark:text-[#8E8E93] px-1.5 flex items-center gap-1">
+              <Columns className="w-3 h-3 text-[#E1500A]" />
               <span>Col:</span>
             </span>
             <button
               onClick={() => setColumnMode('compact')}
               title="Columna compacta (48px)"
-              className={`text-[11px] font-bold px-2 py-1 rounded transition-colors cursor-pointer ${
+              className={`text-[11px] font-black uppercase px-2 py-1 rounded-none transition-colors cursor-pointer ${
                 columnMode === 'compact'
-                  ? 'bg-white dark:bg-[#333333] text-[#c46d45] dark:text-[#e8a070] shadow-2xs border border-[#ded9cd] dark:border-transparent'
-                  : 'text-[#78746c] dark:text-[#8a8883] hover:text-[#1c1b18] dark:hover:text-[#d0cdc8]'
+                  ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] shadow-2xs'
+                  : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white'
               }`}
             >
               48px
@@ -408,10 +413,10 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             <button
               onClick={() => setColumnMode('medium')}
               title="Columna estándar (105px)"
-              className={`text-[11px] font-bold px-2 py-1 rounded transition-colors cursor-pointer ${
+              className={`text-[11px] font-black uppercase px-2 py-1 rounded-none transition-colors cursor-pointer ${
                 columnMode === 'medium'
-                  ? 'bg-white dark:bg-[#333333] text-[#c46d45] dark:text-[#e8a070] shadow-2xs border border-[#ded9cd] dark:border-transparent'
-                  : 'text-[#78746c] dark:text-[#8a8883] hover:text-[#1c1b18] dark:hover:text-[#d0cdc8]'
+                  ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] shadow-2xs'
+                  : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white'
               }`}
             >
               105px
@@ -419,10 +424,10 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             <button
               onClick={() => setColumnMode('full')}
               title="Columna completa (185px)"
-              className={`text-[11px] font-bold px-2 py-1 rounded transition-colors cursor-pointer ${
+              className={`text-[11px] font-black uppercase px-2 py-1 rounded-none transition-colors cursor-pointer ${
                 columnMode === 'full'
-                  ? 'bg-white dark:bg-[#333333] text-[#c46d45] dark:text-[#e8a070] shadow-2xs border border-[#ded9cd] dark:border-transparent'
-                  : 'text-[#78746c] dark:text-[#8a8883] hover:text-[#1c1b18] dark:hover:text-[#d0cdc8]'
+                  ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] shadow-2xs'
+                  : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white'
               }`}
             >
               185px
@@ -432,83 +437,83 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
       </div>
 
       {/* Legend Bar & Turnover Indicator */}
-      <div className="bg-[#fbf9f5] dark:bg-[#191919] px-4 sm:px-5 py-2.5 border-b border-[#ded9cd] dark:border-[#262626] flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[#78746c] dark:text-[#a8a5a0]">
-          <span className="font-bold text-[#55514a] dark:text-[#7a7874] text-[11px]">Canales:</span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#c46850] inline-block" />
+      <div className="bg-[#DEDBD2]/40 dark:bg-[#141518] px-4 sm:px-5 py-2.5 border-b border-[#C8C4B7] dark:border-[#222328] flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[#71717A] dark:text-[#8E8E93]">
+          <span className="font-black text-[#18181B] dark:text-white text-[11px] uppercase tracking-wider">Canales:</span>
+          <span className="flex items-center gap-1.5 font-bold">
+            <span className="w-2.5 h-2.5 rounded-none bg-[#E1500A] inline-block" />
             <span className="text-[11px]">Airbnb</span>
           </span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#4a6b8c] inline-block" />
+          <span className="flex items-center gap-1.5 font-bold">
+            <span className="w-2.5 h-2.5 rounded-none bg-[#2563EB] inline-block" />
             <span className="text-[11px]">Booking.com</span>
           </span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#5c8a66] inline-block" />
+          <span className="flex items-center gap-1.5 font-bold">
+            <span className="w-2.5 h-2.5 rounded-none bg-emerald-600 inline-block" />
             <span className="text-[11px]">Directo</span>
           </span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#6b5882] inline-block" />
+          <span className="flex items-center gap-1.5 font-bold">
+            <span className="w-2.5 h-2.5 rounded-none bg-purple-600 inline-block" />
             <span className="text-[11px]">VRBO</span>
           </span>
 
-          <span className="h-3 w-px bg-[#ded9cd] dark:bg-[#333] hidden sm:inline-block" />
+          <span className="h-3 w-px bg-[#C8C4B7] dark:bg-[#222328] hidden sm:inline-block" />
 
           {/* Special Turnover Legend Indicator */}
-          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-900 dark:text-amber-200 border border-amber-500/30 text-[11px] font-semibold">
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-            <span className="font-bold">🔄 Recambio mismo día:</span>
-            <span>Check-out 10hs & Check-in 14hs marcados en la barra</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-none bg-[#E1500A]/10 text-[#E1500A] border border-[#E1500A]/30 text-[11px] font-bold uppercase tracking-wider">
+            <span className="w-2 h-2 rounded-none bg-[#E1500A] animate-pulse" />
+            <span className="font-black">🔄 Recambio mismo día:</span>
+            <span>Check-out 10hs & Check-in 14hs</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-[11px] text-[#78746c] dark:text-[#706e6a]">
-          <span className="italic">
-            💡 Las reservas con recambio muestran la etiqueta <strong>🔄 Recambio</strong> y el horario de rotación
+        <div className="flex items-center gap-2 text-[11px] text-[#71717A] dark:text-[#8E8E93]">
+          <span className="font-mono text-[10px]">
+            Check-in 14:00 • Check-out 10:00
           </span>
         </div>
       </div>
 
-      {/* High-Visibility Timeline Slider & Controller (Visible on Laptop & Mobile) */}
-      <div className="bg-[#f8f6f2] dark:bg-[#181818] px-4 sm:px-5 py-2.5 border-b border-[#ded9cd] dark:border-[#262626] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
+      {/* High-Visibility Timeline Slider & Controller */}
+      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] px-4 sm:px-5 py-2.5 border-b border-[#C8C4B7] dark:border-[#222328] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2">
-          <SlidersHorizontal className="w-4 h-4 text-[#c46d45] shrink-0" />
-          <span className="font-bold text-[#1c1b18] dark:text-zinc-200 text-xs whitespace-nowrap">
-            Desplazamiento horizontal (14 días):
+          <SlidersHorizontal className="w-4 h-4 text-[#E1500A] shrink-0" />
+          <span className="font-black uppercase tracking-wider text-[#18181B] dark:text-white text-xs whitespace-nowrap">
+            Desplazamiento horizontal:
           </span>
           <div className="flex items-center gap-1">
             <button
               onClick={() => handleScrollTimeline('left')}
-              className="px-2.5 py-1 rounded-md bg-white dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] border border-[#ded9cd] dark:border-[#333] font-bold text-[#1c1b18] dark:text-zinc-200 text-xs flex items-center gap-1 shadow-2xs cursor-pointer transition-colors"
+              className="px-2.5 py-1 rounded-none bg-white dark:bg-[#18181B] hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] border border-[#C8C4B7] dark:border-[#222328] font-bold text-[#18181B] dark:text-white text-xs flex items-center gap-1 shadow-2xs cursor-pointer transition-colors"
               title="Deslizar hacia la izquierda"
             >
-              <ChevronLeft className="w-3.5 h-3.5 text-[#c46d45]" />
+              <ChevronLeft className="w-3.5 h-3.5 text-[#E1500A]" />
               <span>‹ Anterior</span>
             </button>
             <button
               onClick={() => handleScrollTimeline('right')}
-              className="px-2.5 py-1 rounded-md bg-white dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] border border-[#ded9cd] dark:border-[#333] font-bold text-[#1c1b18] dark:text-zinc-200 text-xs flex items-center gap-1 shadow-2xs cursor-pointer transition-colors"
+              className="px-2.5 py-1 rounded-none bg-white dark:bg-[#18181B] hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] border border-[#C8C4B7] dark:border-[#222328] font-bold text-[#18181B] dark:text-white text-xs flex items-center gap-1 shadow-2xs cursor-pointer transition-colors"
               title="Deslizar hacia la derecha"
             >
               <span>Siguiente ›</span>
-              <ChevronRight className="w-3.5 h-3.5 text-[#c46d45]" />
+              <ChevronRight className="w-3.5 h-3.5 text-[#E1500A]" />
             </button>
           </div>
         </div>
 
         <div className="flex items-center gap-2.5 flex-1 max-w-full sm:max-w-md">
-          <span className="text-[10px] text-[#78746c] dark:text-zinc-400 font-mono">Día 1</span>
+          <span className="text-[10px] text-[#71717A] dark:text-[#8E8E93] font-mono">Día 1</span>
           <input
             type="range"
             min="0"
             max="100"
             value={scrollProgress}
             onChange={(e) => handleSliderChange(Number(e.target.value))}
-            className="w-full h-2.5 bg-[#ded9cd] dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-[#c46d45] border border-[#d2ccc0] dark:border-zinc-600"
+            className="w-full h-2 bg-[#C8C4B7] dark:bg-[#222328] rounded-none appearance-none cursor-pointer accent-[#E1500A]"
             title="Arrastra esta barra para deslizar horizontalmente por todo el calendario"
           />
-          <span className="text-[10px] text-[#78746c] dark:text-zinc-400 font-mono">Día 14</span>
-          <span className="font-mono text-[11px] font-black text-[#c46d45] dark:text-rose-400 min-w-[36px] text-right">
+          <span className="text-[10px] text-[#71717A] dark:text-[#8E8E93] font-mono">Día 14</span>
+          <span className="font-mono text-[11px] font-black text-[#E1500A] min-w-[36px] text-right">
             {Math.round(scrollProgress)}%
           </span>
         </div>
@@ -518,32 +523,32 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
       <div
         ref={timelineContainerRef}
         onScroll={updateScrollProgress}
-        className="overflow-x-auto rounded-b-xl bg-white dark:bg-[#1c1c1c] shadow-xs calendar-scrollbar"
+        className="overflow-x-auto rounded-none bg-white dark:bg-[#0C0D0F] shadow-xs calendar-scrollbar"
       >
         <div className="min-w-[980px]">
           {/* Header Row of Days */}
-          <div className="flex border-b border-[#ded9cd] dark:border-[#262626] bg-[#f8f6f2] dark:bg-[#202020] text-[#1c1b18] dark:text-zinc-300">
+          <div className="flex border-b border-[#C8C4B7] dark:border-[#222328] bg-[#EAE8E3] dark:bg-[#141518] text-[#18181B] dark:text-white">
             {/* Responsive Sticky Property Header Column */}
-            <div className={`${getColumnWidthClass(columnMode)} font-bold text-xs border-r border-[#ded9cd] dark:border-[#262626] flex items-center justify-between sticky left-0 bg-[#f4f1ea] dark:bg-[#202020] z-30 shadow-[3px_0_8px_rgba(0,0,0,0.06)] shrink-0`}>
+            <div className={`${getColumnWidthClass(columnMode)} font-black text-xs uppercase tracking-wider border-r border-[#C8C4B7] dark:border-[#222328] flex items-center justify-between sticky left-0 bg-[#DEDBD2] dark:bg-[#141518] z-30 shadow-[3px_0_8px_rgba(0,0,0,0.06)] shrink-0`}>
               <span className="truncate">
                 {columnMode === 'compact' ? 'Depto' : columnMode === 'medium' ? 'Depto' : 'Departamento'}
               </span>
               {columnMode === 'full' && (
-                <span className="text-[10px] text-[#78746c] dark:text-zinc-400 font-normal">Tarifa/Noche</span>
+                <span className="text-[10px] text-[#71717A] dark:text-[#8E8E93] font-mono">Tarifa/N</span>
               )}
             </div>
             <div className="flex-1 grid grid-cols-[repeat(14,minmax(0,1fr))] min-w-[840px]">
               {dates.map((d) => (
                 <div
                   key={d.dateStr}
-                  className={`p-2 text-center border-r border-[#ded9cd] dark:border-[#262626] last:border-r-0 ${
+                  className={`p-2 text-center border-r border-[#C8C4B7] dark:border-[#222328] last:border-r-0 ${
                     d.isToday
-                      ? 'bg-[#f4eee7] dark:bg-rose-950/40 font-bold text-[#9c512a] dark:text-rose-400'
+                      ? 'bg-[#E1500A]/15 dark:bg-[#E1500A]/20 font-black text-[#E1500A]'
                       : ''
                   }`}
                 >
-                  <div className="text-[10px] uppercase font-bold text-[#78746c] dark:text-zinc-400">{d.dayName}</div>
-                  <div className={`text-sm ${d.isToday ? 'text-[#c46d45] dark:text-rose-400 underline decoration-2 font-black' : 'text-[#1c1b18] dark:text-zinc-200 font-bold'}`}>
+                  <div className="text-[10px] uppercase font-black text-[#71717A] dark:text-[#8E8E93]">{d.dayName}</div>
+                  <div className={`text-sm ${d.isToday ? 'text-[#E1500A] underline decoration-2 font-black' : 'text-[#18181B] dark:text-white font-bold'}`}>
                     {d.dayNum}
                   </div>
                 </div>
@@ -558,39 +563,39 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             return (
               <div
                 key={prop.id}
-                className="flex border-b border-[#ded9cd] dark:border-[#262626] min-h-[68px] hover:bg-[#fbf9f5] dark:hover:bg-zinc-800/30 transition-colors"
+                className="flex border-b border-[#C8C4B7] dark:border-[#222328] min-h-[68px] hover:bg-[#DEDBD2]/20 dark:hover:bg-[#141518]/60 transition-colors"
               >
                 {/* Property Label Column */}
-                <div className={`${getColumnWidthClass(columnMode)} border-r border-[#ded9cd] dark:border-[#262626] bg-white dark:bg-[#1c1c1c] flex flex-col justify-center sticky left-0 z-20 shadow-[3px_0_8px_rgba(0,0,0,0.06)] shrink-0`}>
+                <div className={`${getColumnWidthClass(columnMode)} border-r border-[#C8C4B7] dark:border-[#222328] bg-[#F4F2EE] dark:bg-[#0C0D0F] flex flex-col justify-center sticky left-0 z-20 shadow-[3px_0_8px_rgba(0,0,0,0.06)] shrink-0`}>
                   {columnMode === 'compact' ? (
                     <div className="flex flex-col items-center justify-center">
                       <span
-                        className="text-[11px] font-black px-1 py-0.5 rounded bg-[#f4f1ea] dark:bg-[#242424] text-[#1c1b18] dark:text-zinc-100 border border-[#ded9cd] dark:border-[#333] block text-center"
+                        className="text-[11px] font-black px-1 py-0.5 rounded-none bg-[#DEDBD2] dark:bg-[#18181B] text-[#18181B] dark:text-white border border-[#C8C4B7] dark:border-[#222328] block text-center"
                         title={prop.name}
                       >
                         {getShortName(prop.name, propIndex)}
                       </span>
-                      <span className="text-[10px] font-bold text-[#4f7858] dark:text-emerald-400 mt-0.5 block">
+                      <span className="text-[10px] font-bold text-[#E1500A] mt-0.5 block font-mono">
                         ${prop.basePrice}
                       </span>
                     </div>
                   ) : columnMode === 'medium' ? (
                     <div>
-                      <div className="font-bold text-xs text-[#1c1b18] dark:text-zinc-100 truncate" title={prop.name}>
+                      <div className="font-black text-xs text-[#18181B] dark:text-white truncate" title={prop.name}>
                         {prop.name}
                       </div>
-                      <div className="text-[10px] font-bold text-[#4f7858] dark:text-emerald-400 mt-0.5">
+                      <div className="text-[10px] font-bold text-[#E1500A] mt-0.5 font-mono">
                         ${prop.basePrice}/n
                       </div>
                     </div>
                   ) : (
                     <div>
-                      <div className="font-bold text-xs text-[#1c1b18] dark:text-zinc-100 truncate" title={prop.name}>
+                      <div className="font-black text-xs text-[#18181B] dark:text-white truncate" title={prop.name}>
                         {prop.name}
                       </div>
-                      <div className="flex items-center justify-between text-[10px] text-[#78746c] dark:text-zinc-400 mt-0.5">
+                      <div className="flex items-center justify-between text-[10px] text-[#71717A] dark:text-[#8E8E93] mt-0.5 font-mono">
                         <span className="truncate pr-1">{prop.neighborhood}</span>
-                        <span className="font-bold text-[#4f7858] dark:text-emerald-400 shrink-0">${prop.basePrice}/n</span>
+                        <span className="font-bold text-[#E1500A] shrink-0">${prop.basePrice}/n</span>
                       </div>
                     </div>
                   )}
@@ -600,7 +605,6 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                 <div className="flex-1 relative grid grid-cols-[repeat(14,minmax(0,1fr))] min-w-[840px]">
                   {/* 14 Day Background Slots */}
                   {dates.map((d) => {
-                    // Check if this property has a turnover on this specific day (someone checking out AND someone checking in)
                     const hasCheckoutHere = propertyReservations.some((r) => r.checkOut === d.dateStr);
                     const hasCheckinHere = propertyReservations.some((r) => r.checkIn === d.dateStr);
                     const isTurnoverDayHere = hasCheckoutHere && hasCheckinHere;
@@ -608,14 +612,14 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                     return (
                       <div
                         key={d.dateStr}
-                        className={`h-full border-r border-[#ded9cd] dark:border-[#262626] last:border-r-0 relative flex items-center justify-center ${
-                          d.isToday ? 'bg-[#f4eee7]/50 dark:bg-rose-950/20' : ''
-                        } ${isTurnoverDayHere ? 'bg-amber-500/5 dark:bg-amber-500/10' : ''}`}
+                        className={`h-full border-r border-[#C8C4B7] dark:border-[#222328] last:border-r-0 relative flex items-center justify-center ${
+                          d.isToday ? 'bg-[#E1500A]/5 dark:bg-[#E1500A]/10' : ''
+                        } ${isTurnoverDayHere ? 'bg-[#E1500A]/10 dark:bg-[#E1500A]/15' : ''}`}
                       >
                         {/* Subtle turnover vertical guideline marker in the middle of the turnover column */}
                         {isTurnoverDayHere && (
                           <div
-                            className="absolute inset-y-0 left-1/2 w-0.5 border-l border-dashed border-amber-500/40 z-0 pointer-events-none"
+                            className="absolute inset-y-0 left-1/2 w-0.5 border-l border-dashed border-[#E1500A]/50 z-0 pointer-events-none"
                             title={`Día de recambio: Salida a la mañana (10hs) y Entrada a la tarde (14hs)`}
                           />
                         )}
@@ -626,7 +630,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                             onOpenNewReservationWithProperty(prop.id, d.dateStr)
                           }
                           title={`Crear reserva libre el ${d.dateStr}`}
-                          className="w-full h-full opacity-0 hover:opacity-100 hover:bg-[#f4f1ea] dark:hover:bg-zinc-800 flex items-center justify-center text-[#78746c] hover:text-[#1c1b18] dark:hover:text-zinc-200 transition-all cursor-pointer text-xs z-0"
+                          className="w-full h-full opacity-0 hover:opacity-100 hover:bg-[#DEDBD2]/50 dark:hover:bg-[#18181B] flex items-center justify-center text-[#71717A] hover:text-[#18181B] dark:hover:text-white transition-all cursor-pointer text-xs z-0"
                         >
                           <Plus className="w-3.5 h-3.5" />
                         </button>
@@ -634,15 +638,11 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                     );
                   })}
 
-                  {/* Continuous Reservation Bars with PMS Half-Day Turnover Split (14hs In / 10hs Out) */}
+                  {/* Continuous Reservation Bars */}
                   {propertyReservations.map((res) => {
-                    const { incomingTurnover, outgoingTurnover, hasTurnover } = getTurnoverInfo(res);
-
-                    // Calculate start and end column index relative to visible dates (0 to 13)
                     const cleanCheckIn = res.checkIn ? String(res.checkIn).trim() : '';
                     const cleanCheckOut = res.checkOut ? String(res.checkOut).trim() : '';
 
-                    // Robust date index finder with timestamp fallback
                     const findDateIndex = (rawDateStr: string) => {
                       if (!rawDateStr) return -1;
                       const targetStr = rawDateStr.trim();
@@ -664,7 +664,6 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                     const checkInIndex = findDateIndex(cleanCheckIn);
                     const checkOutIndex = findDateIndex(cleanCheckOut);
 
-                    // Check if reservation genuinely overlaps the 14-day window:
                     if (cleanCheckIn >= endDateStr || cleanCheckOut <= startDateStr || cleanCheckIn >= cleanCheckOut) {
                       return null;
                     }
@@ -672,9 +671,6 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                     const isContinuingFromBefore = checkInIndex === -1 && cleanCheckIn < startDateStr;
                     const isContinuingAfter = checkOutIndex === -1 && cleanCheckOut > endDateStr;
 
-                    // Exact Check-out Day Span Math:
-                    // If Check-in is Aug 1 and Check-out is Aug 3:
-                    // The bar spans from Aug 1 all the way into Aug 3 (where the check-out arrow is clearly drawn).
                     const hasOutgoingTurnover = propertyReservations.some(
                       (r) => r.id !== res.id && r.checkIn === cleanCheckOut
                     );
@@ -682,9 +678,6 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                       (r) => r.id !== res.id && r.checkOut === cleanCheckIn
                     );
 
-                    // When there is a same-day turnover: 
-                    // Outgoing reservation ends at 45% of that day (morning checkout)
-                    // Incoming reservation starts at 45% of that day (afternoon checkin)
                     const startFraction = checkInIndex >= 0 
                       ? (hasIncomingTurnover ? checkInIndex + 0.45 : checkInIndex) 
                       : 0;
@@ -715,8 +708,8 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                               : 'polygon(0% 0%, calc(100% - 9px) 0%, 100% 50%, calc(100% - 9px) 100%, 0% 100%)',
                           }}
                           className={`w-full h-full relative ${
-                            isContinuingFromBefore || hasIncomingTurnover ? 'rounded-l-none' : 'rounded-l-md'
-                          } pl-2 sm:pl-2.5 pr-4 py-1 flex items-center justify-between text-left text-xs font-semibold cursor-pointer shadow-xs border transition-all hover:scale-[1.01] hover:brightness-110 hover:shadow-md hover:z-30 overflow-hidden ${getPlatformColors(
+                            isContinuingFromBefore || hasIncomingTurnover ? 'rounded-l-none' : 'rounded-none'
+                          } pl-2 sm:pl-2.5 pr-4 py-1 flex items-center justify-between text-left text-xs font-bold cursor-pointer shadow-xs border transition-all hover:scale-[1.01] hover:brightness-110 hover:shadow-md hover:z-30 overflow-hidden ${getPlatformColors(
                             res.platform
                           )}`}
                           title={`${res.guestName} (${res.platform.toUpperCase()}) · Entrada: ${formatDisplayDate(
@@ -726,7 +719,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                           <div className="flex items-center gap-1.5 truncate min-w-0 pr-1 z-10">
                             {res.platform === 'airbnb' && res.airbnbFeeMode === 'traditional_3' && (
                               <span
-                                className="text-[9px] font-extrabold px-1 py-0.2 rounded bg-white/25 text-white shrink-0"
+                                className="text-[9px] font-black px-1 py-0.2 rounded-none bg-white/25 text-white shrink-0"
                                 title="Comisión Airbnb 3% anfitrión tradicional"
                               >
                                 3%
@@ -735,25 +728,24 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
 
                             {(res.earlyCheckIn || res.lateCheckOut) && (
                               <span
-                                className="text-[9px] font-extrabold px-1 py-0.2 rounded bg-amber-400 text-amber-950 shrink-0"
+                                className="text-[9px] font-black px-1 py-0.2 rounded-none bg-amber-400 text-amber-950 shrink-0"
                                 title={res.earlyCheckIn ? 'Early Check-in' : 'Late Check-out'}
                               >
                                 {res.earlyCheckIn ? 'Early' : 'Late'}
                               </span>
                             )}
 
-                            <span className="font-bold text-xs truncate drop-shadow-xs">
+                            <span className="font-black text-xs truncate">
                               {res.guestName}
                             </span>
                           </div>
 
-                          <div className="hidden sm:flex items-center gap-1.5 text-[10px] opacity-90 shrink-0 font-medium z-10 mr-2">
+                          <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-mono opacity-90 shrink-0 font-bold z-10 mr-2">
                             {res.totalAmount !== undefined && (
-                              <span className="font-bold">${res.totalAmount}</span>
+                              <span>${res.totalAmount}</span>
                             )}
                           </div>
 
-                          {/* Check-out Transparent Chevron Arrow Cap on the right end (Inside Check-out Day Column) */}
                           {!isContinuingAfter && (
                             <div
                               className="absolute right-0 top-0 bottom-0 w-3 bg-white/25 dark:bg-black/35 border-l border-white/25 flex items-center justify-center pointer-events-none"
@@ -774,34 +766,34 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
         </div>
       </div>
 
-      {/* Interactive Horizontal Scroll Slider & Pan Bar for Laptop and Desktop */}
-      <div className="bg-[#f8f6f2] dark:bg-[#191919] border-t border-[#ded9cd] dark:border-[#262626] px-4 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      {/* Interactive Horizontal Scroll Slider & Pan Bar */}
+      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] border-t border-[#C8C4B7] dark:border-[#222328] px-4 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
           <button
             onClick={() => handleScrollTimeline('left')}
-            className="flex items-center gap-1 font-bold text-xs bg-white dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] text-[#1c1b18] dark:text-zinc-200 px-3 py-1.5 rounded-lg border border-[#ded9cd] dark:border-[#333] shadow-2xs cursor-pointer transition-colors"
+            className="flex items-center gap-1 font-bold text-xs bg-white dark:bg-[#18181B] hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] text-[#18181B] dark:text-white px-3 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-2xs cursor-pointer transition-colors"
             title="Deslizar hacia días anteriores"
           >
-            <ChevronLeft className="w-4 h-4 text-[#c46d45]" />
+            <ChevronLeft className="w-4 h-4 text-[#E1500A]" />
             <span>‹ Días anteriores</span>
           </button>
-          <span className="text-[11px] text-[#78746c] dark:text-zinc-400 sm:hidden">
+          <span className="text-[11px] text-[#71717A] dark:text-[#8E8E93] sm:hidden font-mono">
             Deslizar timeline
           </span>
           <button
             onClick={() => handleScrollTimeline('right')}
-            className="flex items-center gap-1 font-bold text-xs bg-white dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2e2e2e] text-[#1c1b18] dark:text-zinc-200 px-3 py-1.5 rounded-lg border border-[#ded9cd] dark:border-[#333] shadow-2xs cursor-pointer transition-colors"
+            className="flex items-center gap-1 font-bold text-xs bg-white dark:bg-[#18181B] hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] text-[#18181B] dark:text-white px-3 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-2xs cursor-pointer transition-colors"
             title="Deslizar hacia días siguientes"
           >
             <span>Días siguientes ›</span>
-            <ChevronRight className="w-4 h-4 text-[#c46d45]" />
+            <ChevronRight className="w-4 h-4 text-[#E1500A]" />
           </button>
         </div>
 
-        {/* Slider track for Laptops */}
+        {/* Slider track */}
         <div className="w-full sm:max-w-md flex items-center gap-3">
-          <SlidersHorizontal className="w-3.5 h-3.5 text-[#c46d45] shrink-0" />
-          <span className="text-[11px] font-bold text-[#78746c] dark:text-zinc-400 whitespace-nowrap hidden md:inline">
+          <SlidersHorizontal className="w-3.5 h-3.5 text-[#E1500A] shrink-0" />
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#71717A] dark:text-[#8E8E93] whitespace-nowrap hidden md:inline">
             Barra de desplazamiento:
           </span>
           <input
@@ -810,10 +802,10 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             max="100"
             value={scrollProgress}
             onChange={(e) => handleSliderChange(Number(e.target.value))}
-            className="w-full h-2.5 bg-[#ded9cd] dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-[#c46d45]"
+            className="w-full h-2 bg-[#C8C4B7] dark:bg-[#222328] rounded-none appearance-none cursor-pointer accent-[#E1500A]"
             title="Arrastra para navegar por los 14 días"
           />
-          <span className="text-[11px] font-mono text-[#1c1b18] dark:text-zinc-300 font-bold min-w-[34px] text-right">
+          <span className="text-[11px] font-mono text-[#18181B] dark:text-white font-bold min-w-[34px] text-right">
             {Math.round(scrollProgress)}%
           </span>
         </div>

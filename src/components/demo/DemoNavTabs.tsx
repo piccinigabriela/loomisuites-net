@@ -53,9 +53,9 @@ export const DemoNavTabs: React.FC<DemoNavTabsProps> = ({
   const tabs = isEmployeeMode ? allTabs.filter((t) => !t.adminOnly) : allTabs;
 
   return (
-    <div className="bg-white dark:bg-[#1c1c1c] border-b border-[#ded9cd] dark:border-[#2a2a2a] transition-colors">
+    <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] border-b border-[#C8C4B7] dark:border-[#222328] transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto py-2.5 scrollbar-none">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-2 scrollbar-none">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -63,16 +63,20 @@ export const DemoNavTabs: React.FC<DemoNavTabsProps> = ({
               <button
                 key={tab.id}
                 onClick={() => onSelectTab(tab.id)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-none text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer border ${
                   isActive
-                    ? 'bg-[#f4eee7] dark:bg-[#2c221a] text-[#9c512a] dark:text-[#d88d5e] border border-[#e4d6c9] dark:border-[#533928] shadow-2xs'
-                    : 'text-[#78746c] dark:text-[#8e8c87] hover:text-[#1c1b18] dark:hover:text-[#f4f2ee] hover:bg-[#f8f6f2] dark:hover:bg-[#252525] border border-transparent'
+                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                    : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white hover:bg-[#DCD8CE]/50 dark:hover:bg-[#18181B] border-transparent'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-[#c46d45] dark:text-[#d88d5e]' : 'text-[#a8a39b] dark:text-[#666]'}`} />
+                <Icon className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
                 {tab.badge && (
-                  <span className="bg-[#f8f6f2] dark:bg-[#332b24] text-[#9c512a] dark:text-[#d88d5e] border border-[#ded9cd] dark:border-[#4d3d30] text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">
+                  <span className={`text-[10px] font-black px-1.5 py-0.2 rounded-none border ${
+                    isActive
+                      ? 'bg-[#E1500A] text-white border-[#E1500A]'
+                      : 'bg-[#DCD8CE] dark:bg-[#18181B] text-[#71717A] dark:text-[#8E8E93] border-[#C8C4B7] dark:border-[#222328]'
+                  }`}>
                     {tab.badge}
                   </span>
                 )}

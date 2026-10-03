@@ -108,32 +108,32 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
   };
 
   return (
-    <div className="space-y-3 sm:space-y-5 font-sans">
+    <div className="space-y-4 sm:space-y-6 font-sans">
       {/* Onboarding & Plan Request Banner (Only in Public Demo mode for visitors) */}
       {!isLoggedIn && !isBannerDismissed && (
-        <div className="bg-[#24211d] dark:bg-[#1a1714] rounded-xl sm:rounded-2xl p-3 sm:p-4 text-white border border-[#48372b] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-2.5 sm:gap-3 relative">
+        <div className="bg-[#18181B] dark:bg-[#0C0D0F] rounded-none p-4 sm:p-5 text-white border border-[#27272A] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-3 relative">
           <button
             onClick={handleDismissBanner}
-            className="absolute top-2 right-2 text-zinc-400 hover:text-white p-1 rounded-md transition-colors cursor-pointer"
+            className="absolute top-2 right-2 text-zinc-400 hover:text-white p-1 rounded-none transition-colors cursor-pointer"
             title="Ocultar aviso"
             aria-label="Cerrar aviso"
           >
             <X className="w-3.5 h-3.5" />
           </button>
-          <div className="flex items-center gap-2.5 sm:gap-3.5 pr-6 md:pr-0">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-[#d88d5e] to-[#c46d45] flex items-center justify-center text-stone-950 font-bold shrink-0 shadow-xs">
+          <div className="flex items-center gap-3 pr-6 md:pr-0">
+            <div className="w-9 h-9 rounded-none bg-[#E1500A] flex items-center justify-center text-white font-black shrink-0 shadow-xs">
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                <h3 className="text-xs sm:text-sm font-bold text-[#f4f2ee]">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-xs sm:text-sm font-black text-[#EFECE5] uppercase tracking-wide">
                   ¿Querés probar con tus departamentos o cabañas reales?
                 </h3>
-                <span className="text-[9px] sm:text-[10px] font-semibold bg-[#c46d45]/20 text-[#e2b896] px-1.5 py-0.2 rounded-full border border-[#c46d45]/40">
+                <span className="text-[9px] sm:text-[10px] font-black bg-[#E1500A]/20 text-[#E1500A] px-2 py-0.5 rounded-none border border-[#E1500A]/40 uppercase">
                   Paso a Paso (2 min)
                 </span>
               </div>
-              <p className="text-[11px] sm:text-xs text-[#ded9cd] mt-0.5 line-clamp-1 sm:line-clamp-none max-w-2xl">
+              <p className="text-[11px] sm:text-xs text-[#A1A1AA] mt-0.5 line-clamp-1 sm:line-clamp-none max-w-2xl font-medium">
                 Cargá los nombres de tus unidades, tarifas y WiFi para ver tu operación real en el calendario, la guía de huéspedes y con Xenia.
               </p>
             </div>
@@ -142,16 +142,16 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
             {onOpenOnboardingWizard && (
               <button
                 onClick={onOpenOnboardingWizard}
-                className="flex-1 md:flex-initial text-[11px] sm:text-xs font-bold bg-white text-[#1c1b18] hover:bg-[#f8f6f2] px-3 py-1.5 sm:py-2 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs shrink-0 active:scale-98"
+                className="flex-1 md:flex-initial text-xs font-black bg-white text-[#18181B] hover:bg-[#EFECE5] px-3.5 py-2 rounded-none transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs shrink-0 active:scale-98 uppercase tracking-wider"
               >
-                <Sparkles className="w-3.5 h-3.5 text-[#c46d45]" />
+                <Sparkles className="w-3.5 h-3.5 text-[#E1500A]" />
                 <span>Configurar Mis Deptos</span>
               </button>
             )}
             {onRequestPlan && (
               <button
                 onClick={onRequestPlan}
-                className="flex-1 md:flex-initial text-[11px] sm:text-xs font-bold bg-[#c46d45] hover:bg-[#b85e35] text-white px-3 py-1.5 sm:py-2 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs shrink-0 active:scale-98"
+                className="flex-1 md:flex-initial text-xs font-black bg-[#E1500A] hover:bg-[#C94305] text-white px-3.5 py-2 rounded-none transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs shrink-0 active:scale-98 uppercase tracking-wider"
               >
                 <Send className="w-3 h-3" />
                 <span>Solicitar Plan</span>
@@ -162,139 +162,157 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
       )}
 
       {/* Title & Subtitle */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pb-2 border-b border-[#C8C4B7] dark:border-[#222328]">
         <div>
-          <h2 className="text-lg sm:text-xl font-bold text-[#1c1b18] dark:text-[#f0eeeb] tracking-tight">Hoy</h2>
-          <p className="text-[11px] sm:text-xs text-[#78746c] dark:text-[#8c8a85] mt-0.5">
-            Resumen del día y próximos movimientos
-          </p>
+          <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93]">
+            PANEL PRINCIPAL / DÍA A DÍA
+          </span>
+          <h2 className="text-xl sm:text-2xl font-black text-[#18181B] dark:text-white tracking-tight">Hoy en el Complejo</h2>
         </div>
         {isBannerDismissed && onOpenOnboardingWizard && (
           <button
             onClick={onOpenOnboardingWizard}
-            className="text-[11px] font-bold text-[#c46d45] hover:text-[#b85e35] bg-[#f8f5ee] dark:bg-[#26211c] border border-[#ded9cd] dark:border-[#48372b] px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+            className="text-[11px] font-black uppercase tracking-wider text-[#18181B] dark:text-white hover:text-[#E1500A] bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#C8C4B7] dark:border-[#222328] px-3 py-1.5 rounded-none transition-colors flex items-center gap-1.5 cursor-pointer"
           >
-            <Sparkles className="w-3 h-3" />
+            <Sparkles className="w-3.5 h-3.5 text-[#E1500A]" />
             <span className="hidden sm:inline">Configurar Mis Deptos</span>
             <span className="sm:hidden">Mis Deptos</span>
           </button>
         )}
       </div>
 
-      {/* Top 4 Clean Metric Cards (2x2 on mobile, 4 columns on desktop) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+      {/* Top 4 Bento Metric Cards (2x2 on mobile, 4 columns on desktop) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
         {/* Card 1: Ocupados Hoy */}
-        <div className="bg-white dark:bg-[#1c1c1c] rounded-xl p-2.5 sm:p-3.5 border border-[#ded9cd] dark:border-[#262626] shadow-2xs transition-colors">
-          <div className="text-[10px] font-bold text-[#78746c] dark:text-[#8a8883] uppercase tracking-wider truncate">
-            Ocupados Hoy
+        <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-3.5 sm:p-4 border border-[#C8C4B7] dark:border-[#222328] transition-colors flex flex-col justify-between">
+          <div className="flex items-center justify-between pb-2 border-b border-[#C8C4B7] dark:border-[#222328]">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93] truncate">
+              Ocupados Hoy
+            </span>
+            <span className="w-2 h-2 rounded-full bg-[#E1500A] shrink-0" />
           </div>
-          <div className="mt-1 sm:mt-1.5 text-lg sm:text-2xl font-bold text-[#1c1b18] dark:text-[#f2efe9] flex items-baseline gap-1">
+          <div className="my-2 text-2xl sm:text-3xl font-black text-[#18181B] dark:text-white tracking-tight flex items-baseline gap-1">
             <span>{demoState.properties.length > 0 ? `1` : `0`}</span>
-            <span className="text-xs font-normal text-[#8e8a83] dark:text-[#807d78]">
+            <span className="text-xs font-bold text-[#71717A] dark:text-[#8E8E93]">
               /{demoState.properties.length}
             </span>
           </div>
-          <div className="text-[10px] sm:text-[11px] text-[#78746c] dark:text-[#706e6a] mt-0.5 truncate">
-            Deptos activos
+          <div className="text-[10px] sm:text-[11px] font-bold text-[#71717A] dark:text-[#8E8E93] truncate">
+            Unidades activas
           </div>
         </div>
 
-        {/* Card 2: Ingresos Mes (for admin) or Caja (for frontdesk) or Employee Mode */}
+        {/* Card 2: Ingresos Mes */}
         {userRole === 'admin' ? (
-          <div className="bg-white dark:bg-[#1c1c1c] rounded-xl p-2.5 sm:p-3.5 border border-[#ded9cd] dark:border-[#262626] shadow-2xs transition-colors">
-            <div className="text-[10px] font-bold text-[#78746c] dark:text-[#8a8883] uppercase tracking-wider truncate">
-              Ingresos Mes
+          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-3.5 sm:p-4 border border-[#C8C4B7] dark:border-[#222328] transition-colors flex flex-col justify-between">
+            <div className="flex items-center justify-between pb-2 border-b border-[#C8C4B7] dark:border-[#222328]">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93] truncate">
+                Ingresos Mes
+              </span>
+              <span className="w-2 h-2 rounded-full bg-[#18181B] dark:bg-white shrink-0" />
             </div>
-            <div className="mt-1 sm:mt-1.5 text-base sm:text-2xl font-bold text-[#1c1b18] dark:text-[#f2efe9] truncate">
+            <div className="my-2 text-xl sm:text-2xl font-black text-[#18181B] dark:text-white tracking-tight truncate">
               USD {totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </div>
-            <div className="text-[10px] sm:text-[11px] text-[#78746c] dark:text-[#706e6a] mt-0.5 truncate">
+            <div className="text-[10px] sm:text-[11px] font-bold text-[#71717A] dark:text-[#8E8E93] truncate">
               Neto USD {(totalRevenue * 0.76).toFixed(0)}
             </div>
           </div>
         ) : userRole === 'frontdesk' ? (
-          <div className="bg-white dark:bg-[#1c1c1c] rounded-xl p-2.5 sm:p-3.5 border border-[#ded9cd] dark:border-[#262626] shadow-2xs transition-colors">
-            <div className="text-[10px] font-bold text-[#78746c] dark:text-[#8a8883] uppercase tracking-wider truncate">
-              Caja Mostrador
+          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-3.5 sm:p-4 border border-[#C8C4B7] dark:border-[#222328] transition-colors flex flex-col justify-between">
+            <div className="flex items-center justify-between pb-2 border-b border-[#C8C4B7] dark:border-[#222328]">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93] truncate">
+                Caja Mostrador
+              </span>
+              <span className="w-2 h-2 rounded-full bg-[#E1500A] shrink-0" />
             </div>
-            <div className="mt-1 sm:mt-1.5 text-base sm:text-2xl font-bold text-[#1c1b18] dark:text-[#f2efe9] truncate">
+            <div className="my-2 text-xl sm:text-2xl font-black text-[#18181B] dark:text-white tracking-tight truncate">
               ${currentCashBalance.toLocaleString('es-AR')}
             </div>
-            <div className="text-[10px] sm:text-[11px] text-[#78746c] dark:text-[#706e6a] mt-0.5 truncate">
+            <div className="text-[10px] sm:text-[11px] font-bold text-[#71717A] dark:text-[#8E8E93] truncate">
               Fondo: $50.000 ARS
             </div>
           </div>
         ) : (
-          <div className="bg-white dark:bg-[#1c1c1c] rounded-xl p-2.5 sm:p-3.5 border border-[#ded9cd] dark:border-[#262626] shadow-2xs transition-colors">
-            <div className="text-[10px] font-bold text-[#78746c] dark:text-[#8a8883] uppercase tracking-wider truncate">
-              Modo Operativo
+          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-3.5 sm:p-4 border border-[#C8C4B7] dark:border-[#222328] transition-colors flex flex-col justify-between">
+            <div className="flex items-center justify-between pb-2 border-b border-[#C8C4B7] dark:border-[#222328]">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93] truncate">
+                Modo Operativo
+              </span>
+              <span className="w-2 h-2 rounded-full bg-[#18181B] dark:bg-white shrink-0" />
             </div>
-            <div className="mt-1 sm:mt-1.5 text-base sm:text-xl font-bold text-[#1c1b18] dark:text-[#f2efe9]">
+            <div className="my-2 text-xl sm:text-2xl font-black text-[#18181B] dark:text-white">
               Día a Día
             </div>
-            <div className="text-[10px] sm:text-[11px] text-[#78746c] dark:text-[#706e6a] mt-0.5 truncate">
+            <div className="text-[10px] sm:text-[11px] font-bold text-[#71717A] dark:text-[#8E8E93] truncate">
               Métricas ocultas
             </div>
           </div>
         )}
 
         {/* Card 3: Noches Mes */}
-        <div className="bg-white dark:bg-[#1c1c1c] rounded-xl p-2.5 sm:p-3.5 border border-[#ded9cd] dark:border-[#262626] shadow-2xs transition-colors">
-          <div className="text-[10px] font-bold text-[#78746c] dark:text-[#8a8883] uppercase tracking-wider truncate">
-            Noches Mes
+        <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-3.5 sm:p-4 border border-[#C8C4B7] dark:border-[#222328] transition-colors flex flex-col justify-between">
+          <div className="flex items-center justify-between pb-2 border-b border-[#C8C4B7] dark:border-[#222328]">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93] truncate">
+              Noches Mes
+            </span>
+            <span className="w-2 h-2 rounded-full bg-[#18181B] dark:bg-white shrink-0" />
           </div>
-          <div className="mt-1 sm:mt-1.5 text-lg sm:text-2xl font-bold text-[#1c1b18] dark:text-[#f2efe9] flex items-baseline gap-1">
+          <div className="my-2 text-2xl sm:text-3xl font-black text-[#18181B] dark:text-white tracking-tight flex items-baseline gap-1">
             <span>{totalNights}</span>
-            <span className="text-xs font-normal text-[#8e8a83] dark:text-[#807d78]">~2x</span>
+            <span className="text-xs font-bold text-[#71717A] dark:text-[#8E8E93]">~2x</span>
           </div>
-          <div className="text-[10px] sm:text-[11px] text-[#78746c] dark:text-[#706e6a] mt-0.5 truncate">
+          <div className="text-[10px] sm:text-[11px] font-bold text-[#71717A] dark:text-[#8E8E93] truncate">
             Vendidas · prom.
           </div>
         </div>
 
         {/* Card 4: Check-ins 7D */}
-        <div className="bg-white dark:bg-[#1c1c1c] rounded-xl p-2.5 sm:p-3.5 border border-[#ded9cd] dark:border-[#262626] shadow-2xs transition-colors">
-          <div className="text-[10px] font-bold text-[#78746c] dark:text-[#8a8883] uppercase tracking-wider truncate">
-            Check-ins 7D
+        <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-3.5 sm:p-4 border border-[#C8C4B7] dark:border-[#222328] transition-colors flex flex-col justify-between">
+          <div className="flex items-center justify-between pb-2 border-b border-[#C8C4B7] dark:border-[#222328]">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93] truncate">
+              Check-ins 7D
+            </span>
+            <span className="w-2 h-2 rounded-full bg-[#E1500A] shrink-0" />
           </div>
-          <div className="mt-1 sm:mt-1.5 text-lg sm:text-2xl font-bold text-[#1c1b18] dark:text-[#f2efe9]">
+          <div className="my-2 text-2xl sm:text-3xl font-black text-[#18181B] dark:text-white tracking-tight">
             {activeReservationsCount}
           </div>
-          <div className="text-[10px] sm:text-[11px] text-[#78746c] dark:text-[#706e6a] mt-0.5 truncate">
+          <div className="text-[10px] sm:text-[11px] font-bold text-[#71717A] dark:text-[#8E8E93] truncate">
             Próximas llegadas
           </div>
         </div>
       </div>
 
       {/* Row 2: Check-ins HOY, Check-outs HOY, A Limpiar */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 sm:gap-3.5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 sm:gap-3">
         {/* Check-ins HOY */}
-        <div className="lg:col-span-4 bg-white dark:bg-[#1c1c1c] rounded-xl p-3 sm:p-4 border border-[#ded9cd] dark:border-[#262626] shadow-2xs flex flex-col justify-between transition-colors">
+        <div className="lg:col-span-4 bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-4 sm:p-5 border border-[#C8C4B7] dark:border-[#222328] flex flex-col justify-between transition-colors">
           <div>
-            <div className="flex items-center gap-2 mb-2 sm:mb-2.5">
-              <span className="w-2 h-2 rounded-full bg-[#4f7858] dark:bg-[#82ba8f]" />
-              <h3 className="text-xs font-bold text-[#2c2a26] dark:text-[#d4d1cc]">
-                Check-ins HOY · {todayCheckIns.length}
-              </h3>
+            <div className="flex items-center justify-between pb-2 border-b border-[#C8C4B7] dark:border-[#222328] mb-3">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93]">
+                LLEGADAS / CHECK-INS HOY ({todayCheckIns.length})
+              </span>
+              <span className="w-2 h-2 rounded-full bg-[#E1500A]" />
             </div>
 
             {todayCheckIns.length === 0 ? (
-              <div className="text-center py-4 text-xs text-[#8e8a83] dark:text-[#6e6c68]">
-                Sin check-ins hoy
+              <div className="text-center py-6 text-xs font-bold text-[#71717A] dark:text-[#8E8E93]">
+                Sin check-ins para hoy
               </div>
             ) : (
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 {todayCheckIns.map((res) => (
                   <div
                     key={res.id}
                     onClick={() => onSelectReservation(res)}
-                    className="p-2 sm:p-2.5 rounded-lg bg-[#f8f6f2] dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2a2a2a] border border-[#ded9cd] dark:border-[#2e2e2e] transition-colors cursor-pointer flex items-center justify-between"
+                    className="p-2.5 rounded-none bg-white dark:bg-[#18181B] hover:border-[#18181B] dark:hover:border-white border border-[#C8C4B7] dark:border-[#222328] transition-all cursor-pointer flex items-center justify-between"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#f4eee7] dark:bg-[#382a22] text-[#9c512a] dark:text-[#d88d5e] border border-[#e4d6c9] dark:border-transparent">
+                      <span className="text-[10px] font-black px-1.5 py-0.5 rounded-none bg-[#18181B] text-white dark:bg-white dark:text-[#18181B]">
                         {getPropShortCode(res.propertyId)}
                       </span>
-                      <span className="text-xs font-semibold text-[#1c1b18] dark:text-[#ebe8e1]">
+                      <span className="text-xs font-bold text-[#18181B] dark:text-white">
                         {res.guestName}
                       </span>
                     </div>
@@ -304,7 +322,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
                           e.stopPropagation();
                           onQuickCheckIn(res.id);
                         }}
-                        className="text-[10px] font-bold bg-[#edf4ed] dark:bg-[#2a382e] text-[#3e6645] dark:text-[#82ba8f] hover:bg-[#dfeadf] dark:hover:bg-[#344839] px-2 py-0.5 rounded border border-[#c6dcc6] dark:border-[#3e5444] transition-colors"
+                        className="text-[10px] font-black bg-[#E1500A] text-white hover:bg-[#C94305] px-2.5 py-1 rounded-none transition-colors cursor-pointer uppercase"
                       >
                         Ingresar
                       </button>
@@ -317,115 +335,116 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
         </div>
 
         {/* Check-outs HOY */}
-        <div className="lg:col-span-4 bg-white dark:bg-[#1c1c1c] rounded-xl p-3 sm:p-4 border border-[#ded9cd] dark:border-[#262626] shadow-2xs transition-colors">
-          <div className="flex items-center gap-2 mb-2 sm:mb-2.5">
-            <span className="w-2 h-2 rounded-full bg-[#c46d45] dark:bg-[#c4774a]" />
-            <h3 className="text-xs font-bold text-[#2c2a26] dark:text-[#d4d1cc]">
-              Check-outs HOY · {todayCheckOuts.length}
-            </h3>
-          </div>
-
-          {todayCheckOuts.length === 0 ? (
-            <div className="text-center py-4 text-xs text-[#8e8a83] dark:text-[#6e6c68]">
-              Sin check-outs hoy
+        <div className="lg:col-span-4 bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-4 sm:p-5 border border-[#C8C4B7] dark:border-[#222328] flex flex-col justify-between transition-colors">
+          <div>
+            <div className="flex items-center justify-between pb-2 border-b border-[#C8C4B7] dark:border-[#222328] mb-3">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93]">
+                SALIDAS / CHECK-OUTS HOY ({todayCheckOuts.length})
+              </span>
+              <span className="w-2 h-2 rounded-full bg-[#18181B] dark:bg-white" />
             </div>
-          ) : (
-            <div className="space-y-1.5">
-              {todayCheckOuts.map((res) => (
-                <div
-                  key={res.id}
-                  onClick={() => onSelectReservation(res)}
-                  className="p-2 sm:p-2.5 rounded-lg bg-[#f8f6f2] dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2a2a2a] border border-[#ded9cd] dark:border-[#2e2e2e] transition-colors cursor-pointer flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#f4eee7] dark:bg-[#382a22] text-[#9c512a] dark:text-[#d88d5e] border border-[#e4d6c9] dark:border-transparent">
-                      {getPropShortCode(res.propertyId)}
-                    </span>
-                    <span className="text-xs font-semibold text-[#1c1b18] dark:text-[#ebe8e1]">
-                      {res.guestName}
+
+            {todayCheckOuts.length === 0 ? (
+              <div className="text-center py-6 text-xs font-bold text-[#71717A] dark:text-[#8E8E93]">
+                Sin check-outs para hoy
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {todayCheckOuts.map((res) => (
+                  <div
+                    key={res.id}
+                    onClick={() => onSelectReservation(res)}
+                    className="p-2.5 rounded-none bg-white dark:bg-[#18181B] hover:border-[#18181B] dark:hover:border-white border border-[#C8C4B7] dark:border-[#222328] transition-all cursor-pointer flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-black px-1.5 py-0.5 rounded-none bg-[#71717A] text-white">
+                        {getPropShortCode(res.propertyId)}
+                      </span>
+                      <span className="text-xs font-bold text-[#18181B] dark:text-white">
+                        {res.guestName}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-black text-[#71717A] dark:text-[#8E8E93] bg-[#EAE8E3] dark:bg-[#0C0D0F] px-2 py-0.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] uppercase">
+                      ✓ Salida
                     </span>
                   </div>
-                  <span className="text-[10px] font-medium text-[#78746c] dark:text-[#8e8c87] bg-[#edeae2] dark:bg-[#1e1e1e] px-2 py-0.5 rounded border border-[#ded9cd] dark:border-[#2c2c2c]">
-                    ✓ Salida
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* A Limpiar */}
-        <div className="lg:col-span-4 bg-white dark:bg-[#1c1c1c] rounded-xl p-3 sm:p-4 border border-[#ded9cd] dark:border-[#262626] shadow-2xs transition-colors">
-          <div className="flex items-center justify-between mb-2 sm:mb-2.5">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#c46d45] dark:bg-[#c4774a]" />
-              <h3 className="text-xs font-bold text-[#2c2a26] dark:text-[#d4d1cc]">
-                A Limpiar · {cleaningTasks.length}
-              </h3>
+        <div className="lg:col-span-4 bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-4 sm:p-5 border border-[#C8C4B7] dark:border-[#222328] flex flex-col justify-between transition-colors">
+          <div>
+            <div className="flex items-center justify-between pb-2 border-b border-[#C8C4B7] dark:border-[#222328] mb-3">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93]">
+                OPERACIONES / MUCAMAS ({cleaningTasks.length})
+              </span>
+              <button
+                onClick={() => onNavigateTab('housekeeping')}
+                className="text-[10px] font-black text-[#E1500A] hover:underline cursor-pointer uppercase"
+              >
+                Ver todas →
+              </button>
             </div>
-            <button
-              onClick={() => onNavigateTab('housekeeping')}
-              className="text-[11px] font-bold text-[#c46d45] hover:underline cursor-pointer"
-            >
-              Ver todas
-            </button>
-          </div>
 
-          <div className="space-y-1.5 max-h-48 sm:max-h-56 overflow-y-auto pr-1">
-            {cleaningTasks.slice(0, 6).map((task) => {
-              const isCompleted = task.status === 'completed';
-              return (
-                <div
-                  key={task.id}
-                  className="flex items-center justify-between p-2 rounded-lg bg-[#f8f6f2] dark:bg-[#242424] border border-[#ded9cd] dark:border-[#2e2e2e] text-xs"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#f3ecf8] dark:bg-[#2c2538] text-[#7a4fa3] dark:text-[#b894e6] border border-[#dfd2eb] dark:border-transparent">
-                      {getPropShortCode(task.propertyId)}
-                    </span>
-                    <span className="text-[11px] text-[#78746c] dark:text-[#9c9994]">
-                      {formatDisplayDate(task.date)}
-                    </span>
-                    <span className="text-xs font-semibold text-[#2c2a26] dark:text-[#dedbd6]">
-                      {task.cleanerName.split(' ')[0]}
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() =>
-                      onUpdateTaskStatus(
-                        task.id,
-                        isCompleted ? 'pending' : 'completed'
-                      )
-                    }
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 transition-colors cursor-pointer border ${
-                      isCompleted
-                        ? 'bg-[#edf4ed] dark:bg-[#2a382e] text-[#3e6645] dark:text-[#82ba8f] border-[#c6dcc6] dark:border-[#3e5444]'
-                        : 'bg-[#f4eee7] dark:bg-[#2a2622] text-[#9c512a] dark:text-[#d88d5e] border-[#e4d6c9] dark:border-[#3a2e26] hover:bg-[#edeae2]'
-                    }`}
+            <div className="space-y-2 max-h-48 sm:max-h-56 overflow-y-auto pr-1">
+              {cleaningTasks.slice(0, 6).map((task) => {
+                const isCompleted = task.status === 'completed';
+                return (
+                  <div
+                    key={task.id}
+                    className="flex items-center justify-between p-2 rounded-none bg-white dark:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] text-xs"
                   >
-                    <Check className="w-3 h-3" />
-                    <span>{isCompleted ? 'Limpio' : 'Marcar'}</span>
-                  </button>
-                </div>
-              );
-            })}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-black px-1.5 py-0.5 rounded-none bg-[#18181B] text-white dark:bg-white dark:text-[#18181B]">
+                        {getPropShortCode(task.propertyId)}
+                      </span>
+                      <span className="text-[11px] font-bold text-[#71717A] dark:text-[#8E8E93]">
+                        {formatDisplayDate(task.date)}
+                      </span>
+                      <span className="text-xs font-bold text-[#18181B] dark:text-white">
+                        {task.cleanerName.split(' ')[0]}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() =>
+                        onUpdateTaskStatus(
+                          task.id,
+                          isCompleted ? 'pending' : 'completed'
+                        )
+                      }
+                      className={`px-2.5 py-0.5 rounded-none text-[10px] font-black flex items-center gap-1 transition-colors cursor-pointer border uppercase ${
+                        isCompleted
+                          ? 'bg-emerald-600 text-white border-emerald-600'
+                          : 'bg-[#E1500A] text-white border-[#E1500A] hover:bg-[#C94305]'
+                      }`}
+                    >
+                      <Check className="w-3 h-3" />
+                      <span>{isCompleted ? 'Limpio' : 'Marcar'}</span>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Row 3: Próximos Check-ins (7 días) & Últimas Reservas */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 sm:gap-3.5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 sm:gap-3">
         {/* Próximos Check-ins (7 días) */}
-        <div className="bg-white dark:bg-[#1c1c1c] rounded-xl p-3 sm:p-4 border border-[#ded9cd] dark:border-[#262626] shadow-2xs transition-colors">
-          <div className="flex items-center gap-2 mb-2 sm:mb-2.5">
-            <span className="w-2 h-2 rounded-full bg-[#c46d45] dark:bg-[#c4774a]" />
-            <h3 className="text-xs font-bold text-[#2c2a26] dark:text-[#d4d1cc]">
-              Próximos Check-ins (7 días)
-            </h3>
+        <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-4 sm:p-5 border border-[#C8C4B7] dark:border-[#222328] transition-colors">
+          <div className="flex items-center justify-between pb-2 border-b border-[#C8C4B7] dark:border-[#222328] mb-3">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93]">
+              PRÓXIMAS LLEGADAS (7 DÍAS)
+            </span>
+            <span className="w-2 h-2 rounded-full bg-[#18181B] dark:bg-white" />
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {demoState.reservations
               .filter((r) => r.status !== 'cancelled')
               .slice(0, 4)
@@ -433,17 +452,17 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
                 <div
                   key={res.id}
                   onClick={() => onSelectReservation(res)}
-                  className="p-2 sm:p-2.5 rounded-lg bg-[#f8f6f2] dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2a2a2a] border border-[#ded9cd] dark:border-[#2e2e2e] transition-colors cursor-pointer flex items-center justify-between"
+                  className="p-2.5 rounded-none bg-white dark:bg-[#18181B] hover:border-[#18181B] dark:hover:border-white border border-[#C8C4B7] dark:border-[#222328] transition-all cursor-pointer flex items-center justify-between"
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#edf4ed] dark:bg-[#263228] text-[#3e6645] dark:text-[#82ba8f] border border-[#c6dcc6] dark:border-transparent">
+                    <span className="text-[10px] font-black px-1.5 py-0.5 rounded-none bg-[#18181B] text-white dark:bg-white dark:text-[#18181B]">
                       {getPropShortCode(res.propertyId)}
                     </span>
-                    <span className="text-xs font-semibold text-[#1c1b18] dark:text-[#ebe8e1]">
+                    <span className="text-xs font-bold text-[#18181B] dark:text-white">
                       {res.guestName}
                     </span>
                   </div>
-                  <span className="text-[11px] text-[#78746c] dark:text-[#7a7874] font-mono">
+                  <span className="text-[11px] font-mono font-bold text-[#71717A] dark:text-[#8E8E93]">
                     {formatDisplayDate(res.checkIn)}
                   </span>
                 </div>
@@ -452,15 +471,15 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
         </div>
 
         {/* Últimas Reservas */}
-        <div className="bg-white dark:bg-[#1c1c1c] rounded-xl p-3 sm:p-4 border border-[#ded9cd] dark:border-[#262626] shadow-2xs transition-colors">
-          <div className="flex items-center gap-2 mb-2 sm:mb-2.5">
-            <span className="w-2 h-2 rounded-full bg-[#c46d45] dark:bg-[#c4774a]" />
-            <h3 className="text-xs font-bold text-[#2c2a26] dark:text-[#d4d1cc]">
-              Últimas Reservas
-            </h3>
+        <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-4 sm:p-5 border border-[#C8C4B7] dark:border-[#222328] transition-colors">
+          <div className="flex items-center justify-between pb-2 border-b border-[#C8C4B7] dark:border-[#222328] mb-3">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93]">
+              ÚLTIMAS RESERVAS INGRESADAS
+            </span>
+            <span className="w-2 h-2 rounded-full bg-[#E1500A]" />
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {demoState.reservations
               .filter((r) => r.status !== 'cancelled')
               .slice(0, 4)
@@ -468,17 +487,17 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
                 <div
                   key={res.id}
                   onClick={() => onSelectReservation(res)}
-                  className="p-2 sm:p-2.5 rounded-lg bg-[#f8f6f2] dark:bg-[#242424] hover:bg-[#edeae2] dark:hover:bg-[#2a2a2a] border border-[#ded9cd] dark:border-[#2e2e2e] transition-colors cursor-pointer flex items-center justify-between"
+                  className="p-2.5 rounded-none bg-white dark:bg-[#18181B] hover:border-[#18181B] dark:hover:border-white border border-[#C8C4B7] dark:border-[#222328] transition-all cursor-pointer flex items-center justify-between"
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#f4eee7] dark:bg-[#382a22] text-[#9c512a] dark:text-[#d88d5e] border border-[#e4d6c9] dark:border-transparent">
+                    <span className="text-[10px] font-black px-1.5 py-0.5 rounded-none bg-[#E1500A] text-white">
                       {getPropShortCode(res.propertyId)}
                     </span>
-                    <span className="text-xs font-semibold text-[#1c1b18] dark:text-[#ebe8e1]">
+                    <span className="text-xs font-bold text-[#18181B] dark:text-white">
                       {res.guestName}
                     </span>
                   </div>
-                  <span className="text-[10px] font-bold text-[#3e6645] dark:text-[#82ba8f] bg-[#edf4ed] dark:bg-[#1e2e22] px-2 py-0.5 rounded border border-[#c6dcc6] dark:border-[#2c3e30]">
+                  <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-none border border-emerald-500/20 uppercase tracking-wider">
                     Confirmada
                   </span>
                 </div>

@@ -185,43 +185,38 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50">
-      {/* Floating Launcher Button - Circular Chat Head style from Checkinn */}
+    <div className="fixed bottom-5 right-5 z-50 font-sans">
+      {/* Floating Launcher Button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="relative group p-0.5 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer focus:outline-none"
+          className="relative group p-1 bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#C8C4B7] dark:border-[#222328] shadow-2xl hover:border-[#E1500A] dark:hover:border-[#E1500A] transition-all duration-200 cursor-pointer focus:outline-none flex items-center gap-2"
           aria-label="Abrir Asistente Xenia"
         >
-          {/* Pulsing outer ring */}
-          <span className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#c46d45]/60 to-amber-500/60 opacity-75 animate-ping" />
-          
-          {/* Inner ring & Avatar wrapper */}
-          <div className="relative p-0.5 bg-[#1a1a1a] rounded-full border border-[#c4774a]/40 group-hover:border-[#c4774a] transition-colors">
-            <XeniaAvatar size="lg" showStatus={true} className="align-middle" />
+          <div className="relative">
+            <XeniaAvatar size="md" showStatus={true} />
           </div>
-
-          {/* Quick tooltip on hover */}
-          <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-stone-900/95 text-white text-[10px] font-bold rounded-lg border border-stone-700/60 shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-            Preguntarle a Xenia IA
-          </span>
+          <div className="hidden sm:flex flex-col text-left pr-2">
+            <span className="text-[10px] font-black uppercase tracking-wider text-[#18181B] dark:text-white">Xenia Copilot</span>
+            <span className="text-[9px] font-bold text-[#71717A] dark:text-[#8E8E93]">Online 24/7</span>
+          </div>
         </button>
       )}
 
-      {/* Floating Chat Modal */}
+      {/* Floating Chat Window */}
       {isOpen && (
-        <div className="w-[360px] sm:w-[420px] h-[580px] bg-[#1a1a1a] rounded-3xl shadow-2xl border border-[#333] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200 text-[#f4f2ee]">
+        <div className="w-[360px] sm:w-[420px] h-[580px] bg-[#ECEAE4] dark:bg-[#0E0F12] border border-[#C8C4B7] dark:border-[#222328] shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-3 duration-150 text-[#18181B] dark:text-[#EFECE5]">
           {/* Header */}
-          <div className="p-4 bg-[#141414] text-white flex items-center justify-between border-b border-[#282828]">
+          <div className="p-3.5 bg-[#EAE8E3] dark:bg-[#0C0D0F] flex items-center justify-between border-b border-[#C8C4B7] dark:border-[#222328]">
             <div className="flex items-center gap-2.5">
               <div
                 className="relative group cursor-pointer"
                 onClick={() => photoInputRef.current?.click()}
-                title="Subir foto de Xenia (xenia.jpeg)"
+                title="Subir foto de Xenia"
               >
                 <XeniaAvatar size="sm" showStatus={false} />
-                <div className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity">
-                  <Camera className="w-3 h-3 text-[#d88d5e]" />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity">
+                  <Camera className="w-3 h-3 text-[#E1500A]" />
                 </div>
               </div>
               <input
@@ -233,17 +228,10 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
               />
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="font-bold text-sm leading-tight text-[#f4f2ee]">Xenia Copilot</h3>
-                  <button
-                    onClick={() => photoInputRef.current?.click()}
-                    className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#2a221b] text-[#d88d5e] border border-[#48372b] hover:bg-[#382b20] transition-colors cursor-pointer flex items-center gap-1"
-                    title="Cargar xenia.jpeg desde tu teléfono o PC"
-                  >
-                    <Camera className="w-2.5 h-2.5" />
-                    <span>Cambiar foto</span>
-                  </button>
+                  <h3 className="font-black text-xs uppercase tracking-wider text-[#18181B] dark:text-white">Xenia Copilot</h3>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E1500A] animate-pulse" />
                 </div>
-                <p className="text-[10px] text-[#8e8c87]">
+                <p className="text-[9px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider">
                   Rendición de Cuentas & Voz
                 </p>
               </div>
@@ -252,14 +240,14 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
             <div className="flex items-center gap-1">
               <button
                 onClick={toggleAutoVoice}
-                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                className={`p-1.5 border transition-colors cursor-pointer ${
                   autoVoice
-                    ? 'text-[#d88d5e] bg-[#2a2018]'
-                    : 'text-[#8e8c87] hover:text-white hover:bg-[#282828]'
+                    ? 'text-white bg-[#E1500A] border-[#E1500A]'
+                    : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B]'
                 }`}
                 title={autoVoice ? 'Voz de Xenia activada' : 'Activar voz'}
               >
-                {autoVoice ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                {autoVoice ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
               </button>
 
               {onOpenFullView && (
@@ -269,10 +257,10 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                     setIsOpen(false);
                     onOpenFullView();
                   }}
-                  className="p-1.5 text-[#8e8c87] hover:text-white rounded-lg hover:bg-[#282828] transition-colors cursor-pointer"
+                  className="p-1.5 text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] transition-colors cursor-pointer"
                   title="Abrir vista completa"
                 >
-                  <Maximize2 className="w-4 h-4" />
+                  <Maximize2 className="w-3.5 h-3.5" />
                 </button>
               )}
               <button
@@ -280,21 +268,21 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                   stopSpeaking();
                   setIsOpen(false);
                 }}
-                className="p-1.5 text-[#8e8c87] hover:text-white rounded-lg hover:bg-[#282828] transition-colors cursor-pointer"
+                className="p-1.5 text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] transition-colors cursor-pointer"
                 title="Cerrar"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
 
           {/* Quick Prompts Horizontal Scroll */}
-          <div className="bg-[#161616] px-3 py-2 border-b border-[#282828] flex items-center gap-1.5 overflow-x-auto scrollbar-none text-[11px]">
+          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] px-3 py-1.5 border-b border-[#C8C4B7] dark:border-[#222328] flex items-center gap-1.5 overflow-x-auto scrollbar-none text-[10px]">
             <button
               onClick={() =>
                 handleSend('¿Cuál es la ocupación actual y qué reservas hay?')
               }
-              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[#2a221b] border border-[#48372b] text-[#d88d5e] hover:border-[#6e503b] transition-colors cursor-pointer shrink-0 font-bold"
+              className="whitespace-nowrap px-2 py-0.5 bg-white dark:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] hover:border-[#E1500A] text-[#18181B] dark:text-white transition-colors cursor-pointer shrink-0 font-bold uppercase tracking-wider"
             >
               🛎️ Ocupación & Reservas
             </button>
@@ -302,30 +290,30 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
               onClick={() =>
                 handleSend('¿Cuánto cuesta Loomi y cómo se paga?')
               }
-              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[#202020] border border-[#333] text-[#c8c5c0] hover:text-[#f4f2ee] transition-colors cursor-pointer shrink-0 font-medium"
+              className="whitespace-nowrap px-2 py-0.5 bg-white dark:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] hover:border-[#E1500A] text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white transition-colors cursor-pointer shrink-0 font-bold uppercase tracking-wider"
             >
-              🏷️ Planes & precios ARS
+              🏷️ Planes ARS
             </button>
             <button
               onClick={() =>
                 handleSend('¿Cuánto dinero ingresó este mes y qué señas hay pendientes?')
               }
-              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[#202020] border border-[#333] text-[#c8c5c0] hover:text-[#f4f2ee] transition-colors cursor-pointer shrink-0"
+              className="whitespace-nowrap px-2 py-0.5 bg-white dark:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] hover:border-[#E1500A] text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white transition-colors cursor-pointer shrink-0 font-bold uppercase tracking-wider"
             >
-              💰 Ingresos & señas
+              💰 Ingresos
             </button>
             <button
               onClick={() =>
                 handleSend('¿Cómo sincronizo Booking y Airbnb sin dobles reservas?')
               }
-              className="whitespace-nowrap px-2.5 py-1 rounded-full bg-[#202020] border border-[#333] text-[#c8c5c0] hover:text-[#f4f2ee] transition-colors cursor-pointer shrink-0"
+              className="whitespace-nowrap px-2 py-0.5 bg-white dark:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] hover:border-[#E1500A] text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white transition-colors cursor-pointer shrink-0 font-bold uppercase tracking-wider"
             >
               🔄 Sincronizar iCal
             </button>
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#141414]">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#ECEAE4] dark:bg-[#0E0F12]">
             {messages.map((m) => (
               <div
                 key={m.id}
@@ -337,13 +325,13 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                   <XeniaAvatar size="xs" showStatus={false} />
                 )}
                 <div
-                  className={`max-w-[85%] rounded-2xl p-3 shadow-xs ${
+                  className={`max-w-[88%] p-3 border ${
                     m.role === 'user'
-                      ? 'bg-[#c46d45] text-white rounded-tr-xs'
-                      : 'bg-[#1e1e1e] border border-[#2e2e2e] text-[#e4e2de] rounded-tl-xs'
+                      ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                      : 'bg-[#EAE8E3] dark:bg-[#0C0D0F] border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-[#EFECE5]'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-2 mb-1 text-[9px] opacity-70 border-b border-white/10 pb-0.5">
+                  <div className="flex items-center justify-between gap-2 mb-1.5 text-[9px] font-bold uppercase tracking-wider opacity-70 border-b border-[#C8C4B7]/40 dark:border-[#222328] pb-1">
                     <span>{m.role === 'user' ? 'Tú' : 'Xenia'}</span>
                     <div className="flex items-center gap-1.5">
                       <span>{m.timestamp}</span>
@@ -351,10 +339,10 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                         <>
                           <button
                             onClick={() => speakMessage(m.content, m.id)}
-                            className={`p-0.5 rounded cursor-pointer transition-colors ${
+                            className={`p-0.5 cursor-pointer transition-colors ${
                               isSpeaking && speakingMessageId === m.id
-                                ? 'text-[#d88d5e] font-bold animate-pulse'
-                                : 'hover:text-[#d88d5e]'
+                                ? 'text-[#E1500A] font-black animate-pulse'
+                                : 'hover:text-[#E1500A]'
                             }`}
                             title={
                               isSpeaking && speakingMessageId === m.id
@@ -370,11 +358,11 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                           </button>
                           <button
                             onClick={() => copyText(m.content, m.id)}
-                            className="hover:text-[#d88d5e] p-0.5"
+                            className="hover:text-[#E1500A] p-0.5"
                             title="Copiar"
                           >
                             {copiedId === m.id ? (
-                              <Check className="w-2.5 h-2.5 text-[#78b37e]" />
+                              <Check className="w-2.5 h-2.5 text-emerald-500" />
                             ) : (
                               <Copy className="w-2.5 h-2.5" />
                             )}
@@ -383,7 +371,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                       )}
                     </div>
                   </div>
-                  <div className="prose prose-xs max-w-none text-[#e4e2de] prose-invert">
+                  <div className="prose prose-xs max-w-none text-current dark:prose-invert">
                     <Markdown>{m.content}</Markdown>
                   </div>
                 </div>
@@ -391,23 +379,23 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
             ))}
 
             {isListening && (
-              <div className="flex items-center gap-2 text-xs text-[#d88d5e] bg-[#2b221b] border border-[#d88d5e]/50 rounded-xl p-2.5">
-                <span className="w-2 h-2 rounded-full bg-[#d88d5e] animate-ping" />
-                <span className="font-semibold">Escuchando tu voz... Hablá con libertad</span>
+              <div className="flex items-center gap-2 text-xs text-[#E1500A] bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#E1500A] p-2.5">
+                <span className="w-2 h-2 rounded-full bg-[#E1500A] animate-ping" />
+                <span className="font-bold">Escuchando tu voz... Hablá con libertad</span>
               </div>
             )}
 
             {isLoading && (
-              <div className="flex items-center gap-2 text-xs text-[#8e8c87] bg-[#1c1c1c] border border-[#2e2e2e] rounded-xl p-2.5 w-fit">
-                <span className="w-2 h-2 rounded-full bg-[#d88d5e] animate-ping" />
-                <span>Xenia está respondiendo...</span>
+              <div className="flex items-center gap-2 text-xs text-[#71717A] dark:text-[#8E8E93] bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#C8C4B7] dark:border-[#222328] p-2.5 w-fit">
+                <span className="w-2 h-2 rounded-full bg-[#E1500A] animate-ping" />
+                <span className="font-bold">Xenia está respondiendo...</span>
               </div>
             )}
             <div ref={bottomRef} />
           </div>
 
           {/* Input Footer */}
-          <div className="p-3 bg-[#181818] border-t border-[#2a2a2a]">
+          <div className="p-3 bg-[#EAE8E3] dark:bg-[#0C0D0F] border-t border-[#C8C4B7] dark:border-[#222328]">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -424,10 +412,10 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                     startListening();
                   }
                 }}
-                className={`p-2 rounded-xl transition-all cursor-pointer ${
+                className={`p-2 transition-all cursor-pointer border ${
                   isListening
-                    ? 'bg-red-600 text-white animate-pulse ring-2 ring-red-400'
-                    : 'bg-[#24201c] hover:bg-[#342b23] text-[#d88d5e] border border-[#48372b]'
+                    ? 'bg-red-600 text-white animate-pulse border-red-500'
+                    : 'bg-white dark:bg-[#18181B] hover:bg-[#E1500A] hover:text-white text-[#18181B] dark:text-white border-[#C8C4B7] dark:border-[#222328]'
                 }`}
                 title={isListening ? 'Detener micrófono y enviar' : 'Hablar con Xenia por voz'}
               >
@@ -439,13 +427,13 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={isListening ? 'Escuchando tu voz...' : 'Preguntale a Xenia o tocá el micro...'}
-                className="flex-1 px-3 py-2 bg-[#121212] border border-[#333] rounded-xl text-xs text-[#f4f2ee] focus:outline-none focus:border-[#d88d5e]"
+                className="flex-1 px-3 py-2 bg-white dark:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] text-xs text-[#18181B] dark:text-white focus:outline-none focus:border-[#E1500A]"
                 disabled={isLoading}
               />
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="p-2 bg-[#c46d45] hover:bg-[#d67b51] disabled:opacity-50 text-white rounded-xl cursor-pointer transition-colors"
+                className="p-2 bg-[#E1500A] hover:bg-[#C94305] disabled:opacity-50 text-white cursor-pointer transition-colors"
                 title="Enviar"
               >
                 <Send className="w-4 h-4" />

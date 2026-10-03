@@ -166,89 +166,92 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 font-sans">
       {/* Header Banner */}
-      <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-[#ded9cd] dark:border-[#2a2a2a] p-5 shadow-xs transition-colors">
-        <h3 className="text-base font-bold text-[#1c1b18] dark:text-[#f4f2ee] flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-[#c46d45] dark:text-[#d88d5e]" />
+      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-4 sm:p-5 shadow-2xs transition-colors">
+        <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93]">
+          MENSAJERÍA & WHATSAPP / AUTOMATIZACIONES
+        </span>
+        <h3 className="text-xl font-black text-[#18181B] dark:text-white flex items-center gap-2 mt-0.5">
+          <MessageSquare className="w-5 h-5 text-[#E1500A]" />
           <span>Simulador y Envío Directo de WhatsApp</span>
         </h3>
-        <p className="text-xs text-[#78746c] dark:text-[#8e8c87] mt-0.5">
+        <p className="text-xs text-[#71717A] dark:text-[#8E8E93] mt-0.5 font-bold">
           Elegí el huésped y la plantilla inteligente. Los datos de la reserva, wifi, fechas y cerraduras se rellenan automáticamente listos para enviar en 1 toque.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
         {/* Left Side: Selectors (6 cols) */}
-        <div className="lg:col-span-6 space-y-5">
+        <div className="lg:col-span-6 space-y-4">
           {/* Reservation Selector with Smart Filters */}
-          <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-[#ded9cd] dark:border-[#2a2a2a] p-5 shadow-xs transition-colors space-y-3.5">
+          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-4 sm:p-5 shadow-2xs transition-colors space-y-3.5">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-bold text-[#1c1b18] dark:text-[#f4f2ee] uppercase tracking-wider">
+              <label className="block text-xs font-black uppercase tracking-wider text-[#18181B] dark:text-white">
                 1. Selecciona el Huésped o Reserva
               </label>
-              <span className="text-[11px] font-medium text-[#78746c] dark:text-[#8e8c87]">
+              <span className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93]">
                 {filteredReservations.length} {filteredReservations.length === 1 ? 'reserva' : 'reservas'}
               </span>
             </div>
 
-            {/* Scope Filter Pills */}
-            <div className="flex flex-wrap items-center gap-1.5 p-1 bg-[#f4eee7] dark:bg-[#252525] rounded-xl border border-[#e4d6c9] dark:border-[#383838]">
+            {/* Scope Filter Buttons */}
+            <div className="flex flex-wrap items-center gap-1.5 p-1 bg-white dark:bg-[#18181B] rounded-none border border-[#C8C4B7] dark:border-[#222328]">
               <button
                 type="button"
                 onClick={() => setFilterScope('upcoming')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`px-2.5 py-1 rounded-none text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                   filterScope === 'upcoming'
-                    ? 'bg-white dark:bg-[#333] text-[#c46d45] dark:text-[#d88d5e] shadow-xs'
-                    : 'text-[#78746c] dark:text-[#9c9994] hover:text-[#1c1b18] dark:hover:text-[#ebe8e1]'
+                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] shadow-xs'
+                    : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white'
                 }`}
               >
-                ⭐ Próximas & Hoy ({categorizedReservations.activeToday.length + categorizedReservations.upcoming.length})
+                Próximas & Hoy ({categorizedReservations.activeToday.length + categorizedReservations.upcoming.length})
               </button>
               <button
                 type="button"
                 onClick={() => setFilterScope('today')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`px-2.5 py-1 rounded-none text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                   filterScope === 'today'
-                    ? 'bg-white dark:bg-[#333] text-[#c46d45] dark:text-[#d88d5e] shadow-xs'
-                    : 'text-[#78746c] dark:text-[#9c9994] hover:text-[#1c1b18] dark:hover:text-[#ebe8e1]'
+                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] shadow-xs'
+                    : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white'
                 }`}
               >
-                🏠 En Estadía ({categorizedReservations.activeToday.length})
+                En Estadía ({categorizedReservations.activeToday.length})
               </button>
               <button
                 type="button"
                 onClick={() => setFilterScope('next7')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`px-2.5 py-1 rounded-none text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                   filterScope === 'next7'
-                    ? 'bg-white dark:bg-[#333] text-[#c46d45] dark:text-[#d88d5e] shadow-xs'
-                    : 'text-[#78746c] dark:text-[#9c9994] hover:text-[#1c1b18] dark:hover:text-[#ebe8e1]'
+                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] shadow-xs'
+                    : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white'
                 }`}
               >
-                📅 7 Días
+                7 Días
               </button>
               <button
                 type="button"
                 onClick={() => setFilterScope('all')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`px-2.5 py-1 rounded-none text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                   filterScope === 'all'
-                    ? 'bg-white dark:bg-[#333] text-[#c46d45] dark:text-[#d88d5e] shadow-xs'
-                    : 'text-[#78746c] dark:text-[#9c9994] hover:text-[#1c1b18] dark:hover:text-[#ebe8e1]'
+                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] shadow-xs'
+                    : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white'
                 }`}
               >
-                📂 Todas (con pasadas)
+                Todas
               </button>
             </div>
 
             {/* Quick search */}
             <div className="relative">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#78746c] dark:text-[#8e8c87]" />
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#71717A] dark:text-[#8E8E93]" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Filtrar por nombre de huésped, teléfono o depto..."
-                className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-[#ded9cd] dark:border-[#383838] bg-[#f8f6f2] dark:bg-[#252525] text-[#1c1b18] dark:text-[#f4f2ee] focus:outline-none focus:border-[#c46d45]"
+                className="w-full pl-8 pr-3 py-2 text-xs font-bold rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white focus:outline-none focus:border-[#E1500A]"
               />
             </div>
 
@@ -257,7 +260,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
               <select
                 value={activeSelectedResId}
                 onChange={(e) => setSelectedResId(e.target.value)}
-                className="w-full text-xs font-semibold p-3 rounded-xl border border-[#ded9cd] dark:border-[#383838] bg-[#f8f6f2] dark:bg-[#252525] text-[#1c1b18] dark:text-[#f4f2ee] focus:outline-none focus:border-[#c46d45]"
+                className="w-full text-xs font-bold p-2.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white focus:outline-none focus:border-[#E1500A]"
               >
                 {categorizedReservations.activeToday.length > 0 && (
                   <optgroup label="📍 EN ESTADÍA HOY">
@@ -299,25 +302,25 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                 )}
               </select>
             ) : (
-              <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-xl border border-amber-200 dark:border-amber-900/50 text-xs text-amber-900 dark:text-amber-300 text-center">
+              <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-none border border-amber-200 dark:border-amber-900/50 text-xs text-amber-900 dark:text-amber-300 text-center font-bold">
                 No hay reservas para este filtro. Probá con <strong>"Todas"</strong> o limpiá la búsqueda.
               </div>
             )}
 
             {selectedReservation && (
-              <div className="p-3 bg-[#f8f6f2] dark:bg-[#252525] rounded-xl border border-[#ded9cd] dark:border-[#383838] flex flex-wrap items-center justify-between gap-2 text-xs text-[#78746c] dark:text-[#8e8c87]">
+              <div className="p-3 bg-white dark:bg-[#18181B] rounded-none border border-[#C8C4B7] dark:border-[#222328] flex flex-wrap items-center justify-between gap-2 text-xs text-[#71717A] dark:text-[#8E8E93]">
                 <div className="flex items-center gap-1.5">
                   <Phone className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>WhatsApp: <strong className="text-[#1c1b18] dark:text-[#f4f2ee] font-mono">{selectedReservation.guestPhone || 'No cargado'}</strong></span>
+                  <span>WhatsApp: <strong className="text-[#18181B] dark:text-white font-mono">{selectedReservation.guestPhone || 'No cargado'}</strong></span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span>PIN: <strong className="font-mono text-[#c46d45] dark:text-[#d88d5e]">{selectedReservation.pinCode || '—'}</strong></span>
+                  <span>PIN: <strong className="font-mono text-[#E1500A]">{selectedReservation.pinCode || '—'}</strong></span>
                   {selectedReservation.guestPhone && (
                     <a
                       href={getWhatsAppLaunchUrl()}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold inline-flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
+                      className="px-2.5 py-1 rounded-none bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
                       title="Abrir chat en WhatsApp"
                     >
                       <ExternalLink className="w-3 h-3" />
@@ -330,29 +333,29 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
           </div>
 
           {/* Template Selector with all 6 Templates */}
-          <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-[#ded9cd] dark:border-[#2a2a2a] p-5 shadow-xs transition-colors">
+          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-4 sm:p-5 shadow-2xs transition-colors">
             <div className="flex items-center justify-between mb-3">
-              <label className="block text-xs font-bold text-[#1c1b18] dark:text-[#f4f2ee] uppercase tracking-wider">
+              <label className="block text-xs font-black uppercase tracking-wider text-[#18181B] dark:text-white">
                 2. Elige el Disparador o Plantilla
               </label>
-              <span className="text-[11px] font-bold text-[#c46d45] dark:text-[#d88d5e] bg-[#f4eee7] dark:bg-[#2a241e] px-2 py-0.5 rounded-full border border-[#e4d6c9] dark:border-[#523d2e]">
-                {templatesList.length} Plantillas Listas
+              <span className="text-[10px] font-black uppercase text-[#E1500A] bg-white dark:bg-[#18181B] px-2 py-0.5 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
+                {templatesList.length} Plantillas
               </span>
             </div>
 
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {templatesList.map((tpl) => (
                 <div
                   key={tpl.id}
                   onClick={() => setSelectedTemplateId(tpl.id)}
-                  className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all ${
+                  className={`p-3 rounded-none border text-xs cursor-pointer transition-all ${
                     selectedTemplateId === tpl.id
-                      ? 'bg-[#f4eee7] dark:bg-[#2a241e] border-[#c46d45] dark:border-[#d88d5e] shadow-xs'
-                      : 'bg-white dark:bg-[#222] border-[#ded9cd] dark:border-[#333] hover:border-[#c46d45]/50 dark:hover:border-[#555]'
+                      ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                      : 'bg-white dark:bg-[#18181B] border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-[#EFECE5] hover:border-[#E1500A]'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1 gap-2">
-                    <span className="font-bold text-[#1c1b18] dark:text-[#f4f2ee] flex items-center gap-1.5">
+                    <span className="font-bold flex items-center gap-1.5">
                       {tpl.id === 'tpl-5' && '🚗'}
                       {tpl.id === 'tpl-6' && '🛡️'}
                       {tpl.id === 'tpl-1' && '👋'}
@@ -361,11 +364,11 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                       {tpl.id === 'tpl-4' && '🌟'}
                       <span>{tpl.title}</span>
                     </span>
-                    <span className="text-[10px] bg-[#f4eee7] dark:bg-[#2a241e] text-[#9c512a] dark:text-[#d88d5e] px-2 py-0.5 rounded-full font-bold border border-[#e4d6c9] dark:border-[#523d2e] shrink-0">
+                    <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-none font-black border border-current opacity-80 shrink-0">
                       {tpl.triggerEvent}
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#78746c] dark:text-[#8e8c87] line-clamp-2">{tpl.content}</p>
+                  <p className="text-[11px] opacity-80 line-clamp-2">{tpl.content}</p>
                 </div>
               ))}
             </div>
@@ -374,12 +377,9 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
 
         {/* Right Side: WhatsApp Phone Mockup (6 cols) */}
         <div className="lg:col-span-6 flex justify-center">
-          <div className="w-full max-w-sm rounded-[36px] bg-[#1c1b18] dark:bg-[#141414] p-3 shadow-2xl border-4 border-[#ded9cd] dark:border-[#2a2a2a] relative">
-            {/* Phone notch */}
-            <div className="w-32 h-4 bg-[#2c2a26] dark:bg-[#242424] rounded-b-xl mx-auto mb-2" />
-
+          <div className="w-full max-w-sm rounded-none bg-[#18181B] p-2.5 shadow-2xl border-2 border-[#C8C4B7] dark:border-[#222328] relative">
             {/* Screen */}
-            <div className="bg-[#EFEAE2] rounded-[28px] overflow-hidden flex flex-col h-[540px] shadow-inner text-zinc-900">
+            <div className="bg-[#EFEAE2] rounded-none overflow-hidden flex flex-col h-[540px] shadow-inner text-zinc-900 font-sans">
               {/* WhatsApp Header */}
               <div className="bg-[#075E54] p-3 text-white flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
@@ -397,45 +397,45 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                     </span>
                   </div>
                 </div>
-                <div className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded text-[10px]">
-                  Loomi Suite Bot
+                <div className="text-[9px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-none">
+                  Loomi Bot
                 </div>
               </div>
 
               {/* Chat Canvas */}
               <div className="flex-1 p-3 overflow-y-auto flex flex-col justify-end space-y-3">
                 <div className="text-center">
-                  <span className="text-[10px] bg-white/80 text-zinc-500 px-2 py-0.5 rounded shadow-xs">
+                  <span className="text-[10px] font-bold bg-white/80 text-zinc-500 px-2 py-0.5 rounded-none shadow-xs uppercase">
                     Hoy
                   </span>
                 </div>
 
                 {/* Sent Bubble */}
-                <div className="self-end bg-[#DCF8C6] rounded-xl rounded-tr-none p-3 max-w-[85%] shadow-xs text-xs text-zinc-800 leading-relaxed relative">
-                  <div className="whitespace-pre-line text-[12px]">
+                <div className="self-end bg-[#DCF8C6] rounded-none p-3 max-w-[88%] shadow-xs text-xs text-zinc-800 leading-relaxed relative">
+                  <div className="whitespace-pre-line text-[11px] font-medium">
                     {getInterpolatedMessage()}
                   </div>
-                  <div className="text-right mt-1 flex items-center justify-end gap-1 text-[10px] text-zinc-400">
-                    <span>10:14 AM</span>
-                    <CheckCheck className="w-3.5 h-3.5 text-blue-500" />
+                  <div className="text-right mt-1 flex items-center justify-end gap-1 text-[10px] text-zinc-500 font-mono">
+                    <span>10:14</span>
+                    <CheckCheck className="w-3.5 h-3.5 text-blue-600" />
                   </div>
                 </div>
               </div>
 
               {/* Bottom Actions inside mockup */}
-              <div className="p-2.5 bg-white/95 border-t border-zinc-200 flex flex-col gap-1.5">
+              <div className="p-2.5 bg-white border-t border-zinc-200 flex flex-col gap-1.5">
                 <div className="flex items-center justify-between gap-2">
                   <button
                     onClick={handleCopy}
-                    className="flex-1 text-xs font-semibold py-2 px-3 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="flex-1 text-xs font-black uppercase tracking-wider py-2 px-3 rounded-none bg-zinc-100 hover:bg-zinc-200 text-zinc-800 flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-zinc-300"
                   >
                     {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copied ? 'Copiado' : 'Copiar Texto'}</span>
+                    <span>{copied ? 'Copiado' : 'Copiar'}</span>
                   </button>
 
                   <button
                     onClick={handleSendSimulate}
-                    className="flex-1 text-xs font-bold py-2 px-3 rounded-lg bg-zinc-800 hover:bg-zinc-900 text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                    className="flex-1 text-xs font-black uppercase tracking-wider py-2 px-3 rounded-none bg-[#18181B] hover:bg-black text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>{simulatedSent ? '¡Simulado!' : 'Simular'}</span>
@@ -447,7 +447,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                   href={getWhatsAppLaunchUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full text-xs font-extrabold py-2 px-3 rounded-lg bg-[#25D366] hover:bg-[#1EBE5D] text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                  className="w-full text-xs font-black uppercase tracking-wider py-2 px-3 rounded-none bg-[#25D366] hover:bg-[#1EBE5D] text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>Enviar por WhatsApp Real</span>

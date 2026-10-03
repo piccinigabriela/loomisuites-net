@@ -59,6 +59,27 @@ app.post("/api/state", (req: Request, res: Response) => {
   }
 });
 
+// Endpoint to permanently store and serve custom Xenia avatar image
+app.post("/api/xenia/avatar", (req: Request, res: Response) => {
+  try {
+    const { imageBase64 } = req.body;
+    if (!imageBase64 || typeof imageBase64 !== "string") {
+      return res.status(400).json({ error: "No imageBase64 provided" });
+    }
+    const publicDir = path.join(process.cwd(), "public");
+    if (!fs.existsSync(publicDir)) {
+      fs.mkdirSync(publicDir, { recursive: true });
+    }
+    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+    const buffer = Buffer.from(base64Data, "base64");
+    fs.writeFileSync(path.join(publicDir, "xenia.jpeg"), buffer);
+    return res.json({ success: true, url: "/xenia.jpeg" });
+  } catch (error: any) {
+    console.error("Error saving Xenia avatar:", error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 // Helper for fallback rule-based response if GEMINI_API_KEY is not configured
 function generateRuleBasedXeniaResponse(
   message: string,
