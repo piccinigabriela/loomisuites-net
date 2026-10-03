@@ -373,7 +373,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
 
             <div className="my-auto py-4 space-y-3">
               <div className="flex items-center gap-4">
-                <div className="relative group/avatar w-16 h-16 sm:w-20 sm:h-20 rounded-none overflow-hidden border border-[#18181B] dark:border-white shrink-0 shadow-none bg-[#1c1a18]">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-none overflow-hidden border border-[#18181B] dark:border-white shrink-0 shadow-none bg-[#1c1a18]">
                   <img
                     src={xeniaAvatarUrl || '/xenia.jpeg'}
                     alt="Xenia"
@@ -383,41 +383,11 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                       (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80';
                     }}
                   />
-                  <label
-                    onClick={(e) => e.stopPropagation()}
-                    className="absolute inset-0 bg-black/70 opacity-0 group-hover/avatar:opacity-100 flex flex-col items-center justify-center text-white text-[9px] font-bold cursor-pointer transition-opacity"
-                    title="Cargar foto de Xenia"
-                  >
-                    <Camera className="w-4 h-4 mb-0.5 text-[#E1500A]" />
-                    <span>Cambiar</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleXeniaPhotoUpload}
-                      className="hidden"
-                    />
-                  </label>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#18181B] dark:text-white tracking-tight">
-                      Xenia
-                    </h2>
-                    <label
-                      onClick={(e) => e.stopPropagation()}
-                      className="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider bg-[#E1500A]/15 hover:bg-[#E1500A] text-[#E1500A] hover:text-white border border-[#E1500A]/30 rounded-none transition-colors cursor-pointer flex items-center gap-1 shrink-0"
-                      title="Subir la foto de Xenia que creaste en Flow"
-                    >
-                      <Camera className="w-3 h-3" />
-                      <span>Cargar foto</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleXeniaPhotoUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
+                  <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#18181B] dark:text-white tracking-tight">
+                    Xenia
+                  </h2>
                   <p className="text-xs sm:text-sm text-[#71717A] dark:text-[#A1A1AA] font-bold">
                     No vas a estar solo en la gestión.
                   </p>
