@@ -12,7 +12,7 @@ export const XENIA_PORTRAIT_PRESETS = [
   {
     id: 'xenia-oficial',
     label: 'Xenia Oficial (Foto de Perfil)',
-    url: '/xenia.jpeg',
+    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: 'executive-warm',

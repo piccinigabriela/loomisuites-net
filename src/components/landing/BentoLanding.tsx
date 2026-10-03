@@ -375,7 +375,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-none overflow-hidden border border-[#18181B] dark:border-white shrink-0 shadow-none bg-[#1c1a18]">
                   <img
-                    src={xeniaAvatarUrl || '/xenia.jpeg'}
+                    src={xeniaAvatarUrl && !xeniaAvatarUrl.includes('/xenia.jpeg') ? xeniaAvatarUrl : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'}
                     alt="Xenia"
                     className="w-full h-full object-cover object-top"
                     referrerPolicy="no-referrer"
@@ -600,7 +600,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-none overflow-hidden border border-[#E1500A] shrink-0 bg-[#1c1a18]">
                     <img
-                      src={xeniaAvatarUrl || '/xenia.jpeg'}
+                      src={xeniaAvatarUrl && !xeniaAvatarUrl.includes('/xenia.jpeg') ? xeniaAvatarUrl : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'}
                       alt="Xenia"
                       className="w-full h-full object-cover object-top"
                       referrerPolicy="no-referrer"
