@@ -64,10 +64,10 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
         <div>
           <h3 className="text-base font-bold text-[#18181B] dark:text-[#EFECE5] flex items-center gap-2 tracking-tight">
             <Sparkles className="w-5 h-5 text-[#E1500A]" />
-            <span>Gestión Operativa de Limpieza & Mucamas</span>
+            <span>Operaciones & Puesta a Punto de Unidades</span>
           </h3>
           <p className="text-xs text-[#71717A] dark:text-[#8E8E93] mt-0.5">
-            Coordina a tu equipo sin que tengan que descargar aplicaciones. Enlaces móviles y checklists en tiempo real.
+            Coordina al staff operativo en tiempo real sin aplicaciones pesadas. Checklists móviles, recambios y puesta a punto.
           </p>
         </div>
 

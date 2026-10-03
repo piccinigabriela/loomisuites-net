@@ -33,7 +33,7 @@ export const DemoNavTabs: React.FC<DemoNavTabsProps> = ({
     { id: 'bookings', label: 'Lista de Reservas', icon: List },
     {
       id: 'housekeeping',
-      label: 'Limpieza & Operaciones',
+      label: 'Operaciones & Puesta a Punto',
       icon: Sparkles,
       badge: pendingCleaningsCount > 0 ? `${pendingCleaningsCount}` : undefined,
     },

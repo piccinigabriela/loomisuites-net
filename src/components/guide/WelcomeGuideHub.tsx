@@ -138,9 +138,9 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
           <div className="bg-white dark:bg-[#18181B] p-3.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] flex flex-col justify-between">
             <div>
               <span className="text-[11px] font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1 uppercase tracking-wider font-mono">
-                🧹 Checklist Limpieza
+                🧹 Checklist Operaciones
               </span>
-              <p className="text-xs font-mono text-[#18181B] dark:text-[#EFECE5] truncate mt-1">/limpieza/{slug}</p>
+              <p className="text-xs font-mono text-[#18181B] dark:text-[#EFECE5] truncate mt-1">/operaciones/{slug}</p>
             </div>
             <button
               onClick={() => handleCopy('clean_bar', directLinks.housekeeping)}

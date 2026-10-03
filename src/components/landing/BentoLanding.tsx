@@ -296,24 +296,24 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               </div>
             </div>
 
-            {/* Tile D: 9:16 / Housekeeping Mucamas */}
+            {/* Tile D: 9:16 / Housekeeping Operaciones */}
             <div
               onClick={() => setActiveModule('housekeeping')}
               className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-5 sm:p-6 border border-[#C8C4B7] dark:border-[#222328] flex flex-col justify-between cursor-pointer hover:border-[#18181B] dark:hover:border-white transition-all group min-h-[160px] sm:min-h-[180px]"
             >
               <div className="flex items-center justify-between pb-2 border-b border-[#C8C4B7] dark:border-[#222328]">
                 <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93]">
-                  OPERACIONES / MUCAMAS
+                  OPERACIONES / EQUIPO
                 </span>
                 <span className="w-2.5 h-2.5 rounded-full bg-[#18181B] dark:bg-white shrink-0" />
               </div>
 
               <div className="my-auto py-1">
                 <h3 className="text-2xl sm:text-3xl font-black text-[#18181B] dark:text-white tracking-tight">
-                  Mucamas
+                  Operaciones
                 </h3>
                 <p className="text-[11px] text-[#71717A] dark:text-[#A1A1AA] font-bold mt-0.5">
-                  Checklist móvil sin usuario
+                  Checklist móvil y puesta a punto
                 </p>
               </div>
 
@@ -628,7 +628,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             {activeModule === 'xenia' && (
               <div className="space-y-6">
                 <div className="flex items-center gap-4">
-                  <div className="relative group/modalAvatar w-16 h-16 sm:w-20 sm:h-20 rounded-none overflow-hidden border-2 border-[#E1500A] shrink-0 bg-[#1c1a18]">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-none overflow-hidden border-2 border-[#E1500A] shrink-0 bg-[#1c1a18]">
                     <img
                       src={xeniaAvatarUrl || '/xenia.jpeg'}
                       alt="Xenia"
@@ -638,35 +638,12 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                         (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80';
                       }}
                     />
-                    <label
-                      className="absolute inset-0 bg-black/70 opacity-0 group-hover/modalAvatar:opacity-100 flex flex-col items-center justify-center text-white text-[9px] font-bold cursor-pointer transition-opacity"
-                      title="Cargar foto de Xenia"
-                    >
-                      <Camera className="w-4 h-4 mb-0.5 text-[#E1500A]" />
-                      <span>Cambiar</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleXeniaPhotoUpload}
-                        className="hidden"
-                      />
-                    </label>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-black uppercase tracking-widest text-[#E1500A]">
                         02 / COPILOTO INTELIGENTE
                       </span>
-                      <label className="text-[11px] font-black text-[#E1500A] hover:underline flex items-center gap-1 cursor-pointer bg-[#E1500A]/10 px-2.5 py-1 rounded-none border border-[#E1500A]/30">
-                        <Upload className="w-3 h-3" />
-                        <span>Subir foto</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleXeniaPhotoUpload}
-                          className="hidden"
-                        />
-                      </label>
                     </div>
                     <h3 className="text-2xl sm:text-3xl font-black mt-0.5">Xenia: No vas a estar solo</h3>
                   </div>
@@ -796,15 +773,15 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               <div className="space-y-6">
                 <div>
                   <span className="text-[10px] font-black uppercase tracking-widest text-[#E1500A]">
-                    05 / LIMPIEZA & MUCAMAS
+                    05 / OPERACIONES & PUESTA A PUNTO
                   </span>
                   <h3 className="text-2xl sm:text-3xl font-black mt-1">
-                    Tu personal sabe qué preparar hoy sin volverte loco
+                    Tu staff sabe qué preparar hoy sin volverte loco
                   </h3>
                 </div>
 
                 <p className="text-sm sm:text-base text-[#52525B] dark:text-[#A1A1AA] leading-relaxed">
-                  Tu equipo de limpieza tiene su propio enlace en el celular con el listado del día, horarios de recambio urgente y checklist con fotos para que cada cabaña esté impecable a tiempo.
+                  Tu equipo operativo tiene su propio enlace en el celular con el listado del día, horarios de recambio urgente y checklist con fotos para que cada cabaña esté impecable a tiempo.
                 </p>
 
                 <ul className="space-y-2 text-xs font-bold text-[#52525B] dark:text-[#A1A1AA]">
