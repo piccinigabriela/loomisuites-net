@@ -132,10 +132,15 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
   const getInterpolatedMessage = () => {
     if (!selectedTemplate || !selectedReservation || !selectedProperty) return '';
 
+    const guestFirstName = selectedReservation.guestName.split(' ')[0];
+    const personalizedGuideUrl = `https://loomisuite.com/guia/${selectedProperty.id}?huesped=${encodeURIComponent(guestFirstName)}&unidad=${encodeURIComponent(selectedProperty.name)}&pin=${encodeURIComponent(selectedReservation.pinCode || '')}`;
+
     let content = selectedTemplate.content;
-    content = content.replace(/{nombre_huesped}/g, selectedReservation.guestName.split(' ')[0]);
+    content = content.replace(/{nombre_huesped}/g, guestFirstName);
     content = content.replace(/{nombre_propiedad}/g, selectedProperty.name);
     content = content.replace(/{propiedad_id}/g, selectedProperty.id);
+    content = content.replace(/https:\/\/loomisuite\.com\/guia\/{propiedad_id}/g, personalizedGuideUrl);
+    content = content.replace(/{link_guia}/g, personalizedGuideUrl);
     content = content.replace(/{direccion_propiedad}/g, `${selectedProperty.address}, ${selectedProperty.neighborhood}`);
     content = content.replace(/{fecha_llegada}/g, formatDisplayDate(selectedReservation.checkIn));
     content = content.replace(/{fecha_salida}/g, formatDisplayDate(selectedReservation.checkOut));

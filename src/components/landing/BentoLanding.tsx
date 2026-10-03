@@ -73,6 +73,23 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
   const [nightRateInput, setNightRateInput] = useState<string>('60000');
   const numericRate = Number(nightRateInput.replace(/[^0-9]/g, '')) || 60000;
 
+  // Dynamic rotating accommodation types and orange adjectives
+  const ROTATING_ITEMS = [
+    { type: 'Cabañas & Bungalows', icon: '🌲', adjective: 'Simple' },
+    { type: 'Glampings & Domos', icon: '⛺', adjective: 'Ágil' },
+    { type: 'Departamentos Turísticos', icon: '🏢', adjective: 'Modular' },
+    { type: 'Posadas & Lodges', icon: '🏡', adjective: 'Intuitivo' },
+    { type: 'Alquileres Temporarios', icon: '🛎️', adjective: 'Sin Comisiones' },
+  ];
+  const [rotatingIndex, setRotatingIndex] = useState(0);
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setRotatingIndex((prev) => (prev + 1) % ROTATING_ITEMS.length);
+    }, 2500);
+    return () => clearInterval(timer);
+  }, [ROTATING_ITEMS.length]);
+
   // Dynamic Xenia Avatar state synced with app
   const [xeniaAvatarUrl, setXeniaAvatarUrl] = useState<string>(() => getStoredXeniaAvatar());
 
@@ -155,13 +172,41 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               </div>
             </div>
 
-            <div className="my-3 sm:my-4 space-y-1 sm:space-y-2">
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#18181B] dark:text-white leading-[0.98]">
-                Modular. Simple. Ágil.
+            <div className="my-2.5 sm:my-3 space-y-2">
+              <h1 className="text-2xl sm:text-4xl lg:text-[42px] font-black tracking-tight text-[#18181B] dark:text-white leading-[1.06]">
+                Software de gestión a la medida de tu alojamiento
               </h1>
-              <p className="text-xs sm:text-sm text-[#71717A] dark:text-[#A1A1AA] font-bold tracking-tight">
-                El software de gestión para cabañas, glampings, domos y departamentos de 4 a 30+ unidades.
-              </p>
+
+              {/* Dynamic Rotator Line: Accommodation Types + Orange Keywords */}
+              <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                <div className="inline-flex items-center gap-2 bg-[#18181B] dark:bg-white text-white dark:text-[#0C0D0F] px-3 py-1 font-mono text-xs font-black tracking-tight border border-[#18181B] dark:border-white shadow-2xs">
+                  <span className="text-sm">{ROTATING_ITEMS[rotatingIndex].icon}</span>
+                  <span className="transition-all duration-300">
+                    {ROTATING_ITEMS[rotatingIndex].type}
+                  </span>
+                </div>
+                <span className="text-[#E1500A] font-mono font-black text-xs uppercase tracking-wider bg-[#E1500A]/15 px-2.5 py-1 border border-[#E1500A]/30">
+                  {ROTATING_ITEMS[rotatingIndex].adjective}
+                </span>
+                <span className="text-xs text-[#71717A] dark:text-[#A1A1AA] font-bold tracking-tight">
+                  • De 4 a 30+ unidades sin comisiones
+                </span>
+              </div>
+
+              {/* Subtle Horizontal Ticker List */}
+              <div className="pt-1 flex items-center gap-1.5 overflow-x-auto scrollbar-none text-[11px] font-mono text-[#71717A] dark:text-[#A1A1AA]">
+                <span className="font-bold text-[#18181B] dark:text-white">🌲 Cabañas</span>
+                <span className="text-[#E1500A] font-black">• Simple</span>
+                <span className="text-[#C8C4B7] dark:text-[#222328]">|</span>
+                <span className="font-bold text-[#18181B] dark:text-white">⛺ Glampings</span>
+                <span className="text-[#E1500A] font-black">• Ágil</span>
+                <span className="text-[#C8C4B7] dark:text-[#222328]">|</span>
+                <span className="font-bold text-[#18181B] dark:text-white">🏢 Deptos</span>
+                <span className="text-[#E1500A] font-black">• Modular</span>
+                <span className="text-[#C8C4B7] dark:text-[#222328]">|</span>
+                <span className="font-bold text-[#18181B] dark:text-white">🏡 Posadas</span>
+                <span className="text-[#E1500A] font-black">• Directo</span>
+              </div>
             </div>
 
             <div className="pt-3 border-t border-[#C8C4B7] dark:border-[#222328] flex items-center justify-between">
