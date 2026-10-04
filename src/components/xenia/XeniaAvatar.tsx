@@ -100,9 +100,10 @@ export const XeniaAvatar: React.FC<XeniaAvatarProps> = ({
   const activeUrl = currentSrc || XENIA_PORTRAIT_PRESETS[0].url;
 
   const handleImageError = () => {
-    if (activeUrl === '/xenia.jpeg' || activeUrl === 'xenia.jpeg') {
-      // Automatic fallback to Unsplash photo which represents Xenia's exact appearance in the photo
-      setCurrentSrc('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80');
+    if (activeUrl !== '/xenia.jpg') {
+      setCurrentSrc('/xenia.jpg');
+    } else if (activeUrl !== '/moderno_plano_medio_corto,_perfil_editorial_de_alto_contraste.jpg') {
+      setCurrentSrc('/moderno_plano_medio_corto,_perfil_editorial_de_alto_contraste.jpg');
     } else {
       setImgError(true);
     }

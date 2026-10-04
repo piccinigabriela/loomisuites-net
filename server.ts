@@ -341,7 +341,7 @@ ${listSnippet}
 💡 *Acciones operativas:* Podés filtrar reservas por canal, ver accesos con clave o llave física, y coordinar con el personal de limpieza desde el Rack de Disponibilidad.`;
   }
 
-  // 5. Instructions / Cómo usar la plataforma
+  // 5. Instructions / Cómo usar la plataforma & Sincronización
   if (
     q.includes("como") ||
     q.includes("cómo") ||
@@ -351,7 +351,9 @@ ${listSnippet}
     q.includes("airbnb") ||
     q.includes("arnb") ||
     q.includes("abnb") ||
-    q.includes("conectar") ||
+    q.includes("arbnb") ||
+    q.includes("conect") ||
+    q.includes("vincul") ||
     q.includes("paso") ||
     q.includes("tutorial") ||
     q.includes("manual") ||
@@ -367,9 +369,10 @@ ${listSnippet}
       q.includes("airbnb") ||
       q.includes("arnb") ||
       q.includes("abnb") ||
+      q.includes("arbnb") ||
       q.includes("ical") ||
-      q.includes("conectar") ||
-      q.includes("vincular")
+      q.includes("conect") ||
+      q.includes("vincul")
     ) {
       return `### 🔄 Instrucciones: Cómo sincronizar Booking.com y Airbnb sin dobles reservas
 
@@ -545,14 +548,26 @@ Responde siempre en español rioplatense/latinoaméricano amigable, profesional,
       },
     ];
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.8-flash",
-      contents,
-      config: {
-        systemInstruction,
-        temperature: 0.4,
-      },
-    });
+    let response;
+    try {
+      response = await ai.models.generateContent({
+        model: "gemini-flash-latest",
+        contents,
+        config: {
+          systemInstruction,
+          temperature: 0.4,
+        },
+      });
+    } catch (_geminiErr) {
+      response = await ai.models.generateContent({
+        model: "gemini-3.8-flash",
+        contents,
+        config: {
+          systemInstruction,
+          temperature: 0.4,
+        },
+      });
+    }
 
     const reply = response.text || "No pude generar una respuesta en este momento.";
 

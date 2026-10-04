@@ -119,25 +119,27 @@ Aquí tienes el balance operativo consolidado en tiempo real:
 
   // 3. Sincronización iCal, Conexión de Canales y Doble Reserva (PRIORIDAD ALTA)
   if (
-    q.includes('conectar') ||
-    q.includes('vincular') ||
+    q.includes('conect') ||
+    q.includes('vincul') ||
     q.includes('sincroniz') ||
     q.includes('ical') ||
     q.includes('airbnb') ||
+    q.includes('arbnb') ||
     q.includes('arnb') ||
     q.includes('abnb') ||
     q.includes('airnb') ||
     q.includes('booking') ||
     q.includes('overbooking') ||
-    ((q.includes('como') || q.includes('cómo')) && q.includes('calendario'))
+    ((q.includes('como') || q.includes('cómo')) && (q.includes('calendario') || q.includes('canal')))
   ) {
     if (
       q.includes('airbnb') ||
+      q.includes('arbnb') ||
       q.includes('arnb') ||
       q.includes('abnb') ||
       q.includes('airnb') ||
-      q.includes('conectar') ||
-      q.includes('vincular') ||
+      q.includes('conect') ||
+      q.includes('vincul') ||
       q.includes('sincroniz') ||
       q.includes('como') ||
       q.includes('cómo') ||
