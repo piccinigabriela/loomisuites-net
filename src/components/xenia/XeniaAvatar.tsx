@@ -11,8 +11,13 @@ interface XeniaAvatarProps {
 export const XENIA_PORTRAIT_PRESETS = [
   {
     id: 'xenia-oficial',
-    label: 'Xenia Oficial (Foto de Perfil)',
-    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+    label: 'Xenia Oficial (Taza Loomi Suite)',
+    url: '/xenia.jpg',
+  },
+  {
+    id: 'xenia-archivo-original',
+    label: 'Xenia Perfil Editorial',
+    url: '/moderno_plano_medio_corto,_perfil_editorial_de_alto_contraste.jpg',
   },
   {
     id: 'executive-warm',
@@ -23,11 +28,6 @@ export const XENIA_PORTRAIT_PRESETS = [
     id: 'reception-friendly',
     label: 'Hospitality Manager Sonriente',
     url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'contemporary-host',
-    label: 'Anfitriona Contemporánea',
-    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: 'lodging-specialist',

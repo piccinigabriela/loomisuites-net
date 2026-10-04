@@ -375,12 +375,17 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-none overflow-hidden border border-[#18181B] dark:border-white shrink-0 shadow-none bg-[#1c1a18]">
                   <img
-                    src={xeniaAvatarUrl && !xeniaAvatarUrl.includes('/xenia.jpeg') ? xeniaAvatarUrl : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'}
+                    src={xeniaAvatarUrl || '/xenia.jpg'}
                     alt="Xenia"
                     className="w-full h-full object-cover object-top"
                     referrerPolicy="no-referrer"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80';
+                      const img = e.target as HTMLImageElement;
+                      if (!img.src.includes('moderno_plano')) {
+                        img.src = '/moderno_plano_medio_corto,_perfil_editorial_de_alto_contraste.jpg';
+                      } else if (!img.src.includes('xenia.jpeg')) {
+                        img.src = '/xenia.jpeg';
+                      }
                     }}
                   />
                 </div>
@@ -600,12 +605,17 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-none overflow-hidden border border-[#E1500A] shrink-0 bg-[#1c1a18]">
                     <img
-                      src={xeniaAvatarUrl && !xeniaAvatarUrl.includes('/xenia.jpeg') ? xeniaAvatarUrl : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'}
+                      src={xeniaAvatarUrl || '/xenia.jpg'}
                       alt="Xenia"
                       className="w-full h-full object-cover object-top"
                       referrerPolicy="no-referrer"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80';
+                        const img = e.target as HTMLImageElement;
+                        if (!img.src.includes('moderno_plano')) {
+                          img.src = '/moderno_plano_medio_corto,_perfil_editorial_de_alto_contraste.jpg';
+                        } else if (!img.src.includes('xenia.jpeg')) {
+                          img.src = '/xenia.jpeg';
+                        }
                       }}
                     />
                   </div>
