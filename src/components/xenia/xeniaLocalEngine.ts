@@ -1,71 +1,269 @@
 import { DemoState } from '../../types';
 
 export function getClientXeniaReply(message: string, demoState: DemoState): string {
-  const q = message.toLowerCase();
+  const q = (message || '').toLowerCase().trim();
   const properties = demoState.properties || [];
   const reservations = demoState.reservations || [];
   const cleaningTasks = demoState.cleaningTasks || [];
 
-  // 1. WhatsApp, Mensajería, Plantillas y Blindaje Anti-Quejas (PRIORIDAD ALTA)
+  // STEMMING & INTENT DETECTION FOR LAYMAN / NON-HOTELIER QUESTIONS
+  const isEditingAction =
+    q.includes('modific') ||
+    q.includes('cambi') ||
+    q.includes('edit') ||
+    q.includes('cancel') ||
+    q.includes('borr') ||
+    q.includes('elimin') ||
+    q.includes('muev') ||
+    q.includes('mov') ||
+    q.includes('paso') ||
+    q.includes('pasar') ||
+    q.includes('pasalo') ||
+    q.includes('pasala') ||
+    q.includes('traslad') ||
+    q.includes('reasign') ||
+    q.includes('correg') ||
+    q.includes('ajust') ||
+    q.includes('anot') ||
+    q.includes('registr') ||
+    q.includes('marcar') ||
+    q.includes('agreg') ||
+    q.includes('sumar') ||
+    q.includes('sacar') ||
+    q.includes('restar') ||
+    q.includes('quedarse mas') ||
+    q.includes('un dia mas') ||
+    q.includes('cobro mas') ||
+    q.includes('cobrar mas') ||
+    q.includes('cobro menos') ||
+    q.includes('cobrar menos');
+
+  const isReservationTarget =
+    q.includes('reserva') ||
+    q.includes('estadia') ||
+    q.includes('estadía') ||
+    q.includes('fecha') ||
+    q.includes('dia') ||
+    q.includes('días') ||
+    q.includes('noche') ||
+    q.includes('noches') ||
+    q.includes('pasajero') ||
+    q.includes('huesped') ||
+    q.includes('huésped') ||
+    q.includes('cliente') ||
+    q.includes('cabaña') ||
+    q.includes('depto') ||
+    q.includes('habitacion') ||
+    q.includes('unidad') ||
+    q.includes('tarifa') ||
+    q.includes('precio') ||
+    q.includes('seña') ||
+    q.includes('saldo') ||
+    q.includes('pago');
+
+  // 1. MODIFICAR, EDITAR, MOVER, CANCELAR O CAMBIAR DATOS DE UNA RESERVA (MÁXIMA PRIORIDAD)
   if (
-    q.includes('whatsapp') ||
-    q.includes('mensaje') ||
-    q.includes('mensajeria') ||
-    q.includes('mensajería') ||
-    q.includes('plantilla') ||
-    q.includes('plantillas') ||
-    q.includes('queja') ||
-    q.includes('reseña') ||
-    q.includes('resena') ||
-    q.includes('viaje') ||
-    q.includes('ruta') ||
-    q.includes('blindaje') ||
-    q.includes('comunicacion') ||
-    q.includes('comunicación')
+    (isEditingAction && isReservationTarget) ||
+    q.includes('como cancelo') ||
+    q.includes('cómo cancelo') ||
+    q.includes('como modifico') ||
+    q.includes('cómo modifico') ||
+    q.includes('como edito') ||
+    q.includes('cómo edito') ||
+    q.includes('como muevo') ||
+    q.includes('cómo muevo') ||
+    q.includes('como cambio') ||
+    q.includes('cómo cambio') ||
+    q.includes('como borro') ||
+    q.includes('cómo borro') ||
+    q.includes('modificar reserva') ||
+    q.includes('cambiar reserva') ||
+    q.includes('cancelar reserva') ||
+    q.includes('mover reserva') ||
+    q.includes('editar reserva') ||
+    q.includes('cambiar fechas') ||
+    q.includes('cambiar fecha') ||
+    q.includes('un dia mas') ||
+    q.includes('quedarse mas dias') ||
+    q.includes('otra cabaña') ||
+    q.includes('otro depto')
   ) {
-    return `### 💬 WhatsApp y Blindaje Anti-Quejas en Loomi Suite
+    return `### ✏️ Cómo modificar, mover o actualizar una reserva en Loomi Suite
 
-¡Hola! Te explico cómo funciona el sistema de mensajería inteligente y para qué sirve cada plantilla:
+En Loomi lo hacés en segundos, sin complicaciones técnicas ni términos difíciles:
 
-1. **📱 ¿Para qué sirven las 6 Plantillas Inteligentes?**
-   - 👋 **Confirmación y Bienvenida (Día 1):** Envía el link a la Guía Digital del complejo con el mapa y recomendaciones locales.
-   - 🚗 **Coordinación en Ruta / Día de Viaje:** Para coordinar el horario de llegada en viajes largos y pedir ubicación en tiempo real.
-   - 🔑 **Acceso y Clave Wi-Fi:** Entrega la dirección exacta, el código de puerta/cerradura y los datos del Wi-Fi.
-   - 🛡️ **Control de Confort (2hs Post-Ingreso):** Mensaje clave para chequear que todo esté impecable y desactivar reclamos en privado en 10 minutos, antes de que se conviertan en una mala reseña.
-   - ⏰ **Recordatorio de Check-out:** Aviso cordial para coordinar la salida y las tareas de limpieza.
-   - 🌟 **Solicitud de Reseña 5 Estrellas:** Enviado a los huéspedes satisfechos para que califiquen con 5 estrellas e invitarlos a reservar directo.
+1. **Abrir la reserva:**
+   - En el **Rack Calendario**, hacé clic sobre la barra de la estadía que querés modificar (o buscala por nombre en la pestaña **Reservas & Pasajeros**).
+   - Se abrirá la ficha completa con todos los datos del huésped.
 
-2. **⚡ Envío en 1 Toque:**
-   - No tenés que escribir nada: las plantillas toman solas el nombre del huésped, su cabaña, sus fechas y el PIN de acceso.
-   - Podés enviarlas desde la pestaña **"Avisos & WhatsApp"** o tocando el botón verde **"Chatear"** en la ficha de cualquier reserva.
+2. **Tocá el ícono del Lápiz (✏️ Editar):**
+   - **Cambiar Fechas o Noches:** Ajustás el check-in, check-out o sumás noches si el huésped se queda más tiempo. *(¡En el calendario también podés arrastrar la barra directamente con el mouse!)*.
+   - **Mover de Cabaña o Departamento:** Si necesitás cambiarlo de unidad por mantenimiento o preferencia, seleccionás la nueva cabaña desde el menú desplegable.
+   - **Modificar la Tarifa o Precio:** Podés cambiar el importe total facturado (si le hiciste descuento o cobraste extras). Loomi recalcula al instante la comisión real y tu ingreso neto limpio.
+   - **Anotar Señas y Cobros de Saldo:** Cambiás el estado de *"Seña Pendiente"* a *"Seña 50%"* o *"100% Abonado"* cuando el huésped te transfiera o pague en recepción.
+   - **Early Check-in o Late Check-out:** Marcás si llega antes o sale más tarde para coordinar con la mucama.
+   - **Cancelar o Dar de Baja:** Si el pasajero cancela, cambiás el estado a *"Cancelada"* y las fechas se liberan al instante.
 
-3. **⭐ Filtro Inteligente:**
-   - La pantalla oculta las reservas viejas y te muestra solo **"Próximas & Hoy"** o **"En Estadía"** para elegir al huésped en un segundo.`;
+3. **Guardar:**
+   - Tocás **Guardar Cambios** y automáticamente se actualizan tu calendario, tus números contables y el módulo de limpieza.
+
+💡 *Si el cambio lo hizo el huésped directamente en Airbnb o Booking, el enlace iCal actualiza el calendario solo sin que tengas que hacer nada a mano.*`;
   }
 
-  // 2. Precios, Planes y Métodos de Pago
+  // 2. FINANZAS, GANANCIAS, RECAUDACIÓN, MESES (OCTUBRE, NOVIEMBRE, ETC.) Y COMISIONES
+  const isFinanceIntent =
+    q.includes('ganancia') ||
+    q.includes('ganancias') ||
+    q.includes('gane') ||
+    q.includes('gané') ||
+    q.includes('gano') ||
+    q.includes('plata') ||
+    q.includes('dinero') ||
+    q.includes('guita') ||
+    q.includes('factur') ||
+    q.includes('ingreso') ||
+    q.includes('ingresos') ||
+    q.includes('rentabilidad') ||
+    q.includes('beneficio') ||
+    q.includes('balance') ||
+    q.includes('cobre') ||
+    q.includes('cobré') ||
+    q.includes('cobro') ||
+    q.includes('recaud') ||
+    q.includes('seña') ||
+    q.includes('saldo') ||
+    q.includes('comision') ||
+    q.includes('comisión') ||
+    q.includes('ahorr') ||
+    q.includes('cuanto gano') ||
+    q.includes('cuánto gano') ||
+    q.includes('cuanto entra') ||
+    q.includes('cuánto entra') ||
+    q.includes('cuanto me queda') ||
+    q.includes('cuánto me queda') ||
+    q.includes('como viene') ||
+    q.includes('cómo viene') ||
+    q.includes('octubre') ||
+    q.includes('noviembre') ||
+    q.includes('diciembre') ||
+    q.includes('este mes') ||
+    q.includes('mes actual');
+
+  if (isFinanceIntent && !isEditingAction) {
+    const monthsMap: Record<string, { num: string; name: string }> = {
+      octubre: { num: '10', name: 'Octubre' },
+      noviembre: { num: '11', name: 'Noviembre' },
+      diciembre: { num: '12', name: 'Diciembre' },
+      enero: { num: '01', name: 'Enero' },
+      febrero: { num: '02', name: 'Febrero' },
+      marzo: { num: '03', name: 'Marzo' },
+      abril: { num: '04', name: 'Abril' },
+      mayo: { num: '05', name: 'Mayo' },
+      junio: { num: '06', name: 'Junio' },
+      julio: { num: '07', name: 'Julio' },
+      agosto: { num: '08', name: 'Agosto' },
+      septiembre: { num: '09', name: 'Septiembre' },
+    };
+
+    let targetMonth: { num: string; name: string } | null = null;
+    for (const [key, val] of Object.entries(monthsMap)) {
+      if (q.includes(key)) {
+        targetMonth = val;
+        break;
+      }
+    }
+
+    if (!targetMonth && (q.includes('este mes') || q.includes('mes actual'))) {
+      targetMonth = { num: '10', name: 'Octubre' };
+    }
+
+    if (targetMonth) {
+      const monthReservations = reservations.filter((r: any) => {
+        const inMatch = r.checkIn && (r.checkIn.includes(`-${targetMonth.num}-`) || r.checkIn.startsWith(`2026-${targetMonth.num}`));
+        const outMatch = r.checkOut && (r.checkOut.includes(`-${targetMonth.num}-`) || r.checkOut.startsWith(`2026-${targetMonth.num}`));
+        return inMatch || outMatch;
+      });
+
+      const monthGross = monthReservations.reduce((acc: number, r: any) => acc + (r.totalAmount || 0), 0);
+      const monthCommissions = monthReservations.reduce((acc: number, r: any) => acc + (r.commissionPaid || 0), 0);
+      const monthNet = monthReservations.reduce((acc: number, r: any) => acc + (r.netRevenue || 0), 0);
+      const monthNights = monthReservations.reduce((acc: number, r: any) => acc + (r.nights || 0), 0);
+      const monthDirectSaved = monthReservations
+        .filter((r: any) => r.platform === 'direct')
+        .reduce((sum: number, r: any) => sum + (r.totalAmount || 0) * 0.18, 0);
+
+      const snippet = monthReservations.slice(0, 6).map((r: any) => {
+        const pName = properties.find((p: any) => p.id === r.propertyId)?.name || 'Cabaña';
+        return `• **${r.guestName}** en *${pName}* (${r.platform.toUpperCase()}): ${r.checkIn} al ${r.checkOut} — **$${r.totalAmount} USD** (Neto: $${r.netRevenue} USD)`;
+      }).join('\n');
+
+      return `### 📊 Ganancias y Facturación de ${targetMonth.name} (Loomi Suite)
+
+Aquí tenés el desglose exacto de tu negocio para **${targetMonth.name}**:
+
+- 💰 **Ganancia Neta Real en Mano:** **$${monthNet.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD** *(lo que te queda limpio en el bolsillo después de descontar comisiones)*.
+- 💵 **Facturación Bruta Total:** **$${monthGross.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD** sobre **${monthReservations.length} reservas registradas** (${monthNights} noches vendidas).
+- 🏷️ **Comisiones Deducidas por OTAs (Airbnb/Booking):** **-$${monthCommissions.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD**.
+- 🌟 **Ahorro por Reservas Directas:** **+$${Math.round(monthDirectSaved).toLocaleString('en-US')} USD** ahorrados sin intermediarios.
+
+${monthReservations.length > 0 ? `📋 **Estadías del mes de ${targetMonth.name}:**\n${snippet}\n${monthReservations.length > 6 ? `*(y ${monthReservations.length - 6} reservas más en el sistema)*` : ''}` : `ℹ️ *Aún no hay reservas registradas específicamente para ${targetMonth.name}.*`}
+
+💡 *Podés ver el informe detallado y liquidaciones en la pestaña **Finanzas**.*`;
+    }
+
+    // General financial overview
+    const totalGross = reservations.reduce((acc: number, r: any) => acc + (r.totalAmount || 0), 0);
+    const totalCommissions = reservations.reduce((acc: number, r: any) => acc + (r.commissionPaid || 0), 0);
+    const totalNet = reservations.reduce((acc: number, r: any) => acc + (r.netRevenue || 0), 0);
+    const totalNights = reservations.reduce((acc: number, r: any) => acc + (r.nights || 0), 0);
+    const directSaved = reservations
+      .filter((r: any) => r.platform === 'direct')
+      .reduce((sum: number, r: any) => sum + (r.totalAmount || 0) * 0.18, 0);
+
+    const pendingPayments = reservations.filter(
+      (r: any) => r.paymentStatus === 'pending' || r.paymentStatus === 'deposit_only'
+    );
+
+    return `### 📊 Rendición Financiera y Ganancias de tu Negocio
+
+Aquí tenés el balance económico actualizado en tiempo real:
+
+- 💰 **Ganancia Neta Real en Mano:** **$${totalNet.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD** *(después de tasas y comisiones de canales)*.
+- 💵 **Facturación Bruta Total:** **$${totalGross.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD** sobre **${reservations.length} reservas registradas** (${totalNights} noches).
+- 🏷️ **Comisiones Deducidas por Plataformas (OTAs):** **-$${totalCommissions.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD** (Booking, Airbnb).
+- 🌟 **Ahorro por Reservas Directas:** **+$${Math.round(directSaved).toLocaleString('en-US')} USD** ahorrados gracias a reservas directas sin comisiones.
+
+${pendingPayments.length > 0 ? `⚠️ **Cobros y Saldos Pendientes:** Tenés ${pendingPayments.length} reservas con saldo pendiente de cobro en mostrador.` : '✅ *Todos los cobros de reservas confirmadas están al día.*'}
+
+💡 *Pregúntame por un mes específico (ej: "¿Cuál es mi ganancia en octubre?") para ver el detalle mensual.*`;
+  }
+
+  // 3. PLANES, PRECIOS Y FORMAS DE PAGO DE LOOMI SUITE (SOFTWARE)
   if (
-    q.includes('precio') ||
-    q.includes('cuanto cuesta') ||
-    q.includes('cuánto cuesta') ||
-    q.includes('abono') ||
-    q.includes('transferencia') ||
-    q.includes('cbu') ||
-    q.includes('cvu') ||
-    q.includes('alias') ||
-    q.includes('banco') ||
-    q.includes('mercado pago') ||
-    q.includes('paypal') ||
-    q.includes('stripe') ||
-    q.includes('tarjeta') ||
-    q.includes('ipc') ||
-    q.includes('costo') ||
-    ((q.includes('plan ') || q.includes('planes') || q.includes(' plan') || q === 'plan') &&
-      !q.includes('plantilla') &&
-      !q.includes('planilla')) ||
-    (q.includes('tarifa') && !q.includes('manual') && !q.includes('ical'))
+    (q.includes('precio') ||
+      q.includes('costo') ||
+      q.includes('cuanto cuesta') ||
+      q.includes('cuánto cuesta') ||
+      q.includes('cuanto sale') ||
+      q.includes('cuánto sale') ||
+      q.includes('abono') ||
+      q.includes('tarifa') ||
+      q.includes('planes') ||
+      q.includes('plan ') ||
+      q.includes(' plan') ||
+      q === 'plan' ||
+      q.includes('ipc') ||
+      q.includes('inflacion') ||
+      q.includes('inflación') ||
+      q.includes('mercado pago') ||
+      q.includes('transferencia') ||
+      q.includes('cbu') ||
+      q.includes('alias') ||
+      q.includes('tarjeta') ||
+      q.includes('paypal')) &&
+    !isEditingAction
   ) {
-    return `### 🏷️ Planes, Precios y Formas de Pago de Loomi
+    return `### 🏷️ Planes, Precios y Formas de Pago de Loomi Suite
 
 En Loomi tenemos **precios transparentes en pesos argentinos (ARS)** y ajustados por **IPC (inflación oficial)**, para que no tengas sobresaltos con el dólar:
 
@@ -76,260 +274,202 @@ En Loomi tenemos **precios transparentes en pesos argentinos (ARS)** y ajustados
 
 **Formas de Pago y Cobro:**
 - 💳 **Tu abono a Loomi:** Se abona mensualmente mediante **Transferencia Bancaria directa** (CBU/CVU o Alias) en Argentina, o por **PayPal** para el exterior. Sin comisiones extras ni intermediarios.
-- 💰 **Cobros a tus Huéspedes:** Tus huéspedes te pagan directo a tus cuentas: podés vincular tu **Mercado Pago** (links de pago o QR, el estándar local más usado), transferencias por **CBU/Alias bancario** o **PayPal** para extranjeros. Loomi no retiene tus fondos.
-- ✅ **Sin tarjeta para arrancar:** Probás la demo interactiva sin ingresar datos de pago.
+- 💰 **Cobros a tus Huéspedes:** Tus huéspedes te pagan directo a tus cuentas: podés vincular tu **Mercado Pago** (links de pago o QR), transferencias por **CBU/Alias bancario** o **PayPal** para extranjeros. Loomi no retiene tus fondos ni cobra comisiones por reserva (0% comisión).
+- ✅ **Sin tarjeta de crédito para arrancar:** Probás la demo interactiva sin ingresar datos de pago.
 - ✅ **Sin permanencia:** Podés pausar o dar de baja el servicio cuando quieras.
-- ✅ **100% compatible con llaves físicas tradicionales:** No requiere cerraduras digitales ni cambiar puertas.
-- 🧩 **Módulos Opcionales (Add-ons):** Quien necesite Cerraduras Digitales con PIN, Frigobar / Consumos extras o Turnos de Spa los activa de forma modular con costo diferencial.
-- 🌐 **Dominio Propio para Motor Directo:** Opcional con pago directo a cargo del cliente (ej: \`reservas.tucabana.com.ar\`) con SSL incluido.
-- 👥 **Modo Día a Día para Empleados:** Modo operativo restringido para que el personal atienda check-ins y limpieza sin ver ingresos ni finanzas.`;
+- 👥 **Modo Día a Día para Empleados:** Modo operativo restringido para que el personal atienda check-ins y limpieza sin ver números de facturación ni finanzas.`;
   }
 
-  // 2. Ingresos y Finanzas
+  // 4. LLAVES FÍSICAS vs CERRADURAS DIGITALES
   if (
-    q.includes('ingreso') ||
-    q.includes('facturacion') ||
-    q.includes('facturación') ||
-    q.includes('dinero') ||
-    q.includes('cuanto gane') ||
-    q.includes('cuánto gané') ||
-    q.includes('plata') ||
-    q.includes('recaud') ||
-    q.includes('finanza') ||
-    q.includes('comision') ||
-    q.includes('comisión')
+    q.includes('llave') ||
+    q.includes('cerradura') ||
+    q.includes('candado') ||
+    q.includes('digital') ||
+    q.includes('electronica') ||
+    q.includes('electrónica') ||
+    q.includes('tuya') ||
+    q.includes('yale') ||
+    q.includes('ttlock') ||
+    q.includes('conserj') ||
+    q.includes('buzon') ||
+    q.includes('buzón')
   ) {
-    const totalGross = reservations.reduce((acc, r) => acc + (r.totalAmount || 0), 0);
-    const totalCommissions = reservations.reduce((acc, r) => acc + (r.commissionPaid || 0), 0);
-    const totalNet = reservations.reduce((acc, r) => acc + (r.netRevenue || 0), 0);
-    const totalNights = reservations.reduce((acc, r) => acc + (r.nights || 0), 0);
-    const adr = totalNights > 0 ? Math.round(totalGross / totalNights) : 0;
+    return `### 🔑 Llaves Físicas Tradicionales vs. Cerraduras Digitales en Loomi
 
-    return `### 📊 Rendición Financiera de tu Negocio
+¡Tranquilo/a! En Loomi **no necesitás gastar en cerraduras caras ni cambiar una sola puerta**:
 
-Aquí tienes el balance operativo consolidado en tiempo real:
+1. **100% pensado para Llaves Físicas Tradicionales:**
+   - La enorme mayoría de cabañas y posadas entregan la llave en mano o usan un candado/buzón de llaves.
+   - En la ficha de cada reserva figura claramente: *"Llave física en conserjería"* para que todo tu equipo lo sepa.
 
-- 💵 **Facturación Bruta:** **$${totalGross.toLocaleString('en-US')} USD** (${reservations.length} reservas registradas).
-- 🏷️ **Comisiones a Plataformas (OTAs):** **-$${totalCommissions.toLocaleString('en-US')} USD** (Airbnb, Booking, etc.).
-- 💰 **Ingresos Netos Reales en Mano:** **$${totalNet.toLocaleString('en-US')} USD**.
-- 📈 **Tarifa Promedio por Noche (ADR):** **$${adr} USD** sobre ${totalNights} noches vendidas.
+2. **¿Tenés o querés cerraduras electrónicas con código PIN?**
+   - El módulo de cerraduras inteligentes es un **Add-on opcional**.
+   - Si tenés cerraduras tipo Teclado/Touch (Tuya, TTLock, Yale), podés asociar el código PIN del huésped para que le llegue automáticamente por WhatsApp.
 
-*Resumen:* Cuentas con un flujo equilibrado entre canales con control preciso de ingresos netos.`;
+En resumen: podés empezar hoy mismo con tus llaves de toda la vida y nunca estás obligado a cambiar nada.`;
   }
 
-  // 3. Sincronización iCal, Conexión de Canales y Doble Reserva (PRIORIDAD ALTA)
+  // 5. LIMPIEZA Y MUCAMAS
   if (
-    q.includes('conect') ||
-    q.includes('vincul') ||
+    q.includes('limpieza') ||
+    q.includes('mucama') ||
+    q.includes('limpiar') ||
+    q.includes('chica') ||
+    q.includes('ropa blanca') ||
+    q.includes('sabana') ||
+    q.includes('sábana') ||
+    q.includes('toalla') ||
+    q.includes('desinfeccion') ||
+    q.includes('desinfección')
+  ) {
+    return `### 🧹 Módulo de Limpieza y Mucamas en el Celular
+
+Así funciona la coordinación diaria sin mensajes perdidos en WhatsApp:
+
+1. **Automático:** Al concretarse un check-out, la unidad pasa automáticamente a estado **Pendiente (Sucia)** en tu rack.
+2. **Enlace móvil para el personal:** Tu personal de limpieza tiene su enlace móvil propio (sin contraseñas) con el listado del día y checklist:
+   - Sábanas y toallas limpias.
+   - Sanitización de baños y reposición de amenities.
+   - Comprobación de llaves o cerradura.
+3. **Control en tiempo real:** Cuando terminan, tocan **"Marcar como Lista"** y tu calendario pasa a verde de inmediato para el próximo ingreso.`;
+  }
+
+  // 6. WHATSAPP, PLANTILLAS, GUÍA DIGITAL Y WI-FI
+  if (
+    q.includes('whatsapp') ||
+    q.includes('mensaje') ||
+    q.includes('mensajeria') ||
+    q.includes('mensajería') ||
+    q.includes('plantilla') ||
+    q.includes('guia digital') ||
+    q.includes('guía digital') ||
+    q.includes('wifi') ||
+    q.includes('wi-fi') ||
+    q.includes('internet') ||
+    q.includes('clave') ||
+    q.includes('llegada') ||
+    q.includes('ubicacion') ||
+    q.includes('ubicación') ||
+    q.includes('blindaje') ||
+    q.includes('queja') ||
+    q.includes('resena') ||
+    q.includes('reseña')
+  ) {
+    return `### 💬 WhatsApp Inteligente y Blindaje Anti-Quejas en Loomi Suite
+
+En Loomi enviás mensajes a tus pasajeros en 1 solo toque, con los datos ya cargados:
+
+1. **Las 6 Plantillas Automáticas:**
+   - 👋 **Bienvenida y Guía Digital (Día 1):** Envía el mapa interactivo de ruta y recomendaciones locales.
+   - 🚗 **Coordinación en Ruta:** Para coordinar la hora exacta de llegada en viajes largos.
+   - 🔑 **Acceso y Clave Wi-Fi:** Entrega automáticamente la red y contraseña de esa cabaña específica.
+   - 🛡️ **Control de Confort (2hs Post-Ingreso):** Desactiva reclamos en privado en 10 minutos, antes de que se transformen en una queja pública.
+   - ⏰ **Recordatorio de Check-out:** Aviso cordial para coordinar la salida.
+   - 🌟 **Solicitud de Reseña 5 Estrellas:** Para conseguir mejores calificaciones e invitar a reservar directo la próxima vez.
+
+2. **⚡ Envío en 1 Clic:**
+   - Podés enviarlas desde la pestaña **"Avisos & WhatsApp"** o tocando el botón verde **"Chatear"** en la ficha de cualquier reserva.`;
+  }
+
+  // 7. SINCRONIZACIÓN Y OVERBOOKING / DOBLES RESERVAS
+  if (
     q.includes('sincroniz') ||
-    q.includes('ical') ||
     q.includes('airbnb') ||
-    q.includes('arbnb') ||
-    q.includes('arnb') ||
-    q.includes('abnb') ||
-    q.includes('airnb') ||
     q.includes('booking') ||
+    q.includes('ical') ||
     q.includes('overbooking') ||
-    ((q.includes('como') || q.includes('cómo')) && (q.includes('calendario') || q.includes('canal')))
+    q.includes('doble reserva') ||
+    q.includes('dos veces') ||
+    q.includes('se pisen') ||
+    q.includes('pisar') ||
+    q.includes('conectar') ||
+    q.includes('vincular') ||
+    q.includes('canal') ||
+    q.includes('canales')
   ) {
-    if (
-      q.includes('airbnb') ||
-      q.includes('arbnb') ||
-      q.includes('arnb') ||
-      q.includes('abnb') ||
-      q.includes('airnb') ||
-      q.includes('conect') ||
-      q.includes('vincul') ||
-      q.includes('sincroniz') ||
-      q.includes('como') ||
-      q.includes('cómo') ||
-      q.includes('paso')
-    ) {
-      return `### 🔄 Cómo conectar Airbnb y sincronizar calendarios sin dobles reservas
+    return `### 🔄 Cómo sincronizar Booking y Airbnb para evitar dobles reservas
 
-Para conectar tu anuncio de Airbnb con Loomi Suite y evitar cualquier overbooking, sigue estos 3 pasos simples:
+Loomi conecta tus calendarios mediante sincronización bidireccional (iCal oficial) para que **nunca se pisen dos reservas en la misma cabaña**:
 
-1. **Obtener el enlace iCal de Airbnb:**
-   - Entra a tu cuenta de anfitrión en **Airbnb**.
-   - Ve a **Anuncios** ➔ Selecciona tu cabaña o depto ➔ **Precios y disponibilidad**.
-   - Baja hasta **Sincronización del calendario** ➔ Toca **Exportar calendario** y copia el enlace que te da Airbnb (termina en \`.ics\`).
+1. **Obtener el enlace iCal en Airbnb/Booking:**
+   - En tu cuenta de anfitrión de Airbnb, vas a tu anuncio ➔ **Precios y disponibilidad** ➔ **Exportar calendario** y copias el enlace.
+2. **Pegarlo en Loomi Suite:**
+   - En Loomi vas a **Cabañas & Habitaciones** ➔ Tocás **"Sincronizar Canales"** en la cabaña y pegás el enlace.
+3. **Copiar el enlace de Loomi hacia el canal:**
+   - Copiás el link de exportación de Loomi y lo pegás en **Importar calendario** en Airbnb y Booking.
 
-2. **Vincularlo en Loomi Suite:**
-   - En tu panel de Loomi, ve a la pestaña **Cabañas & Habitaciones**.
-   - En la tarjeta de la cabaña correspondiente, toca el botón **"Sincronizar Canales"** (o el lápiz ✏️).
-   - Pega el enlace de Airbnb en el campo **URL iCal de Airbnb** y guarda.
-
-3. **Copiar el enlace de Loomi hacia Airbnb:**
-   - En esa misma pantalla de Loomi, copia tu enlace de exportación de Loomi.
-   - En Airbnb, toca **Importar calendario** y pégalo ahí con el nombre *"Loomi Suite"*.
-
-✅ **¡Listo!** A partir de ese momento, cada vez que entre una reserva en Airbnb, las fechas se bloquean en Loomi y en Booking en tiempo real.`;
-    }
-
-    return `### 🔄 Sincronización Oficial en Tiempo Real
-
-Loomi Suite mantiene tu disponibilidad conectada de forma bidireccional:
-
-- **Booking.com & Airbnb:** Conexión oficial directa para actualizar disponibilidad en menos de 3 segundos y sincronizar tarifas.
-- **VRBO / Expedia:** Conexión iCal bidireccional incluida sin costos ocultos de API, además de soporte para cuentas profesionales.
-- **Sin dobles reservas (Overbooking):** Cada bloqueo ingresado en un canal actualiza automáticamente el resto en segundos.`;
+✅ **¡Listo!** Cuando entra una reserva en Airbnb, las fechas se bloquean automáticamente en Booking y en Loomi en tiempo real.`;
   }
 
-  // 4. Huéspedes, Reservas y Ocupación
+  // 8. OCUPACIÓN, QUIÉN LLEGA HOY, QUIÉN SALE HOY
   if (
-    q.includes('huesped') ||
-    q.includes('huésped') ||
     q.includes('ocupad') ||
     q.includes('ocupacion') ||
     q.includes('ocupación') ||
-    q.includes('reserva') ||
-    q.includes('reservas') ||
     q.includes('disponib') ||
     q.includes('libre') ||
+    q.includes('quien llega') ||
+    q.includes('quién llega') ||
+    q.includes('quien sale') ||
+    q.includes('quién sale') ||
+    q.includes('check in hoy') ||
+    q.includes('check-in hoy') ||
+    q.includes('check out hoy') ||
+    q.includes('check-out hoy') ||
     q.includes('hoy') ||
-    q.includes('checkin') ||
-    q.includes('check in') ||
-    q.includes('checkout') ||
-    q.includes('check out') ||
-    q.includes('early') ||
-    q.includes('late') ||
-    q.includes('llega') ||
-    q.includes('sale') ||
-    q.includes('calendario') ||
     q.includes('alojado') ||
-    q.includes('pasajero')
+    q.includes('pasajeros') ||
+    q.includes('huespedes') ||
+    q.includes('huéspedes') ||
+    q.includes('reserva') ||
+    q.includes('reservas')
   ) {
     const todayStr = new Date().toISOString().split('T')[0];
     const totalProps = properties.length || 6;
-    
-    // Check-ins hoy y check-outs hoy
-    const checkInsToday = reservations.filter((r) => r.checkIn === todayStr || r.checkIn <= todayStr && r.checkOut > todayStr);
-    const checkOutsToday = reservations.filter((r) => r.checkOut === todayStr);
-    const occupiedCount = Math.min(totalProps, reservations.filter((r) => r.status === 'confirmed' || r.status === 'checked_in').length);
+    const occupiedCount = Math.min(
+      totalProps,
+      reservations.filter((r: any) => r.status === 'confirmed' || r.status === 'checked_in').length
+    );
     const occupancyRate = Math.round((occupiedCount / Math.max(1, totalProps)) * 100);
 
-    const activeGuests = reservations.slice(0, 6);
+    const checkInsToday = reservations.filter(
+      (r: any) => r.checkIn === todayStr || (r.checkIn <= todayStr && r.checkOut > todayStr)
+    );
+    const checkOutsToday = reservations.filter((r: any) => r.checkOut === todayStr);
 
-    return `### 🛎️ Estado de Ocupación y Reservas en Tiempo Real
+    const listSnippet = reservations
+      .slice(0, 5)
+      .map((r: any) => {
+        const pName = properties.find((p: any) => p.id === r.propertyId)?.name || 'Cabaña';
+        return `• **${r.guestName}** en *${pName}* (${r.platform.toUpperCase()}): ${r.checkIn} al ${r.checkOut} ($${r.totalAmount} USD)`;
+      })
+      .join('\n');
 
-📊 **Resumen Operativo:**
-- **Nivel de Ocupación:** **${occupancyRate}%** (${occupiedCount} de ${totalProps} unidades con estadías activas/confirmadas).
-- **Total de Reservas en Sistema:** **${reservations.length} reservas registradas**.
-- **Ingresos de Hoy (Check-in):** ${checkInsToday.length > 0 ? `${checkInsToday.length} ingresos programados` : 'Sin ingresos previstos para hoy'}.
-- **Salidas de Hoy (Check-out):** ${checkOutsToday.length > 0 ? `${checkOutsToday.length} salidas previstas` : 'Sin salidas previstas para hoy'}.
+    return `### 🛏️ Estado de Ocupación y Reservas en Tiempo Real
 
-📋 **Detalle de Reservas y Pasajeros:**
-${activeGuests
-  .map((r) => {
-    const propName = properties.find((p) => p.id === r.propertyId)?.name || 'Cabaña';
-    const earlyBadge = r.earlyCheckIn ? ' • ⏰ Early Check-in (10hs)' : '';
-    const lateBadge = r.lateCheckOut ? ' • ⏰ Late Check-out (18hs)' : '';
-    const discBadge = r.customDiscountPercent ? ` • 🏷️ Descuento: ${r.customDiscountPercent}%` : '';
-    const feeBadge = r.airbnbFeeMode === 'traditional_3' ? ' (Airbnb 3% tradicional)' : '';
-    return `- **${r.guestName}** en *${propName}*
-  • Canal: **${r.platform.toUpperCase()}${feeBadge}** | Del **${r.checkIn}** al **${r.checkOut}** (${r.nights} noches)
-  • Pago: **$${r.totalAmount} USD** (${r.paymentStatus === 'paid' ? '100% Abonado' : 'Seña pagada'})
-  • Acceso: ${r.pinCode ? `PIN Teclado ${r.pinCode}` : 'Llave física en conserjería'}${earlyBadge}${lateBadge}${discBadge}`;
-  })
-  .join('\n\n')}
+📊 **Ocupación Actual:**
+- **Nivel de Ocupación:** **${occupancyRate}%** (${occupiedCount} de ${totalProps} unidades ocupadas).
+- **Total de Reservas Activas:** **${reservations.length} reservas registradas**.
+- **Ingresos hoy (Check-in):** ${checkInsToday.length > 0 ? `${checkInsToday.length} pasajeros ingresando` : 'Sin ingresos previstos para hoy'}.
+- **Salidas hoy (Check-out):** ${checkOutsToday.length > 0 ? `${checkOutsToday.length} salidas previstas` : 'Sin salidas para hoy'}.
 
-💡 *Tip:* Podés generar una nueva reserva con tarifas especiales o enviar la tarjeta de bienvenida por WhatsApp desde el Rack o la pestaña de Reservas.`;
+📋 **Próximas Estadías Registradas:**
+${listSnippet}
+
+💡 *Podés ver y mover reservas directamente en el **Rack Calendario**.*`;
   }
 
-  // 4. Limpieza y Mucamas
-  if (q.includes('limpieza') || q.includes('mucama') || q.includes('ropa') || q.includes('sabana') || q.includes('toalla')) {
-    return `### 🧹 Módulo de Limpieza y Mucamas en el Celular
+  // DEFAULT
+  return `### 👋 Hola, soy Xenia, tu copiloto en Loomi Suite
 
-Así funciona la coordinación sin mensajes perdidos en WhatsApp:
+Puedo responderte al instante sobre cualquier tema operativo o comercial:
 
-1. Al concretarse un check-out, la unidad pasa automáticamente a estado **Pendiente (Sucia)** en tu rack.
-2. Tu personal de limpieza tiene su enlace móvil propio (sin contraseñas) con el listado del día y checklist:
-   - Sábanas y toallas limpias.
-   - Sanitización de baños y reposición de amenities.
-   - Comprobación de cerradura o llaves.
-3. Cuando terminan, tocan **"Marcar como Lista"** y tu calendario pasa a verde de inmediato.`;
-  }
+1. **✏️ Gestión de Reservas:** Pregúntame cómo modificar una reserva, cambiar fechas, mover de cabaña o anotar cobros y señas.
+2. **💰 Ganancias y Finanzas:** Pregúntame *"¿Cuál es mi ganancia en octubre?"*, cuánta plata ingresó o cuánto ahorraste en comisiones de Airbnb y Booking.
+3. **🔑 Llaves y Limpieza:** Pregúntame cómo operar con llaves comunes tradicionales o cómo coordinar con la mucama.
+4. **🔄 Sincronización:** Pregúntame cómo conectar Booking y Airbnb para evitar dobles reservas.
+5. **🏷️ Planes y Precios:** Pregúntame cuánto cuesta Loomi ($45.000 ARS) y cómo se paga por transferencia o Mercado Pago.
 
-  // 5. Precios manuales e iCal
-  if (
-    (q.includes('manual') || q.includes('tarifa') || q.includes('precio') || q.includes('bloquea')) &&
-    (q.includes('ical') || q.includes('airbnb') || q.includes('booking') || q.includes('todas las reservas'))
-  ) {
-    return `### 💡 Sincronización por Calendario (iCal) y Tarifas Manuales
-
-¡Es exactamente así! Cuando conectás calendarios mediante **enlaces iCal (.ics estándar)** con Airbnb, Booking, VRBO o Google:
-
-1. **¿Qué datos viajan por iCal?**
-   - ✅ **Fechas (Entrada y Salida):** Bloquea de inmediato las noches en todos tus portales para **evitar el overbooking (doble reserva)**.
-   - ❌ **Lo que NO viaja por iCal:** Las plataformas no transmiten la tarifa cobrada, desglose de comisiones, ni el email o teléfono real del huésped por limitaciones y privacidad del protocolo .ics.
-
-2. **¿Por qué la tarifa manual aplica a TODAS las reservas?**
-   - **En Loomi Suite, el precio manual está disponible para cualquier reserva** (Directa, Airbnb, Booking o VRBO).
-   - Cuando entra un bloqueo por iCal, el sistema toma como base el valor configurado de la cabaña, y vos podés:
-     • Tocar el lápiz **(✏️ Editar)** en el detalle de la reserva para colocar el **importe real exacto** que te pagó el huésped.
-     • El sistema recalcula en tiempo real las comisiones (ej. **Airbnb 3% tradicional** vs 15%, o Booking 15%) y tu ingreso neto real.
-     • Al cargar una reserva a mano, activar **"Fijar Tarifa Manual"** para cualquier canal.
-
-Así tus balances contables y reportes mensuales reflejan la realidad exacta de tu negocio.`;
-  }
-
-  // 6. Conexión de Canales y Doble Reserva
-  if (
-    q.includes('booking') ||
-    q.includes('airbnb') ||
-    q.includes('vrbo') ||
-    q.includes('tripadvisor') ||
-    q.includes('google') ||
-    q.includes('canal') ||
-    q.includes('canales') ||
-    q.includes('sincroniz') ||
-    q.includes('ical') ||
-    q.includes('overbooking') ||
-    q.includes('conectar') ||
-    q.includes('vincular')
-  ) {
-    if (q.includes('airbnb') || q.includes('conectar') || q.includes('como') || q.includes('cómo') || q.includes('paso')) {
-      return `### 🔄 Cómo conectar Airbnb y sincronizar calendarios sin dobles reservas
-
-Para conectar tu anuncio de Airbnb con Loomi Suite y evitar cualquier overbooking, sigue estos 3 pasos simples:
-
-1. **Obtener el enlace iCal de Airbnb:**
-   - Entra a tu cuenta de anfitrión en **Airbnb**.
-   - Ve a **Anuncios** ➔ Selecciona tu cabaña o depto ➔ **Precios y disponibilidad**.
-   - Baja hasta **Sincronización del calendario** ➔ Toca **Exportar calendario** y copia el enlace que te da Airbnb (termina en \`.ics\`).
-
-2. **Vincularlo en Loomi Suite:**
-   - En tu panel de Loomi, ve a la pestaña **Cabañas & Habitaciones**.
-   - En la tarjeta de la cabaña correspondiente, toca el botón **"Sincronizar Canales"** (o el lápiz ✏️).
-   - Pega el enlace de Airbnb en el campo **URL iCal de Airbnb** y guarda.
-
-3. **Copiar el enlace de Loomi hacia Airbnb:**
-   - En esa misma pantalla de Loomi, copia tu enlace de exportación de Loomi.
-   - En Airbnb, toca **Importar calendario** y pégalo ahí con el nombre *"Loomi Suite"*.
-
-✅ **¡Listo!** A partir de ese momento, cada vez que entre una reserva en Airbnb, las fechas se bloquean en Loomi y en Booking en tiempo real.`;
-    }
-
-    return `### 🔄 Sincronización Oficial en Tiempo Real
-
-Loomi Suite mantiene tu disponibilidad conectada de forma bidireccional:
-
-- **Booking.com & Airbnb:** Conexión oficial directa para actualizar disponibilidad en menos de 3 segundos y sincronizar tarifas.
-- **VRBO / Expedia:** Conexión iCal bidireccional incluida sin costos ocultos de API, además de soporte para cuentas profesionales.
-- **TripAdvisor & Portales iCal:** Conexión para sincronizar disponibilidad en TripAdvisor y portales regionales vía iCal bidireccional.
-- **Cero Overbooking:** Cuando un huésped confirma en cualquier plataforma, Loomi bloquea automáticamente las demás sin intervención manual.`;
-  }
-
-  // Default
-  return `### 👋 Hola, soy Xenia, tu asistente en Loomi Suite
-
-Puedo responderte al instante sobre:
-
-1. **WhatsApp & Mensajería:** Las 6 plantillas automáticas, blindaje anti-quejas y coordinación en ruta.
-2. **Precios y Planes:** Planes desde $45.000 ARS/mes en pesos, ajuste IPC, pago por Transferencia Bancaria o Mercado Pago.
-3. **Finanzas y Rendición:** Ingresos brutos, comisiones de plataformas y ahorro por reservas directas.
-4. **Operaciones & Limpieza:** Huéspedes de hoy, llaves físicas vs cerraduras digitales y asignación de mucamas.
-5. **Sincronización:** Cómo conectar Booking, Airbnb y portales sin dobles reservas.
-
-*¿Qué te gustaría consultar?*`;
+*¿Qué te gustaría consultar o resolver?*`;
 }

@@ -100,10 +100,11 @@ export const XeniaAvatar: React.FC<XeniaAvatarProps> = ({
   const activeUrl = currentSrc || XENIA_PORTRAIT_PRESETS[0].url;
 
   const handleImageError = () => {
-    if (activeUrl !== '/xenia.jpg') {
+    const fallbackUrl = '/moderno_plano_medio_corto,_perfil_editorial_de_alto_contraste.jpg';
+    if ((activeUrl as string) !== '/xenia.jpg') {
       setCurrentSrc('/xenia.jpg');
-    } else if (activeUrl !== '/moderno_plano_medio_corto,_perfil_editorial_de_alto_contraste.jpg') {
-      setCurrentSrc('/moderno_plano_medio_corto,_perfil_editorial_de_alto_contraste.jpg');
+    } else if ((activeUrl as string) !== fallbackUrl) {
+      setCurrentSrc(fallbackUrl);
     } else {
       setImgError(true);
     }
