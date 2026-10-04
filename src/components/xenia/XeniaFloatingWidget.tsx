@@ -19,6 +19,7 @@ import {
 import Markdown from 'react-markdown';
 import { DemoState } from '../../types';
 import { getClientXeniaReply } from './xeniaLocalEngine';
+import { getApiUrl } from '../../utils/apiConfig';
 import { XeniaAvatar, setStoredXeniaAvatar } from './XeniaAvatar';
 import { useXeniaVoice } from '../../hooks/useXeniaVoice';
 
@@ -118,7 +119,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
     setIsLoading(true);
 
     try {
-      const res = await fetch('/api/xenia/chat', {
+      const res = await fetch(getApiUrl('/api/xenia/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

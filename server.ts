@@ -6,6 +6,30 @@ import { GoogleGenAI } from "@google/genai";
 const app = express();
 const PORT = 3000;
 
+// CORS configuration for loomisuite.net, Cloudflare Pages, and local dev
+app.use((req: Request, res: Response, next) => {
+  const allowedOrigins = [
+    "https://loomisuite.net",
+    "https://www.loomisuite.net",
+    "https://loomisuites-net.pages.dev",
+    "http://localhost:3000",
+    "http://localhost:5173",
+  ];
+  const origin = req.headers.origin as string;
+  if (origin && (allowedOrigins.includes(origin) || origin.endsWith(".pages.dev") || origin.endsWith(".run.app"))) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  }
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
 app.use(express.json({ limit: "10mb" }));
 
 // Lazy initialization of Gemini API Client
@@ -335,7 +359,14 @@ ${listSnippet}
     q.includes("limpieza") ||
     q.includes("directa")
   ) {
-    if (q.includes("sincroniz") || q.includes("booking") || q.includes("airbnb") || q.includes("ical")) {
+    if (
+      q.includes("sincroniz") ||
+      q.includes("booking") ||
+      q.includes("airbnb") ||
+      q.includes("ical") ||
+      q.includes("conectar") ||
+      q.includes("vincular")
+    ) {
       return `### 🔄 Instrucciones: Cómo sincronizar Booking.com y Airbnb sin dobles reservas
 
 Loomi Suite utiliza sincronización bidireccional iCal para que nunca tengas un overbooking. Sigue estos 3 pasos:
@@ -400,7 +431,8 @@ Estoy aquí para ayudarte en tres áreas clave:
 // Xenia Chat API Endpoint
 app.post("/api/xenia/chat", async (req: Request, res: Response) => {
   try {
-    const { message, history = [], contextData } = req.body;
+    const { message, history = [], contextData: rawContextData, context: rawContext } = req.body;
+    const contextData = rawContextData || rawContext || {};
 
     if (!message || typeof message !== "string") {
       res.status(400).json({ error: "El mensaje es obligatorio" });
@@ -510,7 +542,7 @@ Responde siempre en español rioplatense/latinoaméricano amigable, profesional,
     ];
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash",
       contents,
       config: {
         systemInstruction,

@@ -226,8 +226,32 @@ Así tus balances contables y reportes mensuales reflejan la realidad exacta de 
     q.includes('canales') ||
     q.includes('sincroniz') ||
     q.includes('ical') ||
-    q.includes('overbooking')
+    q.includes('overbooking') ||
+    q.includes('conectar') ||
+    q.includes('vincular')
   ) {
+    if (q.includes('airbnb') || q.includes('conectar') || q.includes('como') || q.includes('cómo') || q.includes('paso')) {
+      return `### 🔄 Cómo conectar Airbnb y sincronizar calendarios sin dobles reservas
+
+Para conectar tu anuncio de Airbnb con Loomi Suite y evitar cualquier overbooking, sigue estos 3 pasos simples:
+
+1. **Obtener el enlace iCal de Airbnb:**
+   - Entra a tu cuenta de anfitrión en **Airbnb**.
+   - Ve a **Anuncios** ➔ Selecciona tu cabaña o depto ➔ **Precios y disponibilidad**.
+   - Baja hasta **Sincronización del calendario** ➔ Toca **Exportar calendario** y copia el enlace que te da Airbnb (termina en \`.ics\`).
+
+2. **Vincularlo en Loomi Suite:**
+   - En tu panel de Loomi, ve a la pestaña **Cabañas & Habitaciones**.
+   - En la tarjeta de la cabaña correspondiente, toca el botón **"Sincronizar Canales"** (o el lápiz ✏️).
+   - Pega el enlace de Airbnb en el campo **URL iCal de Airbnb** y guarda.
+
+3. **Copiar el enlace de Loomi hacia Airbnb:**
+   - En esa misma pantalla de Loomi, copia tu enlace de exportación de Loomi.
+   - En Airbnb, toca **Importar calendario** y pégalo ahí con el nombre *"Loomi Suite"*.
+
+✅ **¡Listo!** A partir de ese momento, cada vez que entre una reserva en Airbnb, las fechas se bloquean en Loomi y en Booking en tiempo real.`;
+    }
+
     return `### 🔄 Sincronización Oficial en Tiempo Real
 
 Loomi Suite mantiene tu disponibilidad conectada de forma bidireccional:

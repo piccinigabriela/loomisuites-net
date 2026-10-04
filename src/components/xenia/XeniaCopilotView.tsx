@@ -38,6 +38,8 @@ import {
 import { useXeniaVoice } from '../../hooks/useXeniaVoice';
 import { isFemaleVoice, isSpainVoice } from '../../utils/xeniaVoice';
 
+import { getApiUrl } from '../../utils/apiConfig';
+
 interface XeniaCopilotViewProps {
   demoState: DemoState;
 }
@@ -133,11 +135,18 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/xenia/chat', {
+      const response = await fetch(getApiUrl('/api/xenia/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: text,
+          history: messages.map((m) => ({ role: m.role, content: m.content })),
+          contextData: {
+            properties: demoState.properties,
+            reservations: demoState.reservations,
+            cleaningTasks: demoState.cleaningTasks,
+            addons: demoState.addons,
+          },
           context: {
             propertiesCount: demoState.properties.length,
             reservationsCount: demoState.reservations.length,
