@@ -117,7 +117,63 @@ Aquí tienes el balance operativo consolidado en tiempo real:
 *Resumen:* Cuentas con un flujo equilibrado entre canales con control preciso de ingresos netos.`;
   }
 
-  // 3. Huéspedes, Reservas y Ocupación
+  // 3. Sincronización iCal, Conexión de Canales y Doble Reserva (PRIORIDAD ALTA)
+  if (
+    q.includes('conectar') ||
+    q.includes('vincular') ||
+    q.includes('sincroniz') ||
+    q.includes('ical') ||
+    q.includes('airbnb') ||
+    q.includes('arnb') ||
+    q.includes('abnb') ||
+    q.includes('airnb') ||
+    q.includes('booking') ||
+    q.includes('overbooking') ||
+    ((q.includes('como') || q.includes('cómo')) && q.includes('calendario'))
+  ) {
+    if (
+      q.includes('airbnb') ||
+      q.includes('arnb') ||
+      q.includes('abnb') ||
+      q.includes('airnb') ||
+      q.includes('conectar') ||
+      q.includes('vincular') ||
+      q.includes('sincroniz') ||
+      q.includes('como') ||
+      q.includes('cómo') ||
+      q.includes('paso')
+    ) {
+      return `### 🔄 Cómo conectar Airbnb y sincronizar calendarios sin dobles reservas
+
+Para conectar tu anuncio de Airbnb con Loomi Suite y evitar cualquier overbooking, sigue estos 3 pasos simples:
+
+1. **Obtener el enlace iCal de Airbnb:**
+   - Entra a tu cuenta de anfitrión en **Airbnb**.
+   - Ve a **Anuncios** ➔ Selecciona tu cabaña o depto ➔ **Precios y disponibilidad**.
+   - Baja hasta **Sincronización del calendario** ➔ Toca **Exportar calendario** y copia el enlace que te da Airbnb (termina en \`.ics\`).
+
+2. **Vincularlo en Loomi Suite:**
+   - En tu panel de Loomi, ve a la pestaña **Cabañas & Habitaciones**.
+   - En la tarjeta de la cabaña correspondiente, toca el botón **"Sincronizar Canales"** (o el lápiz ✏️).
+   - Pega el enlace de Airbnb en el campo **URL iCal de Airbnb** y guarda.
+
+3. **Copiar el enlace de Loomi hacia Airbnb:**
+   - En esa misma pantalla de Loomi, copia tu enlace de exportación de Loomi.
+   - En Airbnb, toca **Importar calendario** y pégalo ahí con el nombre *"Loomi Suite"*.
+
+✅ **¡Listo!** A partir de ese momento, cada vez que entre una reserva en Airbnb, las fechas se bloquean en Loomi y en Booking en tiempo real.`;
+    }
+
+    return `### 🔄 Sincronización Oficial en Tiempo Real
+
+Loomi Suite mantiene tu disponibilidad conectada de forma bidireccional:
+
+- **Booking.com & Airbnb:** Conexión oficial directa para actualizar disponibilidad en menos de 3 segundos y sincronizar tarifas.
+- **VRBO / Expedia:** Conexión iCal bidireccional incluida sin costos ocultos de API, además de soporte para cuentas profesionales.
+- **Sin dobles reservas (Overbooking):** Cada bloqueo ingresado en un canal actualiza automáticamente el resto en segundos.`;
+  }
+
+  // 4. Huéspedes, Reservas y Ocupación
   if (
     q.includes('huesped') ||
     q.includes('huésped') ||

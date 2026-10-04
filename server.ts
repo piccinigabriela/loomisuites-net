@@ -349,6 +349,8 @@ ${listSnippet}
     q.includes("ical") ||
     q.includes("booking") ||
     q.includes("airbnb") ||
+    q.includes("arnb") ||
+    q.includes("abnb") ||
     q.includes("conectar") ||
     q.includes("paso") ||
     q.includes("tutorial") ||
@@ -363,6 +365,8 @@ ${listSnippet}
       q.includes("sincroniz") ||
       q.includes("booking") ||
       q.includes("airbnb") ||
+      q.includes("arnb") ||
+      q.includes("abnb") ||
       q.includes("ical") ||
       q.includes("conectar") ||
       q.includes("vincular")
