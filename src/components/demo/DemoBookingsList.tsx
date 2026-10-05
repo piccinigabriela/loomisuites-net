@@ -55,49 +55,12 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
 
   const getPropertyBadge = (propertyId: string) => {
     const prop = demoState.properties.find((p) => p.id === propertyId);
-    if (!prop) return { code: '??', color: 'bg-zinc-100 text-zinc-800 border-zinc-200' };
+    const code = prop ? (prop.name.match(/\b([0-9][A-Za-z]|[0-9]+)\b/)?.[1] || prop.name.substring(0, 2)).toUpperCase() : '??';
 
-    const mapping: Record<string, { code: string; color: string }> = {
-      'cat-a': {
-        code: 'A',
-        color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/30',
-      },
-      'cat-b': {
-        code: 'B',
-        color: 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-900/30',
-      },
-      'cat-c': {
-        code: 'C',
-        color: 'bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300 border border-orange-200 dark:border-orange-900/30',
-      },
-      'cat-d': {
-        code: 'D',
-        color: 'bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200 dark:border-purple-900/30',
-      },
-      'prop-1': {
-        code: 'A',
-        color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/30',
-      },
-      'prop-2': {
-        code: 'B',
-        color: 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-900/30',
-      },
-      'prop-3': {
-        code: 'C',
-        color: 'bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300 border border-orange-200 dark:border-orange-900/30',
-      },
-      'prop-4': {
-        code: 'D',
-        color: 'bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200 dark:border-purple-900/30',
-      },
+    return {
+      code,
+      color: 'bg-[#FAF8F5] text-zinc-900 dark:bg-[#18191E] dark:text-white border border-[#C8C4B7]/80 dark:border-[#2E303A] font-black',
     };
-
-    return (
-      mapping[propertyId] || {
-        code: prop.name.substring(0, 3).toUpperCase(),
-        color: 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700',
-      }
-    );
   };
 
   // Filter reservations
@@ -181,28 +144,28 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
   const getStatusLabelAndStyles = (status: ReservationStatus) => {
     switch (status) {
       case 'confirmed':
-        return { label: 'Confirmada', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/30' };
+        return { label: 'Confirmada', color: 'bg-zinc-100 text-zinc-900 dark:bg-[#1E2028] dark:text-[#E4E4E7] border border-zinc-300 dark:border-[#343744]' };
       case 'checked_in':
-        return { label: 'En Cabaña', color: 'bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border border-blue-200 dark:border-blue-900/30' };
+        return { label: 'En Cabaña', color: 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border border-zinc-900 dark:border-white font-black' };
       case 'checked_out':
-        return { label: 'Salida', color: 'bg-zinc-50 text-zinc-600 dark:bg-zinc-900/30 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800' };
+        return { label: 'Salida', color: 'bg-zinc-50 text-zinc-600 dark:bg-[#15161A] dark:text-zinc-400 border border-zinc-200 dark:border-[#24262E]' };
       case 'cancelled':
-        return { label: 'Cancelada', color: 'bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400 border border-rose-200 dark:border-rose-900/30' };
+        return { label: 'Cancelada', color: 'bg-zinc-100 text-zinc-500 dark:bg-[#15161A] dark:text-zinc-500 line-through border border-zinc-200 dark:border-[#24262E]' };
       default:
-        return { label: status, color: 'bg-zinc-100 text-zinc-800' };
+        return { label: status, color: 'bg-zinc-100 text-zinc-800 dark:bg-[#1C1E24] dark:text-zinc-200 border border-zinc-200 dark:border-[#2E303B]' };
     }
   };
 
   const getPaymentStatusLabelAndStyles = (paymentStatus: PaymentStatus) => {
     switch (paymentStatus) {
       case 'paid':
-        return { label: 'Pagado', color: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/30' };
+        return { label: 'Pagado', color: 'bg-zinc-100 text-zinc-900 dark:bg-[#1C1E24] dark:text-white border border-zinc-300 dark:border-[#323540]' };
       case 'pending':
-        return { label: 'Pendiente', color: 'bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200 dark:border-amber-900/30' };
+        return { label: 'Pendiente', color: 'bg-[#FAF8F5] text-[#E1500A] dark:bg-[#201C1A] dark:text-[#F37A3D] border border-amber-300 dark:border-[#4A291A]' };
       case 'deposit_only':
-        return { label: 'Seña Cobrada', color: 'bg-blue-50 text-blue-800 dark:bg-blue-950/30 dark:text-blue-400 border border-blue-200 dark:border-blue-900/30' };
+        return { label: 'Seña Cobrada', color: 'bg-zinc-100 text-zinc-800 dark:bg-[#1A1C22] dark:text-[#C5C8D4] border border-zinc-300 dark:border-[#2E323E]' };
       default:
-        return { label: paymentStatus, color: 'bg-zinc-100 text-zinc-800' };
+        return { label: paymentStatus, color: 'bg-zinc-100 text-zinc-800 dark:bg-[#1C1E24] dark:text-zinc-200' };
     }
   };
 

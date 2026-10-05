@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Calendar,
@@ -16,9 +16,13 @@ import {
   Sun,
   LogOut,
   ChevronDown,
+  ChevronRight,
   X,
   TrendingDown,
   Globe,
+  Users,
+  Briefcase,
+  ChevronUp,
 } from 'lucide-react';
 import { LoomiLogo } from '../common/LoomiLogo';
 import { XeniaAvatar } from '../xenia/XeniaAvatar';
@@ -70,12 +74,41 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
 }) => {
   const isDark = theme === 'dark';
 
+  // 3 Distinct Main Groups State
+  const [openGroups, setOpenGroups] = useState<{ [key: string]: boolean }>({
+    reservations: true,
+    housekeeping: true,
+    admin: false,
+  });
+
+  // Automatically keep the active group open when navigating
+  useEffect(() => {
+    if (['overview', 'calendar', 'bookings', 'addons', 'messages', 'welcome-guide'].includes(activeTab)) {
+      setOpenGroups((prev) => ({ ...prev, reservations: true }));
+    } else if (['housekeeping', 'xenia'].includes(activeTab)) {
+      setOpenGroups((prev) => ({ ...prev, housekeeping: true }));
+    } else if (['cash-drawer', 'finances', 'properties'].includes(activeTab)) {
+      setOpenGroups((prev) => ({ ...prev, admin: true }));
+    }
+  }, [activeTab]);
+
+  const toggleGroup = (groupKey: string) => {
+    setOpenGroups((prev) => ({
+      ...prev,
+      [groupKey]: !prev[groupKey],
+    }));
+  };
+
   const handleTabClick = (tab: string) => {
     onSelectTab(tab);
     if (onMobileClose) {
       onMobileClose();
     }
   };
+
+  const isReservationsActive = ['overview', 'calendar', 'bookings', 'addons', 'messages', 'welcome-guide'].includes(activeTab);
+  const isHousekeepingActive = ['housekeeping', 'xenia'].includes(activeTab);
+  const isAdminActive = ['cash-drawer', 'finances', 'properties'].includes(activeTab);
 
   const renderSidebarContent = () => (
     <>
@@ -175,18 +208,58 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
         </div>
       </div>
 
-        {/* Navigation Sections */}
-        <div className="p-3 space-y-4">
-          {/* RUBRO 1: OPERATIVA */}
-          <div>
-            <div className="px-2 pb-1.5 text-[10px] font-black tracking-widest text-[#71717A] dark:text-[#8E8E93] uppercase">
-              Operativa
+      {/* 3 Main Expandable Work Groups */}
+      <div className="p-3 space-y-3.5 flex-1">
+
+        {/* ============================================================ */}
+        {/* GRUPO 1: RESERVAS, HUÉSPEDES & WEB */}
+        {/* ============================================================ */}
+        <div className="border border-[#C8C4B7] dark:border-[#222328] bg-white/40 dark:bg-[#121316]/60 transition-colors">
+          {/* Group Header Button */}
+          <button
+            onClick={() => toggleGroup('reservations')}
+            className={`w-full flex items-center justify-between p-2.5 text-left transition-colors cursor-pointer ${
+              openGroups.reservations
+                ? 'bg-[#DCD8CE]/50 dark:bg-[#18181B] border-b border-[#C8C4B7] dark:border-[#222328]'
+                : 'hover:bg-[#DCD8CE]/30 dark:hover:bg-[#18181B]/50'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <div className={`p-1 rounded-none border ${
+                isReservationsActive
+                  ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white'
+                  : 'bg-[#EAE8E3] dark:bg-[#0C0D0F] text-[#71717A] dark:text-[#8E8E93] border-[#C8C4B7] dark:border-[#222328]'
+              }`}>
+                <Calendar className="w-3.5 h-3.5" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-black tracking-tight text-[#18181B] dark:text-white uppercase">
+                  Reservas & Huéspedes
+                </span>
+                <span className="text-[9px] font-bold text-[#71717A] dark:text-[#8E8E93]">
+                  Ocupación, web y estadías
+                </span>
+              </div>
             </div>
-            <div className="space-y-1">
+            <div className="flex items-center gap-1.5">
+              {isReservationsActive && !openGroups.reservations && (
+                <span className="w-2 h-2 bg-[#E1500A] rounded-full" title="Sección activa" />
+              )}
+              {openGroups.reservations ? (
+                <ChevronDown className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93]" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93]" />
+              )}
+            </div>
+          </button>
+
+          {/* Group Items Dropdown */}
+          {openGroups.reservations && (
+            <div className="p-2 space-y-1 bg-[#EAE8E3]/30 dark:bg-[#0C0D0F]/40 animate-in fade-in-50 duration-150">
               {/* Hoy */}
               <button
                 onClick={() => handleTabClick('overview')}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
+                className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
                   activeTab === 'overview'
                     ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
                     : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
@@ -204,7 +277,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                       onOpenNewReservation();
                       if (onMobileClose) onMobileClose();
                     }}
-                    className="w-full flex items-center justify-between px-2.5 py-2 rounded-none text-xs font-black bg-[#E1500A] hover:bg-[#C94305] text-white transition-all text-left shadow-xs cursor-pointer active:scale-95"
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-none text-xs font-black bg-[#E1500A] hover:bg-[#C94305] text-white transition-all text-left shadow-xs cursor-pointer active:scale-95 my-1"
                   >
                     <span className="flex items-center gap-1.5">
                       <PlusCircle className="w-3.5 h-3.5" />
@@ -216,7 +289,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                   {/* Calendario */}
                   <button
                     onClick={() => handleTabClick('calendar')}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
                       activeTab === 'calendar'
                         ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
                         : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
@@ -229,7 +302,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                   {/* Lista de Reservas */}
                   <button
                     onClick={() => handleTabClick('bookings')}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
                       activeTab === 'bookings'
                         ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
                         : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
@@ -239,23 +312,10 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                     <span>Lista de Reservas</span>
                   </button>
 
-                  {/* Opcionales */}
-                  <button
-                    onClick={() => handleTabClick('addons')}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
-                      activeTab === 'addons'
-                        ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
-                        : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
-                    }`}
-                  >
-                    <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
-                    <span>Opcionales & Extras</span>
-                  </button>
-
                   {/* Avisos & WhatsApp */}
                   <button
                     onClick={() => handleTabClick('messages')}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
                       activeTab === 'messages'
                         ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
                         : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
@@ -264,13 +324,26 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                     <MessageSquare className="w-3.5 h-3.5 shrink-0" />
                     <span>Avisos & WhatsApp</span>
                   </button>
+
+                  {/* Opcionales */}
+                  <button
+                    onClick={() => handleTabClick('addons')}
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
+                      activeTab === 'addons'
+                        ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
+                        : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
+                    }`}
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
+                    <span>Opcionales & Extras</span>
+                  </button>
                 </>
               )}
 
               {/* Tu Web & Guía Huésped */}
               <button
                 onClick={() => handleTabClick('welcome-guide')}
-                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
+                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
                   activeTab === 'welcome-guide'
                     ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
                     : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
@@ -280,23 +353,68 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                   <Globe className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
                   <span>Tu Web & Guía</span>
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60 px-1 py-0.2 border border-emerald-300 dark:border-emerald-800">
+                <span className="text-[9px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60 px-1 py-0.2 border border-emerald-300 dark:border-emerald-800">
                   Web
                 </span>
               </button>
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* RUBRO 2: LIMPIEZA */}
-          <div>
-            <div className="px-2 pb-1.5 text-[10px] font-black tracking-widest text-[#71717A] dark:text-[#8E8E93] uppercase">
-              Limpieza & Asistente
+        {/* ============================================================ */}
+        {/* GRUPO 2: HOUSEKEEPING */}
+        {/* ============================================================ */}
+        <div className="border border-[#C8C4B7] dark:border-[#222328] bg-white/40 dark:bg-[#121316]/60 transition-colors">
+          {/* Group Header Button */}
+          <button
+            onClick={() => toggleGroup('housekeeping')}
+            className={`w-full flex items-center justify-between p-2.5 text-left transition-colors cursor-pointer ${
+              openGroups.housekeeping
+                ? 'bg-[#DCD8CE]/50 dark:bg-[#18181B] border-b border-[#C8C4B7] dark:border-[#222328]'
+                : 'hover:bg-[#DCD8CE]/30 dark:hover:bg-[#18181B]/50'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <div className={`p-1 rounded-none border ${
+                isHousekeepingActive
+                  ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white'
+                  : 'bg-[#EAE8E3] dark:bg-[#0C0D0F] text-[#71717A] dark:text-[#8E8E93] border-[#C8C4B7] dark:border-[#222328]'
+              }`}>
+                <Sparkles className="w-3.5 h-3.5" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-black tracking-tight text-[#18181B] dark:text-white uppercase">
+                  Housekeeping
+                </span>
+                <span className="text-[9px] font-bold text-[#71717A] dark:text-[#8E8E93]">
+                  Limpieza & Mantenimiento
+                </span>
+              </div>
             </div>
-            <div className="space-y-1">
+            <div className="flex items-center gap-1.5">
+              {pendingCleaningsCount > 0 && (
+                <span className="bg-[#E1500A] text-white text-[9px] font-black px-1.5 py-0.2 rounded-none">
+                  {pendingCleaningsCount}
+                </span>
+              )}
+              {isHousekeepingActive && !openGroups.housekeeping && !pendingCleaningsCount && (
+                <span className="w-2 h-2 bg-[#E1500A] rounded-full" title="Sección activa" />
+              )}
+              {openGroups.housekeeping ? (
+                <ChevronDown className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93]" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93]" />
+              )}
+            </div>
+          </button>
+
+          {/* Group Items Dropdown */}
+          {openGroups.housekeeping && (
+            <div className="p-2 space-y-1 bg-[#EAE8E3]/30 dark:bg-[#0C0D0F]/40 animate-in fade-in-50 duration-150">
               {/* Agenda Limpiezas */}
               <button
                 onClick={() => handleTabClick('housekeeping')}
-                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
+                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
                   activeTab === 'housekeeping'
                     ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
                     : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
@@ -304,7 +422,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               >
                 <div className="flex items-center gap-2.5">
                   <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                  <span>Agenda Housekeeping</span>
+                  <span>Agenda Limpiezas</span>
                 </div>
                 {pendingCleaningsCount > 0 && (
                   <span className="bg-[#E1500A] text-white text-[10px] font-black px-1.5 py-0.5 rounded-none">
@@ -316,7 +434,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               {/* Xenia Copilot */}
               <button
                 onClick={() => handleTabClick('xenia')}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
+                className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
                   activeTab === 'xenia'
                     ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
                     : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
@@ -326,19 +444,59 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                 <span>Asistente Xenia AI</span>
               </button>
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* RUBRO 3: ADMINISTRACIÓN */}
-          {userRole !== 'housekeeping' && (
-            <div>
-              <div className="px-2 pb-1.5 text-[10px] font-black tracking-widest text-[#71717A] dark:text-[#8E8E93] uppercase">
-                Administración
+        {/* ============================================================ */}
+        {/* GRUPO 3: ADMINISTRACIÓN */}
+        {/* ============================================================ */}
+        {userRole !== 'housekeeping' && (
+          <div className="border border-[#C8C4B7] dark:border-[#222328] bg-white/40 dark:bg-[#121316]/60 transition-colors">
+            {/* Group Header Button */}
+            <button
+              onClick={() => toggleGroup('admin')}
+              className={`w-full flex items-center justify-between p-2.5 text-left transition-colors cursor-pointer ${
+                openGroups.admin
+                  ? 'bg-[#DCD8CE]/50 dark:bg-[#18181B] border-b border-[#C8C4B7] dark:border-[#222328]'
+                  : 'hover:bg-[#DCD8CE]/30 dark:hover:bg-[#18181B]/50'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <div className={`p-1 rounded-none border ${
+                  isAdminActive
+                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white'
+                    : 'bg-[#EAE8E3] dark:bg-[#0C0D0F] text-[#71717A] dark:text-[#8E8E93] border-[#C8C4B7] dark:border-[#222328]'
+                }`}>
+                  <DollarSign className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-black tracking-tight text-[#18181B] dark:text-white uppercase">
+                    Administración
+                  </span>
+                  <span className="text-[9px] font-bold text-[#71717A] dark:text-[#8E8E93]">
+                    Caja, métricas y unidades
+                  </span>
+                </div>
               </div>
-              <div className="space-y-1">
+              <div className="flex items-center gap-1.5">
+                {isAdminActive && !openGroups.admin && (
+                  <span className="w-2 h-2 bg-[#E1500A] rounded-full" title="Sección activa" />
+                )}
+                {openGroups.admin ? (
+                  <ChevronDown className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93]" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93]" />
+                )}
+              </div>
+            </button>
+
+            {/* Group Items Dropdown */}
+            {openGroups.admin && (
+              <div className="p-2 space-y-1 bg-[#EAE8E3]/30 dark:bg-[#0C0D0F]/40 animate-in fade-in-50 duration-150">
                 {/* Caja Chica */}
                 <button
                   onClick={() => handleTabClick('cash-drawer')}
-                  className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
+                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
                     activeTab === 'cash-drawer'
                       ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
                       : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
@@ -353,7 +511,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                     {/* Rendimiento */}
                     <button
                       onClick={() => handleTabClick('finances')}
-                      className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
+                      className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
                         activeTab === 'finances'
                           ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
                           : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
@@ -366,7 +524,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                     {/* Unidades */}
                     <button
                       onClick={() => handleTabClick('properties')}
-                      className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
+                      className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
                         activeTab === 'properties'
                           ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
                           : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
@@ -383,18 +541,20 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                           onOpenOnboardingWizard();
                           if (onMobileClose) onMobileClose();
                         }}
-                        className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold text-[#E1500A] hover:bg-[#E1500A] hover:text-white transition-colors text-left border border-[#E1500A]/40"
+                        className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold text-[#E1500A] hover:bg-[#E1500A] hover:text-white transition-colors text-left border border-[#E1500A]/40 mt-1 cursor-pointer"
                       >
-                        <Sliders className="w-3.5 h-3.5" />
+                        <Sliders className="w-3.5 h-3.5 shrink-0" />
                         <span>Configurar Deptos</span>
                       </button>
                     )}
                   </>
                 )}
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
+
+      </div>
 
       {/* Bottom Footer: Switcher & Theme Control */}
       <div className="p-3 border-t border-[#C8C4B7] dark:border-[#222328] bg-[#EAE8E3] dark:bg-[#0C0D0F] space-y-2.5">

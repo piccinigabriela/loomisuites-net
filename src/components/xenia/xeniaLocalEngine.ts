@@ -440,8 +440,11 @@ Loomi conecta tus calendarios mediante sincronización bidireccional (iCal ofici
 ✅ **¡Listo!** Cuando entra una reserva en Airbnb, las fechas se bloquean automáticamente en Booking y en Loomi en tiempo real.`;
   }
 
-  // 8. OCUPACIÓN, QUIÉN LLEGA HOY, QUIÉN SALE HOY
+  // 8. OCUPACIÓN, QUIÉN LLEGA HOY, PRÓXIMO CHECK-IN, SALIDAS
   if (
+    q.includes('proximo') ||
+    q.includes('próximo') ||
+    q.includes('siguiente') ||
     q.includes('ocupad') ||
     q.includes('ocupacion') ||
     q.includes('ocupación') ||
@@ -451,10 +454,10 @@ Loomi conecta tus calendarios mediante sincronización bidireccional (iCal ofici
     q.includes('quién llega') ||
     q.includes('quien sale') ||
     q.includes('quién sale') ||
-    q.includes('check in hoy') ||
-    q.includes('check-in hoy') ||
-    q.includes('check out hoy') ||
-    q.includes('check-out hoy') ||
+    q.includes('check in') ||
+    q.includes('check-in') ||
+    q.includes('check out') ||
+    q.includes('check-out') ||
     q.includes('hoy') ||
     q.includes('alojado') ||
     q.includes('pasajeros') ||
@@ -465,19 +468,70 @@ Loomi conecta tus calendarios mediante sincronización bidireccional (iCal ofici
   ) {
     const todayStr = new Date().toISOString().split('T')[0];
     const totalProps = properties.length || 6;
+    const activeRes = reservations.filter((r: any) => r.status !== 'cancelled');
+
     const occupiedCount = Math.min(
       totalProps,
-      reservations.filter((r: any) => r.status === 'confirmed' || r.status === 'checked_in').length
+      activeRes.filter((r: any) => r.checkIn <= todayStr && r.checkOut > todayStr).length
     );
     const occupancyRate = Math.round((occupiedCount / Math.max(1, totalProps)) * 100);
 
-    const checkInsToday = reservations.filter(
-      (r: any) => r.checkIn === todayStr || (r.checkIn <= todayStr && r.checkOut > todayStr)
-    );
-    const checkOutsToday = reservations.filter((r: any) => r.checkOut === todayStr);
+    const checkInsToday = activeRes.filter((r: any) => r.checkIn === todayStr);
+    const checkOutsToday = activeRes.filter((r: any) => r.checkOut === todayStr);
+    
+    // Future check-ins sorted chronologically
+    const upcomingCheckIns = activeRes
+      .filter((r: any) => r.checkIn >= todayStr)
+      .sort((a: any, b: any) => a.checkIn.localeCompare(b.checkIn));
 
-    const listSnippet = reservations
-      .slice(0, 5)
+    const nextCheckIn = upcomingCheckIns[0];
+
+    // If query specifically asks about next check-in or who arrives
+    if (
+      q.includes('proximo') ||
+      q.includes('próximo') ||
+      q.includes('siguiente') ||
+      q.includes('quien llega') ||
+      q.includes('quién llega') ||
+      (q.includes('check in') && !q.includes('todos'))
+    ) {
+      if (checkInsToday.length > 0) {
+        const first = checkInsToday[0];
+        const pName = properties.find((p: any) => p.id === first.propertyId)?.name || 'Cabaña';
+        return `### 🛏️ Próximo Check-In: ¡Ingresa Hoy!
+
+Hoy ingresa **${first.guestName}** en *${pName}* (${first.platform.toUpperCase()}):
+- 📅 **Fechas:** ${formatFriendlyDates(first.checkIn, first.checkOut)} (${first.nights} noches).
+- 💰 **Total:** ${first.totalAmount} USD (Estado de cobro: ${first.paymentStatus === 'paid' ? '100% Abonado' : 'Saldo pendiente'}).
+- 📞 **Contacto:** ${first.guestPhone || 'Sin teléfono'}.
+
+${upcomingCheckIns.length > 1 ? `📋 **Siguientes ingresos programados:**\n` + upcomingCheckIns.slice(1, 4).map((r: any) => {
+  const p = properties.find((prop: any) => prop.id === r.propertyId)?.name || 'Cabaña';
+  return `• **${r.guestName}** en *${p}*: ${formatFriendlyDates(r.checkIn, r.checkOut)} (${r.totalAmount} USD)`;
+}).join('\n') : ''}`;
+      }
+
+      if (nextCheckIn) {
+        const pName = properties.find((p: any) => p.id === nextCheckIn.propertyId)?.name || 'Cabaña';
+        return `### 🛏️ Próximo Check-In Programado
+
+El próximo ingreso es **${nextCheckIn.guestName}** en *${pName}* (${nextCheckIn.platform.toUpperCase()}):
+- 📅 **Fechas de estadía:** ${formatFriendlyDates(nextCheckIn.checkIn, nextCheckIn.checkOut)} (${nextCheckIn.nights} noches).
+- 💰 **Importe:** ${nextCheckIn.totalAmount} USD (Neto: ${nextCheckIn.netRevenue} USD).
+- 📞 **Contacto:** ${nextCheckIn.guestPhone || 'Sin teléfono'}.
+
+📋 **Siguientes ingresos confirmados:**
+${upcomingCheckIns.slice(1, 4).map((r: any) => {
+  const p = properties.find((prop: any) => prop.id === r.propertyId)?.name || 'Cabaña';
+  return `• **${r.guestName}** en *${p}*: ${formatFriendlyDates(r.checkIn, r.checkOut)} (${r.totalAmount} USD)`;
+}).join('\n')}
+
+💡 *Podés ver y modificar reservas directamente en el **Rack Calendario**.*`;
+      }
+    }
+
+    const listSnippet = upcomingCheckIns
+      .slice(0, 4)
       .map((r: any) => {
         const pName = properties.find((p: any) => p.id === r.propertyId)?.name || 'Cabaña';
         return `• **${r.guestName}** en *${pName}* (${r.platform.toUpperCase()}): ${formatFriendlyDates(r.checkIn, r.checkOut)} (${r.totalAmount} USD)`;
@@ -488,12 +542,12 @@ Loomi conecta tus calendarios mediante sincronización bidireccional (iCal ofici
 
 📊 **Ocupación Actual:**
 - **Nivel de Ocupación:** **${occupancyRate}%** (${occupiedCount} de ${totalProps} unidades ocupadas).
-- **Total de Reservas Activas:** **${reservations.length} reservas registradas**.
-- **Ingresos hoy (Check-in):** ${checkInsToday.length > 0 ? `${checkInsToday.length} pasajeros ingresando` : 'Sin ingresos previstos para hoy'}.
-- **Salidas hoy (Check-out):** ${checkOutsToday.length > 0 ? `${checkOutsToday.length} salidas previstas` : 'Sin salidas para hoy'}.
+- **Total de Reservas Activas:** **${activeRes.length} reservas registradas**.
+- **Ingresos hoy (Check-in):** ${checkInsToday.length > 0 ? `${checkInsToday.length} pasajeros ingresando hoy` : 'Sin ingresos previstos para hoy'}.
+- **Salidas hoy (Check-out):** ${checkOutsToday.length > 0 ? `${checkOutsToday.length} salidas previstas hoy` : 'Sin salidas para hoy'}.
 
-📋 **Próximas Estadías Registradas:**
-${listSnippet}
+📋 **Próximos Ingresos Programados:**
+${listSnippet || 'ℹ️ *No hay reservas futuras inmediatas.*'}
 
 💡 *Podés ver y mover reservas directamente en el **Rack Calendario**.*`;
   }

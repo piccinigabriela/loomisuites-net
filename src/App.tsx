@@ -15,8 +15,9 @@ import {
   Sun,
   Moon,
   Menu,
+  Smartphone,
 } from 'lucide-react';
-import { DemoState, Reservation, CleaningTask, ReservationStatus, CashMovement } from './types';
+import { DemoState, Reservation, CleaningTask, ReservationStatus, PaymentStatus, CashMovement } from './types';
 import {
   getDemoState,
   saveDemoState,
@@ -33,6 +34,7 @@ import { LeadModal } from './components/landing/LeadModal';
 // Demo Application Components
 import { CleanSidebar } from './components/demo/CleanSidebar';
 import { CleanToday } from './components/demo/CleanToday';
+import { MobileLightView } from './components/demo/MobileLightView';
 import { DemoHeader } from './components/demo/DemoHeader';
 import { DemoNavTabs } from './components/demo/DemoNavTabs';
 import { DemoOverview } from './components/demo/DemoOverview';
@@ -267,6 +269,30 @@ export default function App() {
       showToast(next === 'dark' ? '🌙 Modo Oscuro activado' : '☀️ Modo Claro activado');
       return next;
     });
+  };
+
+  // Mobile light mode: 'light' (clean focused UI for smartphones) vs 'full' (complete desktop dashboard)
+  const [mobileMode, setMobileMode] = useState<'light' | 'full'>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('mode') === 'light' || params.get('mobile') === 'light') return 'light';
+        if (params.get('mode') === 'full' || params.get('desktop') === 'true') return 'full';
+        const saved = localStorage.getItem('loomi_mobile_mode');
+        if (saved === 'light' || saved === 'full') return saved;
+        // Default to light on mobile screens (< 768px)
+        return window.innerWidth < 768 ? 'light' : 'full';
+      }
+    } catch {}
+    return 'full';
+  });
+
+  const handleSetMobileMode = (mode: 'light' | 'full') => {
+    setMobileMode(mode);
+    try {
+      localStorage.setItem('loomi_mobile_mode', mode);
+    } catch {}
+    showToast(mode === 'light' ? '📱 Modo Celular Light activado' : '💻 Vista Completa activada');
   };
 
   const handleRoleChange = (newRole: 'admin' | 'frontdesk' | 'housekeeping') => {
@@ -604,6 +630,26 @@ export default function App() {
     showToast(`Estado de reserva actualizado a ${newStatus}`);
   };
 
+  // Update payment status (e.g. from Mobile Light quick action)
+  const handleUpdatePaymentStatus = (resId: string, newPaymentStatus: PaymentStatus) => {
+    updateDemoState((prev) => ({
+      ...prev,
+      reservations: prev.reservations.map((r) =>
+        r.id === resId ? { ...r, paymentStatus: newPaymentStatus } : r
+      ),
+      lastUpdated: new Date().toISOString(),
+    }));
+    showToast(
+      `Estado de cobro actualizado a: ${
+        newPaymentStatus === 'paid'
+          ? '100% Abonado'
+          : newPaymentStatus === 'deposit_only'
+          ? 'Seña 50% Recibida'
+          : 'Pendiente'
+      }`
+    );
+  };
+
   // Update reservation price (e.g. for iCal blocks or manual adjustments across any channel)
   const handleUpdateReservationPrice = (resId: string, newTotal: number) => {
     updateDemoState((prev) => ({
@@ -843,6 +889,37 @@ export default function App() {
           currentComplexId={activeComplex}
           theme={theme}
         />
+      ) : mobileMode === 'light' ? (
+        /* ULTRA-CLEAN MOBILE LIGHT / POCKET VIEW FOR SMARTPHONES */
+        <MobileLightView
+          demoState={demoState}
+          onOpenReservationDetail={(res) => setSelectedReservationForDetail(res)}
+          onOpenNewReservation={() => {
+            setInitialPropertyForRes(undefined);
+            setInitialDateForRes(undefined);
+            setIsNewResModalOpen(true);
+          }}
+          onUpdateReservationStatus={handleUpdateReservationStatus}
+          onUpdatePaymentStatus={handleUpdatePaymentStatus}
+          onToggleCleaningStatus={(taskId, currentStatus) =>
+            handleUpdateTaskStatus(taskId, currentStatus === 'completed' ? 'pending' : 'completed')
+          }
+          onOpenMessagesWithGuest={(resId) => {
+            setDemoTab('messages');
+            handleSetMobileMode('full');
+          }}
+          onSwitchToFullView={() => handleSetMobileMode('full')}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+          activeComplex={activeComplex}
+          complexName={
+            activeComplex === 'catalinas'
+              ? 'Catalinas Apartamentos'
+              : activeComplex === 'woodcabin'
+              ? 'Tu Complejo'
+              : demoState.welcomeGuide?.propertyName || 'Mi Complejo Real'
+          }
+        />
       ) : (
         /* CLEAN ARCHITECTURAL MONOCHROMATIC PMS DASHBOARD VIEW */
         <div className="min-h-screen flex bg-[#ECEAE4] dark:bg-[#0E0F12] text-[#18181B] dark:text-[#EFECE5] font-sans transition-colors">
@@ -932,7 +1009,18 @@ export default function App() {
                 </span>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
+                {/* Switch to Mobile Light View */}
+                <button
+                  onClick={() => handleSetMobileMode('light')}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-none text-xs font-black bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-white hover:border-[#E1500A] transition-colors cursor-pointer shadow-2xs"
+                  title="Cambiar a Versión Celular Light"
+                >
+                  <Smartphone className="w-3.5 h-3.5 text-[#E1500A]" />
+                  <span className="hidden sm:inline">Modo Móvil Light</span>
+                  <span className="sm:hidden">Light</span>
+                </button>
+
                 {/* Visible Light / Dark Switcher in top sub-bar */}
                 <button
                   onClick={toggleTheme}
@@ -1101,15 +1189,17 @@ export default function App() {
         </div>
       )}
 
-      {/* Persistent Floating Xenia AI Assistant */}
-      <XeniaFloatingWidget
-        demoState={demoState}
-        onOpenFullView={() => {
-          setCurrentView('demo');
-          setDemoTab('xenia');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-      />
+      {/* Persistent Floating Xenia AI Assistant (visible in landing and desktop full view) */}
+      {!(currentView === 'demo' && mobileMode === 'light') && (
+        <XeniaFloatingWidget
+          demoState={demoState}
+          onOpenFullView={() => {
+            setCurrentView('demo');
+            setDemoTab('xenia');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
+      )}
 
       {/* MODALS */}
       <LeadModal

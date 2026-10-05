@@ -97,7 +97,7 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
             onClick={() => setFilterStatus('inspected')}
             className={`px-3 py-1.5 rounded-none font-bold uppercase tracking-wider text-[11px] transition-all cursor-pointer ${
               filterStatus === 'inspected'
-                ? 'bg-emerald-600 text-white shadow-2xs'
+                ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] shadow-2xs'
                 : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-[#EFECE5]'
             }`}
           >
@@ -139,7 +139,7 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
                       task.status === 'in_progress'
                         ? 'bg-[#E1500A]/10 text-[#E1500A] border-[#E1500A]/40'
                         : task.status === 'inspected'
-                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/40'
+                        ? 'bg-zinc-100 dark:bg-[#1E2028] text-zinc-900 dark:text-white border-zinc-300 dark:border-[#343744]'
                         : 'bg-[#F4F2EE] dark:bg-[#141518] text-[#71717A] dark:text-[#8E8E93] border-[#C8C4B7] dark:border-[#222328]'
                     }`}
                   >
@@ -189,7 +189,7 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
                         key={item.id}
                         className={`flex items-center gap-2.5 p-2 rounded-none border text-xs cursor-pointer transition-all ${
                           item.completed
-                            ? 'bg-emerald-500/10 dark:bg-emerald-950/20 border-emerald-500/30 text-[#71717A] dark:text-[#8E8E93] line-through'
+                            ? 'bg-zinc-100/70 dark:bg-[#16171C] border-zinc-300 dark:border-[#282A33] text-[#71717A] dark:text-[#8E8E93] line-through'
                             : 'bg-[#F4F2EE] dark:bg-[#141518] border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-[#EFECE5] hover:border-[#E1500A]'
                         }`}
                       >
@@ -200,7 +200,7 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
                           className="rounded-none text-[#E1500A] focus:ring-[#E1500A] accent-[#E1500A]"
                         />
                         <span className="flex-1 select-none font-bold">{item.task}</span>
-                        {item.completed && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                        {item.completed && <Check className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />}
                       </label>
                     ))}
                   </div>

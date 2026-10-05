@@ -159,6 +159,8 @@ app.post("/api/xenia/chat", async (req: Request, res: Response) => {
       return;
     }
 
+    const todayIso = new Date().toISOString().split("T")[0];
+
     // Build context summary for Gemini
     const propertiesSummary = (contextData?.properties || [])
       .map(
@@ -167,10 +169,14 @@ app.post("/api/xenia/chat", async (req: Request, res: Response) => {
       )
       .join("\n");
 
-    const reservationsSummary = (contextData?.reservations || [])
+    const sortedReservations = [...(contextData?.reservations || [])]
+      .filter((r: any) => r.status !== "cancelled")
+      .sort((a: any, b: any) => (a.checkIn || "").localeCompare(b.checkIn || ""));
+
+    const reservationsSummary = sortedReservations
       .map(
         (r: any) =>
-          `- Huésped: ${r.guestName} | Canal: ${r.platform.toUpperCase()} | Fechas: ${r.checkIn} al ${r.checkOut} (${r.nights} noches) | Total: ${r.totalAmount} USD | Neto: ${r.netRevenue} USD | Comisión OTA: ${r.commissionPaid} USD | Pago: ${r.paymentStatus} | Estado: ${r.status}`
+          `- Huésped: ${r.guestName} | Cabaña ID: ${r.propertyId} | Canal: ${r.platform.toUpperCase()} | Fechas: ${r.checkIn} al ${r.checkOut} (${r.nights} noches) | Total: ${r.totalAmount} USD | Neto: ${r.netRevenue} USD | Comisión OTA: ${r.commissionPaid} USD | Pago: ${r.paymentStatus} | Estado: ${r.status} ${r.checkIn === todayIso ? '[CHECK-IN HOY]' : r.checkIn > todayIso ? '[FUTURA/PRÓXIMA]' : '[HISTÓRICA/PASADA]'}`
       )
       .join("\n");
 
@@ -185,12 +191,15 @@ app.post("/api/xenia/chat", async (req: Request, res: Response) => {
 Eres Xenia, la Asistente Inteligente de Hospitalidad y Copiloto Operativo de Loomi Suite.
 Loomi Suite es un software simple, visual y moderno diseñado para anfitriones, dueños y administradores de cabañas, departamentos turísticos, posadas y aparts (de 4 a 30+ unidades).
 
+FECHA ACTUAL DEL SISTEMA: ${todayIso}
+
 REGLAS CRÍTICAS DE ESCRITURA PARA SÍNTESIS DE VOZ Y LECTURA HUMANA:
 1. REGLA DE MONEDAS:
    - Para valores en dólares escribe siempre "USD 22.000" o "22.000 USD" o "58 USD". NUNCA escribas "$22000 usd" ni "$22.000 USD" con el signo "$" delante de "USD" (para evitar que el sintetizador de voz o el usuario lean erróneamente "pesos dólares").
    - Para valores en pesos argentinos escribe "$45.000" o "$45.000 ARS".
-2. REGLA DE FECHAS:
-   - Menciona siempre las fechas en formato natural en español (ej: "del 10 al 15 de septiembre de 2026", "10 de octubre de 2026", "hoy"). NUNCA digas números ISO o códigos numéricos crudos como "20260910" o "2026-09-10" para que al ser leídos por voz se escuchen cálidos y claros.
+2. REGLA DE FECHAS Y PRÓXIMOS CHECK-INS:
+   - Menciona siempre las fechas en formato natural en español (ej: "del 10 al 15 de octubre de 2026", "hoy"). NUNCA digas números ISO o códigos numéricos crudos como "20260910" o "2026-09-10".
+   - Al responder "¿cuál es el próximo check-in?" o "¿quién llega?", revisa la FECHA ACTUAL (${todayIso}) y responde ÚNICAMENTE con los ingresos de HOY o los INMEDIATOS FUTUROS (nunca con reservas históricas o de meses pasados como abril si ya pasaron).
 
 IMPORTANTE SOBRE EL PERFIL DE NUESTROS CLIENTES:
 - Muchos usuarios son arquitectos, ingenieros, constructores o familias que construyeron sus cabañas y las operan ellos mismos. NO vienen del rubro hotelero tradicional y NO usan jerga técnica (como 'ADR', 'RevPAR', 'folio', 'channel manager').
