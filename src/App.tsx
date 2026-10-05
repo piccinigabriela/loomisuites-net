@@ -100,6 +100,8 @@ export default function App() {
           params.has('configurar') ||
           params.has('import') ||
           params.has('importar') ||
+          params.has('web') ||
+          params.has('tu-web') ||
           params.get('view') === 'demo' ||
           params.get('view') === 'app' ||
           params.get('view') === 'panel' ||
@@ -111,6 +113,7 @@ export default function App() {
           path.includes('/ingresar') ||
           path.includes('/guia') ||
           path.includes('/guide') ||
+          path.includes('/web') ||
           path.includes('/limpieza') ||
           path.includes('/housekeeping') ||
           path.includes('/reservas') ||
@@ -120,6 +123,7 @@ export default function App() {
           hash.includes('panel') ||
           hash.includes('login') ||
           hash.includes('guia') ||
+          hash.includes('web') ||
           hash.includes('limpieza')
         ) {
           return 'demo';
@@ -140,11 +144,18 @@ export default function App() {
         if (
           params.has('guia') ||
           params.has('guide') ||
+          params.has('web') ||
+          params.has('tu-web') ||
           params.get('tab') === 'welcome-guide' ||
+          params.get('tab') === 'web' ||
+          params.get('tab') === 'tu-web' ||
           params.get('view') === 'guide' ||
+          params.get('view') === 'web' ||
           path.includes('/guia') ||
           path.includes('/guide') ||
-          hash.includes('guia')
+          path.includes('/web') ||
+          hash.includes('guia') ||
+          hash.includes('web')
         ) {
           return 'welcome-guide';
         }
@@ -803,9 +814,9 @@ export default function App() {
             }}
           />
 
-          {/* Floating Sticky CTA Bar on Mobile/Desktop */}
-          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 bg-[#18181B]/95 backdrop-blur-md text-[#EFECE5] px-4 py-2.5 rounded-full shadow-2xl border border-[#27272A] flex items-center gap-3">
-            <span className="text-xs font-bold hidden sm:inline text-[#DCD8CE]">
+          {/* Floating Sticky CTA Bar on Mobile/Desktop (<12% viewport height) */}
+          <div className="fixed bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-30 bg-[#18181B]/95 dark:bg-[#121316]/95 backdrop-blur-md text-[#EFECE5] px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-2xl border border-white/15 flex items-center gap-2.5 max-w-[92vw]">
+            <span className="text-xs font-semibold hidden md:inline text-[#DCD8CE]">
               ¿Querés ver cómo funciona en la vida real?
             </span>
             <button
@@ -813,9 +824,9 @@ export default function App() {
                 setCurrentView('demo');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="bg-[#E1500A] hover:bg-[#C94305] active:scale-95 text-white text-xs font-black px-4 py-1.5 rounded-full flex items-center gap-1.5 transition-all cursor-pointer shadow-md shadow-[#E1500A]/25"
+              className="min-h-[44px] bg-[#E1500A] hover:bg-[#C94305] active:scale-95 text-white text-xs sm:text-sm font-bold px-4 sm:px-5 py-2 rounded-full flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-[#E1500A]/30 shrink-0"
             >
-              <Play className="w-3 h-3 fill-white" />
+              <Play className="w-3.5 h-3.5 fill-white" />
               <span>Probar Demo en Vivo</span>
             </button>
           </div>

@@ -718,10 +718,10 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
           <div className="space-y-6 max-w-xl text-center mx-auto py-4">
             <div>
               <h3 className="text-base font-bold text-zinc-900">
-                Cartel con Código QR para la Cabaña
+                Cartel con Código QR para el Departamento
               </h3>
               <p className="text-xs text-zinc-500 mt-1">
-                Imprime este código y colócalo en el llavero de la cabaña, en el quincho o en el cuadro de la entrada. El huésped escanea con la cámara de su celular y accede al instante.
+                Imprime este código y colócalo en el llavero del departamento, en la mesa ratona o en el marco de la entrada. El huésped escanea con la cámara de su celular y accede al instante.
               </p>
             </div>
 

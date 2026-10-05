@@ -1,5 +1,43 @@
 import { DemoState } from '../../types';
 
+function formatFriendlyDates(checkIn: string, checkOut: string): string {
+  if (!checkIn || !checkOut) return `${checkIn || ''} al ${checkOut || ''}`;
+  const pIn = checkIn.split('-');
+  const pOut = checkOut.split('-');
+  if (pIn.length === 3 && pOut.length === 3) {
+    const months = [
+      '',
+      'enero',
+      'febrero',
+      'marzo',
+      'abril',
+      'mayo',
+      'junio',
+      'julio',
+      'agosto',
+      'septiembre',
+      'octubre',
+      'noviembre',
+      'diciembre',
+    ];
+    const dIn = parseInt(pIn[2], 10);
+    const mIn = parseInt(pIn[1], 10);
+    const dOut = parseInt(pOut[2], 10);
+    const mOut = parseInt(pOut[1], 10);
+    const yIn = parseInt(pIn[0], 10);
+    const yOut = parseInt(pOut[0], 10);
+
+    if (mIn === mOut && yIn === yOut) {
+      return `del ${dIn} al ${dOut} de ${months[mIn] || pIn[1]}`;
+    }
+    if (yIn === yOut) {
+      return `del ${dIn} de ${months[mIn] || pIn[1]} al ${dOut} de ${months[mOut] || pOut[1]}`;
+    }
+    return `del ${dIn} de ${months[mIn] || pIn[1]} de ${yIn} al ${dOut} de ${months[mOut] || pOut[1]} de ${yOut}`;
+  }
+  return `${checkIn} al ${checkOut}`;
+}
+
 export function getClientXeniaReply(message: string, demoState: DemoState): string {
   const q = (message || '').toLowerCase().trim();
   const properties = demoState.properties || [];
@@ -194,17 +232,17 @@ En Loomi lo hacés en segundos, sin complicaciones técnicas ni términos difíc
 
       const snippet = monthReservations.slice(0, 6).map((r: any) => {
         const pName = properties.find((p: any) => p.id === r.propertyId)?.name || 'Cabaña';
-        return `• **${r.guestName}** en *${pName}* (${r.platform.toUpperCase()}): ${r.checkIn} al ${r.checkOut} — **$${r.totalAmount} USD** (Neto: $${r.netRevenue} USD)`;
+        return `• **${r.guestName}** en *${pName}* (${r.platform.toUpperCase()}): ${formatFriendlyDates(r.checkIn, r.checkOut)} — **${r.totalAmount} USD** (Neto: ${r.netRevenue} USD)`;
       }).join('\n');
 
       return `### 📊 Ganancias y Facturación de ${targetMonth.name} (Loomi Suite)
 
 Aquí tenés el desglose exacto de tu negocio para **${targetMonth.name}**:
 
-- 💰 **Ganancia Neta Real en Mano:** **$${monthNet.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD** *(lo que te queda limpio en el bolsillo después de descontar comisiones)*.
-- 💵 **Facturación Bruta Total:** **$${monthGross.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD** sobre **${monthReservations.length} reservas registradas** (${monthNights} noches vendidas).
-- 🏷️ **Comisiones Deducidas por OTAs (Airbnb/Booking):** **-$${monthCommissions.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD**.
-- 🌟 **Ahorro por Reservas Directas:** **+$${Math.round(monthDirectSaved).toLocaleString('en-US')} USD** ahorrados sin intermediarios.
+- 💰 **Ganancia Neta Real en Mano:** **${Math.round(monthNet)} USD** *(lo que te queda limpio en el bolsillo después de descontar comisiones)*.
+- 💵 **Facturación Bruta Total:** **${Math.round(monthGross)} USD** sobre **${monthReservations.length} reservas registradas** (${monthNights} noches vendidas).
+- 🏷️ **Comisiones Deducidas por OTAs (Airbnb/Booking):** **-${Math.round(monthCommissions)} USD**.
+- 🌟 **Ahorro por Reservas Directas:** **+${Math.round(monthDirectSaved)} USD** ahorrados sin intermediarios.
 
 ${monthReservations.length > 0 ? `📋 **Estadías del mes de ${targetMonth.name}:**\n${snippet}\n${monthReservations.length > 6 ? `*(y ${monthReservations.length - 6} reservas más en el sistema)*` : ''}` : `ℹ️ *Aún no hay reservas registradas específicamente para ${targetMonth.name}.*`}
 
@@ -228,10 +266,10 @@ ${monthReservations.length > 0 ? `📋 **Estadías del mes de ${targetMonth.name
 
 Aquí tenés el balance económico actualizado en tiempo real:
 
-- 💰 **Ganancia Neta Real en Mano:** **$${totalNet.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD** *(después de tasas y comisiones de canales)*.
-- 💵 **Facturación Bruta Total:** **$${totalGross.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD** sobre **${reservations.length} reservas registradas** (${totalNights} noches).
-- 🏷️ **Comisiones Deducidas por Plataformas (OTAs):** **-$${totalCommissions.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD** (Booking, Airbnb).
-- 🌟 **Ahorro por Reservas Directas:** **+$${Math.round(directSaved).toLocaleString('en-US')} USD** ahorrados gracias a reservas directas sin comisiones.
+- 💰 **Ganancia Neta Real en Mano:** **${Math.round(totalNet)} USD** *(después de tasas y comisiones de canales)*.
+- 💵 **Facturación Bruta Total:** **${Math.round(totalGross)} USD** sobre **${reservations.length} reservas registradas** (${totalNights} noches).
+- 🏷️ **Comisiones Deducidas por Plataformas (OTAs):** **-${Math.round(totalCommissions)} USD** (Booking, Airbnb).
+- 🌟 **Ahorro por Reservas Directas:** **+${Math.round(directSaved)} USD** ahorrados gracias a reservas directas sin comisiones.
 
 ${pendingPayments.length > 0 ? `⚠️ **Cobros y Saldos Pendientes:** Tenés ${pendingPayments.length} reservas con saldo pendiente de cobro en mostrador.` : '✅ *Todos los cobros de reservas confirmadas están al día.*'}
 
@@ -442,7 +480,7 @@ Loomi conecta tus calendarios mediante sincronización bidireccional (iCal ofici
       .slice(0, 5)
       .map((r: any) => {
         const pName = properties.find((p: any) => p.id === r.propertyId)?.name || 'Cabaña';
-        return `• **${r.guestName}** en *${pName}* (${r.platform.toUpperCase()}): ${r.checkIn} al ${r.checkOut} ($${r.totalAmount} USD)`;
+        return `• **${r.guestName}** en *${pName}* (${r.platform.toUpperCase()}): ${formatFriendlyDates(r.checkIn, r.checkOut)} (${r.totalAmount} USD)`;
       })
       .join('\n');
 

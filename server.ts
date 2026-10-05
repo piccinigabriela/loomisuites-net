@@ -163,14 +163,14 @@ app.post("/api/xenia/chat", async (req: Request, res: Response) => {
     const propertiesSummary = (contextData?.properties || [])
       .map(
         (p: any) =>
-          `- ${p.name} (${p.type}): Capacidad ${p.maxGuests} huéspedes, $${p.basePrice} USD/noche. WiFi: "${p.wifiNetwork}", Clave: "${p.wifiPassword}". Cerradura: ${p.smartLock?.enabled ? `Digital (${p.smartLock?.brand})` : "Llave física en recepción"}.`
+          `- ${p.name} (${p.type}): Capacidad ${p.maxGuests} huéspedes, ${p.basePrice} USD/noche. WiFi: "${p.wifiNetwork}", Clave: "${p.wifiPassword}". Cerradura: ${p.smartLock?.enabled ? `Digital (${p.smartLock?.brand})` : "Llave física en recepción"}.`
       )
       .join("\n");
 
     const reservationsSummary = (contextData?.reservations || [])
       .map(
         (r: any) =>
-          `- Huésped: ${r.guestName} | Canal: ${r.platform.toUpperCase()} | Fechas: ${r.checkIn} al ${r.checkOut} (${r.nights} noches) | Total: $${r.totalAmount} USD | Neto: $${r.netRevenue} USD | Comisión OTA: $${r.commissionPaid} USD | Pago: ${r.paymentStatus} | Estado: ${r.status}`
+          `- Huésped: ${r.guestName} | Canal: ${r.platform.toUpperCase()} | Fechas: ${r.checkIn} al ${r.checkOut} (${r.nights} noches) | Total: ${r.totalAmount} USD | Neto: ${r.netRevenue} USD | Comisión OTA: ${r.commissionPaid} USD | Pago: ${r.paymentStatus} | Estado: ${r.status}`
       )
       .join("\n");
 
@@ -184,6 +184,13 @@ app.post("/api/xenia/chat", async (req: Request, res: Response) => {
     const systemInstruction = `
 Eres Xenia, la Asistente Inteligente de Hospitalidad y Copiloto Operativo de Loomi Suite.
 Loomi Suite es un software simple, visual y moderno diseñado para anfitriones, dueños y administradores de cabañas, departamentos turísticos, posadas y aparts (de 4 a 30+ unidades).
+
+REGLAS CRÍTICAS DE ESCRITURA PARA SÍNTESIS DE VOZ Y LECTURA HUMANA:
+1. REGLA DE MONEDAS:
+   - Para valores en dólares escribe siempre "USD 22.000" o "22.000 USD" o "58 USD". NUNCA escribas "$22000 usd" ni "$22.000 USD" con el signo "$" delante de "USD" (para evitar que el sintetizador de voz o el usuario lean erróneamente "pesos dólares").
+   - Para valores en pesos argentinos escribe "$45.000" o "$45.000 ARS".
+2. REGLA DE FECHAS:
+   - Menciona siempre las fechas en formato natural en español (ej: "del 10 al 15 de septiembre de 2026", "10 de octubre de 2026", "hoy"). NUNCA digas números ISO o códigos numéricos crudos como "20260910" o "2026-09-10" para que al ser leídos por voz se escuchen cálidos y claros.
 
 IMPORTANTE SOBRE EL PERFIL DE NUESTROS CLIENTES:
 - Muchos usuarios son arquitectos, ingenieros, constructores o familias que construyeron sus cabañas y las operan ellos mismos. NO vienen del rubro hotelero tradicional y NO usan jerga técnica (como 'ADR', 'RevPAR', 'folio', 'channel manager').

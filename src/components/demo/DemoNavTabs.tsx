@@ -10,6 +10,7 @@ import {
   Compass,
   ShoppingBag,
   List,
+  Globe,
 } from 'lucide-react';
 
 interface DemoNavTabsProps {
@@ -43,9 +44,9 @@ export const DemoNavTabs: React.FC<DemoNavTabsProps> = ({
     { id: 'finances', label: 'Finanzas & Propietarios', icon: DollarSign, adminOnly: true },
     {
       id: 'welcome-guide',
-      label: 'Guía Huésped & Landing',
-      icon: Compass,
-      badge: activeComplexName,
+      label: 'Tu Web & Guía',
+      icon: Globe,
+      badge: '🌐 Web',
     },
     { id: 'xenia', label: 'Xenia Copilot IA', icon: Bot, badge: 'IA' },
   ];

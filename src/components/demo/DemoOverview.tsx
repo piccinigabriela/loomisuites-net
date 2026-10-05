@@ -159,7 +159,7 @@ export const DemoOverview: React.FC<DemoOverviewProps> = ({
         </button>
       </div>
 
-      {/* Wood Cabin Welcome Guide & Landing Quick Bar */}
+      {/* Tu Web Oficial & Guía Huésped Quick Bar */}
       <div className="bg-[#1c1b18] rounded-xl p-4 border border-[#3f3932] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-white">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-[#8d5637] flex items-center justify-center text-white shrink-0 font-extrabold shadow-xs">
@@ -167,21 +167,21 @@ export const DemoOverview: React.FC<DemoOverviewProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-xs text-white">Guía de Bienvenida & Landing de Reservas Directas</span>
+              <span className="font-bold text-xs text-white">🌐 Tu Web Oficial (Reservas Directas) & Guía Huésped</span>
               <span className="text-[10px] font-semibold text-[#d88d5e] bg-[#c46d45]/20 px-2 py-0.5 rounded-full border border-[#c46d45]/30">
                 Ejemplo: Tu Complejo de Departamentos
               </span>
             </div>
             <p className="text-xs text-[#ded9cd] mt-0.5">
-              Tus huéspedes tienen WiFi en 1 clic, modos de llegar, atracciones locales y reservas de opcionales. Ahorrás consultas repetitivas y cobrás reservas directas.
+              Tu sitio web directo listo para recibir reservas por WhatsApp o Mercado Pago sin pagar comisiones a intermediarios, más la Guía Digital para tus huéspedes.
             </p>
           </div>
         </div>
         <button
           onClick={() => onNavigateTab('welcome-guide')}
-          className="text-xs font-bold bg-[#c46d45] hover:bg-[#b55e37] text-white px-3.5 py-1.5 rounded-lg flex items-center gap-1 whitespace-nowrap cursor-pointer transition-colors shadow-2xs"
+          className="text-xs font-bold bg-[#c46d45] hover:bg-[#b55e37] text-white px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-colors shadow-2xs"
         >
-          <span>Ver Guía & Admin</span>
+          <span>Ver Tu Web & Guía</span>
           <ChevronRight className="w-3.5 h-3.5" />
         </button>
       </div>

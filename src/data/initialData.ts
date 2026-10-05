@@ -16,12 +16,12 @@ export function formatDisplayDate(dateStr: string): string {
   return `${parseInt(day, 10)} ${months[parseInt(month, 10) - 1]}`;
 }
 
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  }).format(amount);
+export function formatCurrency(amount: number, currency: 'USD' | 'ARS' = 'USD'): string {
+  const rounded = Math.round(amount || 0);
+  if (currency === 'ARS') {
+    return `$${rounded.toLocaleString('es-AR')}`;
+  }
+  return `USD ${rounded.toLocaleString('es-AR')}`;
 }
 
 export const INITIAL_PROPERTIES: Property[] = [
@@ -376,7 +376,7 @@ export const INITIAL_TEMPLATES: MessageTemplate[] = [
     title: 'Coordinación en Ruta / Día de Viaje',
     triggerEvent: 'Mañana del viaje / Durante el traslado',
     channel: 'whatsapp',
-    content: '¡Hola {nombre_huesped}! 🚗 Esperamos que tengan un muy lindo viaje hacia {nombre_propiedad}.\n\nSabemos que las distancias en ruta pueden tener demoras o imprevistos. Avísennos cuando estén a unos 40 o 60 minutos de llegar (o si quieren compartan su ubicación en tiempo real) así los esperamos con la cabaña templada y todo listo para recibirlos sin demoras.\n\n¡Manejen con cuidado y cualquier cosa en el camino nos avisan por acá!',
+    content: '¡Hola {nombre_huesped}! 🚗 Esperamos que tengan un muy lindo viaje hacia {nombre_propiedad}.\n\nSabemos que las distancias en ruta pueden tener demoras o imprevistos. Avísennos cuando estén a unos 40 o 60 minutos de llegar (o si quieren compartan su ubicación en tiempo real) así los esperamos con el departamento templado y todo listo para recibirlos sin demoras.\n\n¡Manejen con cuidado y cualquier cosa en el camino nos avisan por acá!',
     variables: ['{nombre_huesped}', '{nombre_propiedad}'],
   },
   {
@@ -390,9 +390,9 @@ export const INITIAL_TEMPLATES: MessageTemplate[] = [
   {
     id: 'tpl-6',
     title: 'Control de Confort (2hs Post-Ingreso) - Blindaje Anti-Quejas',
-    triggerEvent: '2 horas después de ingresar a la cabaña',
+    triggerEvent: '2 horas después de ingresar al departamento',
     channel: 'whatsapp',
-    content: '¡Hola {nombre_huesped}! Esperamos que ya estén acomodados y descansando un poco del viaje. ☕✨\n\nLes escribo para consultarles si encontraron todo impecable y si necesitan algo en especial (toallas extra, leña, indicaciones o cualquier detalle).\n\nEstamos a disposición para que su estadía sea perfecta. ¡Que disfruten mucho!',
+    content: '¡Hola {nombre_huesped}! Esperamos que ya estén acomodados y descansando un poco del viaje. ☕✨\n\nLes escribo para consultarles si encontraron todo impecable y si necesitan algo en especial (toallas extra, indicaciones o cualquier detalle).\n\nEstamos a disposición para que su estadía sea perfecta. ¡Que disfruten mucho!',
     variables: ['{nombre_huesped}'],
   },
   {

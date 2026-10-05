@@ -18,6 +18,7 @@ import {
   ChevronDown,
   X,
   TrendingDown,
+  Globe,
 } from 'lucide-react';
 import { LoomiLogo } from '../common/LoomiLogo';
 import { XeniaAvatar } from '../xenia/XeniaAvatar';
@@ -266,17 +267,22 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                 </>
               )}
 
-              {/* Guía Huésped */}
+              {/* Tu Web & Guía Huésped */}
               <button
                 onClick={() => handleTabClick('welcome-guide')}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
+                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-none text-xs font-bold transition-all text-left border ${
                   activeTab === 'welcome-guide'
                     ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
                     : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
                 }`}
               >
-                <Compass className="w-3.5 h-3.5 shrink-0" />
-                <span>Guía Huésped & Web</span>
+                <div className="flex items-center gap-2.5">
+                  <Globe className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
+                  <span>Tu Web & Guía</span>
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60 px-1 py-0.2 border border-emerald-300 dark:border-emerald-800">
+                  Web
+                </span>
               </button>
             </div>
           </div>

@@ -64,7 +64,7 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
       <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-4 sm:p-5 shadow-2xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors">
         <div>
           <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93]">
-            INVENTARIO / DEPARTAMENTOS & CABAÑAS
+            INVENTARIO / DEPARTAMENTOS & SUITES DE ALOJAMIENTO
           </span>
           <h3 className="text-xl font-black text-[#18181B] dark:text-white flex items-center gap-2 mt-0.5">
             <Building2 className="w-5 h-5 text-[#E1500A]" />
