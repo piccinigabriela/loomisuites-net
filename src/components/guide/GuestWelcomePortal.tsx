@@ -45,6 +45,7 @@ export type PortalTheme =
   | 'bay'
   | 'retrato'
   | 'urbano'
+  | 'luxury-monograph-folio'
   | 'luxury-bento-grid'
   | 'luxury-editorial-parallax'
   | 'luxury-horizontal-architectural';
@@ -516,10 +517,10 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
             <button
               onClick={() => handleSetTemplate('luxury-bento-grid')}
               className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                isSigAuraBento ? 'bg-[#c5a880] text-stone-950' : 'text-[#c5a880] hover:text-amber-200'
+                isSigAuraBento ? 'bg-[#1C2A24] text-amber-200 border border-amber-400/30' : 'text-[#c5a880] hover:text-amber-200'
               }`}
             >
-              <span>👑 AURA Bento</span>
+              <span>🌿 Folio Zen</span>
             </button>
             <button
               onClick={() => handleSetTemplate('luxury-editorial-parallax')}

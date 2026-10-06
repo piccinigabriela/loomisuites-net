@@ -1,5 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /app/
+Disallow: /dashboard/
 Disallow: /api/
 
 Sitemap: https://loomisuite.net/sitemap.xml
+

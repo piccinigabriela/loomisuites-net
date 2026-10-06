@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Calendar as CalendarIcon,
@@ -8,6 +8,7 @@ import {
   Percent,
   Sparkles,
   ArrowRight,
+  ArrowLeft,
   MapPin,
   Wifi,
   Key,
@@ -48,6 +49,7 @@ export type LandingTemplate =
   | 'bay'
   | 'retrato'
   | 'urbano'
+  | 'luxury-monograph-folio'
   | 'luxury-bento-grid'
   | 'luxury-editorial-parallax'
   | 'luxury-horizontal-architectural';
@@ -96,8 +98,45 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
   const [urbanoHeroImage, setUrbanoHeroImage] = useState<string>('/catalinas/edificio.jpg');
   const [showUrbanoImageModal, setShowUrbanoImageModal] = useState<boolean>(false);
   const [customImageUrlInput, setCustomImageUrlInput] = useState<string>('');
+  const [lightboxImage, setLightboxImage] = useState<{ src: string; title: string; subtitle: string; tag: string } | null>(null);
+
+  // Custom photos for Corte delle Vette / AURA
+  const [cortePhotos, setCortePhotos] = useState<{
+    suite1: string;
+    bathroom: string;
+    suite2: string;
+    terrace: string;
+    pool: string;
+    cellar: string;
+    sunset: string;
+    facade: string;
+  }>({
+    suite1: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1600&auto=format&fit=crop',
+    bathroom: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1600&auto=format&fit=crop',
+    suite2: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1600&auto=format&fit=crop',
+    terrace: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=1600&auto=format&fit=crop',
+    pool: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=1600&auto=format&fit=crop',
+    cellar: 'https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?q=80&w=1600&auto=format&fit=crop',
+    sunset: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?q=80&w=1600&auto=format&fit=crop',
+    facade: '/entrada.jpeg',
+  });
+  const [editingPhotoKey, setEditingPhotoKey] = useState<string | null>(null);
+  const [photoEditInput, setPhotoEditInput] = useState<string>('');
+
+  // Ref for Canvas horizontal scroll container
+  const canvasScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollCanvas = (direction: 'left' | 'right') => {
+    if (canvasScrollRef.current) {
+      const scrollAmount = direction === 'left' ? -480 : 480;
+      canvasScrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   const selectedCabin = properties.find((p) => p.id === selectedCabinId) || properties[0];
+
+  // State to toggle/collapse simulator toolbar for 100% clean live website view (default false for pure website look)
+  const [showSimulatorBar, setShowSimulatorBar] = useState<boolean>(false);
 
   // Helper to calculate nights between 2 dates
   const calculateNights = (inDate: string, outDate: string) => {
@@ -210,15 +249,20 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
   const isBay = selectedTemplate === 'bay';
   const isRetrato = selectedTemplate === 'retrato';
   const isUrbano = selectedTemplate === 'urbano';
-  const isSigAuraBento = selectedTemplate === 'luxury-bento-grid';
+  const isSigFolio = selectedTemplate === 'luxury-monograph-folio' || selectedTemplate === 'luxury-bento-grid';
+  const isSigAuraBento = isSigFolio;
   const isSigAuraParallax = selectedTemplate === 'luxury-editorial-parallax';
   const isSigAuraHorizontal = selectedTemplate === 'luxury-horizontal-architectural';
-  const isSigAura = isSigAuraBento || isSigAuraParallax || isSigAuraHorizontal;
+  const isSigAura = isSigFolio || isSigAuraParallax || isSigAuraHorizontal;
   const isSignature = isSigAura;
 
   return (
     <div className={`w-full transition-all duration-300 relative ${
-      isSigAura
+      isSigAuraParallax
+        ? 'bg-[#EDE6DC] text-[#1D1A16]'
+        : isSigFolio
+        ? 'bg-[#F4EFE6] text-[#1D1A16]'
+        : isSigAura
         ? 'bg-[#0e0c09] text-[#EDE8DF]'
         : isRetrato
         ? 'bg-[#0c0e0d] text-[#EFECE6]'
@@ -227,151 +271,104 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
         : 'bg-[#FAF8F5] text-stone-900'
     }`}>
       {/* ========================================================================= */}
-      {/* BARRA SUPERIOR DE SIMULACIÓN Y SELECTOR DE DISEÑO (ESENCIAL VS SIGNATURE) */}
+      {/* SELECTOR FLOTANTE ELEGANTE DE MODELOS (DOCK FLOTANTE CON ACCESO DIRECTO)   */}
       {/* ========================================================================= */}
-      <div className="bg-[#18181B] px-4 py-2.5 border-b border-stone-800 flex flex-wrap items-center justify-between gap-3 text-xs text-stone-300 font-sans rounded-t-xl sticky top-0 z-40 shadow-md">
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-rose-500/80 inline-block" />
-          <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block" />
-          <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
-          <div className="ml-2 sm:ml-3 px-3 py-1 rounded-full bg-stone-900 border border-stone-800 flex items-center gap-2 text-stone-200 font-mono text-[11px]">
-            <span className="text-emerald-400 font-bold">🔒 https://</span>
-            <span className="text-white font-bold">
-              {isSigAura ? 'aura-valledeuco.com' : (guideData.directBookingSettings?.customDomain || 'tucomplejo.com.ar')}
-            </span>
-            <span className="text-stone-500 text-[10px] hidden md:inline">(Sitio Web Oficial)</span>
-          </div>
-        </div>
+      <div className="fixed top-3 sm:top-4 right-3 sm:right-6 z-50 font-sans pointer-events-auto">
+        {showSimulatorBar ? (
+          <div className="bg-[#181614]/90 backdrop-blur-xl border border-[#c5a880]/40 rounded-2xl p-2 sm:p-2.5 shadow-2xl flex items-center gap-2 text-xs text-stone-200 animate-in fade-in zoom-in-95 duration-200">
+            {/* Esenciales */}
+            <div className="flex items-center gap-1 bg-black/50 p-1 rounded-xl border border-white/10">
+              <button
+                onClick={() => setSelectedTemplate('bay')}
+                className={`px-2 py-1 text-[11px] font-medium rounded-lg transition-all cursor-pointer ${
+                  isBay ? 'bg-amber-600 text-white font-bold shadow-xs' : 'text-stone-400 hover:text-white'
+                }`}
+                title="Modelo Bay (Incluido)"
+              >
+                🏛️ Bay
+              </button>
+              <button
+                onClick={() => setSelectedTemplate('retrato')}
+                className={`px-2 py-1 text-[11px] font-medium rounded-lg transition-all cursor-pointer ${
+                  isRetrato ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-stone-400 hover:text-white'
+                }`}
+                title="Modelo Retrato (Incluido)"
+              >
+                🌲 Retrato
+              </button>
+              <button
+                onClick={() => setSelectedTemplate('urbano')}
+                className={`px-2 py-1 text-[11px] font-medium rounded-lg transition-all cursor-pointer ${
+                  isUrbano ? 'bg-amber-400 text-stone-950 font-bold shadow-xs' : 'text-stone-400 hover:text-white'
+                }`}
+                title="Modelo Urbano (Incluido)"
+              >
+                🏙️ Urbano
+              </button>
+            </div>
 
-        {/* Selector de Modelos en Vivo: 2 Colecciones */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Grupo 1: Colección Esencial [Incluida] */}
-          <div className="inline-flex rounded-lg bg-stone-900 p-0.5 border border-stone-700">
-            <button
-              onClick={() => setSelectedTemplate('bay')}
-              className={`px-2.5 py-1.5 text-[11px] font-bold rounded-md transition-all cursor-pointer flex items-center gap-1.5 ${
-                isBay
-                  ? 'bg-amber-600 text-white shadow-xs'
-                  : 'text-stone-400 hover:text-white'
-              }`}
-              title="Incluido en el abono general"
-            >
-              <span>🏛️ Bay</span>
-              <span className="text-[9px] px-1 py-0.2 bg-amber-950 text-amber-300 rounded font-mono">INCLUIDO</span>
-            </button>
+            <span className="text-stone-600 text-xs select-none">|</span>
 
-            <button
-              onClick={() => setSelectedTemplate('retrato')}
-              className={`px-2.5 py-1.5 text-[11px] font-bold rounded-md transition-all cursor-pointer flex items-center gap-1.5 ${
-                isRetrato
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-stone-400 hover:text-white'
-              }`}
-              title="Incluido en el abono general"
-            >
-              <span>🌲 Retrato</span>
-              <span className="text-[9px] px-1 py-0.2 bg-stone-950 text-emerald-300 rounded font-mono">INCLUIDO</span>
-            </button>
+            {/* Signature Models */}
+            <div className="flex items-center gap-1 bg-black/50 p-1 rounded-xl border border-[#c5a880]/30">
+              <button
+                onClick={() => setSelectedTemplate('luxury-monograph-folio')}
+                className={`px-2.5 py-1 text-[11px] rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
+                  isSigFolio ? 'bg-[#1C2A24] text-amber-200 font-bold shadow-xs border border-amber-300/30' : 'text-[#c5a880] hover:text-amber-200'
+                }`}
+                title="Modelo Folio Zen Arquitectónico ($49 USD)"
+              >
+                <Crown className="w-3 h-3 text-amber-400" />
+                <span>Folio</span>
+              </button>
 
-            <button
-              onClick={() => setSelectedTemplate('urbano')}
-              className={`px-2.5 py-1.5 text-[11px] font-bold rounded-md transition-all cursor-pointer flex items-center gap-1.5 ${
-                isUrbano
-                  ? 'bg-amber-400 text-stone-950 font-bold shadow-xs'
-                  : 'text-stone-400 hover:text-white'
-              }`}
-              title="Incluido en el abono general"
-            >
-              <span>🏙️ Urbano</span>
-              <span className="text-[9px] px-1 py-0.2 bg-amber-200 text-amber-950 rounded font-mono font-bold">BS. AS.</span>
-            </button>
-          </div>
+              <button
+                onClick={() => setSelectedTemplate('luxury-editorial-parallax')}
+                className={`px-2.5 py-1 text-[11px] rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
+                  isSigAuraParallax ? 'bg-[#c5a880] text-stone-950 font-bold shadow-xs' : 'text-[#c5a880] hover:text-amber-200'
+                }`}
+                title="Modelo Parallax ($49 USD)"
+              >
+                <Crown className="w-3 h-3 text-amber-400" />
+                <span>Parallax</span>
+              </button>
 
-          {/* Grupo 2: Colección Signature [De Autor / Exclusiva] */}
-          <div className="inline-flex rounded-lg bg-stone-900 p-0.5 border border-[#c5a880]/60">
-            <button
-              onClick={() => setSelectedTemplate('luxury-bento-grid')}
-              className={`px-2.5 py-1.5 text-[11px] font-bold rounded-md transition-all cursor-pointer flex items-center gap-1 ${
-                isSigAuraBento
-                  ? 'bg-[#c5a880] text-stone-950 font-black shadow-xs'
-                  : 'text-[#c5a880] hover:text-amber-200'
-              }`}
-            >
-              <Crown className="w-3.5 h-3.5 text-amber-400" />
-              <span>AURA Bento</span>
-              <span className="text-[9px] px-1 py-0.2 bg-stone-950/80 text-amber-300 rounded font-mono font-bold">$49</span>
-            </button>
+              <button
+                onClick={() => setSelectedTemplate('luxury-horizontal-architectural')}
+                className={`px-2.5 py-1 text-[11px] rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
+                  isSigAuraHorizontal ? 'bg-[#c5a880] text-stone-950 font-bold shadow-xs' : 'text-[#c5a880] hover:text-amber-200'
+                }`}
+                title="Modelo Canvas ($49 USD)"
+              >
+                <Crown className="w-3 h-3 text-amber-400" />
+                <span>Canvas</span>
+              </button>
+            </div>
 
+            {/* Minimize button */}
             <button
-              onClick={() => setSelectedTemplate('luxury-editorial-parallax')}
-              className={`px-2.5 py-1.5 text-[11px] font-bold rounded-md transition-all cursor-pointer flex items-center gap-1 ${
-                isSigAuraParallax
-                  ? 'bg-[#c5a880] text-stone-950 font-black shadow-xs'
-                  : 'text-[#c5a880] hover:text-amber-200'
-              }`}
+              onClick={() => setShowSimulatorBar(false)}
+              className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-stone-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer ml-1"
+              title="Minimizar selector"
             >
-              <Crown className="w-3.5 h-3.5 text-amber-400" />
-              <span>AURA Parallax</span>
-              <span className="text-[9px] px-1 py-0.2 bg-stone-950/80 text-amber-300 rounded font-mono font-bold">$49</span>
-            </button>
-
-            <button
-              onClick={() => setSelectedTemplate('luxury-horizontal-architectural')}
-              className={`px-2.5 py-1.5 text-[11px] font-bold rounded-md transition-all cursor-pointer flex items-center gap-1 ${
-                isSigAuraHorizontal
-                  ? 'bg-[#c5a880] text-stone-950 font-black shadow-xs'
-                  : 'text-[#c5a880] hover:text-amber-200'
-              }`}
-            >
-              <Crown className="w-3.5 h-3.5 text-amber-400" />
-              <span>AURA Canvas</span>
-              <span className="text-[9px] px-1 py-0.2 bg-stone-950/80 text-amber-300 rounded font-mono font-bold">$49</span>
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
-
+        ) : (
+          /* Compact Floating Badge to Switch Designs */
           <button
-            onClick={() => setShowSelfOnboardExplain(!showSelfOnboardExplain)}
-            className="text-[11px] text-[#c5a880] hover:text-amber-300 font-medium hidden lg:inline-flex items-center gap-1 cursor-pointer ml-1"
+            onClick={() => setShowSimulatorBar(true)}
+            className="px-3 py-1.5 rounded-full bg-black/80 hover:bg-black text-[#c5a880] border border-[#c5a880]/50 text-xs font-mono backdrop-blur-md shadow-xl flex items-center gap-1.5 transition-all cursor-pointer hover:scale-105"
+            title="Cambiar plantilla de diseño web"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{showSelfOnboardExplain ? 'Ocultar Catálogo' : 'Ver Catálogo Completo'}</span>
+            <Palette className="w-3.5 h-3.5 text-[#c5a880]" />
+            <span className="font-sans font-medium text-[11px] text-stone-200">
+              Diseño: <strong className="text-[#c5a880] uppercase">{isSigAuraParallax ? 'Parallax' : isSigFolio ? 'Folio Zen' : isSigAuraHorizontal ? 'Canvas' : selectedTemplate}</strong>
+            </span>
+            <span className="text-[10px] text-stone-400 ml-0.5">▼</span>
           </button>
-        </div>
+        )}
       </div>
-
-      {/* ========================================================================= */}
-      {/* BANNER DISTINTIVO CUANDO SE NAVEGA UN MODELO SIGNATURE */}
-      {/* ========================================================================= */}
-      {isSignature && (
-        <div className="bg-gradient-to-r from-[#211a12] via-[#14120e] to-[#211a12] p-3 sm:px-6 border-b border-[#c5a880]/40 text-xs text-[#f5ebd9] flex flex-wrap items-center justify-between gap-3 shadow-inner">
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-[#c5a880] text-stone-950 font-black text-[10px] uppercase tracking-wider flex items-center gap-1">
-              <Crown className="w-3.5 h-3.5" />
-              SIGNATURE ADDON • $49 USD
-            </span>
-            <span className="font-semibold text-[#f5ebd9]">
-              {isSigAuraParallax
-                ? 'AURA — Parallax Editorial (Valle de Uco, Mendoza)'
-                : isSigAuraBento
-                ? 'AURA — Luxury Bento Grid (Valle de Uco, Mendoza)'
-                : isSigAuraHorizontal
-                ? 'AURA — Canvas Arquitectónico Horizontal (Valle de Uco, Mendoza)'
-                : 'Diseño Signature de Autor de Alta Gama'}
-            </span>
-            <span className="text-[#c5a880]/80 hidden md:inline text-[11px]">
-              (Incluye portal de bienvenida móvil unificado en esta misma estética visual)
-            </span>
-          </div>
-
-          <button
-            onClick={() => setShowSignatureModal(true)}
-            className="min-h-[36px] px-4 py-1.5 rounded-xl bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 font-bold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-[#c5a880]/20 cursor-pointer"
-          >
-            <Crown className="w-3.5 h-3.5" />
-            <span>Desbloquear Addon AURA ($49 USD)</span>
-          </button>
-        </div>
-      )}
 
       {/* ========================================================================= */}
       {/* MODAL GLOBAL: SELECTOR DE CALENDARIO VISUAL DE FECHAS (REACT PORTAL) */}
@@ -471,578 +468,732 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* MODELO SIGNATURE 2: AURA — EDITORIAL PARALLAX VERTICAL ($49 USD)          */}
+      {/* MODAL GLOBAL: LIGHTBOX EXPANDIDO DE FOTOS DE ALTA RESOLUCIÓN              */}
+      {/* ========================================================================= */}
+      {lightboxImage && typeof document !== 'undefined' && createPortal(
+        <div
+          className="fixed inset-0 z-[9999999] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 animate-in fade-in duration-200"
+          onClick={() => setLightboxImage(null)}
+        >
+          <div
+            className="relative max-w-5xl w-full max-h-[90vh] flex flex-col items-center justify-center space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setLightboxImage(null)}
+              className="absolute -top-12 right-0 sm:top-2 sm:right-2 z-20 w-11 h-11 rounded-full bg-black/80 text-white hover:bg-stone-800 border border-white/20 flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <div className="w-full max-h-[75vh] rounded-2xl overflow-hidden border border-[#c5a880]/40 shadow-2xl bg-black">
+              <img
+                src={lightboxImage.src}
+                alt={lightboxImage.title}
+                className="w-full h-full max-h-[75vh] object-contain mx-auto"
+              />
+            </div>
+
+            <div className="w-full bg-[#14110d]/90 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-[#c5a880]/30 flex flex-wrap items-center justify-between gap-3 text-white">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#c5a880] font-bold block">
+                  {lightboxImage.tag}
+                </span>
+                <h3 className="text-lg sm:text-xl font-serif text-white">{lightboxImage.title}</h3>
+                <p className="text-xs text-stone-300 font-light mt-0.5">{lightboxImage.subtitle}</p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    setLightboxImage(null);
+                    scrollToBooking();
+                  }}
+                  className="min-h-[40px] px-6 py-2 rounded-xl bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 font-bold text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer"
+                >
+                  Consultar Disponibilidad
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL: PERSONALIZAR / CAMBIAR FOTO DE CORTE DELLE VETTE                   */}
+      {/* ========================================================================= */}
+      {editingPhotoKey && typeof document !== 'undefined' && createPortal(
+        <div
+          className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-in fade-in duration-200 font-sans"
+          onClick={() => setEditingPhotoKey(null)}
+        >
+          <div
+            className="relative w-full max-w-lg bg-[#14110d] text-white border border-[#c5a880]/50 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setEditingPhotoKey(null)}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-stone-900 text-stone-400 hover:text-white flex items-center justify-center border border-stone-800"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div>
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#c5a880]">
+                GALERÍA CORTE DELLE VETTE
+              </span>
+              <h3 className="text-xl font-serif mt-1">Reemplazar Fotografía del Espacio</h3>
+              <p className="text-xs text-stone-300 mt-1">
+                Ingresá la URL de tu imagen o cargá un archivo desde tu dispositivo para actualizar este cuadro.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-mono text-stone-400 block mb-1.5">Pegar URL de Imagen:</label>
+                <input
+                  type="url"
+                  placeholder="https://images.unsplash.com/..."
+                  value={photoEditInput}
+                  onChange={(e) => setPhotoEditInput(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-stone-950 border border-stone-700 text-xs text-white placeholder-stone-600 focus:outline-none focus:border-[#c5a880]"
+                />
+              </div>
+
+              <div className="text-center text-xs text-stone-500 font-mono">— O bien —</div>
+
+              <div>
+                <label className="w-full flex flex-col items-center justify-center p-4 rounded-xl border border-dashed border-stone-700 hover:border-[#c5a880] bg-stone-950/60 cursor-pointer transition-colors text-xs text-stone-300">
+                  <Upload className="w-5 h-5 text-[#c5a880] mb-1" />
+                  <span>Subir imagen desde tu computadora / celular</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          if (event.target?.result && editingPhotoKey) {
+                            setCortePhotos((prev) => ({
+                              ...prev,
+                              [editingPhotoKey]: event.target?.result as string,
+                            }));
+                            setEditingPhotoKey(null);
+                          }
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-stone-800 flex justify-end gap-3">
+              <button
+                onClick={() => setEditingPhotoKey(null)}
+                className="px-4 py-2 rounded-xl bg-stone-900 text-stone-300 text-xs"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  if (photoEditInput.trim() && editingPhotoKey) {
+                    setCortePhotos((prev) => ({
+                      ...prev,
+                      [editingPhotoKey]: photoEditInput.trim(),
+                    }));
+                    setEditingPhotoKey(null);
+                  }
+                }}
+                className="px-5 py-2 rounded-xl bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 font-bold text-xs"
+              >
+                Guardar Foto
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODELO SIGNATURE 2: CORTE DELLE VETTE — EDITORIAL PARALLAX VERTICAL ($49) */}
       {/* ========================================================================= */}
       {isSigAuraParallax && (
-        <div className="space-y-0 animate-in fade-in duration-500 font-sans">
+        <div className="relative min-h-screen bg-[#EDE6DC] text-[#1D1A16] font-sans antialiased overflow-x-hidden selection:bg-[#c5a880] selection:text-white">
           
-          {/* PANEL PARALLAX 1: HERO MONUMENTAL INMERSIVO CON CUADROS FLOTANTES INTERACTIVOS */}
-          <section className="relative min-h-[88vh] lg:min-h-[94vh] flex flex-col justify-between overflow-hidden bg-[#0a0907] text-[#FAF8F5]">
-            <div className="absolute inset-0 z-0 overflow-hidden">
-              <img
-                src="/cabanas/cabana-terraza.jpg"
-                alt="AURA Valle de Uco"
-                className="w-full h-full object-cover opacity-50 scale-105 transition-transform duration-1000"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0e0c09] via-[#0e0c09]/40 to-black/30" />
-            </div>
-
-            {/* Cuadro Flotante Interactivo 1: Sommelier & Cata (Top-Left) */}
+          {/* ===================================================================== */}
+          {/* 1. FIXED BACKGROUND: WARM MINERAL TONE + WINERY WALL + GIANT TYPE     */}
+          {/* ===================================================================== */}
+          <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden select-none bg-[#EDE6DC]">
+            
+            {/* Subtle Winery Wall Texture Overlay */}
             <div
-              onClick={() => setActiveFloatingDetail('sommelier')}
-              className="absolute top-20 sm:top-24 left-4 sm:left-10 z-20 p-3 sm:p-4 rounded-2xl bg-black/65 backdrop-blur-xl border border-[#c5a880]/50 shadow-2xl cursor-pointer hover:bg-black/85 hover:border-[#c5a880] hover:scale-105 transition-all duration-300 max-w-[230px] sm:max-w-[270px] group"
-              title="Tocá para ver detalles de la cata"
-            >
-              <div className="flex items-center justify-between gap-2 mb-1">
-                <span className="flex items-center gap-1.5 text-[10px] font-mono uppercase font-bold text-[#c5a880]">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block" />
-                  Cata Sunset • 18:30hs
-                </span>
-                <span className="text-[10px] text-[#c5a880] font-mono group-hover:translate-x-0.5 transition-transform">→</span>
-              </div>
-              <p className="text-xs text-stone-200 font-medium leading-snug group-hover:text-amber-200 transition-colors">
-                🍷 Sommelier In-House y maridaje de Malbec centenario
-              </p>
+              className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-multiply transition-opacity duration-700"
+              style={{
+                backgroundImage: `url(${cortePhotos.facade || '/entrada.jpeg'})`,
+              }}
+            />
+
+            {/* Subtle Fine Grain / Architectural Grid */}
+            <div className="absolute inset-0 bg-[radial-gradient(#8C6D46_1px,transparent_1px)] [background-size:36px_36px] opacity-15" />
+
+            {/* Fixed Editorial Header Meta (Like the LEON reference) */}
+            <div className="absolute top-14 sm:top-16 left-6 right-6 sm:left-12 sm:right-12 flex items-center justify-between text-[11px] sm:text-xs font-serif tracking-[0.25em] text-[#2C2720] uppercase border-b border-[#2C2720]/15 pb-3">
+              <span className="font-bold tracking-[0.3em]">CORTE DELLE VETTE</span>
+              <span className="hidden sm:inline font-mono text-[10px] tracking-widest text-[#735D43]">VALLE DE UCO • 1.200 MSNM</span>
+              <span className="font-mono text-[10px] tracking-widest">©2024—2026</span>
             </div>
 
-            {/* Cuadro Flotante Interactivo 2: Tina Nórdica & Spa (Top-Right) */}
-            <div
-              onClick={() => setActiveFloatingDetail('wellness')}
-              className="absolute top-36 sm:top-24 right-4 sm:right-10 z-20 p-3 sm:p-4 rounded-2xl bg-black/65 backdrop-blur-xl border border-[#c5a880]/50 shadow-2xl cursor-pointer hover:bg-black/85 hover:border-[#c5a880] hover:scale-105 transition-all duration-300 max-w-[230px] sm:max-w-[270px] group"
-              title="Tocá para ver detalles de spa"
-            >
-              <div className="flex items-center justify-between gap-2 mb-1">
-                <span className="flex items-center gap-1.5 text-[10px] font-mono uppercase font-bold text-amber-300">
-                  <Flame className="w-3 h-3 text-amber-400" />
-                  Tina Nórdica • 39°C
-                </span>
-                <span className="text-[10px] text-amber-300 font-mono group-hover:translate-x-0.5 transition-transform">→</span>
-              </div>
-              <p className="text-xs text-stone-200 font-medium leading-snug group-hover:text-amber-200 transition-colors">
-                ♨️ Baño caliente a leña bajo las estrellas de Mendoza
-              </p>
-            </div>
-
-            {/* Cuadro Flotante Interactivo 3: Terroir & Altura (Bottom-Left Desktop) */}
-            <div
-              onClick={() => setActiveFloatingDetail('terroir')}
-              className="hidden lg:block absolute bottom-24 left-10 z-20 p-3.5 rounded-2xl bg-black/65 backdrop-blur-xl border border-white/20 shadow-2xl cursor-pointer hover:bg-black/85 hover:border-[#c5a880]/60 hover:scale-105 transition-all duration-300 max-w-[250px] group"
-            >
-              <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase font-bold text-[#c5a880] mb-1">
-                <Mountain className="w-3.5 h-3.5 text-[#c5a880]" />
-                <span>Terroir de Montaña</span>
-              </div>
-              <p className="text-xs text-stone-300 font-light leading-snug">
-                ⛰️ 1.200 Msnm • Silencio absoluto y vistas a la Cordillera
-              </p>
-            </div>
-
-            {/* Cuadro Flotante Interactivo 4: Beneficio Directo (Bottom-Right Desktop) */}
-            <div
-              onClick={() => setActiveFloatingDetail('direct_perks')}
-              className="hidden lg:block absolute bottom-24 right-10 z-20 p-3.5 rounded-2xl bg-black/65 backdrop-blur-xl border border-[#c5a880]/50 shadow-2xl cursor-pointer hover:bg-black/85 hover:border-[#c5a880] hover:scale-105 transition-all duration-300 max-w-[250px] group"
-            >
-              <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase font-bold text-emerald-300 mb-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Beneficio Directo</span>
-              </div>
-              <p className="text-xs text-stone-300 font-light leading-snug">
-                ✨ Copa de bienvenida & Late check-out de cortesía
-              </p>
-            </div>
-
-            {/* Top Bar Narrativa */}
-            <div className="relative z-10 p-6 sm:p-10 max-w-7xl mx-auto w-full flex items-center justify-between border-b border-white/10">
-              <span className="text-xs font-mono tracking-[0.3em] uppercase text-[#c5a880] font-bold">
-                RELAIS & VIÑEDOS DE MONTAÑA • 1.200 MSNM
-              </span>
-              <span className="text-xs font-mono text-stone-300 hidden sm:inline">
-                Valle de Uco, Mendoza
-              </span>
-            </div>
-
-            {/* Titular Central Editorial */}
-            <div className="relative z-10 p-6 sm:p-12 max-w-5xl mx-auto w-full text-center space-y-6 my-auto">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#c5a880]/15 text-[#c5a880] border border-[#c5a880]/30 text-xs font-mono uppercase tracking-widest backdrop-blur-md">
-                <Wine className="w-3.5 h-3.5" />
-                <span>RESERVA DIRECTA DE AUTOR</span>
+            {/* Central Giant Typographic Composition (Direct Reference from image.png) */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 sm:px-8 z-10 w-full max-w-5xl mx-auto pointer-events-none">
+              {/* Bronze Mountain Ridge Graphic */}
+              <div className="w-16 h-10 text-[#8C6D46] opacity-80 mb-2 flex items-center justify-center">
+                <svg viewBox="0 0 100 40" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full">
+                  <path d="M5 35 L30 10 L50 25 L75 5 L95 35" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M30 10 L45 35" strokeLinecap="round" opacity="0.4" />
+                  <path d="M75 5 L85 35" strokeLinecap="round" opacity="0.4" />
+                </svg>
               </div>
 
-              <h1 className="text-5xl sm:text-7xl lg:text-8xl font-serif uppercase tracking-[0.2em] font-light text-[#FAF8F5] leading-none">
-                AURA
+              {/* Huge Editorial Serif Title - Fluid scaling guarantees all letters (including C) are 100% visible */}
+              <h1 className="text-[clamp(2.1rem,6vw,5.8rem)] font-serif tracking-[0.02em] uppercase text-[#191612] leading-[0.92] font-normal select-none text-center max-w-full overflow-visible break-normal px-2">
+                <span className="block tracking-[0.05em] whitespace-nowrap">CORTE DELLE</span>
+                <span className="block tracking-[0.03em] whitespace-nowrap">VETTE</span>
               </h1>
 
-              <p className="text-stone-300 max-w-2xl mx-auto font-light text-sm sm:text-lg leading-relaxed">
-                El silencio de la Cordillera de los Andes, 4 suites de viña privadas y catas guiadas al atardecer.
+              {/* Subtitle Line */}
+              <p className="mt-3 sm:mt-5 text-xs sm:text-sm md:text-base font-serif italic text-[#6B573F] tracking-wider max-w-xl px-4">
+                Boutique Winery & Suites — Mendoza
               </p>
+            </div>
 
-              {/* Cápsula Flotante de Reserva Cristal */}
-              <div className="pt-6 max-w-3xl mx-auto">
-                <div className="p-4 sm:p-6 rounded-3xl bg-black/60 backdrop-blur-xl border border-[#c5a880]/40 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div
-                    onClick={() => setIsCalendarOpen(true)}
-                    className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 cursor-pointer text-left w-full sm:w-auto flex-1 transition-colors"
-                  >
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-[#c5a880] block font-bold">
-                      Estadía en AURA
-                    </span>
-                    <span className="text-xs sm:text-sm font-bold text-white flex items-center gap-2 mt-0.5">
-                      <CalendarIcon className="w-3.5 h-3.5 text-[#c5a880]" />
-                      {checkInDate} al {checkOutDate} ({nights} noches)
-                    </span>
+            {/* Fixed Bottom Left Label */}
+            <div className="absolute bottom-6 left-6 sm:left-12 text-[10px] sm:text-[11px] font-mono tracking-widest text-[#5C4D3C] uppercase">
+              VINO DE ALTURA • ARQUITECTURA MINERAL
+            </div>
+
+            {/* Fixed Bottom Right Scroll Cue */}
+            <div className="absolute bottom-6 right-6 sm:right-12 flex items-center gap-2 text-[10px] font-mono tracking-widest text-[#735D43] uppercase">
+              <span>Desplazar para explorar</span>
+              <span className="animate-bounce">↓</span>
+            </div>
+          </div>
+
+          {/* Top Control Bar (Customize background or photos) */}
+          <div className="relative z-20 max-w-6xl mx-auto pt-4 px-6 flex justify-end">
+            <button
+              onClick={() => {
+                setEditingPhotoKey('facade');
+                setPhotoEditInput(cortePhotos.facade);
+              }}
+              className="px-3.5 py-1.5 rounded-full bg-white/70 hover:bg-white text-[#2C2720] border border-[#2C2720]/20 text-[11px] font-mono flex items-center gap-1.5 backdrop-blur-md transition-all shadow-sm cursor-pointer"
+              title="Cambiar foto de fondo o pared de la bodega"
+            >
+              <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
+              <span>Cambiar Foto de Fondo / Bodega</span>
+            </button>
+          </div>
+
+          {/* ===================================================================== */}
+          {/* 2. FOREGROUND SCROLLABLE FLOW OF FLOATING PHOTO CUTOUTS (REFERENCE)   */}
+          {/* ===================================================================== */}
+          <div className="relative z-10 pt-[25vh] pb-44 px-4 sm:px-12 max-w-6xl mx-auto min-h-[220vh] pointer-events-none">
+            
+            {/* ORGANIC ASYMMETRIC FLOATING CUTOUTS OVER & AROUND THE GIANT TYPOGRAPHY */}
+            {[
+              {
+                id: 'suite1',
+                key: 'suite1',
+                tag: '01 / MASTER SUITE',
+                title: 'Master Suite King & Cordillera',
+                subtitle: 'Hormigón visto y lino puro',
+                img: cortePhotos.suite1,
+                // Positioned top-right, floating
+                layoutStyle: 'ml-auto mr-2 sm:mr-8 md:mr-16 mt-0 w-[200px] sm:w-[260px] md:w-[290px]',
+                aspectRatio: 'aspect-[4/3]',
+              },
+              {
+                id: 'bathroom',
+                key: 'bathroom',
+                tag: '02 / BAÑO MINERAL',
+                title: 'Tina de Piedra Natural',
+                subtitle: 'Ventanal panorámico al viñedo',
+                img: cortePhotos.bathroom,
+                // Positioned top-left, floating
+                layoutStyle: 'mr-auto ml-2 sm:ml-6 md:ml-12 mt-12 sm:mt-16 w-[180px] sm:w-[230px] md:w-[260px]',
+                aspectRatio: 'aspect-[3/4]',
+              },
+              {
+                id: 'suite2',
+                key: 'suite2',
+                tag: '03 / SUITE DOBLE',
+                title: 'Suite Doble Panorámica',
+                subtitle: 'Balcón y maderas cálidas',
+                img: cortePhotos.suite2,
+                // Overlapping center-left
+                layoutStyle: 'mr-auto ml-4 sm:ml-20 md:ml-28 mt-20 sm:mt-28 w-[210px] sm:w-[270px] md:w-[310px]',
+                aspectRatio: 'aspect-[16/10]',
+              },
+              {
+                id: 'terrace',
+                key: 'terrace',
+                tag: '04 / TERRAZA',
+                title: 'Terraza Privada & Fogonero',
+                subtitle: 'Piscina de inmersión exterior',
+                img: cortePhotos.terrace,
+                // Floating center-right
+                layoutStyle: 'ml-auto mr-4 sm:mr-16 md:mr-24 mt-16 sm:mt-24 w-[190px] sm:w-[250px] md:w-[280px]',
+                aspectRatio: 'aspect-[4/3]',
+              },
+              {
+                id: 'pool',
+                key: 'pool',
+                tag: '05 / PISCINA',
+                title: 'Piscina Infinita',
+                subtitle: 'Reflejo de los picos nevados',
+                img: cortePhotos.pool,
+                // Bottom center-left
+                layoutStyle: 'mr-auto ml-6 sm:ml-14 md:ml-20 mt-20 sm:mt-32 w-[220px] sm:w-[280px] md:w-[320px]',
+                aspectRatio: 'aspect-[16/10]',
+              },
+              {
+                id: 'cellar',
+                key: 'cellar',
+                tag: '06 / CAVA',
+                title: 'Cava de Guarda & Roble',
+                subtitle: 'Barricas y degustación íntima',
+                img: cortePhotos.cellar,
+                // Bottom center-right
+                layoutStyle: 'ml-auto mr-2 sm:mr-10 md:mr-18 mt-16 sm:mt-24 w-[190px] sm:w-[240px] md:w-[270px]',
+                aspectRatio: 'aspect-[3/4]',
+              },
+              {
+                id: 'sunset',
+                key: 'sunset',
+                tag: '07 / SUNSET',
+                title: 'Degustación al Atardecer',
+                subtitle: 'Sommelier y cocina de fuegos',
+                img: cortePhotos.sunset,
+                // Bottom right
+                layoutStyle: 'ml-auto mr-8 sm:mr-24 md:mr-36 mt-20 sm:mt-32 w-[210px] sm:w-[270px] md:w-[300px]',
+                aspectRatio: 'aspect-[4/3]',
+              },
+            ].map((frame, idx) => (
+              <div
+                key={frame.id}
+                className={`pointer-events-auto transition-all duration-500 hover:scale-105 hover:z-40 ${frame.layoutStyle}`}
+              >
+                {/* Pure Floating Photographic Cutout (Inspired by Leon Dupuis Reference) */}
+                <div
+                  onClick={() => setLightboxImage({ src: frame.img, title: frame.title, subtitle: frame.subtitle, tag: frame.tag })}
+                  className="relative rounded-lg sm:rounded-xl overflow-hidden shadow-[0_15px_35px_rgba(0,0,0,0.15)] hover:shadow-[0_25px_50px_rgba(0,0,0,0.25)] border border-[#2C2720]/10 group cursor-pointer transition-all duration-500 bg-stone-200"
+                >
+                  <div className={`relative w-full ${frame.aspectRatio} overflow-hidden`}>
+                    <img
+                      src={frame.img}
+                      alt={frame.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 select-none"
+                    />
+
+                    {/* Subtle Edit Photo trigger on hover for owner */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingPhotoKey(frame.key);
+                        setPhotoEditInput(frame.img);
+                      }}
+                      className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 hover:bg-white text-stone-800 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-xs cursor-pointer"
+                      title="Cambiar foto de este espacio"
+                    >
+                      <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
+                    </button>
                   </div>
+                </div>
+              </div>
+            ))}
 
+            {/* Bottom Closing Manifesto Box */}
+            <div className="pointer-events-auto pt-28 pb-12 max-w-xl mx-auto text-center space-y-4">
+              <div className="p-8 rounded-2xl bg-white/85 backdrop-blur-md border border-[#2C2720]/20 shadow-xl space-y-3">
+                <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-[#8C6D46] font-bold block">
+                  CORTE DELLE VETTE • MENDOZA
+                </span>
+                <h3 className="text-2xl font-serif text-[#191612]">
+                  Experiencia Enológica en la Cordillera
+                </h3>
+                <p className="text-xs text-stone-600 leading-relaxed font-light">
+                  15 suites esculpidas en hormigón, piedra y madera noble sobre el propio viñedo. Reservá de forma directa con 0% de comisión y atención personalizada.
+                </p>
+
+                <div className="pt-2 flex justify-center">
                   <button
                     onClick={scrollToBooking}
-                    className="min-h-[44px] w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 font-bold text-xs uppercase tracking-wider transition-all shadow-xl shadow-[#c5a880]/30 cursor-pointer flex items-center justify-center gap-2"
+                    className="min-h-[44px] px-8 py-3 rounded-xl bg-[#2C2720] hover:bg-black text-[#EDE6DC] font-serif font-bold text-xs uppercase tracking-widest transition-all shadow-md cursor-pointer inline-flex items-center gap-2"
                   >
-                    <span>Reservar Suite</span>
+                    <span>Ver Fechas & Reservar</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Bottom Scroll Cue */}
-            <div className="relative z-10 p-6 text-center text-xs font-mono text-stone-400 flex items-center justify-center gap-2">
-              <span>↓ Desplazá para explorar las 4 Suites & Experiencias de Viña</span>
-            </div>
-          </section>
+          </div>
 
-          {/* MODAL / DRAWER FLOTANTE DE DETALLE INTERACTIVO */}
-          {activeFloatingDetail && typeof document !== 'undefined' && createPortal(
-            <div
-              className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200 font-sans"
-              onClick={() => setActiveFloatingDetail(null)}
-            >
+          {/* Sticky Floating Reservation Capsule */}
+          <div className="fixed bottom-4 left-4 right-4 z-40 max-w-xl mx-auto pointer-events-auto font-sans">
+            <div className="p-3 sm:p-3.5 rounded-2xl bg-[#191612]/95 backdrop-blur-xl border border-[#8C6D46]/40 shadow-2xl flex items-center justify-between gap-3 text-white">
               <div
-                className="relative w-full max-w-lg bg-[#0f0d0a] text-white border-2 border-[#c5a880]/50 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5"
-                onClick={(e) => e.stopPropagation()}
+                onClick={() => setIsCalendarOpen(true)}
+                className="flex-1 cursor-pointer truncate"
               >
-                <button
-                  onClick={() => setActiveFloatingDetail(null)}
-                  className="absolute top-5 right-5 w-10 h-10 rounded-full bg-stone-900 text-stone-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer border border-stone-800"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-
-                {activeFloatingDetail === 'sommelier' && (
-                  <div className="space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#c5a880]/20 text-[#c5a880] text-xs font-mono font-bold uppercase">
-                      <Wine className="w-4 h-4" />
-                      EXPERIENCIA ENOLÓGICA • 18:30 HS
-                    </div>
-                    <h3 className="text-2xl font-serif text-[#FAF8F5]">Cata Sunset con Sommelier</h3>
-                    <p className="text-xs sm:text-sm text-stone-300 leading-relaxed font-light">
-                      Cada atardecer, nuestro sommelier residente guía una degustación íntima de 3 etiquetas boutique del Valle de Uco, maridadas con quesos artesanales de la región y panes de masa madre.
-                    </p>
-                    <div className="p-4 rounded-2xl bg-stone-950/80 border border-[#c5a880]/30 space-y-2 text-xs font-mono text-[#c5a880]">
-                      <div>✓ Incluida en estadías de 2 o más noches</div>
-                      <div>✓ Copa de cristal Riedel & notas de cata personalizadas</div>
-                    </div>
-                  </div>
-                )}
-
-                {activeFloatingDetail === 'wellness' && (
-                  <div className="space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-mono font-bold uppercase">
-                      <Flame className="w-4 h-4" />
-                      RELAX A CIELO ABIERTO
-                    </div>
-                    <h3 className="text-2xl font-serif text-[#FAF8F5]">Tina Nórdica de Inmersión Caliente</h3>
-                    <p className="text-xs sm:text-sm text-stone-300 leading-relaxed font-light">
-                      Construida en cedro y piedra volcánica, la tina se calienta con sarmientos de la propia poda de los viñedos a 39°C. Ideal para sumergirse al anochecer con vista a las constelaciones australes.
-                    </p>
-                    <div className="p-4 rounded-2xl bg-stone-950/80 border border-amber-500/30 space-y-2 text-xs font-mono text-amber-300">
-                      <div>✓ Sesión privada por suite con toallones de algodón egipcio</div>
-                      <div>✓ Aceites esenciales de lavanda y uva orgánica</div>
-                    </div>
-                  </div>
-                )}
-
-                {activeFloatingDetail === 'terroir' && (
-                  <div className="space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold uppercase">
-                      <Mountain className="w-4 h-4" />
-                      VALLE DE UCO • 1.200 MSNM
-                    </div>
-                    <h3 className="text-2xl font-serif text-[#FAF8F5]">El Terroir & la Cordillera</h3>
-                    <p className="text-xs sm:text-sm text-stone-300 leading-relaxed font-light">
-                      La marcada amplitud térmica (hasta 20°C entre día y noche) y los suelos aluviales pedregosos otorgan a las uvas una concentración aromática única, reflejada en el entorno natural de AURA.
-                    </p>
-                  </div>
-                )}
-
-                {activeFloatingDetail === 'direct_perks' && (
-                  <div className="space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold uppercase">
-                      <ShieldCheck className="w-4 h-4" />
-                      VENTAJAS DE RESERVA DIRECTA
-                    </div>
-                    <h3 className="text-2xl font-serif text-[#FAF8F5]">0% Comisión & Beneficios VIP</h3>
-                    <p className="text-xs sm:text-sm text-stone-300 leading-relaxed font-light">
-                      Al reservar directamente en la web oficial obtenés 15% de descuento sobre tarifas de OTAs, copa de bienvenida premium, late check-out de cortesía sujeto a disponibilidad y contacto directo con tu anfitrión.
-                    </p>
-                  </div>
-                )}
-
-                <div className="pt-3 border-t border-stone-800 flex justify-end">
-                  <button
-                    onClick={() => setActiveFloatingDetail(null)}
-                    className="px-6 py-2.5 rounded-xl bg-[#c5a880] text-stone-950 font-bold text-xs uppercase cursor-pointer"
-                  >
-                    Entendido
-                  </button>
-                </div>
-              </div>
-            </div>,
-            document.body
-          )}
-
-          {/* PANEL PARALLAX 2: MANIFIESTO DEL TERROIR & ARQUITECTURA */}
-          <section className="py-24 px-6 sm:px-12 bg-[#12100d] text-[#EDE8DF] border-t border-[#c5a880]/20">
-            <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              <div className="lg:col-span-6 space-y-6">
-                <span className="text-xs font-mono uppercase tracking-[0.3em] text-[#c5a880] font-bold block">
-                  01 / MANIFIESTO ARQUITECTÓNICO
+                <span className="text-[9px] font-mono uppercase tracking-wider text-[#c5a880] block font-bold truncate">
+                  Corte delle Vette • Reserva Directa
                 </span>
-                <h2 className="text-3xl sm:text-5xl font-serif font-light text-white leading-tight">
-                  La Materia y el Paisaje en Diálogo Continuo
-                </h2>
-                <p className="text-stone-300 text-sm leading-relaxed font-light">
-                  AURA nace entre hileras de Malbec centenario en el Valle de Uco. Construidas con piedra local, adobe contemporáneo y madera de lenga, cada una de nuestras 4 suites está emplazada para garantizar privacidad absoluta y vistas ininterrumpidas a los picos nevados del Cordón del Plata.
-                </p>
-                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/10 text-center">
-                  <div>
-                    <span className="text-2xl sm:text-3xl font-serif text-[#c5a880]">4</span>
-                    <p className="text-[10px] font-mono text-stone-400 mt-1 uppercase">Suites Únicas</p>
-                  </div>
-                  <div>
-                    <span className="text-2xl sm:text-3xl font-serif text-[#c5a880]">1.200</span>
-                    <p className="text-[10px] font-mono text-stone-400 mt-1 uppercase">Msnm Altura</p>
-                  </div>
-                  <div>
-                    <span className="text-2xl sm:text-3xl font-serif text-[#c5a880]">0%</span>
-                    <p className="text-[10px] font-mono text-stone-400 mt-1 uppercase">Comisión Directa</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="lg:col-span-6 h-[460px] rounded-3xl overflow-hidden border border-[#c5a880]/30 shadow-2xl relative">
-                <img
-                  src="/cabanas/deck-hamaca.jpg"
-                  alt="Arquitectura AURA"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-black/70 backdrop-blur-md text-xs font-mono text-[#c5a880]">
-                  «El huésped empieza a habitar el espacio antes de llegar.»
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* PANEL PARALLAX 3: LAS 4 SUITES DE VIÑA (VERTICAL SHOWCASE) */}
-          <section className="py-24 px-6 sm:px-12 bg-[#0a0907] text-[#EDE8DF] border-t border-[#c5a880]/20">
-            <div className="max-w-6xl mx-auto space-y-12">
-              <div className="text-center max-w-2xl mx-auto space-y-3">
-                <span className="text-xs font-mono uppercase tracking-[0.3em] text-[#c5a880] font-bold">
-                  02 / COLECCIÓN DE SUITES
+                <span className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 truncate">
+                  <CalendarIcon className="w-3.5 h-3.5 text-[#c5a880] shrink-0" />
+                  {checkInDate} al {checkOutDate} ({nights} nts)
                 </span>
-                <h3 className="text-3xl sm:text-4xl font-serif font-light text-white">
-                  4 Refugios Diseñados para la Contemplación
-                </h3>
               </div>
 
-              <div className="space-y-8">
-                {[
-                  {
-                    name: 'Suite Malbec Gran Reserva',
-                    desc: 'Deck panorámico hacia los viñedos, estufa a leña, tina nórdica exterior y cava personal en la habitación.',
-                    img: '/cabanas/cabana-terraza.jpg',
-                    cap: '2 Huéspedes',
-                    highlight: 'Tina de Inmersión Caliente',
-                  },
-                  {
-                    name: 'Suite Cordón del Plata',
-                    desc: 'Orientación oeste para disfrutar del atardecer sobre los Andes, ventanales de piso a techo y lino egipcio.',
-                    img: '/cabanas/deck-hamaca.jpg',
-                    cap: '2 a 3 Huéspedes',
-                    highlight: 'Atardecer Andino',
-                  },
-                  {
-                    name: 'Suite Los Árboles',
-                    desc: 'Enclavada entre sauces y arroyo de deshielo, máxima serenidad acústica y espacio para lectura y descanso.',
-                    img: '/cabanas/sendero-noche.jpg',
-                    cap: '2 Huéspedes',
-                    highlight: 'Silencio Absoluto',
-                  },
-                  {
-                    name: 'Master Suite Altamira',
-                    desc: 'Nuestra unidad más amplia con living integrado, fogonero privado en la terraza y servicio de sommelier.',
-                    img: '/cabanas/piscina.jpg',
-                    cap: '4 Huéspedes',
-                    highlight: 'Fogonero Privado',
-                  },
-                ].map((suite, idx) => (
-                  <div
-                    key={suite.name}
-                    className="p-6 sm:p-8 rounded-3xl bg-[#14110d] border border-[#c5a880]/30 shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-center"
-                  >
-                    <div className="lg:col-span-5 h-64 lg:h-72 rounded-2xl overflow-hidden relative">
-                      <img
-                        src={suite.img}
-                        alt={suite.name}
-                        className="w-full h-full object-cover"
-                      />
-                      <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/70 backdrop-blur-xs text-[10px] font-mono text-[#c5a880] font-bold">
-                        0{idx + 1} • {suite.cap}
-                      </span>
-                    </div>
-
-                    <div className="lg:col-span-7 space-y-4">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <h4 className="text-2xl font-serif text-[#FAF8F5]">{suite.name}</h4>
-                        <span className="px-3 py-1 rounded-full bg-[#c5a880]/15 text-[#c5a880] text-xs font-mono font-bold">
-                          {suite.highlight}
-                        </span>
-                      </div>
-
-                      <p className="text-xs sm:text-sm text-stone-300 font-light leading-relaxed">
-                        {suite.desc}
-                      </p>
-
-                      <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
-                        <div className="text-xs font-mono text-stone-400">
-                          Tarifa Directa Oficial: <strong className="text-white text-base font-serif">${pricePerNight} USD</strong> / noche
-                        </div>
-
-                        <button
-                          onClick={scrollToBooking}
-                          className="min-h-[44px] px-6 py-2.5 rounded-xl bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
-                        >
-                          Elegir Esta Suite
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <button
+                onClick={scrollToBooking}
+                className="min-h-[38px] px-5 py-2 rounded-xl bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 font-bold text-xs uppercase tracking-wider transition-all shadow-md shrink-0 cursor-pointer"
+              >
+                Reservar
+              </button>
             </div>
-          </section>
-
-          {/* PANEL PARALLAX 4: EXPERIENCIAS & BIENVENIDA */}
-          <section className="py-20 px-6 sm:px-12 bg-[#12100d] text-[#EDE8DF] border-t border-[#c5a880]/20">
-            <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div
-                onClick={() => setActiveFloatingDetail('sommelier')}
-                className="p-8 rounded-3xl bg-[#0e0c09] border border-[#c5a880]/30 hover:border-[#c5a880] space-y-3 cursor-pointer transition-all duration-300 hover:scale-[1.02] group shadow-xl"
-              >
-                <div className="flex items-center justify-between">
-                  <Wine className="w-8 h-8 text-[#c5a880] group-hover:scale-110 transition-transform" />
-                  <span className="text-xs font-mono text-[#c5a880] font-bold">Ver cata →</span>
-                </div>
-                <h4 className="text-xl font-serif text-white group-hover:text-amber-200 transition-colors">Cava Subterránea</h4>
-                <p className="text-xs text-stone-300 leading-relaxed font-light">
-                  Degustaciones privadas al caer el sol guiadas por nuestro sommelier in-house.
-                </p>
-              </div>
-
-              <div
-                onClick={() => setActiveFloatingDetail('wellness')}
-                className="p-8 rounded-3xl bg-[#0e0c09] border border-[#c5a880]/30 hover:border-[#c5a880] space-y-3 cursor-pointer transition-all duration-300 hover:scale-[1.02] group shadow-xl"
-              >
-                <div className="flex items-center justify-between">
-                  <Waves className="w-8 h-8 text-[#c5a880] group-hover:scale-110 transition-transform" />
-                  <span className="text-xs font-mono text-[#c5a880] font-bold">Ver spa →</span>
-                </div>
-                <h4 className="text-xl font-serif text-white group-hover:text-amber-200 transition-colors">Spa & Tina Nórdica</h4>
-                <p className="text-xs text-stone-300 leading-relaxed font-light">
-                  Baño caliente a cielo abierto bajo las estrellas de Mendoza y masajes con uva.
-                </p>
-              </div>
-
-              <div
-                onClick={() => setActiveFloatingDetail('sommelier')}
-                className="p-8 rounded-3xl bg-[#0e0c09] border border-[#c5a880]/30 hover:border-[#c5a880] space-y-3 cursor-pointer transition-all duration-300 hover:scale-[1.02] group shadow-xl"
-              >
-                <div className="flex items-center justify-between">
-                  <Flame className="w-8 h-8 text-[#c5a880] group-hover:scale-110 transition-transform" />
-                  <span className="text-xs font-mono text-[#c5a880] font-bold">Ver menú →</span>
-                </div>
-                <h4 className="text-xl font-serif text-white group-hover:text-amber-200 transition-colors">Cocina de Fuegos</h4>
-                <p className="text-xs text-stone-300 leading-relaxed font-light">
-                  Gastronomía a las brasas de sarmientos y desayunos de campo incluidos.
-                </p>
-              </div>
-            </div>
-          </section>
+          </div>
 
         </div>
       )}
 
       {/* ========================================================================= */}
-      {/* MODELO SIGNATURE 1: AURA — LUXURY BENTO GRID ($49 USD)                    */}
+      {/* MODELO SIGNATURE 1: FOLIO ZEN ARQUITECTÓNICO & MONOGRAPH ($49 USD)        */}
       {/* ========================================================================= */}
-      {isSigAuraBento && (
-        <div className="py-8 px-4 sm:px-8 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-300 font-sans">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-            <div className="lg:col-span-8 rounded-3xl p-6 sm:p-10 bg-gradient-to-br from-[#1a1611] to-[#0d0c0a] border border-[#c5a880]/30 shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[380px] sm:min-h-[440px]">
-              <div className="absolute inset-0 z-0">
-                <img
-                  src="/cabanas/cabana-terraza.jpg"
-                  alt="AURA Valle de Uco"
-                  className="w-full h-full object-cover opacity-30 scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f0d0a] via-[#0f0d0a]/60 to-transparent" />
+      {isSigFolio && (
+        <div className="py-8 px-4 sm:px-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 font-sans text-[#1E1B18]">
+          
+          {/* 1. TOP PANORAMIC ATMOSPHERIC BANNER (SOFT INSTALLATION / LANDSCAPE PROPOSAL) */}
+          <div className="relative rounded-3xl overflow-hidden border border-[#8C7E6A]/25 bg-[#EBE4D8] shadow-xl min-h-[320px] sm:min-h-[380px] flex flex-col justify-between p-6 sm:p-10">
+            {/* Background Misty Mountain & Branch Art Overlay */}
+            <div className="absolute inset-0 z-0">
+              <img
+                src={cortePhotos.facade || '/entrada.jpeg'}
+                alt="Corte delle Vette Monograph"
+                className="w-full h-full object-cover opacity-25 mix-blend-multiply scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#EBE4D8] via-[#EBE4D8]/80 to-transparent" />
+              {/* Fine Rain / Silk grain lines overlay */}
+              <div className="absolute inset-0 bg-[radial-gradient(#5C4D3C_1px,transparent_1px)] [background-size:24px_24px] opacity-10" />
+            </div>
+
+            {/* Top Subtle Meta */}
+            <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-b border-[#2C2720]/15 pb-4 text-xs font-serif tracking-[0.25em] text-[#4A3F33] uppercase">
+              <span className="font-bold">SOFT INSTALLATION & ARCHITECTURAL PROPOSAL</span>
+              <span className="font-mono text-[11px] tracking-widest text-[#735D43]">VALLE DE UCO • 1.200 MSNM</span>
+              <span className="font-mono text-[11px]">©2024—2026</span>
+            </div>
+
+            {/* Central Poetic Title with Calligraphy / Mountain Mark */}
+            <div className="relative z-10 py-6 max-w-3xl space-y-3">
+              <div className="flex items-center gap-3">
+                <span className="text-xl sm:text-2xl font-serif text-[#3A4D42] tracking-widest font-light">
+                  山河 •
+                </span>
+                <span className="text-[11px] font-mono uppercase tracking-[0.3em] text-[#8C6D46] font-bold">
+                  CORTE DELLE VETTE • MONOGRAPH
+                </span>
               </div>
 
-              <div className="relative z-10 space-y-4">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#c5a880]/20 pb-3">
-                  <span className="text-xs font-mono font-bold uppercase tracking-[0.25em] text-[#c5a880] flex items-center gap-2">
-                    <Wine className="w-3.5 h-3.5 text-[#c5a880]" />
-                    RELAIS & VIÑEDOS DE MONTAÑA
-                  </span>
-                  <span className="text-[11px] font-mono text-stone-400">
-                    Valle de Uco, Mendoza — Argentina
-                  </span>
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif tracking-tight text-[#191612] leading-[1.05] uppercase">
+                Arquitectura Mineral y el Eco de los Andes
+              </h1>
+
+              <p className="text-xs sm:text-sm text-[#5C4D3C] font-light leading-relaxed max-w-2xl font-serif italic">
+                Quince exclusivas suites esculpidas en hormigón, piedra y madera noble sobre el propio viñedo. Una experiencia enológica y contemplativa donde la Cordillera marca el ritmo.
+              </p>
+            </div>
+
+            {/* Bottom Proposal Action */}
+            <div className="relative z-10 pt-4 border-t border-[#2C2720]/15 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-2 text-xs font-mono text-[#3A4D42]">
+                <Sparkles className="w-4 h-4 text-[#8C6D46]" />
+                <span>15 Suites de Autor • Cava Subterránea • Tina Mineral</span>
+              </div>
+
+              <button
+                onClick={scrollToBooking}
+                className="min-h-[42px] px-7 py-2.5 rounded-xl bg-[#1C2A24] hover:bg-[#121D18] text-[#F4EFE6] font-serif font-bold text-xs uppercase tracking-widest transition-all shadow-md cursor-pointer flex items-center gap-2"
+              >
+                <span>Consultar Disponibilidad</span>
+                <ArrowRight className="w-4 h-4 text-[#c5a880]" />
+              </button>
+            </div>
+          </div>
+
+          {/* 2. THE CORE FOLIO ARCHITECTURAL GRID (HANGING LINES + DEEP PINE SILK RIBBON) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* Left Main Content: Vertical Hanging Columns (9 cols) */}
+            <div className="lg:col-span-9 bg-[#FAF7F2] rounded-3xl p-6 sm:p-10 border border-[#8C7E6A]/20 shadow-lg space-y-8">
+              
+              {/* Hanging Lines Header Section (Exact Inspiration from Reference Image) */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-2 pb-6 border-b border-[#2C2720]/10">
+                
+                {/* Column 1: DESIGN / 01 SUITES */}
+                <div className="space-y-3 relative pl-3 border-l-2 border-[#1C2A24]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block">
+                      DESIGN
+                    </span>
+                    <span className="text-base font-serif text-[#1C2A24]">设 计</span>
+                  </div>
+                  <h4 className="text-sm font-serif font-bold text-[#191612]">
+                    01 / Master Suites
+                  </h4>
+                  <p className="text-[11px] text-stone-600 leading-relaxed font-light">
+                    Hormigón mineral, lino puro y ventanales panorámicos hacia el viñedo.
+                  </p>
                 </div>
 
-                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif tracking-widest text-[#FAF8F5] leading-none uppercase pt-2">
-                  AURA
-                </h1>
+                {/* Column 2: STRUCTURE / 02 BAÑOS */}
+                <div className="space-y-3 relative pl-3 border-l-2 border-[#5C4D3C]/40">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block">
+                      STRUCTURE
+                    </span>
+                    <span className="text-base font-serif text-[#5C4D3C]">构 成</span>
+                  </div>
+                  <h4 className="text-sm font-serif font-bold text-[#191612]">
+                    02 / Baño Mineral
+                  </h4>
+                  <p className="text-[11px] text-stone-600 leading-relaxed font-light">
+                    Tina de piedra natural esculpida con vista al Cordón del Plata.
+                  </p>
+                </div>
 
-                <p className="text-stone-300 text-sm sm:text-base font-light max-w-2xl leading-relaxed">
-                  Una experiencia de hospitalidad inmersiva donde los viñedos de altura y el silencio de la Cordillera de los Andes marcan el ritmo de tu descanso.
-                </p>
+                {/* Column 3: REFLECTION / 03 CAVA */}
+                <div className="space-y-3 relative pl-3 border-l-2 border-[#1C2A24]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block">
+                      REFLECTION
+                    </span>
+                    <span className="text-base font-serif text-[#1C2A24]">思 考</span>
+                  </div>
+                  <h4 className="text-sm font-serif font-bold text-[#191612]">
+                    03 / Cava & Roble
+                  </h4>
+                  <p className="text-[11px] text-stone-600 leading-relaxed font-light">
+                    Guarda en barricas y degustación guiada por sommelier in-house.
+                  </p>
+                </div>
+
+                {/* Column 4: HARMONY / 04 TERRAZA */}
+                <div className="space-y-3 relative pl-3 border-l-2 border-[#5C4D3C]/40">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block">
+                      HARMONY
+                    </span>
+                    <span className="text-base font-serif text-[#5C4D3C]">解 读</span>
+                  </div>
+                  <h4 className="text-sm font-serif font-bold text-[#191612]">
+                    04 / Fuego & Sunset
+                  </h4>
+                  <p className="text-[11px] text-stone-600 leading-relaxed font-light">
+                    Terraza con fogonero, piscina infinita y cocina a las brasas.
+                  </p>
+                </div>
+
               </div>
 
-              <div className="relative z-10 pt-6 flex flex-wrap items-center justify-between gap-4 border-t border-[#c5a880]/20 mt-6">
-                <div className="flex items-center gap-2 text-xs font-mono text-[#c5a880]">
-                  <Sparkles className="w-4 h-4" />
-                  <span>4 Suites Exclusivas • Cava Privada • Spa de Altura</span>
+              {/* Photo Showcase Gallery Cards (Clean High-Res Architectural Displays) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                
+                {/* Photo 1: Master Suite */}
+                <div
+                  onClick={() => setLightboxImage({ src: cortePhotos.suite1, title: 'Master Suite King & Cordillera', subtitle: 'Hormigón visto y lino puro', tag: '01 / MASTER SUITE' })}
+                  className="group relative rounded-2xl overflow-hidden bg-stone-200 border border-[#2C2720]/15 shadow-md cursor-pointer aspect-[16/10]"
+                >
+                  <img
+                    src={cortePhotos.suite1}
+                    alt="Master Suite"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-4 text-white">
+                    <span className="text-[9px] font-mono tracking-widest uppercase text-[#c5a880]">01 / SUITE KING</span>
+                    <h5 className="text-sm font-serif font-bold">Master Suite & Terraza Privada</h5>
+                    <p className="text-[10px] text-stone-300 font-light">Cama King dressed in linen, estufa a leña y vistas panorámicas.</p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingPhotoKey('suite1');
+                      setPhotoEditInput(cortePhotos.suite1);
+                    }}
+                    className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white text-stone-900 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                    title="Cambiar foto"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
+                  </button>
+                </div>
+
+                {/* Photo 2: Baño Mineral */}
+                <div
+                  onClick={() => setLightboxImage({ src: cortePhotos.bathroom, title: 'Tina de Piedra Natural', subtitle: 'Ventanal panorámico al viñedo', tag: '02 / BAÑO MINERAL' })}
+                  className="group relative rounded-2xl overflow-hidden bg-stone-200 border border-[#2C2720]/15 shadow-md cursor-pointer aspect-[16/10]"
+                >
+                  <img
+                    src={cortePhotos.bathroom}
+                    alt="Baño Mineral"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-4 text-white">
+                    <span className="text-[9px] font-mono tracking-widest uppercase text-[#c5a880]">02 / BAÑO MINERAL</span>
+                    <h5 className="text-sm font-serif font-bold">Tina de Inmersión Esculpida</h5>
+                    <p className="text-[10px] text-stone-300 font-light">Piedra volcánica, sales aromáticas de uva y luz natural.</p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingPhotoKey('bathroom');
+                      setPhotoEditInput(cortePhotos.bathroom);
+                    }}
+                    className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white text-stone-900 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                    title="Cambiar foto"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
+                  </button>
+                </div>
+
+                {/* Photo 3: Cava de Roble */}
+                <div
+                  onClick={() => setLightboxImage({ src: cortePhotos.cellar, title: 'Cava de Guarda & Roble', subtitle: 'Barricas y degustación íntima', tag: '03 / CAVA' })}
+                  className="group relative rounded-2xl overflow-hidden bg-stone-200 border border-[#2C2720]/15 shadow-md cursor-pointer aspect-[16/10]"
+                >
+                  <img
+                    src={cortePhotos.cellar}
+                    alt="Cava de Roble"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-4 text-white">
+                    <span className="text-[9px] font-mono tracking-widest uppercase text-[#c5a880]">03 / EXPERIENCIA ENOLÓGICA</span>
+                    <h5 className="text-sm font-serif font-bold">Cava Subterránea & Cata Privada</h5>
+                    <p className="text-[10px] text-stone-300 font-light">Barricas de roble francés y etiquetas históricas con sommelier.</p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingPhotoKey('cellar');
+                      setPhotoEditInput(cortePhotos.cellar);
+                    }}
+                    className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white text-stone-900 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                    title="Cambiar foto"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
+                  </button>
+                </div>
+
+                {/* Photo 4: Degustación Sunset */}
+                <div
+                  onClick={() => setLightboxImage({ src: cortePhotos.sunset, title: 'Degustación al Atardecer', subtitle: 'Sommelier y cocina de fuegos', tag: '04 / SUNSET' })}
+                  className="group relative rounded-2xl overflow-hidden bg-stone-200 border border-[#2C2720]/15 shadow-md cursor-pointer aspect-[16/10]"
+                >
+                  <img
+                    src={cortePhotos.sunset}
+                    alt="Sunset Tasting"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-4 text-white">
+                    <span className="text-[9px] font-mono tracking-widest uppercase text-[#c5a880]">04 / SUNSET TASTING</span>
+                    <h5 className="text-sm font-serif font-bold">Atardecer Frente a la Cordillera</h5>
+                    <p className="text-[10px] text-stone-300 font-light">Copa de vino de altura, cocina de fuegos y cielo estrellado.</p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingPhotoKey('sunset');
+                      setPhotoEditInput(cortePhotos.sunset);
+                    }}
+                    className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white text-stone-900 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                    title="Cambiar foto"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* Right Column: Deep Pine Emerald Silk Textured Ribbon (3 cols) */}
+            <div className="lg:col-span-3 rounded-3xl bg-[#16241D] text-[#EDE6DC] p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-2xl relative overflow-hidden border border-[#2C4236]">
+              {/* Woven Silk Grain Texture */}
+              <div className="absolute inset-0 bg-[radial-gradient(#2E4A3B_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none" />
+
+              <div className="relative z-10 space-y-6">
+                {/* Vertical Ribbon Title: CONTENTS / 目录 */}
+                <div className="flex items-center justify-between border-b border-[#2C4236] pb-4">
+                  <div>
+                    <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-[#c5a880] block font-bold">
+                      CONTENTS
+                    </span>
+                    <h3 className="text-xl font-serif text-white mt-0.5">
+                      Catálogo & Suites
+                    </h3>
+                  </div>
+                  <span className="text-2xl font-serif text-[#8EA898]">目 录</span>
+                </div>
+
+                {/* Vertical Content Index */}
+                <div className="space-y-4 text-xs font-mono">
+                  <div className="p-3 rounded-xl bg-black/25 border border-[#2C4236] space-y-1">
+                    <span className="text-[9px] text-[#c5a880] uppercase tracking-wider block">01 / Master Suite King</span>
+                    <p className="text-[11px] text-stone-200 font-sans">1 Cama King • 2 a 3 pax • Tina Mineral</p>
+                    <span className="text-xs font-serif font-bold text-white block pt-1">$180 USD / noche</span>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-black/25 border border-[#2C4236] space-y-1">
+                    <span className="text-[9px] text-[#c5a880] uppercase tracking-wider block">02 / Suite Doble Panorámica</span>
+                    <p className="text-[11px] text-stone-200 font-sans">Terraza privada & fogonero exterior</p>
+                    <span className="text-xs font-serif font-bold text-white block pt-1">$195 USD / noche</span>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-black/25 border border-[#2C4236] space-y-1">
+                    <span className="text-[9px] text-[#c5a880] uppercase tracking-wider block">03 / Experiencias Incluidas</span>
+                    <p className="text-[11px] text-stone-300 font-sans">Cata de barricas, desayuno de viña y acceso a piscina infinita.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Direct Booking Call to Action */}
+              <div className="relative z-10 pt-4 border-t border-[#2C4236] space-y-3">
+                <div
+                  onClick={() => setIsCalendarOpen(true)}
+                  className="p-3 rounded-xl bg-black/40 border border-[#2C4236] cursor-pointer hover:border-[#c5a880]/50 transition-colors text-left"
+                >
+                  <span className="text-[9px] font-mono text-[#c5a880] uppercase block">Fechas de Estadía:</span>
+                  <span className="text-xs text-white font-bold flex items-center gap-1.5 mt-0.5">
+                    <CalendarIcon className="w-3.5 h-3.5 text-[#c5a880]" />
+                    {checkInDate} al {checkOutDate} ({nights} nts)
+                  </span>
                 </div>
 
                 <button
                   onClick={scrollToBooking}
-                  className="min-h-[44px] px-7 py-3 rounded-2xl bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-[#c5a880]/20 cursor-pointer flex items-center gap-2"
+                  className="w-full min-h-[44px] py-3 px-4 rounded-xl bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 font-serif font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-[#c5a880]/20 cursor-pointer flex items-center justify-center gap-2"
                 >
-                  <span>Reservar Estadía Directa</span>
+                  <span>Reservar Suite Directa</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            <div className="lg:col-span-4 rounded-3xl p-6 sm:p-8 bg-[#14110d] border border-[#c5a880]/30 flex flex-col justify-between space-y-4 shadow-xl">
-              <div className="flex items-center justify-between border-b border-[#c5a880]/20 pb-3">
-                <span className="text-xs font-mono font-bold text-[#c5a880] uppercase tracking-wider">
-                  01 / 4 SUITES DE VIÑA
-                </span>
-                <span className="w-2.5 h-2.5 rounded-full bg-[#c5a880]" />
-              </div>
-
-              <div className="space-y-2">
-                <div className="text-3xl font-serif text-[#FAF8F5]">Deck & Fuego</div>
-                <p className="text-xs text-stone-300 leading-relaxed font-light">
-                  Amplios ventanales de piso a techo orientados hacia el Cordón del Plata, estufa nórdica a leña, lino egipcio y copa de Malbec de bienvenida.
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-[#c5a880]/20 flex items-center justify-between text-xs font-mono text-stone-400">
-                <span>Capacidad: 2 a 4 pax</span>
-                <span className="text-[#c5a880] font-bold">Ver fotos →</span>
-              </div>
-            </div>
-
-            <div className="lg:col-span-4 rounded-3xl p-6 sm:p-8 bg-[#14110d] border border-[#c5a880]/30 flex flex-col justify-between space-y-4 shadow-xl">
-              <div className="flex items-center justify-between border-b border-[#c5a880]/20 pb-3">
-                <span className="text-xs font-mono font-bold text-[#c5a880] uppercase tracking-wider">
-                  02 / CAVA PRIVADA
-                </span>
-                <Wine className="w-4 h-4 text-[#c5a880]" />
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-2xl font-serif text-[#FAF8F5]">Catas & Maridajes</h3>
-                <p className="text-xs text-stone-300 leading-relaxed font-light">
-                  Degustaciones guiadas por sommelier in-house al caer el sol, con selección de etiquetas boutique del Valle de Uco.
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-[#c5a880]/20 text-xs font-mono text-[#c5a880]">
-                Experiencia Exclusiva Huéspedes
-              </div>
-            </div>
-
-            <div className="lg:col-span-4 rounded-3xl p-6 sm:p-8 bg-[#14110d] border border-[#c5a880]/30 flex flex-col justify-between space-y-4 shadow-xl">
-              <div className="flex items-center justify-between border-b border-[#c5a880]/20 pb-3">
-                <span className="text-xs font-mono font-bold text-[#c5a880] uppercase tracking-wider">
-                  03 / WELLNESS & SPA
-                </span>
-                <Waves className="w-4 h-4 text-[#c5a880]" />
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-2xl font-serif text-[#FAF8F5]">Tina Nórdica Exterior</h3>
-                <p className="text-xs text-stone-300 leading-relaxed font-light">
-                  Baño caliente a cielo abierto con vista a las estrellas de Mendoza y sesiones de masajes con extractos de uva.
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-[#c5a880]/20 text-xs font-mono text-[#c5a880]">
-                Calefaccionado a Leña
-              </div>
-            </div>
-
-            <div className="lg:col-span-4 rounded-3xl p-6 sm:p-8 bg-[#14110d] border border-[#c5a880]/30 flex flex-col justify-between space-y-4 shadow-xl">
-              <div className="flex items-center justify-between border-b border-[#c5a880]/20 pb-3">
-                <span className="text-xs font-mono font-bold text-[#c5a880] uppercase tracking-wider">
-                  04 / GASTRONOMÍA
-                </span>
-                <Flame className="w-4 h-4 text-[#c5a880]" />
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-2xl font-serif text-[#FAF8F5]">Cocina de Fuegos</h3>
-                <p className="text-xs text-stone-300 leading-relaxed font-light">
-                  Menú por pasos a las brasas, panes de masa madre horneados en barro y desayunos de campo incluidos en tu estadía.
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-[#c5a880]/20 text-xs font-mono text-[#c5a880]">
-                Chef Ejecutivo AURA
-              </div>
-            </div>
-
-            <div className="lg:col-span-12 rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-[#1c1710] via-[#120f0b] to-[#1c1710] border-2 border-[#c5a880]/50 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="space-y-2 text-center md:text-left">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#c5a880]/20 text-[#c5a880] font-mono text-xs font-bold">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  0% COMISIÓN • MEJOR TARIFA DIRECTA
-                </div>
-                <h3 className="text-2xl font-serif text-white">
-                  Reserva Oficial con 15% de Ahorro Directo
-                </h3>
-                <p className="text-xs text-stone-300 max-w-xl font-light">
-                  Confirmación inmediata de tu Suite en AURA con seña del 50% por transferencia bancaria directa (CBU) o Mercado Pago.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  onClick={() => setIsCalendarOpen(true)}
-                  className="min-h-[44px] px-5 py-3 rounded-2xl bg-stone-900 border border-stone-700 text-stone-200 hover:text-white text-xs font-mono cursor-pointer"
-                >
-                  📅 {checkInDate} al {checkOutDate} ({nights} noches)
-                </button>
-                <button
-                  onClick={scrollToBooking}
-                  className="min-h-[44px] px-8 py-3.5 rounded-2xl bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 font-bold text-xs uppercase tracking-wider transition-all shadow-xl shadow-[#c5a880]/30 cursor-pointer"
-                >
-                  Ver Suites & Tarifas
-                </button>
-              </div>
-            </div>
           </div>
+
         </div>
       )}
 
@@ -1223,6 +1374,24 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Desktop Scroll Navigation Arrows */}
+              <div className="flex items-center gap-1 bg-stone-900/80 border border-stone-800 p-1 rounded-2xl">
+                <button
+                  onClick={() => scrollCanvas('left')}
+                  className="w-10 h-10 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                  title="Deslizar hacia la izquierda"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => scrollCanvas('right')}
+                  className="w-10 h-10 rounded-xl bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 flex items-center justify-center transition-colors cursor-pointer font-bold shadow-sm"
+                  title="Deslizar hacia la derecha"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+
               <div
                 onClick={() => setIsCalendarOpen(true)}
                 className="p-3 rounded-2xl bg-stone-900 border border-stone-800 text-left cursor-pointer hover:border-[#c5a880]/40 transition-colors"
@@ -1245,15 +1414,23 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
           </div>
 
           {/* Horizontal Scrollable Panoramic Canvas (6 Panoramic Architectural Cards) */}
-          <div className="py-10 px-4 sm:px-10 overflow-x-auto no-scrollbar scroll-smooth">
+          <div
+            ref={canvasScrollRef}
+            onWheel={(e) => {
+              if (canvasScrollRef.current && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                canvasScrollRef.current.scrollLeft += e.deltaY;
+              }
+            }}
+            className="py-10 px-4 sm:px-10 overflow-x-auto no-scrollbar scroll-smooth cursor-grab active:cursor-grabbing"
+          >
             <div className="flex gap-6 min-w-max pb-4">
               
               {/* Card 1: Master View / Cordillera Landscape */}
               <div className="w-[340px] sm:w-[460px] h-[520px] rounded-3xl overflow-hidden border border-[#c5a880]/30 bg-[#12100d] relative flex flex-col justify-between p-6 sm:p-8 shadow-2xl group shrink-0">
                 <img
-                  src="/cabanas/cabana-terraza.jpg"
+                  src={cortePhotos.facade}
                   alt="AURA Terroir Landscape"
-                  className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-700"
+                  className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0e0c09] via-[#0e0c09]/50 to-transparent" />
                 
@@ -1270,12 +1447,12 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                     El Silencio de los Andes Entre Hileras de Malbec
                   </h3>
                   <p className="text-xs text-stone-300 font-light leading-relaxed">
-                    Arquitectura minimalista en adobe, piedra y madera integrada orgánicamente a la Cordillera.
+                    Arquitectura mineral en hormigón, piedra y madera noble integrada orgánicamente a la Cordillera.
                   </p>
                 </div>
 
                 <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-[#c5a880]">
-                  <span>4 Suites Exclusivas</span>
+                  <span>15 Suites Exclusivas</span>
                   <span className="font-bold">Deslizar →</span>
                 </div>
               </div>
@@ -1283,15 +1460,15 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
               {/* Card 2: Suite 01 Malbec Grand Reserve */}
               <div className="w-[340px] sm:w-[460px] h-[520px] rounded-3xl overflow-hidden border border-[#c5a880]/30 bg-[#12100d] relative flex flex-col justify-between p-6 sm:p-8 shadow-2xl group shrink-0">
                 <img
-                  src="/cabanas/deck-hamaca.jpg"
+                  src={cortePhotos.suite1}
                   alt="Suite Malbec Grand Reserve"
-                  className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-700"
+                  className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0e0c09] via-[#0e0c09]/50 to-transparent" />
 
                 <div className="relative z-10 flex items-center justify-between border-b border-[#c5a880]/20 pb-3">
                   <span className="text-xs font-mono font-bold text-[#c5a880] uppercase tracking-widest">
-                    02 / SUITE DE VIÑA
+                    02 / MASTER SUITE
                   </span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">SUITE 01</span>
                 </div>
@@ -1319,15 +1496,15 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
               {/* Card 3: Suite 02 Cabernet Franc Sanctuary */}
               <div className="w-[340px] sm:w-[460px] h-[520px] rounded-3xl overflow-hidden border border-[#c5a880]/30 bg-[#12100d] relative flex flex-col justify-between p-6 sm:p-8 shadow-2xl group shrink-0">
                 <img
-                  src="/cabanas/cabana-interior.jpg"
+                  src={cortePhotos.bathroom}
                   alt="Suite Cabernet Franc"
-                  className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-700"
+                  className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0e0c09] via-[#0e0c09]/50 to-transparent" />
 
                 <div className="relative z-10 flex items-center justify-between border-b border-[#c5a880]/20 pb-3">
                   <span className="text-xs font-mono font-bold text-[#c5a880] uppercase tracking-widest">
-                    03 / SUITE DE VIÑA
+                    03 / BAÑO MINERAL & TINA
                   </span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">SUITE 02</span>
                 </div>
@@ -1337,7 +1514,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                     Cabernet Franc Sanctuary
                   </h3>
                   <p className="text-xs text-stone-300 font-light leading-relaxed">
-                    Ventanales de 6 metros al Cordón del Plata, tina de piedra natural esculpida, lino egipcio 600 hilos y cava privada in-room.
+                    Ventanales de 6 metros al Cordón del Plata, tina de piedra natural esculpida, lino puro y cava privada in-room.
                   </p>
                 </div>
 
@@ -1354,7 +1531,12 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
 
               {/* Card 4: Cava Subterránea & Degustaciones */}
               <div className="w-[340px] sm:w-[460px] h-[520px] rounded-3xl overflow-hidden border border-[#c5a880]/30 bg-[#12100d] relative flex flex-col justify-between p-6 sm:p-8 shadow-2xl group shrink-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#1c160f] to-[#0a0907] opacity-90" />
+                <img
+                  src={cortePhotos.cellar}
+                  alt="Cava Subterránea"
+                  className="absolute inset-0 w-full h-full object-cover opacity-45 group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0e0c09] via-[#0e0c09]/50 to-transparent" />
 
                 <div className="relative z-10 flex items-center justify-between border-b border-[#c5a880]/20 pb-3">
                   <span className="text-xs font-mono font-bold text-[#c5a880] uppercase tracking-widest">
@@ -1368,19 +1550,24 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                     Cava Subterránea & Maridaje Sunset
                   </h3>
                   <p className="text-xs text-stone-300 font-light leading-relaxed">
-                    Acceso exclusivo para huéspedes a catas guiadas con sommelier in-house y selección de añadas históricas de bodegas boutique del Valle de Uco.
+                    Acceso exclusivo para huéspedes a catas guiadas con sommelier in-house y selección de añadas históricas de barricas de roble.
                   </p>
                 </div>
 
                 <div className="relative z-10 pt-4 border-t border-white/10 text-xs font-mono text-[#c5a880] flex items-center gap-2">
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Incluido para Huéspedes de AURA</span>
+                  <span>Incluido para Huéspedes de Corte delle Vette</span>
                 </div>
               </div>
 
               {/* Card 5: Spa & Tina Nórdica */}
               <div className="w-[340px] sm:w-[460px] h-[520px] rounded-3xl overflow-hidden border border-[#c5a880]/30 bg-[#12100d] relative flex flex-col justify-between p-6 sm:p-8 shadow-2xl group shrink-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#17140f] to-[#0a0907] opacity-90" />
+                <img
+                  src={cortePhotos.pool}
+                  alt="Piscina Infinita"
+                  className="absolute inset-0 w-full h-full object-cover opacity-45 group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0e0c09] via-[#0e0c09]/50 to-transparent" />
 
                 <div className="relative z-10 flex items-center justify-between border-b border-[#c5a880]/20 pb-3">
                   <span className="text-xs font-mono font-bold text-[#c5a880] uppercase tracking-widest">
@@ -1391,16 +1578,16 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
 
                 <div className="relative z-10 space-y-3">
                   <h3 className="text-2xl sm:text-3xl font-serif text-white leading-tight">
-                    Tina Nórdica a Cielo Abierto
+                    Piscina Infinita & Solárium de Viña
                   </h3>
                   <p className="text-xs text-stone-300 font-light leading-relaxed">
-                    Sumersión en agua de deshielo calefaccionada a leña bajo las estrellas más nítidas de la Cordillera, con masajes de vinoterapia orgánica.
+                    Sumersión frente a la Cordillera de los Andes bajo las estrellas más nítidas de Mendoza, con servicio de coctelería y descanso.
                   </p>
                 </div>
 
                 <div className="relative z-10 pt-4 border-t border-white/10 text-xs font-mono text-[#c5a880] flex items-center gap-2">
                   <Flame className="w-3.5 h-3.5" />
-                  <span>Calefacción a Leña de Sarmientos</span>
+                  <span>Agua Templada & Vista a Viñedos</span>
                 </div>
               </div>
 
