@@ -305,10 +305,10 @@ ${pendingPayments.length > 0 ? `⚠️ **Cobros y Saldos Pendientes:** Tenés ${
 
 En Loomi tenemos **precios transparentes en pesos argentinos (ARS)** y ajustados por **IPC (inflación oficial)**, para que no tengas sobresaltos con el dólar:
 
-- **Plan 4 a 10 Propiedades:** **$45.000 / mes** *(ideal para anfitriones y pequeños complejos)*.
-- **Plan 10 a 20 Propiedades:** **$60.000 / mes** *(complejos medianos, aparts y posadas)*.
-- **Plan 20 a 30 Propiedades:** **$80.000 / mes** *(operaciones profesionales de alto flujo)*.
-- **Más de 30 Propiedades:** Cotización personalizada a medida.
+- **Plan Inicial (5 a 10 Propiedades):** **$45.000 / mes** *(~30 USD, ideal para anfitriones y complejos chicos; se paga solo con una fracción de 1 noche)*.
+- **Plan Escala (15 a 20 Propiedades):** **$60.000 / mes** *(complejos medianos, aparts y posadas con app de mucamas y caja diaria)*.
+- **Plan Signature:** **$80.000 / mes** *(bodegas con alojamiento, glampings de autor, lodges y webs de alta costura como Parallax, Canvas y Bento)*.
+- **Más de 20 / 30 Propiedades:** Cotización personalizada a medida.
 
 **Formas de Pago y Cobro:**
 - 💳 **Tu abono a Loomi:** Se abona mensualmente mediante **Transferencia Bancaria directa** (CBU/CVU o Alias) en Argentina, o por **PayPal** para el exterior. Sin comisiones extras ni intermediarios.

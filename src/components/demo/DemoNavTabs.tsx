@@ -7,7 +7,6 @@ import {
   MessageSquare,
   DollarSign,
   Bot,
-  Compass,
   ShoppingBag,
   List,
   Globe,
@@ -25,38 +24,37 @@ export const DemoNavTabs: React.FC<DemoNavTabsProps> = ({
   activeTab,
   onSelectTab,
   pendingCleaningsCount,
-  activeComplexName = 'Catalinas Apartamentos',
   isEmployeeMode = false,
 }) => {
   const allTabs = [
-    { id: 'overview', label: 'Panel General', icon: LayoutDashboard },
-    { id: 'calendar', label: 'Calendario Multicanal', icon: Calendar },
-    { id: 'bookings', label: 'Lista de Reservas', icon: List },
+    { id: 'overview', label: 'Panel Hoy', icon: LayoutDashboard },
+    { id: 'calendar', label: 'Calendario iCal', icon: Calendar },
+    { id: 'bookings', label: 'Reservas', icon: List },
     {
       id: 'housekeeping',
-      label: 'Operaciones & Puesta a Punto',
+      label: 'Mucamas & Limpieza',
       icon: Sparkles,
       badge: pendingCleaningsCount > 0 ? `${pendingCleaningsCount}` : undefined,
     },
-    { id: 'properties', label: 'Propiedades & Tarifas', icon: Building2 },
-    { id: 'addons', label: 'Opcionales & Extras', icon: ShoppingBag },
-    { id: 'messages', label: 'WhatsApp & Mensajería', icon: MessageSquare },
-    { id: 'finances', label: 'Finanzas & Propietarios', icon: DollarSign, adminOnly: true },
+    { id: 'properties', label: 'Propiedades', icon: Building2 },
+    { id: 'addons', label: 'Opcionales & Catas', icon: ShoppingBag },
+    { id: 'messages', label: 'WhatsApp & Mensajes', icon: MessageSquare },
+    { id: 'finances', label: 'Finanzas', icon: DollarSign, adminOnly: true },
     {
       id: 'welcome-guide',
-      label: 'Tu Web & Guía',
+      label: 'Tu Web & Guía QR',
       icon: Globe,
       badge: '🌐 Web',
     },
-    { id: 'xenia', label: 'Xenia Copilot IA', icon: Bot, badge: 'IA' },
+    { id: 'xenia', label: 'Copiloto IA', icon: Bot, badge: 'IA' },
   ];
 
   const tabs = isEmployeeMode ? allTabs.filter((t) => !t.adminOnly) : allTabs;
 
   return (
-    <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] border-b border-[#C8C4B7] dark:border-[#222328] transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-2 scrollbar-none">
+    <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] border-b border-[#C8C4B7] dark:border-[#222328] transition-colors sticky top-12 z-19">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-2 scrollbar-thin">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -64,19 +62,19 @@ export const DemoNavTabs: React.FC<DemoNavTabsProps> = ({
               <button
                 key={tab.id}
                 onClick={() => onSelectTab(tab.id)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-none text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer border ${
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer border ${
                   isActive
-                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
-                    : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white hover:bg-[#DCD8CE]/50 dark:hover:bg-[#18181B] border-transparent'
+                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-sm font-black'
+                    : 'bg-white/80 dark:bg-[#18181B]/80 text-[#52525B] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-white hover:bg-white dark:hover:bg-[#222328] border-[#DCD8CE] dark:border-[#2A2C34]'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#E1500A]' : 'text-[#71717A] dark:text-[#A1A1AA]'}`} />
                 <span>{tab.label}</span>
                 {tab.badge && (
-                  <span className={`text-[10px] font-black px-1.5 py-0.2 rounded-none border ${
+                  <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
                     isActive
-                      ? 'bg-[#E1500A] text-white border-[#E1500A]'
-                      : 'bg-[#DCD8CE] dark:bg-[#18181B] text-[#71717A] dark:text-[#8E8E93] border-[#C8C4B7] dark:border-[#222328]'
+                      ? 'bg-[#E1500A] text-white'
+                      : 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300'
                   }`}>
                     {tab.badge}
                   </span>

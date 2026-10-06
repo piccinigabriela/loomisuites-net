@@ -69,30 +69,30 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
   const plans = [
     {
       id: 'plan-4-10',
-      name: '4 a 10 Propiedades',
-      range: 'Pequeños complejos y anfitriones',
+      name: '5 a 10 Propiedades',
+      range: 'Pequeños complejos, cabañas y anfitriones',
       priceMonthly: 45000,
-      description: 'El sistema completo con todas las herramientas para 4 a 10 unidades.',
+      description: 'El sistema completo con todas las herramientas para 5 a 10 unidades (~30 USD/mes).',
       popular: false,
-      badge: 'Entrada'
+      badge: 'Inicial'
     },
     {
       id: 'plan-10-20',
-      name: '10 a 20 Propiedades',
+      name: '15 a 20 Propiedades',
       range: 'Complejos medianos, aparts y posadas',
       priceMonthly: 60000,
-      description: 'El sistema completo para el volumen de 10 a 20 unidades.',
+      description: 'El sistema completo con app para mucamas y turnos para 15 a 20 unidades.',
       popular: true,
       badge: 'MÁS ELEGIDO'
     },
     {
       id: 'plan-20-30',
-      name: '20 a 30 Propiedades',
-      range: 'Operación profesional de alto flujo',
+      name: 'Signature',
+      range: 'Glampings, bodegas, lodges y diseño de alta gama',
       priceMonthly: 80000,
-      description: 'El sistema completo para operaciones de 20 a 30 unidades.',
+      description: 'Webs de autor (Parallax, Canvas, Bento), portal VIP 1:1 y posicionamiento de tarifa alta.',
       popular: false,
-      badge: 'Alta escala'
+      badge: 'Alta Gama'
     }
   ];
 

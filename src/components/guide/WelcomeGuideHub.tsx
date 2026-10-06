@@ -10,6 +10,7 @@ import {
   Info,
   Check,
   Compass,
+  Crown,
 } from 'lucide-react';
 import { WelcomeGuideData, Property } from '../../types';
 import { GuestWelcomePortal } from './GuestWelcomePortal';
@@ -20,15 +21,37 @@ interface WelcomeGuideHubProps {
   guideData: WelcomeGuideData;
   properties: Property[];
   onUpdateGuideData: (updatedData: WelcomeGuideData) => void;
+  initialSubTab?: 'landing-booking' | 'guest-view' | 'admin-view';
+  initialTemplate?: LandingTemplate;
+  onSelectSubTab?: (subTab: 'landing-booking' | 'guest-view' | 'admin-view') => void;
+  onSelectTemplate?: (template: LandingTemplate) => void;
 }
 
 export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
   guideData,
   properties,
   onUpdateGuideData,
+  initialSubTab,
+  initialTemplate,
+  onSelectSubTab,
+  onSelectTemplate,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'landing-booking' | 'guest-view' | 'admin-view'>('landing-booking');
-  const [selectedTemplate, setSelectedTemplate] = useState<LandingTemplate>('bay');
+  const [internalSubTab, setInternalSubTab] = useState<'landing-booking' | 'guest-view' | 'admin-view'>('guest-view');
+  const [internalTemplate, setInternalTemplate] = useState<LandingTemplate>('retrato');
+
+  const activeSubTab = initialSubTab || internalSubTab;
+  const selectedTemplate = initialTemplate || internalTemplate;
+
+  const handleSetSubTab = (tab: 'landing-booking' | 'guest-view' | 'admin-view') => {
+    setInternalSubTab(tab);
+    if (onSelectSubTab) onSelectSubTab(tab);
+  };
+
+  const handleSetTemplate = (tmpl: LandingTemplate) => {
+    setInternalTemplate(tmpl);
+    if (onSelectTemplate) onSelectTemplate(tmpl);
+  };
+
   const [isMobileFrame, setIsMobileFrame] = useState<boolean>(true);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -157,19 +180,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-3 bg-[#EAE8E3] dark:bg-[#0C0D0F] p-2 rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-2xs">
         <div className="flex flex-wrap items-center gap-1.5">
           <button
-            onClick={() => setActiveSubTab('landing-booking')}
-            className={`px-3.5 py-2 rounded-none text-xs font-bold uppercase tracking-wider font-mono transition-all cursor-pointer flex items-center gap-2 ${
-              activeSubTab === 'landing-booking'
-                ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#0C0D0F] shadow-xs'
-                : 'text-[#71717A] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-white'
-            }`}
-          >
-            <Globe className="w-4 h-4 text-emerald-500" />
-            <span>1. Tu Web (Reservas Directas)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveSubTab('guest-view')}
+            onClick={() => handleSetSubTab('guest-view')}
             className={`px-3.5 py-2 rounded-none text-xs font-bold uppercase tracking-wider font-mono transition-all cursor-pointer flex items-center gap-2 ${
               activeSubTab === 'guest-view'
                 ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#0C0D0F] shadow-xs'
@@ -177,11 +188,23 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
             }`}
           >
             <Smartphone className="w-4 h-4 text-[#E1500A]" />
-            <span>2. Guía Móvil del Huésped</span>
+            <span>1. Guía Móvil del Huésped (QR & Wi-Fi)</span>
           </button>
 
           <button
-            onClick={() => setActiveSubTab('admin-view')}
+            onClick={() => handleSetSubTab('landing-booking')}
+            className={`px-3.5 py-2 rounded-none text-xs font-bold uppercase tracking-wider font-mono transition-all cursor-pointer flex items-center gap-2 ${
+              activeSubTab === 'landing-booking'
+                ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#0C0D0F] shadow-xs'
+                : 'text-[#71717A] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-white'
+            }`}
+          >
+            <Globe className="w-4 h-4 text-emerald-500" />
+            <span>2. Tu Web (Reservas Directas)</span>
+          </button>
+
+          <button
+            onClick={() => handleSetSubTab('admin-view')}
             className={`px-3.5 py-2 rounded-none text-xs font-bold uppercase tracking-wider font-mono transition-all cursor-pointer flex items-center gap-2 ${
               activeSubTab === 'admin-view'
                 ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#0C0D0F] shadow-xs'
@@ -192,6 +215,93 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
             <span>3. Ajustes & Edición de Datos</span>
           </button>
         </div>
+
+        {activeSubTab === 'landing-booking' && (
+          <div className="flex flex-wrap items-center gap-1.5 text-xs pr-1 font-mono">
+            <span className="text-[#71717A] dark:text-[#A1A1AA] text-[10px] uppercase hidden md:inline">Plantilla:</span>
+            
+            {/* Esenciales */}
+            <div className="flex items-center gap-1 bg-white/60 dark:bg-[#18181B] p-0.5 rounded-lg border border-[#C8C4B7] dark:border-[#222328]">
+              <button
+                onClick={() => handleSetTemplate('bay')}
+                className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                  selectedTemplate === 'bay'
+                    ? 'bg-amber-600 text-white shadow-xs'
+                    : 'text-[#71717A] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-white'
+                }`}
+                title="Modelo Bay (Esencial)"
+              >
+                Bay
+              </button>
+              <button
+                onClick={() => handleSetTemplate('retrato')}
+                className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                  selectedTemplate === 'retrato'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-[#71717A] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-white'
+                }`}
+                title="Modelo Retrato (Esencial)"
+              >
+                Retrato
+              </button>
+              <button
+                onClick={() => handleSetTemplate('urbano')}
+                className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                  selectedTemplate === 'urbano'
+                    ? 'bg-amber-400 text-stone-950 shadow-xs'
+                    : 'text-[#71717A] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-white'
+                }`}
+                title="Modelo Urbano (Esencial)"
+              >
+                Urbano
+              </button>
+            </div>
+
+            <span className="text-stone-400 text-xs">|</span>
+
+            {/* Signature */}
+            <div className="flex items-center gap-1 bg-[#1c1917] p-0.5 rounded-lg border border-amber-500/40">
+              <button
+                onClick={() => handleSetTemplate('luxury-editorial-parallax')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                  selectedTemplate === 'luxury-editorial-parallax'
+                    ? 'bg-amber-500 text-stone-950 shadow-xs'
+                    : 'text-amber-200/80 hover:text-amber-100'
+                }`}
+                title="Modelo Signature Parallax (Bodegas & Luxury)"
+              >
+                <Crown className="w-3 h-3 text-amber-400" />
+                <span>👑 Parallax</span>
+              </button>
+
+              <button
+                onClick={() => handleSetTemplate('luxury-horizontal-architectural')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                  selectedTemplate === 'luxury-horizontal-architectural'
+                    ? 'bg-amber-500 text-stone-950 shadow-xs'
+                    : 'text-amber-200/80 hover:text-amber-100'
+                }`}
+                title="Modelo Signature Canvas (Horizontal Inmersivo)"
+              >
+                <Crown className="w-3 h-3 text-amber-400" />
+                <span>Canvas</span>
+              </button>
+
+              <button
+                onClick={() => handleSetTemplate('luxury-monograph-folio')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                  selectedTemplate === 'luxury-monograph-folio'
+                    ? 'bg-amber-500 text-stone-950 shadow-xs'
+                    : 'text-amber-200/80 hover:text-amber-100'
+                }`}
+                title="Modelo Signature Folio"
+              >
+                <Crown className="w-3 h-3 text-amber-400" />
+                <span>Folio</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         {activeSubTab === 'guest-view' && (
           <div className="flex items-center gap-1.5 text-xs pr-1 font-mono">
@@ -234,7 +344,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
               guideData={guideData}
               isMobilePreview={isMobileFrame}
               template={selectedTemplate}
-              onSelectTemplate={setSelectedTemplate}
+              onSelectTemplate={handleSetTemplate}
             />
           </div>
         )}
@@ -248,7 +358,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
             guideData={guideData}
             properties={properties}
             activeTemplate={selectedTemplate}
-            onSelectTemplate={setSelectedTemplate}
+            onSelectTemplate={handleSetTemplate}
           />
         )}
       </div>

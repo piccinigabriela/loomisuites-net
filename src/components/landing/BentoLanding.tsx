@@ -10,6 +10,7 @@ import {
   Crown,
   Smartphone,
   CheckCircle2,
+  Check,
   KeyRound,
   ShieldCheck,
   Layers,
@@ -81,31 +82,58 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
 
   const plans = [
     {
-      id: 'plan-4-10',
-      name: '4 a 10 Unidades',
-      tag: 'Complejos Pequeños',
+      id: 'plan-esencial',
+      name: '1. Inicial (5 a 10 Unidades)',
+      tag: 'Cabañas, Glampings & Anfitriones',
       price: 45000,
+      usd: 30,
       highlight: false,
-      badge: 'Entrada',
-      description: 'Sistema integral completo para cabañas y alquileres independientes.',
+      badge: '5 A 10 UNIDADES',
+      description: 'Motor directo con señas 50% por WhatsApp/CBU, Guía QR del huésped y plantillas Bay, Retrato y Urbano.',
+      features: [
+        'De 5 a 10 cabañas, deptos o unidades',
+        'Motor de reservas directo sin comisiones',
+        'Cálculo automático de seña (50%) por CBU/Alias',
+        'Guía digital del huésped con clave Wi-Fi y mapa',
+        'Sincronización con Airbnb y Booking (iCal)',
+        'Colección Esencial: Plantillas Bay, Retrato y Urbano',
+      ],
     },
     {
-      id: 'plan-10-20',
-      name: '10 a 20 Unidades',
-      tag: 'El más elegido',
+      id: 'plan-pro',
+      name: '2. Escala (15 a 20 Unidades)',
+      tag: 'Complejos Medianos, Aparts & Posadas',
       price: 60000,
+      usd: 40,
       highlight: true,
-      badge: 'MÁS ELEGIDO',
-      description: 'Ideal para posadas, complejos medianos y aparts de rotación continua.',
+      badge: 'MÁS ELEGIDO • 15 A 20 UNIDADES',
+      description: 'Todo lo del plan Inicial + Módulo móvil para Mucamas, Caja Diaria, control de turnos operativos y WhatsApp.',
+      features: [
+        'De 15 a 20 cabañas, suites o departamentos',
+        'Todo lo del Plan Inicial',
+        'App móvil para Mucamas (control de sábanas y limpieza)',
+        'Caja diaria, balance de señas y cobros pendientes',
+        'Calendario multi-usuario y asignación operativa',
+        'Soporte prioritario 1:1 por WhatsApp',
+      ],
     },
     {
-      id: 'plan-20-30',
-      name: '20 a 30 Unidades',
-      tag: 'Operación Alta',
+      id: 'plan-luxury',
+      name: '3. Signature',
+      tag: 'Glamping, Bodegas & Hoteles Boutique',
       price: 80000,
+      usd: 55,
       highlight: false,
-      badge: 'Alta Escala',
-      description: 'Para administraciones profesionales con múltiples cabañas o sedes.',
+      badge: 'ALTA GAMA & LUXURY',
+      description: 'Webs de Alta Costura (Parallax, Canvas, Bento), Portal VIP coordinado 1:1 y posicionamiento de tarifa premium.',
+      features: [
+        'Bodegas con hospitalidad, glampings de autor y lodges',
+        'Colección Signature: Diseños Parallax, Canvas y Bento',
+        'Portal móvil de Bienvenida VIP personalizado',
+        'Integración con dominio oficial propio (.com / .com.ar)',
+        'Curaduría estética de fotos, historia y gastronomía',
+        'Posicionamiento para cobrar tarifas altas por noche',
+      ],
     },
   ];
 
@@ -479,14 +507,19 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             </div>
 
             <div className="my-auto py-2.5 space-y-1.5">
-              <div className="text-3xl font-extrabold text-stone-900 dark:text-white tracking-tight">
-                $45.000 <span className="text-xs font-medium text-stone-500 dark:text-zinc-400">/mes</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-extrabold text-stone-900 dark:text-white tracking-tight">
+                  $29.000
+                </span>
+                <span className="text-xs font-mono text-stone-500 dark:text-zinc-400 font-bold">
+                  /mes (~$19 USD)
+                </span>
               </div>
               <h4 className="text-base font-bold text-stone-800 dark:text-zinc-200">
-                Abono fijo en pesos
+                Esencial • Pro Escala • Luxury
               </h4>
               <p className="text-xs text-stone-600 dark:text-zinc-400 font-normal leading-relaxed">
-                Sin comisiones por reserva • Ajuste semestral IPC • Sin tarjeta.
+                Desde cabañas familiares hasta lodges y bodegas de autor.
               </p>
             </div>
 
@@ -924,20 +957,38 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                   </h3>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {plans.map((p) => (
                     <div
                       key={p.id}
-                      className={`p-4 rounded-2xl border ${
+                      className={`p-5 rounded-2xl border flex flex-col justify-between space-y-4 ${
                         p.highlight
-                          ? 'border-[#E1500A] bg-[#E1500A]/10'
+                          ? 'border-[#E1500A] bg-[#E1500A]/5 dark:bg-[#E1500A]/10 shadow-lg'
                           : 'border-stone-200/80 dark:border-zinc-800 bg-stone-50 dark:bg-zinc-800/50'
                       }`}
                     >
-                      <span className="text-xs font-bold font-mono text-[#E1500A] uppercase">{p.badge}</span>
-                      <h4 className="text-lg font-bold mt-1">{p.name}</h4>
-                      <div className="text-2xl font-black mt-2">${p.price.toLocaleString('es-AR')} <span className="text-xs font-normal opacity-70">/mes</span></div>
-                      <p className="text-xs opacity-80 mt-2 leading-relaxed">{p.description}</p>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold font-mono text-[#E1500A] uppercase tracking-wider">{p.badge}</span>
+                          <span className="text-xs font-mono text-stone-500 font-bold">${p.usd} USD</span>
+                        </div>
+                        <h4 className="text-base font-extrabold text-stone-900 dark:text-white leading-tight">{p.name}</h4>
+                        <div className="text-2xl font-black mt-1 text-stone-900 dark:text-white">
+                          ${p.price.toLocaleString('es-AR')} <span className="text-xs font-normal opacity-70">/mes</span>
+                        </div>
+                        <p className="text-xs text-stone-600 dark:text-zinc-300 leading-relaxed pt-1 border-t border-stone-200/60 dark:border-white/10">
+                          {p.description}
+                        </p>
+                      </div>
+
+                      <div className="space-y-1.5 pt-2 border-t border-stone-200/60 dark:border-white/10 text-xs">
+                        {p.features?.map((feat, idx) => (
+                          <div key={idx} className="flex items-start gap-1.5 text-stone-700 dark:text-zinc-300 text-[11px]">
+                            <Check className="w-3.5 h-3.5 text-[#E1500A] shrink-0 mt-0.5" />
+                            <span>{feat}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>

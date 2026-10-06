@@ -56,6 +56,7 @@ import { OnboardingWizardModal } from './components/demo/OnboardingWizardModal';
 import { CalendarImportModal } from './components/demo/CalendarImportModal';
 import { ClientAuthModal } from './components/auth/ClientAuthModal';
 import { SuperAdminView } from './components/admin/SuperAdminView';
+import { DemoPlanFunctionalBar } from './components/demo/DemoPlanFunctionalBar';
 import { INITIAL_WELCOME_GUIDE } from './data/initialData';
 
 export default function App() {
@@ -239,6 +240,10 @@ export default function App() {
   });
 
   const isEmployeeMode = userRole === 'housekeeping';
+
+  // State for WelcomeGuideHub subtab & template deep links
+  const [guideSubTab, setGuideSubTab] = useState<'landing-booking' | 'guest-view' | 'admin-view'>('guest-view');
+  const [guideTemplate, setGuideTemplate] = useState<any>('retrato');
 
   // Theme state (Dark Mode / Light Mode)
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -971,16 +976,17 @@ export default function App() {
           {/* Main Content Area */}
           <div className="flex-1 flex flex-col min-w-0 bg-[#ECEAE4] dark:bg-[#0E0F12] overflow-y-auto transition-colors">
             {/* Minimalist Architectural Top Sub-bar with fast actions & status */}
-            <div className="h-12 border-b border-[#C8C4B7] dark:border-[#222328] px-4 sm:px-6 flex items-center justify-between bg-[#EAE8E3]/95 dark:bg-[#0C0D0F]/95 sticky top-0 z-20 backdrop-blur-xs transition-colors">
-              <div className="flex items-center gap-3">
+            <div className="h-12 border-b border-[#C8C4B7] dark:border-[#222328] px-3 sm:px-6 flex items-center justify-between bg-[#EAE8E3]/95 dark:bg-[#0C0D0F]/95 sticky top-0 z-20 backdrop-blur-xs transition-colors">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <button
                   onClick={() => setIsMobileSidebarOpen(true)}
-                  className="lg:hidden p-1.5 rounded-none text-[#71717A] dark:text-[#8E8E93] hover:bg-[#DCD8CE] dark:hover:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] transition-colors cursor-pointer"
-                  title="Abrir menú"
+                  className="md:hidden px-2.5 py-1 rounded-xl text-xs font-black text-[#18181B] dark:text-white bg-white dark:bg-[#18181B] hover:border-[#E1500A] border border-[#C8C4B7] dark:border-[#282B33] transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  title="Abrir menú de navegación"
                 >
-                  <Menu className="w-4 h-4" />
+                  <Menu className="w-4 h-4 text-[#E1500A]" />
+                  <span>Menú</span>
                 </button>
-                <span className="text-xs font-bold text-[#71717A] dark:text-[#8E8E93]">
+                <span className="text-xs font-bold text-[#71717A] dark:text-[#8E8E93] truncate max-w-[140px] sm:max-w-none">
                   {activeComplex === 'catalinas'
                     ? 'Catalinas Apartamentos (CABA)'
                     : activeComplex === 'woodcabin'
@@ -1074,7 +1080,37 @@ export default function App() {
               </div>
             </div>
 
-            {/* Main Content Body */}
+            {/* Top Demo Scenario & Plan Guide (Interactive Context) */}
+            <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 pt-3.5 sm:pt-4">
+              <DemoPlanFunctionalBar
+                onSelectTab={setDemoTab}
+                onSwitchComplex={setActiveComplex}
+                activeComplex={activeComplex}
+                currentTab={demoTab}
+                isEmployeeMode={isEmployeeMode}
+                onToggleEmployeeMode={() => handleRoleChange(isEmployeeMode ? 'admin' : 'housekeeping')}
+                onOpenGuideWith={(subTab, template) => {
+                  setGuideSubTab(subTab);
+                  if (template) setGuideTemplate(template);
+                  setDemoTab('welcome-guide');
+                }}
+                onOpenOnboardingWizard={() => setIsOnboardingModalOpen(true)}
+                onRequestPlan={() => {
+                  setSelectedPlanForLead('Plan Cabañas & Deptos');
+                  setIsLeadModalOpen(true);
+                }}
+              />
+            </div>
+
+            {/* Permanent Horizontal Tab Navigation Bar (Directly Attached to the System) */}
+            <DemoNavTabs
+              activeTab={demoTab}
+              onSelectTab={setDemoTab}
+              pendingCleaningsCount={pendingCleaningsCount}
+              isEmployeeMode={isEmployeeMode}
+            />
+
+            {/* Main Content Body: Real System Dashboard Exactly as on PC */}
             <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-3.5 sm:py-5">
               {demoTab === 'overview' && (
                 <CleanToday
@@ -1170,6 +1206,10 @@ export default function App() {
                 <WelcomeGuideHub
                   guideData={demoState.welcomeGuide || INITIAL_WELCOME_GUIDE}
                   properties={demoState.properties}
+                  initialSubTab={guideSubTab}
+                  initialTemplate={guideTemplate}
+                  onSelectSubTab={setGuideSubTab}
+                  onSelectTemplate={setGuideTemplate}
                   onUpdateGuideData={(updated) => {
                     updateDemoState((prev) => ({
                       ...prev,

@@ -576,39 +576,44 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
           </span>
         </button>
 
-        {/* Complex Selector */}
-        <div className="flex items-center justify-between text-[11px] text-[#71717A] dark:text-[#8E8E93] px-1 font-bold">
-          <span>Complejo:</span>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => onSwitchComplex('catalinas')}
-              className={`px-1.5 py-0.5 rounded-none text-[10px] font-black ${
-                activeComplex === 'catalinas'
-                  ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B]'
-                  : 'hover:text-[#18181B] dark:hover:text-white'
-              }`}
-            >
-              Catalinas
-            </button>
+        {/* Complex / Tier Selector */}
+        <div className="space-y-1 px-1">
+          <div className="flex items-center justify-between text-[11px] text-[#71717A] dark:text-[#8E8E93] font-bold">
+            <span>Escenario Demo:</span>
+            <span className="text-[10px] font-mono text-[#E1500A]">1 Clic</span>
+          </div>
+          <div className="grid grid-cols-2 gap-1">
             <button
               onClick={() => onSwitchComplex('woodcabin')}
-              className={`px-1.5 py-0.5 rounded-none text-[10px] font-black ${
+              className={`px-2 py-1 rounded-lg text-[10px] font-black transition-all flex items-center justify-center gap-1 cursor-pointer ${
                 activeComplex === 'woodcabin'
-                  ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B]'
-                  : 'hover:text-[#18181B] dark:hover:text-white'
+                  ? 'bg-[#E1500A] text-white shadow-xs'
+                  : 'bg-white/80 dark:bg-[#18181B] text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white border border-[#C8C4B7] dark:border-[#222328]'
               }`}
+              title="Plan Inicial: Cabañas & Glampings (5 a 10 unidades • $45k)"
             >
-              Wood
+              <span>🏡 Cabañas</span>
             </button>
-            {activeComplex === 'custom' && (
-              <button
-                onClick={() => onSwitchComplex('custom')}
-                className="px-1.5 py-0.5 rounded-none text-[10px] font-black bg-[#E1500A] text-white"
-              >
-                Real
-              </button>
-            )}
+            <button
+              onClick={() => onSwitchComplex('catalinas')}
+              className={`px-2 py-1 rounded-lg text-[10px] font-black transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                activeComplex === 'catalinas'
+                  ? 'bg-[#E1500A] text-white shadow-xs'
+                  : 'bg-white/80 dark:bg-[#18181B] text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white border border-[#C8C4B7] dark:border-[#222328]'
+              }`}
+              title="Plan Escala: Complejos & Aparts (15 a 20 unidades • $60k)"
+            >
+              <span>🏢 Complejo</span>
+            </button>
           </div>
+          {activeComplex === 'custom' && (
+            <button
+              onClick={() => onSwitchComplex('custom')}
+              className="w-full mt-1 px-2 py-1 rounded-lg text-[10px] font-black bg-emerald-600 text-white shadow-xs"
+            >
+              ✨ Mi Complejo Real
+            </button>
+          )}
         </div>
 
         {/* Back to landing */}
@@ -630,14 +635,14 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
 
   return (
     <>
-      {/* Desktop Persistent Sidebar */}
-      <aside className="hidden lg:flex w-64 shrink-0 bg-[#EAE8E3] dark:bg-[#0C0D0F] text-[#18181B] dark:text-[#EFECE5] border-r border-[#C8C4B7] dark:border-[#222328] flex-col justify-between h-screen sticky top-0 select-none overflow-y-auto z-30 font-sans transition-colors">
+      {/* Desktop & Laptop Persistent Sidebar (Permanently Visible) */}
+      <aside className="hidden md:flex w-60 xl:w-64 shrink-0 bg-[#EAE8E3] dark:bg-[#0C0D0F] text-[#18181B] dark:text-[#EFECE5] border-r border-[#C8C4B7] dark:border-[#222328] flex-col justify-between h-screen sticky top-0 select-none overflow-y-auto z-30 font-sans transition-colors">
         {renderSidebarContent()}
       </aside>
 
-      {/* Mobile Sidebar Overlay Drawer */}
+      {/* Mobile Sidebar Overlay Drawer (Only on small phones) */}
       {isMobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex">
+        <div className="fixed inset-0 z-50 md:hidden flex">
           {/* Blur Backdrop */}
           <div
             onClick={onMobileClose}

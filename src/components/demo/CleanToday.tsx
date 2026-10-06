@@ -109,58 +109,6 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
 
   return (
     <div className="space-y-4 sm:space-y-6 font-sans">
-      {/* Onboarding & Plan Request Banner (Only in Public Demo mode for visitors) */}
-      {!isLoggedIn && !isBannerDismissed && (
-        <div className="bg-[#18181B] dark:bg-[#0C0D0F] rounded-none p-4 sm:p-5 text-white border border-[#27272A] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-3 relative">
-          <button
-            onClick={handleDismissBanner}
-            className="absolute top-2 right-2 text-zinc-400 hover:text-white p-1 rounded-none transition-colors cursor-pointer"
-            title="Ocultar aviso"
-            aria-label="Cerrar aviso"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-          <div className="flex items-center gap-3 pr-6 md:pr-0">
-            <div className="w-9 h-9 rounded-none bg-[#E1500A] flex items-center justify-center text-white font-black shrink-0 shadow-xs">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-xs sm:text-sm font-black text-[#EFECE5] uppercase tracking-wide">
-                  ¿Querés probar con tus departamentos o cabañas reales?
-                </h3>
-                <span className="text-[9px] sm:text-[10px] font-black bg-[#E1500A]/20 text-[#E1500A] px-2 py-0.5 rounded-none border border-[#E1500A]/40 uppercase">
-                  Paso a Paso (2 min)
-                </span>
-              </div>
-              <p className="text-[11px] sm:text-xs text-[#A1A1AA] mt-0.5 line-clamp-1 sm:line-clamp-none max-w-2xl font-medium">
-                Cargá los nombres de tus unidades, tarifas y WiFi para ver tu operación real en el calendario, la guía de huéspedes y con Xenia.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
-            {onOpenOnboardingWizard && (
-              <button
-                onClick={onOpenOnboardingWizard}
-                className="flex-1 md:flex-initial text-xs font-black bg-white text-[#18181B] hover:bg-[#EFECE5] px-3.5 py-2 rounded-none transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs shrink-0 active:scale-98 uppercase tracking-wider"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#E1500A]" />
-                <span>Configurar Mis Deptos</span>
-              </button>
-            )}
-            {onRequestPlan && (
-              <button
-                onClick={onRequestPlan}
-                className="flex-1 md:flex-initial text-xs font-black bg-[#E1500A] hover:bg-[#C94305] text-white px-3.5 py-2 rounded-none transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs shrink-0 active:scale-98 uppercase tracking-wider"
-              >
-                <Send className="w-3 h-3" />
-                <span>Solicitar Plan</span>
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Title & Subtitle */}
       <div className="flex items-center justify-between pb-2 border-b border-[#C8C4B7] dark:border-[#222328]">
         <div>
@@ -169,16 +117,6 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
           </span>
           <h2 className="text-xl sm:text-2xl font-black text-[#18181B] dark:text-white tracking-tight">Hoy en el Complejo</h2>
         </div>
-        {isBannerDismissed && onOpenOnboardingWizard && (
-          <button
-            onClick={onOpenOnboardingWizard}
-            className="text-[11px] font-black uppercase tracking-wider text-[#18181B] dark:text-white hover:text-[#E1500A] bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#C8C4B7] dark:border-[#222328] px-3 py-1.5 rounded-none transition-colors flex items-center gap-1.5 cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#E1500A]" />
-            <span className="hidden sm:inline">Configurar Mis Deptos</span>
-            <span className="sm:hidden">Mis Deptos</span>
-          </button>
-        )}
       </div>
 
       {/* Top 4 Bento Metric Cards (2x2 on mobile, 4 columns on desktop) */}

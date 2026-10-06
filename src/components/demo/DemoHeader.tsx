@@ -107,35 +107,39 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
             </div>
           </div>
 
-          {/* Property Complex Switcher */}
-          <div className="hidden md:flex items-center bg-[#141518] p-1 rounded-none border border-[#222328] ml-2">
+          {/* Property Complex / Tier Presets Switcher */}
+          <div className="hidden lg:flex items-center bg-[#141518] p-1 rounded-xl border border-[#222328] ml-2 gap-1">
+            <button
+              onClick={() => onSwitchComplex('woodcabin')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeComplex === 'woodcabin'
+                  ? 'bg-[#E1500A] text-white shadow-xs'
+                  : 'text-[#8E8E93] hover:text-white'
+              }`}
+              title="Plan Inicial: Cabañas & Anfitriones (5 a 10 unidades • $45.000 ARS)"
+            >
+              <span>🏡 Cabañas & Glampings</span>
+              <span className="text-[10px] opacity-75 font-mono">(5-10u • $45k)</span>
+            </button>
+
             <button
               onClick={() => onSwitchComplex('catalinas')}
-              className={`px-3 py-1.5 rounded-none text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeComplex === 'catalinas'
                   ? 'bg-[#E1500A] text-white shadow-xs'
                   : 'text-[#8E8E93] hover:text-white'
               }`}
+              title="Plan Escala: Complejos con Personal & Limpieza (15 a 20 unidades • $60.000 ARS)"
             >
               <Building2 className="w-3.5 h-3.5" />
-              <span>Catalinas Apartamentos</span>
-              <span className="text-[10px] opacity-80 font-mono">(4 Deptos CABA)</span>
+              <span>Complejos & Aparts</span>
+              <span className="text-[10px] opacity-75 font-mono">(15-20u • $60k)</span>
             </button>
-            <button
-              onClick={() => onSwitchComplex('woodcabin')}
-              className={`px-3 py-1.5 rounded-none text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
-                activeComplex === 'woodcabin'
-                  ? 'bg-[#222328] text-white shadow-xs border border-[#3A3C44]'
-                  : 'text-[#8E8E93] hover:text-white'
-              }`}
-            >
-              <span>🌲 Wood Cabin</span>
-              <span className="text-[10px] opacity-80 font-mono">(Iguazú)</span>
-            </button>
+
             {activeComplex === 'custom' && (
               <button
                 onClick={() => onSwitchComplex('custom')}
-                className="px-3 py-1.5 rounded-none text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 bg-emerald-700 text-white shadow-xs cursor-pointer"
+                className="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 bg-emerald-700 text-white shadow-xs cursor-pointer"
               >
                 <span>✨ Mi Complejo Real</span>
               </button>
