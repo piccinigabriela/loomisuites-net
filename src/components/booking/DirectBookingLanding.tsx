@@ -898,11 +898,11 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
               <span className="font-mono text-[11px]">©2024—2026</span>
             </div>
 
-            {/* Central Poetic Title with Calligraphy / Mountain Mark */}
+            {/* Central Poetic Title with Architectural Mark */}
             <div className="relative z-10 py-6 max-w-3xl space-y-3">
               <div className="flex items-center gap-3">
-                <span className="text-xl sm:text-2xl font-serif text-[#3A4D42] tracking-widest font-light">
-                  山河 •
+                <span className="text-sm font-serif text-[#3A4D42] tracking-[0.25em] uppercase font-bold border-r border-[#8C6D46]/40 pr-3">
+                  ARQUITECTURA & TERROIR
                 </span>
                 <span className="text-[11px] font-mono uppercase tracking-[0.3em] text-[#8C6D46] font-bold">
                   CORTE DELLE VETTE • MONOGRAPH
@@ -947,13 +947,13 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                 {/* Column 1: DESIGN / 01 SUITES */}
                 <div className="space-y-3 relative pl-3 border-l-2 border-[#1C2A24]">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block">
-                      DESIGN
+                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block font-bold">
+                      PROGETTO
                     </span>
-                    <span className="text-base font-serif text-[#1C2A24]">设 计</span>
+                    <span className="text-xs font-serif text-[#1C2A24] font-bold uppercase tracking-widest">01</span>
                   </div>
                   <h4 className="text-sm font-serif font-bold text-[#191612]">
-                    01 / Master Suites
+                    Master Suites
                   </h4>
                   <p className="text-[11px] text-stone-600 leading-relaxed font-light">
                     Hormigón mineral, lino puro y ventanales panorámicos hacia el viñedo.
@@ -963,13 +963,13 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                 {/* Column 2: STRUCTURE / 02 BAÑOS */}
                 <div className="space-y-3 relative pl-3 border-l-2 border-[#5C4D3C]/40">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block">
-                      STRUCTURE
+                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block font-bold">
+                      MATERIA
                     </span>
-                    <span className="text-base font-serif text-[#5C4D3C]">构 成</span>
+                    <span className="text-xs font-serif text-[#5C4D3C] font-bold uppercase tracking-widest">02</span>
                   </div>
                   <h4 className="text-sm font-serif font-bold text-[#191612]">
-                    02 / Baño Mineral
+                    Baño Mineral
                   </h4>
                   <p className="text-[11px] text-stone-600 leading-relaxed font-light">
                     Tina de piedra natural esculpida con vista al Cordón del Plata.
@@ -979,13 +979,13 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                 {/* Column 3: REFLECTION / 03 CAVA */}
                 <div className="space-y-3 relative pl-3 border-l-2 border-[#1C2A24]">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block">
-                      REFLECTION
+                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block font-bold">
+                      ENOLOGÍA
                     </span>
-                    <span className="text-base font-serif text-[#1C2A24]">思 考</span>
+                    <span className="text-xs font-serif text-[#1C2A24] font-bold uppercase tracking-widest">03</span>
                   </div>
                   <h4 className="text-sm font-serif font-bold text-[#191612]">
-                    03 / Cava & Roble
+                    Cava & Roble
                   </h4>
                   <p className="text-[11px] text-stone-600 leading-relaxed font-light">
                     Guarda en barricas y degustación guiada por sommelier in-house.
@@ -995,13 +995,13 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                 {/* Column 4: HARMONY / 04 TERRAZA */}
                 <div className="space-y-3 relative pl-3 border-l-2 border-[#5C4D3C]/40">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block">
-                      HARMONY
+                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block font-bold">
+                      ARMONÍA
                     </span>
-                    <span className="text-base font-serif text-[#5C4D3C]">解 读</span>
+                    <span className="text-xs font-serif text-[#5C4D3C] font-bold uppercase tracking-widest">04</span>
                   </div>
                   <h4 className="text-sm font-serif font-bold text-[#191612]">
-                    04 / Fuego & Sunset
+                    Fuego & Sunset
                   </h4>
                   <p className="text-[11px] text-stone-600 leading-relaxed font-light">
                     Terraza con fogonero, piscina infinita y cocina a las brasas.
@@ -1135,17 +1135,17 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
               <div className="absolute inset-0 bg-[radial-gradient(#2E4A3B_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none" />
 
               <div className="relative z-10 space-y-6">
-                {/* Vertical Ribbon Title: CONTENTS / 目录 */}
+                {/* Vertical Ribbon Title: SOMMARIO / INDICE */}
                 <div className="flex items-center justify-between border-b border-[#2C4236] pb-4">
                   <div>
                     <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-[#c5a880] block font-bold">
-                      CONTENTS
+                      SOMMARIO
                     </span>
                     <h3 className="text-xl font-serif text-white mt-0.5">
                       Catálogo & Suites
                     </h3>
                   </div>
-                  <span className="text-2xl font-serif text-[#8EA898]">目 录</span>
+                  <span className="text-xs font-mono tracking-widest text-[#8EA898] uppercase font-bold">ÍNDICE</span>
                 </div>
 
                 {/* Vertical Content Index */}
