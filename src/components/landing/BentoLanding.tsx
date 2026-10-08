@@ -34,7 +34,7 @@ type ModuleKey =
   | 'whatsapp'
   | 'housekeeping'
   | 'revenue'
-  | 'website_signature'
+  | 'website_models'
   | 'pricing'
   | 'channels'
   | 'onboarding'
@@ -190,7 +190,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             {/* Bottom Actions with Zen CTA */}
             <div className="pt-4 border-t border-gray-50 dark:border-white/5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <span className="text-xs text-gray-400 dark:text-zinc-400 font-light">
-                3 Diseños Esenciales incluidos + 3 Colección Signature
+                3 Modelos Web Oficiales incluidos en Loomi Suite
               </span>
               <button
                 onClick={(e) => {
@@ -266,7 +266,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             </div>
 
             <div className="pt-2.5 border-t border-gray-50 dark:border-white/5 flex items-center justify-between text-xs text-gray-400 dark:text-zinc-400 font-light">
-              <span>6 plantillas</span>
+              <span>3 modelos web</span>
               <span className="text-gray-700 dark:text-gray-200 font-medium group-hover:text-[#E67E22] transition-colors">
                 Ver +
               </span>
@@ -399,7 +399,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
           
           {/* Tile G: Tu Web Oficial & Bienvenida Unificada (5 Cols) */}
           <div
-            onClick={() => setActiveModule('website_signature')}
+            onClick={() => setActiveModule('website_models')}
             className={`w-full sm:col-span-2 lg:col-span-5 rounded-3xl p-6 flex flex-col justify-between cursor-pointer transition-all duration-300 group min-h-[200px] active:scale-[0.99] border-2 border-orange-100/70 dark:border-orange-950/40 ${cardBaseStyle}`}
           >
             <div className="flex items-center justify-between pb-2.5 border-b border-gray-50 dark:border-white/5">
@@ -408,7 +408,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 TU WEB + PORTAL DEL HUÉSPED
               </span>
               <span className="px-2 py-0.5 rounded-md bg-[#FDF3E7] dark:bg-orange-950/40 text-[#E67E22] text-[10px] font-medium">
-                Colección Esencial + Signature
+                3 Modelos Web Oficiales
               </span>
             </div>
 
@@ -417,7 +417,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 El huésped habita el espacio <span className="font-semibold text-gray-800 dark:text-gray-100">antes de llegar</span>
               </h3>
               <p className="text-xs text-gray-400 dark:text-zinc-400 leading-relaxed font-light">
-                3 plantillas esenciales listas (Bay, Retrato, Urbano) + 3 modelos Signature de autor con clave Wi-Fi y guía interactiva continua.
+                3 modelos web de autor incluidos (Refugio Dos Aguas, Corte delle Vette y Médano Blanco) con clave Wi-Fi y guía interactiva continua.
               </p>
             </div>
 
@@ -556,13 +556,13 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               <X className="w-5 h-5" />
             </button>
 
-            {/* DETAIL: WEBSITE & SIGNATURE & BIENVENIDA */}
-            {activeModule === 'website_signature' && (
+            {/* DETAIL: WEBSITE & MODELOS & BIENVENIDA */}
+            {activeModule === 'website_models' && (
               <div className="space-y-5">
                 <div className="space-y-1">
                   <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#E67E22] flex items-center gap-1.5">
-                    <Crown className="w-3.5 h-3.5 text-amber-500" />
-                    COLECCIÓN ESENCIAL & SIGNATURE + BIENVENIDA AL HUÉSPED
+                    <Globe className="w-3.5 h-3.5 text-[#E67E22]" />
+                    3 MODELOS WEB OFICIALES & PORTAL DEL HUÉSPED
                   </span>
                   <h3 className="text-2xl font-light text-gray-900 dark:text-white">
                     Tu Web Directa y Portal de Bienvenida <span className="font-semibold">Unificados</span>
@@ -581,24 +581,24 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                         <CheckCircle2 className="w-4 h-4" />
-                        Colección Esencial (Incluida en el Abono)
+                        3 Modelos Web Oficiales (Incluidos en Loomi Suite)
                       </span>
                       <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-300 font-medium">
-                        Listo en 15 min
+                        Listos en 15 min
                       </span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                       <div className="p-3 rounded-xl bg-white dark:bg-zinc-900 border border-gray-100 dark:border-white/5">
-                        <strong className="block font-medium text-gray-800 dark:text-white">🏛️ Bay</strong>
-                        <span className="text-gray-400 text-[11px] block mt-0.5 font-light">Elegancia boutique clásica, buscador directo tradicional.</span>
+                        <strong className="block font-medium text-gray-800 dark:text-white">🌲 Refugio Dos Aguas</strong>
+                        <span className="text-gray-400 text-[11px] block mt-0.5 font-light">Glamping & Bosque. Estética obsidian, calidez y suites panorámicas.</span>
                       </div>
                       <div className="p-3 rounded-xl bg-white dark:bg-zinc-900 border border-gray-100 dark:border-white/5">
-                        <strong className="block font-medium text-gray-800 dark:text-white">🌲 Retrato</strong>
-                        <span className="text-gray-400 text-[11px] block mt-0.5 font-light">Estética arquitectónica oscura (obsidian) y suites panorámicas.</span>
+                        <strong className="block font-medium text-gray-800 dark:text-white">🍷 Corte delle Vette</strong>
+                        <span className="text-gray-400 text-[11px] block mt-0.5 font-light">Bodega Lodge. Arquitectura mineral entre viñedos y cordillera.</span>
                       </div>
                       <div className="p-3 rounded-xl bg-white dark:bg-zinc-900 border border-gray-100 dark:border-white/5">
-                        <strong className="block font-medium text-gray-800 dark:text-white">🏙️ Urbano</strong>
-                        <span className="text-gray-400 text-[11px] block mt-0.5 font-light">Lienzo con marco blanco curvo y buscador cápsula.</span>
+                        <strong className="block font-medium text-gray-800 dark:text-white">🌊 Médano Blanco</strong>
+                        <span className="text-gray-400 text-[11px] block mt-0.5 font-light">Posada Costera. Suites luminosas frente al mar, dunas y brisa.</span>
                       </div>
                     </div>
                   </div>

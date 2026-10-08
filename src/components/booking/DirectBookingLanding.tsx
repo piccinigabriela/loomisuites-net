@@ -37,7 +37,6 @@ import {
 } from 'lucide-react';
 import { WelcomeGuideData, Property } from '../../types';
 import { DateRangeCalendarPicker } from './DateRangeCalendarPicker';
-import { SignatureTriptychLanding } from './SignatureTriptychLanding';
 
 interface DirectBookingLandingProps {
   guideData: WelcomeGuideData;
@@ -47,14 +46,12 @@ interface DirectBookingLandingProps {
 }
 
 export type LandingTemplate =
+  | 'dos-aguas'
+  | 'corte-vette'
+  | 'medano-blanco'
   | 'bay'
   | 'retrato'
-  | 'urbano'
-  | 'triptych'
-  | 'luxury-monograph-folio'
-  | 'luxury-bento-grid'
-  | 'luxury-editorial-parallax'
-  | 'luxury-horizontal-architectural';
+  | 'urbano';
 
 export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
   guideData,
@@ -62,8 +59,8 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
   activeTemplate,
   onSelectTemplate,
 }) => {
-  // Visual template state
-  const [internalTemplate, setInternalTemplate] = useState<LandingTemplate>('luxury-editorial-parallax');
+  // Visual template state (3 Modelos Oficiales de Loomi Suite)
+  const [internalTemplate, setInternalTemplate] = useState<LandingTemplate>('dos-aguas');
   const selectedTemplate = activeTemplate || internalTemplate;
   const setSelectedTemplate = (t: LandingTemplate) => {
     if (onSelectTemplate) {
@@ -86,7 +83,6 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
   const [guestPhone, setGuestPhone] = useState<string>('');
   const [bookingConfirmed, setBookingConfirmed] = useState<boolean>(false);
   const [showSelfOnboardExplain, setShowSelfOnboardExplain] = useState<boolean>(false);
-  const [showSignatureModal, setShowSignatureModal] = useState<boolean>(false);
   const [activeFloatingDetail, setActiveFloatingDetail] = useState<'sommelier' | 'wellness' | 'terroir' | 'direct_perks' | null>(null);
 
   // Early Check-in & Late Check-out options
@@ -102,7 +98,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
   const [customImageUrlInput, setCustomImageUrlInput] = useState<string>('');
   const [lightboxImage, setLightboxImage] = useState<{ src: string; title: string; subtitle: string; tag: string } | null>(null);
 
-  // Custom photos for Corte delle Vette / AURA
+  // Custom photos for Corte delle Vette
   const [cortePhotos, setCortePhotos] = useState<{
     suite1: string;
     bathroom: string;
@@ -124,16 +120,6 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
   });
   const [editingPhotoKey, setEditingPhotoKey] = useState<string | null>(null);
   const [photoEditInput, setPhotoEditInput] = useState<string>('');
-
-  // Ref for Canvas horizontal scroll container
-  const canvasScrollRef = useRef<HTMLDivElement>(null);
-
-  const scrollCanvas = (direction: 'left' | 'right') => {
-    if (canvasScrollRef.current) {
-      const scrollAmount = direction === 'left' ? -480 : 480;
-      canvasScrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
 
   const selectedCabin = properties.find((p) => p.id === selectedCabinId) || properties[0];
 
@@ -247,32 +233,17 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
     `• Mi nombre: ${guestName || 'Huésped'} - Tel: ${guestPhone}`
   );
 
-  // Template flags
-  const isBay = selectedTemplate === 'bay';
-  const isRetrato = selectedTemplate === 'retrato';
-  const isUrbano = selectedTemplate === 'urbano';
-  const isTriptych = selectedTemplate === 'triptych';
-  const isSigFolio = selectedTemplate === 'luxury-monograph-folio' || selectedTemplate === 'luxury-bento-grid';
-  const isSigAuraBento = isSigFolio;
-  const isSigAuraParallax = selectedTemplate === 'luxury-editorial-parallax';
-  const isSigAuraHorizontal = selectedTemplate === 'luxury-horizontal-architectural';
-  const isSigAura = isSigFolio || isSigAuraParallax || isSigAuraHorizontal || isTriptych;
-  const isSignature = isSigAura;
+  // Template flags: 3 modelos oficiales de Loomi Suite
+  const isDosAguas = selectedTemplate === 'dos-aguas' || selectedTemplate === 'retrato';
+  const isCorteVette = selectedTemplate === 'corte-vette' || (selectedTemplate as string) === 'triptych';
+  const isMedanoBlanco = selectedTemplate === 'medano-blanco' || selectedTemplate === 'bay' || selectedTemplate === 'urbano';
 
   return (
     <div className={`w-full transition-all duration-300 relative ${
-      isTriptych
-        ? 'bg-[#0E1015] text-[#EDE7DE]'
-        : isSigAuraParallax
+      isCorteVette
         ? 'bg-[#EDE6DC] text-[#1D1A16]'
-        : isSigFolio
-        ? 'bg-[#F4EFE6] text-[#1D1A16]'
-        : isSigAura
-        ? 'bg-[#0e0c09] text-[#EDE8DF]'
-        : isRetrato
+        : isDosAguas
         ? 'bg-[#0c0e0d] text-[#EFECE6]'
-        : isUrbano
-        ? 'bg-[#FAF7F2] p-2 sm:p-5 text-stone-900'
         : 'bg-[#FAF8F5] text-stone-900'
     }`}>
       {/* ========================================================================= */}
@@ -280,84 +251,38 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
       {/* ========================================================================= */}
       <div className="fixed top-3 sm:top-4 right-3 sm:right-6 z-50 font-sans pointer-events-auto">
         {showSimulatorBar ? (
-          <div className="bg-[#181614]/90 backdrop-blur-xl border border-[#c5a880]/40 rounded-2xl p-2 sm:p-2.5 shadow-2xl flex items-center gap-2 text-xs text-stone-200 animate-in fade-in zoom-in-95 duration-200">
-            {/* Esenciales */}
-            <div className="flex items-center gap-1 bg-black/50 p-1 rounded-xl border border-white/10">
+          <div className="bg-[#181614]/90 backdrop-blur-xl border border-stone-700/60 rounded-2xl p-2 sm:p-2.5 shadow-2xl flex items-center gap-2 text-xs text-stone-200 animate-in fade-in zoom-in-95 duration-200">
+            <span className="text-[10px] font-mono text-stone-400 uppercase px-1 hidden sm:inline">Modelos Oficiales:</span>
+            <div className="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/10">
               <button
-                onClick={() => setSelectedTemplate('bay')}
-                className={`px-2 py-1 text-[11px] font-medium rounded-lg transition-all cursor-pointer ${
-                  isBay ? 'bg-amber-600 text-white font-bold shadow-xs' : 'text-stone-400 hover:text-white'
+                onClick={() => setSelectedTemplate('dos-aguas')}
+                className={`px-3 py-1.5 text-[11px] font-medium rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isDosAguas ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-stone-400 hover:text-white'
                 }`}
-                title="Modelo Bay (Incluido)"
+                title="Refugio Dos Aguas • Glamping & Bosque"
               >
-                🏛️ Bay
+                <span>🌲 Refugio Dos Aguas</span>
+                <span className="text-[9px] opacity-75 font-light hidden md:inline">(Glamping)</span>
               </button>
               <button
-                onClick={() => setSelectedTemplate('retrato')}
-                className={`px-2 py-1 text-[11px] font-medium rounded-lg transition-all cursor-pointer ${
-                  isRetrato ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-stone-400 hover:text-white'
+                onClick={() => setSelectedTemplate('corte-vette')}
+                className={`px-3 py-1.5 text-[11px] font-medium rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isCorteVette ? 'bg-[#9E3D31] text-white font-bold shadow-xs' : 'text-stone-400 hover:text-white'
                 }`}
-                title="Modelo Retrato (Incluido)"
+                title="Corte delle Vette • Bodega Lodge"
               >
-                🌲 Retrato
+                <span>🍷 Corte delle Vette</span>
+                <span className="text-[9px] opacity-75 font-light hidden md:inline">(Bodega)</span>
               </button>
               <button
-                onClick={() => setSelectedTemplate('urbano')}
-                className={`px-2 py-1 text-[11px] font-medium rounded-lg transition-all cursor-pointer ${
-                  isUrbano ? 'bg-amber-400 text-stone-950 font-bold shadow-xs' : 'text-stone-400 hover:text-white'
+                onClick={() => setSelectedTemplate('medano-blanco')}
+                className={`px-3 py-1.5 text-[11px] font-medium rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isMedanoBlanco ? 'bg-amber-600 text-white font-bold shadow-xs' : 'text-stone-400 hover:text-white'
                 }`}
-                title="Modelo Urbano (Incluido)"
+                title="Médano Blanco • Posada Costera"
               >
-                🏙️ Urbano
-              </button>
-            </div>
-
-            <span className="text-stone-600 text-xs select-none">|</span>
-
-            {/* Signature Models */}
-            <div className="flex items-center gap-1 bg-[#0F1826] p-1 rounded-xl border border-[#2A4468]">
-              <button
-                onClick={() => setSelectedTemplate('triptych')}
-                className={`px-2.5 py-1 text-[11px] rounded-lg transition-all cursor-pointer flex items-center gap-1 font-serif italic ${
-                  isTriptych ? 'bg-[#E5DACD] text-stone-950 font-bold shadow-xs' : 'text-[#D8CEBE] hover:text-white'
-                }`}
-                title="Dirección de Autor: Tríptico 3 Bandas"
-              >
-                <Crown className={`w-3 h-3 ${isTriptych ? 'text-stone-900' : 'text-[#D8CEBE]'}`} />
-                <span>3 Bandas</span>
-              </button>
-
-              <button
-                onClick={() => setSelectedTemplate('luxury-editorial-parallax')}
-                className={`px-2.5 py-1 text-[11px] rounded-lg transition-all cursor-pointer flex items-center gap-1 font-serif italic ${
-                  isSigAuraParallax ? 'bg-[#E5DACD] text-stone-950 font-bold shadow-xs' : 'text-[#D8CEBE] hover:text-white'
-                }`}
-                title="Dirección de Autor: Parallax Mineral (Corte delle Vette)"
-              >
-                <Crown className={`w-3 h-3 ${isSigAuraParallax ? 'text-stone-900' : 'text-[#D8CEBE]'}`} />
-                <span>Parallax</span>
-              </button>
-
-              <button
-                onClick={() => setSelectedTemplate('luxury-horizontal-architectural')}
-                className={`px-2.5 py-1 text-[11px] rounded-lg transition-all cursor-pointer flex items-center gap-1 font-serif italic ${
-                  isSigAuraHorizontal ? 'bg-[#E5DACD] text-stone-950 font-bold shadow-xs' : 'text-[#D8CEBE] hover:text-white'
-                }`}
-                title="Dirección de Autor: Canvas Horizontal"
-              >
-                <Crown className={`w-3 h-3 ${isSigAuraHorizontal ? 'text-stone-900' : 'text-[#D8CEBE]'}`} />
-                <span>Canvas</span>
-              </button>
-
-              <button
-                onClick={() => setSelectedTemplate('luxury-monograph-folio')}
-                className={`px-2.5 py-1 text-[11px] rounded-lg transition-all cursor-pointer flex items-center gap-1 font-serif italic ${
-                  isSigFolio ? 'bg-[#E5DACD] text-stone-950 font-bold shadow-xs' : 'text-[#D8CEBE] hover:text-white'
-                }`}
-                title="Dirección de Autor: Folio Monograph"
-              >
-                <Crown className={`w-3 h-3 ${isSigFolio ? 'text-stone-900' : 'text-[#D8CEBE]'}`} />
-                <span>Folio</span>
+                <span>🌊 Médano Blanco</span>
+                <span className="text-[9px] opacity-75 font-light hidden md:inline">(Posada)</span>
               </button>
             </div>
 
@@ -374,12 +299,12 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
           /* Compact Floating Badge to Switch Designs */
           <button
             onClick={() => setShowSimulatorBar(true)}
-            className="px-3 py-1.5 rounded-full bg-black/80 hover:bg-black text-[#c5a880] border border-[#c5a880]/50 text-xs font-mono backdrop-blur-md shadow-xl flex items-center gap-1.5 transition-all cursor-pointer hover:scale-105"
-            title="Cambiar plantilla de diseño web"
+            className="px-3.5 py-2 rounded-full bg-black/85 hover:bg-black text-[#E67E22] border border-[#E67E22]/40 text-xs font-mono backdrop-blur-md shadow-xl flex items-center gap-2 transition-all cursor-pointer hover:scale-105"
+            title="Cambiar modelo web oficial"
           >
-            <Palette className="w-3.5 h-3.5 text-[#c5a880]" />
-            <span className="font-sans font-medium text-[11px] text-stone-200">
-              Diseño: <strong className="text-[#c5a880] uppercase">{isTriptych ? '3 Bandas' : isSigAuraParallax ? 'Parallax' : isSigFolio ? 'Folio Zen' : isSigAuraHorizontal ? 'Canvas' : selectedTemplate}</strong>
+            <Palette className="w-3.5 h-3.5 text-[#E67E22]" />
+            <span className="font-sans font-medium text-[11px] text-white">
+              {isDosAguas ? '🌲 Refugio Dos Aguas' : isCorteVette ? '🍷 Corte delle Vette' : '🌊 Médano Blanco'}
             </span>
             <span className="text-[10px] text-stone-400 ml-0.5">▼</span>
           </button>
@@ -403,81 +328,8 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
               checkOut={checkOutDate}
               onChange={handleDatesSelect}
               onClose={() => setIsCalendarOpen(false)}
-              accentColor={isSigAuraBento || isSigAuraParallax ? 'amber' : isUrbano ? 'amber' : isRetrato ? 'emerald' : 'amber'}
+              accentColor={isCorteVette ? 'amber' : isDosAguas ? 'emerald' : 'amber'}
             />
-          </div>
-        </div>,
-        document.body
-      )}
-
-      {/* ========================================================================= */}
-      {/* MODAL: ACTIVACIÓN / CONSULTA COLECCIÓN SIGNATURE (AURA $49 USD) */}
-      {/* ========================================================================= */}
-      {showSignatureModal && typeof document !== 'undefined' && createPortal(
-        <div
-          className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-200 font-sans"
-          onClick={() => setShowSignatureModal(false)}
-        >
-          <div
-            className="relative w-full max-w-xl bg-[#0f0d0a] text-white border-2 border-[#c5a880]/50 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setShowSignatureModal(false)}
-              className="absolute top-5 right-5 w-10 h-10 rounded-full bg-stone-900 text-stone-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer border border-stone-800"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div>
-              <span className="px-3 py-1 rounded-full bg-[#c5a880]/20 text-[#c5a880] text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-1.5">
-                <Crown className="w-3.5 h-3.5" />
-                PREMIUM LUXURY ADDON • $49 USD
-              </span>
-              <h3 className="text-2xl sm:text-3xl font-serif mt-2 tracking-wide text-[#FAF8F5]">
-                AURA — Relais & Viñedos de Montaña
-              </h3>
-              <p className="text-xs sm:text-sm text-[#c5a880]/90 font-mono mt-1">
-                Valle de Uco, Mendoza — Argentina • Formato Parallax Vertical & Bento Grid
-              </p>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-stone-950/80 border border-[#c5a880]/30 space-y-2.5 text-xs text-stone-300 font-medium">
-              <p className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#c5a880] shrink-0" />
-                <span><strong>Diseño Parallax Editorial / Bento Grid:</strong> Presentación cinemática con scroll vertical inmersivo.</span>
-              </p>
-              <p className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#c5a880] shrink-0" />
-                <span><strong>Portal de Bienvenida coordinado 1:1:</strong> Misma estética en el celular del huésped para que empiece a habitar el espacio antes de llegar.</span>
-              </p>
-              <p className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#c5a880] shrink-0" />
-                <span><strong>Setup asistido:</strong> Curaduría de fotos y textos por el equipo de diseño.</span>
-              </p>
-              <p className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#c5a880] shrink-0" />
-                <span><strong>Pago único de $49 USD:</strong> Activación definitiva para tu complejo sin costos recurrentes extra.</span>
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <a
-                href={`https://wa.me/?text=${encodeURIComponent('Hola! Quiero activar el addon AURA ($49 USD) en Loomi Suite para mi complejo de viñedos/montaña.')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 min-h-[44px] py-3 px-5 rounded-2xl bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#c5a880]/20 cursor-pointer"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>Activar AURA por WhatsApp ($49 USD)</span>
-              </a>
-              <button
-                onClick={() => setShowSignatureModal(false)}
-                className="min-h-[44px] py-3 px-5 rounded-2xl bg-stone-900 hover:bg-stone-800 text-stone-300 font-semibold text-xs border border-stone-800 cursor-pointer"
-              >
-                Cerrar Previsualización
-              </button>
-            </div>
           </div>
         </div>,
         document.body
@@ -636,23 +488,9 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* MODELO SIGNATURE TRÍPTICO: 3 BANDAS (OPCIÓN 1 Y 2 CONMUTABLES)            */}
+      {/* MODELO 2: CORTE DELLE VETTE — BODEGA LODGE & SUITES                       */}
       {/* ========================================================================= */}
-      {isTriptych && (
-        <SignatureTriptychLanding
-          properties={properties}
-          onOpenBookingModal={() => setIsCalendarOpen(true)}
-          onSelectProperty={(prop) => {
-            setSelectedCabinId(prop.id);
-            setIsCalendarOpen(true);
-          }}
-        />
-      )}
-
-      {/* ========================================================================= */}
-      {/* MODELO SIGNATURE 2: CORTE DELLE VETTE — EDITORIAL PARALLAX VERTICAL ($49) */}
-      {/* ========================================================================= */}
-      {isSigAuraParallax && (
+      {isCorteVette && (
         <div className="relative min-h-screen bg-[#EDE6DC] text-[#1D1A16] font-sans antialiased overflow-x-hidden selection:bg-[#c5a880] selection:text-white">
           
           {/* ===================================================================== */}
@@ -902,335 +740,9 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* MODELO SIGNATURE 1: FOLIO ZEN ARQUITECTÓNICO & MONOGRAPH ($49 USD)        */}
+      {/* MODELO 2: MÉDANO BLANCO (POSADA COSTERA)                                  */}
       {/* ========================================================================= */}
-      {isSigFolio && (
-        <div className="py-8 px-4 sm:px-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 font-sans text-[#1E1B18]">
-          
-          {/* 1. TOP PANORAMIC ATMOSPHERIC BANNER (SOFT INSTALLATION / LANDSCAPE PROPOSAL) */}
-          <div className="relative rounded-3xl overflow-hidden border border-[#8C7E6A]/25 bg-[#EBE4D8] shadow-xl min-h-[320px] sm:min-h-[380px] flex flex-col justify-between p-6 sm:p-10">
-            {/* Background Misty Mountain & Branch Art Overlay */}
-            <div className="absolute inset-0 z-0">
-              <img
-                src={cortePhotos.facade || '/entrada.jpeg'}
-                alt="Corte delle Vette Monograph"
-                className="w-full h-full object-cover opacity-25 mix-blend-multiply scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#EBE4D8] via-[#EBE4D8]/80 to-transparent" />
-              {/* Fine Rain / Silk grain lines overlay */}
-              <div className="absolute inset-0 bg-[radial-gradient(#5C4D3C_1px,transparent_1px)] [background-size:24px_24px] opacity-10" />
-            </div>
-
-            {/* Top Subtle Meta */}
-            <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-b border-[#2C2720]/15 pb-4 text-xs font-serif tracking-[0.25em] text-[#4A3F33] uppercase">
-              <span className="font-bold">SOFT INSTALLATION & ARCHITECTURAL PROPOSAL</span>
-              <span className="font-mono text-[11px] tracking-widest text-[#735D43]">VALLE DE UCO • 1.200 MSNM</span>
-              <span className="font-mono text-[11px]">©2024—2026</span>
-            </div>
-
-            {/* Central Poetic Title with Architectural Mark */}
-            <div className="relative z-10 py-6 max-w-3xl space-y-3">
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-serif text-[#3A4D42] tracking-[0.25em] uppercase font-bold border-r border-[#8C6D46]/40 pr-3">
-                  ARQUITECTURA & TERROIR
-                </span>
-                <span className="text-[11px] font-mono uppercase tracking-[0.3em] text-[#8C6D46] font-bold">
-                  CORTE DELLE VETTE • MONOGRAPH
-                </span>
-              </div>
-
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif tracking-tight text-[#191612] leading-[1.05] uppercase">
-                Arquitectura Mineral y el Eco de los Andes
-              </h1>
-
-              <p className="text-xs sm:text-sm text-[#5C4D3C] font-light leading-relaxed max-w-2xl font-serif italic">
-                Quince exclusivas suites esculpidas en hormigón, piedra y madera noble sobre el propio viñedo. Una experiencia enológica y contemplativa donde la Cordillera marca el ritmo.
-              </p>
-            </div>
-
-            {/* Bottom Proposal Action */}
-            <div className="relative z-10 pt-4 border-t border-[#2C2720]/15 flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-2 text-xs font-mono text-[#3A4D42]">
-                <Sparkles className="w-4 h-4 text-[#8C6D46]" />
-                <span>15 Suites de Autor • Cava Subterránea • Tina Mineral</span>
-              </div>
-
-              <button
-                onClick={scrollToBooking}
-                className="min-h-[42px] px-7 py-2.5 rounded-xl bg-[#1C2A24] hover:bg-[#121D18] text-[#F4EFE6] font-serif font-bold text-xs uppercase tracking-widest transition-all shadow-md cursor-pointer flex items-center gap-2"
-              >
-                <span>Consultar Disponibilidad</span>
-                <ArrowRight className="w-4 h-4 text-[#c5a880]" />
-              </button>
-            </div>
-          </div>
-
-          {/* 2. THE CORE FOLIO ARCHITECTURAL GRID (HANGING LINES + DEEP PINE SILK RIBBON) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* Left Main Content: Vertical Hanging Columns (9 cols) */}
-            <div className="lg:col-span-9 bg-[#FAF7F2] rounded-3xl p-6 sm:p-10 border border-[#8C7E6A]/20 shadow-lg space-y-8">
-              
-              {/* Hanging Lines Header Section (Exact Inspiration from Reference Image) */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-2 pb-6 border-b border-[#2C2720]/10">
-                
-                {/* Column 1: DESIGN / 01 SUITES */}
-                <div className="space-y-3 relative pl-3 border-l-2 border-[#1C2A24]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block font-bold">
-                      PROGETTO
-                    </span>
-                    <span className="text-xs font-serif text-[#1C2A24] font-bold uppercase tracking-widest">01</span>
-                  </div>
-                  <h4 className="text-sm font-serif font-bold text-[#191612]">
-                    Master Suites
-                  </h4>
-                  <p className="text-[11px] text-stone-600 leading-relaxed font-light">
-                    Hormigón mineral, lino puro y ventanales panorámicos hacia el viñedo.
-                  </p>
-                </div>
-
-                {/* Column 2: STRUCTURE / 02 BAÑOS */}
-                <div className="space-y-3 relative pl-3 border-l-2 border-[#5C4D3C]/40">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block font-bold">
-                      MATERIA
-                    </span>
-                    <span className="text-xs font-serif text-[#5C4D3C] font-bold uppercase tracking-widest">02</span>
-                  </div>
-                  <h4 className="text-sm font-serif font-bold text-[#191612]">
-                    Baño Mineral
-                  </h4>
-                  <p className="text-[11px] text-stone-600 leading-relaxed font-light">
-                    Tina de piedra natural esculpida con vista al Cordón del Plata.
-                  </p>
-                </div>
-
-                {/* Column 3: REFLECTION / 03 CAVA */}
-                <div className="space-y-3 relative pl-3 border-l-2 border-[#1C2A24]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block font-bold">
-                      ENOLOGÍA
-                    </span>
-                    <span className="text-xs font-serif text-[#1C2A24] font-bold uppercase tracking-widest">03</span>
-                  </div>
-                  <h4 className="text-sm font-serif font-bold text-[#191612]">
-                    Cava & Roble
-                  </h4>
-                  <p className="text-[11px] text-stone-600 leading-relaxed font-light">
-                    Guarda en barricas y degustación guiada por sommelier in-house.
-                  </p>
-                </div>
-
-                {/* Column 4: HARMONY / 04 TERRAZA */}
-                <div className="space-y-3 relative pl-3 border-l-2 border-[#5C4D3C]/40">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono tracking-widest text-[#8C6D46] uppercase block font-bold">
-                      ARMONÍA
-                    </span>
-                    <span className="text-xs font-serif text-[#5C4D3C] font-bold uppercase tracking-widest">04</span>
-                  </div>
-                  <h4 className="text-sm font-serif font-bold text-[#191612]">
-                    Fuego & Sunset
-                  </h4>
-                  <p className="text-[11px] text-stone-600 leading-relaxed font-light">
-                    Terraza con fogonero, piscina infinita y cocina a las brasas.
-                  </p>
-                </div>
-
-              </div>
-
-              {/* Photo Showcase Gallery Cards (Clean High-Res Architectural Displays) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                
-                {/* Photo 1: Master Suite */}
-                <div
-                  onClick={() => setLightboxImage({ src: cortePhotos.suite1, title: 'Master Suite King & Cordillera', subtitle: 'Hormigón visto y lino puro', tag: '01 / MASTER SUITE' })}
-                  className="group relative rounded-2xl overflow-hidden bg-stone-200 border border-[#2C2720]/15 shadow-md cursor-pointer aspect-[16/10]"
-                >
-                  <img
-                    src={cortePhotos.suite1}
-                    alt="Master Suite"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-4 text-white">
-                    <span className="text-[9px] font-mono tracking-widest uppercase text-[#c5a880]">01 / SUITE KING</span>
-                    <h5 className="text-sm font-serif font-bold">Master Suite & Terraza Privada</h5>
-                    <p className="text-[10px] text-stone-300 font-light">Cama King dressed in linen, estufa a leña y vistas panorámicas.</p>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingPhotoKey('suite1');
-                      setPhotoEditInput(cortePhotos.suite1);
-                    }}
-                    className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white text-stone-900 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                    title="Cambiar foto"
-                  >
-                    <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
-                  </button>
-                </div>
-
-                {/* Photo 2: Baño Mineral */}
-                <div
-                  onClick={() => setLightboxImage({ src: cortePhotos.bathroom, title: 'Tina de Piedra Natural', subtitle: 'Ventanal panorámico al viñedo', tag: '02 / BAÑO MINERAL' })}
-                  className="group relative rounded-2xl overflow-hidden bg-stone-200 border border-[#2C2720]/15 shadow-md cursor-pointer aspect-[16/10]"
-                >
-                  <img
-                    src={cortePhotos.bathroom}
-                    alt="Baño Mineral"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-4 text-white">
-                    <span className="text-[9px] font-mono tracking-widest uppercase text-[#c5a880]">02 / BAÑO MINERAL</span>
-                    <h5 className="text-sm font-serif font-bold">Tina de Inmersión Esculpida</h5>
-                    <p className="text-[10px] text-stone-300 font-light">Piedra volcánica, sales aromáticas de uva y luz natural.</p>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingPhotoKey('bathroom');
-                      setPhotoEditInput(cortePhotos.bathroom);
-                    }}
-                    className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white text-stone-900 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                    title="Cambiar foto"
-                  >
-                    <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
-                  </button>
-                </div>
-
-                {/* Photo 3: Cava de Roble */}
-                <div
-                  onClick={() => setLightboxImage({ src: cortePhotos.cellar, title: 'Cava de Guarda & Roble', subtitle: 'Barricas y degustación íntima', tag: '03 / CAVA' })}
-                  className="group relative rounded-2xl overflow-hidden bg-stone-200 border border-[#2C2720]/15 shadow-md cursor-pointer aspect-[16/10]"
-                >
-                  <img
-                    src={cortePhotos.cellar}
-                    alt="Cava de Roble"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-4 text-white">
-                    <span className="text-[9px] font-mono tracking-widest uppercase text-[#c5a880]">03 / EXPERIENCIA ENOLÓGICA</span>
-                    <h5 className="text-sm font-serif font-bold">Cava Subterránea & Cata Privada</h5>
-                    <p className="text-[10px] text-stone-300 font-light">Barricas de roble francés y etiquetas históricas con sommelier.</p>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingPhotoKey('cellar');
-                      setPhotoEditInput(cortePhotos.cellar);
-                    }}
-                    className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white text-stone-900 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                    title="Cambiar foto"
-                  >
-                    <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
-                  </button>
-                </div>
-
-                {/* Photo 4: Degustación Sunset */}
-                <div
-                  onClick={() => setLightboxImage({ src: cortePhotos.sunset, title: 'Degustación al Atardecer', subtitle: 'Sommelier y cocina de fuegos', tag: '04 / SUNSET' })}
-                  className="group relative rounded-2xl overflow-hidden bg-stone-200 border border-[#2C2720]/15 shadow-md cursor-pointer aspect-[16/10]"
-                >
-                  <img
-                    src={cortePhotos.sunset}
-                    alt="Sunset Tasting"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-4 text-white">
-                    <span className="text-[9px] font-mono tracking-widest uppercase text-[#c5a880]">04 / SUNSET TASTING</span>
-                    <h5 className="text-sm font-serif font-bold">Atardecer Frente a la Cordillera</h5>
-                    <p className="text-[10px] text-stone-300 font-light">Copa de vino de altura, cocina de fuegos y cielo estrellado.</p>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingPhotoKey('sunset');
-                      setPhotoEditInput(cortePhotos.sunset);
-                    }}
-                    className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white text-stone-900 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                    title="Cambiar foto"
-                  >
-                    <ImageIcon className="w-3.5 h-3.5 text-[#8C6D46]" />
-                  </button>
-                </div>
-
-              </div>
-
-            </div>
-
-            {/* Right Column: Deep Pine Emerald Silk Textured Ribbon (3 cols) */}
-            <div className="lg:col-span-3 rounded-3xl bg-[#16241D] text-[#EDE6DC] p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-2xl relative overflow-hidden border border-[#2C4236]">
-              {/* Woven Silk Grain Texture */}
-              <div className="absolute inset-0 bg-[radial-gradient(#2E4A3B_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none" />
-
-              <div className="relative z-10 space-y-6">
-                {/* Vertical Ribbon Title: SOMMARIO / INDICE */}
-                <div className="flex items-center justify-between border-b border-[#2C4236] pb-4">
-                  <div>
-                    <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-[#c5a880] block font-bold">
-                      SOMMARIO
-                    </span>
-                    <h3 className="text-xl font-serif text-white mt-0.5">
-                      Catálogo & Suites
-                    </h3>
-                  </div>
-                  <span className="text-xs font-mono tracking-widest text-[#8EA898] uppercase font-bold">ÍNDICE</span>
-                </div>
-
-                {/* Vertical Content Index */}
-                <div className="space-y-4 text-xs font-mono">
-                  <div className="p-3 rounded-xl bg-black/25 border border-[#2C4236] space-y-1">
-                    <span className="text-[9px] text-[#c5a880] uppercase tracking-wider block">01 / Master Suite King</span>
-                    <p className="text-[11px] text-stone-200 font-sans">1 Cama King • 2 a 3 pax • Tina Mineral</p>
-                    <span className="text-xs font-serif font-bold text-white block pt-1">$180 USD / noche</span>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-black/25 border border-[#2C4236] space-y-1">
-                    <span className="text-[9px] text-[#c5a880] uppercase tracking-wider block">02 / Suite Doble Panorámica</span>
-                    <p className="text-[11px] text-stone-200 font-sans">Terraza privada & fogonero exterior</p>
-                    <span className="text-xs font-serif font-bold text-white block pt-1">$195 USD / noche</span>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-black/25 border border-[#2C4236] space-y-1">
-                    <span className="text-[9px] text-[#c5a880] uppercase tracking-wider block">03 / Experiencias Incluidas</span>
-                    <p className="text-[11px] text-stone-300 font-sans">Cata de barricas, desayuno de viña y acceso a piscina infinita.</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Direct Booking Call to Action */}
-              <div className="relative z-10 pt-4 border-t border-[#2C4236] space-y-3">
-                <div
-                  onClick={() => setIsCalendarOpen(true)}
-                  className="p-3 rounded-xl bg-black/40 border border-[#2C4236] cursor-pointer hover:border-[#c5a880]/50 transition-colors text-left"
-                >
-                  <span className="text-[9px] font-mono text-[#c5a880] uppercase block">Fechas de Estadía:</span>
-                  <span className="text-xs text-white font-bold flex items-center gap-1.5 mt-0.5">
-                    <CalendarIcon className="w-3.5 h-3.5 text-[#c5a880]" />
-                    {checkInDate} al {checkOutDate} ({nights} nts)
-                  </span>
-                </div>
-
-                <button
-                  onClick={scrollToBooking}
-                  className="w-full min-h-[44px] py-3 px-4 rounded-xl bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 font-serif font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-[#c5a880]/20 cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <span>Reservar Suite Directa</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* MODELO ESENCIAL 1: BAY                                                    */}
-      {/* ========================================================================= */}
-      {isBay && (
+      {isMedanoBlanco && (
         <div className="space-y-0 animate-in fade-in duration-300 font-serif">
           <section className="relative min-h-[640px] lg:min-h-[720px] flex flex-col justify-between overflow-hidden bg-stone-950 text-white">
             <div className="absolute inset-0 z-0">
@@ -1245,15 +757,15 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
             <div className="relative z-10 p-6 sm:p-12 max-w-5xl mx-auto w-full text-center my-auto space-y-6">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs tracking-widest uppercase font-sans">
                 <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                <span>RESERVAS OFICIALES SIN INTERMEDIARIOS</span>
+                <span>POSADA COSTERA • RESERVAS DIRECTAS OFICIALES</span>
               </div>
 
               <h1 className="text-4xl sm:text-6xl md:text-7xl font-serif uppercase tracking-wider font-light text-white leading-tight">
-                {guideData.propertyName || 'Casa Bay'}
+                {guideData.propertyName || 'Médano Blanco'}
               </h1>
 
               <p className="text-stone-300 max-w-2xl mx-auto font-sans font-light text-sm sm:text-base leading-relaxed">
-                {guideData.tagline || 'Departamentos de categoría con equipamiento integral, acceso autónomo y atención personalizada.'}
+                {guideData.tagline || 'Suites luminosas frente al mar y dunas costeras con equipamiento integral, acceso autónomo y calidez boutique.'}
               </p>
 
               <div className="pt-6 max-w-3xl mx-auto font-sans">
@@ -1292,9 +804,9 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* MODELO ESENCIAL 2: RETRATO                                                */}
+      {/* MODELO 3: REFUGIO DOS AGUAS (GLAMPING BOSQUE)                             */}
       {/* ========================================================================= */}
-      {isRetrato && (
+      {isDosAguas && (
         <div className="space-y-0 font-sans animate-in fade-in duration-300">
           <section className="relative min-h-[660px] lg:min-h-[740px] flex flex-col justify-between overflow-hidden bg-[#0c0e0d] text-[#EDE8DF]">
             <div className="absolute inset-0 z-0">
@@ -1310,16 +822,16 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="text-xs font-mono tracking-widest text-emerald-400 uppercase">
-                  LA ARQUITECTURA SE ENCUENTRA CON EL SILENCIO
+                  GLAMPING & DOMOS EN EL BOSQUE • NATURALEZA VIRGEN
                 </span>
               </div>
 
               <h1 className="text-4xl sm:text-6xl md:text-7xl font-extralight tracking-tight text-white leading-tight">
-                {guideData.propertyName || 'Retrato'}
+                {guideData.propertyName || 'Refugio Dos Aguas'}
               </h1>
 
               <p className="text-stone-400 max-w-xl text-sm sm:text-base font-light leading-relaxed">
-                Espacios curados para vivir y trabajar con diseño sobrio y conexión natural.
+                Eco-cabañas y suites integradas entre el bosque nativo y arroyos de montaña para reconectar con diseño sobrio y silencio.
               </p>
 
               <div className="pt-4 flex flex-wrap items-center gap-4">
@@ -1343,330 +855,16 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* MODELO ESENCIAL 3: URBANO BUENOS AIRES                                    */}
-      {/* ========================================================================= */}
-      {isUrbano && (
-        <div className="space-y-0 font-sans animate-in fade-in duration-300">
-          <section className="relative min-h-[640px] lg:min-h-[700px] flex flex-col justify-between overflow-hidden bg-white text-stone-900 rounded-[2.5rem] border-[8px] border-white shadow-2xl">
-            <div className="absolute inset-0 z-0 overflow-hidden">
-              <img
-                src={urbanoHeroImage}
-                alt="Buenos Aires Catalinas"
-                className="w-full h-full object-cover opacity-90"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-            </div>
-
-            <div className="relative z-10 p-6 sm:p-12 max-w-5xl mx-auto w-full my-auto text-center space-y-5 text-white">
-              <span className="px-4 py-1.5 rounded-full bg-amber-400 text-stone-950 font-mono font-black text-xs uppercase tracking-widest inline-block">
-                BUENOS AIRES • ENCONTRÁ TU LUGAR
-              </span>
-
-              <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tight text-white">
-                {guideData.propertyName || 'Urbano Buenos Aires'}
-              </h1>
-
-              <p className="text-stone-200 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
-                Departamentos de alta gama en Catalinas y centro porteño para estadías ejecutivas y placer.
-              </p>
-
-              <div className="pt-4 flex justify-center gap-3">
-                <button
-                  onClick={scrollToBooking}
-                  className="min-h-[44px] px-8 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold text-xs uppercase tracking-wider transition-all shadow-xl shadow-amber-400/30 cursor-pointer"
-                >
-                  Reservar Ahora
-                </button>
-              </div>
-            </div>
-          </section>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* MODELO SIGNATURE 3: AURA — HORIZONTAL ARCHITECTURAL CANVAS ($49 USD)      */}
-      {/* ========================================================================= */}
-      {isSigAuraHorizontal && (
-        <div className="space-y-0 font-sans animate-in fade-in duration-500 bg-[#0a0907] text-[#EDE8DF]">
-          {/* Top Canvas Header */}
-          <div className="py-10 px-6 sm:px-12 max-w-7xl mx-auto border-b border-[#c5a880]/20 flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
-            <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#c5a880]/15 text-[#c5a880] border border-[#c5a880]/30 text-xs font-mono uppercase tracking-widest">
-                <Crown className="w-3.5 h-3.5" />
-                <span>HORIZONTAL ARCHITECTURAL CANVAS • 6 TARJETAS</span>
-              </div>
-              <h1 className="text-4xl sm:text-6xl font-serif font-light tracking-widest text-[#FAF8F5] uppercase">
-                AURA
-              </h1>
-              <p className="text-xs sm:text-sm font-mono text-[#c5a880]/90">
-                Relais & Viñedos de Montaña • Valle de Uco, Mendoza — Argentina
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {/* Desktop Scroll Navigation Arrows */}
-              <div className="flex items-center gap-1 bg-stone-900/80 border border-stone-800 p-1 rounded-2xl">
-                <button
-                  onClick={() => scrollCanvas('left')}
-                  className="w-10 h-10 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
-                  title="Deslizar hacia la izquierda"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => scrollCanvas('right')}
-                  className="w-10 h-10 rounded-xl bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 flex items-center justify-center transition-colors cursor-pointer font-bold shadow-sm"
-                  title="Deslizar hacia la derecha"
-                >
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div
-                onClick={() => setIsCalendarOpen(true)}
-                className="p-3 rounded-2xl bg-stone-900 border border-stone-800 text-left cursor-pointer hover:border-[#c5a880]/40 transition-colors"
-              >
-                <span className="text-[10px] font-mono text-[#c5a880] uppercase block font-bold">Fechas Seleccionadas</span>
-                <span className="text-xs text-white font-bold flex items-center gap-1.5 mt-0.5">
-                  <CalendarIcon className="w-3.5 h-3.5 text-[#c5a880]" />
-                  {checkInDate} al {checkOutDate} ({nights} n.)
-                </span>
-              </div>
-
-              <button
-                onClick={scrollToBooking}
-                className="min-h-[44px] px-6 py-3 rounded-2xl bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-[#c5a880]/20 cursor-pointer flex items-center gap-2"
-              >
-                <span>Reservar Suite</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Horizontal Scrollable Panoramic Canvas (6 Panoramic Architectural Cards) */}
-          <div
-            ref={canvasScrollRef}
-            onWheel={(e) => {
-              if (canvasScrollRef.current && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-                canvasScrollRef.current.scrollLeft += e.deltaY;
-              }
-            }}
-            className="py-10 px-4 sm:px-10 overflow-x-auto no-scrollbar scroll-smooth cursor-grab active:cursor-grabbing"
-          >
-            <div className="flex gap-6 min-w-max pb-4">
-              
-              {/* Card 1: Master View / Cordillera Landscape */}
-              <div className="w-[340px] sm:w-[460px] h-[520px] rounded-3xl overflow-hidden border border-[#c5a880]/30 bg-[#12100d] relative flex flex-col justify-between p-6 sm:p-8 shadow-2xl group shrink-0">
-                <img
-                  src={cortePhotos.facade}
-                  alt="AURA Terroir Landscape"
-                  className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0e0c09] via-[#0e0c09]/50 to-transparent" />
-                
-                <div className="relative z-10 flex items-center justify-between border-b border-[#c5a880]/20 pb-3">
-                  <span className="text-xs font-mono font-bold text-[#c5a880] uppercase tracking-widest">
-                    01 / PORTADA & PAISAJE
-                  </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#c5a880]/20 text-[#c5a880]">1.200 MSNM</span>
-                </div>
-
-                <div className="relative z-10 space-y-3">
-                  <span className="text-xs font-mono text-[#c5a880] uppercase tracking-wider block">Valle de Uco • Mendoza</span>
-                  <h3 className="text-2xl sm:text-3xl font-serif text-white leading-tight">
-                    El Silencio de los Andes Entre Hileras de Malbec
-                  </h3>
-                  <p className="text-xs text-stone-300 font-light leading-relaxed">
-                    Arquitectura mineral en hormigón, piedra y madera noble integrada orgánicamente a la Cordillera.
-                  </p>
-                </div>
-
-                <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-[#c5a880]">
-                  <span>15 Suites Exclusivas</span>
-                  <span className="font-bold">Deslizar →</span>
-                </div>
-              </div>
-
-              {/* Card 2: Suite 01 Malbec Grand Reserve */}
-              <div className="w-[340px] sm:w-[460px] h-[520px] rounded-3xl overflow-hidden border border-[#c5a880]/30 bg-[#12100d] relative flex flex-col justify-between p-6 sm:p-8 shadow-2xl group shrink-0">
-                <img
-                  src={cortePhotos.suite1}
-                  alt="Suite Malbec Grand Reserve"
-                  className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0e0c09] via-[#0e0c09]/50 to-transparent" />
-
-                <div className="relative z-10 flex items-center justify-between border-b border-[#c5a880]/20 pb-3">
-                  <span className="text-xs font-mono font-bold text-[#c5a880] uppercase tracking-widest">
-                    02 / MASTER SUITE
-                  </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">SUITE 01</span>
-                </div>
-
-                <div className="relative z-10 space-y-3">
-                  <h3 className="text-2xl sm:text-3xl font-serif text-white leading-tight">
-                    Malbec Grand Reserve
-                  </h3>
-                  <p className="text-xs text-stone-300 font-light leading-relaxed">
-                    Deck exterior suspendido sobre los viñedos, estufa nórdica a leña, copa de Malbec de bienvenida y telescopio astronómico.
-                  </p>
-                </div>
-
-                <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between">
-                  <span className="text-xs font-serif text-white">Tarifa: <strong>$180 USD</strong> / noche</span>
-                  <button
-                    onClick={scrollToBooking}
-                    className="min-h-[38px] px-4 py-1.5 rounded-xl bg-[#c5a880] text-stone-950 font-bold text-xs uppercase cursor-pointer"
-                  >
-                    Seleccionar
-                  </button>
-                </div>
-              </div>
-
-              {/* Card 3: Suite 02 Cabernet Franc Sanctuary */}
-              <div className="w-[340px] sm:w-[460px] h-[520px] rounded-3xl overflow-hidden border border-[#c5a880]/30 bg-[#12100d] relative flex flex-col justify-between p-6 sm:p-8 shadow-2xl group shrink-0">
-                <img
-                  src={cortePhotos.bathroom}
-                  alt="Suite Cabernet Franc"
-                  className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0e0c09] via-[#0e0c09]/50 to-transparent" />
-
-                <div className="relative z-10 flex items-center justify-between border-b border-[#c5a880]/20 pb-3">
-                  <span className="text-xs font-mono font-bold text-[#c5a880] uppercase tracking-widest">
-                    03 / BAÑO MINERAL & TINA
-                  </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">SUITE 02</span>
-                </div>
-
-                <div className="relative z-10 space-y-3">
-                  <h3 className="text-2xl sm:text-3xl font-serif text-white leading-tight">
-                    Cabernet Franc Sanctuary
-                  </h3>
-                  <p className="text-xs text-stone-300 font-light leading-relaxed">
-                    Ventanales de 6 metros al Cordón del Plata, tina de piedra natural esculpida, lino puro y cava privada in-room.
-                  </p>
-                </div>
-
-                <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between">
-                  <span className="text-xs font-serif text-white">Tarifa: <strong>$195 USD</strong> / noche</span>
-                  <button
-                    onClick={scrollToBooking}
-                    className="min-h-[38px] px-4 py-1.5 rounded-xl bg-[#c5a880] text-stone-950 font-bold text-xs uppercase cursor-pointer"
-                  >
-                    Seleccionar
-                  </button>
-                </div>
-              </div>
-
-              {/* Card 4: Cava Subterránea & Degustaciones */}
-              <div className="w-[340px] sm:w-[460px] h-[520px] rounded-3xl overflow-hidden border border-[#c5a880]/30 bg-[#12100d] relative flex flex-col justify-between p-6 sm:p-8 shadow-2xl group shrink-0">
-                <img
-                  src={cortePhotos.cellar}
-                  alt="Cava Subterránea"
-                  className="absolute inset-0 w-full h-full object-cover opacity-45 group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0e0c09] via-[#0e0c09]/50 to-transparent" />
-
-                <div className="relative z-10 flex items-center justify-between border-b border-[#c5a880]/20 pb-3">
-                  <span className="text-xs font-mono font-bold text-[#c5a880] uppercase tracking-widest">
-                    04 / EXPERIENCIA ENOLÓGICA
-                  </span>
-                  <Wine className="w-4 h-4 text-[#c5a880]" />
-                </div>
-
-                <div className="relative z-10 space-y-3">
-                  <h3 className="text-2xl sm:text-3xl font-serif text-white leading-tight">
-                    Cava Subterránea & Maridaje Sunset
-                  </h3>
-                  <p className="text-xs text-stone-300 font-light leading-relaxed">
-                    Acceso exclusivo para huéspedes a catas guiadas con sommelier in-house y selección de añadas históricas de barricas de roble.
-                  </p>
-                </div>
-
-                <div className="relative z-10 pt-4 border-t border-white/10 text-xs font-mono text-[#c5a880] flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Incluido para Huéspedes de Corte delle Vette</span>
-                </div>
-              </div>
-
-              {/* Card 5: Spa & Tina Nórdica */}
-              <div className="w-[340px] sm:w-[460px] h-[520px] rounded-3xl overflow-hidden border border-[#c5a880]/30 bg-[#12100d] relative flex flex-col justify-between p-6 sm:p-8 shadow-2xl group shrink-0">
-                <img
-                  src={cortePhotos.pool}
-                  alt="Piscina Infinita"
-                  className="absolute inset-0 w-full h-full object-cover opacity-45 group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0e0c09] via-[#0e0c09]/50 to-transparent" />
-
-                <div className="relative z-10 flex items-center justify-between border-b border-[#c5a880]/20 pb-3">
-                  <span className="text-xs font-mono font-bold text-[#c5a880] uppercase tracking-widest">
-                    05 / WELLNESS DE ALTURA
-                  </span>
-                  <Waves className="w-4 h-4 text-[#c5a880]" />
-                </div>
-
-                <div className="relative z-10 space-y-3">
-                  <h3 className="text-2xl sm:text-3xl font-serif text-white leading-tight">
-                    Piscina Infinita & Solárium de Viña
-                  </h3>
-                  <p className="text-xs text-stone-300 font-light leading-relaxed">
-                    Sumersión frente a la Cordillera de los Andes bajo las estrellas más nítidas de Mendoza, con servicio de coctelería y descanso.
-                  </p>
-                </div>
-
-                <div className="relative z-10 pt-4 border-t border-white/10 text-xs font-mono text-[#c5a880] flex items-center gap-2">
-                  <Flame className="w-3.5 h-3.5" />
-                  <span>Agua Templada & Vista a Viñedos</span>
-                </div>
-              </div>
-
-              {/* Card 6: Reserva Directa Oficial & Concierge */}
-              <div className="w-[340px] sm:w-[460px] h-[520px] rounded-3xl overflow-hidden border-2 border-[#c5a880] bg-gradient-to-br from-[#241c13] via-[#120f0b] to-[#241c13] relative flex flex-col justify-between p-6 sm:p-8 shadow-2xl shrink-0">
-                <div className="flex items-center justify-between border-b border-[#c5a880]/40 pb-3">
-                  <span className="text-xs font-mono font-black text-[#c5a880] uppercase tracking-widest flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-[#c5a880]" />
-                    06 / RESERVA DIRECTA OFICIAL
-                  </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#c5a880] text-stone-950 font-bold">0% COMISIÓN</span>
-                </div>
-
-                <div className="space-y-4">
-                  <h3 className="text-2xl sm:text-3xl font-serif text-white leading-tight">
-                    Garantía de Mejor Tarifa & Bienvenida Personalizada
-                  </h3>
-                  <p className="text-xs text-stone-300 font-light leading-relaxed">
-                    Reservá directamente sin cargos de intermediarios. Recibí el portal móvil con clave Wi-Fi, mapa de acceso y atención de concierge in-house.
-                  </p>
-                </div>
-
-                <div className="pt-4 border-t border-[#c5a880]/30 space-y-2">
-                  <button
-                    onClick={scrollToBooking}
-                    className="w-full min-h-[44px] py-3.5 rounded-2xl bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 font-bold text-xs uppercase tracking-wider transition-all shadow-xl shadow-[#c5a880]/30 cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    <span>Completar Reserva Directa</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
       {/* CATÁLOGO DE UNIDADES & MOTOR DE RESERVAS                                  */}
       {/* ========================================================================= */}
       <section id="booking-engine-section" className="py-16 px-6 sm:px-12">
         <div className="max-w-6xl mx-auto space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className={`text-xs font-mono font-bold uppercase tracking-wider ${isSigAura ? 'text-[#c5a880]' : 'text-[#E1500A]'}`}>
+            <span className={`text-xs font-mono font-bold uppercase tracking-wider ${isCorteVette ? 'text-[#c5a880]' : isDosAguas ? 'text-emerald-500' : 'text-[#E1500A]'}`}>
               RESERVA DIRECTA OFICIAL
             </span>
             <h2 className="text-3xl font-black tracking-tight">
-              {isSigAura ? 'Suites de Viña Disponibles en AURA' : 'Elegí tu unidad y calculá la tarifa al instante'}
+              {isCorteVette ? 'Suites de Viña & Bodega Lodge Disponibles' : isDosAguas ? 'Cabañas & Domos Disponibles en el Bosque' : 'Suites y Habitaciones Disponibles'}
             </h2>
           </div>
 
@@ -1681,7 +879,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                   onClick={() => setSelectedCabinId(property.id)}
                   className={`rounded-3xl overflow-hidden border p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between ${
                     isSelected
-                      ? (isSigAura
+                      ? (isCorteVette
                           ? 'bg-[#18140f] text-white border-[#c5a880] shadow-2xl ring-2 ring-[#c5a880]/30'
                           : 'bg-stone-900 text-white border-[#E1500A] shadow-2xl ring-2 ring-[#E1500A]/30')
                       : 'bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 hover:border-stone-400'
@@ -1710,13 +908,13 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                   <div className="pt-4 mt-4 border-t border-stone-200 dark:border-stone-800 flex items-center justify-between">
                     <div>
                       <span className="text-xs text-stone-500 line-through">${property.basePrice}</span>
-                      <div className={`text-xl font-black ${isSigAura ? 'text-[#c5a880]' : 'text-[#E1500A]'}`}>
+                      <div className={`text-xl font-black ${isCorteVette ? 'text-[#c5a880]' : isDosAguas ? 'text-emerald-500' : 'text-[#E1500A]'}`}>
                         ${discountedPrice} <span className="text-xs font-normal text-stone-400">USD/noche</span>
                       </div>
                     </div>
                     <span className={`text-xs font-bold px-3 py-1.5 rounded-xl ${
                       isSelected
-                        ? (isSigAura ? 'bg-[#c5a880] text-stone-950 font-black' : 'bg-[#E1500A] text-white')
+                        ? (isCorteVette ? 'bg-[#c5a880] text-stone-950 font-black' : 'bg-[#E1500A] text-white')
                         : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300'
                     }`}>
                       {isSelected ? 'Seleccionada' : 'Elegir'}
@@ -1731,7 +929,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
           <div className="max-w-2xl mx-auto p-6 sm:p-8 rounded-3xl bg-stone-900 text-white border border-stone-800 shadow-2xl space-y-6">
             <div className="flex items-center justify-between pb-4 border-b border-stone-800">
               <div>
-                <span className={`text-xs font-mono uppercase font-bold ${isSigAura ? 'text-[#c5a880]' : 'text-amber-400'}`}>
+                <span className={`text-xs font-mono uppercase font-bold ${isCorteVette ? 'text-[#c5a880]' : 'text-amber-400'}`}>
                   Resumen de Estadía
                 </span>
                 <h4 className="text-lg font-bold">{selectedCabin?.name}</h4>
@@ -1752,7 +950,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
               </div>
               <div className="flex justify-between text-stone-300 pt-2 border-t border-stone-800 text-base font-bold text-white">
                 <span>Total Final</span>
-                <span className={isSigAura ? 'text-[#c5a880]' : 'text-[#E1500A]'}>${finalTotal} USD</span>
+                <span className={isCorteVette ? 'text-[#c5a880]' : isDosAguas ? 'text-emerald-500' : 'text-[#E1500A]'}>${finalTotal} USD</span>
               </div>
               <div className="p-3 rounded-xl bg-stone-800/80 text-stone-300 text-[11px] flex justify-between">
                 <span>Seña 50% para confirmar:</span>
@@ -1781,7 +979,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                 <button
                   type="submit"
                   className={`w-full min-h-[44px] py-3.5 rounded-2xl font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                    isSigAura
+                    isCorteVette
                       ? 'bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 shadow-[#c5a880]/30'
                       : 'bg-[#E1500A] hover:bg-[#C94305] text-white shadow-[#E1500A]/30'
                   }`}
@@ -1815,10 +1013,10 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
       <footer className="py-12 px-6 sm:px-12 text-center text-xs border-t bg-stone-950 border-stone-800 text-stone-400">
         <div className="max-w-4xl mx-auto space-y-3">
           <span className="font-bold text-sm text-white tracking-widest uppercase">
-            {isSigAura ? 'AURA — Relais & Viñedos de Montaña' : guideData.propertyName}
+            {isCorteVette ? 'Corte delle Vette — Bodega Lodge & Suites' : isDosAguas ? 'Refugio Dos Aguas — Glamping & Bosque' : 'Médano Blanco — Posada Costera'}
           </span>
           <p className="text-stone-400 text-xs">
-            Reservas directas sin intermediarios • {isSigAura ? 'Valle de Uco, Mendoza — Argentina' : (guideData.locationAddress || 'Buenos Aires, Argentina')}
+            Reservas directas sin intermediarios • {isCorteVette ? 'Valle de Uco, Mendoza — Argentina' : (guideData.locationAddress || 'Buenos Aires, Argentina')}
           </p>
           <div className="text-[11px] text-stone-500">
             Desarrollado con Loomi Suite PMS & Motor de Reservas Directas

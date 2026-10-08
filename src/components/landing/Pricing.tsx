@@ -142,7 +142,7 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
                   <span className="text-emerald-500 font-bold">✓</span> Asistente Xenia AI (Voz & Copiloto 24/7)
                 </li>
                 <li className="flex items-center gap-2 text-gray-700 dark:text-zinc-200">
-                  <span className="text-emerald-500 font-bold">✓</span> Web propia con Portal de Bienvenida del Huésped
+                  <span className="text-emerald-500 font-bold">✓</span> 3 Modelos Web Oficiales + Portal de Bienvenida del Huésped
                 </li>
               </ul>
             </div>

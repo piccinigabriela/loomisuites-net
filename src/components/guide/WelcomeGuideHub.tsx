@@ -10,7 +10,6 @@ import {
   Info,
   Check,
   Compass,
-  Crown,
   User,
   Car,
   CreditCard,
@@ -43,7 +42,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
   onSelectTemplate,
 }) => {
   const [internalSubTab, setInternalSubTab] = useState<'landing-booking' | 'guest-view' | 'admin-view'>('guest-view');
-  const [internalTemplate, setInternalTemplate] = useState<LandingTemplate>('retrato');
+  const [internalTemplate, setInternalTemplate] = useState<LandingTemplate>('dos-aguas');
 
   const activeSubTab = initialSubTab || internalSubTab;
   const selectedTemplate = initialTemplate || internalTemplate;
@@ -318,64 +317,43 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
 
           {activeSubTab === 'landing-booking' && (
             <div className="flex flex-wrap items-center gap-1.5 text-xs pr-1 font-mono">
-              <span className="text-gray-400 text-[10px] uppercase hidden md:inline">Plantilla:</span>
+              <span className="text-gray-400 text-[10px] uppercase hidden md:inline">Modelos Oficiales:</span>
               <div className="flex items-center gap-1 bg-gray-50 dark:bg-zinc-800/60 p-1 rounded-xl border border-gray-200/80 dark:border-zinc-700">
                 <button
-                  onClick={() => handleSetTemplate('retrato')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    selectedTemplate === 'retrato'
+                  onClick={() => handleSetTemplate('dos-aguas')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    selectedTemplate === 'dos-aguas' || selectedTemplate === 'retrato'
                       ? 'bg-white dark:bg-zinc-700 text-[#E67E22] shadow-xs'
                       : 'text-gray-500 hover:text-gray-800 dark:hover:text-white'
                   }`}
+                  title="Refugio Dos Aguas • Glamping & Bosque"
                 >
-                  Retrato
+                  <span>🌲 Dos Aguas</span>
+                  <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Glamping)</span>
                 </button>
                 <button
-                  onClick={() => handleSetTemplate('bay')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    selectedTemplate === 'bay'
+                  onClick={() => handleSetTemplate('corte-vette')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    selectedTemplate === 'corte-vette' || (selectedTemplate as string) === 'triptych'
                       ? 'bg-white dark:bg-zinc-700 text-[#E67E22] shadow-xs'
                       : 'text-gray-500 hover:text-gray-800 dark:hover:text-white'
                   }`}
+                  title="Corte delle Vette • Bodega Lodge"
                 >
-                  Bay
+                  <span>🍷 Corte delle Vette</span>
+                  <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Bodega)</span>
                 </button>
                 <button
-                  onClick={() => handleSetTemplate('urbano')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    selectedTemplate === 'urbano'
+                  onClick={() => handleSetTemplate('medano-blanco')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    selectedTemplate === 'medano-blanco' || selectedTemplate === 'bay' || selectedTemplate === 'urbano'
                       ? 'bg-white dark:bg-zinc-700 text-[#E67E22] shadow-xs'
                       : 'text-gray-500 hover:text-gray-800 dark:hover:text-white'
                   }`}
+                  title="Médano Blanco • Posada Costera"
                 >
-                  Urbano
-                </button>
-              </div>
-
-              <span className="text-stone-300 dark:text-zinc-700 text-xs">|</span>
-
-              <div className="flex items-center gap-1 bg-gray-50 dark:bg-zinc-800/60 p-1 rounded-xl border border-gray-200/80 dark:border-zinc-700">
-                <button
-                  onClick={() => handleSetTemplate('luxury-editorial-parallax')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                    selectedTemplate === 'luxury-editorial-parallax'
-                      ? 'bg-white dark:bg-zinc-700 text-[#E67E22] shadow-xs'
-                      : 'text-gray-500 hover:text-gray-800 dark:hover:text-white'
-                  }`}
-                >
-                  <Crown className="w-3 h-3 text-[#E67E22]" />
-                  <span>Parallax</span>
-                </button>
-                <button
-                  onClick={() => handleSetTemplate('luxury-horizontal-architectural')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                    selectedTemplate === 'luxury-horizontal-architectural'
-                      ? 'bg-white dark:bg-zinc-700 text-[#E67E22] shadow-xs'
-                      : 'text-gray-500 hover:text-gray-800 dark:hover:text-white'
-                  }`}
-                >
-                  <Crown className="w-3 h-3 text-[#E67E22]" />
-                  <span>Canvas</span>
+                  <span>🌊 Médano Blanco</span>
+                  <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Posada)</span>
                 </button>
               </div>
             </div>

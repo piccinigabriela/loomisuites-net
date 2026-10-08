@@ -34,7 +34,6 @@ interface DemoPlanFunctionalBarProps {
   onOpenGuideWith?: (subTab: 'landing-booking' | 'guest-view' | 'admin-view', template?: LandingTemplate) => void;
   onOpenOnboardingWizard?: () => void;
   onRequestPlan?: () => void;
-  onOpenLookbookDossier?: () => void;
   onDismiss?: () => void;
 }
 
@@ -48,11 +47,9 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
   onOpenGuideWith,
   onOpenOnboardingWizard,
   onRequestPlan,
-  onOpenLookbookDossier,
   onDismiss,
 }) => {
   const [activePlan, setActivePlan] = useState<'inicial' | 'escala'>('inicial');
-  const isSignature = false;
 
   return (
     <div className="mb-6 rounded-2xl sm:rounded-3xl border shadow-[0_4px_16px_rgba(0,0,0,0.02)] p-4 sm:p-5 transition-all duration-300 font-sans relative overflow-hidden bg-white dark:bg-[#18191E] text-stone-800 dark:text-stone-100 border-stone-200/70 dark:border-zinc-800/70">

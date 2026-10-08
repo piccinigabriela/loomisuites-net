@@ -57,7 +57,8 @@ import { CalendarImportModal } from './components/demo/CalendarImportModal';
 import { ClientAuthModal } from './components/auth/ClientAuthModal';
 import { SuperAdminView } from './components/admin/SuperAdminView';
 import { DemoPlanFunctionalBar } from './components/demo/DemoPlanFunctionalBar';
-import { SignatureLookbookDossierModal } from './components/demo/SignatureLookbookDossierModal';
+import { ReceptionView } from './components/roles/ReceptionView';
+import { HousekeepingMobileView } from './components/roles/HousekeepingMobileView';
 import { INITIAL_WELCOME_GUIDE } from './data/initialData';
 
 export default function App() {
@@ -69,20 +70,22 @@ export default function App() {
         const hash = window.location.hash.toLowerCase();
         const params = new URLSearchParams(window.location.search);
         if (
-          params.has('admin') ||
           params.has('superadmin') ||
           params.has('master') ||
-          params.get('view') === 'admin' ||
           params.get('view') === 'superadmin' ||
-          path.includes('/admin') ||
           path.includes('/superadmin') ||
           path.includes('/master') ||
-          hash.includes('admin') ||
           hash.includes('superadmin')
         ) {
           return 'superadmin';
         }
         if (
+          path.includes('/admin') ||
+          path.includes('/recepcion') ||
+          path.includes('/limpieza') ||
+          params.has('admin') ||
+          params.has('recepcion') ||
+          params.has('limpieza') ||
           params.has('app') ||
           params.has('panel') ||
           params.has('demo') ||
@@ -94,7 +97,6 @@ export default function App() {
           params.has('guide') ||
           params.has('reservas') ||
           params.has('booking') ||
-          params.has('limpieza') ||
           params.has('housekeeping') ||
           params.has('calendario') ||
           params.has('rack') ||
@@ -118,7 +120,6 @@ export default function App() {
           path.includes('/guia') ||
           path.includes('/guide') ||
           path.includes('/web') ||
-          path.includes('/limpieza') ||
           path.includes('/housekeeping') ||
           path.includes('/reservas') ||
           path.includes('/calendario') ||
@@ -128,7 +129,9 @@ export default function App() {
           hash.includes('login') ||
           hash.includes('guia') ||
           hash.includes('web') ||
-          hash.includes('limpieza')
+          hash.includes('limpieza') ||
+          hash.includes('recepcion') ||
+          hash.includes('admin')
         ) {
           return 'demo';
         }
@@ -228,13 +231,25 @@ export default function App() {
   // User Role State: 'admin' | 'frontdesk' | 'housekeeping'
   const [userRole, setUserRole] = useState<'admin' | 'frontdesk' | 'housekeeping'>(() => {
     try {
+      if (typeof window !== 'undefined') {
+        const path = window.location.pathname.toLowerCase();
+        const hash = window.location.hash.toLowerCase();
+        const params = new URLSearchParams(window.location.search);
+        if (path.includes('/recepcion') || params.has('recepcion') || params.get('rol') === 'recepcion' || hash.includes('recepcion')) {
+          return 'frontdesk';
+        }
+        if (path.includes('/limpieza') || path.includes('/housekeeping') || params.has('limpieza') || params.get('rol') === 'limpieza' || hash.includes('limpieza')) {
+          return 'housekeeping';
+        }
+        if (path.includes('/admin') || params.has('admin') || params.get('rol') === 'admin' || hash.includes('admin')) {
+          return 'admin';
+        }
+      }
       const saved = localStorage.getItem('loomi_user_role');
       if (saved === 'admin' || saved === 'frontdesk' || saved === 'housekeeping') {
         return saved as any;
       }
-      // Fallback/Migration from old employee mode
-      const wasEmployee = localStorage.getItem('loomi_employee_mode') === 'true';
-      return wasEmployee ? 'housekeeping' : 'admin';
+      return 'admin';
     } catch {
       return 'admin';
     }
@@ -242,10 +257,30 @@ export default function App() {
 
   const isEmployeeMode = userRole === 'housekeeping';
 
+  // Synchronize browser URL history when user navigates roles
+  useEffect(() => {
+    const handlePopState = () => {
+      try {
+        const path = window.location.pathname.toLowerCase();
+        if (path.includes('/recepcion')) {
+          setUserRole('frontdesk');
+          setCurrentView('demo');
+        } else if (path.includes('/limpieza')) {
+          setUserRole('housekeeping');
+          setCurrentView('demo');
+        } else if (path.includes('/admin')) {
+          setUserRole('admin');
+          setCurrentView('demo');
+        }
+      } catch {}
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   // State for WelcomeGuideHub subtab & template deep links
   const [guideSubTab, setGuideSubTab] = useState<'landing-booking' | 'guest-view' | 'admin-view'>('guest-view');
-  const [guideTemplate, setGuideTemplate] = useState<any>('retrato');
-  const [isLookbookModalOpen, setIsLookbookModalOpen] = useState<boolean>(false);
+  const [guideTemplate, setGuideTemplate] = useState<any>('dos-aguas');
 
   // Theme state (Dark Mode / Light Mode)
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -287,7 +322,6 @@ export default function App() {
         if (params.get('mode') === 'full' || params.get('desktop') === 'true') return 'full';
         const saved = localStorage.getItem('loomi_mobile_mode');
         if (saved === 'light' || saved === 'full') return saved;
-        // Default to light on mobile screens (< 768px)
         return window.innerWidth < 768 ? 'light' : 'full';
       }
     } catch {}
@@ -306,25 +340,16 @@ export default function App() {
     setUserRole(newRole);
     try {
       localStorage.setItem('loomi_user_role', newRole);
+      const newPath = newRole === 'admin' ? '/admin' : newRole === 'frontdesk' ? '/recepcion' : '/limpieza';
+      window.history.pushState({}, '', newPath);
     } catch {}
 
-    // Redirect active tabs if they aren't accessible under the new role
-    if (newRole === 'housekeeping') {
-      if (demoTab !== 'overview' && demoTab !== 'housekeeping' && demoTab !== 'welcome-guide' && demoTab !== 'xenia') {
-        setDemoTab('overview');
-      }
-    } else if (newRole === 'frontdesk') {
-      if (demoTab === 'finances' || demoTab === 'properties') {
-        setDemoTab('overview');
-      }
-    }
-
     const roleNames = {
-      admin: '👑 Administrador / Dueño',
-      frontdesk: '🛎️ Recepción / Front Desk',
-      housekeeping: '🧹 Equipo de Housekeeping',
+      admin: '👑 Dueño / Administrador (/admin)',
+      frontdesk: '🛎️ Recepción Mostrador (/recepcion)',
+      housekeeping: '🧹 Housekeeping Mucamas PWA (/limpieza)',
     };
-    showToast(`Rol cambiado a: ${roleNames[newRole]}`);
+    showToast(`Rol activo: ${roleNames[newRole]}`);
   };
 
   // Persistent Demo State (from localStorage)
@@ -939,6 +964,46 @@ export default function App() {
           currentComplexId={activeComplex}
           theme={theme}
         />
+      ) : userRole === 'housekeeping' ? (
+        /* VISTA HOUSEKEEPING / MUCAMAS: ULTRALIVIANA PWA PARA SMARTPHONE (/limpieza) */
+        <HousekeepingMobileView
+          demoState={demoState}
+          onToggleChecklistItem={handleToggleChecklistItem}
+          onUpdateTaskStatus={handleUpdateTaskStatus}
+          onSwitchRole={handleRoleChange}
+          complexName={
+            activeComplex === 'catalinas'
+              ? 'Catalinas Apartamentos'
+              : activeComplex === 'woodcabin'
+              ? 'Tu Complejo'
+              : demoState.welcomeGuide?.propertyName || 'Mi Complejo Real'
+          }
+        />
+      ) : userRole === 'frontdesk' ? (
+        /* VISTA RECEPCIÓN / MOSTRADOR: OPTIMIZADA PARA PC / TABLET (/recepcion) */
+        <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#0E0F12] text-stone-800 dark:text-stone-100 font-sans transition-colors">
+          <ReceptionView
+            demoState={demoState}
+            onSelectReservation={setSelectedReservationForDetail}
+            onUpdateReservationStatus={handleUpdateReservationStatus}
+            onUpdatePaymentStatus={handleUpdatePaymentStatus}
+            onAddCashMovement={handleAddCashMovement}
+            onQuickCheckIn={handleQuickCheckIn}
+            onSwitchRole={handleRoleChange}
+            onOpenNewReservation={() => {
+              setInitialPropertyForRes(undefined);
+              setInitialDateForRes(undefined);
+              setIsNewResModalOpen(true);
+            }}
+            complexName={
+              activeComplex === 'catalinas'
+                ? 'Catalinas Apartamentos'
+                : activeComplex === 'woodcabin'
+                ? 'Tu Complejo'
+                : demoState.welcomeGuide?.propertyName || 'Mi Complejo Real'
+            }
+          />
+        </div>
       ) : mobileMode === 'light' ? (
         /* ULTRA-CLEAN MOBILE LIGHT / POCKET VIEW FOR SMARTPHONES */
         <MobileLightView
@@ -974,7 +1039,7 @@ export default function App() {
           }
         />
       ) : (
-        /* CLEAN ZEN / OMOTENASHI ARCHITECTURAL PMS DASHBOARD VIEW */
+        /* DUEÑO / ADMINISTRADOR: CONTROL TOTAL DE ESCRITORIO (/admin) */
         <div className="min-h-screen flex bg-[#F8F9FA] dark:bg-[#0E0F12] text-stone-800 dark:text-stone-100 font-sans transition-colors">
           {/* Minimalist Sidebar */}
           <CleanSidebar
@@ -1067,6 +1132,31 @@ export default function App() {
               </div>
 
               <div className="flex items-center gap-2 sm:gap-2.5">
+                {/* Accesos Rápidos por Rol (Dueño / Recepción / Mucamas) */}
+                <div className="hidden lg:flex items-center gap-1 bg-stone-100 dark:bg-zinc-800/80 p-1 rounded-xl text-xs border border-stone-200/70 dark:border-zinc-700/60">
+                  <button
+                    onClick={() => handleRoleChange('admin')}
+                    className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-zinc-700 text-[#E67E22] shadow-2xs cursor-pointer"
+                    title="Dueño / Administrador (/admin): Control total"
+                  >
+                    👑 Dueño
+                  </button>
+                  <button
+                    onClick={() => handleRoleChange('frontdesk')}
+                    className="px-2.5 py-1 rounded-lg text-xs font-medium text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white transition-colors cursor-pointer"
+                    title="Recepción (/recepcion): Mostrador PC/tablet"
+                  >
+                    🛎️ Recepción
+                  </button>
+                  <button
+                    onClick={() => handleRoleChange('housekeeping')}
+                    className="px-2.5 py-1 rounded-lg text-xs font-medium text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white transition-colors cursor-pointer"
+                    title="Housekeeping (/limpieza): PWA Smartphone"
+                  >
+                    🧹 Mucamas
+                  </button>
+                </div>
+
                 {/* Switch to Mobile Light View */}
                 <button
                   onClick={() => handleSetMobileMode('light')}
@@ -1165,7 +1255,6 @@ export default function App() {
                     setSelectedPlanForLead('Plan Cabañas & Deptos');
                     setIsLeadModalOpen(true);
                   }}
-                  onOpenLookbookDossier={() => setIsLookbookModalOpen(true)}
                   onDismiss={handleDismissDemoPlanBar}
                 />
               </div>
@@ -1254,7 +1343,7 @@ export default function App() {
                 <DemoFinances demoState={demoState} />
               )}
 
-              {demoTab === 'cash-drawer' && userRole !== 'housekeeping' && (
+              {demoTab === 'cash-drawer' && (
                 <DemoCashDrawer
                   demoState={demoState}
                   userRole={userRole}
@@ -1369,23 +1458,6 @@ export default function App() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         currentComplexId={activeComplex}
-      />
-
-      <SignatureLookbookDossierModal
-        isOpen={isLookbookModalOpen}
-        onClose={() => setIsLookbookModalOpen(false)}
-        onSelectDirection={(dirId) => {
-          setActiveComplex('woodcabin');
-          setGuideSubTab('landing-booking');
-          if (dirId === '05' || dirId === '01' || dirId === '02') {
-            setGuideTemplate('luxury-editorial-parallax');
-          } else if (dirId === '06') {
-            setGuideTemplate('luxury-horizontal-architectural');
-          } else {
-            setGuideTemplate('luxury-monograph-folio');
-          }
-          setDemoTab('welcome-guide');
-        }}
       />
     </div>
   );

@@ -43,6 +43,113 @@ export function getClientXeniaReply(message: string, demoState: DemoState): stri
   const properties = demoState.properties || [];
   const reservations = demoState.reservations || [];
   const cleaningTasks = demoState.cleaningTasks || [];
+  const p0 = properties[0];
+
+  // =========================================================================
+  // DIRECTIVAS OMOTENASHI: 1. CASOS CRÍTICOS & RECLAMOS (DERIVACIÓN HUMANA)
+  // =========================================================================
+  if (
+    q.includes('rompio') ||
+    q.includes('rompió') ||
+    q.includes('roto') ||
+    q.includes('no anda') ||
+    q.includes('no funciona') ||
+    q.includes('reclamo') ||
+    q.includes('queja') ||
+    q.includes('no hay agua') ||
+    q.includes('sin agua') ||
+    q.includes('sin luz') ||
+    q.includes('corte de luz') ||
+    q.includes('aire acondicionado') ||
+    q.includes('no enfria') ||
+    q.includes('no enfría') ||
+    q.includes('ruido') ||
+    q.includes('ruidos') ||
+    q.includes('llave trabada') ||
+    q.includes('cerradura trabada') ||
+    q.includes('urgencia') ||
+    q.includes('emergencia') ||
+    q.includes('mancha') ||
+    q.includes('olor')
+  ) {
+    return `Lamento sinceramente este inconveniente durante tu estadía.
+
+Ya mismo le di aviso prioritario a nuestro anfitrión y equipo del complejo para que se acerque y se comunique con vos de forma inmediata para resolverlo juntos.
+
+Quedamos a tu completa disposición para asistirte en lo que precises.`;
+  }
+
+  // =========================================================================
+  // DIRECTIVAS OMOTENASHI: 2. AUTONOMÍA (CHECK-IN/OUT, WI-FI, CERRADURA, MAPA)
+  // =========================================================================
+  if (
+    q.includes('horario') ||
+    q.includes('a que hora') ||
+    q.includes('a qué hora') ||
+    q.includes('check in') ||
+    q.includes('check-in') ||
+    q.includes('check out') ||
+    q.includes('check-out') ||
+    q.includes('ingreso') ||
+    q.includes('salida') ||
+    q.includes('wifi') ||
+    q.includes('wi-fi') ||
+    q.includes('clave') ||
+    q.includes('contraseña') ||
+    q.includes('cerradura') ||
+    q.includes('pin') ||
+    q.includes('codigo') ||
+    q.includes('código') ||
+    q.includes('como llego') ||
+    q.includes('cómo llego') ||
+    q.includes('ubicacion') ||
+    q.includes('ubicación') ||
+    q.includes('direccion') ||
+    q.includes('dirección')
+  ) {
+    const wifiNet = p0?.wifiNetwork || 'Loomi_Fibra_Optica';
+    const wifiPass = p0?.wifiPassword || 'Bienvenido2026';
+    const pin = '4820';
+    const address = p0?.address || 'Tres Sargentos 435, CABA';
+
+    return `¡Hola! Con gusto te paso los datos para tu llegada y estancia:
+
+• **Horarios:** Check-in a partir de las 14:00 hs | Check-out hasta las 10:00 hs.
+• **Acceso autónomo:** Cerradura digital touch con PIN **${pin}#**.
+• **Wi-Fi:** Red **${wifiNet}** (Clave: **${wifiPass}**).
+• **Dirección:** ${address}.
+
+Podés consultar el mapa interactivo y todos los detalles en tu **Portal del Huésped**:
+👉 https://loomisuite.net/guia/${p0?.id || 'departamento'}`;
+  }
+
+  // =========================================================================
+  // DIRECTIVAS OMOTENASHI: 3. SERVICIOS ADICIONALES (COCHERAS, LATE CHECK-OUT, TRANSFERS)
+  // =========================================================================
+  if (
+    q.includes('cochera') ||
+    q.includes('estacionamiento') ||
+    q.includes('auto') ||
+    q.includes('late check') ||
+    q.includes('salida tarde') ||
+    q.includes('quedarme mas') ||
+    q.includes('quedarme más') ||
+    q.includes('transfer') ||
+    q.includes('traslado') ||
+    q.includes('aeropuerto') ||
+    q.includes('desayuno') ||
+    q.includes('spa') ||
+    q.includes('masaje')
+  ) {
+    return `¡Por supuesto! Contamos con los siguientes servicios adicionales en el complejo:
+
+• **Cochera privada cubierta:** Vigilada 24hs (USD 15 / día).
+• **Late Check-out:** Salida extendida hasta las 16:00 hs sujeta a disponibilidad (USD 20).
+• **Transfer Aeropuerto (AEP/EZE):** Recepción personalizada en arribos (USD 30 por viaje).
+• **Canasta de Desayuno Artesanal:** Medialunas, tostadas y café de especialidad (USD 14 / persona).
+
+Si querés sumar alguno de estos servicios a tu reserva, avisanos y te lo dejamos coordinado de inmediato.`;
+  }
 
   // 0. CAMBIAR O SALIR DEL MODO LIGHT / MODO CELULAR / VISTA ESCRITORIO
   if (

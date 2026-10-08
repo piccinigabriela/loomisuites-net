@@ -42,14 +42,12 @@ import {
 import { WelcomeGuideData, AttractionItem, DiningItem } from '../../types';
 
 export type PortalTheme =
+  | 'dos-aguas'
+  | 'corte-vette'
+  | 'medano-blanco'
   | 'bay'
   | 'retrato'
-  | 'urbano'
-  | 'triptych'
-  | 'luxury-monograph-folio'
-  | 'luxury-bento-grid'
-  | 'luxury-editorial-parallax'
-  | 'luxury-horizontal-architectural';
+  | 'urbano';
 
 interface GuestWelcomePortalProps {
   guideData: WelcomeGuideData;
@@ -205,8 +203,8 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
   template: propTemplate,
   onSelectTemplate,
 }) => {
-  // Theme state: 'bay' (default), 'retrato', 'urbano'
-  const [internalTemplate, setInternalTemplate] = useState<PortalTheme>('bay');
+  // Theme state: 'dos-aguas' (default), 'corte-vette', 'medano-blanco'
+  const [internalTemplate, setInternalTemplate] = useState<PortalTheme>('dos-aguas');
   const activeTemplate = propTemplate || internalTemplate;
 
   const handleSetTemplate = (t: PortalTheme) => {
@@ -326,151 +324,113 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
   )}`;
 
   // =========================================================================
-  // THEME STYLING CONFIGURATION
+  // THEME STYLING CONFIGURATION (3 MODELOS OFICIALES DE LOOMI SUITE)
   // =========================================================================
-  const isBay = activeTemplate === 'bay';
-  const isRetrato = activeTemplate === 'retrato';
-  const isUrbano = activeTemplate === 'urbano';
-  const isSigAuraBento = activeTemplate === 'luxury-bento-grid';
-  const isSigAuraParallax = activeTemplate === 'luxury-editorial-parallax';
-  const isSigAuraHorizontal = activeTemplate === 'luxury-horizontal-architectural';
-  const isSigAura = isSigAuraBento || isSigAuraParallax || isSigAuraHorizontal;
+  const isDosAguas = activeTemplate === 'dos-aguas' || activeTemplate === 'retrato';
+  const isCorteVette = activeTemplate === 'corte-vette' || (activeTemplate as string) === 'triptych';
+  const isMedanoBlanco = activeTemplate === 'medano-blanco' || activeTemplate === 'bay' || activeTemplate === 'urbano';
 
   const theme = {
-    wrapper: isSigAura
+    wrapper: isCorteVette
       ? 'bg-[#0e0c09] text-[#EDE8DF] font-sans'
-      : isRetrato
+      : isDosAguas
       ? 'bg-[#0c0e0d] text-[#EDE8DF] font-sans'
-      : isUrbano
-      ? 'bg-[#FAF7F2] text-stone-950 font-sans'
       : 'bg-[#FAF8F5] text-stone-900 font-sans',
     
-    mobileBorder: isSigAura
+    mobileBorder: isCorteVette
       ? 'border-2 border-[#c5a880]/50 rounded-3xl shadow-2xl bg-[#0e0c09]'
-      : isRetrato
+      : isDosAguas
       ? 'border-stone-800 rounded-3xl shadow-2xl bg-[#0c0e0d]'
-      : isUrbano
-      ? 'border-[8px] border-white rounded-[2.5rem] shadow-2xl bg-[#FAF7F2]'
       : 'border-stone-200 rounded-3xl shadow-xl bg-[#FAF8F5]',
 
-    headerBg: isSigAura
+    headerBg: isCorteVette
       ? 'bg-[#14110d] border-b border-[#c5a880]/20 text-[#EDE8DF]'
-      : isRetrato
+      : isDosAguas
       ? 'bg-[#121413] border-b border-stone-800 text-[#EDE8DF]'
-      : isUrbano
-      ? 'bg-stone-900 border-b border-stone-800 text-white'
       : 'bg-[#24211e] border-b border-stone-700 text-[#FAF8F5]',
 
-    headerTitle: isSigAura
+    headerTitle: isCorteVette
       ? 'font-serif font-light tracking-widest text-[#f5ebd9] uppercase'
-      : isRetrato
+      : isDosAguas
       ? 'font-sans font-light tracking-tight text-white'
-      : isUrbano
-      ? 'font-sans font-black tracking-tight text-white uppercase'
       : 'font-serif font-light tracking-wider uppercase text-white',
 
-    headerSubtitle: isSigAura
+    headerSubtitle: isCorteVette
       ? 'text-[#c5a880] font-mono text-xs'
-      : isRetrato
+      : isDosAguas
       ? 'text-stone-400 font-light'
-      : isUrbano
-      ? 'text-stone-300 font-light'
       : 'text-stone-300 font-sans font-light',
 
-    headerTag: isSigAura
+    headerTag: isCorteVette
       ? 'bg-[#261f17] text-[#c5a880] border-[#c5a880]/40 font-mono text-[10px]'
-      : isRetrato
+      : isDosAguas
       ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/40 font-mono text-[10px]'
-      : isUrbano
-      ? 'bg-[#FCE5A2] text-stone-950 border-amber-300 font-bold text-[10px]'
       : 'bg-amber-950/80 text-amber-300 border-amber-800/50 font-mono text-[10px]',
 
-    accentText: isSigAura
+    accentText: isCorteVette
       ? 'text-[#c5a880]'
-      : isRetrato
+      : isDosAguas
       ? 'text-emerald-400'
-      : isUrbano
-      ? 'text-amber-500'
       : 'text-amber-700',
 
-    accentBg: isSigAura
+    accentBg: isCorteVette
       ? 'bg-[#c5a880] text-stone-950 font-bold'
-      : isRetrato
+      : isDosAguas
       ? 'bg-emerald-600'
-      : isUrbano
-      ? 'bg-amber-400 text-stone-950'
       : 'bg-amber-600',
 
-    accentBadge: isSigAura
+    accentBadge: isCorteVette
       ? 'bg-[#261f17] text-[#c5a880] border border-[#c5a880]/40 font-mono'
-      : isRetrato
+      : isDosAguas
       ? 'bg-emerald-950/50 text-emerald-300 border border-emerald-800/40'
-      : isUrbano
-      ? 'bg-[#FCE5A2]/40 text-stone-900 border border-amber-300/80 font-bold'
       : 'bg-amber-50 text-amber-900 border border-amber-200 font-medium',
 
-    cardBg: isSigAura
+    cardBg: isCorteVette
       ? 'bg-[#15120e] border-stone-800 text-stone-200'
-      : isRetrato
+      : isDosAguas
       ? 'bg-[#151716] border-stone-800 text-stone-200'
-      : isUrbano
-      ? 'bg-white border-stone-200 text-stone-900 shadow-sm'
       : 'bg-white border-stone-200 text-stone-900 shadow-sm',
 
-    cardInnerBg: isSigAura
+    cardInnerBg: isCorteVette
       ? 'bg-[#0d0b08] border-stone-800 text-stone-200 hover:bg-[#1a1611]'
-      : isRetrato
+      : isDosAguas
       ? 'bg-[#0c0e0d] border-stone-800 text-stone-200 hover:bg-[#181b19]'
-      : isUrbano
-      ? 'bg-[#FAF7F2] border-stone-200 text-stone-900 hover:bg-stone-100'
       : 'bg-[#FAF8F5] border-stone-200 text-stone-900 hover:bg-stone-100',
 
-    tabActive: isSigAura
+    tabActive: isCorteVette
       ? 'bg-[#c5a880] text-stone-950 font-bold shadow-xs'
-      : isRetrato
+      : isDosAguas
       ? 'bg-emerald-600 text-white shadow-xs'
-      : isUrbano
-      ? 'bg-stone-950 text-white shadow-xs'
       : 'bg-amber-600 text-white shadow-xs font-bold',
 
-    tabInactive: isSigAura
+    tabInactive: isCorteVette
       ? 'text-stone-400 hover:text-[#c5a880]'
-      : isRetrato
+      : isDosAguas
       ? 'text-stone-400 hover:text-white'
-      : isUrbano
-      ? 'text-stone-600 hover:text-stone-950'
       : 'text-stone-600 hover:text-stone-900',
 
-    navBarBg: isSigAura
+    navBarBg: isCorteVette
       ? 'bg-[#14110d] border-b border-stone-800'
-      : isRetrato
+      : isDosAguas
       ? 'bg-[#121413] border-b border-stone-800'
-      : isUrbano
-      ? 'bg-[#FAF7F2] border-b border-stone-200'
       : 'bg-[#FAF8F5] border-b border-stone-200',
 
-    bannerVip: isSigAura
+    bannerGreeting: isCorteVette
       ? 'bg-gradient-to-r from-[#2a2218] via-[#15120e] to-[#15120e] border-l-4 border-l-[#c5a880] border-y border-r border-stone-800'
-      : isRetrato
+      : isDosAguas
       ? 'bg-gradient-to-r from-emerald-950/50 via-[#151716] to-[#151716] border-l-4 border-l-emerald-500 border-y border-r border-stone-800'
-      : isUrbano
-      ? 'bg-gradient-to-r from-amber-400/25 via-white to-white border-l-4 border-l-amber-400 border-y border-r border-stone-200 shadow-sm'
       : 'bg-gradient-to-r from-amber-500/20 via-white to-white border-l-4 border-l-amber-600 border-y border-r border-stone-200 shadow-sm',
 
-    btnPrimary: isSigAura
+    btnPrimary: isCorteVette
       ? 'bg-[#c5a880] hover:bg-[#b8986d] text-stone-950 font-bold shadow-sm'
-      : isRetrato
+      : isDosAguas
       ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
-      : isUrbano
-      ? 'bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold shadow-sm'
       : 'bg-amber-600 hover:bg-amber-500 text-white font-bold shadow-sm',
 
-    heroPhoto: isSigAura
+    heroPhoto: isCorteVette
       ? '/cabanas/cabana-terraza.jpg'
-      : isRetrato
+      : isDosAguas
       ? '/catalinas/1dormC.jpg'
-      : isUrbano
-      ? '/catalinas/edificio.jpg'
       : '/catalinas/1dormA.jpg',
   };
 
@@ -486,60 +446,37 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex rounded-lg bg-stone-950 p-0.5 border border-stone-800">
-            <button
-              onClick={() => handleSetTemplate('bay')}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                isBay ? 'bg-amber-600 text-white' : 'text-stone-400 hover:text-white'
-              }`}
-            >
-              <span>🏛️ Bay</span>
-            </button>
-            <button
-              onClick={() => handleSetTemplate('retrato')}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                isRetrato ? 'bg-emerald-600 text-white' : 'text-stone-400 hover:text-white'
-              }`}
-            >
-              <span>🌲 Retrato</span>
-            </button>
-            <button
-              onClick={() => handleSetTemplate('urbano')}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                isUrbano ? 'bg-amber-400 text-stone-950 font-bold' : 'text-stone-400 hover:text-white'
-              }`}
-            >
-              <span>🏙️ Urbano</span>
-            </button>
-          </div>
-
-          <div className="inline-flex rounded-lg bg-stone-950 p-0.5 border border-[#c5a880]/40">
-            <button
-              onClick={() => handleSetTemplate('luxury-bento-grid')}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                isSigAuraBento ? 'bg-[#1C2A24] text-amber-200 border border-amber-400/30' : 'text-[#c5a880] hover:text-amber-200'
-              }`}
-            >
-              <span>🌿 Folio Zen</span>
-            </button>
-            <button
-              onClick={() => handleSetTemplate('luxury-editorial-parallax')}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                isSigAuraParallax ? 'bg-[#c5a880] text-stone-950' : 'text-[#c5a880] hover:text-amber-200'
-              }`}
-            >
-              <span>👑 AURA Parallax</span>
-            </button>
-            <button
-              onClick={() => handleSetTemplate('luxury-horizontal-architectural')}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                isSigAuraHorizontal ? 'bg-[#c5a880] text-stone-950' : 'text-[#c5a880] hover:text-amber-200'
-              }`}
-            >
-              <span>👑 AURA Canvas</span>
-            </button>
-          </div>
+        <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-stone-950 border border-stone-800">
+          <button
+            onClick={() => handleSetTemplate('dos-aguas')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              isDosAguas ? 'bg-emerald-600 text-white shadow-xs' : 'text-stone-400 hover:text-white'
+            }`}
+            title="Refugio Dos Aguas • Glamping & Bosque"
+          >
+            <span>🌲 Refugio Dos Aguas</span>
+            <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Glamping)</span>
+          </button>
+          <button
+            onClick={() => handleSetTemplate('corte-vette')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              isCorteVette ? 'bg-[#9E3D31] text-white shadow-xs' : 'text-stone-400 hover:text-white'
+            }`}
+            title="Corte delle Vette • Bodega Lodge"
+          >
+            <span>🍷 Corte delle Vette</span>
+            <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Bodega)</span>
+          </button>
+          <button
+            onClick={() => handleSetTemplate('medano-blanco')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              isMedanoBlanco ? 'bg-amber-600 text-white shadow-xs' : 'text-stone-400 hover:text-white'
+            }`}
+            title="Médano Blanco • Posada Costera"
+          >
+            <span>🌊 Médano Blanco</span>
+            <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Posada)</span>
+          </button>
         </div>
       </div>
 
@@ -548,7 +485,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
         className={`mx-auto ${theme.wrapper} antialiased transition-all duration-300 ${
           isMobilePreview
             ? `max-w-[420px] ${theme.mobileBorder} overflow-hidden border`
-            : `max-w-4xl rounded-2xl shadow-xl border ${isRetrato ? 'border-stone-800' : 'border-stone-200'}`
+            : `max-w-4xl rounded-2xl shadow-xl border ${isDosAguas || isCorteVette ? 'border-stone-800' : 'border-stone-200'}`
         }`}
       >
         {/* Hero Header */}
@@ -561,10 +498,10 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
               className="w-full h-full object-cover scale-105"
             />
             <div className={`absolute inset-0 bg-gradient-to-t ${
-              isRetrato
+              isDosAguas
                 ? 'from-[#121413] via-[#121413]/80 to-black/60'
-                : isUrbano
-                ? 'from-stone-900 via-stone-900/85 to-black/70'
+                : isCorteVette
+                ? 'from-[#14110d] via-[#14110d]/85 to-black/70'
                 : 'from-[#24211e] via-[#24211e]/85 to-black/70'
             }`} />
           </div>
@@ -573,19 +510,19 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
             {/* Top Live Bar */}
             <div className="flex items-center justify-between text-xs font-mono mb-2.5">
               <span className={`flex items-center gap-1.5 font-bold uppercase tracking-wider text-[11px] ${
-                isRetrato ? 'text-emerald-400' : isUrbano ? 'text-amber-400' : 'text-amber-300'
+                isDosAguas ? 'text-emerald-400' : isCorteVette ? 'text-[#c5a880]' : 'text-amber-300'
               }`}>
                 <Compass className="w-3.5 h-3.5" />
                 Guía del Huésped • App Digital
               </span>
               <span className={`px-2 py-0.5 rounded-full border ${theme.headerTag}`}>
-                {isBay ? '🏛️ Estilo Bay' : isRetrato ? '🌲 Estilo Retrato' : '🏙️ Estilo Urbano'}
+                {isDosAguas ? '🌲 Refugio Dos Aguas' : isCorteVette ? '🍷 Corte delle Vette' : '🌊 Médano Blanco'}
               </span>
             </div>
 
             {/* Personalized VIP Greeting Banner */}
             {(effectiveGuestName || effectiveUnitName) && (
-              <div className={`mb-4 p-3.5 ${theme.bannerVip} rounded-xl animate-in fade-in duration-300`}>
+              <div className={`mb-4 p-3.5 ${theme.bannerGreeting} rounded-xl animate-in fade-in duration-300`}>
                 <div className={`flex items-center gap-2 text-[10px] font-mono font-bold uppercase tracking-wider ${theme.accentText}`}>
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Estadía Personalizada</span>
@@ -600,7 +537,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                 </div>
                 {(effectiveCheckIn || effectivePinCode) && (
                   <div className={`flex flex-wrap items-center gap-3 mt-2 pt-2 border-t text-xs ${
-                    isRetrato ? 'border-stone-800' : 'border-stone-200'
+                    isDosAguas || isCorteVette ? 'border-stone-800' : 'border-stone-200'
                   }`}>
                     {effectiveCheckIn && (
                       <span className="text-xs">
@@ -1140,7 +1077,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
 
         {/* Footer */}
         <div className={`p-4 text-center text-[11px] opacity-70 border-t ${
-          isRetrato ? 'border-stone-800' : 'border-stone-200'
+          isDosAguas || isCorteVette ? 'border-stone-800' : 'border-stone-200'
         }`}>
           <span>{guideData.propertyName} • Guía Interactiva del Huésped</span>
         </div>
