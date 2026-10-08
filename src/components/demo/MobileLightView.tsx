@@ -491,21 +491,37 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
 
               {demoState.cleaningTasks.map((task) => {
                 const prop = demoState.properties.find((p) => p.id === task.propertyId);
-                const isCompleted = task.status === 'completed';
+                const isCompleted =
+                  task.status === 'completed' ||
+                  task.status === 'inspected' ||
+                  (task.checklist.length > 0 && task.checklist.every((c) => c.completed));
 
                 return (
                   <div
                     key={task.id}
-                    className={`rounded-[22px] p-4 border transition-all flex items-center justify-between ${
+                    className={`rounded-[22px] p-4 border transition-all duration-500 ease-in-out flex items-center justify-between ${
                       isCompleted
-                        ? 'bg-[#E2F7E7]/50 dark:bg-[#193A24]/30 border-[#2EA44F]/20'
+                        ? 'bg-green-50/30 dark:bg-emerald-950/20 border-green-200/50 dark:border-emerald-800/40 shadow-[0_4px_16px_rgba(16,185,129,0.03)]'
                         : 'bg-white dark:bg-[#1A1B20] border-black/[0.02] shadow-[0_4px_16px_rgba(0,0,0,0.02)]'
                     }`}
                   >
                     <div className="space-y-0.5">
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                        {prop?.name || 'Cabaña'}
-                      </h3>
+                      <div className="flex items-center gap-2">
+                        <h3
+                          className={`text-sm font-bold tracking-tight transition-all duration-500 ${
+                            isCompleted
+                              ? 'text-stone-400 dark:text-stone-500 line-through decoration-emerald-400/50 opacity-75'
+                              : 'text-gray-900 dark:text-gray-100'
+                          }`}
+                        >
+                          {prop?.name || 'Cabaña'}
+                        </h3>
+                        {isCompleted && (
+                          <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/70 dark:border-emerald-800/50 px-2 py-0.5 rounded-full transition-all animate-in fade-in duration-300">
+                            Tarea Completada
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-gray-400 font-medium">
                         {isCompleted ? `Lista por ${task.cleanerName}` : `Asignada a: ${task.cleanerName} • ${task.scheduledTime}`}
                       </p>
@@ -513,10 +529,11 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
 
                     <button
                       onClick={() => onToggleCleaningStatus(task.id, task.status)}
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+                      title={isCompleted ? 'Desmarcar tarea' : 'Marcar como Tarea Completada'}
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer border ${
                         isCompleted
-                          ? 'bg-[#2EA44F] text-white shadow-xs'
-                          : 'bg-[#EDE8E1] hover:bg-[#E2F7E7] text-gray-400 hover:text-[#2EA44F]'
+                          ? 'bg-emerald-50 hover:bg-emerald-100/70 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/50 shadow-xs'
+                          : 'bg-stone-50 hover:bg-emerald-50/60 text-stone-400 hover:text-emerald-600 border-stone-200/60'
                       }`}
                     >
                       <Check className="w-5 h-5 stroke-[2.5]" />

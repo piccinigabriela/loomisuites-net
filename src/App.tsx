@@ -728,7 +728,13 @@ export default function App() {
         const updatedChecklist = t.checklist.map((item) =>
           item.id === itemId ? { ...item, completed: !item.completed } : item
         );
-        return { ...t, checklist: updatedChecklist };
+        const allDone = updatedChecklist.length > 0 && updatedChecklist.every((i) => i.completed);
+        const newStatus = allDone
+          ? 'inspected'
+          : t.status === 'inspected' || t.status === 'completed'
+          ? 'in_progress'
+          : t.status;
+        return { ...t, checklist: updatedChecklist, status: newStatus };
       }),
       lastUpdated: new Date().toISOString(),
     }));
@@ -738,12 +744,24 @@ export default function App() {
   const handleUpdateTaskStatus = (taskId: string, newStatus: CleaningTask['status']) => {
     updateDemoState((prev) => ({
       ...prev,
-      cleaningTasks: prev.cleaningTasks.map((t) =>
-        t.id === taskId ? { ...t, status: newStatus } : t
-      ),
+      cleaningTasks: prev.cleaningTasks.map((t) => {
+        if (t.id !== taskId) return t;
+        const isNowDone = newStatus === 'inspected' || newStatus === 'completed';
+        const isNowPending = newStatus === 'pending';
+        const updatedChecklist = isNowDone
+          ? t.checklist.map((c) => ({ ...c, completed: true }))
+          : isNowPending
+          ? t.checklist.map((c) => ({ ...c, completed: false }))
+          : t.checklist;
+        return { ...t, status: newStatus, checklist: updatedChecklist };
+      }),
       lastUpdated: new Date().toISOString(),
     }));
-    showToast(`Estado de limpieza actualizado a: ${newStatus}`);
+    showToast(
+      newStatus === 'inspected' || newStatus === 'completed'
+        ? '✨ Tarea Completada: Unidad lista para el huésped'
+        : `Estado de limpieza actualizado a: ${newStatus}`
+    );
   };
 
   // Update property price
@@ -934,7 +952,10 @@ export default function App() {
           onUpdateReservationStatus={handleUpdateReservationStatus}
           onUpdatePaymentStatus={handleUpdatePaymentStatus}
           onToggleCleaningStatus={(taskId, currentStatus) =>
-            handleUpdateTaskStatus(taskId, currentStatus === 'completed' ? 'pending' : 'completed')
+            handleUpdateTaskStatus(
+              taskId,
+              currentStatus === 'completed' || currentStatus === 'inspected' ? 'pending' : 'inspected'
+            )
           }
           onOpenMessagesWithGuest={(resId) => {
             setDemoTab('messages');

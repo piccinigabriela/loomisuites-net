@@ -13,6 +13,8 @@ import {
   Send,
   ChevronRight,
   X,
+  Sparkle,
+  ArrowUpRight,
 } from 'lucide-react';
 import { DemoState, Reservation, CleaningTask } from '../../types';
 import { formatCurrency, formatDisplayDate, getRelativeDate } from '../../data/initialData';
@@ -108,141 +110,141 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
   };
 
   return (
-    <div className="space-y-5 sm:space-y-6 font-sans">
+    <div className="space-y-6 font-sans">
       {/* Title & Subtitle with Ma (airy breathing room) */}
-      <div className="flex items-center justify-between pb-3 border-b border-stone-200/70 dark:border-zinc-800/70">
-        <div>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" /> PANEL OPERATIVO • DÍA A DÍA
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-gray-100 dark:border-zinc-800/80 gap-2">
+        <div className="space-y-0.5">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#E67E22] bg-orange-50 dark:bg-orange-950/40 px-2 py-0.5 rounded-md inline-block">
+            Panel Operativo • Día a Día
           </span>
-          <h2 className="text-xl sm:text-2xl font-bold text-stone-800 dark:text-stone-100 tracking-tight mt-0.5">
-            Hoy en el Complejo
+          <h2 className="text-xl sm:text-2xl font-light text-gray-900 dark:text-gray-100 tracking-tight">
+            Hoy en el <span className="font-semibold text-gray-800 dark:text-gray-200">Complejo</span>
           </h2>
         </div>
-        <div className="text-right hidden sm:block">
-          <span className="text-xs font-medium text-stone-400 dark:text-stone-500">
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-light text-gray-400 dark:text-zinc-500 bg-white dark:bg-zinc-800/50 px-3 py-1.5 rounded-xl border border-gray-100 dark:border-zinc-700/60 shadow-2xs">
             {formatDisplayDate(today)}
           </span>
         </div>
       </div>
 
-      {/* Top 4 Bento Metric Cards (2x2 on mobile, 4 columns on desktop) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* Card 1: Ocupados Hoy */}
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-all flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
-            <span className="text-[11px] font-medium text-stone-400 dark:text-stone-500 truncate">
+      {/* Top 4 Bento Metric Cards (Floating clean aesthetic with soft pastel highlights) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+        {/* Card 1: Ocupación Hoy */}
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between hover:border-orange-200/50">
+          <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
+            <span className="text-[11px] font-medium text-gray-400 dark:text-zinc-400 truncate">
               Ocupación Hoy
             </span>
-            <span className="w-2 h-2 rounded-full bg-[#E67E22] shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-[#E67E22] shadow-[0_0_8px_rgba(230,126,34,0.4)] shrink-0" />
           </div>
-          <div className="my-2.5 text-2xl sm:text-3xl font-bold text-stone-800 dark:text-stone-100 tracking-tight flex items-baseline gap-1">
-            <span>{demoState.properties.length > 0 ? `1` : `0`}</span>
-            <span className="text-xs font-normal text-stone-400 dark:text-stone-500">
+          <div className="my-2 text-2xl sm:text-3xl font-light text-gray-900 dark:text-gray-100 tracking-tight flex items-baseline gap-1">
+            <span className="font-normal text-gray-800 dark:text-gray-100">{demoState.properties.length > 0 ? `1` : `0`}</span>
+            <span className="text-xs font-light text-gray-400 dark:text-zinc-500">
               /{demoState.properties.length}
             </span>
           </div>
-          <div className="text-[11px] font-medium text-stone-400 dark:text-stone-500 truncate">
-            Unidades activas
+          <div className="text-[11px] font-light text-[#E67E22] bg-orange-50/60 dark:bg-orange-950/30 px-2 py-0.5 rounded-md inline-block w-max">
+            1 Ocupada
           </div>
         </div>
 
         {/* Card 2: Ingresos Mes */}
         {userRole === 'admin' ? (
-          <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-all flex flex-col justify-between">
-            <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
-              <span className="text-[11px] font-medium text-stone-400 dark:text-stone-500 truncate">
+          <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between hover:border-emerald-200/50">
+            <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
+              <span className="text-[11px] font-medium text-gray-400 dark:text-zinc-400 truncate">
                 Ingresos Mes
               </span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)] shrink-0" />
             </div>
-            <div className="my-2.5 text-xl sm:text-2xl font-bold text-stone-800 dark:text-stone-100 tracking-tight truncate">
-              USD {totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            <div className="my-2 text-xl sm:text-2xl font-light text-gray-900 dark:text-gray-100 tracking-tight truncate">
+              USD <span className="font-normal text-gray-800 dark:text-gray-100">{totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
             </div>
-            <div className="text-[11px] font-medium text-stone-400 dark:text-stone-500 truncate">
+            <div className="text-[11px] font-light text-emerald-600 bg-emerald-50/70 dark:bg-emerald-950/30 px-2 py-0.5 rounded-md inline-block w-max">
               Neto USD {(totalRevenue * 0.76).toFixed(0)}
             </div>
           </div>
         ) : userRole === 'frontdesk' ? (
-          <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-all flex flex-col justify-between">
-            <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
-              <span className="text-[11px] font-medium text-stone-400 dark:text-stone-500 truncate">
+          <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between hover:border-orange-200/50">
+            <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
+              <span className="text-[11px] font-medium text-gray-400 dark:text-zinc-400 truncate">
                 Caja Mostrador
               </span>
               <span className="w-2 h-2 rounded-full bg-[#E67E22] shrink-0" />
             </div>
-            <div className="my-2.5 text-xl sm:text-2xl font-bold text-stone-800 dark:text-stone-100 tracking-tight truncate">
-              ${currentCashBalance.toLocaleString('es-AR')}
+            <div className="my-2 text-xl sm:text-2xl font-light text-gray-900 dark:text-gray-100 tracking-tight truncate">
+              $<span className="font-normal">{currentCashBalance.toLocaleString('es-AR')}</span>
             </div>
-            <div className="text-[11px] font-medium text-stone-400 dark:text-stone-500 truncate">
-              Fondo: $50.000 ARS
+            <div className="text-[11px] font-light text-gray-400 dark:text-zinc-500">
+              Fondo $50.000 ARS
             </div>
           </div>
         ) : (
-          <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-all flex flex-col justify-between">
-            <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
-              <span className="text-[11px] font-medium text-stone-400 dark:text-stone-500 truncate">
+          <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between">
+            <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
+              <span className="text-[11px] font-medium text-gray-400 dark:text-zinc-400 truncate">
                 Modo Operativo
               </span>
               <span className="w-2 h-2 rounded-full bg-stone-300 dark:bg-zinc-600 shrink-0" />
             </div>
-            <div className="my-2.5 text-xl sm:text-2xl font-bold text-stone-800 dark:text-stone-100">
+            <div className="my-2 text-xl sm:text-2xl font-normal text-gray-800 dark:text-gray-100">
               Día a Día
             </div>
-            <div className="text-[11px] font-medium text-stone-400 dark:text-stone-500 truncate">
+            <div className="text-[11px] font-light text-gray-400 dark:text-zinc-500 truncate">
               Métricas ocultas
             </div>
           </div>
         )}
 
         {/* Card 3: Noches Mes */}
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-all flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
-            <span className="text-[11px] font-medium text-stone-400 dark:text-stone-500 truncate">
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
+            <span className="text-[11px] font-medium text-gray-400 dark:text-zinc-400 truncate">
               Noches Vendidas
             </span>
-            <span className="w-2 h-2 rounded-full bg-stone-300 dark:bg-zinc-600 shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-zinc-600 shrink-0" />
           </div>
-          <div className="my-2.5 text-2xl sm:text-3xl font-bold text-stone-800 dark:text-stone-100 tracking-tight flex items-baseline gap-1">
-            <span>{totalNights}</span>
-            <span className="text-xs font-normal text-stone-400 dark:text-stone-500">~2x</span>
+          <div className="my-2 text-2xl sm:text-3xl font-light text-gray-900 dark:text-gray-100 tracking-tight flex items-baseline gap-1">
+            <span className="font-normal text-gray-800 dark:text-gray-100">{totalNights}</span>
+            <span className="text-xs font-light text-gray-400 dark:text-zinc-500">noches</span>
           </div>
-          <div className="text-[11px] font-medium text-stone-400 dark:text-stone-500 truncate">
-            Vendidas · prom.
+          <div className="text-[11px] font-light text-gray-400 dark:text-zinc-500 truncate">
+            Promedio mensual
           </div>
         </div>
 
-        {/* Card 4: Check-ins 7D */}
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-all flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
-            <span className="text-[11px] font-medium text-stone-400 dark:text-stone-500 truncate">
+        {/* Card 4: Llegadas Próximas */}
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between hover:border-orange-200/50">
+          <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
+            <span className="text-[11px] font-medium text-gray-400 dark:text-zinc-400 truncate">
               Llegadas Próximas
             </span>
             <span className="w-2 h-2 rounded-full bg-[#E67E22] shrink-0" />
           </div>
-          <div className="my-2.5 text-2xl sm:text-3xl font-bold text-stone-800 dark:text-stone-100 tracking-tight">
-            {activeReservationsCount}
+          <div className="my-2 text-2xl sm:text-3xl font-light text-gray-900 dark:text-gray-100 tracking-tight">
+            <span className="font-normal text-gray-800 dark:text-gray-100">{activeReservationsCount}</span>
           </div>
-          <div className="text-[11px] font-medium text-stone-400 dark:text-stone-500 truncate">
+          <div className="text-[11px] font-light text-[#E67E22] bg-orange-50/60 dark:bg-orange-950/30 px-2 py-0.5 rounded-md inline-block w-max">
             Próximos 7 días
           </div>
         </div>
       </div>
 
-      {/* Row 2: Check-ins HOY, Check-outs HOY, A Limpiar */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
+      {/* Row 2: Check-ins HOY, Check-outs HOY, A Limpiar (Recambio con naranja pastel) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Check-ins HOY */}
-        <div className="lg:col-span-4 bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex flex-col justify-between transition-colors">
+        <div className="lg:col-span-4 bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] flex flex-col justify-between transition-colors">
           <div>
-            <div className="flex items-center justify-between pb-2.5 border-b border-stone-100 dark:border-zinc-800 mb-3.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" /> LLEGADAS HOY ({todayCheckIns.length})
+            <div className="flex items-center justify-between pb-2.5 border-b border-gray-50 dark:border-zinc-800 mb-3.5">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#E67E22]" /> LLEGADAS HOY ({todayCheckIns.length})
               </span>
-              <span className="text-[11px] font-medium text-stone-400">Check-in</span>
+              <span className="text-[10px] font-light text-gray-400">Check-in 14:00</span>
             </div>
 
             {todayCheckIns.length === 0 ? (
-              <div className="text-center py-8 text-xs font-medium text-stone-400 dark:text-stone-500">
+              <div className="text-center py-8 text-xs font-light text-gray-400 dark:text-zinc-500">
                 Sin llegadas programadas para hoy
               </div>
             ) : (
@@ -251,15 +253,20 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
                   <div
                     key={res.id}
                     onClick={() => onSelectReservation(res)}
-                    className="p-3 rounded-xl bg-stone-50/70 dark:bg-zinc-800/50 hover:bg-stone-100/80 dark:hover:bg-zinc-800 border border-stone-100 dark:border-zinc-700/60 transition-all cursor-pointer flex items-center justify-between"
+                    className="p-3 rounded-xl bg-gray-50/60 dark:bg-zinc-800/40 hover:bg-orange-50/40 dark:hover:bg-zinc-800 border border-gray-100 dark:border-zinc-700/60 transition-all cursor-pointer flex items-center justify-between group"
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-stone-200/80 dark:bg-zinc-700 text-stone-700 dark:text-stone-200 font-mono">
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-orange-50 text-[#E67E22] dark:bg-orange-950/50 dark:text-orange-300 font-mono border border-orange-100 dark:border-orange-900/40">
                         {getPropShortCode(res.propertyId)}
                       </span>
-                      <span className="text-xs font-semibold text-stone-800 dark:text-stone-100">
-                        {res.guestName}
-                      </span>
+                      <div>
+                        <span className="text-xs font-medium text-gray-800 dark:text-gray-100 block">
+                          {res.guestName}
+                        </span>
+                        <span className="text-[10px] font-light text-gray-400 dark:text-zinc-500">
+                          {getPropName(res.propertyId)}
+                        </span>
+                      </div>
                     </div>
                     {res.status === 'confirmed' && (
                       <button
@@ -267,7 +274,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
                           e.stopPropagation();
                           onQuickCheckIn(res.id);
                         }}
-                        className="text-xs font-semibold bg-orange-50 hover:bg-orange-100 text-[#E67E22] px-3 py-1 rounded-xl transition-colors cursor-pointer"
+                        className="text-xs font-medium bg-orange-50 hover:bg-orange-100 text-[#E67E22] px-3 py-1 rounded-xl transition-colors cursor-pointer border border-orange-100"
                       >
                         Ingresar
                       </button>
@@ -280,17 +287,17 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
         </div>
 
         {/* Check-outs HOY */}
-        <div className="lg:col-span-4 bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex flex-col justify-between transition-colors">
+        <div className="lg:col-span-4 bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] flex flex-col justify-between transition-colors">
           <div>
-            <div className="flex items-center justify-between pb-2.5 border-b border-stone-100 dark:border-zinc-800 mb-3.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-stone-300 dark:bg-zinc-600" /> SALIDAS HOY ({todayCheckOuts.length})
+            <div className="flex items-center justify-between pb-2.5 border-b border-gray-50 dark:border-zinc-800 mb-3.5">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-zinc-600" /> SALIDAS HOY ({todayCheckOuts.length})
               </span>
-              <span className="text-[11px] font-medium text-stone-400">Check-out</span>
+              <span className="text-[10px] font-light text-gray-400">Check-out 10:00</span>
             </div>
 
             {todayCheckOuts.length === 0 ? (
-              <div className="text-center py-8 text-xs font-medium text-stone-400 dark:text-stone-500">
+              <div className="text-center py-8 text-xs font-light text-gray-400 dark:text-zinc-500">
                 Sin salidas para hoy
               </div>
             ) : (
@@ -299,17 +306,22 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
                   <div
                     key={res.id}
                     onClick={() => onSelectReservation(res)}
-                    className="p-3 rounded-xl bg-stone-50/70 dark:bg-zinc-800/50 hover:bg-stone-100/80 dark:hover:bg-zinc-800 border border-stone-100 dark:border-zinc-700/60 transition-all cursor-pointer flex items-center justify-between"
+                    className="p-3 rounded-xl bg-gray-50/60 dark:bg-zinc-800/40 hover:bg-gray-100/70 dark:hover:bg-zinc-800 border border-gray-100 dark:border-zinc-700/60 transition-all cursor-pointer flex items-center justify-between"
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-stone-200/80 dark:bg-zinc-700 text-stone-700 dark:text-stone-200 font-mono">
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-300 font-mono">
                         {getPropShortCode(res.propertyId)}
                       </span>
-                      <span className="text-xs font-semibold text-stone-800 dark:text-stone-100">
-                        {res.guestName}
-                      </span>
+                      <div>
+                        <span className="text-xs font-medium text-gray-800 dark:text-gray-100 block">
+                          {res.guestName}
+                        </span>
+                        <span className="text-[10px] font-light text-gray-400 dark:text-zinc-500">
+                          {getPropName(res.propertyId)}
+                        </span>
+                      </div>
                     </div>
-                    <span className="text-[11px] font-medium text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-md">
+                    <span className="text-[11px] font-light text-gray-500 dark:text-zinc-400 bg-gray-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-md">
                       Salida
                     </span>
                   </div>
@@ -319,37 +331,44 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
           </div>
         </div>
 
-        {/* A Limpiar */}
-        <div className="lg:col-span-4 bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex flex-col justify-between transition-colors">
+        {/* A Limpiar / Alerta Recambio */}
+        <div className="lg:col-span-4 bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] flex flex-col justify-between transition-colors">
           <div>
-            <div className="flex items-center justify-between pb-2.5 border-b border-stone-100 dark:border-zinc-800 mb-3.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /> LIMPIEZAS DEL DÍA ({cleaningTasks.length})
+            <div className="flex items-center justify-between pb-2.5 border-b border-gray-50 dark:border-zinc-800 mb-3.5">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-400" /> LIMPIEZAS & RECAMBIO ({cleaningTasks.length})
               </span>
               <button
                 onClick={() => onNavigateTab('housekeeping')}
-                className="text-xs font-semibold text-[#E67E22] hover:underline cursor-pointer"
+                className="text-xs font-medium text-[#E67E22] hover:underline cursor-pointer"
               >
-                Ver todas →
+                Ver agenda →
               </button>
             </div>
 
             <div className="space-y-2.5 max-h-52 sm:max-h-60 overflow-y-auto pr-1">
               {cleaningTasks.slice(0, 6).map((task) => {
-                const isCompleted = task.status === 'completed';
+                const isCompleted =
+                  task.status === 'completed' ||
+                  task.status === 'inspected' ||
+                  (task.checklist && task.checklist.length > 0 && task.checklist.every((c) => c.completed));
                 return (
                   <div
                     key={task.id}
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-stone-50/70 dark:bg-zinc-800/50 border border-stone-100 dark:border-zinc-700/60 text-xs"
+                    className={`flex items-center justify-between p-2.5 rounded-xl border text-xs transition-all duration-300 ${
+                      isCompleted
+                        ? 'bg-green-50/30 dark:bg-emerald-950/20 border-green-200/50 dark:border-emerald-800/40'
+                        : 'bg-gray-50/60 dark:bg-zinc-800/40 border-gray-100 dark:border-zinc-700/60'
+                    }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-stone-200/80 dark:bg-zinc-700 text-stone-700 dark:text-stone-200 font-mono">
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-zinc-200 font-mono">
                         {getPropShortCode(task.propertyId)}
                       </span>
-                      <span className="text-xs font-medium text-stone-500 dark:text-stone-400">
+                      <span className="text-xs font-light text-gray-400 dark:text-zinc-400">
                         {formatDisplayDate(task.date)}
                       </span>
-                      <span className="text-xs font-semibold text-stone-800 dark:text-stone-100">
+                      <span className={`text-xs font-medium transition-colors ${isCompleted ? 'text-stone-400 dark:text-stone-500 line-through' : 'text-gray-800 dark:text-gray-100'}`}>
                         {task.cleanerName.split(' ')[0]}
                       </span>
                     </div>
@@ -358,17 +377,17 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
                       onClick={() =>
                         onUpdateTaskStatus(
                           task.id,
-                          isCompleted ? 'pending' : 'completed'
+                          isCompleted ? 'pending' : 'inspected'
                         )
                       }
-                      className={`px-3 py-1 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border ${
+                      className={`px-3 py-1 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer border ${
                         isCompleted
-                          ? 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/40 dark:border-emerald-900/40'
-                          : 'bg-orange-50 text-[#E67E22] border-orange-100 hover:bg-orange-100 dark:bg-orange-950/40 dark:border-orange-900/40'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-emerald-950/40 dark:border-emerald-900/40'
+                          : 'bg-orange-50 text-[#E67E22] border-orange-100 hover:bg-orange-100/70 dark:bg-orange-950/40 dark:border-orange-900/40'
                       }`}
                     >
                       <Check className="w-3.5 h-3.5" />
-                      <span>{isCompleted ? 'Lista' : 'Pendiente'}</span>
+                      <span>{isCompleted ? 'Lista' : 'Recambio'}</span>
                     </button>
                   </div>
                 );
@@ -379,14 +398,14 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
       </div>
 
       {/* Row 3: Próximos Check-ins (7 días) & Últimas Reservas */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Próximos Check-ins (7 días) */}
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-colors">
-          <div className="flex items-center justify-between pb-2.5 border-b border-stone-100 dark:border-zinc-800 mb-3.5">
-            <span className="text-xs font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-stone-300 dark:bg-zinc-600" /> PRÓXIMAS LLEGADAS (7 DÍAS)
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-colors">
+          <div className="flex items-center justify-between pb-2.5 border-b border-gray-50 dark:border-zinc-800 mb-3.5">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-zinc-600" /> PRÓXIMAS LLEGADAS (7 DÍAS)
             </span>
-            <span className="text-[11px] font-medium text-stone-400">Calendario</span>
+            <span className="text-[10px] font-light text-gray-400">Calendario</span>
           </div>
 
           <div className="space-y-2.5">
@@ -397,17 +416,17 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
                 <div
                   key={res.id}
                   onClick={() => onSelectReservation(res)}
-                  className="p-3 rounded-xl bg-stone-50/70 dark:bg-zinc-800/50 hover:bg-stone-100/80 dark:hover:bg-zinc-800 border border-stone-100 dark:border-zinc-700/60 transition-all cursor-pointer flex items-center justify-between"
+                  className="p-3 rounded-xl bg-gray-50/60 dark:bg-zinc-800/40 hover:bg-gray-100/70 dark:hover:bg-zinc-800 border border-gray-100 dark:border-zinc-700/60 transition-all cursor-pointer flex items-center justify-between"
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-stone-200/80 dark:bg-zinc-700 text-stone-700 dark:text-stone-200 font-mono">
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-zinc-200 font-mono">
                       {getPropShortCode(res.propertyId)}
                     </span>
-                    <span className="text-xs font-semibold text-stone-800 dark:text-stone-100">
+                    <span className="text-xs font-medium text-gray-800 dark:text-gray-100">
                       {res.guestName}
                     </span>
                   </div>
-                  <span className="text-xs font-medium text-stone-500 dark:text-stone-400">
+                  <span className="text-xs font-light text-gray-500 dark:text-zinc-400">
                     {formatDisplayDate(res.checkIn)}
                   </span>
                 </div>
@@ -416,12 +435,12 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
         </div>
 
         {/* Últimas Reservas */}
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-colors">
-          <div className="flex items-center justify-between pb-2.5 border-b border-stone-100 dark:border-zinc-800 mb-3.5">
-            <span className="text-xs font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" /> ÚLTIMAS RESERVAS INGRESADAS
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-colors">
+          <div className="flex items-center justify-between pb-2.5 border-b border-gray-50 dark:border-zinc-800 mb-3.5">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#E67E22]" /> ÚLTIMAS RESERVAS INGRESADAS
             </span>
-            <span className="text-[11px] font-medium text-stone-400">Canales</span>
+            <span className="text-[10px] font-light text-gray-400">Canales</span>
           </div>
 
           <div className="space-y-2.5">
@@ -432,17 +451,17 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
                 <div
                   key={res.id}
                   onClick={() => onSelectReservation(res)}
-                  className="p-3 rounded-xl bg-stone-50/70 dark:bg-zinc-800/50 hover:bg-stone-100/80 dark:hover:bg-zinc-800 border border-stone-100 dark:border-zinc-700/60 transition-all cursor-pointer flex items-center justify-between"
+                  className="p-3 rounded-xl bg-gray-50/60 dark:bg-zinc-800/40 hover:bg-gray-100/70 dark:hover:bg-zinc-800 border border-gray-100 dark:border-zinc-700/60 transition-all cursor-pointer flex items-center justify-between"
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-orange-100 text-[#E67E22] font-mono">
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-orange-50 text-[#E67E22] border border-orange-100 dark:bg-orange-950/40 dark:border-orange-900/40 font-mono">
                       {getPropShortCode(res.propertyId)}
                     </span>
-                    <span className="text-xs font-semibold text-stone-800 dark:text-stone-100">
+                    <span className="text-xs font-medium text-gray-800 dark:text-gray-100">
                       {res.guestName}
                     </span>
                   </div>
-                  <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full">
+                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50/80 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-100/60 dark:border-emerald-900/40">
                     Confirmada
                   </span>
                 </div>

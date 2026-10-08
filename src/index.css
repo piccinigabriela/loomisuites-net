@@ -2,9 +2,10 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Poppins geometric architectural font */
+/* Inter zen architectural font with light weight */
 body {
-  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 300;
 }
 
 /* Global dark mode background and text defaults */

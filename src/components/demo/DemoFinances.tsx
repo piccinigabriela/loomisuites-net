@@ -1,251 +1,664 @@
 import React, { useState } from 'react';
 import {
-  DollarSign,
   TrendingUp,
-  CreditCard,
-  Download,
-  FileText,
+  TrendingDown,
+  Percent,
+  Calendar,
   Building,
-  CheckCircle,
+  ArrowUpRight,
+  ArrowDownRight,
+  Filter,
+  Download,
   Printer,
+  ChevronDown,
+  Sparkles,
+  Info,
+  Layers,
+  CircleDollarSign,
+  Receipt,
+  Scale,
 } from 'lucide-react';
-import { DemoState } from '../../types';
+import { DemoState, Reservation } from '../../types';
 import { formatCurrency, formatDisplayDate } from '../../data/initialData';
 
 interface DemoFinancesProps {
   demoState: DemoState;
 }
 
-export const DemoFinances: React.FC<DemoFinancesProps> = ({ demoState }) => {
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string>(
-    demoState.properties[0]?.id || ''
-  );
-  const [commissionRate, setCommissionRate] = useState<number>(20); // 20% agency fee
+// 6 meses con datos consistentes y armoniosos
+const MONTHLY_DATA = [
+  { month: 'May', occupancy: 72, revenue: 3840, directPct: 35, nights: 58 },
+  { month: 'Jun', occupancy: 68, revenue: 3420, directPct: 40, nights: 51 },
+  { month: 'Jul', occupancy: 88, revenue: 5120, directPct: 48, nights: 74 },
+  { month: 'Ago', occupancy: 76, revenue: 4210, directPct: 52, nights: 62 },
+  { month: 'Sep', occupancy: 82, revenue: 4690, directPct: 58, nights: 67 },
+  { month: 'Oct', occupancy: 91, revenue: 5860, directPct: 64, nights: 78, isCurrent: true },
+];
 
-  // Total finances
+export const DemoFinances: React.FC<DemoFinancesProps> = ({ demoState }) => {
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>('all');
+  const [commissionRate, setCommissionRate] = useState<number>(20);
+  const [metricView, setMetricView] = useState<'both' | 'revenue' | 'occupancy'>('both');
+  const [hoveredMonthIndex, setHoveredMonthIndex] = useState<number | null>(null);
+
+  // Filtrado y cálculos
   const activeReservations = demoState.reservations.filter(
     (r) => r.status !== 'cancelled'
   );
 
-  const grossRevenue = activeReservations.reduce(
-    (sum, r) => sum + r.totalAmount,
+  const displayedReservations =
+    selectedPropertyId === 'all'
+      ? activeReservations
+      : activeReservations.filter((r) => r.propertyId === selectedPropertyId);
+
+  const grossRevenue = displayedReservations.reduce(
+    (sum, r) => sum + (r.totalAmount || 0),
     0
   );
 
-  const totalOtaCommissions = activeReservations.reduce(
-    (sum, r) => sum + r.commissionPaid,
+  const totalOtaCommissions = displayedReservations.reduce(
+    (sum, r) => sum + (r.commissionPaid || 0),
     0
   );
 
-  const totalNights = activeReservations.reduce(
-    (sum, r) => sum + r.nights,
+  const totalCleaningFees = displayedReservations.reduce(
+    (sum, r) => sum + (r.cleaningFee || 0),
     0
   );
 
-  // Tarifa Promedio por Noche (ADR - Average Daily Rate)
-  const averageDailyRate = totalNights > 0 ? Math.round(grossRevenue / totalNights) : 0;
-
-  const totalCleaningFees = activeReservations.reduce(
-    (sum, r) => sum + r.cleaningFee,
+  const totalNights = displayedReservations.reduce(
+    (sum, r) => sum + (r.nights || 0),
     0
   );
 
+  const adr = totalNights > 0 ? Math.round(grossRevenue / totalNights) : 0;
   const netRevenue = grossRevenue - totalOtaCommissions;
 
-  // Selected property for owner payout
-  const selectedProperty = demoState.properties.find(
-    (p) => p.id === selectedPropertyId
+  // Cálculo de liquidación a propietario
+  const agencyFee = Math.round(
+    (netRevenue - totalCleaningFees) * (commissionRate / 100)
   );
+  const ownerPayout = Math.max(0, netRevenue - totalCleaningFees - agencyFee);
 
-  const propReservations = activeReservations.filter(
-    (r) => r.propertyId === selectedPropertyId
-  );
+  const selectedProperty =
+    selectedPropertyId === 'all'
+      ? null
+      : demoState.properties.find((p) => p.id === selectedPropertyId);
 
-  const propGross = propReservations.reduce((sum, r) => sum + r.totalAmount, 0);
-  const propOtaCommissions = propReservations.reduce((sum, r) => sum + r.commissionPaid, 0);
-  const propCleaning = propReservations.reduce((sum, r) => sum + r.cleaningFee, 0);
-  const propNetBeforeAgency = propGross - propOtaCommissions - propCleaning;
-  const agencyFee = Math.round(propNetBeforeAgency * (commissionRate / 100));
-  const ownerPayout = propNetBeforeAgency - agencyFee;
+  // SVG Chart Math
+  // Canvas width = 640, height = 180, padding = 32
+  const chartW = 600;
+  const chartH = 150;
+  const padX = 24;
+  const padY = 20;
+  const innerW = chartW - padX * 2;
+  const innerH = chartH - padY * 2;
+
+  const maxRev = 6500;
+  const minRev = 2500;
+  const maxOcc = 100;
+  const minOcc = 50;
+
+  // Coordinates calculation
+  const revPoints = MONTHLY_DATA.map((d, i) => {
+    const x = padX + (i / (MONTHLY_DATA.length - 1)) * innerW;
+    const norm = (d.revenue - minRev) / (maxRev - minRev);
+    const y = padY + innerH - norm * innerH;
+    return { x, y, val: d.revenue, label: d.month };
+  });
+
+  const occPoints = MONTHLY_DATA.map((d, i) => {
+    const x = padX + (i / (MONTHLY_DATA.length - 1)) * innerW;
+    const norm = (d.occupancy - minOcc) / (maxOcc - minOcc);
+    const y = padY + innerH - norm * innerH;
+    return { x, y, val: d.occupancy, label: d.month };
+  });
+
+  const buildPath = (pts: { x: number; y: number }[]) => {
+    if (pts.length === 0) return '';
+    return pts.reduce((acc, p, idx, arr) => {
+      if (idx === 0) return `M ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+      const prev = arr[idx - 1];
+      const cp1x = prev.x + (p.x - prev.x) / 2;
+      const cp1y = prev.y;
+      const cp2x = prev.x + (p.x - prev.x) / 2;
+      const cp2y = p.y;
+      return `${acc} C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+    }, '');
+  };
+
+  const revPath = buildPath(revPoints);
+  const occPath = buildPath(occPoints);
 
   const handlePrint = () => {
     window.print();
   };
 
   return (
-    <div className="space-y-5 sm:space-y-6 font-sans">
-      {/* Header */}
-      <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 sm:p-6 shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]"></span>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-400">
-              FINANZAS & LIQUIDACIONES
+    <div className="space-y-6 max-w-7xl mx-auto font-sans">
+      {/* Header Zen */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]/60"></span>
+            <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-medium">
+              Finanzas & Reportes de Rendimiento
             </span>
+            <span className="text-[11px] text-gray-300">·</span>
+            <span className="text-[11px] text-gray-400 font-light">Modo Zen & Claridad</span>
           </div>
-          <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2 tracking-tight">
-            <DollarSign className="w-5 h-5 text-[#E67E22]" />
-            <span>Rendimiento, Métricas & Liquidación a Propietarios</span>
-          </h3>
-          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 font-medium">
-            Desglose automático de ingresos brutos, comisiones de plataformas y honorarios de administración.
+          <h2 className="text-xl font-light text-gray-800 tracking-tight">
+            Control de Rendimiento & <span className="font-normal text-gray-900">Liquidación</span>
+          </h2>
+          <p className="text-xs text-gray-400 font-light max-w-xl">
+            Flujo consolidado de facturación, comisiones de canales y liquidación mensual a propietarios sin estrés visual.
           </p>
         </div>
 
-        <button
-          onClick={handlePrint}
-          className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 dark:text-stone-200 bg-stone-50 dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 px-4 py-2.5 rounded-xl transition-colors cursor-pointer border border-stone-200/80 dark:border-zinc-700"
-        >
-          <Printer className="w-3.5 h-3.5 text-[#E67E22]" />
-          <span>Imprimir / Exportar Reporte</span>
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Selector de Unidad */}
+          <div className="flex items-center gap-2 bg-gray-50/70 border border-gray-100 rounded-xl px-3 py-2 text-xs font-light text-gray-700">
+            <Building className="w-3.5 h-3.5 text-gray-400" />
+            <select
+              value={selectedPropertyId}
+              onChange={(e) => setSelectedPropertyId(e.target.value)}
+              className="bg-transparent border-none text-xs font-light text-gray-800 focus:outline-none cursor-pointer"
+            >
+              <option value="all">Todas las Unidades (Complejo)</option>
+              {demoState.properties.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-1.5 text-xs font-light text-gray-600 bg-gray-50 hover:bg-gray-100 border border-gray-100 px-3.5 py-2 rounded-xl transition-colors cursor-pointer"
+            title="Exportar reporte"
+          >
+            <Printer className="w-3.5 h-3.5 text-gray-400" />
+            <span>Exportar</span>
+          </button>
+        </div>
       </div>
 
-      {/* 4 Financial Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_12px_rgba(0,0,0,0.01)] transition-colors">
-          <span className="text-[11px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider block mb-1">
-            Ingresos Brutos
-          </span>
-          <div className="text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
+      {/* 4 Métricas Zen Flotantes */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Facturación Bruta */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_16px_rgba(0,0,0,0.005)] transition-all">
+          <div className="flex items-center justify-between text-xs text-gray-400 font-light mb-1">
+            <span>Facturación Bruta</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-emerald-500/70" />
+          </div>
+          <div className="text-2xl font-light text-gray-900 tracking-tight mt-1">
             {formatCurrency(grossRevenue)}
           </div>
-          <p className="text-xs text-stone-400 dark:text-stone-500 mt-1 font-medium">Suma de todas las estadías</p>
+          <div className="mt-2 flex items-center gap-2 text-[11px] text-gray-400 font-light">
+            <span className="text-emerald-700 bg-emerald-50/70 px-2 py-0.5 rounded text-[10px] font-normal">
+              +14% vs mes ant.
+            </span>
+            <span>{displayedReservations.length} reservas</span>
+          </div>
         </div>
 
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_12px_rgba(0,0,0,0.01)] transition-colors">
-          <span className="text-[11px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider block mb-1">
-            Comisiones a OTAs
-          </span>
-          <div className="text-2xl font-bold text-rose-600 dark:text-rose-400 tracking-tight">
-            -{formatCurrency(totalOtaCommissions)}
+        {/* Comisiones OTAs (Atenuadas en óxido/naranja pastel) */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_16px_rgba(0,0,0,0.005)] transition-all">
+          <div className="flex items-center justify-between text-xs text-gray-400 font-light mb-1">
+            <span>Comisiones OTAs</span>
+            <span className="text-[10px] text-orange-600/80 bg-orange-50/60 px-2 py-0.5 rounded font-light">
+              Airbnb / Booking
+            </span>
           </div>
-          <p className="text-xs text-stone-400 dark:text-stone-500 mt-1 font-medium">Airbnb / Booking / VRBO</p>
-        </div>
-
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_12px_rgba(0,0,0,0.01)] transition-colors">
-          <span className="text-[11px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider block mb-1">
-            Tarifa Promedio (ADR)
-          </span>
-          <div className="text-2xl font-bold text-[#E67E22] tracking-tight">
-            {formatCurrency(averageDailyRate)}
+          <div className="text-2xl font-light text-stone-700 tracking-tight mt-1">
+            <span className="text-orange-500/80 mr-1 text-lg font-light">-</span>
+            {formatCurrency(totalOtaCommissions)}
           </div>
-          <p className="text-xs text-stone-400 dark:text-stone-500 mt-1 font-medium">
-            Sobre {totalNights} noches vendidas
+          <p className="mt-2 text-[11px] text-gray-400 font-light">
+            Retención de canales externos
           </p>
         </div>
 
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_12px_rgba(0,0,0,0.01)] transition-colors">
-          <span className="text-[11px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider block mb-1">
-            Ingreso Neto Cobrado
-          </span>
-          <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tracking-tight">
+        {/* Tarifa Promedio (ADR) */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_16px_rgba(0,0,0,0.005)] transition-all">
+          <div className="flex items-center justify-between text-xs text-gray-400 font-light mb-1">
+            <span>Tarifa Promedio (ADR)</span>
+            <span className="text-[11px] text-gray-400 font-light">Noche</span>
+          </div>
+          <div className="text-2xl font-light text-gray-900 tracking-tight mt-1">
+            {formatCurrency(adr)}
+          </div>
+          <p className="mt-2 text-[11px] text-gray-400 font-light">
+            Promedio sobre {totalNights} noches vendidas
+          </p>
+        </div>
+
+        {/* Ingreso Neto (Verde pastel suave) */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_16px_rgba(0,0,0,0.005)] transition-all">
+          <div className="flex items-center justify-between text-xs text-gray-400 font-light mb-1">
+            <span>Ingreso Neto Cobrado</span>
+            <span className="text-[10px] text-emerald-700 bg-emerald-50/70 px-2 py-0.5 rounded font-normal">
+              Disponible
+            </span>
+          </div>
+          <div className="text-2xl font-light text-emerald-800 tracking-tight mt-1">
             {formatCurrency(netRevenue)}
           </div>
-          <p className="text-xs text-stone-400 dark:text-stone-500 mt-1 font-medium">Limpio en tus cuentas</p>
+          <p className="mt-2 text-[11px] text-gray-400 font-light">
+            Limpio acreditado en cuentas
+          </p>
         </div>
       </div>
 
-      {/* Owner Payout Generator */}
-      <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 sm:p-6 shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-colors">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-stone-200/70 dark:border-zinc-800/70">
+      {/* Gráfico Zen: Rendimiento & Ocupación Mensual (Líneas Ultra Delgadas, Sin Grillas Pesadas, Curvas Flotantes) */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 sm:p-7 shadow-[0_4px_16px_rgba(0,0,0,0.005)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-50">
           <div>
-            <span className="text-[11px] font-bold text-[#E67E22] uppercase tracking-wider">
-              MÓDULO DE CO-HOSTING Y ADMINISTRACIÓN
-            </span>
-            <h4 className="text-base font-bold text-stone-900 dark:text-stone-100 tracking-tight mt-0.5">
-              Generador de Liquidación para el Propietario
-            </h4>
-            <p className="text-xs text-stone-500 dark:text-stone-400 font-medium mt-0.5">
-              Selecciona una propiedad para calcular la rendición mensual lista para enviar por correo o WhatsApp.
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-medium">
+                Tendencia Semestral
+              </span>
+              <span className="text-gray-300">·</span>
+              <span className="text-xs text-gray-400 font-light">Mayo - Octubre 2026</span>
+            </div>
+            <h3 className="text-base font-light text-gray-800 tracking-tight mt-0.5">
+              Curvas de Ocupación & Facturación Flotantes
+            </h3>
+            <p className="text-xs text-gray-400 font-light mt-0.5">
+              Sin cuadrículas que saturen la vista; trazos finos que permiten apreciar la aceleración de ingresos y ocupación.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div>
-              <label className="text-[11px] font-semibold text-stone-400 dark:text-stone-500 block mb-1">Propiedad:</label>
-              <select
-                value={selectedPropertyId}
-                onChange={(e) => setSelectedPropertyId(e.target.value)}
-                className="text-xs font-semibold px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-200 focus:outline-none"
-              >
-                {demoState.properties.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({p.neighborhood})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="text-[11px] font-semibold text-stone-400 dark:text-stone-500 block mb-1">Honorario Gestor:</label>
-              <select
-                value={commissionRate}
-                onChange={(e) => setCommissionRate(Number(e.target.value))}
-                className="text-xs font-semibold px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-200 focus:outline-none"
-              >
-                <option value="15">15%</option>
-                <option value="20">20% (Estándar)</option>
-                <option value="25">25%</option>
-                <option value="30">30%</option>
-              </select>
-            </div>
+          {/* Segmented controls para alternar curvas */}
+          <div className="flex items-center gap-1 bg-gray-50/80 p-1 rounded-xl border border-gray-100 text-xs font-light">
+            <button
+              onClick={() => setMetricView('both')}
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                metricView === 'both'
+                  ? 'bg-white text-gray-800 shadow-[0_1px_3px_rgba(0,0,0,0.04)] font-normal'
+                  : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              Ambas Curvas
+            </button>
+            <button
+              onClick={() => setMetricView('revenue')}
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                metricView === 'revenue'
+                  ? 'bg-white text-emerald-800 shadow-[0_1px_3px_rgba(0,0,0,0.04)] font-normal'
+                  : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              <span className="w-2 h-0.5 bg-emerald-500/70 rounded-full inline-block"></span>
+              <span>Ingresos</span>
+            </button>
+            <button
+              onClick={() => setMetricView('occupancy')}
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                metricView === 'occupancy'
+                  ? 'bg-white text-[#E67E22] shadow-[0_1px_3px_rgba(0,0,0,0.04)] font-normal'
+                  : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              <span className="w-2 h-0.5 bg-[#E67E22]/70 rounded-full inline-block"></span>
+              <span>Ocupación</span>
+            </button>
           </div>
         </div>
 
-        {/* Statement Mockup */}
-        <div className="mt-6 max-w-2xl mx-auto bg-[#FDFBF9] dark:bg-[#131418] rounded-2xl p-6 border border-stone-200/80 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.01)] font-sans transition-colors">
-          <div className="flex items-center justify-between border-b border-stone-200/70 dark:border-zinc-800/70 pb-4 mb-4">
+        {/* Canvas SVG Minimalista Zen */}
+        <div className="relative pt-6 pb-2">
+          {/* Leyenda y tooltip contextual */}
+          <div className="flex items-center justify-between text-xs text-gray-400 font-light mb-4 px-2">
+            <div className="flex items-center gap-4">
+              {(metricView === 'both' || metricView === 'revenue') && (
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-[1.5px] bg-emerald-600/70 inline-block"></span>
+                  <span className="text-gray-600 font-light">Facturación ($ USD)</span>
+                </div>
+              )}
+              {(metricView === 'both' || metricView === 'occupancy') && (
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-[1.5px] bg-[#E67E22]/70 inline-block"></span>
+                  <span className="text-gray-600 font-light">Ocupación (%)</span>
+                </div>
+              )}
+            </div>
+
+            {hoveredMonthIndex !== null ? (
+              <div className="text-xs text-gray-600 font-light bg-gray-50/80 px-3 py-1 rounded-xl border border-gray-100 animate-in fade-in">
+                <span className="font-medium text-gray-800">
+                  {MONTHLY_DATA[hoveredMonthIndex].month}:
+                </span>{' '}
+                <span className="text-emerald-700">
+                  ${MONTHLY_DATA[hoveredMonthIndex].revenue.toLocaleString()} USD
+                </span>{' '}
+                ·{' '}
+                <span className="text-[#E67E22]">
+                  {MONTHLY_DATA[hoveredMonthIndex].occupancy}% Ocupación
+                </span>{' '}
+                ({MONTHLY_DATA[hoveredMonthIndex].nights} noches)
+              </div>
+            ) : (
+              <span className="text-[11px] text-gray-400 font-light hidden sm:inline">
+                Pasa el mouse sobre los puntos para ver el detalle mensual
+              </span>
+            )}
+          </div>
+
+          <div className="w-full overflow-hidden bg-white">
+            <svg
+              viewBox={`0 0 ${chartW} ${chartH}`}
+              className="w-full h-44 sm:h-52 select-none overflow-visible"
+            >
+              {/* Líneas guía sutilísimas (casi invisibles, para flotar en el fondo blanco) */}
+              <line
+                x1={padX}
+                y1={padY + innerH}
+                x2={chartW - padX}
+                y2={padY + innerH}
+                stroke="#F3F4F6"
+                strokeWidth="1"
+              />
+              <line
+                x1={padX}
+                y1={padY + innerH / 2}
+                x2={chartW - padX}
+                y2={padY + innerH / 2}
+                stroke="#F9FAFB"
+                strokeWidth="1"
+                strokeDasharray="4 4"
+              />
+
+              {/* Curva de Ingresos (Verde pastel sutil y trazo delgado) */}
+              {(metricView === 'both' || metricView === 'revenue') && (
+                <>
+                  <path
+                    d={revPath}
+                    fill="none"
+                    stroke="#10B981"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="opacity-70 transition-all duration-300"
+                  />
+                  {/* Puntos de datos ultra limpios */}
+                  {revPoints.map((p, i) => (
+                    <g
+                      key={`rev-${i}`}
+                      onMouseEnter={() => setHoveredMonthIndex(i)}
+                      onMouseLeave={() => setHoveredMonthIndex(null)}
+                      className="cursor-pointer"
+                    >
+                      <circle
+                        cx={p.x}
+                        cy={p.y}
+                        r={hoveredMonthIndex === i ? 4 : 2.5}
+                        fill="#FFFFFF"
+                        stroke="#10B981"
+                        strokeWidth="1.5"
+                        className="transition-all duration-200"
+                      />
+                    </g>
+                  ))}
+                </>
+              )}
+
+              {/* Curva de Ocupación (Naranja suave Zen, trazo delgado) */}
+              {(metricView === 'both' || metricView === 'occupancy') && (
+                <>
+                  <path
+                    d={occPath}
+                    fill="none"
+                    stroke="#E67E22"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="opacity-70 transition-all duration-300"
+                  />
+                  {/* Puntos de datos */}
+                  {occPoints.map((p, i) => (
+                    <g
+                      key={`occ-${i}`}
+                      onMouseEnter={() => setHoveredMonthIndex(i)}
+                      onMouseLeave={() => setHoveredMonthIndex(null)}
+                      className="cursor-pointer"
+                    >
+                      <circle
+                        cx={p.x}
+                        cy={p.y}
+                        r={hoveredMonthIndex === i ? 4 : 2.5}
+                        fill="#FFFFFF"
+                        stroke="#E67E22"
+                        strokeWidth="1.5"
+                        className="transition-all duration-200"
+                      />
+                    </g>
+                  ))}
+                </>
+              )}
+
+              {/* Etiquetas del eje X (Meses) */}
+              {revPoints.map((p, i) => (
+                <text
+                  key={`month-${i}`}
+                  x={p.x}
+                  y={chartH - 2}
+                  textAnchor="middle"
+                  className={`text-[10px] font-light fill-gray-400 select-none ${
+                    hoveredMonthIndex === i ? 'fill-gray-800 font-normal' : ''
+                  }`}
+                >
+                  {p.label}
+                </text>
+              ))}
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Grid: Balances de Cobros por Reserva + Liquidación Propietario */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Tabla de Balances de Cobros (7 Cols) */}
+        <div className="lg:col-span-7 bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)]">
+          <div className="flex items-center justify-between pb-4 border-b border-gray-50 mb-2">
             <div>
-              <h5 className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                Liquidación Mensual de Rendimiento
-              </h5>
-              <p className="text-xs text-stone-500 dark:text-stone-400 font-medium mt-0.5">
-                Propiedad: <strong className="text-stone-800 dark:text-stone-200">{selectedProperty?.name}</strong> ({selectedProperty?.address})
+              <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-medium">
+                Balance Consolidado
+              </span>
+              <h4 className="text-base font-light text-gray-800 tracking-tight mt-0.5">
+                Flujo de Cobros por Estadía
+              </h4>
+              <p className="text-xs text-gray-400 font-light mt-0.5">
+                Filas amplias y descansadas para revisar con calma cada liquidación.
               </p>
             </div>
-            <div className="text-right">
-              <span className="text-[11px] text-stone-400 dark:text-stone-500 block">Período: Mes en curso</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-md border border-emerald-200/60 inline-block mt-0.5">
-                Aprobada
+            <span className="text-xs text-gray-400 font-light">
+              {displayedReservations.length} estadías
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-gray-100/70 text-[10px] uppercase tracking-wider text-gray-400 font-normal">
+                  <th className="py-3 px-2 font-medium">Huésped / Unidad</th>
+                  <th className="py-3 px-2 font-medium">Canal</th>
+                  <th className="py-3 px-2 text-right font-medium">Bruto</th>
+                  <th className="py-3 px-2 text-right font-medium">Comisión</th>
+                  <th className="py-3 px-2 text-right font-medium">Neto</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50/80">
+                {displayedReservations.map((res) => {
+                  const prop = demoState.properties.find(
+                    (p) => p.id === res.propertyId
+                  );
+                  const isDirect = res.platform === 'direct';
+
+                  return (
+                    <tr
+                      key={res.id}
+                      className="hover:bg-gray-50/50 transition-colors text-xs font-light"
+                    >
+                      {/* Huésped y Unidad con margen interno generoso (py-4) */}
+                      <td className="py-4 px-2">
+                        <div className="space-y-0.5">
+                          <p className="font-normal text-gray-800 leading-tight">
+                            {res.guestName}
+                          </p>
+                          <p className="text-[11px] text-gray-400 font-light">
+                            {prop?.name || 'Unidad'} · {res.nights} noches (
+                            {formatDisplayDate(res.checkIn)})
+                          </p>
+                        </div>
+                      </td>
+
+                      {/* Canal */}
+                      <td className="py-4 px-2">
+                        <span
+                          className={`text-[10px] px-2 py-0.5 rounded capitalize ${
+                            isDirect
+                              ? 'bg-emerald-50/70 text-emerald-700 font-normal'
+                              : 'bg-orange-50/60 text-[#E67E22] font-light'
+                          }`}
+                        >
+                          {isDirect ? 'Directo (0%)' : res.platform}
+                        </span>
+                      </td>
+
+                      {/* Bruto */}
+                      <td className="py-4 px-2 text-right font-normal text-gray-700">
+                        {formatCurrency(res.totalAmount)}
+                      </td>
+
+                      {/* Comisión OTA en naranja/óxido pastel sutil */}
+                      <td className="py-4 px-2 text-right">
+                        {res.commissionPaid > 0 ? (
+                          <span className="text-orange-600/80 bg-orange-50/50 px-1.5 py-0.5 rounded text-[11px] font-light">
+                            -{formatCurrency(res.commissionPaid)}
+                          </span>
+                        ) : (
+                          <span className="text-emerald-700 bg-emerald-50/60 px-1.5 py-0.5 rounded text-[11px] font-light">
+                            $0
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Neto cobrado en verde pastel muy tenue */}
+                      <td className="py-4 px-2 text-right">
+                        <span className="text-emerald-800 bg-emerald-50/40 px-2 py-0.5 rounded font-normal">
+                          {formatCurrency(res.netRevenue || res.totalAmount - res.commissionPaid)}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Generador de Liquidación Propietario Zen (5 Cols) */}
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)] flex flex-col justify-between">
+          <div>
+            <div className="pb-4 border-b border-gray-50 mb-5">
+              <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-medium">
+                Rendición de Cuentas
               </span>
+              <h4 className="text-base font-light text-gray-800 tracking-tight mt-0.5">
+                Liquidación a Propietario
+              </h4>
+              <p className="text-xs text-gray-400 font-light mt-0.5">
+                Cálculo transparente para enviar por WhatsApp o correo sin disputas.
+              </p>
+            </div>
+
+            {/* Selectores */}
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="text-[11px] text-gray-400 font-light block mb-1.5">
+                  Honorario de Co-hosting / Administración:
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[15, 20, 25, 30].map((rate) => (
+                    <button
+                      key={rate}
+                      type="button"
+                      onClick={() => setCommissionRate(rate)}
+                      className={`py-2 text-xs rounded-xl border transition-all cursor-pointer font-light ${
+                        commissionRate === rate
+                          ? 'border-[#E67E22]/50 bg-orange-50/60 text-[#E67E22] font-normal shadow-xs'
+                          : 'border-gray-100 bg-gray-50/60 text-gray-600 hover:bg-gray-100/60'
+                      }`}
+                    >
+                      {rate}%
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Resumen de Liquidación Zen */}
+            <div className="bg-[#FAF9F6] rounded-2xl p-5 border border-stone-200/50 space-y-3.5 text-xs font-light">
+              <div className="flex items-center justify-between pb-3 border-b border-stone-200/40">
+                <span className="text-gray-500 font-light">Propiedad liquidada:</span>
+                <span className="font-normal text-gray-800">
+                  {selectedProperty ? selectedProperty.name : 'Complejo Consolidado'}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-gray-500">Total Facturado Bruto:</span>
+                <span className="text-gray-800 font-normal">
+                  {formatCurrency(grossRevenue)}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between text-orange-600/80">
+                <span className="text-gray-500">Comisiones de Canales (OTAs):</span>
+                <span className="font-light">-{formatCurrency(totalOtaCommissions)}</span>
+              </div>
+
+              <div className="flex items-center justify-between text-stone-500">
+                <span className="text-gray-500">Costos de Limpieza y Reposición:</span>
+                <span className="font-light">-{formatCurrency(totalCleaningFees)}</span>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-stone-200/40 text-[#E67E22]">
+                <span className="text-gray-600">Honorarios Gestor ({commissionRate}%):</span>
+                <span className="font-light">-{formatCurrency(agencyFee)}</span>
+              </div>
+
+              {/* Total Final */}
+              <div className="pt-3 border-t border-stone-200/70 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-medium text-gray-800 block">
+                    Neto a Transferir al Propietario
+                  </span>
+                  <span className="text-[10px] text-gray-400 font-light">
+                    Libre de comisiones y gastos operativos
+                  </span>
+                </div>
+                <div className="text-lg font-light text-emerald-800 bg-emerald-50/60 px-3 py-1.5 rounded-xl border border-emerald-100/60">
+                  {formatCurrency(ownerPayout)}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Lines */}
-          <div className="space-y-3 text-xs text-stone-700 dark:text-stone-300">
-            <div className="flex justify-between py-1 border-b border-stone-200/50 dark:border-zinc-800/60">
-              <span>Total Facturado ({propReservations.length} reservas):</span>
-              <span className="font-semibold text-stone-900 dark:text-stone-100">{formatCurrency(propGross)}</span>
-            </div>
-            <div className="flex justify-between py-1 border-b border-stone-200/50 dark:border-zinc-800/60 text-rose-600 dark:text-rose-400">
-              <span>Menos comisiones pagadas a plataformas (OTAs):</span>
-              <span className="font-medium">-{formatCurrency(propOtaCommissions)}</span>
-            </div>
-            <div className="flex justify-between py-1 border-b border-stone-200/50 dark:border-zinc-800/60 text-stone-500 dark:text-stone-400">
-              <span>Menos costos de limpieza y reposición:</span>
-              <span className="font-medium">-{formatCurrency(propCleaning)}</span>
-            </div>
-            <div className="flex justify-between py-1 border-b border-stone-200/50 dark:border-zinc-800/60 font-medium text-stone-800 dark:text-stone-200">
-              <span>Subtotal Neto Operativo:</span>
-              <span className="font-semibold">{formatCurrency(propNetBeforeAgency)}</span>
-            </div>
-            <div className="flex justify-between py-1 border-b border-stone-200/50 dark:border-zinc-800/60 text-[#E67E22] font-medium">
-              <span>Honorarios de Co-hosting ({commissionRate}%):</span>
-              <span className="font-semibold">-{formatCurrency(agencyFee)}</span>
-            </div>
-            <div className="flex justify-between py-2 pt-3 text-sm font-bold border-t border-stone-300 dark:border-zinc-700">
-              <span className="text-stone-900 dark:text-white">Neto a Transferir al Propietario:</span>
-              <span className="text-emerald-600 dark:text-emerald-400 text-base font-bold">
-                {formatCurrency(ownerPayout)}
-              </span>
-            </div>
-          </div>
-
-          <div className="mt-5 pt-3 border-t border-stone-200/60 dark:border-zinc-800/60 text-center">
-            <p className="text-[11px] text-stone-400 dark:text-stone-500 font-medium">
-              Documento emitido con Loomi Suite • Información consolidada en tiempo real
-            </p>
+          <div className="pt-5 border-t border-gray-50 mt-5 flex items-center justify-between">
+            <span className="text-[11px] text-gray-400 font-light">
+              Listo para liquidación bancaria
+            </span>
+            <button
+              onClick={handlePrint}
+              className="text-xs font-light text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-100 px-3.5 py-2 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <Download className="w-3.5 h-3.5 text-gray-400" />
+              <span>Descargar PDF</span>
+            </button>
           </div>
         </div>
       </div>

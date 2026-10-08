@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 import {
-  DollarSign,
-  PlusCircle,
   TrendingUp,
   TrendingDown,
   Trash2,
   Calendar,
-  Tag,
-  CreditCard,
   Search,
-  Filter,
   CheckCircle,
   FileSpreadsheet,
   Building,
+  Plus,
+  Coins,
+  ArrowUpRight,
+  ArrowDownRight,
+  Wallet,
+  Clock,
 } from 'lucide-react';
 import { DemoState, CashMovement, Property } from '../../types';
 import { formatDisplayDate } from '../../data/initialData';
@@ -50,8 +51,7 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Calculations
-  // Let's assume an opening cash balance of 50,000
+  // Cálculos de caja diaria
   const openingCash = 50000;
   const isFrontDesk = userRole === 'frontdesk';
 
@@ -60,9 +60,10 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
   const cashOut = isFrontDesk ? 0 : cashMovementsOnly.filter((m) => m.type === 'egreso').reduce((sum, m) => sum + m.amount, 0);
   const currentCashBalance = openingCash + cashIn - cashOut;
 
-  // General metrics (all payment methods)
+  // Métricas generales
   const totalIncomes = movements.filter((m) => m.type === 'ingreso').reduce((sum, m) => sum + m.amount, 0);
   const totalExpenses = isFrontDesk ? 0 : movements.filter((m) => m.type === 'egreso').reduce((sum, m) => sum + m.amount, 0);
+  const netCashFlow = totalIncomes - totalExpenses;
 
   const activeType = isFrontDesk ? 'ingreso' : type;
 
@@ -88,18 +89,14 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
       userRole,
     });
 
-    // Reset Form
     setConcept('');
     setAmount('');
     setPropertyId('');
     showToast(`✅ ${isFrontDesk ? 'Ingreso registrado' : 'Movimiento registrado'} con éxito.`);
   };
 
-  // Filtering
   const filteredMovements = movements.filter((m) => {
-    // If frontdesk, they must NEVER see or search expenses
     if (isFrontDesk && m.type === 'egreso') return false;
-
     const matchesSearch = m.concept.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = filterType === 'all' ? true : m.type === filterType;
     const matchesCategory = filterCategory === 'all' ? true : m.category === filterCategory;
@@ -116,10 +113,10 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
     const labels: Record<CashMovement['category'], string> = {
       caja_chica: 'Caja Chica',
       mantenimiento: 'Mantenimiento',
-      insumos: 'Insumos / Limpieza',
-      servicios: 'Servicios públicos',
+      insumos: 'Insumos / Reposición',
+      servicios: 'Servicios',
       limpieza: 'Personal de limpieza',
-      otros: 'Otros gastos',
+      otros: 'Otros',
     };
     return labels[cat] || cat;
   };
@@ -133,164 +130,184 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
   };
 
   return (
-    <div className="space-y-5 sm:space-y-6 font-sans">
-      {/* Toast Alert */}
+    <div className="space-y-6 max-w-7xl mx-auto font-sans">
+      {/* Toast Zen */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-stone-900 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-xl border border-stone-700 flex items-center gap-2 animate-in slide-in-from-bottom-2">
+        <div className="fixed bottom-6 right-6 z-50 bg-stone-900/95 backdrop-blur-sm text-white text-xs font-light px-4 py-3 rounded-2xl shadow-xl border border-stone-800 flex items-center gap-2 animate-in slide-in-from-bottom-2">
           <CheckCircle className="w-4 h-4 text-[#E67E22]" />
           <span>{toast}</span>
         </div>
       )}
 
-      {/* Header */}
-      <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 sm:p-6 shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]"></span>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-400">
-              CAJA CHICA & FLUJO DIARIO
+      {/* Header Zen */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]/60"></span>
+            <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-medium">
+              Caja Diaria & Movimientos
             </span>
+            <span className="text-[11px] text-gray-300">·</span>
+            <span className="text-[11px] text-gray-400 font-light">Turno en Curso</span>
           </div>
-          <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 tracking-tight flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-[#E67E22]" />
-            <span>Control de Caja Chica & Gastos Operativos</span>
-          </h3>
-          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 font-medium">
-            Registra los movimientos diarios en efectivo del mostrador, compra de insumos, reparaciones rápidas y ventas extras de consumos.
+          <h2 className="text-xl font-light text-gray-800 tracking-tight">
+            Flujo de Caja Diaria & <span className="font-normal text-gray-900">Arqueo de Turno</span>
+          </h2>
+          <p className="text-xs text-gray-400 font-light max-w-xl">
+            Control de efectivo en recepción, cobros de extras y registro sereno de gastos operativos diarios.
           </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => showToast('📥 Planilla de caja diaria exportada en formato Excel.')}
+            className="flex items-center gap-1.5 text-xs font-light text-gray-600 bg-gray-50 hover:bg-gray-100 border border-gray-100 px-3.5 py-2 rounded-xl transition-colors cursor-pointer"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-gray-400" />
+            <span>Cerrar Turno (Exportar)</span>
+          </button>
         </div>
       </div>
 
-      {/* Box Metrics Grid */}
+      {/* Tarjetas de Métricas de Caja Diaria */}
       <div className={`grid grid-cols-1 gap-4 ${isFrontDesk ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-4'}`}>
-        {/* Current Cash Drawer Balance */}
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_12px_rgba(0,0,0,0.01)] transition-colors">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[11px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider">
-              Caja Efectivo (Mostrador)
-            </span>
-            <span className="bg-orange-50 dark:bg-orange-950/40 text-[#E67E22] border border-orange-200/50 text-[10px] font-bold px-2 py-0.5 rounded-md">
+        {/* Saldo Físico Efectivo */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_16px_rgba(0,0,0,0.005)] transition-all">
+          <div className="flex items-center justify-between text-xs text-gray-400 font-light mb-1">
+            <span>Efectivo en Mostrador</span>
+            <span className="text-[10px] text-gray-500 bg-gray-50 px-2 py-0.5 rounded font-light">
               Físico
             </span>
           </div>
-          <div className="text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
+          <div className="text-2xl font-light text-gray-900 tracking-tight mt-1">
             {formatMoney(currentCashBalance)}
           </div>
-          <p className="text-xs text-stone-400 dark:text-stone-500 mt-1 font-medium">
-            Inició con: {formatMoney(openingCash)} en caja
+          <p className="text-[11px] text-gray-400 font-light mt-2">
+            Apertura de turno: {formatMoney(openingCash)}
           </p>
         </div>
 
-        {/* Total Incomes */}
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_12px_rgba(0,0,0,0.01)] transition-colors">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[11px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider">
-              Ingresos Totales (Caja)
-            </span>
-            <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+        {/* Ingresos en Verde Pastel Tenue */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_16px_rgba(0,0,0,0.005)] transition-all">
+          <div className="flex items-center justify-between text-xs text-gray-400 font-light mb-1">
+            <span>Cobros & Entradas</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-emerald-500/70" />
           </div>
-          <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tracking-tight">
+          <div className="text-2xl font-light text-emerald-800 tracking-tight mt-1">
             +{formatMoney(totalIncomes)}
           </div>
-          <p className="text-xs text-stone-400 dark:text-stone-500 mt-1 font-medium">Entradas por ventas & cobros</p>
+          <div className="mt-2 text-[11px] text-gray-400 font-light">
+            <span className="text-emerald-700 bg-emerald-50/70 px-2 py-0.5 rounded text-[10px] font-normal">
+              Entradas registradas
+            </span>
+          </div>
         </div>
 
-        {/* Total Expenses */}
+        {/* Gastos en Naranja/Óxido Pastel Tenue */}
         {!isFrontDesk && (
-          <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_12px_rgba(0,0,0,0.01)] transition-colors">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider">
-                Gastos Operacionales
-              </span>
-              <TrendingDown className="w-4 h-4 text-rose-500 shrink-0" />
+          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_16px_rgba(0,0,0,0.005)] transition-all">
+            <div className="flex items-center justify-between text-xs text-gray-400 font-light mb-1">
+              <span>Egresos & Compras</span>
+              <ArrowDownRight className="w-3.5 h-3.5 text-orange-500/70" />
             </div>
-            <div className="text-2xl font-bold text-rose-600 dark:text-rose-400 tracking-tight">
-              -{formatMoney(totalExpenses)}
+            <div className="text-2xl font-light text-stone-700 tracking-tight mt-1">
+              <span className="text-orange-500/80 mr-1 text-lg font-light">-</span>
+              {formatMoney(totalExpenses)}
             </div>
-            <p className="text-xs text-stone-400 dark:text-stone-500 mt-1 font-medium">Mantenimiento, insumos y compras</p>
+            <p className="text-[11px] text-gray-400 font-light mt-2">
+              Insumos, reparaciones y caja chica
+            </p>
           </div>
         )}
 
-        {/* Total cash flow summary */}
+        {/* Flujo Neto Zen */}
         {!isFrontDesk && (
-          <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_12px_rgba(0,0,0,0.01)] transition-colors">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider">
-                Flujo Neto Total
-              </span>
-              <DollarSign className="w-4 h-4 text-[#E67E22] shrink-0" />
+          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_4px_16px_rgba(0,0,0,0.005)] transition-all">
+            <div className="flex items-center justify-between text-xs text-gray-400 font-light mb-1">
+              <span>Flujo Neto Total</span>
+              <span className="text-[10px] text-gray-400 font-light">Balance</span>
             </div>
-            <div className={`text-2xl font-bold tracking-tight ${totalIncomes - totalExpenses >= 0 ? 'text-stone-900 dark:text-stone-100' : 'text-rose-600'}`}>
-              {formatMoney(totalIncomes - totalExpenses)}
+            <div className={`text-2xl font-light tracking-tight mt-1 ${netCashFlow >= 0 ? 'text-gray-900' : 'text-stone-700'}`}>
+              {formatMoney(netCashFlow)}
             </div>
-            <p className="text-xs text-stone-400 dark:text-stone-500 mt-1 font-medium">Diferencia total registrada</p>
+            <p className="text-[11px] text-gray-400 font-light mt-2">
+              Diferencia del período
+            </p>
           </div>
         )}
       </div>
 
+      {/* Formulario y Tabla de Flujo de Caja */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Form to Register Movement (5 cols) */}
-        <div className="lg:col-span-5 bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 sm:p-6 shadow-[0_4px_16px_rgba(0,0,0,0.02)] h-fit">
-          <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5 pb-4 border-b border-stone-200/70 dark:border-zinc-800/70 mb-5 tracking-tight">
-            <PlusCircle className="w-4 h-4 text-[#E67E22]" />
-            <span>{isFrontDesk ? 'Registrar Cobro / Entrada de Caja' : 'Registrar Movimiento / Gasto'}</span>
-          </h4>
+        {/* Formulario de Registro Zen (5 cols) */}
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)] h-fit">
+          <div className="pb-4 border-b border-gray-50 mb-5">
+            <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-medium">
+              Movimiento Rápido
+            </span>
+            <h4 className="text-base font-light text-gray-800 tracking-tight mt-0.5">
+              {isFrontDesk ? 'Registrar Cobro / Entrada' : 'Registrar Cobro o Gasto'}
+            </h4>
+            <p className="text-xs text-gray-400 font-light mt-0.5">
+              Ingresa el movimiento con concepto claro para mantener el balance al día.
+            </p>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Type Selector Toggle */}
+            {/* Toggle Tipo: Ingreso / Gasto en tonos suaves */}
             {!isFrontDesk && (
               <div>
-                <label className="text-[11px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider block mb-1.5">
-                  Tipo de Movimiento
+                <label className="text-[11px] text-gray-400 font-light block mb-1.5">
+                  Tipo de Transacción:
                 </label>
-                <div className="grid grid-cols-2 gap-2 bg-stone-100/70 dark:bg-zinc-800/60 p-1 rounded-xl border border-stone-200/80 dark:border-zinc-700/80">
-                  <button
-                    type="button"
-                    onClick={() => setType('egreso')}
-                    className={`py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                      type === 'egreso'
-                        ? 'bg-rose-50 text-rose-700 border border-rose-200/80 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800 shadow-xs'
-                        : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
-                    }`}
-                  >
-                    <TrendingDown className="w-3.5 h-3.5" />
-                    <span>Gasto (-)</span>
-                  </button>
+                <div className="grid grid-cols-2 gap-2 bg-gray-50/70 p-1 rounded-xl border border-gray-100">
                   <button
                     type="button"
                     onClick={() => setType('ingreso')}
-                    className={`py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    className={`py-2 text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer font-light ${
                       type === 'ingreso'
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 shadow-xs'
-                        : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
+                        ? 'bg-white text-emerald-800 shadow-[0_1px_3px_rgba(0,0,0,0.04)] font-normal'
+                        : 'text-gray-500 hover:text-gray-800'
                     }`}
                   >
-                    <TrendingUp className="w-3.5 h-3.5" />
+                    <ArrowUpRight className="w-3.5 h-3.5 text-emerald-600/70" />
                     <span>Ingreso (+)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setType('egreso')}
+                    className={`py-2 text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer font-light ${
+                      type === 'egreso'
+                        ? 'bg-white text-[#E67E22] shadow-[0_1px_3px_rgba(0,0,0,0.04)] font-normal'
+                        : 'text-gray-500 hover:text-gray-800'
+                    }`}
+                  >
+                    <ArrowDownRight className="w-3.5 h-3.5 text-[#E67E22]/70" />
+                    <span>Gasto (-)</span>
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Concept input */}
+            {/* Concepto */}
             <div>
-              <label htmlFor="concept" className="text-[11px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider block mb-1">
-                Concepto / Descripción
+              <label htmlFor="concept" className="text-[11px] text-gray-400 font-light block mb-1">
+                Concepto / Detalle
               </label>
               <input
                 id="concept"
                 type="text"
                 value={concept}
                 onChange={(e) => setConcept(e.target.value)}
-                placeholder={isFrontDesk ? "Ej: Cobro de desayuno extra o venta de leña" : "Ej: Compra de 5 bolsas de leña"}
-                className="w-full text-xs p-3 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800/60 text-stone-900 dark:text-stone-100 focus:outline-none"
+                placeholder={isFrontDesk ? "Ej: Cobro desayuno extra o late check-out" : "Ej: Compra de leña o reparación rápida"}
+                className="w-full text-xs p-3 rounded-xl border border-gray-100 bg-gray-50/60 text-gray-800 focus:outline-none focus:bg-white focus:border-gray-200 transition-all font-light"
               />
             </div>
 
-            {/* Grid for Amount and Method */}
+            {/* Monto y Medio de Pago */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label htmlFor="amount" className="text-[11px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider block mb-1">
+                <label htmlFor="amount" className="text-[11px] text-gray-400 font-light block mb-1">
                   Monto ($ ARS)
                 </label>
                 <input
@@ -298,60 +315,60 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  placeholder="25000"
-                  className="w-full text-xs p-3 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800/60 text-stone-900 dark:text-stone-100 focus:outline-none"
+                  placeholder="15000"
+                  className="w-full text-xs p-3 rounded-xl border border-gray-100 bg-gray-50/60 text-gray-800 focus:outline-none focus:bg-white focus:border-gray-200 transition-all font-light"
                 />
               </div>
 
               <div>
-                <label htmlFor="paymentMethod" className="text-[11px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider block mb-1">
+                <label htmlFor="paymentMethod" className="text-[11px] text-gray-400 font-light block mb-1">
                   Medio de Pago
                 </label>
                 <select
                   id="paymentMethod"
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value as any)}
-                  className="w-full text-xs p-3 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800/60 text-stone-900 dark:text-stone-100 focus:outline-none cursor-pointer"
+                  className="w-full text-xs p-3 rounded-xl border border-gray-100 bg-gray-50/60 text-gray-800 focus:outline-none cursor-pointer font-light"
                 >
                   <option value="efectivo">Efectivo (Caja)</option>
                   <option value="transferencia">Transferencia</option>
-                  <option value="tarjeta">Tarjeta Posnet</option>
+                  <option value="tarjeta">Tarjeta / Posnet</option>
                 </select>
               </div>
             </div>
 
-            {/* Category selection */}
+            {/* Categoría */}
             {!isFrontDesk && (
               <div>
-                <label htmlFor="category" className="text-[11px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider block mb-1">
+                <label htmlFor="category" className="text-[11px] text-gray-400 font-light block mb-1">
                   Categoría
                 </label>
                 <select
                   id="category"
                   value={category}
                   onChange={(e) => setCategory(e.target.value as any)}
-                  className="w-full text-xs p-3 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800/60 text-stone-900 dark:text-stone-100 focus:outline-none cursor-pointer"
+                  className="w-full text-xs p-3 rounded-xl border border-gray-100 bg-gray-50/60 text-gray-800 focus:outline-none cursor-pointer font-light"
                 >
-                  <option value="insumos">Insumos (Sábanas, limpieza, etc)</option>
-                  <option value="mantenimiento">Mantenimiento y Reparaciones</option>
-                  <option value="caja_chica">Caja Chica (Cigarrillos, extras)</option>
+                  <option value="insumos">Insumos y Reposición</option>
+                  <option value="mantenimiento">Mantenimiento</option>
+                  <option value="caja_chica">Caja Chica (Extras)</option>
                   <option value="servicios">Servicios (Luz, Internet, Gas)</option>
-                  <option value="limpieza">Personal de Limpieza / Housekeeping</option>
+                  <option value="limpieza">Personal de Limpieza</option>
                   <option value="otros">Otros Gastos</option>
                 </select>
               </div>
             )}
 
-            {/* Optional property linkage */}
+            {/* Unidad Asociada */}
             <div>
-              <label htmlFor="property" className="text-[11px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider block mb-1">
+              <label htmlFor="property" className="text-[11px] text-gray-400 font-light block mb-1">
                 Asociar a Unidad (Opcional)
               </label>
               <select
                 id="property"
                 value={propertyId}
                 onChange={(e) => setPropertyId(e.target.value)}
-                className="w-full text-xs p-3 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800/60 text-stone-900 dark:text-stone-100 focus:outline-none cursor-pointer"
+                className="w-full text-xs p-3 rounded-xl border border-gray-100 bg-gray-50/60 text-gray-800 focus:outline-none cursor-pointer font-light"
               >
                 <option value="">General / Todo el Complejo</option>
                 {demoState.properties.map((p) => (
@@ -362,38 +379,46 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
               </select>
             </div>
 
-            {/* Submit Button */}
+            {/* Botón de Guardado Suave */}
             <button
               type="submit"
-              className={`w-full py-3 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
+              className={`w-full py-3 text-xs rounded-xl transition-all cursor-pointer font-light flex items-center justify-center gap-1.5 ${
                 activeType === 'ingreso'
-                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                  : 'bg-rose-600 hover:bg-rose-700 text-white'
+                  ? 'bg-emerald-50/80 hover:bg-emerald-100/80 text-emerald-800 border border-emerald-200/60'
+                  : 'bg-orange-50/80 hover:bg-orange-100/80 text-[#E67E22] border border-orange-200/60'
               }`}
             >
-              Registrar {activeType === 'ingreso' ? 'Ingreso' : 'Gasto'}
+              <Plus className="w-3.5 h-3.5" />
+              <span>Guardar {activeType === 'ingreso' ? 'Ingreso' : 'Gasto'}</span>
             </button>
           </form>
         </div>
 
-        {/* History Table (7 cols) */}
-        <div className="lg:col-span-7 bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 sm:p-6 shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        {/* Tabla de Flujo de Caja Diaria Zen (7 cols) */}
+        <div className="lg:col-span-7 bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)] flex flex-col justify-between">
           <div>
-            {/* Filter and search bars */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pb-4 border-b border-stone-200/70 dark:border-zinc-800/70 mb-5">
-              <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100 tracking-tight">
-                Historial de Caja & Gastos
-              </h4>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-50 mb-3">
+              <div>
+                <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-medium">
+                  Registro de Movimientos
+                </span>
+                <h4 className="text-base font-light text-gray-800 tracking-tight mt-0.5">
+                  Historial de Caja Diaria
+                </h4>
+                <p className="text-xs text-gray-400 font-light mt-0.5">
+                  Filas amplias (py-4) para una lectura fluida y sin agobio de números.
+                </p>
+              </div>
 
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2">
                 <div className="relative">
-                  <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-2.5" />
+                  <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-2.5" />
                   <input
                     type="text"
                     placeholder="Buscar concepto..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 text-xs rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800/60 text-stone-800 dark:text-stone-200 focus:outline-none"
+                    className="pl-8 pr-3 py-1.5 text-xs rounded-xl border border-gray-100 bg-gray-50/60 text-gray-700 focus:outline-none focus:bg-white font-light"
                   />
                 </div>
 
@@ -401,9 +426,9 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
                   <select
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value)}
-                    className="text-xs px-2.5 py-1.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800/60 text-stone-800 dark:text-stone-200 cursor-pointer focus:outline-none"
+                    className="text-xs px-2.5 py-1.5 rounded-xl border border-gray-100 bg-gray-50/60 text-gray-700 cursor-pointer focus:outline-none font-light"
                   >
-                    <option value="all">Tipos</option>
+                    <option value="all">Todos</option>
                     <option value="ingreso">Ingresos</option>
                     <option value="egreso">Gastos</option>
                   </select>
@@ -411,77 +436,93 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
               </div>
             </div>
 
-            {/* List of movements */}
             {filteredMovements.length === 0 ? (
-              <div className="text-center py-12 text-stone-400 dark:text-stone-500">
-                <p className="text-xs">No se encontraron movimientos registrados en este turno.</p>
+              <div className="text-center py-16 text-gray-400 font-light">
+                <p className="text-xs">No hay movimientos registrados para este filtro.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse font-sans">
+                <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-stone-200/70 dark:border-zinc-800/70 text-[11px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
-                      <th className="pb-2.5">Fecha / Concepto</th>
-                      <th className="pb-2.5">Vía</th>
-                      <th className="pb-2.5">Categoría</th>
-                      <th className="pb-2.5 text-right">Monto</th>
-                      <th className="pb-2.5 text-center">Acciones</th>
+                    <tr className="border-b border-gray-100/70 text-[10px] uppercase tracking-wider text-gray-400 font-normal">
+                      <th className="py-3 px-2 font-medium">Fecha / Concepto</th>
+                      <th className="py-3 px-2 font-medium">Canal</th>
+                      <th className="py-3 px-2 font-medium">Categoría</th>
+                      <th className="py-3 px-2 text-right font-medium">Monto</th>
+                      <th className="py-3 px-2 text-center font-medium"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-stone-100 dark:divide-zinc-800/50">
-                    {filteredMovements.map((mov) => (
-                      <tr key={mov.id} className="text-xs hover:bg-stone-50/60 dark:hover:bg-zinc-800/30 transition-colors">
-                        <td className="py-3 max-w-[220px]">
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-stone-800 dark:text-stone-200 truncate">{mov.concept}</span>
-                            <span className="text-[10px] text-stone-400 dark:text-stone-500 flex items-center gap-1.5 mt-0.5">
-                              <Calendar className="w-3 h-3" />
-                              {formatDisplayDate(mov.date)} • {getPropertyName(mov.propertyId)}
+                  <tbody className="divide-y divide-gray-50/80">
+                    {filteredMovements.map((mov) => {
+                      const isIncome = mov.type === 'ingreso';
+
+                      return (
+                        <tr
+                          key={mov.id}
+                          className="hover:bg-gray-50/50 transition-colors text-xs font-light"
+                        >
+                          {/* Margen generoso py-4 */}
+                          <td className="py-4 px-2 max-w-[210px]">
+                            <div className="space-y-0.5">
+                              <p className="font-normal text-gray-800 truncate leading-tight">
+                                {mov.concept}
+                              </p>
+                              <p className="text-[11px] text-gray-400 font-light flex items-center gap-1.5">
+                                <Calendar className="w-3 h-3 text-gray-300" />
+                                {formatDisplayDate(mov.date)} · {getPropertyName(mov.propertyId)}
+                              </p>
+                            </div>
+                          </td>
+
+                          <td className="py-4 px-2">
+                            <span className="capitalize text-gray-500 font-light">
+                              {mov.paymentMethod}
                             </span>
-                          </div>
-                        </td>
-                        <td className="py-3">
-                          <span className="capitalize text-xs font-medium text-stone-500 dark:text-stone-400">
-                            {mov.paymentMethod}
-                          </span>
-                        </td>
-                        <td className="py-3">
-                          <span className="text-[10px] bg-stone-100 dark:bg-zinc-800 text-stone-700 dark:text-stone-300 font-medium px-2 py-0.5 rounded-md border border-stone-200/60 dark:border-zinc-700/60">
-                            {getCategoryLabel(mov.category)}
-                          </span>
-                        </td>
-                        <td className="py-3 text-right font-bold">
-                          <span className={mov.type === 'ingreso' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}>
-                            {mov.type === 'ingreso' ? '+' : '-'}{formatMoney(mov.amount)}
-                          </span>
-                        </td>
-                        <td className="py-3 text-center">
-                          <button
-                            onClick={() => onDeleteCashMovement(mov.id)}
-                            className="p-1.5 text-stone-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors cursor-pointer"
-                            title="Eliminar movimiento"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+
+                          <td className="py-4 px-2">
+                            <span className="text-[10px] bg-gray-50 text-gray-600 px-2 py-0.5 rounded border border-gray-100 font-light">
+                              {getCategoryLabel(mov.category)}
+                            </span>
+                          </td>
+
+                          {/* Montos en paleta suavizada */}
+                          <td className="py-4 px-2 text-right">
+                            {isIncome ? (
+                              <span className="text-emerald-800 bg-emerald-50/50 px-2 py-0.5 rounded font-normal">
+                                +{formatMoney(mov.amount)}
+                              </span>
+                            ) : (
+                              <span className="text-stone-700 bg-orange-50/50 px-2 py-0.5 rounded font-light">
+                                <span className="text-orange-500/80 mr-0.5">-</span>
+                                {formatMoney(mov.amount)}
+                              </span>
+                            )}
+                          </td>
+
+                          <td className="py-4 px-2 text-center">
+                            <button
+                              onClick={() => onDeleteCashMovement(mov.id)}
+                              className="p-1 text-gray-300 hover:text-rose-500 transition-colors cursor-pointer rounded"
+                              title="Eliminar movimiento"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             )}
           </div>
 
-          {/* Table footer with export simulation */}
-          <div className="pt-4 border-t border-stone-200/70 dark:border-zinc-800/70 flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 mt-4">
-            <span>Mostrando {filteredMovements.length} movimientos en total</span>
-            <button
-              onClick={() => showToast('📥 Planilla de caja diaria exportada en formato Excel.')}
-              className="flex items-center gap-1 text-xs text-[#E67E22] hover:text-[#d36d16] font-semibold transition-colors cursor-pointer"
-            >
-              <FileSpreadsheet className="w-3.5 h-3.5" />
-              <span>Cerrar Caja (Exportar)</span>
-            </button>
+          <div className="pt-4 border-t border-gray-50 flex items-center justify-between text-xs text-gray-400 font-light mt-4">
+            <span>{filteredMovements.length} movimientos contabilizados</span>
+            <span className="text-[11px] text-gray-400 font-light">
+              Arqueo respaldado en tiempo real
+            </span>
           </div>
         </div>
       </div>
