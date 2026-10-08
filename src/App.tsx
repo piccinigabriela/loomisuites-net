@@ -1150,14 +1150,6 @@ export default function App() {
               </div>
             )}
 
-            {/* Permanent Horizontal Tab Navigation Bar (Directly Attached to the System) */}
-            <DemoNavTabs
-              activeTab={demoTab}
-              onSelectTab={setDemoTab}
-              pendingCleaningsCount={pendingCleaningsCount}
-              isEmployeeMode={isEmployeeMode}
-            />
-
             {/* Main Content Body: Real System Dashboard Exactly as on PC */}
             <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-3.5 sm:py-5">
               {demoTab === 'overview' && (
