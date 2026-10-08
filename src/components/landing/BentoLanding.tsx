@@ -80,57 +80,36 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
 
   const plans = [
     {
-      id: 'plan-esencial',
-      name: '1. Inicial (5 a 10 Unidades)',
-      tag: 'Cabañas, Glampings & Anfitriones',
+      id: 'plan-simple',
+      name: 'Loomi Simple',
+      tag: 'Hasta 5 unidades • Dueños sin personal',
       price: 45000,
       usd: 30,
       highlight: false,
-      badge: '5 A 10 UNIDADES',
-      description: 'Motor directo con señas 50% por WhatsApp/CBU, Guía QR del huésped y plantillas Bay, Retrato y Urbano.',
+      badge: 'PLAN PROPIETARIO • HASTA 5 U.',
+      description: 'La herramienta perfecta para dueños que gestionan todo de forma autónoma desde el celular. Calendario modo light y reservas.',
       features: [
-        'De 5 a 10 cabañas, deptos o unidades',
-        'Motor de reservas directo sin comisiones',
-        'Cálculo automático de seña (50%) por CBU/Alias',
-        'Guía digital del huésped con clave Wi-Fi y mapa',
-        'Sincronización con Airbnb y Booking (iCal)',
-        'Colección Esencial: Plantillas Bay, Retrato y Urbano',
+        'Calendario Rack (Modo Light optimizado para móvil)',
+        'Gestión de Reservas Directas & iCal',
+        'Reportes de Rendimiento Básicos',
+        'Sin costos por habitación (precio por todo el complejo)',
       ],
     },
     {
-      id: 'plan-pro',
-      name: '2. Escala (15 a 20 Unidades)',
-      tag: 'Complejos Medianos, Aparts & Posadas',
+      id: 'plan-completo',
+      name: 'Loomi Completo',
+      tag: 'Unidades Ilimitadas • Complejo Total',
       price: 60000,
       usd: 40,
       highlight: true,
-      badge: 'MÁS ELEGIDO • 15 A 20 UNIDADES',
-      description: 'Todo lo del plan Inicial + Módulo móvil para Mucamas, Caja Diaria, control de turnos operativos y WhatsApp.',
+      badge: 'RECOMENDADO • TODO INCLUIDO',
+      description: 'La solución definitiva para complejos que operan con personal de recepción y equipos de limpieza. Ecosistema ilimitado.',
       features: [
-        'De 15 a 20 cabañas, suites o departamentos',
-        'Todo lo del Plan Inicial',
-        'App móvil para Mucamas (control de sábanas y limpieza)',
-        'Caja diaria, balance de señas y cobros pendientes',
-        'Calendario multi-usuario y asignación operativa',
-        'Soporte prioritario 1:1 por WhatsApp',
-      ],
-    },
-    {
-      id: 'plan-luxury',
-      name: '3. Signature',
-      tag: 'Glamping, Bodegas & Hoteles Boutique',
-      price: 80000,
-      usd: 55,
-      highlight: false,
-      badge: 'ALTA GAMA & LUXURY',
-      description: 'Webs de Alta Costura (Parallax, Canvas, Bento), Portal VIP coordinado 1:1 y posicionamiento de tarifa premium.',
-      features: [
-        'Bodegas con hospitalidad, glampings de autor y lodges',
-        'Colección Signature: Diseños Parallax, Canvas y Bento',
-        'Portal móvil de Bienvenida VIP personalizado',
-        'Integración con dominio oficial propio (.com / .com.ar)',
-        'Curaduría estética de fotos, historia y gastronomía',
-        'Posicionamiento para cobrar tarifas altas por noche',
+        'Todo lo del Plan Simple e iCal avanzado',
+        'Módulo Housekeeping Completo (Semáforo de Mucamas en vivo)',
+        'Modo Recepción con Roles de Usuario Separados',
+        'Asistente Xenia AI (Voz & Copiloto 24/7)',
+        'Web propia con Portal de Bienvenida del Huésped',
       ],
     },
   ];
@@ -508,15 +487,15 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 </span>
               </div>
               <h4 className="text-xs font-medium text-gray-700 dark:text-zinc-200">
-                Inicial • Pro Escala • Luxury
+                Simple • Completo
               </h4>
               <p className="text-[11px] text-gray-400 dark:text-zinc-400 font-light leading-relaxed">
-                Sin comisiones por reserva ni porcentajes sobre ventas.
+                Sin comisiones por reserva ni cobro por habitación.
               </p>
             </div>
 
             <div className="pt-2.5 border-t border-gray-50 dark:border-white/5 flex items-center justify-between text-xs text-gray-400 dark:text-zinc-400 font-light">
-              <span>3 Planes</span>
+              <span>2 Planes Fijos</span>
               <span className="text-gray-700 dark:text-gray-200 font-medium group-hover:text-[#E67E22] transition-colors flex items-center gap-1">
                 Ver planes →
               </span>
@@ -867,40 +846,40 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               <div className="space-y-5">
                 <div className="space-y-1">
                   <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#E67E22]">
-                    06 / PLANES SIMPLES EN PESOS
+                    06 / PLANES FIJOS POR COMPLEJO ENTERO
                   </span>
                   <h3 className="text-2xl font-light text-gray-900 dark:text-white">
-                    Tarifas transparentes <span className="font-semibold">por escala</span>
+                    Tarifas transparentes <span className="font-semibold">sin costo por habitación</span>
                   </h3>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {plans.map((p) => (
                     <div
                       key={p.id}
-                      className={`p-4 rounded-2xl border flex flex-col justify-between space-y-3 ${
+                      className={`p-5 rounded-2xl border flex flex-col justify-between space-y-4 ${
                         p.highlight
-                          ? 'border-orange-200 bg-orange-50/40 dark:bg-orange-950/20'
+                          ? 'border-orange-200 bg-orange-50/40 dark:bg-orange-950/20 shadow-sm'
                           : 'border-gray-100 dark:border-white/5 bg-gray-50/70 dark:bg-zinc-800/40'
                       }`}
                     >
-                      <div className="space-y-1.5">
+                      <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] font-medium text-[#E67E22] uppercase tracking-wider">{p.badge}</span>
                           <span className="text-xs font-mono text-gray-400 font-medium">${p.usd} USD</span>
                         </div>
-                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{p.name}</h4>
-                        <div className="text-xl font-light text-gray-900 dark:text-white">
-                          ${p.price.toLocaleString('es-AR')} <span className="text-xs font-light text-gray-400">/mes</span>
+                        <h4 className="text-base font-semibold text-gray-900 dark:text-white">{p.name}</h4>
+                        <div className="text-2xl font-light text-gray-900 dark:text-white">
+                          ${p.price.toLocaleString('es-AR')} <span className="text-xs font-light text-gray-400">/mes (Final ARS)</span>
                         </div>
-                        <p className="text-[11px] text-gray-500 dark:text-zinc-400 leading-relaxed pt-1 border-t border-gray-100 dark:border-white/5 font-light">
+                        <p className="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed pt-1.5 border-t border-gray-100 dark:border-white/5 font-light">
                           {p.description}
                         </p>
                       </div>
 
-                      <div className="space-y-1 pt-1.5 border-t border-gray-100 dark:border-white/5 text-xs">
+                      <div className="space-y-1.5 pt-2 border-t border-gray-100 dark:border-white/5 text-xs">
                         {p.features?.map((feat, idx) => (
-                          <div key={idx} className="flex items-start gap-1.5 text-gray-600 dark:text-zinc-300 text-[11px] font-light">
+                          <div key={idx} className="flex items-start gap-1.5 text-gray-600 dark:text-zinc-300 text-xs font-light">
                             <Check className="w-3.5 h-3.5 text-[#E67E22] shrink-0 mt-0.5" />
                             <span>{feat}</span>
                           </div>
@@ -914,7 +893,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                   <button
                     onClick={() => {
                       setActiveModule(null);
-                      onOpenContact('Planes y Tarifas Loomi Suite');
+                      onOpenContact('Planes y Tarifas Loomi Suite (Simple / Completo)');
                     }}
                     className="px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
                   >

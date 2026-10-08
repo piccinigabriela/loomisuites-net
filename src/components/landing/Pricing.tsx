@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { Check, Sparkles, Zap, ShieldCheck, Play, PlusCircle, KeyRound, Wine, Flower2, Globe, BedDouble, HelpCircle } from 'lucide-react';
-import { SpotlightCard } from './SpotlightCard';
+import React from 'react';
+import { Play } from 'lucide-react';
 
 interface PricingProps {
   onOpenDemo: () => void;
@@ -8,429 +7,165 @@ interface PricingProps {
 }
 
 export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) => {
-  const [isAnnual, setIsAnnual] = useState<boolean>(true);
-  const [userNightRate, setUserNightRate] = useState<number | string>(65); // Default $65/night
-
-  const plans = [
-    {
-      id: 'starter',
-      name: 'Starter Cabaña / B&B',
-      subtitle: 'Para dueños de 1 a 3 cabañas o habitaciones',
-      monthlyPrice: 24,
-      annualPrice: 19,
-      popular: false,
-      features: [
-        'Hasta 3 cabañas o habitaciones conectadas',
-        'Sincronización automática Booking & Airbnb',
-        'Rack visual anti-overbooking en el celular',
-        'Plantillas de WhatsApp de bienvenida y WiFi',
-        'Coordinación de limpieza por unidad',
-        'Link web de reservas directas con seña',
-        'Onboarding autogestionable en 15 minutos',
-      ],
-      ctaText: 'Elegir Starter',
-    },
-    {
-      id: 'pro',
-      name: 'Loomi Pro Complejo',
-      subtitle: 'Para complejos de cabañas, hostales y posadas (4 a 10 unidades)',
-      monthlyPrice: 59,
-      annualPrice: 47,
-      popular: true,
-      features: [
-        'Hasta 10 cabañas o habitaciones',
-        'Sincronización total (Booking, Airbnb, VRBO, iCal)',
-        'Check-in automático: Llaves o cerraduras electrónicas',
-        'Panel de mucamas con fotos y checklist de leña/blancos',
-        'Motor de reservas directas sin pagar 18% de comisión',
-        'Plantillas automáticas y mensajes ilimitados',
-        'Onboarding acompañado por WhatsApp paso a paso',
-        'Soporte prioritario 7 días a la semana',
-      ],
-      ctaText: 'Comenzar con Loomi Pro',
-    },
-    {
-      id: 'lodge',
-      name: 'Loomi Multi-Lodge',
-      subtitle: 'Para hostales grandes, posadas boutique o 11 a 25 unidades',
-      monthlyPrice: 129,
-      annualPrice: 99,
-      popular: false,
-      features: [
-        'Hasta 25 cabañas o habitaciones independientes',
-        'Control de caja diaria, señas y extras (desayunos, leña)',
-        'Múltiples perfiles: Administrador, Recepción, Mucamas',
-        'Reportes de ocupación y exportación a Excel en 1 clic',
-        'Link web con marca y logo de tu complejo',
-        'Migración completa de tus reservas previas por nuestro equipo',
-      ],
-      ctaText: 'Elegir Multi-Lodge',
-    },
-  ];
-
   return (
-    <section id="precios" className="py-20 bg-white dark:bg-[#121212] border-b border-zinc-200 dark:border-zinc-800 transition-colors">
+    <section id="precios" className="py-14 sm:py-20 bg-[#F8F9FA] dark:bg-[#0E0F12] border-b border-gray-100 dark:border-zinc-800 transition-colors font-['Inter',sans-serif]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          <span className="text-xs font-bold text-rose-600 uppercase tracking-wider">
-            Planes Transparentes
+        
+        {/* Encabezado Zen */}
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <span className="text-[10px] font-bold tracking-wider text-[#E67E22] uppercase bg-orange-50 dark:bg-orange-950/40 px-3 py-1 rounded-full border border-orange-200/50">
+            Planes & Tarifas Transparentes
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight mt-2">
-            Inversión fija, sin porcentajes ocultos sobre tus ventas
+          <h2 className="text-2xl sm:text-4xl font-light text-gray-900 dark:text-white tracking-tight mt-3">
+            Inversión fija por <span className="font-semibold text-gray-800 dark:text-gray-100">complejo entero</span>
           </h2>
-          <p className="mt-3 text-base text-zinc-600 dark:text-zinc-400">
-            A diferencia de otros softwares, nosotros jamás nos quedamos con un porcentaje de tus reservas. 
-            Prueba todas las funcionalidades gratis en la demo interactiva.
+          <p className="mt-2 text-xs sm:text-sm text-gray-500 dark:text-zinc-400 font-light leading-relaxed">
+            Sin costos ocultos ni cobro por habitación. Sin comisiones sobre tus reservas.
           </p>
-
-          {/* Billing Switch */}
-          <div className="mt-8 inline-flex items-center gap-3 p-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold">
-            <button
-              onClick={() => setIsAnnual(false)}
-              className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${
-                !isAnnual ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
-              }`}
-            >
-              Facturación Mensual
-            </button>
-            <button
-              onClick={() => setIsAnnual(true)}
-              className={`px-4 py-2 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
-                isAnnual ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
-              }`}
-            >
-              <span>Facturación Anual</span>
-              <span className="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                -20% Ahorro
-              </span>
-            </button>
-          </div>
-
-          {/* Perspective Interactive Box: ¿Qué porcentaje de 1 noche representa? */}
-          <div className="mt-8 max-w-2xl mx-auto bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-emerald-500/10 border border-rose-300/40 dark:border-rose-800/40 rounded-2xl p-5 shadow-xs">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-left space-y-1">
-                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-700 dark:text-rose-400">
-                  <BedDouble className="w-4 h-4" />
-                  <span>Ponelo en perspectiva: ¿Cuánto cobrás 1 noche en tu alojamiento?</span>
-                </div>
-                <p className="text-[11px] text-zinc-600 dark:text-zinc-300">
-                  Ingresá tu tarifa promedio para ver qué fracción de una sola noche paga todo tu mes de sistema:
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0 bg-white dark:bg-zinc-900 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-xs">
-                <span className="text-xs font-bold text-zinc-500">$</span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={userNightRate}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/[^0-9]/g, '');
-                    setUserNightRate(val);
-                  }}
-                  placeholder="65"
-                  className="w-16 text-sm font-black text-zinc-900 dark:text-white bg-transparent outline-none focus:ring-0 text-center"
-                />
-                <span className="text-[11px] font-bold text-zinc-500">USD / noche</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Payment Methods Badges */}
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5 text-xs">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-semibold text-[11px]">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-              Transferencia Bancaria Directa (CBU / CVU / Alias)
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 font-semibold text-[11px]">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-              PayPal (Pagos del exterior)
-            </span>
-          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
-          {plans.map((plan) => {
-            const price = isAnnual ? plan.annualPrice : plan.monthlyPrice;
-            const numericRate = typeof userNightRate === 'number' ? userNightRate : (Number(userNightRate) || 1);
-            const safeRate = numericRate > 0 ? numericRate : 1;
-            const percentageOfNight = Math.round((price / safeRate) * 100);
-            const nightRatio = (price / safeRate).toFixed(1);
-
-            return (
-              <SpotlightCard
-                key={plan.id}
-                spotlightColor={plan.popular ? 'rgba(244, 63, 94, 0.22)' : 'rgba(24, 24, 27, 0.08)'}
-                borderColor={plan.popular ? 'rgba(244, 63, 94, 0.6)' : 'rgba(228, 228, 231, 0.8)'}
-                className={`p-7 sm:p-8 flex flex-col justify-between transition-all relative ${
-                  plan.popular
-                    ? 'border-2 border-rose-500 shadow-xl bg-gradient-to-b from-rose-50/40 via-white to-white dark:from-rose-950/20 dark:via-zinc-900 dark:to-zinc-900'
-                    : 'bg-white dark:bg-zinc-900'
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-rose-600 text-white text-[11px] font-bold px-3.5 py-1 rounded-full shadow-md flex items-center gap-1 z-20">
-                    <Sparkles className="w-3 h-3" />
-                    RECOMENDADO PARA SUPERHOSTS
+        {/* SECCIÓN: PLANES Y TARIFAS TRANSPARENTES (COMPLEJO ENTERO) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto items-stretch">
+          
+          {/* PLAN 1: PROPIETARIO SIMPLE (Ideado para complejos de 4 o 5 cabañas sin personal) */}
+          <div className="bg-white dark:bg-[#18191E] rounded-3xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.01)] border border-gray-100 dark:border-zinc-800/80 flex flex-col justify-between relative group hover:border-orange-200/50 transition-all">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-bold tracking-wider text-orange-500 uppercase bg-orange-50 dark:bg-orange-950/40 px-2.5 py-1 rounded-md inline-block">
+                  Plan Propietario
+                </span>
+                <span className="text-xs font-medium text-gray-400">Hasta 5 unidades</span>
+              </div>
+              
+              <div className="space-y-1">
+                <h3 className="text-xl font-light text-gray-900 dark:text-white tracking-tight">
+                  Loomi <span className="font-semibold text-gray-800 dark:text-gray-100">Simple</span>
+                </h3>
+                <div className="pt-2">
+                  <div className="text-4xl font-light text-gray-900 dark:text-white tracking-tight">
+                    $45.000 <span className="text-xs text-gray-400 font-medium">/mes (Final ARS)</span>
                   </div>
-                )}
-
-                <div>
-                  <h3 className="text-xl font-bold text-zinc-900 dark:text-white">{plan.name}</h3>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{plan.subtitle}</p>
-
-                  <div className="mt-5 flex items-baseline gap-1">
-                    <span className="text-4xl font-extrabold text-zinc-900 dark:text-white font-['Outfit']">${price}</span>
-                    <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">USD / mes</span>
-                  </div>
-                  <p className="text-[11px] text-zinc-400 mt-1">
-                    {isAnnual ? 'Facturado anualmente ($' + price * 12 + '/año)' : 'Sin compromiso de permanencia'}
+                  <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">
+                    Precio por todo el complejo • Sin costos por habitación
                   </p>
+                </div>
+              </div>
 
-                  {/* Night Fraction Dynamic Badge */}
-                  <div className="mt-4 p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-xs">
-                    <div className="flex items-center justify-between font-bold text-emerald-800 dark:text-emerald-300">
-                      <span className="flex items-center gap-1 text-[11px]">
-                        <BedDouble className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                        ¿Cuánto de 1 noche es?
-                      </span>
-                      <span className="text-xs font-black bg-emerald-200/80 dark:bg-emerald-900/80 px-2 py-0.5 rounded-md">
-                        {percentageOfNight}% de 1 noche
-                      </span>
-                    </div>
-                    <p className="text-[10.5px] text-emerald-700 dark:text-emerald-400 mt-1 leading-tight">
-                      {percentageOfNight <= 100 ? (
-                        <>¡Con <strong>menos de 1 noche vendida al mes</strong> ({nightRatio} noches) ya cubrís el 100% del software para tus cabañas!</>
-                      ) : (
-                        <>Se amortiza con solo <strong>{nightRatio} noches vendidas</strong> en todo el mes.</>
-                      )}
-                    </p>
+              <p className="text-xs text-gray-400 font-medium leading-relaxed pt-2">
+                La herramienta perfecta para dueños que gestionan todo de forma autónoma desde el celular.
+              </p>
+
+              {/* Lista de Funciones Incluidas (Modo Light) */}
+              <ul className="space-y-2.5 text-xs font-medium text-gray-600 dark:text-zinc-300 pt-4 border-t border-gray-50 dark:border-zinc-800/60">
+                <li className="flex items-center gap-2 text-gray-700 dark:text-zinc-200">
+                  <span className="text-emerald-500 font-bold">✓</span> Calendario Rack (Modo Light optimizado para móvil)
+                </li>
+                <li className="flex items-center gap-2 text-gray-700 dark:text-zinc-200">
+                  <span className="text-emerald-500 font-bold">✓</span> Gestión de Reservas Directas & iCal
+                </li>
+                <li className="flex items-center gap-2 text-gray-700 dark:text-zinc-200">
+                  <span className="text-emerald-500 font-bold">✓</span> Reportes de Rendimiento Básicos
+                </li>
+                <li className="flex items-center gap-2 text-gray-400 dark:text-zinc-500 line-through font-light">
+                  <span className="text-gray-300 dark:text-zinc-600">✕</span> Módulo Housekeeping (Mucamas/Mantenimiento)
+                </li>
+                <li className="flex items-center gap-2 text-gray-400 dark:text-zinc-500 line-through font-light">
+                  <span className="text-gray-300 dark:text-zinc-600">✕</span> Modo Recepción Multiusuario
+                </li>
+              </ul>
+            </div>
+
+            <div className="pt-6 space-y-2">
+              <button
+                onClick={() => onOpenContact('Plan Loomi Simple ($45.000/mes)')}
+                className="w-full bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-700 dark:text-zinc-200 font-bold py-3 rounded-xl text-xs transition-all cursor-pointer shadow-xs"
+              >
+                Comenzar Prueba de 15 días gratis
+              </button>
+              <button
+                onClick={onOpenDemo}
+                className="w-full py-2 text-xs text-gray-400 hover:text-[#E67E22] transition-colors flex items-center justify-center gap-1.5 cursor-pointer font-light"
+              >
+                <Play className="w-3 h-3 text-[#E67E22] fill-[#E67E22]" />
+                <span>Ver demo en vivo</span>
+              </button>
+            </div>
+          </div>
+
+          {/* PLAN 2: COMPLEJO TOTAL (El plan máster ilimitado con Housekeeping y Recepción) */}
+          <div className="bg-gradient-to-b from-white to-[#FDFBF9] dark:from-[#18191E] dark:to-[#1e1c19] rounded-3xl p-8 shadow-[0_4px_25px_rgba(0,0,0,0.015)] border-2 border-orange-200/60 dark:border-orange-900/60 flex flex-col justify-between relative">
+            {/* Badge Destacado */}
+            <div className="absolute -top-3 right-6">
+              <span className="bg-[#E67E22] text-white text-[9px] font-bold tracking-widest px-3 py-1 rounded-full uppercase shadow-sm">
+                Recomendado
+              </span>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-bold tracking-wider text-orange-600 dark:text-orange-400 uppercase bg-orange-100/50 dark:bg-orange-950/50 px-2.5 py-1 rounded-md inline-block">
+                  Plan Complejo
+                </span>
+                <span className="text-xs font-medium text-[#E67E22]">Unidades Ilimitadas</span>
+              </div>
+              
+              <div className="space-y-1">
+                <h3 className="text-xl font-light text-gray-900 dark:text-white tracking-tight">
+                  Loomi <span className="font-semibold text-gray-800 dark:text-gray-100">Completo</span>
+                </h3>
+                <div className="pt-2">
+                  <div className="text-4xl font-light text-gray-900 dark:text-white tracking-tight">
+                    $60.000 <span className="text-xs text-gray-400 font-medium">/mes (Final ARS)</span>
                   </div>
-
-                  <div className="mt-6 pt-5 border-t border-zinc-100 dark:border-zinc-800">
-                    <span className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider block mb-4">
-                      ¿Qué incluye?
-                    </span>
-                    <ul className="space-y-3">
-                      {plan.features.map((feat, idx) => (
-                        <li key={idx} className="flex items-start gap-2.5 text-xs text-zinc-600 dark:text-zinc-300">
-                          <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">
+                    Precio fijo por todo el complejo • Todo incluido
+                  </p>
                 </div>
-
-                <div className="mt-8 pt-6 border-t border-zinc-100 dark:border-zinc-800 flex flex-col gap-2.5">
-                  <button
-                    onClick={() => onOpenContact(plan.name)}
-                    className={`w-full py-3 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      plan.popular
-                        ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/30 hover:scale-[1.02]'
-                        : 'bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-white text-white dark:text-zinc-900 hover:scale-[1.02]'
-                    }`}
-                  >
-                    {plan.ctaText}
-                  </button>
-
-                  <button
-                    onClick={onOpenDemo}
-                    className="w-full py-2 px-3 rounded-lg text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <Play className="w-3 h-3 text-rose-600 fill-rose-600" />
-                    <span>Ver cómo se ve en la Demo</span>
-                  </button>
-                </div>
-              </SpotlightCard>
-            );
-          })}
-        </div>
-
-        {/* Modular Add-ons Banner */}
-        <div className="mt-16 max-w-5xl mx-auto rounded-3xl border border-zinc-200 bg-zinc-50 p-6 sm:p-8 shadow-xs">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-zinc-200">
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-zinc-200 text-zinc-700 text-xs font-bold mb-2">
-                <PlusCircle className="w-3.5 h-3.5 text-rose-600" />
-                <span>Arquitectura 100% Modular</span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-extrabold text-zinc-900">
-                Módulos Opcionales: Pagá solo lo que tu complejo necesita
-              </h3>
-              <p className="text-xs sm:text-sm text-zinc-600 mt-1 max-w-2xl">
-                El sistema base incluye todo lo necesario para operar con llaves físicas y reservas directas. Si brindás servicios adicionales o automatización con cerraduras, activás los add-ons con tarifa diferencial:
+
+              <p className="text-xs text-gray-400 font-medium leading-relaxed pt-2">
+                La solución definitiva para complejos medianos y grandes que operan con personal de recepción y equipos de limpieza.
               </p>
+
+              {/* Lista de Funciones Completas */}
+              <ul className="space-y-2.5 text-xs font-medium text-gray-600 dark:text-zinc-300 pt-4 border-t border-gray-50 dark:border-zinc-800/60">
+                <li className="flex items-center gap-2 text-gray-700 dark:text-zinc-200 font-semibold">
+                  <span className="text-emerald-500 font-bold">✓</span> Todo lo del Plan Simple e iCal avanzado
+                </li>
+                <li className="flex items-center gap-2 text-gray-700 dark:text-zinc-200">
+                  <span className="text-emerald-500 font-bold">✓</span> Módulo Housekeeping Completo (Semáforo de Mucamas en vivo)
+                </li>
+                <li className="flex items-center gap-2 text-gray-700 dark:text-zinc-200">
+                  <span className="text-emerald-500 font-bold">✓</span> Modo Recepción con Roles de Usuario Separados
+                </li>
+                <li className="flex items-center gap-2 text-gray-700 dark:text-zinc-200">
+                  <span className="text-emerald-500 font-bold">✓</span> Asistente Xenia AI (Voz & Copiloto 24/7)
+                </li>
+                <li className="flex items-center gap-2 text-gray-700 dark:text-zinc-200">
+                  <span className="text-emerald-500 font-bold">✓</span> Web propia con Portal de Bienvenida del Huésped
+                </li>
+              </ul>
+            </div>
+
+            <div className="pt-6 space-y-2">
+              <button
+                onClick={() => onOpenContact('Plan Loomi Completo ($60.000/mes)')}
+                className="w-full bg-[#E67E22] text-white font-bold py-3 rounded-xl text-xs hover:bg-[#d35400] transition-all cursor-pointer shadow-md shadow-orange-500/10"
+              >
+                Activar Complejo Full
+              </button>
+              <button
+                onClick={onOpenDemo}
+                className="w-full py-2 text-xs text-gray-400 hover:text-[#E67E22] transition-colors flex items-center justify-center gap-1.5 cursor-pointer font-light"
+              >
+                <Play className="w-3 h-3 text-[#E67E22] fill-[#E67E22]" />
+                <span>Ver demo en vivo</span>
+              </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mt-6">
-            {/* Add-on 1 */}
-            <div className="bg-white p-5 rounded-2xl border border-zinc-200/80 shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 border border-blue-100">
-                  <KeyRound className="w-5 h-5" />
-                </div>
-                <h4 className="text-sm font-bold text-zinc-900">Cerraduras Inteligentes & PIN</h4>
-                <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
-                  Para unidades con cerraduras digitales (Tuya, TTLock, Yale). Genera y rota códigos numéricos dinámicos vinculados a la reserva por WhatsApp.
-                </p>
-              </div>
-              <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-zinc-400">Add-on opcional</span>
-                <button
-                  onClick={() => onOpenContact('Módulo Cerraduras Inteligentes')}
-                  className="text-xs font-bold text-rose-600 hover:underline cursor-pointer"
-                >
-                  Consultar →
-                </button>
-              </div>
-            </div>
-
-            {/* Add-on 2 */}
-            <div className="bg-white p-5 rounded-2xl border border-zinc-200/80 shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-3 border border-amber-100">
-                  <Wine className="w-5 h-5" />
-                </div>
-                <h4 className="text-sm font-bold text-zinc-900">Frigobar & Consumos Extras</h4>
-                <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
-                  Carga consumos de frigobar, desayunos, confitería, leña para cabañas o amenities especiales a la cuenta del huésped para liquidar al check-out.
-                </p>
-              </div>
-              <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-zinc-400">Add-on opcional</span>
-                <button
-                  onClick={() => onOpenContact('Módulo Frigobar y Consumos')}
-                  className="text-xs font-bold text-rose-600 hover:underline cursor-pointer"
-                >
-                  Consultar →
-                </button>
-              </div>
-            </div>
-
-            {/* Add-on 3 */}
-            <div className="bg-white p-5 rounded-2xl border border-zinc-200/80 shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 border border-emerald-100">
-                  <Flower2 className="w-5 h-5" />
-                </div>
-                <h4 className="text-sm font-bold text-zinc-900">Spa, Turnos & Amenities</h4>
-                <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
-                  Gestión de turnos de piscina climatizada, sauna, masajes, alquiler de bicicletas, kayaks o paseos guiados con cupos por horario.
-                </p>
-              </div>
-              <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-zinc-400">Add-on opcional</span>
-                <button
-                  onClick={() => onOpenContact('Módulo Spa y Turnos')}
-                  className="text-xs font-bold text-rose-600 hover:underline cursor-pointer"
-                >
-                  Consultar →
-                </button>
-              </div>
-            </div>
-
-            {/* Add-on 4: Dominio Propio */}
-            <div className="bg-white p-5 rounded-2xl border border-rose-200/80 shadow-xs flex flex-col justify-between bg-gradient-to-b from-rose-50/20 to-white">
-              <div>
-                <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-3 border border-rose-100">
-                  <Globe className="w-5 h-5" />
-                </div>
-                <h4 className="text-sm font-bold text-zinc-900">Dominio Propio (.com / .ar)</h4>
-                <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
-                  Tu motor de reserva directa bajo tu propia marca (ej: <code>reservas.tucabana.com</code>). El costo de registro anual del dominio corre por cuenta del cliente; Loomi configura DNS y SSL gratis.
-                </p>
-              </div>
-              <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-emerald-700 font-mono">Costo del dominio</span>
-                <button
-                  onClick={() => onOpenContact('Dominio Propio para Motor Directo')}
-                  className="text-xs font-bold text-rose-600 hover:underline cursor-pointer"
-                >
-                  Vincular →
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* Onboarding Concierge Callout */}
-        <div className="mt-10 max-w-5xl mx-auto rounded-3xl border-2 border-dashed border-rose-200 bg-rose-50/20 p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 border border-rose-200 shadow-xs">
-              <Sparkles className="w-6 h-6" />
-            </div>
-            <div>
-              <span className="text-[10px] font-bold text-rose-600 bg-rose-100/60 border border-rose-200/50 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                Servicio Concierge
-              </span>
-              <h3 className="text-lg font-bold text-zinc-900 mt-1.5">
-                ¿No tenés tiempo? Hacemos el Onboarding por vos (Servicio Llave en Mano)
-              </h3>
-              <p className="text-xs text-zinc-600 mt-1 leading-relaxed max-w-2xl">
-                Si no querés encargarte de cargar las fotos, registrar las cabañas, o configurar las claves iCal de tus plataformas de alquiler, nuestro equipo lo hace por vos. Nos das tus enlaces de Airbnb/Booking, fotos del complejo y nos encargamos de todo el setup inicial en 72 horas. <strong>Tarifa única personalizada según la cantidad de unidades de tu complejo.</strong> ¡Listo para usar con soporte inicial personalizado!
-              </p>
-            </div>
-          </div>
-          <div className="text-center md:text-right shrink-0">
-            <div className="text-xl font-extrabold text-[#c46d45] font-['Outfit']">
-              A Cotizar
-            </div>
-            <div className="text-[10px] text-zinc-400 font-medium">Pago único proporcional</div>
-            <button
-              onClick={() => onOpenContact('Servicio Concierge Onboarding Llave en Mano (Presupuesto)')}
-              className="mt-3 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/20 cursor-pointer transition-colors"
-            >
-              Consultar Puesta en Marcha
-            </button>
-          </div>
-        </div>
-
-        {/* Distinction Box: How you pay Loomi vs How your guests pay you */}
-        <div className="mt-12 max-w-4xl mx-auto p-5 sm:p-6 rounded-2xl bg-zinc-50 border border-zinc-200 text-xs text-left">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/60 px-2 py-0.5 rounded-md">
-                1. Tu Abono Mensual a Loomi
-              </span>
-              <h4 className="font-bold text-zinc-900 text-sm mt-1.5">
-                Transferencia Bancaria o PayPal
-              </h4>
-              <p className="text-zinc-600 mt-1 leading-relaxed">
-                Nosotros cobramos la suscripción del software por <strong>Transferencia Bancaria directa (CBU/CVU o Alias)</strong> para Argentina o mediante <strong>PayPal</strong> para cuentas en el exterior. Sin intermediarios ni comisiones sorpresa.
-              </p>
-            </div>
-            <div className="md:border-l md:border-zinc-200 md:pl-6">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-sky-700 bg-sky-100/60 px-2 py-0.5 rounded-md">
-                2. Los Cobros a tus Huéspedes
-              </span>
-              <h4 className="font-bold text-zinc-900 text-sm mt-1.5">
-                Mercado Pago, PayPal o Tu Propio CBU
-              </h4>
-              <p className="text-zinc-600 mt-1 leading-relaxed">
-                Vos cobrás tus reservas directas y señas con total libertad: podés integrar tu propia cuenta de <strong>Mercado Pago</strong> (link de pago o QR, el estándar local más utilizado), <strong>PayPal</strong> para extranjeros o tu CBU/Alias bancario. Todo el dinero de tus huéspedes va directo a tu cuenta.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Security & Support note */}
-        <div className="mt-12 text-center flex flex-wrap items-center justify-center gap-6 text-xs text-zinc-500">
-          <span className="flex items-center gap-1.5">
-            <span className="font-bold text-emerald-600">✓</span>
-            Abono mensual por Transferencia Bancaria (CBU/CVU) o PayPal
-          </span>
-          <span className="flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-zinc-700" />
-            14 días de garantía de satisfacción o devolución total
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Zap className="w-4 h-4 text-zinc-700" />
-            Activación en menos de 10 minutos
-          </span>
-        </div>
       </div>
     </section>
   );

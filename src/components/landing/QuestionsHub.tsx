@@ -68,31 +68,40 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
 
   const plans = [
     {
-      id: 'plan-4-10',
-      name: '5 a 10 Propiedades',
-      range: 'Pequeños complejos, cabañas y anfitriones',
+      id: 'plan-simple',
+      name: 'Loomi Simple',
+      range: 'Hasta 5 unidades • Complejo entero',
       priceMonthly: 45000,
-      description: 'El sistema completo con todas las herramientas para 5 a 10 unidades (~30 USD/mes).',
+      description: 'Enfocado en dueños de 4 o 5 cabañas sin personal. Calendario modo light y reservas.',
       popular: false,
-      badge: 'Inicial'
+      badge: 'Plan Propietario',
+      includedFeatures: [
+        'Calendario Rack (Modo Light optimizado para móvil)',
+        'Gestión de Reservas Directas & iCal',
+        'Reportes de Rendimiento Básicos',
+        'Precio fijo por complejo entero (sin cobro por habitación)',
+      ],
+      excludedFeatures: [
+        'Módulo Housekeeping (Mucamas / Mantenimiento)',
+        'Modo Recepción Multiusuario',
+      ]
     },
     {
-      id: 'plan-10-20',
-      name: '15 a 20 Propiedades',
-      range: 'Complejos medianos, aparts y posadas',
+      id: 'plan-completo',
+      name: 'Loomi Completo',
+      range: 'Unidades Ilimitadas • Complejo entero',
       priceMonthly: 60000,
-      description: 'El sistema completo con app para mucamas y turnos para 15 a 20 unidades.',
+      description: 'Todo el ecosistema ilimitado para complejos con recepción y equipos de limpieza.',
       popular: true,
-      badge: 'MÁS ELEGIDO'
-    },
-    {
-      id: 'plan-20-30',
-      name: 'Signature',
-      range: 'Glampings, bodegas, lodges y diseño de alta gama',
-      priceMonthly: 80000,
-      description: 'Webs de autor (Parallax, Canvas, Bento), portal VIP 1:1 y posicionamiento de tarifa alta.',
-      popular: false,
-      badge: 'Alta Gama'
+      badge: 'Recomendado',
+      includedFeatures: [
+        'Todo lo del Plan Simple e iCal avanzado',
+        'Módulo Housekeeping Completo (Semáforo de Mucamas en vivo)',
+        'Modo Recepción con Roles de Usuario Separados',
+        'Asistente Xenia AI (Voz & Copiloto 24/7)',
+        'Web propia con Portal de Bienvenida del Huésped',
+      ],
+      excludedFeatures: []
     }
   ];
 
@@ -668,8 +677,8 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                 </div>
               </div>
 
-              {/* 3 Explicit Pricing Cards + Custom +30 */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {/* 2 Explicit Pricing Cards (Sin cobrar por habitación) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 {plans.map((plan) => {
                   const numericRate = typeof userNightRateArs === 'number' ? userNightRateArs : (Number(userNightRateArs) || 1);
                   const safeRate = numericRate > 0 ? numericRate : 1;
@@ -679,7 +688,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                   return (
                     <div
                       key={plan.id}
-                      className={`rounded-3xl p-6 border-2 transition-all flex flex-col justify-between relative ${
+                      className={`rounded-3xl p-6 sm:p-8 border-2 transition-all flex flex-col justify-between relative ${
                         plan.popular
                           ? 'bg-white dark:bg-[#252525] border-[#E1500A] shadow-xl shadow-[#E1500A]/15 ring-2 ring-[#E1500A]/20'
                           : 'bg-[#EFECE5] dark:bg-[#1A1A1A] border-[#DCD8CE] dark:border-[#333333]'
@@ -694,9 +703,9 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
 
                       <div>
                         <div className="flex items-center justify-between">
-                          <h4 className="font-black text-[#18181B] dark:text-[#FFFFFF] text-xl">{plan.name}</h4>
+                          <h4 className="font-black text-[#18181B] dark:text-[#FFFFFF] text-2xl">{plan.name}</h4>
                         </div>
-                        <span className="inline-block text-xs font-bold text-[#666666] dark:text-[#A3A3A3] mt-0.5">
+                        <span className="inline-block text-xs font-bold text-[#E1500A] mt-0.5">
                           {plan.range}
                         </span>
                         <p className="text-xs text-[#666666] dark:text-[#A3A3A3] mt-2 min-h-[32px]">{plan.description}</p>
@@ -704,13 +713,13 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                         {/* Price display in ARS */}
                         <div className="mt-5 pb-4 border-b border-[#DCD8CE] dark:border-[#333333]">
                           <div className="flex items-baseline gap-1">
-                            <span className="text-3xl sm:text-4xl font-black text-[#18181B] dark:text-[#FFFFFF]">
+                            <span className="text-4xl font-black text-[#18181B] dark:text-[#FFFFFF]">
                               ${plan.priceMonthly.toLocaleString('es-AR')}
                             </span>
-                            <span className="text-xs font-bold text-[#666666] dark:text-[#A3A3A3]">/ mes</span>
+                            <span className="text-xs font-bold text-[#666666] dark:text-[#A3A3A3]">/ mes (Final ARS)</span>
                           </div>
-                          <p className="text-[11px] text-[#666666] dark:text-[#A3A3A3] mt-1 font-medium">
-                            Abono fijo en pesos argentinos (ajustado por IPC)
+                          <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-semibold">
+                            Precio fijo por todo el complejo • Sin costos por habitación
                           </p>
                         </div>
 
@@ -734,16 +743,22 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                           </p>
                         </div>
 
-                        {/* Features List (Identical complete service for all) */}
+                        {/* Features List */}
                         <div className="mt-5">
                           <p className="text-[11px] font-black uppercase tracking-wider text-[#18181B] dark:text-[#FFFFFF] mb-3">
-                            Incluye el sistema completo:
+                            Funciones incluidas:
                           </p>
                           <ul className="space-y-2 text-xs text-[#444444] dark:text-[#CCCCCC]">
-                            {commonFeatures.map((feature, idx) => (
+                            {plan.includedFeatures?.map((feature, idx) => (
                               <li key={idx} className="flex items-start gap-2">
                                 <CheckCircle2 className="w-3.5 h-3.5 text-[#E1500A] shrink-0 mt-0.5" />
                                 <span>{feature}</span>
+                              </li>
+                            ))}
+                            {plan.excludedFeatures?.map((excluded, idx) => (
+                              <li key={idx} className="flex items-start gap-2 text-gray-400 line-through">
+                                <span className="text-gray-300 font-bold">✕</span>
+                                <span>{excluded}</span>
                               </li>
                             ))}
                           </ul>

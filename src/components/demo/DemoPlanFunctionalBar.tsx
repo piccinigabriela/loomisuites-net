@@ -240,7 +240,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                   : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
               }`}
             >
-              <span>🏡 Inicial (5-10u)</span>
+              <span>🏡 Loomi Simple (Hasta 5u)</span>
               <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
                 activePlan === 'inicial' ? 'bg-orange-50 text-[#E67E22]' : 'bg-stone-200/60 dark:bg-zinc-600 text-stone-600 dark:text-stone-300'
               }`}>
@@ -257,7 +257,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
               }`}
             >
               <Building2 className="w-3.5 h-3.5" />
-              <span>🏢 Escala (15-20u)</span>
+              <span>🏢 Loomi Completo (Full)</span>
               <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
                 activePlan === 'escala' ? 'bg-orange-50 text-[#E67E22]' : 'bg-stone-200/60 dark:bg-zinc-600 text-stone-600 dark:text-stone-300'
               }`}>
@@ -269,21 +269,21 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
 
         {/* Dynamic Detail Card for the Active Plan */}
         <div className="mt-2">
-          {/* 1. PLAN INICIAL */}
+          {/* 1. PLAN SIMPLE */}
           {activePlan === 'inicial' && (
             <div className="bg-[#FAF9F6] dark:bg-[#15161A] rounded-2xl p-4 border border-emerald-200/60 dark:border-emerald-900/40 space-y-3">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] font-bold uppercase border border-emerald-200/60">
-                      Plan Inicial • 5 a 10 Cabañas / Anfitriones
+                      Plan Propietario • Loomi Simple
                     </span>
                     <span className="text-xs font-mono font-bold text-[#E67E22]">
-                      $45.000 ARS / mes (~30 USD)
+                      $45.000 ARS / mes
                     </span>
                   </div>
                   <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 max-w-2xl leading-relaxed font-medium">
-                    <strong>Herramientas clave activas:</strong> Guía Móvil QR para el huésped (Wi-Fi, mapa de llegada y reglas), cálculo automático de seña del 50% por CBU y sincronización iCal con Airbnb/Booking.
+                    <strong>Ideado para dueños de 4 o 5 cabañas sin personal:</strong> Calendario Rack (Modo Light móvil), gestión de reservas directas y rendimiento básico. Sin cobro por habitación.
                   </p>
                 </div>
 
@@ -334,21 +334,21 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
             </div>
           )}
 
-          {/* 2. PLAN ESCALA */}
+          {/* 2. PLAN COMPLETO */}
           {activePlan === 'escala' && (
             <div className="bg-[#FAF9F6] dark:bg-[#15161A] rounded-2xl p-4 border border-blue-200/60 dark:border-blue-900/40 space-y-3">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-mono text-[10px] font-bold uppercase border border-blue-200/60">
-                      Plan Escala • 15 a 20 Unidades con Personal
+                      Plan Complejo • Loomi Completo
                     </span>
                     <span className="text-xs font-mono font-bold text-[#E67E22]">
-                      $60.000 ARS / mes (~40 USD)
+                      $60.000 ARS / mes
                     </span>
                   </div>
                   <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 max-w-2xl leading-relaxed font-medium">
-                    <strong>Herramientas clave activas:</strong> App Móvil para Mucamas (sábanas y limpieza en tiempo real), Caja Diaria & Arqueo por turno y modo empleado sin acceso a números de facturación.
+                    <strong>Ecosistema ilimitado para todo el complejo:</strong> Módulo Housekeeping en vivo para mucamas, modo recepción multisuario, asistente Xenia AI 24/7 y Portal de Bienvenida del Huésped.
                   </p>
                 </div>
 

@@ -136,6 +136,7 @@ function _unusedOldReservations(): Reservation[] {
       status: 'confirmed',
       paymentStatus: 'paid',
       pinCode: '4821#',
+      carPlate: 'AF 729 ZX',
       specialNotes: 'Modalidad Airbnb 3% anfitrión tradicional. Llega en vuelo a las 14:00.',
       createdAt: getRelativeDate(-5),
       earlyCheckIn: true,
@@ -172,8 +173,20 @@ function _unusedOldReservations(): Reservation[] {
       status: 'checked_in',
       paymentStatus: 'paid',
       pinCode: '0310#',
+      carPlate: 'AB 415 KM',
       specialNotes: 'Viaje por negocios. Requiere factura A / Invoice comercial.',
       createdAt: getRelativeDate(-12),
+      addons: [
+        {
+          addonId: 'addon-desayuno-artesanal',
+          name: 'Desayuno Campestre Artesanal (x2 días)',
+          category: 'desayuno',
+          unitPrice: 12,
+          quantity: 2,
+          total: 24,
+          status: 'entregado',
+        },
+      ],
     },
     {
       id: 'res-103',
@@ -194,6 +207,7 @@ function _unusedOldReservations(): Reservation[] {
       status: 'confirmed',
       paymentStatus: 'paid',
       pinCode: '2140#',
+      carPlate: 'AC 910 TR',
       specialNotes: 'Reserva directa por link web de Loomi Suite. Ahorró comisiones de Airbnb.',
       createdAt: getRelativeDate(-3),
     },
@@ -365,51 +379,43 @@ export function generateInitialCleaningTasks(): CleaningTask[] {
 export const INITIAL_TEMPLATES: MessageTemplate[] = [
   {
     id: 'tpl-1',
-    title: 'Confirmación y Bienvenida Anticipada',
-    triggerEvent: 'Al confirmarse la reserva (Día 1)',
+    title: 'Confirmación & Bienvenida Anticipada',
+    triggerEvent: 'Al confirmarse la reserva',
     channel: 'whatsapp',
-    content: '¡Hola {nombre_huesped}! 👋 Gracias por reservar en {nombre_propiedad}. Estamos felices de recibirlos desde el {fecha_llegada} hasta el {fecha_salida}.\n\nPara que su llegada sea impecable y conozcan cómo llegar y moverse por la zona, les dejamos la guía digital: https://loomisuite.com/guia/{propiedad_id}\n\n¡Cualquier duda nos avisan por aquí!',
-    variables: ['{nombre_huesped}', '{nombre_propiedad}', '{fecha_llegada}', '{fecha_salida}'],
-  },
-  {
-    id: 'tpl-5',
-    title: 'Coordinación en Ruta / Día de Viaje',
-    triggerEvent: 'Mañana del viaje / Durante el traslado',
-    channel: 'whatsapp',
-    content: '¡Hola {nombre_huesped}! 🚗 Esperamos que tengan un muy lindo viaje hacia {nombre_propiedad}.\n\nSabemos que las distancias en ruta pueden tener demoras o imprevistos. Avísennos cuando estén a unos 40 o 60 minutos de llegar (o si quieren compartan su ubicación en tiempo real) así los esperamos con el departamento templado y todo listo para recibirlos sin demoras.\n\n¡Manejen con cuidado y cualquier cosa en el camino nos avisan por acá!',
-    variables: ['{nombre_huesped}', '{nombre_propiedad}'],
+    content: '¡Hola, {{nombre_huésped}}! 🌲 Te confirmamos que tu reserva para la unidad {{unidad_alojamiento}} está registrada con éxito desde el {{fecha_checkin}} hasta el {{fecha_checkout}}.\nPara que tu llegada sea perfecta y sin demoras, te compartimos tu Guía Digital de Bienvenida exclusiva. Desde allí vas a poder ver el mapa interactivo con la ruta de acceso, las claves de Wi-Fi y completar tu registro de pasajeros digital:\n🔗 {{link_guia_digital}}\n¡Estamos felices de recibirte! Cualquier duda, estamos a un toque de distancia por acá.',
+    variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{fecha_checkin}}', '{{fecha_checkout}}', '{{link_guia_digital}}'],
   },
   {
     id: 'tpl-2',
-    title: 'Instrucciones de Auto Check-in y Código de Puerta',
-    triggerEvent: 'Llegada al complejo / Check-in',
+    title: 'Coordinación en Ruta / Día de Viaje',
+    triggerEvent: 'La mañana del Check-In',
     channel: 'whatsapp',
-    content: '¡Hola {nombre_huesped}! ☀️ El alojamiento ya está listo para su llegada a partir de las 14:00 hs.\n\n🔑 Datos de Acceso Digital:\n- Dirección: {direccion_propiedad}\n- Código de Cerradura Inteligente: {codigo_cerradura}\n- Red Wi-Fi: {nombre_wifi}\n- Clave Wi-Fi: {clave_wifi}\n\nPor favor avísennos apenas hayan ingresado. ¡Que disfruten mucho de su estadía!',
-    variables: ['{nombre_huesped}', '{direccion_propiedad}', '{codigo_cerradura}', '{nombre_wifi}', '{clave_wifi}'],
-  },
-  {
-    id: 'tpl-6',
-    title: 'Control de Confort (2hs Post-Ingreso) - Blindaje Anti-Quejas',
-    triggerEvent: '2 horas después de ingresar al departamento',
-    channel: 'whatsapp',
-    content: '¡Hola {nombre_huesped}! Esperamos que ya estén acomodados y descansando un poco del viaje. ☕✨\n\nLes escribo para consultarles si encontraron todo impecable y si necesitan algo en especial (toallas extra, indicaciones o cualquier detalle).\n\nEstamos a disposición para que su estadía sea perfecta. ¡Que disfruten mucho!',
-    variables: ['{nombre_huesped}'],
+    content: '¡Buen día, {{nombre_huésped}}! Esperamos que tengan un muy lindo viaje en ruta hacia el complejo. 🚗\nTe recordamos que el ingreso a {{unidad_alojamiento}} está habilitado a partir de las 14:00 hs. Si necesitás repasar las indicaciones exactas de cómo llegar o querés activar el GPS desde el mapa, podés hacerlo directamente desde tu enlace de bienvenida:\n🔗 {{link_guia_digital}}\nAvisanos cuando estén cerca de la zona para esperarlos con el alojamiento climatizado y las llaves listas. ¡Buen viaje!',
+    variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}'],
   },
   {
     id: 'tpl-3',
-    title: 'Recordatorio de Check-out Amable',
-    triggerEvent: 'Noche anterior al Check-out (20:00 hs)',
+    title: 'Control de Confort y Blindaje Anti-Quejas',
+    triggerEvent: '2 Horas Post Check-In',
     channel: 'whatsapp',
-    content: 'Hola {nombre_huesped}, esperamos que hayan tenido una estadía maravillosa en {nombre_propiedad}. ✨\n\nLes recordamos que el check-out es mañana a las 11:00 hs para permitir la limpieza y preparación del lugar.\n\nSolo les pedimos:\n1. Apagar luces y aire acondicionado / calefacción.\n2. Dejar las llaves o cerrar bien la puerta con cerradura electrónica.\n3. Dejar los residuos en el cesto correspondiente.\n\n¡Buen viaje de regreso y esperamos recibirlos pronto!',
-    variables: ['{nombre_huesped}', '{nombre_propiedad}'],
+    content: '¡Hola, {{nombre_huésped}}! Esperamos que ya estén cómodamente instalados en {{unidad_alojamiento}}. ✨\nTe escribo para confirmar que hayan encontrado todo impecable y en perfecto orden. ¿Tienen buena señal de Wi-Fi y la temperatura está agradable?\nSi necesitan algún juego extra de toallas, almohada adicional o recomendación de dónde almorzar o cenar rico hoy, estamos a total disposición por acá para que su estadía sea increíble. ¡Que descansen!',
+    variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}'],
   },
   {
     id: 'tpl-4',
+    title: 'Recordatorio de Check-out Amable',
+    triggerEvent: 'Noche anterior al Check-out (20:00 hs)',
+    channel: 'whatsapp',
+    content: 'Hola, {{nombre_huésped}}, esperamos que hayan tenido una estadía maravillosa en {{unidad_alojamiento}}. ✨\nLes recordamos que el check-out es mañana a las 11:00 hs para permitir la preparación del lugar.\nSolo les pedimos apagar luces y climatización, y avisarnos al salir. ¡Buen viaje de regreso y esperamos recibirlos pronto!',
+    variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}'],
+  },
+  {
+    id: 'tpl-5',
     title: 'Solicitud de Reseña 5 Estrellas y Descuento Directo',
     triggerEvent: '2 horas después del Check-out',
     channel: 'whatsapp',
-    content: '¡Muchas gracias por cuidar {nombre_propiedad} con tanto cariño, {nombre_huesped}! 🌟\n\nSi les gustó la experiencia, nos ayudarían un montón dejándonos una reseña de 5 estrellas en la plataforma.\n\nY para su próxima escapada o viaje, pueden reservar directo con nosotros sin pagar comisiones extra: https://loomisuite.com/directo/{propiedad_id}\n\n¡Hasta la próxima!',
-    variables: ['{nombre_huesped}', '{nombre_propiedad}', '{propiedad_id}'],
+    content: '¡Muchas gracias por cuidar {{unidad_alojamiento}} con tanto cariño, {{nombre_huésped}}! 🌟\nSi les gustó la experiencia, nos ayudarían un montón dejándonos una reseña de 5 estrellas.\nY para su próxima escapada, pueden reservar directo con nosotros con tarifa preferencial: 🔗 {{link_guia_digital}}\n¡Hasta la próxima!',
+    variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}'],
   },
 ];
 
@@ -709,8 +715,12 @@ export function getDemoState(): DemoState {
       if (!parsed.welcomeGuide || parsed.welcomeGuide.propertyName !== 'Tu Complejo') {
         parsed.welcomeGuide = INITIAL_WELCOME_GUIDE;
       }
-      // Ensure templates have all up-to-date templates (including tpl-5 and tpl-6)
-      if (!parsed.templates || parsed.templates.length < INITIAL_TEMPLATES.length || !parsed.templates.some((t: any) => t.id === 'tpl-5')) {
+      // Ensure templates have all up-to-date templates with master texts
+      const hasOldTemplates = !parsed.templates ||
+        parsed.templates.length < INITIAL_TEMPLATES.length ||
+        !parsed.templates.some((t: any) => t.title?.includes('Blindaje Anti-Quejas')) ||
+        !parsed.templates.some((t: any) => t.content?.includes('{{nombre_huésped}}'));
+      if (hasOldTemplates) {
         parsed.templates = INITIAL_TEMPLATES;
       }
       // Ensure availableAddons and addons are updated to the Buenos Aires versions

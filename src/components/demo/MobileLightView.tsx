@@ -252,7 +252,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
     : '';
 
   const welcomeMessageText = selectedGuestAction
-    ? `¡Hola ${selectedGuestAction.guestName}! Te damos la bienvenida a ${complexName} 🌟.\n\nYa está todo listo para tu llegada a ${selectedActionProperty?.name || 'tu unidad'}.\n\n🗺️ *Tu Guía Digital con Ruta GPS y Recomendaciones:*\nhttps://loomisuite.net/guia/${selectedGuestAction.propertyId}\n\n🔑 *Acceso y Wi-Fi:*\n• Red Wi-Fi: ${selectedActionProperty?.wifiNetwork || 'CatalinasAptos'}\n• Clave Wi-Fi: ${selectedActionProperty?.wifiPassword || 'TresSargentos435'}\n• Horario Check-in: A partir de las 14:00hs.\n\n¡Cualquier consulta estamos a tu disposición!`
+    ? `¡Hola, ${selectedGuestAction.guestName.split(' ')[0]}! 🌲 Te confirmamos que tu reserva para la unidad ${selectedActionProperty?.name || 'tu alojamiento'} está registrada con éxito desde el ${formatDisplayDate(selectedGuestAction.checkIn)} hasta el ${formatDisplayDate(selectedGuestAction.checkOut)}.\nPara que tu llegada sea perfecta y sin demoras, te compartimos tu Guía Digital de Bienvenida exclusiva. Desde allí vas a poder ver el mapa interactivo con la ruta de acceso, las claves de Wi-Fi y completar tu registro de pasajeros digital:\n🔗 https://loomisuite.com/guia/${selectedGuestAction.propertyId}?huesped=${encodeURIComponent(selectedGuestAction.guestName.split(' ')[0])}\n¡Estamos felices de recibirte! Cualquier duda, estamos a un toque de distancia por acá.`
     : '';
 
   const wifiMessageText = selectedGuestAction

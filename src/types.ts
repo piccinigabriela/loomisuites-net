@@ -75,6 +75,7 @@ export interface Reservation {
   paymentStatus: PaymentStatus;
   pinCode: string;
   specialNotes?: string;
+  carPlate?: string; // Patente o dominio vehicular del huésped
   createdAt: string;
   // Nuevos campos operativos y de tarifas flexibles:
   earlyCheckIn?: boolean; // Permite ingreso anticipado

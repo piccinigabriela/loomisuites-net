@@ -430,21 +430,23 @@ ${pendingPayments.length > 0 ? `⚠️ **Cobros y Saldos Pendientes:** Tenés ${
       q.includes('paypal')) &&
     !isEditingAction
   ) {
-    return `### 🏷️ Planes, Precios y Formas de Pago de Loomi Suite
+    return `### 🏷️ Planes y Precios Transparentes de Loomi Suite (Complejo Entero)
 
-En Loomi tenemos **precios transparentes en pesos argentinos (ARS)** y ajustados por **IPC (inflación oficial)**, para que no tengas sobresaltos con el dólar:
+En Loomi tenemos **2 planes fijos por complejo entero** en **pesos argentinos (ARS)** (sin cobrar por habitación y sin comisiones por reserva):
 
-- **Plan Inicial (5 a 10 Propiedades):** **$45.000 / mes** *(~30 USD, ideal para anfitriones y complejos chicos; se paga solo con una fracción de 1 noche)*.
-- **Plan Escala (15 a 20 Propiedades):** **$60.000 / mes** *(complejos medianos, aparts y posadas con app de mucamas y caja diaria)*.
-- **Plan Signature:** **$80.000 / mes** *(bodegas con alojamiento, glampings de autor, lodges y webs de alta costura como Parallax, Canvas y Bento)*.
-- **Más de 20 / 30 Propiedades:** Cotización personalizada a medida.
+1. **🏡 Plan Loomi Simple:** **$45.000 / mes (Final ARS)**
+   - Enfocado en dueños de 4 o 5 cabañas sin personal.
+   - Incluye calendario en modo light (optimizado para celular), gestión de reservas directas, sincronización iCal con portales y reportes de rendimiento básicos.
+   - *No incluye módulo de housekeeping ni modo recepción multiusuario.*
+
+2. **🏢 Plan Loomi Completo:** **$60.000 / mes (Final ARS)**
+   - Todo el ecosistema ilimitado para complejos medianos y grandes.
+   - Incluye Módulo Housekeeping en vivo (semáforo y tareas de mucamas), Modo Recepción con roles separados, Asistente Xenia AI (voz y copiloto 24/7) y web propia con Portal de Bienvenida del Huésped.
 
 **Formas de Pago y Cobro:**
-- 💳 **Tu abono a Loomi:** Se abona mensualmente mediante **Transferencia Bancaria directa** (CBU/CVU o Alias) en Argentina, o por **PayPal** para el exterior. Sin comisiones extras ni intermediarios.
-- 💰 **Cobros a tus Huéspedes:** Tus huéspedes te pagan directo a tus cuentas: podés vincular tu **Mercado Pago** (links de pago o QR), transferencias por **CBU/Alias bancario** o **PayPal** para extranjeros. Loomi no retiene tus fondos ni cobra comisiones por reserva (0% comisión).
-- ✅ **Sin tarjeta de crédito para arrancar:** Probás la demo interactiva sin ingresar datos de pago.
-- ✅ **Sin permanencia:** Podés pausar o dar de baja el servicio cuando quieras.
-- 👥 **Modo Día a Día para Empleados:** Modo operativo restringido para que el personal atienda check-ins y limpieza sin ver números de facturación ni finanzas.`;
+- 💳 **Tu abono a Loomi:** Se abona mensualmente mediante **Transferencia Bancaria directa** (CBU/CVU o Alias) en Argentina, o por **PayPal** para el exterior. Precio fijo por todo el complejo sin costos sorpresa.
+- 💰 **Cobros a tus Huéspedes:** Tus pasajeros te pagan directo a tu cuenta: **Mercado Pago**, CBU/Alias bancario o efectivo. Loomi no cobra ningún porcentaje sobre tus ventas (0% comisión).
+- ✅ **Sin tarjeta de crédito para arrancar:** Probás 15 días gratis sin ingresar datos de pago.`;
   }
 
   // 4. LLAVES FÍSICAS vs CERRADURAS DIGITALES
@@ -509,13 +511,20 @@ Así funciona la coordinación diaria sin mensajes perdidos en WhatsApp:
     q.includes('mensajeria') ||
     q.includes('mensajería') ||
     q.includes('plantilla') ||
+    q.includes('plantillas') ||
+    q.includes('textos máster') ||
+    q.includes('textos master') ||
+    q.includes('omotenashi') ||
     q.includes('guia digital') ||
     q.includes('guía digital') ||
+    q.includes('simulador') ||
     q.includes('wifi') ||
     q.includes('wi-fi') ||
     q.includes('internet') ||
     q.includes('clave') ||
     q.includes('llegada') ||
+    q.includes('en ruta') ||
+    q.includes('viaje') ||
     q.includes('ubicacion') ||
     q.includes('ubicación') ||
     q.includes('blindaje') ||
@@ -523,20 +532,30 @@ Así funciona la coordinación diaria sin mensajes perdidos en WhatsApp:
     q.includes('resena') ||
     q.includes('reseña')
   ) {
-    return `### 💬 WhatsApp Inteligente y Blindaje Anti-Quejas en Loomi Suite
+    return `### 💬 WhatsApp Inteligente y las 3 Plantillas Máster Omotenashi en Loomi Suite
 
-En Loomi enviás mensajes a tus pasajeros en 1 solo toque, con los datos ya cargados:
+Sí, en Loomi Suite el sistema de WhatsApp y el **Simulador en Celular** están diseñados con filosofía **Omotenashi** (atención cálida, ultra profesional y preventiva) para atender al huésped sin fricciones:
 
-1. **Las 6 Plantillas Automáticas:**
-   - 👋 **Bienvenida y Guía Digital (Día 1):** Envía el mapa interactivo de ruta y recomendaciones locales.
-   - 🚗 **Coordinación en Ruta:** Para coordinar la hora exacta de llegada en viajes largos.
-   - 🔑 **Acceso y Clave Wi-Fi:** Entrega automáticamente la red y contraseña de esa cabaña específica.
-   - 🛡️ **Control de Confort (2hs Post-Ingreso):** Desactiva reclamos en privado en 10 minutos, antes de que se transformen en una queja pública.
-   - ⏰ **Recordatorio de Check-out:** Aviso cordial para coordinar la salida.
-   - 🌟 **Solicitud de Reseña 5 Estrellas:** Para conseguir mejores calificaciones e invitar a reservar directo la próxima vez.
+---
 
-2. **⚡ Envío en 1 Clic:**
-   - Podés enviarlas desde la pestaña **"Avisos & WhatsApp"** o tocando el botón verde **"Chatear"** en la ficha de cualquier reserva.`;
+### 📱 1. Las 3 Plantillas Máster Pre-cargadas
+
+1. **🌲 Plantilla 1: Confirmación & Bienvenida Anticipada** *(Al confirmarse la reserva)*:
+   - Envía automáticamente el saludo cordial con el nombre del pasajero, confirma las fechas exactas y entrega el enlace directo a la **Guía Digital de Bienvenida interactiva** con el mapa GPS de acceso, claves de Wi-Fi y ficha digital de registro.
+2. **🚗 Plantilla 2: Coordinación en Ruta / Día de Viaje** *(La mañana del Check-In)*:
+   - Recuerda el horario de ingreso (a partir de las 14:00 hs), reactiva el GPS en 1 toque y pide que avisen cuando estén cerca para esperarlos con el alojamiento climatizado y las llaves listas.
+3. **✨ Plantilla 3: Control de Confort y Blindaje Anti-Quejas** *(2 Horas Post Check-In)*:
+   - Consulta amablemente si encontraron todo impecable, si el Wi-Fi y la temperatura están confortables, y ofrece toallas extra o recomendaciones de gastronomía local. ¡Esto desactiva cualquier eventual reclamo en privado en 10 minutos antes de que surja una queja!
+
+---
+
+### ⚡ 2. ¿Cómo funciona el Simulador de WhatsApp?
+
+- **Variables Dinámicas Automáticas:** Las etiquetas como \`{{nombre_huésped}}\`, \`{{unidad_alojamiento}}\`, \`{{fecha_checkin}}\`, \`{{fecha_checkout}}\` y \`{{link_guia_digital}}\` se reemplazan solas con los datos reales de la reserva elegida.
+- **Renderizado en Tiempo Real:** En el teléfono móvil simulado a la derecha ves exactamente cómo le llega el mensaje al huésped, con hipervínculos activos en tono óxido pastel y estética limpia Zen.
+- **Envío en 1 Clic:** Podés **Copiar** el texto formateado, pulsar **Simular** o tocar **"Abrir en WhatsApp Real"** para disparar la conversación directamente al número del pasajero.
+
+💡 *Podés acceder desde el menú lateral en **Avisos & WhatsApp**, desde la lista de reservas en el acordeón de cada fila, o desde la vista móvil en **Acciones Rápidas**.*`;
   }
 
   // 7. SINCRONIZACIÓN Y OVERBOOKING / DOBLES RESERVAS

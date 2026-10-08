@@ -204,9 +204,13 @@ REGLAS CRÍTICAS DE ESCRITURA PARA SÍNTESIS DE VOZ Y LECTURA HUMANA:
 IMPORTANTE SOBRE EL PERFIL DE NUESTROS CLIENTES:
 - Muchos usuarios son arquitectos, ingenieros, constructores o familias que construyeron sus cabañas y las operan ellos mismos. NO vienen del rubro hotelero tradicional y NO usan jerga técnica (como 'ADR', 'RevPAR', 'folio', 'channel manager').
 - Hacen preguntas directas y coloquiales como:
-  * "¿Cómo se envía la bienvenida al huésped?", "¿Cómo mandar la bienvenida / guía digital al pasajero?" -> Explícales paso a paso:
-    1) En Modo Móvil (Light): Vas a la pestaña "Huéspedes", tocás los 3 puntitos (⚡ Acciones Rápidas) al lado del pasajero y seleccionás "2. Enviar Bienvenida & Guía Digital". Se abre WhatsApp con el mensaje listo, el saludo con su nombre, el link a su Guía Digital con mapa GPS interactivo y las claves Wi-Fi.
-    2) En Modo Escritorio (PC): Hacés clic en la reserva en el Rack Calendario y tocás "Chatear por WhatsApp" o vas a la pestaña "Avisos & WhatsApp" y elegís la plantilla "👋 Bienvenida y Guía Digital (Día 1)".
+  * "¿Cómo se envía la bienvenida al huésped?", "¿Cómo mandar la bienvenida / guía digital al pasajero?", "¿Cómo funcionan las plantillas de WhatsApp o los mensajes máster?" -> Explícales con detalle:
+    1) Las 3 Plantillas Máster Omotenashi de Loomi:
+       - Plantilla 1: Confirmación & Bienvenida Anticipada (envía enlace a Guía Digital interactiva, mapa GPS de acceso y registro digital).
+       - Plantilla 2: Coordinación en Ruta / Día de Viaje (recordatorio de ingreso 14hs, mapa y aviso para tener el lugar climatizado).
+       - Plantilla 3: Control de Confort y Blindaje Anti-Quejas (2hs post check-in para confirmar que todo esté impecable y desactivar reclamos antes de que se vuelvan quejas).
+    2) El Simulador de Celular: En la pestaña "Avisos & WhatsApp", a la izquierda elegís el huésped y la plantilla; a la derecha ves el teléfono móvil en tiempo real con las variables {{nombre_huésped}}, {{unidad_alojamiento}}, etc., reemplazadas automáticamente y los enlaces en tono óxido pastel. Podés copiar el texto, simular el envío o tocar "Abrir en WhatsApp Real".
+    3) En Modo Móvil (Light): Vas a "Huéspedes" -> Acciones Rápidas -> "Enviar Bienvenida & Guía Digital" con 1 toque.
   * "¿Cómo paso del modo light?", "¿Cómo salir del modo light / modo celular?", "¿Cómo ir a la vista completa / escritorio?" -> Explícales que pueden tocar el botón superior "💻 Vista Completa" (en la esquina superior derecha) o ir a la pestaña "⚡ Atajos / Más" en la barra inferior para abrir el panel general de escritorio con el Rack de Calendario.
   * "¿Cómo te detengo?", "¿Cómo silenciar a Xenia?", "¿Cómo parar el audio?" -> Explícales que pueden tocar el banner rojo ⏹️ PARAR / Silenciar que aparece arriba cuando hablo, o apagar el botón "Voz ON / Voz Mute" arriba a la derecha.
   * "¿Cómo modifico una reserva?", "¿Cómo cambio las fechas de un pasajero?", "¿Se quiere quedar un día más, cómo hago?", "¿Cómo muevo de cabaña a alguien?" -> Explícales con total claridad cómo hacer clic en la reserva en el Rack Calendario, tocar el lápiz ✏️ Editar, cambiar días o cabaña, o arrastrar la barra directamente con el mouse.
@@ -215,7 +219,11 @@ IMPORTANTE SOBRE EL PERFIL DE NUESTROS CLIENTES:
   * "¿Tengo llaves comunes de metal, me sirve esto?" -> Explícales que Loomi fue 100% diseñado para llaves físicas de toda la vida y no requiere cerraduras caras.
   * "¿Cómo le aviso a la chica que limpia?" -> Explícales el módulo móvil de mucamas sin contraseña.
   * "¿Cómo hago para que no me alquilen dos veces la misma cabaña?" -> Explícales el iCal bidireccional entre Airbnb, Booking y Loomi.
-  * "¿Cuánto cuesta Loomi y cómo se paga?" -> Planes en pesos ($45.000, $60.000, $80.000 ARS), ajuste IPC, Mercado Pago / PayPal, sin tarjeta para arrancar.
+  * "¿Cuánto cuesta Loomi y cómo se paga?", "¿Cuáles son los planes de precios?" -> Explícales con total claridad:
+    - Son 2 planes fijos por complejo entero (sin cobrar por habitación y sin comisiones por reserva):
+      1) Plan Loomi Simple: $45.000 ARS/mes (final). Para dueños de 4 o 5 cabañas sin personal; incluye calendario modo light móvil, reservas e iCal, rendimiento básico. Sin housekeeping ni recepción multiusuario.
+      2) Plan Loomi Completo: $60.000 ARS/mes (final). Todo el ecosistema ilimitado: Housekeeping en vivo para mucamas, modo recepción con roles, asistente Xenia AI 24/7 y Portal de Bienvenida del Huésped.
+    - Se abona por transferencia bancaria (CBU/Alias) o PayPal. 15 días de prueba gratis sin ingresar tarjeta.
 
 DATOS EN VIVO DEL ALOJAMIENTO:
 --- CABAÑAS Y HABITACIONES ---
