@@ -54,6 +54,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -85,6 +86,16 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
   } = useXeniaVoice((finalText) => {
     handleSend(finalText);
   });
+
+  const handleStop = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setIsLoading(false);
+    stopSpeaking();
+    if (isListening) stopListening();
+  };
 
   // Sync transcript to input
   useEffect(() => {
@@ -118,10 +129,15 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
     setTranscript('');
     setIsLoading(true);
 
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    const timeoutId = setTimeout(() => controller.abort(), 1200);
+
     try {
       const res = await fetch(getApiUrl('/api/xenia/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           message: text,
           history: messages.map((m) => ({ role: m.role, content: m.content })),
@@ -132,6 +148,8 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
           },
         }),
       });
+
+      clearTimeout(timeoutId);
 
       if (!res.ok) {
         throw new Error('API response not ok');
@@ -154,9 +172,10 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
       if (autoVoice) {
         setTimeout(() => {
           speakMessage(reply, assistantMsgId);
-        }, 150);
+        }, 100);
       }
-    } catch (err) {
+    } catch {
+      clearTimeout(timeoutId);
       const localReply = getClientXeniaReply(text, demoState);
       const assistantMsgId = `a-${Date.now()}`;
       setMessages((prev) => [
@@ -172,10 +191,11 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
       if (autoVoice) {
         setTimeout(() => {
           speakMessage(localReply, assistantMsgId);
-        }, 150);
+        }, 100);
       }
     } finally {
       setIsLoading(false);
+      abortControllerRef.current = null;
     }
   };
 

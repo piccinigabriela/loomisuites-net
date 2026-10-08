@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Sun,
   Moon,
@@ -36,6 +36,8 @@ import {
   CreditCard,
   Send,
   Navigation,
+  Square,
+  StopCircle,
 } from 'lucide-react';
 import { DemoState, Reservation, Property, ReservationStatus, PaymentStatus } from '../../types';
 import { formatDisplayDate, formatCurrency } from '../../data/initialData';
@@ -92,6 +94,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
   ]);
   const [xeniaInput, setXeniaInput] = useState('');
   const [isXeniaLoading, setIsXeniaLoading] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const {
     isListening,
@@ -108,6 +111,16 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
     handleSendXenia(finalText);
   });
 
+  const handleStopXenia = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setIsXeniaLoading(false);
+    stopSpeaking();
+    if (isListening) stopListening();
+  };
+
   const handleSendXenia = async (textToSend?: string) => {
     const query = (textToSend || xeniaInput).trim();
     if (!query || isXeniaLoading) return;
@@ -121,10 +134,16 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
     setTranscript('');
     setIsXeniaLoading(true);
 
+    // Fast 1200ms timeout for remote API with instant local fallback
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    const timeoutId = setTimeout(() => controller.abort(), 1200);
+
     try {
       const res = await fetch(getApiUrl('/api/xenia/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           message: query,
           contextData: {
@@ -134,6 +153,8 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
           },
         }),
       });
+
+      clearTimeout(timeoutId);
 
       let replyText = '';
       if (res.ok) {
@@ -149,19 +170,22 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
       if (autoVoice) {
         setTimeout(() => {
           speakMessage(replyText, asstId);
-        }, 150);
+        }, 100);
       }
     } catch {
+      clearTimeout(timeoutId);
+      // Instant super-fast local engine response (0ms lag)
       const fallback = getClientXeniaReply(query, demoState);
       const asstId = `a-${Date.now()}`;
       setXeniaMessages((prev) => [...prev, { id: asstId, role: 'assistant', text: fallback }]);
       if (autoVoice) {
         setTimeout(() => {
           speakMessage(fallback, asstId);
-        }, 150);
+        }, 100);
       }
     } finally {
       setIsXeniaLoading(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -256,11 +280,11 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
           {/* Switch to Full / Desktop view */}
           <button
             onClick={onSwitchToFullView}
-            className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-md bg-[#ECEAE4] dark:bg-[#18191D] border border-[#C8C4B7] dark:border-[#2E3038] text-[#52525B] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-white active:scale-95 transition-all cursor-pointer shadow-2xs"
+            className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-xs hover:bg-[#E1500A] dark:hover:bg-[#E1500A] dark:hover:text-white active:scale-95 transition-all cursor-pointer"
             title="Cambiar a Vista Completa (Escritorio)"
           >
-            <Laptop className="w-3 h-3 text-[#E1500A]" />
-            <span className="hidden xs:inline">Vista Completa</span>
+            <Laptop className="w-3.5 h-3.5 text-[#FF7A38]" />
+            <span>Vista Completa</span>
           </button>
 
           {/* Dark / Light Mode Toggle */}
@@ -730,8 +754,56 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
         {/* ======================================================================= */}
         {mobileTab === 'xenia' && (
           <div className="space-y-4">
+            
+            {/* Active Voice Stop Banner (Always Visible when Speaking) */}
+            {isSpeaking && (
+              <button
+                onClick={handleStopXenia}
+                className="w-full p-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center justify-between shadow-lg animate-pulse transition-all cursor-pointer border border-red-400"
+              >
+                <div className="flex items-center gap-2">
+                  <Square className="w-4 h-4 fill-white shrink-0" />
+                  <span>Xenia está hablando... <strong>Tocá acá para Detener / Silenciar</strong></span>
+                </div>
+                <span className="px-2 py-0.5 rounded-md bg-black/30 text-[10px] font-mono">⏹️ PARAR</span>
+              </button>
+            )}
+
+            {/* Loading / Thinking Banner */}
+            {isXeniaLoading && (
+              <div className="w-full p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs font-bold flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-3.5 h-3.5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                  <span>Xenia analizando...</span>
+                </div>
+                <button
+                  onClick={handleStopXenia}
+                  className="px-2 py-0.5 rounded-md bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 text-[10px] font-mono font-bold"
+                >
+                  Cancelar
+                </button>
+              </div>
+            )}
+
             {/* Big Voice Hero Card */}
             <div className="p-5 rounded-2xl bg-linear-to-b from-[#18191D] to-[#0A0B0D] text-white border border-[#c5a880]/40 shadow-lg text-center space-y-3 relative overflow-hidden">
+              
+              {/* Voice auto-play toggle at top right */}
+              <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                <button
+                  onClick={toggleAutoVoice}
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold flex items-center gap-1 border transition-all cursor-pointer ${
+                    autoVoice
+                      ? 'bg-[#E1500A]/20 border-[#E1500A] text-[#FF7A38]'
+                      : 'bg-stone-800/80 border-stone-700 text-stone-400'
+                  }`}
+                  title="Activar/Desactivar lectura por voz"
+                >
+                  {autoVoice ? <Volume2 className="w-3 h-3 text-[#E1500A]" /> : <VolumeX className="w-3 h-3 text-stone-400" />}
+                  <span>{autoVoice ? 'Voz ON' : 'Voz Mute'}</span>
+                </button>
+              </div>
+
               <div className="w-16 h-16 mx-auto rounded-full overflow-hidden border-2 border-[#c5a880] shadow-md">
                 <XeniaAvatar size="lg" className="w-full h-full" />
               </div>
@@ -741,36 +813,51 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                   Xenia Copiloto por Voz
                 </h3>
                 <p className="text-xs text-stone-300">
-                  Tocá el botón naranja para hablar directamente
+                  Tocá el micrófono para hablar o escribí tu duda abajo
                 </p>
               </div>
 
-              {/* Big Mic Button */}
-              <div className="flex justify-center pt-2">
-                <button
-                  onClick={() => {
-                    if (isListening) {
-                      stopListening();
-                    } else {
-                      startListening();
-                    }
-                  }}
-                  className={`w-18 h-18 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-xl ${
-                    isListening
-                      ? 'bg-red-500 text-white animate-pulse scale-110 ring-8 ring-red-500/30'
-                      : 'bg-[#E1500A] text-white hover:bg-[#C94305] active:scale-95 shadow-[#E1500A]/40'
-                  }`}
-                >
-                  {isListening ? (
-                    <MicOff className="w-8 h-8" />
-                  ) : (
-                    <Mic className="w-8 h-8" />
-                  )}
-                </button>
+              {/* Big Mic / Stop Button */}
+              <div className="flex items-center justify-center gap-3 pt-2">
+                {isSpeaking ? (
+                  <button
+                    onClick={handleStopXenia}
+                    className="w-18 h-18 rounded-full bg-red-600 hover:bg-red-700 text-white flex flex-col items-center justify-center transition-all cursor-pointer shadow-xl animate-pulse ring-4 ring-red-500/40 active:scale-95"
+                    title="Detener voz"
+                  >
+                    <Square className="w-6 h-6 fill-white" />
+                    <span className="text-[9px] font-black uppercase mt-1">Parar</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      if (isListening) {
+                        stopListening();
+                      } else {
+                        startListening();
+                      }
+                    }}
+                    className={`w-18 h-18 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-xl ${
+                      isListening
+                        ? 'bg-red-500 text-white animate-pulse scale-110 ring-8 ring-red-500/30'
+                        : 'bg-[#E1500A] text-white hover:bg-[#C94305] active:scale-95 shadow-[#E1500A]/40'
+                    }`}
+                  >
+                    {isListening ? (
+                      <MicOff className="w-8 h-8" />
+                    ) : (
+                      <Mic className="w-8 h-8" />
+                    )}
+                  </button>
+                )}
               </div>
 
               <p className="text-[11px] text-stone-400 font-bold">
-                {isListening ? '🎙️ Escuchando... Hablá ahora' : 'Presioná para consultar'}
+                {isSpeaking
+                  ? '🔊 Xenia respondiendo en voz alta... Tocá "Parar" para silenciar'
+                  : isListening
+                  ? '🎙️ Escuchando... Hablá ahora'
+                  : 'Presioná para consultar por voz'}
               </p>
             </div>
 
@@ -781,8 +868,9 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
               </span>
               <div className="grid grid-cols-1 gap-2">
                 {[
+                  '¿Cómo se envía la bienvenida y guía digital al huésped?',
+                  '¿Cómo paso del Modo Light a la Vista Completa (PC)?',
                   '¿Quién llega hoy y qué cabañas se ocupan?',
-                  '¿Cuál es el próximo check-in?',
                   '¿Cuál es mi ganancia en octubre y comisiones?',
                   '¿Cómo modifico o cambio fechas de una reserva?',
                 ].map((q, idx) => (
@@ -798,18 +886,82 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
               </div>
             </div>
 
+            {/* Chat Input Bar */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSendXenia();
+              }}
+              className="flex items-center gap-2 bg-white dark:bg-[#121316] p-2 rounded-2xl border border-[#C8C4B7]/80 dark:border-[#222328] shadow-sm"
+            >
+              <input
+                type="text"
+                value={xeniaInput}
+                onChange={(e) => setXeniaInput(e.target.value)}
+                placeholder="Escribí tu consulta..."
+                className="flex-1 bg-transparent px-2.5 py-1 text-xs text-[#18181B] dark:text-white focus:outline-hidden"
+              />
+              {isSpeaking || isXeniaLoading ? (
+                <button
+                  type="button"
+                  onClick={handleStopXenia}
+                  className="px-3 py-1.5 rounded-xl bg-red-600 text-white font-bold text-xs flex items-center gap-1 active:scale-95 transition-all cursor-pointer shrink-0"
+                >
+                  <Square className="w-3 h-3 fill-white" />
+                  <span>Parar</span>
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={!xeniaInput.trim() || isXeniaLoading}
+                  className="p-2 rounded-xl bg-[#E1500A] hover:bg-[#C94305] disabled:opacity-40 text-white transition-all cursor-pointer shrink-0"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </form>
+
             {/* Chat History Snippet */}
-            <div className="space-y-2 pt-2">
-              {xeniaMessages.slice(-3).map((m) => (
+            <div className="space-y-2.5 pt-1">
+              {xeniaMessages.map((m) => (
                 <div
                   key={m.id}
-                  className={`p-3 rounded-xl text-xs ${
+                  className={`p-3 rounded-2xl text-xs ${
                     m.role === 'user'
                       ? 'bg-[#E1500A] text-white ml-6 font-bold shadow-xs'
-                      : 'bg-white dark:bg-[#121316] border border-[#C8C4B7]/80 dark:border-[#222328] text-[#18181B] dark:text-[#EDE8DF] mr-4 shadow-2xs'
+                      : 'bg-white dark:bg-[#121316] border border-[#C8C4B7]/80 dark:border-[#222328] text-[#18181B] dark:text-[#EDE8DF] mr-4 shadow-2xs space-y-2'
                   }`}
                 >
                   <p className="whitespace-pre-line leading-relaxed">{m.text}</p>
+                  
+                  {m.role === 'assistant' && (
+                    <div className="flex items-center gap-2 pt-1 border-t border-[#C8C4B7]/30 dark:border-white/10 text-[10px]">
+                      <button
+                        onClick={() => {
+                          if (isSpeaking) {
+                            stopSpeaking();
+                          } else {
+                            speakMessage(m.text, m.id);
+                          }
+                        }}
+                        className="px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-700 dark:text-stone-300 font-medium flex items-center gap-1 cursor-pointer"
+                      >
+                        {isSpeaking ? <Square className="w-2.5 h-2.5 fill-current text-red-500" /> : <Volume2 className="w-2.5 h-2.5" />}
+                        <span>{isSpeaking ? 'Silenciar' : 'Escuchar'}</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(m.text);
+                          setCopiedTextNotice('Respuesta copiada');
+                          setTimeout(() => setCopiedTextNotice(null), 2000);
+                        }}
+                        className="px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-700 dark:text-stone-300 font-medium flex items-center gap-1 cursor-pointer"
+                      >
+                        <Copy className="w-2.5 h-2.5" />
+                        <span>Copiar</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

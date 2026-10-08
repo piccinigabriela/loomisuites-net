@@ -247,6 +247,8 @@ Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas*
       category: 'Instrucciones de Uso (Manual)',
       icon: BookOpen,
       prompts: [
+        '¿Cómo enviar la bienvenida y guía digital con mapa GPS al huésped?',
+        '¿Cómo pasar del Modo Light (Móvil) a la Vista Completa (PC)?',
         '¿Cómo sincronizo Booking y Airbnb sin dobles reservas?',
         '¿Cómo le paso las tareas a la mucama por WhatsApp sin instalar apps?',
         '¿Cómo compartir mi link de reservas directas para cobrar seña?',

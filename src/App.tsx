@@ -57,6 +57,7 @@ import { CalendarImportModal } from './components/demo/CalendarImportModal';
 import { ClientAuthModal } from './components/auth/ClientAuthModal';
 import { SuperAdminView } from './components/admin/SuperAdminView';
 import { DemoPlanFunctionalBar } from './components/demo/DemoPlanFunctionalBar';
+import { SignatureLookbookDossierModal } from './components/demo/SignatureLookbookDossierModal';
 import { INITIAL_WELCOME_GUIDE } from './data/initialData';
 
 export default function App() {
@@ -244,6 +245,7 @@ export default function App() {
   // State for WelcomeGuideHub subtab & template deep links
   const [guideSubTab, setGuideSubTab] = useState<'landing-booking' | 'guest-view' | 'admin-view'>('guest-view');
   const [guideTemplate, setGuideTemplate] = useState<any>('retrato');
+  const [isLookbookModalOpen, setIsLookbookModalOpen] = useState<boolean>(false);
 
   // Theme state (Dark Mode / Light Mode)
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -1099,6 +1101,7 @@ export default function App() {
                   setSelectedPlanForLead('Plan Cabañas & Deptos');
                   setIsLeadModalOpen(true);
                 }}
+                onOpenLookbookDossier={() => setIsLookbookModalOpen(true)}
               />
             </div>
 
@@ -1308,6 +1311,23 @@ export default function App() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         currentComplexId={activeComplex}
+      />
+
+      <SignatureLookbookDossierModal
+        isOpen={isLookbookModalOpen}
+        onClose={() => setIsLookbookModalOpen(false)}
+        onSelectDirection={(dirId) => {
+          setActiveComplex('woodcabin');
+          setGuideSubTab('landing-booking');
+          if (dirId === '05' || dirId === '01' || dirId === '02') {
+            setGuideTemplate('luxury-editorial-parallax');
+          } else if (dirId === '06') {
+            setGuideTemplate('luxury-horizontal-architectural');
+          } else {
+            setGuideTemplate('luxury-monograph-folio');
+          }
+          setDemoTab('welcome-guide');
+        }}
       />
     </div>
   );

@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { WelcomeGuideData, Property } from '../../types';
 import { DateRangeCalendarPicker } from './DateRangeCalendarPicker';
+import { SignatureTriptychLanding } from './SignatureTriptychLanding';
 
 interface DirectBookingLandingProps {
   guideData: WelcomeGuideData;
@@ -49,6 +50,7 @@ export type LandingTemplate =
   | 'bay'
   | 'retrato'
   | 'urbano'
+  | 'triptych'
   | 'luxury-monograph-folio'
   | 'luxury-bento-grid'
   | 'luxury-editorial-parallax'
@@ -249,16 +251,19 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
   const isBay = selectedTemplate === 'bay';
   const isRetrato = selectedTemplate === 'retrato';
   const isUrbano = selectedTemplate === 'urbano';
+  const isTriptych = selectedTemplate === 'triptych';
   const isSigFolio = selectedTemplate === 'luxury-monograph-folio' || selectedTemplate === 'luxury-bento-grid';
   const isSigAuraBento = isSigFolio;
   const isSigAuraParallax = selectedTemplate === 'luxury-editorial-parallax';
   const isSigAuraHorizontal = selectedTemplate === 'luxury-horizontal-architectural';
-  const isSigAura = isSigFolio || isSigAuraParallax || isSigAuraHorizontal;
+  const isSigAura = isSigFolio || isSigAuraParallax || isSigAuraHorizontal || isTriptych;
   const isSignature = isSigAura;
 
   return (
     <div className={`w-full transition-all duration-300 relative ${
-      isSigAuraParallax
+      isTriptych
+        ? 'bg-[#0E1015] text-[#EDE7DE]'
+        : isSigAuraParallax
         ? 'bg-[#EDE6DC] text-[#1D1A16]'
         : isSigFolio
         ? 'bg-[#F4EFE6] text-[#1D1A16]'
@@ -310,38 +315,49 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
             <span className="text-stone-600 text-xs select-none">|</span>
 
             {/* Signature Models */}
-            <div className="flex items-center gap-1 bg-black/50 p-1 rounded-xl border border-[#c5a880]/30">
+            <div className="flex items-center gap-1 bg-[#0F1826] p-1 rounded-xl border border-[#2A4468]">
               <button
-                onClick={() => setSelectedTemplate('luxury-monograph-folio')}
-                className={`px-2.5 py-1 text-[11px] rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
-                  isSigFolio ? 'bg-[#1C2A24] text-amber-200 font-bold shadow-xs border border-amber-300/30' : 'text-[#c5a880] hover:text-amber-200'
+                onClick={() => setSelectedTemplate('triptych')}
+                className={`px-2.5 py-1 text-[11px] rounded-lg transition-all cursor-pointer flex items-center gap-1 font-serif italic ${
+                  isTriptych ? 'bg-[#E5DACD] text-stone-950 font-bold shadow-xs' : 'text-[#D8CEBE] hover:text-white'
                 }`}
-                title="Modelo Folio Zen Arquitectónico ($49 USD)"
+                title="Dirección de Autor: Tríptico 3 Bandas"
               >
-                <Crown className="w-3 h-3 text-amber-400" />
-                <span>Folio</span>
+                <Crown className={`w-3 h-3 ${isTriptych ? 'text-stone-900' : 'text-[#D8CEBE]'}`} />
+                <span>3 Bandas</span>
               </button>
 
               <button
                 onClick={() => setSelectedTemplate('luxury-editorial-parallax')}
-                className={`px-2.5 py-1 text-[11px] rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
-                  isSigAuraParallax ? 'bg-[#c5a880] text-stone-950 font-bold shadow-xs' : 'text-[#c5a880] hover:text-amber-200'
+                className={`px-2.5 py-1 text-[11px] rounded-lg transition-all cursor-pointer flex items-center gap-1 font-serif italic ${
+                  isSigAuraParallax ? 'bg-[#E5DACD] text-stone-950 font-bold shadow-xs' : 'text-[#D8CEBE] hover:text-white'
                 }`}
-                title="Modelo Parallax ($49 USD)"
+                title="Dirección de Autor: Parallax Mineral (Corte delle Vette)"
               >
-                <Crown className="w-3 h-3 text-amber-400" />
+                <Crown className={`w-3 h-3 ${isSigAuraParallax ? 'text-stone-900' : 'text-[#D8CEBE]'}`} />
                 <span>Parallax</span>
               </button>
 
               <button
                 onClick={() => setSelectedTemplate('luxury-horizontal-architectural')}
-                className={`px-2.5 py-1 text-[11px] rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
-                  isSigAuraHorizontal ? 'bg-[#c5a880] text-stone-950 font-bold shadow-xs' : 'text-[#c5a880] hover:text-amber-200'
+                className={`px-2.5 py-1 text-[11px] rounded-lg transition-all cursor-pointer flex items-center gap-1 font-serif italic ${
+                  isSigAuraHorizontal ? 'bg-[#E5DACD] text-stone-950 font-bold shadow-xs' : 'text-[#D8CEBE] hover:text-white'
                 }`}
-                title="Modelo Canvas ($49 USD)"
+                title="Dirección de Autor: Canvas Horizontal"
               >
-                <Crown className="w-3 h-3 text-amber-400" />
+                <Crown className={`w-3 h-3 ${isSigAuraHorizontal ? 'text-stone-900' : 'text-[#D8CEBE]'}`} />
                 <span>Canvas</span>
+              </button>
+
+              <button
+                onClick={() => setSelectedTemplate('luxury-monograph-folio')}
+                className={`px-2.5 py-1 text-[11px] rounded-lg transition-all cursor-pointer flex items-center gap-1 font-serif italic ${
+                  isSigFolio ? 'bg-[#E5DACD] text-stone-950 font-bold shadow-xs' : 'text-[#D8CEBE] hover:text-white'
+                }`}
+                title="Dirección de Autor: Folio Monograph"
+              >
+                <Crown className={`w-3 h-3 ${isSigFolio ? 'text-stone-900' : 'text-[#D8CEBE]'}`} />
+                <span>Folio</span>
               </button>
             </div>
 
@@ -363,7 +379,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
           >
             <Palette className="w-3.5 h-3.5 text-[#c5a880]" />
             <span className="font-sans font-medium text-[11px] text-stone-200">
-              Diseño: <strong className="text-[#c5a880] uppercase">{isSigAuraParallax ? 'Parallax' : isSigFolio ? 'Folio Zen' : isSigAuraHorizontal ? 'Canvas' : selectedTemplate}</strong>
+              Diseño: <strong className="text-[#c5a880] uppercase">{isTriptych ? '3 Bandas' : isSigAuraParallax ? 'Parallax' : isSigFolio ? 'Folio Zen' : isSigAuraHorizontal ? 'Canvas' : selectedTemplate}</strong>
             </span>
             <span className="text-[10px] text-stone-400 ml-0.5">▼</span>
           </button>
@@ -617,6 +633,20 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
           </div>
         </div>,
         document.body
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODELO SIGNATURE TRÍPTICO: 3 BANDAS (OPCIÓN 1 Y 2 CONMUTABLES)            */}
+      {/* ========================================================================= */}
+      {isTriptych && (
+        <SignatureTriptychLanding
+          properties={properties}
+          onOpenBookingModal={() => setIsCalendarOpen(true)}
+          onSelectProperty={(prop) => {
+            setSelectedCabinId(prop.id);
+            setIsCalendarOpen(true);
+          }}
+        />
       )}
 
       {/* ========================================================================= */}

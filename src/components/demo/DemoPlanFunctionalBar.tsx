@@ -34,6 +34,7 @@ interface DemoPlanFunctionalBarProps {
   onOpenGuideWith?: (subTab: 'landing-booking' | 'guest-view' | 'admin-view', template?: LandingTemplate) => void;
   onOpenOnboardingWizard?: () => void;
   onRequestPlan?: () => void;
+  onOpenLookbookDossier?: () => void;
 }
 
 export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
@@ -46,52 +47,26 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
   onOpenGuideWith,
   onOpenOnboardingWizard,
   onRequestPlan,
+  onOpenLookbookDossier,
 }) => {
-  const [activePlan, setActivePlan] = useState<'inicial' | 'escala' | 'signature'>('inicial');
-
-  const isSignature = activePlan === 'signature';
+  const [activePlan, setActivePlan] = useState<'inicial' | 'escala'>('inicial');
+  const isSignature = false;
 
   return (
-    <div
-      className={`mb-6 rounded-2xl sm:rounded-3xl border shadow-xl p-4 sm:p-5 transition-all duration-300 font-sans relative overflow-hidden ${
-        isSignature
-          ? 'bg-gradient-to-br from-[#0B1524] via-[#0E1A2D] to-[#08101C] text-[#EDE7DE] border-[#243B5C]'
-          : 'bg-[#18191E] text-stone-100 border-[#2B2D35]'
-      }`}
-    >
+    <div className="mb-6 rounded-2xl sm:rounded-3xl border shadow-xl p-4 sm:p-5 transition-all duration-300 font-sans relative overflow-hidden bg-[#18191E] text-stone-100 border-[#2B2D35]">
       {/* Background Subtle Tone */}
-      <div
-        className={`absolute top-0 right-0 w-80 h-80 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16 transition-all duration-500 ${
-          isSignature ? 'bg-[#3B629B]/15' : 'bg-[#C85A17]/5'
-        }`}
-      />
+      <div className="absolute top-0 right-0 w-80 h-80 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16 bg-[#C85A17]/5" />
 
       {/* Top Banner: Real PMS Command Center Explanation with Realistic Desktop Dashboard Mockup */}
-      <div
-        className={`relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-5 pb-4 border-b items-center transition-colors ${
-          isSignature ? 'border-[#223652]' : 'border-white/10'
-        }`}
-      >
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-5 pb-4 border-b items-center border-white/10">
         {/* Left Column (lg:col-span-7): PMS Identity & Explanation */}
         <div className="lg:col-span-7 space-y-2.5">
           <div className="flex items-center gap-2 flex-wrap">
-            <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider border shadow-xs transition-colors ${
-                isSignature
-                  ? 'bg-[#13233A] text-[#DFD6C9] border-[#2E4870]'
-                  : 'bg-stone-800/90 text-stone-300 border-stone-700/60'
-              }`}
-            >
-              <Activity className={`w-3 h-3 ${isSignature ? 'text-[#D4AF37]' : 'text-[#E1500A]'}`} />
-              {isSignature ? 'COLECCIÓN SIGNATURE • PMS DE AUTOR' : 'SISTEMA DE GESTIÓN OPERATIVO (PMS)'}
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider border shadow-xs bg-stone-800/90 text-stone-300 border-stone-700/60">
+              <Activity className="w-3 h-3 text-[#E1500A]" />
+              SISTEMA DE GESTIÓN OPERATIVO (PMS)
             </span>
-            <span
-              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono border transition-colors ${
-                isSignature
-                  ? 'bg-[#0E1B2E] text-[#B8C9E0] border-[#1D324F]'
-                  : 'bg-stone-900 text-stone-400 border-stone-800'
-              }`}
-            >
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono border bg-stone-900 text-stone-400 border-stone-800">
               <MonitorCheck className="w-3 h-3 text-emerald-400/80" />
               Software en tu PC & Móvil
             </span>
@@ -337,23 +312,6 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                 $60k
               </span>
             </button>
-
-            <button
-              onClick={() => setActivePlan('signature')}
-              className={`px-3 py-2 rounded-xl text-xs transition-all flex items-center gap-1.5 cursor-pointer ${
-                activePlan === 'signature'
-                  ? 'bg-[#E5DACD] text-stone-950 font-serif italic font-bold shadow-md'
-                  : 'text-[#D8CEBE] hover:text-white font-serif italic'
-              }`}
-            >
-              <Crown className={`w-3.5 h-3.5 ${activePlan === 'signature' ? 'text-stone-900' : 'text-[#D8CEBE]'}`} />
-              <span>👑 Signature</span>
-              <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-md not-italic ${
-                activePlan === 'signature' ? 'bg-stone-900/80 text-[#EDE7DE]' : 'bg-[#15253D] text-[#D8CEBE] border border-[#253D5F]'
-              }`}>
-                $80k
-              </span>
-            </button>
           </div>
         </div>
 
@@ -480,55 +438,6 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                       <span>{isEmployeeMode ? 'Volver a Modo Dueño' : '3. Probar Modo Empleado (Sin Finanzas)'}</span>
                     </button>
                   )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 3. SIGNATURE */}
-          {activePlan === 'signature' && (
-            <div className="bg-[#0B1524] rounded-2xl p-4 border border-[#2A4468] text-[#EDE7DE] space-y-3 shadow-xl">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-md bg-[#E5DACD] text-stone-950 font-serif italic text-[11px] font-bold shadow-xs">
-                      Signature • Bodegas, Glampings de Autor & Lodges
-                    </span>
-                    <span className="text-xs font-serif italic font-bold text-[#E5DACD]">
-                      $80.000 ARS / mes (~55 USD)
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#CEC3B2] mt-1 max-w-2xl leading-relaxed">
-                    <strong>Herramientas clave activas:</strong> Colección Signature de autor (<em>Parallax</em>, <em>Canvas</em>, <em>Folio</em>), Portal VIP de bienvenida 1:1 y reserva de experiencias (catas de vino, cavas subterráneas y fogoneros).
-                  </p>
-                </div>
-
-                {/* Direct Trigger Buttons */}
-                <div className="flex flex-wrap items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => {
-                      onSwitchComplex('woodcabin');
-                      if (onOpenGuideWith) {
-                        onOpenGuideWith('landing-booking', 'luxury-editorial-parallax');
-                      } else {
-                        onSelectTab('welcome-guide');
-                      }
-                    }}
-                    className="px-3.5 py-2 rounded-xl bg-[#E5DACD] hover:bg-[#D8CEBE] text-stone-950 text-xs font-serif italic font-bold transition-all flex items-center gap-1.5 shadow-md cursor-pointer active:scale-98"
-                  >
-                    <Crown className="w-3.5 h-3.5 text-stone-900" />
-                    <span>1. Probar Web Parallax (Corte delle Vette)</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      onSelectTab('addons');
-                    }}
-                    className="px-3.5 py-2 rounded-xl bg-[#101D30] hover:bg-[#162A46] text-[#EDE7DE] border border-[#2A4468] text-xs font-serif italic font-semibold transition-all flex items-center gap-1.5 cursor-pointer active:scale-98"
-                  >
-                    <Wine className="w-3.5 h-3.5 text-[#E5DACD]" />
-                    <span>2. Probar Catas & Experiencias VIP</span>
-                  </button>
                 </div>
               </div>
             </div>

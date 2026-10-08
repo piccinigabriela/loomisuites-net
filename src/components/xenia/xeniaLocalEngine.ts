@@ -44,6 +44,135 @@ export function getClientXeniaReply(message: string, demoState: DemoState): stri
   const reservations = demoState.reservations || [];
   const cleaningTasks = demoState.cleaningTasks || [];
 
+  // 0. CAMBIAR O SALIR DEL MODO LIGHT / MODO CELULAR / VISTA ESCRITORIO
+  if (
+    q.includes('modo light') ||
+    q.includes('salir del modo light') ||
+    q.includes('pasar del modo light') ||
+    q.includes('cambiar de modo') ||
+    q.includes('modo escritorio') ||
+    q.includes('vista completa') ||
+    q.includes('modo pc') ||
+    q.includes('computadora') ||
+    q.includes('pantalla grande') ||
+    q.includes('modo oscuro') ||
+    q.includes('modo claro') ||
+    q.includes('modo celular') ||
+    q.includes('modo móvil') ||
+    q.includes('modo movil') ||
+    q.includes('volver a la pc') ||
+    q.includes('volver al escritorio') ||
+    q.includes('volver a la compu') ||
+    q.includes('como paso del modo') ||
+    q.includes('cómo paso del modo') ||
+    q.includes('como salir del modo') ||
+    q.includes('cómo salir del modo')
+  ) {
+    return `### 📱 Cómo alternar entre el Modo Light (Móvil) y la Vista Completa (PC)
+
+Para pasar del **Modo Light** al **Panel Completo de Escritorio (PMS)** tenés 2 opciones rápidas:
+
+1. **Botón en la barra superior:**
+   - En la esquina superior derecha de la pantalla, tocá el botón **"💻 Vista Completa"** (con el ícono de la notebook).
+   - Inmediatamente se abre el panel completo con el **Rack de Calendario**, las finanzas detalladas, la configuración de canales iCal y la web de reservas.
+
+2. **Desde la pestaña "⚡ Atajos / Más":**
+   - Tocá la pestaña **"Atajos"** en la barra inferior y seleccioná **"Cambiar a Vista Completa de Escritorio"**.
+
+3. **Para volver al Modo Light cuando estés en la PC:**
+   - En la barra superior del panel tocás el botón **"📱 Vista Móvil"** y regresás a la versión simplificada de bolsillo.
+
+💡 *El Modo Light está pensado para la operación diaria en la calle o mientras recorrés las cabañas, mientras que la Vista Completa es ideal para sentarte a ver los números y el calendario general.*`;
+  }
+
+  // 0.1 DETENER, PARAR O SILENCIAR A XENIA
+  if (
+    q.includes('detener') ||
+    q.includes('parar') ||
+    q.includes('silenciar') ||
+    q.includes('callar') ||
+    q.includes('frenar') ||
+    q.includes('apagar voz') ||
+    q.includes('desactivar voz') ||
+    q.includes('como te detengo') ||
+    q.includes('cómo te detengo') ||
+    q.includes('como detener') ||
+    q.includes('cómo detener') ||
+    q.includes('tardas mucho') ||
+    q.includes('tarda mucho') ||
+    q.includes('tardas bastante') ||
+    q.includes('tarda bastante')
+  ) {
+    return `### ⏹️ Cómo detener, pausar o silenciar a Xenia
+
+Tenés 3 formas sencillas de controlar mis respuestas y la voz:
+
+1. **Botón de Detener (⏹️ PARAR):**
+   - Mientras estoy respondiendo o hablando por voz, aparece un **banner rojo brillante superior con el botón ⏹️ PARAR / Silenciar**. Al tocarlo me detengo en el milisegundo.
+
+2. **Apagar la Voz (Modo Lectura Silenciosa):**
+   - Tocá el botón **"Voz ON / Voz Mute"** (ícono de parlante 🔊/🔇) arriba a la derecha. Así podés leerme en texto sin que se reproduzca el audio.
+
+3. **Detener el Micrófono 🎙️:**
+   - Si tocaste el micrófono para hablar, podés tocarlo nuevamente cuando termines para enviar tu consulta o cancelarla.
+
+💡 *¡Todas mis respuestas ahora se generan de forma ultra rápida e instantánea!*`;
+  }
+
+  // 0.2 ENVIAR BIENVENIDA Y GUÍA DIGITAL AL HUÉSPED
+  if (
+    q.includes('bienvenida') ||
+    q.includes('bienvenido') ||
+    q.includes('guia digital') ||
+    q.includes('guía digital') ||
+    q.includes('guia del huesped') ||
+    q.includes('guía del huésped') ||
+    q.includes('guia del pasajero') ||
+    q.includes('guía del pasajero') ||
+    q.includes('portal de bienvenida') ||
+    q.includes('enviar guia') ||
+    q.includes('enviar guía') ||
+    q.includes('mandar guia') ||
+    q.includes('mandar guía') ||
+    q.includes('como envio la bienvenida') ||
+    q.includes('cómo envío la bienvenida') ||
+    q.includes('como mandar la bienvenida') ||
+    q.includes('cómo mandar la bienvenida') ||
+    q.includes('como se envia la bienvenida') ||
+    q.includes('cómo se envía la bienvenida') ||
+    q.includes('como le mando la bienvenida') ||
+    q.includes('cómo le mando la bienvenida') ||
+    q.includes('mensaje de bienvenida') ||
+    q.includes('carta de bienvenida')
+  ) {
+    return `### 👋 Cómo enviar la Bienvenida y Guía Digital al Huésped
+
+En Loomi Suite enviás la bienvenida personalizada por WhatsApp en **1 solo toque**, sin tener que redactar nada a mano:
+
+---
+
+#### 📱 1. Si estás en el Modo Light (Móvil / Bolsillo):
+1. **Andá a la pestaña "Huéspedes"** en la barra inferior (o en la tarjeta del pasajero en la pestaña "Hoy").
+2. **Tocá los 3 puntitos (⚡ Acciones Rápidas)** al lado del huésped que querés contactar.
+3. Se abrirá la ventana de acciones. Tocá **"2. Enviar Bienvenida & Guía Digital"**.
+4. Se abrirá directamente **WhatsApp con el mensaje listo**:
+   - Saludo con el nombre real del huésped.
+   - Enlace directo a su **Guía Digital interactiva** (con mapa GPS de llegada, recomendaciones de restaurantes y paseos).
+   - Nombre de la red Wi-Fi y contraseña de su cabaña.
+   - Horario de check-in.
+5. Tocás **Enviar en WhatsApp** y ¡listo!
+
+---
+
+#### 💻 2. Si estás en la Vista Completa (PC / Escritorio):
+1. En el **Rack Calendario**, hacé clic sobre la estadía del huésped.
+2. En la ficha de la reserva, tocá el botón verde **"Chatear por WhatsApp"** o andá a la pestaña **"Avisos & WhatsApp"**.
+3. Seleccioná la plantilla **"👋 Bienvenida y Guía Digital (Día 1)"**.
+4. Hacé clic en **"Abrir WhatsApp"** para enviar el mensaje con 1 clic.
+
+💡 *La Guía Digital no requiere que el huésped descargue ninguna app: se abre directamente en el navegador de su celular como una web moderna y elegante.*`;
+  }
+
   // STEMMING & INTENT DETECTION FOR LAYMAN / NON-HOTELIER QUESTIONS
   const isEditingAction =
     q.includes('modific') ||

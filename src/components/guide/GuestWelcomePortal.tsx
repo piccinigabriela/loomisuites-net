@@ -45,6 +45,7 @@ export type PortalTheme =
   | 'bay'
   | 'retrato'
   | 'urbano'
+  | 'triptych'
   | 'luxury-monograph-folio'
   | 'luxury-bento-grid'
   | 'luxury-editorial-parallax'
