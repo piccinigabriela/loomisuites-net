@@ -13,6 +13,7 @@ import {
   Clock,
   Sparkles,
   AlertCircle,
+  Download,
 } from 'lucide-react';
 import { DemoState, Reservation, Property, BookingPlatform } from '../../types';
 import { formatDisplayDate, getRelativeDate } from '../../data/initialData';
@@ -248,230 +249,198 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] overflow-hidden transition-colors font-sans">
-      {/* Calendar Header / Filters */}
-      <div className="p-5 border-b border-stone-200/70 dark:border-zinc-800/70 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]"></span>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-400">
-              RACK MULTICANAL • EN TIEMPO REAL
-            </span>
+    <div className="space-y-4 font-sans">
+      {/* CONTROL SUPERIOR DEL RACK / CALENDARIO ZEN */}
+      <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 sm:p-6 shadow-[0_4px_12px_rgba(0,0,0,0.005)] border border-gray-100 dark:border-zinc-800 space-y-5 transition-colors">
+        
+        {/* ROW 1: TÍTULO, SUBTÍTULO Y ACCIONES DE IMPORTACIÓN RÁPIDA */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2">
+              <span className="inline-block bg-orange-50 dark:bg-orange-950/40 text-[#E67E22] text-[9px] font-bold tracking-widest px-2 py-0.5 rounded uppercase">
+                Rack Multicanal • En Tiempo Real
+              </span>
+              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded flex items-center gap-1.5 border border-emerald-100/40 dark:border-emerald-900/30">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Recarga Automática Activa</span>
+              </span>
+            </div>
+            <h2 className="text-xl font-light text-gray-900 dark:text-gray-100 tracking-tight">
+              Ocupación & <span className="font-semibold text-gray-800 dark:text-white">Disponibilidad</span>
+            </h2>
+            <p className="text-[11px] text-gray-400 dark:text-zinc-400 font-medium leading-normal max-w-xl">
+              Rack sincronizado con Google Calendars, Airbnb y canales directos. Check-in: 14:00 / Check-out: 10:00.
+            </p>
           </div>
-          <div className="flex items-center gap-2.5 mt-1">
-            <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2 tracking-tight">
-              <CalendarIcon className="w-5 h-5 text-[#E67E22]" />
-              <span>Ocupación & Disponibilidad</span>
-            </h3>
-            <span className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-md bg-orange-50 dark:bg-orange-950/40 text-[#E67E22] border border-orange-200/60 flex items-center gap-1.5">
-              <RotateCw className="w-3 h-3 text-[#E67E22]" />
-              <span>Recambios Mismo Día</span>
-            </span>
+
+          {/* Acciones de Datos (Importar) compactadas en botones limpios con icono */}
+          <div className="flex items-center space-x-2 w-full lg:w-auto justify-end">
+            {onOpenImportModal && (
+              <button
+                onClick={onOpenImportModal}
+                className="flex items-center space-x-1.5 text-gray-500 dark:text-zinc-300 font-semibold hover:text-gray-800 dark:hover:text-white text-xs px-3.5 py-2.5 bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl border border-gray-100 dark:border-zinc-700 transition-colors cursor-pointer"
+                title="Importar reservas desde Google Calendar (.ics) o CSV"
+              >
+                <Download className="w-4 h-4 text-gray-400" />
+                <span>Importar iCal / CSV</span>
+              </button>
+            )}
           </div>
-          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 font-medium">
-            Rack sincronizado con Google Calendar, Airbnb y canales directos • Check-in 14:00 / Check-out 10:00
-          </p>
         </div>
 
-        {/* Controls Bar */}
-        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-          {onOpenImportModal && (
-            <button
-              onClick={onOpenImportModal}
-              className="text-xs font-semibold px-3.5 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800/60 hover:bg-stone-100 dark:hover:bg-zinc-800 text-stone-700 dark:text-stone-200 flex items-center gap-1.5 transition-all cursor-pointer"
-              title="Importar reservas desde Google Calendar (.ics) o archivos CSV / Excel"
-            >
-              <CalendarIcon className="w-3.5 h-3.5 text-[#E67E22]" />
-              <span>Importar Cal / CSV</span>
-            </button>
-          )}
+        {/* ROW 2: FILTROS, SELECTORES Y ZOOM DE PIXELES (Separados y alineados con aire) */}
+        <div className="pt-4 border-t border-gray-50 dark:border-zinc-800/60 flex flex-wrap items-center justify-between gap-4 text-xs font-medium text-gray-600 dark:text-zinc-300">
+          
+          {/* Selectores de Filtro (Unidades y Canales) */}
+          <div className="flex flex-wrap items-center gap-2.5 sm:space-x-3">
+            {/* Selector Fecha/Mes */}
+            <div className="flex items-center bg-gray-50 dark:bg-zinc-800/70 border border-gray-100 dark:border-zinc-700/80 rounded-xl px-2.5 py-1.5 space-x-1 text-gray-800 dark:text-gray-100 font-bold">
+              <select
+                value={currentVisibleMonth}
+                onChange={(e) => handleMonthYearChange(Number(e.target.value), currentVisibleYear)}
+                className="bg-transparent border-none text-xs font-bold text-gray-800 dark:text-gray-100 focus:outline-none cursor-pointer"
+              >
+                {MONTH_NAMES.map((m, idx) => (
+                  <option key={idx} value={idx} className="bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 font-medium">
+                    {m}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={currentVisibleYear}
+                onChange={(e) => handleMonthYearChange(currentVisibleMonth, Number(e.target.value))}
+                className="bg-transparent border-none text-xs font-bold text-gray-800 dark:text-gray-100 focus:outline-none cursor-pointer"
+              >
+                {[2025, 2026, 2027, 2028, 2029, 2030].map((y) => (
+                  <option key={y} value={y} className="bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 font-medium">
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {/* Month & Year Navigator */}
-          <div className="flex items-center gap-1 bg-stone-50 dark:bg-zinc-800/60 p-1 rounded-xl border border-stone-200/80 dark:border-zinc-700/80">
-            <button
-              onClick={handlePrevMonth}
-              title="Mes anterior"
-              className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded-lg transition-colors text-stone-500 dark:text-stone-400 cursor-pointer"
-            >
-              <ChevronLeft className="w-3.5 h-3.5" />
-            </button>
-
-            {/* Month Selector */}
-            <select
-              value={currentVisibleMonth}
-              onChange={(e) => handleMonthYearChange(Number(e.target.value), currentVisibleYear)}
-              className="text-xs font-semibold px-2 py-1 bg-transparent text-stone-800 dark:text-stone-200 border-none focus:outline-hidden cursor-pointer"
-            >
-              {MONTH_NAMES.map((m, idx) => (
-                <option key={idx} value={idx} className="bg-white dark:bg-zinc-800 text-stone-800 dark:text-stone-200 font-medium">
-                  {m}
+            {/* Selector Unidades */}
+            <div className="flex items-center bg-gray-50 dark:bg-zinc-800/70 border border-gray-100 dark:border-zinc-700/80 rounded-xl px-3 py-1.5 space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700/80 transition-colors">
+              <span className="text-gray-400 font-normal">Unidades:</span>
+              <select
+                value={selectedPropertyId}
+                onChange={(e) => setSelectedPropertyId(e.target.value)}
+                className="bg-transparent border-none text-xs font-bold text-gray-700 dark:text-gray-100 focus:outline-none cursor-pointer"
+              >
+                <option value="all" className="bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100">
+                  Todas ({demoState.properties.length})
                 </option>
-              ))}
-            </select>
+                {demoState.properties.map((p) => (
+                  <option key={p.id} value={p.id} className="bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100">
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            {/* Year Selector */}
-            <select
-              value={currentVisibleYear}
-              onChange={(e) => handleMonthYearChange(currentVisibleMonth, Number(e.target.value))}
-              className="text-xs font-semibold px-1.5 py-1 bg-transparent text-stone-800 dark:text-stone-200 border-none focus:outline-hidden cursor-pointer"
-            >
-              {[2025, 2026, 2027, 2028, 2029, 2030].map((y) => (
-                <option key={y} value={y} className="bg-white dark:bg-zinc-800 text-stone-800 dark:text-stone-200 font-medium">
-                  {y}
-                </option>
-              ))}
-            </select>
-
-            <button
-              onClick={handleNextMonth}
-              title="Mes siguiente"
-              className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded-lg transition-colors text-stone-500 dark:text-stone-400 cursor-pointer"
-            >
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+            {/* Selector Canales */}
+            <div className="flex items-center bg-gray-50 dark:bg-zinc-800/70 border border-gray-100 dark:border-zinc-700/80 rounded-xl px-3 py-1.5 space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700/80 transition-colors">
+              <span className="text-gray-400 font-normal">Canales:</span>
+              <select
+                value={platformFilter}
+                onChange={(e) => setPlatformFilter(e.target.value)}
+                className="bg-transparent border-none text-xs font-bold text-gray-700 dark:text-gray-100 focus:outline-none cursor-pointer"
+              >
+                <option value="all" className="bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100">Todos</option>
+                <option value="airbnb" className="bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100">Airbnb</option>
+                <option value="booking" className="bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100">Booking.com</option>
+                <option value="direct" className="bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100">Directo</option>
+                <option value="vrbo" className="bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100">VRBO</option>
+              </select>
+            </div>
           </div>
 
-          {/* Quick Day Offset Navigator */}
-          <div className="flex items-center gap-1 bg-stone-50 dark:bg-zinc-800/60 p-1 rounded-xl border border-stone-200/80 dark:border-zinc-700/80">
+          {/* Controles de Navegación del Calendario (Hoy, Anterior, Siguiente) */}
+          <div className="flex items-center bg-gray-50 dark:bg-zinc-800/70 border border-gray-100 dark:border-zinc-700/80 rounded-xl p-1">
             <button
-              onClick={() => setDayOffset((prev) => prev - 7)}
-              title="Retroceder 7 días"
-              className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded-lg transition-colors text-stone-500 dark:text-stone-400 cursor-pointer"
+              onClick={handlePrevMonth}
+              className="px-3 py-1.5 hover:bg-white dark:hover:bg-zinc-700 hover:shadow-xs text-gray-700 dark:text-gray-200 rounded-lg transition-all text-xs font-bold cursor-pointer"
             >
-              <ChevronsLeft className="w-3.5 h-3.5" />
+              Anterior
             </button>
             <button
               onClick={() => setDayOffset(-2)}
-              className="text-xs font-semibold px-2.5 py-1 hover:bg-white dark:hover:bg-zinc-700 rounded-lg transition-colors text-stone-800 dark:text-stone-200 cursor-pointer"
-              title="Ir al día de hoy"
+              className="px-4 py-1.5 bg-white dark:bg-zinc-700 shadow-xs text-[#E67E22] rounded-lg text-xs font-black cursor-pointer"
             >
               Hoy
             </button>
             <button
-              onClick={() => setDayOffset((prev) => prev + 7)}
-              title="Avanzar 7 días"
-              className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded-lg transition-colors text-stone-500 dark:text-stone-400 cursor-pointer"
+              onClick={handleNextMonth}
+              className="px-3 py-1.5 hover:bg-white dark:hover:bg-zinc-700 hover:shadow-xs text-gray-700 dark:text-gray-200 rounded-lg transition-all text-xs font-bold cursor-pointer"
             >
-              <ChevronsRight className="w-3.5 h-3.5" />
+              Siguiente
             </button>
           </div>
 
-          {/* Date Picker Quick Jump */}
-          <div className="flex items-center gap-1.5 bg-stone-50 dark:bg-zinc-800/60 px-2.5 py-1.5 rounded-xl border border-stone-200/80 dark:border-zinc-700/80">
-            <span className="text-[11px] font-semibold text-stone-400 dark:text-stone-500">Ir a:</span>
-            <input
-              type="date"
-              value={startDateStr}
-              onChange={(e) => handleJumpToSpecificDate(e.target.value)}
-              className="text-xs bg-transparent text-stone-800 dark:text-stone-200 border-none focus:outline-hidden cursor-pointer font-sans"
-            />
-          </div>
-
-          {/* Property selector */}
-          <select
-            value={selectedPropertyId}
-            onChange={(e) => setSelectedPropertyId(e.target.value)}
-            className="text-xs font-semibold px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 text-stone-800 dark:text-stone-200 cursor-pointer focus:outline-hidden"
-          >
-            <option value="all">Todas las unidades ({demoState.properties.length})</option>
-            {demoState.properties.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name} (${p.basePrice}/n)
-              </option>
-            ))}
-          </select>
-
-          {/* Platform selector */}
-          <select
-            value={platformFilter}
-            onChange={(e) => setPlatformFilter(e.target.value)}
-            className="text-xs font-semibold px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 text-stone-800 dark:text-stone-200 cursor-pointer focus:outline-hidden"
-          >
-            <option value="all">Todos los canales</option>
-            <option value="airbnb">Airbnb</option>
-            <option value="booking">Booking.com</option>
-            <option value="direct">Directa</option>
-            <option value="vrbo">VRBO</option>
-          </select>
-
-          {/* Column Width Selector */}
-          <div className="flex items-center gap-1 bg-stone-50 dark:bg-zinc-800/60 p-1 rounded-xl border border-stone-200/80 dark:border-zinc-700/80">
-            <span className="text-[11px] font-semibold text-stone-400 dark:text-stone-500 px-1.5 flex items-center gap-1">
-              <Columns className="w-3 h-3 text-[#E67E22]" />
-              <span>Col:</span>
-            </span>
+          {/* Control de Zoom de Pixeles (Contenedor tipo pestaña limpia) */}
+          <div className="flex items-center bg-gray-50 dark:bg-zinc-800/70 border border-gray-100 dark:border-zinc-700/80 rounded-xl p-1 text-[11px] font-bold text-gray-400">
             <button
               onClick={() => setColumnMode('compact')}
-              title="Columna compacta (48px)"
-              className={`text-xs font-semibold px-2 py-1 rounded-lg transition-colors cursor-pointer ${
+              className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
                 columnMode === 'compact'
-                  ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-white shadow-xs'
-                  : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-zinc-700 text-gray-800 dark:text-white shadow-xs'
+                  : 'hover:text-gray-700 dark:hover:text-gray-200'
               }`}
             >
               48px
             </button>
             <button
               onClick={() => setColumnMode('medium')}
-              title="Columna estándar (105px)"
-              className={`text-xs font-semibold px-2 py-1 rounded-lg transition-colors cursor-pointer ${
+              className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
                 columnMode === 'medium'
-                  ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-white shadow-xs'
-                  : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-zinc-700 text-gray-800 dark:text-white shadow-xs'
+                  : 'hover:text-gray-700 dark:hover:text-gray-200'
               }`}
             >
               105px
             </button>
             <button
               onClick={() => setColumnMode('full')}
-              title="Columna completa (185px)"
-              className={`text-xs font-semibold px-2 py-1 rounded-lg transition-colors cursor-pointer ${
+              className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
                 columnMode === 'full'
-                  ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-white shadow-xs'
-                  : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-zinc-700 text-gray-800 dark:text-white shadow-xs'
+                  : 'hover:text-gray-700 dark:hover:text-gray-200'
               }`}
             >
-              185px
+              150px
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Legend Bar & Turnover Indicator */}
-      <div className="bg-[#FAF9F6]/70 dark:bg-[#15161A] px-5 py-3 border-b border-stone-200/70 dark:border-zinc-800/70 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-stone-600 dark:text-stone-400">
-          <span className="font-bold text-stone-800 dark:text-stone-200 text-xs">Canales:</span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#d96748] inline-block" />
-            <span className="text-xs">Airbnb</span>
-          </span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#3d688d] inline-block" />
-            <span className="text-xs">Booking.com</span>
-          </span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#4e815a] inline-block" />
-            <span className="text-xs">Directo</span>
-          </span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#6a5b82] inline-block" />
-            <span className="text-xs">VRBO</span>
-          </span>
+        {/* ROW 3: DETALLE DE CANALES Y RECAMBIO (Sutiles referencias de color) */}
+        <div className="pt-3 border-t border-gray-50 dark:border-zinc-800/60 flex flex-wrap items-center justify-between gap-3 text-[11px] font-bold text-gray-400 dark:text-zinc-400">
+          {/* Listado de Canales Conectados */}
+          <div className="flex flex-wrap items-center space-x-4">
+            <span className="uppercase tracking-wider text-gray-300 dark:text-zinc-500">Canales:</span>
+            <span className="flex items-center gap-1.5 text-gray-600 dark:text-zinc-300">
+              <span className="w-2 h-2 rounded-full bg-[#d96748]" /> Airbnb
+            </span>
+            <span className="flex items-center gap-1.5 text-gray-600 dark:text-zinc-300">
+              <span className="w-2 h-2 rounded-full bg-[#3d688d]" /> Booking.com
+            </span>
+            <span className="flex items-center gap-1.5 text-gray-600 dark:text-zinc-300">
+              <span className="w-2 h-2 rounded-full bg-[#4e815a]" /> Directo
+            </span>
+            <span className="flex items-center gap-1.5 text-gray-600 dark:text-zinc-300">
+              <span className="w-2 h-2 rounded-full bg-[#eab308]" /> VRBO
+            </span>
+          </div>
 
-          <span className="h-3 w-px bg-stone-300 dark:bg-zinc-700 hidden sm:inline-block" />
-
-          {/* Special Turnover Legend Indicator */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-50/80 dark:bg-orange-950/40 text-[#E67E22] border border-orange-200/50 text-xs font-medium">
-            <span className="w-2 h-2 rounded-full bg-[#E67E22] animate-pulse" />
-            <span className="font-bold">Recambio mismo día:</span>
-            <span className="text-stone-600 dark:text-stone-400">Salida 10:00 & Entrada 14:00</span>
+          {/* Alerta de Recambio del Mismo Día (Naranja pastel e icono claro) */}
+          <div className="flex items-center space-x-1.5 bg-orange-50 dark:bg-orange-950/40 text-[#E67E22] px-3 py-1.5 rounded-xl border border-orange-100/60 dark:border-orange-900/40">
+            <Clock className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>Recambio mismo día: Salida 10:00 & Entrada 14:00</span>
           </div>
         </div>
-
-        <div className="flex items-center gap-2 text-xs text-stone-400 dark:text-stone-500 font-mono">
-          <span>Check-in 14:00 • Check-out 10:00</span>
-        </div>
       </div>
+
+      {/* CONTENEDOR DEL RACK GANTT TIMELINE */}
+      <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] overflow-hidden transition-colors">
 
       {/* High-Visibility Timeline Slider & Controller */}
       <div className="bg-white dark:bg-[#18191E] px-5 py-3 border-b border-stone-200/70 dark:border-zinc-800/70 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
@@ -810,6 +779,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
         </div>
       </div>
     </div>
+  </div>
   );
 };
 

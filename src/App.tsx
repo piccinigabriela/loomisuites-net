@@ -853,7 +853,7 @@ export default function App() {
 
       {/* RENDER VIEW: LANDING, SUPERADMIN OR DEMO PMS */}
       {currentView === 'landing' ? (
-        <main className="bg-[#ECEAE4] dark:bg-[#0E0F12] min-h-screen transition-colors">
+        <main className="bg-[#F8F9FA] dark:bg-[#0E0F12] min-h-screen transition-colors text-[#2D3748] dark:text-[#E2E8F0]">
           <Navbar
             theme={theme}
             onToggleTheme={toggleTheme}
@@ -893,8 +893,8 @@ export default function App() {
           />
 
           {/* Floating Sticky CTA Bar on Mobile/Desktop (<12% viewport height) */}
-          <div className="fixed bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-30 bg-[#18181B]/95 dark:bg-[#121316]/95 backdrop-blur-md text-[#EFECE5] px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-2xl border border-white/15 flex items-center gap-2.5 max-w-[92vw]">
-            <span className="text-xs font-semibold hidden md:inline text-[#DCD8CE]">
+          <div className="fixed bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-30 bg-white/95 dark:bg-[#121316]/95 backdrop-blur-md text-gray-800 dark:text-[#EFECE5] px-4 py-2 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-gray-100 dark:border-white/10 flex items-center gap-3 max-w-[92vw]">
+            <span className="text-xs font-medium hidden md:inline text-gray-500 dark:text-zinc-400">
               ¿Querés ver cómo funciona en la vida real?
             </span>
             <button
@@ -902,7 +902,7 @@ export default function App() {
                 setCurrentView('demo');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="min-h-[44px] bg-[#E1500A] hover:bg-[#C94305] active:scale-95 text-white text-xs sm:text-sm font-bold px-4 sm:px-5 py-2 rounded-full flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-[#E1500A]/30 shrink-0"
+              className="min-h-[40px] bg-[#E67E22] hover:bg-[#D35400] active:scale-95 text-white text-xs font-bold px-5 py-2 rounded-full flex items-center gap-2 transition-all cursor-pointer shadow-sm shrink-0"
             >
               <Play className="w-3.5 h-3.5 fill-white" />
               <span>Probar Demo en Vivo</span>

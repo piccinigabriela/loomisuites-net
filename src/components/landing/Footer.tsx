@@ -15,22 +15,24 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
           {/* Col 1: Brand */}
           <div className="md:col-span-1">
             <div className="mb-4">
-              <LoomiLogo size="md" theme="dark" />
+              <span className="text-xl font-light tracking-widest text-white">
+                loomi<span className="font-semibold text-[#E67E22]">suite</span>
+              </span>
             </div>
             <p className="text-xs text-[#A3A3A3] leading-relaxed">
-              Software simple y ágil de gestión para complejos de cabañas, bed & breakfasts, pequeños hostales familiares y posadas boutique.
+              Software simple y ágil de gestión para complejos de cabañas, glampings, domos, pequeños hostales familiares y posadas boutique.
             </p>
-            <div className="mt-4 flex items-center gap-2 text-xs text-[#E1500A] font-medium">
-              <ShieldCheck className="w-4 h-4 text-[#E1500A]" />
+            <div className="mt-4 flex items-center gap-2 text-xs text-[#E67E22] font-medium">
+              <ShieldCheck className="w-4 h-4 text-[#E67E22]" />
               <span>Sincronización encriptada SSL 256-bit</span>
             </div>
             <div className="mt-3">
               <a
                 href="mailto:contacto@loomisuite.net"
-                className="inline-flex items-center gap-2 text-xs text-[#E1500A] hover:text-[#FF6622] font-semibold transition-colors"
+                className="inline-flex items-center gap-2 text-xs text-[#E67E22] hover:text-[#FF8833] font-semibold transition-colors"
                 title="Escribir a contacto@loomisuite.net"
               >
-                <Mail className="w-3.5 h-3.5 text-[#E1500A]" />
+                <Mail className="w-3.5 h-3.5 text-[#E67E22]" />
                 <span>contacto@loomisuite.net</span>
               </a>
             </div>

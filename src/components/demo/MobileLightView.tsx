@@ -318,7 +318,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
               <Search className="w-4 h-4 text-gray-400 absolute left-4 top-4" />
               <input
                 type="text"
-                placeholder="Buscar por nombre o teléfono..."
+                placeholder="Buscar por departamento, huésped o teléfono..."
                 value={guestSearch}
                 onChange={(e) => setGuestSearch(e.target.value)}
                 className="w-full text-xs font-medium bg-white dark:bg-[#1A1B20] border-0 rounded-2xl pl-11 pr-4 py-3.5 text-gray-800 dark:text-gray-100 placeholder-gray-400 shadow-[0_2px_10px_rgba(0,0,0,0.02)] focus:outline-none focus:ring-1 focus:ring-[#D86F35]/40"
@@ -328,12 +328,16 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
             {/* Guest Cards */}
             <div className="space-y-3">
               {activeReservations
-                .filter(
-                  (r) =>
-                    !guestSearch ||
-                    r.guestName.toLowerCase().includes(guestSearch.toLowerCase()) ||
-                    r.guestPhone.includes(guestSearch)
-                )
+                .filter((r) => {
+                  if (!guestSearch) return true;
+                  const q = guestSearch.toLowerCase();
+                  const prop = demoState.properties.find((p) => p.id === r.propertyId);
+                  return (
+                    r.guestName.toLowerCase().includes(q) ||
+                    r.guestPhone.includes(q) ||
+                    (prop && prop.name.toLowerCase().includes(q))
+                  );
+                })
                 .slice(0, 15)
                 .map((res) => {
                   const prop = demoState.properties.find((p) => p.id === res.propertyId);
@@ -344,12 +348,17 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                       key={res.id}
                       className="bg-white dark:bg-[#1A1B20] rounded-[22px] p-4 shadow-[0_4px_16px_rgba(0,0,0,0.025)] border border-black/[0.02] dark:border-white/[0.04] space-y-2.5 transition-all"
                     >
-                      {/* Top Row: Name on Left, Price + Badge on Right */}
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight">
-                          {res.guestName}
-                        </h3>
-                        <div className="flex items-center gap-2">
+                      {/* Top Row: Departamento y Fechas RESALTADOS on Left, Precio + Estado on Right */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-baseline gap-2 min-w-0">
+                          <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight truncate">
+                            {prop?.name || 'Cabaña'}
+                          </h3>
+                          <span className="text-xs font-bold text-[#E67E22] dark:text-[#F39A68] whitespace-nowrap">
+                            {formatShortDateRange(res.checkIn, res.checkOut)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
                           <span className="text-xs font-bold text-gray-900 dark:text-gray-100 font-sans">
                             USD {res.totalAmount.toLocaleString('es-AR')}
                           </span>
@@ -365,11 +374,17 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                         </div>
                       </div>
 
-                      {/* Bottom Row: Subtitle on Left, 3 Pastel Square Action Buttons on Right */}
+                      {/* Bottom Row: Nombre del Huésped más pequeño debajo on Left, 3 Botones de Acción on Right */}
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs text-gray-400 dark:text-gray-400 font-medium truncate">
-                          {prop?.name || 'Cabaña'} • {formatShortDateRange(res.checkIn, res.checkOut)}
-                        </p>
+                        <div className="min-w-0 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium truncate">
+                          <span className="font-semibold text-gray-700 dark:text-gray-300 truncate">
+                            {res.guestName}
+                          </span>
+                          <span className="text-gray-300 dark:text-zinc-600">•</span>
+                          <span className="text-[11px] font-mono text-gray-400 dark:text-gray-500 truncate">
+                            {res.guestPhone}
+                          </span>
+                        </div>
 
                         <div className="flex items-center gap-2 shrink-0">
                           {/* Button 1: WhatsApp (Soft Pastel Green Square) */}
@@ -528,21 +543,32 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                     key={res.id}
                     className="bg-white dark:bg-[#1A1B20] rounded-[22px] p-4 shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-black/[0.02] space-y-2.5"
                   >
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">
-                        {res.guestName}
-                      </h3>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase bg-[#FDF3E7] text-[#D86F35]">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-baseline gap-2 min-w-0">
+                        <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight truncate">
+                          {prop?.name || 'Cabaña'}
+                        </h3>
+                        <span className="text-xs font-bold text-[#E67E22] dark:text-[#F39A68] whitespace-nowrap">
+                          {res.nights} {res.nights === 1 ? 'noche' : 'noches'}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase bg-[#FDF3E7] text-[#D86F35] shrink-0">
                         Check-in 14hs
                       </span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-gray-400 font-medium">
-                        {prop?.name} • {res.nights} {res.nights === 1 ? 'noche' : 'noches'}
-                      </p>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium truncate">
+                        <span className="font-semibold text-gray-700 dark:text-gray-300 truncate">
+                          {res.guestName}
+                        </span>
+                        <span className="text-gray-300 dark:text-zinc-600">•</span>
+                        <span className="text-[11px] font-mono text-gray-400 dark:text-gray-500 truncate">
+                          {res.guestPhone}
+                        </span>
+                      </div>
                       <button
                         onClick={() => setSelectedGuestAction(res)}
-                        className="flex items-center gap-1.5 text-xs font-bold text-[#D86F35] bg-[#F6D8C3] px-3 py-1.5 rounded-xl cursor-pointer"
+                        className="flex items-center gap-1.5 text-xs font-bold text-[#D86F35] bg-[#F6D8C3] hover:bg-[#F0C9B0] px-3 py-1.5 rounded-xl cursor-pointer shrink-0 transition-colors"
                       >
                         <MessageCircle className="w-3.5 h-3.5" />
                         <span>Bienvenida</span>
@@ -823,15 +849,20 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between pb-3 border-b border-gray-100 dark:border-zinc-800">
-              <div>
+              <div className="min-w-0 pr-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#D86F35] block">
                   Acciones Rápidas
                 </span>
-                <h3 className="font-bold text-base text-gray-900 dark:text-gray-100">
-                  {selectedGuestAction.guestName}
-                </h3>
-                <p className="text-xs text-gray-400 font-medium">
-                  {selectedActionProperty?.name} • {formatDisplayDate(selectedGuestAction.checkIn)} al {formatDisplayDate(selectedGuestAction.checkOut)}
+                <div className="flex items-baseline gap-2">
+                  <h3 className="font-bold text-base text-gray-900 dark:text-gray-100 truncate">
+                    {selectedActionProperty?.name || 'Cabaña'}
+                  </h3>
+                  <span className="text-xs font-bold text-[#E67E22] dark:text-[#F39A68] whitespace-nowrap">
+                    {formatShortDateRange(selectedGuestAction.checkIn, selectedGuestAction.checkOut)}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">
+                  Huésped: <span className="font-semibold text-gray-700 dark:text-gray-200">{selectedGuestAction.guestName}</span> ({selectedGuestAction.guestPhone})
                 </p>
               </div>
 
