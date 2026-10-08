@@ -15,14 +15,19 @@ import {
 import { DemoState, Reservation, MessageTemplate } from '../../types';
 import { formatDisplayDate, INITIAL_TEMPLATES } from '../../data/initialData';
 import { copyToClipboard } from '../../utils/clipboard';
+import { WebTemplatesManager } from '../WebTemplatesManager';
+import { GuestWelcomeCard } from '../GuestWelcomeCard';
 
 interface DemoMessagesProps {
   demoState: DemoState;
 }
 
 type FilterScope = 'upcoming' | 'today' | 'next7' | 'all';
+type MessagesSubTab = 'simulator' | 'templates' | 'card';
 
 export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
+  const [subTab, setSubTab] = useState<MessagesSubTab>('simulator');
+  const [phoneViewMode, setPhoneViewMode] = useState<'chat' | 'card'>('chat');
   // Ensure we always have full list of master templates
   const templatesList = useMemo(() => {
     if (!demoState.templates || demoState.templates.length < INITIAL_TEMPLATES.length || !demoState.templates.some((t) => t.title?.includes('Blindaje Anti-Quejas'))) {
@@ -255,10 +260,15 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
     <div className="space-y-5 sm:space-y-6 font-['Inter',sans-serif] font-light">
       {/* Header Banner - Zen Style */}
       <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-gray-100 dark:border-zinc-800/80 p-5 sm:p-6 shadow-[0_4px_12px_rgba(0,0,0,0.005)] transition-colors">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]"></span>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">
-            MENSAJERÍA & WHATSAPP • SIMULADOR ZEN OMOTENASHI
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]"></span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">
+              MENSAJERÍA & WHATSAPP • SIMULADOR ZEN OMOTENASHI
+            </span>
+          </div>
+          <span className="text-[10px] text-stone-400 font-mono">
+            Inter 300 • Óxido Pastel
           </span>
         </div>
         <h3 className="text-xl font-light text-gray-800 dark:text-stone-100 flex items-center gap-2 tracking-tight mt-0.5">
@@ -268,8 +278,97 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
         <p className="text-xs text-gray-500 dark:text-stone-400 mt-1 font-light leading-relaxed">
           Plantillas preestablecidas con tono cercano y cálido (Omotenashi). Los datos de la reserva, links y fechas se reemplazan automáticamente en 1 toque.
         </p>
+
+        {/* Selector de Vistas / Componentes */}
+        <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-zinc-800">
+          <button
+            onClick={() => setSubTab('simulator')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-light transition-all flex items-center gap-1.5 cursor-pointer ${
+              subTab === 'simulator'
+                ? 'bg-[#E67E22] text-white shadow-xs font-normal'
+                : 'bg-stone-50 dark:bg-zinc-800 text-stone-600 dark:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-700'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>Simulador WhatsApp</span>
+          </button>
+
+          <button
+            onClick={() => setSubTab('templates')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-light transition-all flex items-center gap-1.5 cursor-pointer ${
+              subTab === 'templates'
+                ? 'bg-[#E67E22] text-white shadow-xs font-normal'
+                : 'bg-stone-50 dark:bg-zinc-800 text-stone-600 dark:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-700'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Gestor de Plantillas Web (WebTemplatesManager)</span>
+          </button>
+
+          <button
+            onClick={() => setSubTab('card')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-light transition-all flex items-center gap-1.5 cursor-pointer ${
+              subTab === 'card'
+                ? 'bg-[#E67E22] text-white shadow-xs font-normal'
+                : 'bg-stone-50 dark:bg-zinc-800 text-stone-600 dark:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-700'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Tarjeta de Bienvenida Digital (GuestWelcomeCard)</span>
+          </button>
+        </div>
       </div>
 
+      {/* VISTA 1: GESTOR DE PLANTILLAS WEB */}
+      {subTab === 'templates' && (
+        <div className="bg-white dark:bg-[#18191E] rounded-3xl border border-gray-100 dark:border-zinc-800 p-2 sm:p-4 shadow-[0_4px_20px_rgba(0,0,0,0.01)]">
+          <WebTemplatesManager />
+        </div>
+      )}
+
+      {/* VISTA 2: TARJETA DE BIENVENIDA DIGITAL */}
+      {subTab === 'card' && (
+        <div className="space-y-6">
+          {/* Selector de huésped para previsualizar su ficha */}
+          <div className="max-w-md mx-auto bg-white dark:bg-[#18191E] p-4 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-xs space-y-2">
+            <label className="block text-xs font-medium text-stone-700 dark:text-stone-300">
+              Seleccionar huésped para la tarjeta:
+            </label>
+            <select
+              value={activeSelectedResId}
+              onChange={(e) => setSelectedResId(e.target.value)}
+              className="w-full text-xs font-light rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800/80 p-2.5 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-1 focus:ring-orange-400"
+            >
+              {filteredReservations.map((r) => {
+                const prop = demoState.properties.find((p) => p.id === r.propertyId);
+                return (
+                  <option key={r.id} value={r.id}>
+                    {r.guestName} • {prop?.name || 'Alojamiento'} ({formatDisplayDate(r.checkIn)})
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+
+          {/* Render del componente GuestWelcomeCard */}
+          <GuestWelcomeCard
+            guestName={selectedReservation?.guestName || 'Huésped'}
+            propertyName={selectedProperty?.name || 'Departamento'}
+            checkInDate={selectedReservation ? formatDisplayDate(selectedReservation.checkIn) : '15 de Octubre'}
+            checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '19 de Octubre'}
+            checkInTime="14:00 hs"
+            accessCode={selectedReservation?.pinCode || '4820'}
+            wifiNetwork={selectedProperty?.wifiNetwork || 'Catalinas_Guest_5G'}
+            wifiPassword={selectedProperty?.wifiPassword || 'bienvenidoscatalinas'}
+            address={selectedProperty ? `${selectedProperty.address}, ${selectedProperty.neighborhood}` : 'Tres Sargentos 435, Retiro / Catalinas Norte, CABA'}
+            guideUrl={`https://loomisuite.com/guia/${selectedProperty?.id || 'cat-b'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
+            hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5491140506070'}
+          />
+        </div>
+      )}
+
+      {/* VISTA 3: SIMULADOR WHATSAPP & PHONE MOCKUP */}
+      {subTab === 'simulator' && (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
         {/* Left Side: Selectors & Master Templates Blocks (6 cols) */}
         <div className="lg:col-span-6 space-y-4">
@@ -521,25 +620,68 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                 </div>
               </div>
 
-              {/* Chat Canvas with Wallpaper & Master Message Bubble */}
-              <div className="flex-1 p-3 overflow-y-auto flex flex-col justify-end space-y-3 bg-[#EFEAE2]">
-                <div className="text-center">
-                  <span className="text-[10px] font-light bg-white/80 text-zinc-500 px-2.5 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
-                    Hoy • Mensaje Pre-cargado
-                  </span>
-                </div>
-
-                {/* Sent Bubble - Clean Zen Look with Oxide Pastel Links */}
-                <div className="self-end bg-[#DCF8C6] rounded-2xl rounded-tr-xs p-3.5 max-w-[92%] shadow-[0_1px_2px_rgba(0,0,0,0.06)] text-xs text-zinc-800 leading-relaxed relative">
-                  <div className="whitespace-pre-line text-xs font-light">
-                    {renderLivePhoneBubbleContent(getInterpolatedMessage())}
-                  </div>
-                  <div className="text-right mt-1.5 flex items-center justify-end gap-1 text-[10px] text-zinc-500 font-mono font-light">
-                    <span>10:14</span>
-                    <CheckCheck className="w-3.5 h-3.5 text-blue-600" />
-                  </div>
-                </div>
+              {/* Toggle de Modo dentro del Celular (Chat vs Tarjeta Digital) */}
+              <div className="bg-[#054c43] px-3 py-1.5 flex items-center justify-center gap-1.5 border-t border-white/10 text-[10px]">
+                <button
+                  onClick={() => setPhoneViewMode('chat')}
+                  className={`px-2.5 py-0.5 rounded-full transition-all cursor-pointer ${
+                    phoneViewMode === 'chat'
+                      ? 'bg-white/20 text-white font-medium'
+                      : 'text-emerald-200/80 hover:text-white'
+                  }`}
+                >
+                  💬 Chat WhatsApp
+                </button>
+                <button
+                  onClick={() => setPhoneViewMode('card')}
+                  className={`px-2.5 py-0.5 rounded-full transition-all cursor-pointer ${
+                    phoneViewMode === 'card'
+                      ? 'bg-white/20 text-white font-medium'
+                      : 'text-emerald-200/80 hover:text-white'
+                  }`}
+                >
+                  🪪 Ficha de Bienvenida
+                </button>
               </div>
+
+              {/* Pantalla del Celular: Modo Ficha o Modo Chat */}
+              {phoneViewMode === 'card' ? (
+                <div className="flex-1 p-2 overflow-y-auto bg-[#FAF8F5]">
+                  <GuestWelcomeCard
+                    guestName={selectedReservation?.guestName || 'Huésped'}
+                    propertyName={selectedProperty?.name || 'Departamento'}
+                    checkInDate={selectedReservation ? formatDisplayDate(selectedReservation.checkIn) : '15 de Octubre'}
+                    checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '19 de Octubre'}
+                    checkInTime="14:00 hs"
+                    accessCode={selectedReservation?.pinCode || '4820'}
+                    wifiNetwork={selectedProperty?.wifiNetwork || 'Catalinas_Guest_5G'}
+                    wifiPassword={selectedProperty?.wifiPassword || 'bienvenidoscatalinas'}
+                    address={selectedProperty ? `${selectedProperty.address}, ${selectedProperty.neighborhood}` : 'Tres Sargentos 435, Retiro / Catalinas Norte, CABA'}
+                    guideUrl={`https://loomisuite.com/guia/${selectedProperty?.id || 'cat-b'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
+                    hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5491140506070'}
+                  />
+                </div>
+              ) : (
+                /* Chat Canvas with Wallpaper & Master Message Bubble */
+                <div className="flex-1 p-3 overflow-y-auto flex flex-col justify-end space-y-3 bg-[#EFEAE2]">
+                  <div className="text-center">
+                    <span className="text-[10px] font-light bg-white/80 text-zinc-500 px-2.5 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
+                      Hoy • Mensaje Pre-cargado
+                    </span>
+                  </div>
+
+                  {/* Sent Bubble - Clean Zen Look with Oxide Pastel Links */}
+                  <div className="self-end bg-[#DCF8C6] rounded-2xl rounded-tr-xs p-3.5 max-w-[92%] shadow-[0_1px_2px_rgba(0,0,0,0.06)] text-xs text-zinc-800 leading-relaxed relative">
+                    <div className="whitespace-pre-line text-xs font-light">
+                      {renderLivePhoneBubbleContent(getInterpolatedMessage())}
+                    </div>
+                    <div className="text-right mt-1.5 flex items-center justify-end gap-1 text-[10px] text-zinc-500 font-mono font-light">
+                      <span>10:14</span>
+                      <CheckCheck className="w-3.5 h-3.5 text-blue-600" />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Bottom Actions inside mockup */}
               <div className="p-3 bg-white border-t border-zinc-200 flex flex-col gap-2">
@@ -576,6 +718,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };
