@@ -340,6 +340,31 @@ export default function App() {
     }
   });
 
+  // Demo Plan Banner dismiss state (hides interactive demo pitch bar)
+  const [isDemoPlanBarDismissed, setIsDemoPlanBarDismissed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('loomi_hide_demo_plan_bar') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleDismissDemoPlanBar = () => {
+    setIsDemoPlanBarDismissed(true);
+    try {
+      localStorage.setItem('loomi_hide_demo_plan_bar', 'true');
+    } catch {}
+    showToast('Barra de demostración oculta');
+  };
+
+  const handleShowDemoPlanBar = () => {
+    setIsDemoPlanBarDismissed(false);
+    try {
+      localStorage.removeItem('loomi_hide_demo_plan_bar');
+    } catch {}
+    showToast('Guía de planes demo visible');
+  };
+
   // Modals
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(() => {
     try {
@@ -1051,8 +1076,22 @@ export default function App() {
                   )}
                 </button>
 
-                {!loggedUser && (
+                {loggedUser ? (
+                  <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-50/70 dark:bg-orange-950/40 border border-orange-200/70 dark:border-orange-900/50 text-xs font-semibold text-[#E67E22]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" />
+                    <span className="truncate max-w-[140px]">{loggedUser.name}</span>
+                  </div>
+                ) : (
                   <>
+                    {isDemoPlanBarDismissed && (
+                      <button
+                        onClick={handleShowDemoPlanBar}
+                        className="text-xs font-medium text-stone-500 hover:text-[#E67E22] dark:text-stone-400 dark:hover:text-stone-200 transition-colors cursor-pointer hidden md:flex items-center gap-1 px-2.5 py-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-zinc-800"
+                        title="Ver guía y simulador de planes"
+                      >
+                        <span>💡 Guía Planes</span>
+                      </button>
+                    )}
                     <button
                       onClick={handleResetData}
                       className="text-xs font-medium text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors cursor-pointer hidden md:inline"
@@ -1085,28 +1124,31 @@ export default function App() {
               </div>
             </div>
 
-            {/* Top Demo Scenario & Plan Guide (Interactive Context) */}
-            <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 pt-3.5 sm:pt-4">
-              <DemoPlanFunctionalBar
-                onSelectTab={setDemoTab}
-                onSwitchComplex={setActiveComplex}
-                activeComplex={activeComplex}
-                currentTab={demoTab}
-                isEmployeeMode={isEmployeeMode}
-                onToggleEmployeeMode={() => handleRoleChange(isEmployeeMode ? 'admin' : 'housekeeping')}
-                onOpenGuideWith={(subTab, template) => {
-                  setGuideSubTab(subTab);
-                  if (template) setGuideTemplate(template);
-                  setDemoTab('welcome-guide');
-                }}
-                onOpenOnboardingWizard={() => setIsOnboardingModalOpen(true)}
-                onRequestPlan={() => {
-                  setSelectedPlanForLead('Plan Cabañas & Deptos');
-                  setIsLeadModalOpen(true);
-                }}
-                onOpenLookbookDossier={() => setIsLookbookModalOpen(true)}
-              />
-            </div>
+            {/* Top Demo Scenario & Plan Guide (Solo en modo demo no logueado y si no fue descartada) */}
+            {!loggedUser && !isDemoPlanBarDismissed && (
+              <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 pt-3.5 sm:pt-4">
+                <DemoPlanFunctionalBar
+                  onSelectTab={setDemoTab}
+                  onSwitchComplex={setActiveComplex}
+                  activeComplex={activeComplex}
+                  currentTab={demoTab}
+                  isEmployeeMode={isEmployeeMode}
+                  onToggleEmployeeMode={() => handleRoleChange(isEmployeeMode ? 'admin' : 'housekeeping')}
+                  onOpenGuideWith={(subTab, template) => {
+                    setGuideSubTab(subTab);
+                    if (template) setGuideTemplate(template);
+                    setDemoTab('welcome-guide');
+                  }}
+                  onOpenOnboardingWizard={() => setIsOnboardingModalOpen(true)}
+                  onRequestPlan={() => {
+                    setSelectedPlanForLead('Plan Cabañas & Deptos');
+                    setIsLeadModalOpen(true);
+                  }}
+                  onOpenLookbookDossier={() => setIsLookbookModalOpen(true)}
+                  onDismiss={handleDismissDemoPlanBar}
+                />
+              </div>
+            )}
 
             {/* Permanent Horizontal Tab Navigation Bar (Directly Attached to the System) */}
             <DemoNavTabs

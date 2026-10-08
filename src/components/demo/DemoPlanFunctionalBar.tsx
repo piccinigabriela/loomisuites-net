@@ -35,6 +35,7 @@ interface DemoPlanFunctionalBarProps {
   onOpenOnboardingWizard?: () => void;
   onRequestPlan?: () => void;
   onOpenLookbookDossier?: () => void;
+  onDismiss?: () => void;
 }
 
 export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
@@ -48,6 +49,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
   onOpenOnboardingWizard,
   onRequestPlan,
   onOpenLookbookDossier,
+  onDismiss,
 }) => {
   const [activePlan, setActivePlan] = useState<'inicial' | 'escala'>('inicial');
   const isSignature = false;
@@ -56,6 +58,18 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
     <div className="mb-6 rounded-2xl sm:rounded-3xl border shadow-[0_4px_16px_rgba(0,0,0,0.02)] p-4 sm:p-5 transition-all duration-300 font-sans relative overflow-hidden bg-white dark:bg-[#18191E] text-stone-800 dark:text-stone-100 border-stone-200/70 dark:border-zinc-800/70">
       {/* Background Subtle Tone */}
       <div className="absolute top-0 right-0 w-80 h-80 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16 bg-[#E67E22]/5" />
+
+      {/* Dismiss / Close button if onDismiss is provided */}
+      {onDismiss && (
+        <button
+          onClick={onDismiss}
+          className="absolute top-3.5 right-3.5 z-20 flex items-center gap-1 text-[11px] font-medium text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 bg-stone-100/70 dark:bg-zinc-800/70 hover:bg-stone-200/80 dark:hover:bg-zinc-700 px-2.5 py-1 rounded-lg transition-colors cursor-pointer border border-stone-200/60 dark:border-zinc-700/60"
+          title="Ocultar esta barra de demostración"
+        >
+          <span>Ocultar guía demo</span>
+          <span className="font-bold">✕</span>
+        </button>
+      )}
 
       {/* Top Banner: Real PMS Command Center Explanation with Realistic Desktop Dashboard Mockup */}
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-5 pb-4 border-b items-center border-stone-200/70 dark:border-zinc-800/70">
