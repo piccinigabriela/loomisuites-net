@@ -50,55 +50,58 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 font-sans">
+    <div className="space-y-5 sm:space-y-6 font-sans">
       {/* Toast */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#18181B] dark:bg-[#0C0D0F] text-[#EFECE5] text-xs font-bold px-4 py-3 rounded-none shadow-xl border border-[#E1500A] flex items-center gap-2 animate-in slide-in-from-bottom-2">
-          <CheckCircle2 className="w-4 h-4 text-[#E1500A]" />
+        <div className="fixed bottom-6 right-6 z-50 bg-stone-900 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-xl border border-stone-700 flex items-center gap-2 animate-in slide-in-from-bottom-2">
+          <CheckCircle2 className="w-4 h-4 text-[#E67E22]" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Header */}
-      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
+      <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
         <div>
-          <h3 className="text-base font-bold text-[#18181B] dark:text-[#EFECE5] flex items-center gap-2 tracking-tight">
-            <Sparkles className="w-5 h-5 text-[#E1500A]" />
-            <span>Operaciones & Puesta a Punto de Unidades</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500 flex items-center gap-1.5 mb-0.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" /> HOUSEKEEPING • PUESTA A PUNTO
+          </span>
+          <h3 className="text-base sm:text-lg font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2 tracking-tight">
+            <Sparkles className="w-5 h-5 text-[#E67E22]" />
+            <span>Operaciones & Limpieza de Unidades</span>
           </h3>
-          <p className="text-xs text-[#71717A] dark:text-[#8E8E93] mt-0.5">
-            Coordina al staff operativo en tiempo real sin aplicaciones pesadas. Checklists móviles, recambios y puesta a punto.
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5 font-normal">
+            Coordinación del staff operativo sin instalar aplicaciones pesadas. Checklists en vivo con un clic.
           </p>
         </div>
 
         {/* Filter buttons */}
-        <div className="flex items-center gap-1.5 bg-[#DEDBD2] dark:bg-[#141518] p-1 rounded-none border border-[#C8C4B7] dark:border-[#222328] text-xs">
+        <div className="flex items-center gap-1 bg-stone-100 dark:bg-zinc-800 p-1 rounded-xl text-xs">
           <button
             onClick={() => setFilterStatus('all')}
-            className={`px-3 py-1.5 rounded-none font-bold uppercase tracking-wider text-[11px] transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all cursor-pointer ${
               filterStatus === 'all'
-                ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] shadow-2xs'
-                : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-[#EFECE5]'
+                ? 'bg-white dark:bg-zinc-700 text-[#E67E22] shadow-xs'
+                : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             Todas ({demoState.cleaningTasks.length})
           </button>
           <button
             onClick={() => setFilterStatus('in_progress')}
-            className={`px-3 py-1.5 rounded-none font-bold uppercase tracking-wider text-[11px] transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all cursor-pointer ${
               filterStatus === 'in_progress'
-                ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] shadow-2xs'
-                : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-[#EFECE5]'
+                ? 'bg-white dark:bg-zinc-700 text-[#E67E22] shadow-xs'
+                : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             En Curso
           </button>
           <button
             onClick={() => setFilterStatus('inspected')}
-            className={`px-3 py-1.5 rounded-none font-bold uppercase tracking-wider text-[11px] transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all cursor-pointer ${
               filterStatus === 'inspected'
-                ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] shadow-2xs'
-                : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-[#EFECE5]'
+                ? 'bg-white dark:bg-zinc-700 text-[#E67E22] shadow-xs'
+                : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             Listas
@@ -117,17 +120,17 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
           return (
             <div
               key={task.id}
-              className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-5 sm:p-6 shadow-2xs flex flex-col justify-between hover:border-[#E1500A] transition-all"
+              className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 sm:p-6 shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex flex-col justify-between hover:border-orange-200 transition-all"
             >
               <div>
                 {/* Top Row: Property & Status badge */}
-                <div className="flex items-start justify-between gap-3 mb-3">
+                <div className="flex items-start justify-between gap-3 mb-3.5">
                   <div>
-                    <span className="text-[10px] font-black text-[#E1500A] uppercase tracking-wider">
+                    <span className="text-[10px] font-semibold text-[#E67E22] uppercase tracking-wider">
                       {prop?.neighborhood}
                     </span>
-                    <h4 className="text-base font-bold text-[#18181B] dark:text-[#EFECE5] tracking-tight">{prop?.name}</h4>
-                    <p className="text-xs text-[#71717A] dark:text-[#8E8E93]">{prop?.address}</p>
+                    <h4 className="text-base font-bold text-stone-800 dark:text-stone-100 tracking-tight">{prop?.name}</h4>
+                    <p className="text-xs text-stone-400 dark:text-stone-500">{prop?.address}</p>
                   </div>
 
                   <select
@@ -135,12 +138,12 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
                     onChange={(e) =>
                       onUpdateTaskStatus(task.id, e.target.value as CleaningTask['status'])
                     }
-                    className={`text-xs font-bold px-3 py-1.5 rounded-none border cursor-pointer ${
+                    className={`text-xs font-semibold px-3 py-1.5 rounded-xl border cursor-pointer focus:outline-none ${
                       task.status === 'in_progress'
-                        ? 'bg-[#E1500A]/10 text-[#E1500A] border-[#E1500A]/40'
+                        ? 'bg-orange-50 text-[#E67E22] border-orange-200 dark:bg-orange-950/40'
                         : task.status === 'inspected'
-                        ? 'bg-zinc-100 dark:bg-[#1E2028] text-zinc-900 dark:text-white border-zinc-300 dark:border-[#343744]'
-                        : 'bg-[#F4F2EE] dark:bg-[#141518] text-[#71717A] dark:text-[#8E8E93] border-[#C8C4B7] dark:border-[#222328]'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40'
+                        : 'bg-stone-50 dark:bg-zinc-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-zinc-700'
                     }`}
                   >
                     <option value="pending">Pendiente</option>
@@ -150,57 +153,57 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
                 </div>
 
                 {/* Cleaner Info Bar */}
-                <div className="bg-[#DEDBD2]/50 dark:bg-[#141518] rounded-none p-3 border border-[#C8C4B7] dark:border-[#222328] flex flex-wrap items-center justify-between gap-3 text-xs mb-4">
+                <div className="bg-stone-50/70 dark:bg-zinc-800/50 rounded-xl p-3 border border-stone-100 dark:border-zinc-700/60 flex flex-wrap items-center justify-between gap-3 text-xs mb-4">
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93]" />
-                    <span className="font-black text-[#18181B] dark:text-[#EFECE5]">{task.cleanerName}</span>
-                    <span className="text-[#C8C4B7] dark:text-[#333]">•</span>
-                    <span className="text-[#71717A] dark:text-[#8E8E93] font-mono">{task.cleanerPhone}</span>
+                    <User className="w-4 h-4 text-stone-400" />
+                    <span className="font-semibold text-stone-800 dark:text-stone-200">{task.cleanerName}</span>
+                    <span className="text-stone-300 dark:text-zinc-600">•</span>
+                    <span className="text-stone-500 dark:text-stone-400 font-mono text-[11px]">{task.cleanerPhone}</span>
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-[#71717A] dark:text-[#8E8E93] font-bold">
-                    <Clock className="w-3.5 h-3.5 text-[#E1500A]" />
-                    <span className="font-mono">Fecha: {formatDisplayDate(task.date)} ({task.scheduledTime})</span>
+                  <div className="flex items-center gap-1.5 text-stone-500 dark:text-stone-400 font-medium">
+                    <Clock className="w-3.5 h-3.5 text-[#E67E22]" />
+                    <span>{formatDisplayDate(task.date)} ({task.scheduledTime})</span>
                   </div>
                 </div>
 
                 {/* Progress bar */}
                 <div className="mb-4">
-                  <div className="flex items-center justify-between text-xs font-bold mb-1.5">
-                    <span className="text-[#71717A] dark:text-[#8E8E93]">Progreso del Turno</span>
-                    <span className="text-[#E1500A] font-mono">{completedCount} de {totalCount} items ({progressPercent}%)</span>
+                  <div className="flex items-center justify-between text-xs font-medium mb-1.5">
+                    <span className="text-stone-500 dark:text-stone-400">Progreso del Turno</span>
+                    <span className="text-[#E67E22] font-semibold">{completedCount} de {totalCount} items ({progressPercent}%)</span>
                   </div>
-                  <div className="w-full h-2 bg-[#DEDBD2] dark:bg-[#141518] rounded-none overflow-hidden border border-[#C8C4B7] dark:border-[#222328]">
+                  <div className="w-full h-2 bg-stone-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-[#E1500A] transition-all duration-300 rounded-none"
+                      className="h-full bg-[#E67E22] transition-all duration-300 rounded-full"
                       style={{ width: `${progressPercent}%` }}
                     />
                   </div>
                 </div>
 
-                {/* Checklist */}
+                {/* Checklist with Zen organic touch */}
                 <div className="space-y-2 mb-4">
-                  <span className="text-[10px] font-black text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider block">
+                  <span className="text-[10px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider block">
                     Puntos Clave de Control:
                   </span>
                   <div className="space-y-1.5">
                     {task.checklist.map((item) => (
                       <label
                         key={item.id}
-                        className={`flex items-center gap-2.5 p-2 rounded-none border text-xs cursor-pointer transition-all ${
+                        className={`flex items-center gap-3 p-2.5 rounded-xl border text-xs cursor-pointer transition-all ${
                           item.completed
-                            ? 'bg-zinc-100/70 dark:bg-[#16171C] border-zinc-300 dark:border-[#282A33] text-[#71717A] dark:text-[#8E8E93] line-through'
-                            : 'bg-[#F4F2EE] dark:bg-[#141518] border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-[#EFECE5] hover:border-[#E1500A]'
+                            ? 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30 text-stone-400 dark:text-stone-500 line-through'
+                            : 'bg-stone-50/60 dark:bg-zinc-800/40 border-stone-100 dark:border-zinc-700/60 text-stone-700 dark:text-stone-200 hover:border-orange-200'
                         }`}
                       >
                         <input
                           type="checkbox"
                           checked={item.completed}
                           onChange={() => onToggleChecklistItem(task.id, item.id)}
-                          className="rounded-none text-[#E1500A] focus:ring-[#E1500A] accent-[#E1500A]"
+                          className="rounded-md text-[#E67E22] focus:ring-[#E67E22] accent-[#E67E22] w-4 h-4"
                         />
-                        <span className="flex-1 select-none font-bold">{item.task}</span>
-                        {item.completed && <Check className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />}
+                        <span className="flex-1 select-none font-medium">{item.task}</span>
+                        {item.completed && <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
                       </label>
                     ))}
                   </div>
@@ -208,28 +211,28 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
 
                 {/* Notes or Observations */}
                 {task.notes && (
-                  <div className="bg-[#E1500A]/10 dark:bg-[#E1500A]/15 border border-[#E1500A]/30 rounded-none p-3 text-xs text-[#18181B] dark:text-[#EFECE5] flex items-start gap-2 mb-4">
-                    <AlertTriangle className="w-4 h-4 text-[#E1500A] shrink-0 mt-0.5" />
+                  <div className="bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/30 rounded-xl p-3 text-xs text-stone-700 dark:text-stone-300 flex items-start gap-2.5 mb-4">
+                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-black block uppercase text-[10px] text-[#E1500A]">Observación operativa:</span>
-                      <p className="text-[11px] mt-0.5 text-[#71717A] dark:text-[#8E8E93]">{task.notes}</p>
+                      <span className="font-semibold block uppercase text-[10px] text-amber-600 dark:text-amber-400">Observación operativa:</span>
+                      <p className="text-[11px] mt-0.5 text-stone-600 dark:text-stone-400">{task.notes}</p>
                     </div>
                   </div>
                 )}
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-4 border-t border-[#C8C4B7] dark:border-[#222328] flex items-center justify-between gap-3">
+              <div className="pt-4 border-t border-stone-100 dark:border-zinc-800 flex items-center justify-between gap-3">
                 <button
                   onClick={() => handleSimulateWhatsApp(task)}
-                  className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-700 border border-emerald-600 px-3.5 py-2 rounded-none transition-colors cursor-pointer shadow-2xs"
+                  className="flex items-center gap-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-xl transition-all cursor-pointer shadow-xs active:scale-95"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>Enviar por WhatsApp</span>
                 </button>
 
-                <div className="text-[11px] text-[#71717A] dark:text-[#8E8E93] flex items-center gap-1 font-mono">
-                  <Camera className="w-3.5 h-3.5 text-[#71717A]" />
+                <div className="text-xs text-stone-400 dark:text-stone-500 flex items-center gap-1.5">
+                  <Camera className="w-3.5 h-3.5 text-stone-400" />
                   <span>Fotos habilitadas</span>
                 </div>
               </div>
@@ -240,19 +243,21 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
 
       {/* SECURE LINK SHARE SIMULATION MODAL */}
       {selectedTaskForShare && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in">
-          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-2xl w-full max-w-2xl overflow-hidden transition-all transform scale-100">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in">
+          <div className="bg-white dark:bg-[#18191E] rounded-3xl border border-stone-200/80 dark:border-zinc-800 shadow-2xl w-full max-w-2xl overflow-hidden transition-all transform scale-100">
             {/* Modal Header */}
-            <div className="bg-[#DEDBD2] dark:bg-[#141518] px-6 py-4 border-b border-[#C8C4B7] dark:border-[#222328] flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-[#E1500A]" />
-                <h3 className="text-sm font-bold text-[#18181B] dark:text-[#EFECE5] uppercase tracking-wider">
-                  Acceso del Personal (Seguridad & Roles)
+            <div className="bg-stone-50/80 dark:bg-zinc-800/60 px-6 py-4 border-b border-stone-100 dark:border-zinc-800 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-xl bg-orange-50 text-[#E67E22]">
+                  <Lock className="w-4 h-4" />
+                </div>
+                <h3 className="text-sm font-bold text-stone-800 dark:text-stone-100">
+                  Acceso del Personal (Planilla por WhatsApp)
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedTaskForShare(null)}
-                className="p-1 rounded-none text-[#71717A] hover:bg-[#C8C4B7] dark:hover:bg-[#222328] transition-colors cursor-pointer"
+                className="p-1.5 rounded-xl text-stone-400 hover:bg-stone-100 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -264,56 +269,56 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
                 
                 {/* Simulated Phone on Left (5 cols) */}
                 <div className="md:col-span-5 flex flex-col space-y-2">
-                  <span className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider block">Mensaje de WhatsApp Generado</span>
+                  <span className="text-[10px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider block">Mensaje de WhatsApp Generado</span>
                   
                   {/* Phone Shell */}
-                  <div className="bg-[#EAE8E3] dark:bg-[#141518] rounded-none p-3.5 border border-[#C8C4B7] dark:border-[#222328] min-h-[220px] flex flex-col justify-between">
+                  <div className="bg-stone-50 dark:bg-zinc-900 rounded-2xl p-3.5 border border-stone-200/70 dark:border-zinc-800 min-h-[220px] flex flex-col justify-between">
                     {/* Chat Header */}
-                    <div className="bg-white dark:bg-[#0C0D0F] rounded-none p-2 flex items-center gap-2 border border-[#C8C4B7] dark:border-[#222328] mb-3">
-                      <div className="w-7 h-7 rounded-none bg-[#E1500A] text-white flex items-center justify-center text-xs font-black">
+                    <div className="bg-white dark:bg-[#18191E] rounded-xl p-2.5 flex items-center gap-2.5 border border-stone-100 dark:border-zinc-800 mb-3 shadow-2xs">
+                      <div className="w-7 h-7 rounded-full bg-[#E67E22] text-white flex items-center justify-center text-xs font-bold">
                         {selectedTaskForShare.cleanerName.substring(0, 1)}
                       </div>
                       <div>
-                        <p className="text-[10px] font-bold text-[#18181B] dark:text-[#EFECE5]">{selectedTaskForShare.cleanerName}</p>
-                        <p className="text-[8px] text-emerald-600 dark:text-emerald-400 font-semibold leading-none">En línea</p>
+                        <p className="text-xs font-semibold text-stone-800 dark:text-stone-200">{selectedTaskForShare.cleanerName}</p>
+                        <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-medium leading-none">En línea</p>
                       </div>
                     </div>
 
                     {/* WhatsApp Message Bubble */}
-                    <div className="bg-emerald-50 dark:bg-emerald-950/40 text-[#18181B] dark:text-emerald-100 rounded-none p-2.5 max-w-[95%] text-[10px] shadow-xs self-start border border-emerald-300 dark:border-emerald-800 leading-relaxed">
-                      <p className="font-black text-[#18181B] dark:text-emerald-200">Loomi Suite • Tareas de hoy 🧹</p>
+                    <div className="bg-emerald-50 dark:bg-emerald-950/40 text-stone-800 dark:text-emerald-100 rounded-2xl p-3 text-[11px] shadow-xs self-start border border-emerald-200/80 dark:border-emerald-800 leading-relaxed">
+                      <p className="font-bold text-stone-800 dark:text-emerald-200">Loomi Suite • Limpiezas de hoy 🧹</p>
                       <p className="mt-1">
-                        Hola <strong>{selectedTaskForShare.cleanerName}</strong>! Te comparto la planilla de limpieza de hoy para:
+                        Hola <strong>{selectedTaskForShare.cleanerName}</strong>! Te comparto la planilla para:
                       </p>
-                      <p className="font-bold text-[#E1500A] mt-1">
+                      <p className="font-semibold text-[#E67E22] mt-1">
                         🏡 {getProperty(selectedTaskForShare.propertyId)?.name}
                       </p>
-                      <p className="mt-1 font-mono text-[9px] bg-white/60 dark:bg-black/40 p-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] break-all">
+                      <p className="mt-1.5 font-mono text-[9px] bg-white/80 dark:bg-black/40 p-2 rounded-lg border border-emerald-200/60 dark:border-emerald-800 break-all">
                         https://loomi.app/task/{selectedTaskForShare.propertyId}?token={selectedTaskForShare.id.substring(0, 8)}
                       </p>
-                      <p className="text-[8px] text-[#71717A] dark:text-emerald-400 text-right mt-1">11:42 AM ✔✔</p>
+                      <p className="text-[9px] text-stone-400 dark:text-emerald-400 text-right mt-1.5">11:42 AM ✔✔</p>
                     </div>
 
-                    <div className="text-center text-[9px] text-[#71717A] dark:text-[#8E8E93] italic mt-3 bg-white/50 dark:bg-black/30 py-1 rounded-none font-mono">
-                      Se envía con un solo clic por WhatsApp
+                    <div className="text-center text-[10px] text-stone-400 dark:text-stone-500 italic mt-3 bg-white/70 dark:bg-zinc-800/70 py-1.5 rounded-xl font-medium">
+                      Se envía con un solo toque por WhatsApp
                     </div>
                   </div>
                 </div>
 
                 {/* Secure explanation on Right (7 cols) */}
                 <div className="md:col-span-7 space-y-4">
-                  <h4 className="text-xs font-bold text-[#E1500A] uppercase tracking-wider">¿Por qué es 100% Seguro?</h4>
+                  <h4 className="text-xs font-bold text-[#E67E22] uppercase tracking-wider">¿Por qué es 100% Seguro?</h4>
                   
                   <div className="space-y-3.5">
                     {/* Item 1 */}
-                    <div className="flex gap-2.5">
-                      <div className="w-5 h-5 rounded-none bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                        <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                    <div className="flex gap-3">
+                      <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-[#18181B] dark:text-[#EFECE5]">Enlace de acceso único (Tokenizado)</p>
-                        <p className="text-[11px] text-[#71717A] dark:text-[#8E8E93] leading-relaxed mt-0.5">
-                          El personal accede a través de ese enlace cifrado temporal. No necesitan contraseñas ni descargar apps pesadas.
+                        <p className="text-xs font-semibold text-stone-800 dark:text-stone-200">Enlace de acceso temporal (Tokenizado)</p>
+                        <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed mt-0.5">
+                          El personal accede a través de ese enlace cifrado. No necesitan contraseñas ni descargar apps pesadas en sus celulares.
                         </p>
                       </div>
                     </div>

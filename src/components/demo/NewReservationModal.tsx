@@ -152,21 +152,26 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200 font-sans">
-      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] w-full max-w-lg rounded-none shadow-2xl border border-[#C8C4B7] dark:border-[#222328] overflow-hidden transition-colors">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200 font-sans">
+      <div className="bg-[#F8F9FA] dark:bg-[#111215] w-full max-w-lg rounded-[28px] shadow-2xl border border-black/[0.03] dark:border-white/[0.04] overflow-hidden transition-colors">
         {/* Modal Header */}
-        <div className="bg-[#18181B] dark:bg-[#141518] text-white p-4 sm:p-5 flex items-center justify-between border-b border-[#222328]">
-          <div className="flex items-center gap-2">
-            <Plus className="w-5 h-5 text-[#E1500A]" />
-            <h3 className="text-base font-bold uppercase tracking-wider">
-              Crear Nueva Reserva
-            </h3>
+        <div className="bg-[#ECE7E0] dark:bg-[#18191E] text-gray-900 dark:text-gray-100 p-4 sm:p-5 flex items-center justify-between border-b border-[#DDD7CD]/50 dark:border-zinc-800">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-[#F6D8C3] text-[#D86F35] flex items-center justify-center">
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                Crear Nueva Reserva
+              </h3>
+              <p className="text-xs text-gray-400 font-medium">Carga manual o directa</p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="text-[#71717A] hover:text-white p-1 rounded-none transition-colors cursor-pointer"
+            className="w-9 h-9 rounded-xl bg-[#EDE8E1] hover:bg-[#E3DDD4] text-gray-500 flex items-center justify-center transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 stroke-[2]" />
           </button>
         </div>
 
@@ -174,11 +179,11 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
         <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 max-h-[85vh] overflow-y-auto">
           {/* Property */}
           <div>
-            <label className="block text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider mb-1">Propiedad</label>
+            <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Alojamiento</label>
             <select
               value={propertyId}
               onChange={(e) => setPropertyId(e.target.value)}
-              className="w-full text-xs font-bold p-2.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-[#F4F2EE] dark:bg-[#141518] text-[#18181B] dark:text-[#EFECE5] focus:outline-none focus:border-[#E1500A] cursor-pointer"
+              className="w-full text-xs font-semibold p-3 rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-[#D86F35]/40 cursor-pointer shadow-xs"
             >
               {demoState.properties.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -191,23 +196,23 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
           {/* Dates */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="block text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider mb-1">Check-in</label>
+              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Check-in</label>
               <input
                 type="date"
                 required
                 value={checkIn}
                 onChange={(e) => setCheckIn(e.target.value)}
-                className="w-full text-xs font-bold p-2.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-[#F4F2EE] dark:bg-[#141518] text-[#18181B] dark:text-[#EFECE5] focus:outline-none focus:border-[#E1500A] font-mono cursor-pointer"
+                className="w-full text-xs font-semibold p-3 rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-[#D86F35]/40 font-mono cursor-pointer shadow-xs"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider mb-1">Check-out</label>
+              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Check-out</label>
               <input
                 type="date"
                 required
                 value={checkOut}
                 onChange={(e) => setCheckOut(e.target.value)}
-                className="w-full text-xs font-bold p-2.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-[#F4F2EE] dark:bg-[#141518] text-[#18181B] dark:text-[#EFECE5] focus:outline-none focus:border-[#E1500A] font-mono cursor-pointer"
+                className="w-full text-xs font-semibold p-3 rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-[#D86F35]/40 font-mono cursor-pointer shadow-xs"
               />
             </div>
           </div>
@@ -215,22 +220,22 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
           {/* Guest Name & Channel */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="block text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider mb-1">Nombre del Huésped</label>
+              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Nombre del Huésped</label>
               <input
                 type="text"
                 required
                 placeholder="Ej: Sofía Herrera"
                 value={guestName}
                 onChange={(e) => setGuestName(e.target.value)}
-                className="w-full text-xs font-bold p-2.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-[#F4F2EE] dark:bg-[#141518] text-[#18181B] dark:text-[#EFECE5] focus:outline-none focus:border-[#E1500A]"
+                className="w-full text-xs font-semibold p-3 rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-[#D86F35]/40 shadow-xs"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider mb-1">Canal de Origen</label>
+              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Canal de Origen</label>
               <select
                 value={platform}
                 onChange={(e) => setPlatform(e.target.value as BookingPlatform)}
-                className="w-full text-xs font-bold p-2.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-[#F4F2EE] dark:bg-[#141518] text-[#18181B] dark:text-[#EFECE5] focus:outline-none focus:border-[#E1500A] cursor-pointer"
+                className="w-full text-xs font-semibold p-3 rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-[#D86F35]/40 cursor-pointer shadow-xs"
               >
                 <option value="direct">Directa (0% comisiones)</option>
                 <option value="airbnb">Airbnb</option>

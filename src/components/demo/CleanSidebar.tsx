@@ -115,7 +115,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
       {/* Top Header & Brand */}
       <div>
         {/* Brand Block */}
-        <div className="p-4 border-b border-[#C8C4B7] dark:border-[#222328] space-y-3">
+        <div className="p-4 border-b border-stone-200/70 dark:border-zinc-800/70 space-y-3">
           {/* Official Loomi Suite Brand */}
           <div className="flex items-center justify-between">
             <LoomiLogo size="sm" theme={isDark ? 'dark' : 'light'} />
@@ -123,7 +123,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               {isMobileOpen && onMobileClose && (
                 <button
                   onClick={onMobileClose}
-                  className="p-1 text-[#71717A] dark:text-[#8E8E93] hover:bg-[#DCD8CE] dark:hover:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] rounded-none transition-colors lg:hidden mr-1 cursor-pointer"
+                  className="p-1 text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-zinc-800 border border-stone-200 dark:border-zinc-700 rounded-xl transition-colors lg:hidden mr-1 cursor-pointer"
                   title="Cerrar menú"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -131,18 +131,18 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               )}
               <button
                 onClick={onToggleTheme}
-                className="p-1.5 rounded-none text-[#71717A] dark:text-[#8E8E93] hover:bg-[#DCD8CE] dark:hover:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] transition-colors cursor-pointer"
+                className="p-1.5 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-zinc-800 border border-stone-200/80 dark:border-zinc-800 transition-colors cursor-pointer"
                 title={isDark ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
               >
                 {isDark ? (
-                  <Sun className="w-3.5 h-3.5 text-[#E1500A]" />
+                  <Sun className="w-3.5 h-3.5 text-amber-400" />
                 ) : (
-                  <Moon className="w-3.5 h-3.5 text-[#18181B]" />
+                  <Moon className="w-3.5 h-3.5 text-stone-600" />
                 )}
               </button>
               <button
                 onClick={onBackToLanding}
-                className="text-[11px] font-black uppercase tracking-wider text-[#71717A] hover:text-[#E1500A] dark:hover:text-white transition-colors px-2 py-1 rounded-none border border-[#C8C4B7] dark:border-[#222328] hover:bg-[#DCD8CE] dark:hover:bg-[#18181B] cursor-pointer"
+                className="text-[11px] font-semibold text-stone-600 hover:text-[#E67E22] dark:text-stone-300 dark:hover:text-white transition-colors px-2.5 py-1 rounded-xl border border-stone-200/80 dark:border-zinc-800 hover:bg-stone-50 dark:hover:bg-zinc-800 cursor-pointer"
                 title="Volver a la portada"
               >
                 Web ↗
@@ -150,18 +150,18 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
             </div>
           </div>
 
-          <div className="pt-2 border-t border-[#C8C4B7] dark:border-[#222328]">
-            <h1 className="text-xs font-black text-[#18181B] dark:text-white truncate leading-tight tracking-tight uppercase">
+          <div className="pt-2 border-t border-stone-200/70 dark:border-zinc-800/70">
+            <h1 className="text-xs font-bold text-stone-800 dark:text-stone-100 truncate leading-tight tracking-tight">
               {complexName || 'Catalinas Apartamentos'}
             </h1>
-            <p className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] truncate">Gestión de alquileres</p>
+            <p className="text-[10px] text-stone-400 dark:text-stone-500 truncate font-medium">Gestión hotelera & cabañas</p>
           </div>
 
           {/* User / Role Selector */}
-          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-2 border border-[#C8C4B7] dark:border-[#222328] space-y-1.5">
-            <div className="text-[9px] uppercase font-black text-[#71717A] dark:text-[#8E8E93] tracking-widest px-0.5 flex items-center justify-between">
+          <div className="bg-white dark:bg-[#18191E] rounded-2xl p-3 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_2px_8px_rgba(0,0,0,0.015)] space-y-2">
+            <div className="text-[9px] uppercase font-bold text-stone-400 dark:text-stone-500 tracking-wider px-0.5 flex items-center justify-between">
               <span>Acceso de Usuario</span>
-              {loggedUser && <span className="w-1.5 h-1.5 rounded-full bg-[#E1500A] animate-pulse" title="Sesión sincronizada" />}
+              {loggedUser && <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22] animate-pulse" title="Sesión sincronizada" />}
             </div>
             
             <select
@@ -173,7 +173,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                   onToggleEmployeeMode();
                 }
               }}
-              className="w-full text-[11px] font-bold bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white py-1 px-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] focus:outline-none cursor-pointer"
+              className="w-full text-xs font-medium bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-200 py-1.5 px-2.5 rounded-xl border border-stone-200/80 dark:border-zinc-700 focus:outline-none cursor-pointer"
             >
               <option value="admin">👑 Administrador / Dueño</option>
               <option value="frontdesk">🛎️ Recepción / Front Desk</option>
@@ -181,13 +181,13 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
             </select>
 
             {loggedUser ? (
-              <div className="pt-1.5 border-t border-[#C8C4B7] dark:border-[#222328] text-[10px] text-[#71717A] dark:text-[#8E8E93] flex flex-col gap-0.5 px-0.5">
-                <span className="truncate text-[#18181B] dark:text-white font-black">{loggedUser.name}</span>
-                <span className="truncate text-[9px] text-[#71717A] dark:text-[#8E8E93]">{loggedUser.email}</span>
+              <div className="pt-2 border-t border-stone-100 dark:border-zinc-800 text-[10px] text-stone-500 dark:text-stone-400 flex flex-col gap-0.5 px-0.5">
+                <span className="truncate text-stone-800 dark:text-stone-200 font-semibold">{loggedUser.name}</span>
+                <span className="truncate text-[9px] text-stone-400 dark:text-stone-500">{loggedUser.email}</span>
                 {onLogout && (
                   <button
                     onClick={onLogout}
-                    className="mt-1.5 text-left text-[9px] font-black text-[#E1500A] hover:underline cursor-pointer flex items-center gap-1"
+                    className="mt-1 text-left text-[9px] font-semibold text-[#E67E22] hover:underline cursor-pointer flex items-center gap-1"
                   >
                     <span>Cerrar sesión</span>
                     <span>↩</span>
@@ -198,9 +198,9 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               onOpenLogin && (
                 <button
                   onClick={onOpenLogin}
-                  className="w-full mt-1 px-2 py-1.5 bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] hover:bg-[#E1500A] dark:hover:bg-[#E1500A] dark:hover:text-white text-[10px] font-black rounded-none transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                  className="w-full mt-1 px-2.5 py-1.5 bg-stone-800 dark:bg-zinc-700 text-white hover:bg-[#E67E22] dark:hover:bg-[#E67E22] text-[10px] font-semibold rounded-xl transition-colors flex items-center justify-center gap-1 cursor-pointer"
                 >
-                  <span>🔑 Sincronizar Cuenta / Celular</span>
+                  <span>🔑 Sincronizar Cuenta</span>
                 </button>
               )
             )}
@@ -209,60 +209,60 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
       </div>
 
       {/* 3 Main Expandable Work Groups */}
-      <div className="p-3 space-y-3.5 flex-1">
+      <div className="p-3 space-y-3 flex-1">
 
         {/* ============================================================ */}
         {/* GRUPO 1: RESERVAS, HUÉSPEDES & WEB */}
         {/* ============================================================ */}
-        <div className="border border-[#C8C4B7] dark:border-[#222328] bg-white/40 dark:bg-[#121316]/60 transition-colors">
+        <div className="border border-stone-200/70 dark:border-zinc-800/70 bg-white dark:bg-[#18191E] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.015)] overflow-hidden transition-colors">
           {/* Group Header Button */}
           <button
             onClick={() => toggleGroup('reservations')}
-            className={`w-full flex items-center justify-between p-2.5 text-left transition-colors cursor-pointer ${
+            className={`w-full flex items-center justify-between p-3 text-left transition-colors cursor-pointer ${
               openGroups.reservations
-                ? 'bg-[#DCD8CE]/50 dark:bg-[#18181B] border-b border-[#C8C4B7] dark:border-[#222328]'
-                : 'hover:bg-[#DCD8CE]/30 dark:hover:bg-[#18181B]/50'
+                ? 'bg-stone-50/70 dark:bg-zinc-800/40 border-b border-stone-100 dark:border-zinc-800'
+                : 'hover:bg-stone-50 dark:hover:bg-zinc-800/40'
             }`}
           >
-            <div className="flex items-center gap-2">
-              <div className={`p-1 rounded-none border ${
+            <div className="flex items-center gap-2.5">
+              <div className={`p-1.5 rounded-xl border ${
                 isReservationsActive
-                  ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white'
-                  : 'bg-[#EAE8E3] dark:bg-[#0C0D0F] text-[#71717A] dark:text-[#8E8E93] border-[#C8C4B7] dark:border-[#222328]'
+                  ? 'bg-orange-50 text-[#E67E22] border-orange-200/80 dark:bg-orange-950/40 dark:border-orange-900/40'
+                  : 'bg-stone-100 text-stone-400 dark:bg-zinc-800 dark:text-zinc-400 border-stone-200/60 dark:border-zinc-700'
               }`}>
                 <Calendar className="w-3.5 h-3.5" />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-black tracking-tight text-[#18181B] dark:text-white uppercase">
+                <span className="text-xs font-bold text-stone-800 dark:text-stone-100 tracking-tight">
                   Reservas & Huéspedes
                 </span>
-                <span className="text-[9px] font-bold text-[#71717A] dark:text-[#8E8E93]">
+                <span className="text-[10px] font-normal text-stone-400 dark:text-stone-500">
                   Ocupación, web y estadías
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-1.5">
               {isReservationsActive && !openGroups.reservations && (
-                <span className="w-2 h-2 bg-[#E1500A] rounded-full" title="Sección activa" />
+                <span className="w-2 h-2 bg-[#E67E22] rounded-full" title="Sección activa" />
               )}
               {openGroups.reservations ? (
-                <ChevronDown className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93]" />
+                <ChevronDown className="w-4 h-4 text-stone-400" />
               ) : (
-                <ChevronRight className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93]" />
+                <ChevronRight className="w-4 h-4 text-stone-400" />
               )}
             </div>
           </button>
 
           {/* Group Items Dropdown */}
           {openGroups.reservations && (
-            <div className="p-2 space-y-1 bg-[#EAE8E3]/30 dark:bg-[#0C0D0F]/40 animate-in fade-in-50 duration-150">
+            <div className="p-2 space-y-1 bg-white dark:bg-[#18191E] animate-in fade-in-50 duration-150">
               {/* Hoy */}
               <button
                 onClick={() => handleTabClick('overview')}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all text-left ${
                   activeTab === 'overview'
-                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
-                    : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
+                    ? 'bg-orange-50 text-[#E67E22] dark:bg-orange-950/40 font-semibold'
+                    : 'text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-zinc-800/50 font-medium'
                 }`}
               >
                 <LayoutDashboard className="w-3.5 h-3.5 shrink-0" />
@@ -277,22 +277,22 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                       onOpenNewReservation();
                       if (onMobileClose) onMobileClose();
                     }}
-                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-none text-xs font-black bg-[#E1500A] hover:bg-[#C94305] text-white transition-all text-left shadow-xs cursor-pointer active:scale-95 my-1"
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold bg-[#E67E22] hover:bg-[#D35400] text-white transition-all text-left shadow-xs cursor-pointer active:scale-95 my-1"
                   >
                     <span className="flex items-center gap-1.5">
                       <PlusCircle className="w-3.5 h-3.5" />
                       <span>Nueva Reserva</span>
                     </span>
-                    <span className="text-xs font-black">→</span>
+                    <span className="text-xs">→</span>
                   </button>
 
                   {/* Calendario */}
                   <button
                     onClick={() => handleTabClick('calendar')}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all text-left ${
                       activeTab === 'calendar'
-                        ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
-                        : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
+                        ? 'bg-orange-50 text-[#E67E22] dark:bg-orange-950/40 font-semibold'
+                        : 'text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-zinc-800/50 font-medium'
                     }`}
                   >
                     <Calendar className="w-3.5 h-3.5 shrink-0" />
@@ -302,10 +302,10 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                   {/* Lista de Reservas */}
                   <button
                     onClick={() => handleTabClick('bookings')}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all text-left ${
                       activeTab === 'bookings'
-                        ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
-                        : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
+                        ? 'bg-orange-50 text-[#E67E22] dark:bg-orange-950/40 font-semibold'
+                        : 'text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-zinc-800/50 font-medium'
                     }`}
                   >
                     <FileSpreadsheet className="w-3.5 h-3.5 shrink-0" />
@@ -315,10 +315,10 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                   {/* Avisos & WhatsApp */}
                   <button
                     onClick={() => handleTabClick('messages')}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all text-left ${
                       activeTab === 'messages'
-                        ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
-                        : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
+                        ? 'bg-orange-50 text-[#E67E22] dark:bg-orange-950/40 font-semibold'
+                        : 'text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-zinc-800/50 font-medium'
                     }`}
                   >
                     <MessageSquare className="w-3.5 h-3.5 shrink-0" />
@@ -328,10 +328,10 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                   {/* Opcionales */}
                   <button
                     onClick={() => handleTabClick('addons')}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all text-left ${
                       activeTab === 'addons'
-                        ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
-                        : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
+                        ? 'bg-orange-50 text-[#E67E22] dark:bg-orange-950/40 font-semibold'
+                        : 'text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-zinc-800/50 font-medium'
                     }`}
                   >
                     <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
@@ -343,17 +343,17 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               {/* Tu Web & Guía Huésped */}
               <button
                 onClick={() => handleTabClick('welcome-guide')}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all text-left ${
                   activeTab === 'welcome-guide'
-                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
-                    : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
+                    ? 'bg-orange-50 text-[#E67E22] dark:bg-orange-950/40 font-semibold'
+                    : 'text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-zinc-800/50 font-medium'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
                   <Globe className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
                   <span>Tu Web & Guía</span>
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60 px-1 py-0.2 border border-emerald-300 dark:border-emerald-800">
+                <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
                   Web
                 </span>
               </button>
@@ -364,60 +364,60 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
         {/* ============================================================ */}
         {/* GRUPO 2: HOUSEKEEPING */}
         {/* ============================================================ */}
-        <div className="border border-[#C8C4B7] dark:border-[#222328] bg-white/40 dark:bg-[#121316]/60 transition-colors">
+        <div className="border border-stone-200/70 dark:border-zinc-800/70 bg-white dark:bg-[#18191E] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.015)] overflow-hidden transition-colors">
           {/* Group Header Button */}
           <button
             onClick={() => toggleGroup('housekeeping')}
-            className={`w-full flex items-center justify-between p-2.5 text-left transition-colors cursor-pointer ${
+            className={`w-full flex items-center justify-between p-3 text-left transition-colors cursor-pointer ${
               openGroups.housekeeping
-                ? 'bg-[#DCD8CE]/50 dark:bg-[#18181B] border-b border-[#C8C4B7] dark:border-[#222328]'
-                : 'hover:bg-[#DCD8CE]/30 dark:hover:bg-[#18181B]/50'
+                ? 'bg-stone-50/70 dark:bg-zinc-800/40 border-b border-stone-100 dark:border-zinc-800'
+                : 'hover:bg-stone-50 dark:hover:bg-zinc-800/40'
             }`}
           >
-            <div className="flex items-center gap-2">
-              <div className={`p-1 rounded-none border ${
+            <div className="flex items-center gap-2.5">
+              <div className={`p-1.5 rounded-xl border ${
                 isHousekeepingActive
-                  ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white'
-                  : 'bg-[#EAE8E3] dark:bg-[#0C0D0F] text-[#71717A] dark:text-[#8E8E93] border-[#C8C4B7] dark:border-[#222328]'
+                  ? 'bg-orange-50 text-[#E67E22] border-orange-200/80 dark:bg-orange-950/40 dark:border-orange-900/40'
+                  : 'bg-stone-100 text-stone-400 dark:bg-zinc-800 dark:text-zinc-400 border-stone-200/60 dark:border-zinc-700'
               }`}>
                 <Sparkles className="w-3.5 h-3.5" />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-black tracking-tight text-[#18181B] dark:text-white uppercase">
+                <span className="text-xs font-bold text-stone-800 dark:text-stone-100 tracking-tight">
                   Housekeeping
                 </span>
-                <span className="text-[9px] font-bold text-[#71717A] dark:text-[#8E8E93]">
+                <span className="text-[10px] font-normal text-stone-400 dark:text-stone-500">
                   Limpieza & Mantenimiento
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-1.5">
               {pendingCleaningsCount > 0 && (
-                <span className="bg-[#E1500A] text-white text-[9px] font-black px-1.5 py-0.2 rounded-none">
+                <span className="bg-orange-100 text-[#E67E22] text-[10px] font-semibold px-2 py-0.5 rounded-full">
                   {pendingCleaningsCount}
                 </span>
               )}
               {isHousekeepingActive && !openGroups.housekeeping && !pendingCleaningsCount && (
-                <span className="w-2 h-2 bg-[#E1500A] rounded-full" title="Sección activa" />
+                <span className="w-2 h-2 bg-[#E67E22] rounded-full" title="Sección activa" />
               )}
               {openGroups.housekeeping ? (
-                <ChevronDown className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93]" />
+                <ChevronDown className="w-4 h-4 text-stone-400" />
               ) : (
-                <ChevronRight className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93]" />
+                <ChevronRight className="w-4 h-4 text-stone-400" />
               )}
             </div>
           </button>
 
           {/* Group Items Dropdown */}
           {openGroups.housekeeping && (
-            <div className="p-2 space-y-1 bg-[#EAE8E3]/30 dark:bg-[#0C0D0F]/40 animate-in fade-in-50 duration-150">
+            <div className="p-2 space-y-1 bg-white dark:bg-[#18191E] animate-in fade-in-50 duration-150">
               {/* Agenda Limpiezas */}
               <button
                 onClick={() => handleTabClick('housekeeping')}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all text-left ${
                   activeTab === 'housekeeping'
-                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
-                    : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
+                    ? 'bg-orange-50 text-[#E67E22] dark:bg-orange-950/40 font-semibold'
+                    : 'text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-zinc-800/50 font-medium'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
@@ -425,7 +425,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                   <span>Agenda Limpiezas</span>
                 </div>
                 {pendingCleaningsCount > 0 && (
-                  <span className="bg-[#E1500A] text-white text-[10px] font-black px-1.5 py-0.5 rounded-none">
+                  <span className="bg-orange-100 text-[#E67E22] text-[10px] font-semibold px-2 py-0.5 rounded-full">
                     {pendingCleaningsCount}
                   </span>
                 )}
@@ -434,10 +434,10 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               {/* Xenia Copilot */}
               <button
                 onClick={() => handleTabClick('xenia')}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all text-left ${
                   activeTab === 'xenia'
-                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
-                    : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
+                    ? 'bg-orange-50 text-[#E67E22] dark:bg-orange-950/40 font-semibold'
+                    : 'text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-zinc-800/50 font-medium'
                 }`}
               >
                 <XeniaAvatar size="xs" showStatus={false} />
@@ -451,55 +451,55 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
         {/* GRUPO 3: ADMINISTRACIÓN */}
         {/* ============================================================ */}
         {userRole !== 'housekeeping' && (
-          <div className="border border-[#C8C4B7] dark:border-[#222328] bg-white/40 dark:bg-[#121316]/60 transition-colors">
+          <div className="border border-stone-200/70 dark:border-zinc-800/70 bg-white dark:bg-[#18191E] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.015)] overflow-hidden transition-colors">
             {/* Group Header Button */}
             <button
               onClick={() => toggleGroup('admin')}
-              className={`w-full flex items-center justify-between p-2.5 text-left transition-colors cursor-pointer ${
+              className={`w-full flex items-center justify-between p-3 text-left transition-colors cursor-pointer ${
                 openGroups.admin
-                  ? 'bg-[#DCD8CE]/50 dark:bg-[#18181B] border-b border-[#C8C4B7] dark:border-[#222328]'
-                  : 'hover:bg-[#DCD8CE]/30 dark:hover:bg-[#18181B]/50'
+                  ? 'bg-stone-50/70 dark:bg-zinc-800/40 border-b border-stone-100 dark:border-zinc-800'
+                  : 'hover:bg-stone-50 dark:hover:bg-zinc-800/40'
               }`}
             >
-              <div className="flex items-center gap-2">
-                <div className={`p-1 rounded-none border ${
+              <div className="flex items-center gap-2.5">
+                <div className={`p-1.5 rounded-xl border ${
                   isAdminActive
-                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white'
-                    : 'bg-[#EAE8E3] dark:bg-[#0C0D0F] text-[#71717A] dark:text-[#8E8E93] border-[#C8C4B7] dark:border-[#222328]'
+                    ? 'bg-orange-50 text-[#E67E22] border-orange-200/80 dark:bg-orange-950/40 dark:border-orange-900/40'
+                    : 'bg-stone-100 text-stone-400 dark:bg-zinc-800 dark:text-zinc-400 border-stone-200/60 dark:border-zinc-700'
                 }`}>
                   <DollarSign className="w-3.5 h-3.5" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-black tracking-tight text-[#18181B] dark:text-white uppercase">
+                  <span className="text-xs font-bold text-stone-800 dark:text-stone-100 tracking-tight">
                     Administración
                   </span>
-                  <span className="text-[9px] font-bold text-[#71717A] dark:text-[#8E8E93]">
+                  <span className="text-[10px] font-normal text-stone-400 dark:text-stone-500">
                     Caja, métricas y unidades
                   </span>
                 </div>
               </div>
               <div className="flex items-center gap-1.5">
                 {isAdminActive && !openGroups.admin && (
-                  <span className="w-2 h-2 bg-[#E1500A] rounded-full" title="Sección activa" />
+                  <span className="w-2 h-2 bg-[#E67E22] rounded-full" title="Sección activa" />
                 )}
                 {openGroups.admin ? (
-                  <ChevronDown className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93]" />
+                  <ChevronDown className="w-4 h-4 text-stone-400" />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93]" />
+                  <ChevronRight className="w-4 h-4 text-stone-400" />
                 )}
               </div>
             </button>
 
             {/* Group Items Dropdown */}
             {openGroups.admin && (
-              <div className="p-2 space-y-1 bg-[#EAE8E3]/30 dark:bg-[#0C0D0F]/40 animate-in fade-in-50 duration-150">
+              <div className="p-2 space-y-1 bg-white dark:bg-[#18191E] animate-in fade-in-50 duration-150">
                 {/* Caja Chica */}
                 <button
                   onClick={() => handleTabClick('cash-drawer')}
-                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
+                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all text-left ${
                     activeTab === 'cash-drawer'
-                      ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
-                      : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
+                      ? 'bg-orange-50 text-[#E67E22] dark:bg-orange-950/40 font-semibold'
+                      : 'text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-zinc-800/50 font-medium'
                   }`}
                 >
                   <TrendingDown className="w-3.5 h-3.5 shrink-0" />
@@ -511,10 +511,10 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                     {/* Rendimiento */}
                     <button
                       onClick={() => handleTabClick('finances')}
-                      className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all text-left ${
                         activeTab === 'finances'
-                          ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
-                          : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
+                          ? 'bg-orange-50 text-[#E67E22] dark:bg-orange-950/40 font-semibold'
+                          : 'text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-zinc-800/50 font-medium'
                       }`}
                     >
                       <DollarSign className="w-3.5 h-3.5 shrink-0" />
@@ -524,10 +524,10 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                     {/* Unidades */}
                     <button
                       onClick={() => handleTabClick('properties')}
-                      className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold transition-all text-left border ${
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all text-left ${
                         activeTab === 'properties'
-                          ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
-                          : 'text-[#18181B] dark:text-[#EFECE5] bg-transparent border-transparent hover:border-[#C8C4B7] dark:hover:border-[#222328] hover:bg-[#DCD8CE]/40 dark:hover:bg-[#18181B]'
+                          ? 'bg-orange-50 text-[#E67E22] dark:bg-orange-950/40 font-semibold'
+                          : 'text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-zinc-800/50 font-medium'
                       }`}
                     >
                       <Building2 className="w-3.5 h-3.5 shrink-0" />
@@ -541,7 +541,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                           onOpenOnboardingWizard();
                           if (onMobileClose) onMobileClose();
                         }}
-                        className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs font-bold text-[#E1500A] hover:bg-[#E1500A] hover:text-white transition-colors text-left border border-[#E1500A]/40 mt-1 cursor-pointer"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#E67E22] hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-colors text-left border border-orange-200/80 dark:border-orange-900/40 mt-1 cursor-pointer"
                       >
                         <Sliders className="w-3.5 h-3.5 shrink-0" />
                         <span>Configurar Deptos</span>
@@ -557,38 +557,38 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
       </div>
 
       {/* Bottom Footer: Switcher & Theme Control */}
-      <div className="p-3 border-t border-[#C8C4B7] dark:border-[#222328] bg-[#EAE8E3] dark:bg-[#0C0D0F] space-y-2.5">
+      <div className="p-4 border-t border-stone-200/70 dark:border-zinc-800/70 bg-white/60 dark:bg-[#101114]/60 space-y-3">
         {/* Quick Theme Switcher Pill in Footer */}
         <button
           onClick={onToggleTheme}
-          className="w-full py-1.5 px-2.5 rounded-none bg-white dark:bg-[#18181B] border border-[#C8C4B7] dark:border-[#222328] text-xs font-black text-[#18181B] dark:text-white hover:border-[#E1500A] flex items-center justify-between transition-colors shadow-2xs cursor-pointer"
+          className="w-full py-2 px-3 rounded-xl bg-stone-50 dark:bg-zinc-800/70 border border-stone-200/80 dark:border-zinc-700 text-xs font-medium text-stone-700 dark:text-stone-200 hover:border-orange-300 flex items-center justify-between transition-colors shadow-2xs cursor-pointer"
         >
           <div className="flex items-center gap-2">
             {isDark ? (
-              <Moon className="w-3.5 h-3.5 text-[#E1500A]" />
+              <Moon className="w-3.5 h-3.5 text-amber-400" />
             ) : (
-              <Sun className="w-3.5 h-3.5 text-[#E1500A]" />
+              <Sun className="w-3.5 h-3.5 text-[#E67E22]" />
             )}
             <span>{isDark ? 'Modo Oscuro' : 'Modo Claro'}</span>
           </div>
-          <span className="text-[10px] text-[#71717A] dark:text-[#8E8E93] bg-[#EAE8E3] dark:bg-[#0C0D0F] px-1.5 py-0.5 rounded-none font-mono">
+          <span className="text-[10px] text-stone-400 dark:text-stone-400 bg-white dark:bg-zinc-800 px-2 py-0.5 rounded-full font-sans">
             {isDark ? 'Oscuro' : 'Claro'}
           </span>
         </button>
 
         {/* Complex / Tier Selector */}
-        <div className="space-y-1 px-1">
-          <div className="flex items-center justify-between text-[11px] text-[#71717A] dark:text-[#8E8E93] font-bold">
+        <div className="space-y-1.5 px-1">
+          <div className="flex items-center justify-between text-[11px] text-stone-400 dark:text-stone-400 font-medium">
             <span>Escenario Demo:</span>
-            <span className="text-[10px] font-mono text-[#E1500A]">1 Clic</span>
+            <span className="text-[10px] font-semibold text-[#E67E22]">1 Clic</span>
           </div>
-          <div className="grid grid-cols-2 gap-1">
+          <div className="grid grid-cols-2 gap-1.5">
             <button
               onClick={() => onSwitchComplex('woodcabin')}
-              className={`px-2 py-1 rounded-lg text-[10px] font-black transition-all flex items-center justify-center gap-1 cursor-pointer ${
+              className={`px-2.5 py-1.5 rounded-xl text-[10px] font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer ${
                 activeComplex === 'woodcabin'
-                  ? 'bg-[#E1500A] text-white shadow-xs'
-                  : 'bg-white/80 dark:bg-[#18181B] text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white border border-[#C8C4B7] dark:border-[#222328]'
+                  ? 'bg-[#E67E22] text-white shadow-xs'
+                  : 'bg-stone-50 dark:bg-zinc-800 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white border border-stone-200/80 dark:border-zinc-700'
               }`}
               title="Plan Inicial: Cabañas & Glampings (5 a 10 unidades • $45k)"
             >
@@ -596,10 +596,10 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
             </button>
             <button
               onClick={() => onSwitchComplex('catalinas')}
-              className={`px-2 py-1 rounded-lg text-[10px] font-black transition-all flex items-center justify-center gap-1 cursor-pointer ${
+              className={`px-2.5 py-1.5 rounded-xl text-[10px] font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer ${
                 activeComplex === 'catalinas'
-                  ? 'bg-[#E1500A] text-white shadow-xs'
-                  : 'bg-white/80 dark:bg-[#18181B] text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white border border-[#C8C4B7] dark:border-[#222328]'
+                  ? 'bg-[#E67E22] text-white shadow-xs'
+                  : 'bg-stone-50 dark:bg-zinc-800 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white border border-stone-200/80 dark:border-zinc-700'
               }`}
               title="Plan Escala: Complejos & Aparts (15 a 20 unidades • $60k)"
             >
@@ -609,7 +609,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
           {activeComplex === 'custom' && (
             <button
               onClick={() => onSwitchComplex('custom')}
-              className="w-full mt-1 px-2 py-1 rounded-lg text-[10px] font-black bg-emerald-600 text-white shadow-xs"
+              className="w-full mt-1 px-2.5 py-1.5 rounded-xl text-[10px] font-semibold bg-emerald-600 text-white shadow-xs"
             >
               ✨ Mi Complejo Real
             </button>
@@ -617,16 +617,16 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
         </div>
 
         {/* Back to landing */}
-        <div className="flex flex-col gap-1.5 pt-1 text-[10px] text-[#71717A] dark:text-[#8E8E93]">
+        <div className="flex flex-col gap-1.5 pt-1 text-[10px] text-stone-400 dark:text-stone-500">
           <div className="flex items-center justify-between">
             <button
               onClick={onBackToLanding}
-              className="hover:text-[#E1500A] transition-colors flex items-center gap-1 font-black"
+              className="hover:text-[#E67E22] transition-colors flex items-center gap-1 font-semibold"
             >
               <LogOut className="w-3 h-3" />
               <span>Volver a la Portada</span>
             </button>
-            <span className="font-bold">v2.2</span>
+            <span className="font-mono">v2.2</span>
           </div>
         </div>
       </div>
@@ -636,7 +636,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
   return (
     <>
       {/* Desktop & Laptop Persistent Sidebar (Permanently Visible) */}
-      <aside className="hidden md:flex w-60 xl:w-64 shrink-0 bg-[#EAE8E3] dark:bg-[#0C0D0F] text-[#18181B] dark:text-[#EFECE5] border-r border-[#C8C4B7] dark:border-[#222328] flex-col justify-between h-screen sticky top-0 select-none overflow-y-auto z-30 font-sans transition-colors">
+      <aside className="hidden md:flex w-60 xl:w-64 shrink-0 bg-[#F4F1EB] dark:bg-[#0E0F12] text-stone-800 dark:text-stone-100 border-r border-stone-200/80 dark:border-zinc-800/80 flex-col justify-between h-screen sticky top-0 select-none overflow-y-auto z-30 font-sans transition-colors">
         {renderSidebarContent()}
       </aside>
 
@@ -646,11 +646,11 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
           {/* Blur Backdrop */}
           <div
             onClick={onMobileClose}
-            className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
           />
 
           {/* Drawer content */}
-          <aside className="relative w-64 h-full bg-[#EAE8E3] dark:bg-[#0C0D0F] text-[#18181B] dark:text-[#EFECE5] border-r border-[#C8C4B7] dark:border-[#222328] flex flex-col justify-between select-none overflow-y-auto font-sans transition-colors shadow-2xl animate-in slide-in-from-left duration-250">
+          <aside className="relative w-64 h-full bg-[#F4F1EB] dark:bg-[#0E0F12] text-stone-800 dark:text-stone-100 border-r border-stone-200/80 dark:border-zinc-800/80 flex-col justify-between select-none overflow-y-auto font-sans transition-colors shadow-2xl animate-in slide-in-from-left duration-250">
             {renderSidebarContent()}
           </aside>
         </div>

@@ -928,8 +928,8 @@ export default function App() {
           }
         />
       ) : (
-        /* CLEAN ARCHITECTURAL MONOCHROMATIC PMS DASHBOARD VIEW */
-        <div className="min-h-screen flex bg-[#ECEAE4] dark:bg-[#0E0F12] text-[#18181B] dark:text-[#EFECE5] font-sans transition-colors">
+        /* CLEAN ZEN / OMOTENASHI ARCHITECTURAL PMS DASHBOARD VIEW */
+        <div className="min-h-screen flex bg-[#F8F9FA] dark:bg-[#0E0F12] text-stone-800 dark:text-stone-100 font-sans transition-colors">
           {/* Minimalist Sidebar */}
           <CleanSidebar
             activeTab={demoTab}
@@ -976,27 +976,30 @@ export default function App() {
           />
 
           {/* Main Content Area */}
-          <div className="flex-1 flex flex-col min-w-0 bg-[#ECEAE4] dark:bg-[#0E0F12] overflow-y-auto transition-colors">
+          <div className="flex-1 flex flex-col min-w-0 bg-[#F8F9FA] dark:bg-[#0E0F12] overflow-y-auto transition-colors">
             {/* Minimalist Architectural Top Sub-bar with fast actions & status */}
-            <div className="h-12 border-b border-[#C8C4B7] dark:border-[#222328] px-3 sm:px-6 flex items-center justify-between bg-[#EAE8E3]/95 dark:bg-[#0C0D0F]/95 sticky top-0 z-20 backdrop-blur-xs transition-colors">
+            <div className="h-14 border-b border-stone-200/80 dark:border-zinc-800/80 px-4 sm:px-6 flex items-center justify-between bg-white/80 dark:bg-[#0E0F12]/80 sticky top-0 z-20 backdrop-blur-md transition-colors">
               <div className="flex items-center gap-2 sm:gap-3">
                 <button
                   onClick={() => setIsMobileSidebarOpen(true)}
-                  className="md:hidden px-2.5 py-1 rounded-xl text-xs font-black text-[#18181B] dark:text-white bg-white dark:bg-[#18181B] hover:border-[#E1500A] border border-[#C8C4B7] dark:border-[#282B33] transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  className="md:hidden px-2.5 py-1.5 rounded-xl text-xs font-semibold text-stone-700 dark:text-stone-200 bg-stone-50 dark:bg-zinc-800 hover:border-orange-300 border border-stone-200/80 dark:border-zinc-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
                   title="Abrir menú de navegación"
                 >
-                  <Menu className="w-4 h-4 text-[#E1500A]" />
+                  <Menu className="w-4 h-4 text-[#E67E22]" />
                   <span>Menú</span>
                 </button>
-                <span className="text-xs font-bold text-[#71717A] dark:text-[#8E8E93] truncate max-w-[140px] sm:max-w-none">
-                  {activeComplex === 'catalinas'
-                    ? 'Catalinas Apartamentos (CABA)'
-                    : activeComplex === 'woodcabin'
-                    ? 'Tu Complejo (Buenos Aires)'
-                    : 'Mi Complejo Real'}
-                </span>
-                <span className="text-[#C8C4B7] dark:text-[#222328]">/</span>
-                <span className="text-xs font-black text-[#18181B] dark:text-white uppercase tracking-wider">
+                <div className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" />
+                  <span className="text-xs font-medium text-stone-500 dark:text-stone-400 truncate max-w-[140px] sm:max-w-none">
+                    {activeComplex === 'catalinas'
+                      ? 'Catalinas Apartamentos (CABA)'
+                      : activeComplex === 'woodcabin'
+                      ? 'Tu Complejo (Buenos Aires)'
+                      : 'Mi Complejo Real'}
+                  </span>
+                </div>
+                <span className="text-stone-300 dark:text-zinc-700">/</span>
+                <span className="text-xs font-semibold text-stone-800 dark:text-stone-200 tracking-tight">
                   {demoTab === 'overview'
                     ? 'Hoy'
                     : demoTab === 'calendar'
@@ -1017,33 +1020,33 @@ export default function App() {
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-2.5">
                 {/* Switch to Mobile Light View */}
                 <button
                   onClick={() => handleSetMobileMode('light')}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-none text-xs font-black bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-white hover:border-[#E1500A] transition-colors cursor-pointer shadow-2xs"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 text-stone-700 dark:text-stone-200 hover:border-orange-300 hover:text-[#E67E22] transition-colors cursor-pointer shadow-2xs"
                   title="Cambiar a Versión Celular Light"
                 >
-                  <Smartphone className="w-3.5 h-3.5 text-[#E1500A]" />
-                  <span className="hidden sm:inline">Modo Móvil Light</span>
+                  <Smartphone className="w-3.5 h-3.5 text-[#E67E22]" />
+                  <span className="hidden sm:inline">Modo Celular Zen</span>
                   <span className="sm:hidden">Light</span>
                 </button>
 
                 {/* Visible Light / Dark Switcher in top sub-bar */}
                 <button
                   onClick={toggleTheme}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-none text-xs font-black bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-white hover:border-[#E1500A] transition-colors cursor-pointer shadow-2xs"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-zinc-900 border border-stone-200/80 dark:border-zinc-800 text-stone-700 dark:text-stone-200 hover:border-stone-300 transition-colors cursor-pointer shadow-2xs"
                   title="Cambiar tema"
                 >
                   {theme === 'dark' ? (
                     <>
-                      <Sun className="w-3.5 h-3.5 text-[#E1500A]" />
-                      <span>Modo Claro</span>
+                      <Sun className="w-3.5 h-3.5 text-amber-400" />
+                      <span className="hidden sm:inline">Modo Claro</span>
                     </>
                   ) : (
                     <>
-                      <Moon className="w-3.5 h-3.5 text-[#18181B]" />
-                      <span>Modo Oscuro</span>
+                      <Moon className="w-3.5 h-3.5 text-stone-600" />
+                      <span className="hidden sm:inline">Modo Oscuro</span>
                     </>
                   )}
                 </button>
@@ -1052,20 +1055,20 @@ export default function App() {
                   <>
                     <button
                       onClick={handleResetData}
-                      className="text-[11px] font-bold text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white transition-colors cursor-pointer"
+                      className="text-xs font-medium text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors cursor-pointer hidden md:inline"
                     >
-                      Restablecer Muestra
+                      Restablecer
                     </button>
-                    <span className="text-[#C8C4B7] dark:text-[#222328]">|</span>
+                    <span className="text-stone-200 dark:text-zinc-800 hidden md:inline">|</span>
                     <button
                       onClick={() => {
                         setSelectedPlanForLead('Plan Cabañas & Deptos (Demo)');
                         setIsLeadModalOpen(true);
                       }}
-                      className="bg-white hover:bg-[#DCD8CE] text-[#18181B] dark:bg-[#18181B] dark:hover:bg-[#27272A] dark:text-white border border-[#C8C4B7] dark:border-[#222328] text-xs font-black px-2.5 py-1 rounded-none transition-colors cursor-pointer flex items-center gap-1 shadow-2xs uppercase tracking-wider"
+                      className="bg-white hover:bg-stone-50 text-stone-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-stone-200 border border-stone-200/80 dark:border-zinc-800 text-xs font-medium px-3 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
                       title="Solicitar plan o activación real"
                     >
-                      <span>🚀 Solicitar Plan</span>
+                      <span>🚀 Plan</span>
                     </button>
                   </>
                 )}
@@ -1075,7 +1078,7 @@ export default function App() {
                     setInitialDateForRes(undefined);
                     setIsNewResModalOpen(true);
                   }}
-                  className="bg-[#E1500A] hover:bg-[#C94305] text-white text-xs font-black px-3 py-1 rounded-none transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs uppercase tracking-wider"
+                  className="bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-semibold px-3.5 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95"
                 >
                   <span>+ Nueva Reserva</span>
                 </button>

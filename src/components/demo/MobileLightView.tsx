@@ -2,18 +2,13 @@ import React, { useState, useRef } from 'react';
 import {
   Sun,
   Moon,
-  Calendar,
-  Sparkles,
   Users,
   Home,
   CheckCircle2,
-  Clock,
   Phone,
   MessageCircle,
   Plus,
   ArrowRight,
-  DollarSign,
-  ShieldCheck,
   Zap,
   Mic,
   MicOff,
@@ -22,25 +17,18 @@ import {
   Copy,
   Check,
   Search,
-  KeyRound,
   Wifi,
-  Sparkle,
-  Layers,
-  LayoutGrid,
   Laptop,
-  CheckCircle,
-  AlertTriangle,
-  RotateCcw,
   X,
   ExternalLink,
   CreditCard,
   Send,
   Navigation,
   Square,
-  StopCircle,
+  UserCheck,
 } from 'lucide-react';
 import { DemoState, Reservation, Property, ReservationStatus, PaymentStatus } from '../../types';
-import { formatDisplayDate, formatCurrency } from '../../data/initialData';
+import { formatDisplayDate } from '../../data/initialData';
 import { XeniaAvatar } from '../xenia/XeniaAvatar';
 import { useXeniaVoice } from '../../hooks/useXeniaVoice';
 import { getClientXeniaReply } from '../xenia/xeniaLocalEngine';
@@ -61,6 +49,24 @@ interface MobileLightViewProps {
   complexName: string;
 }
 
+function formatShortDateRange(checkIn: string, checkOut: string): string {
+  if (!checkIn || !checkOut) return '';
+  const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+  const pIn = checkIn.split('-');
+  const pOut = checkOut.split('-');
+  if (pIn.length === 3 && pOut.length === 3) {
+    const dIn = parseInt(pIn[2], 10);
+    const mIn = parseInt(pIn[1], 10) - 1;
+    const dOut = parseInt(pOut[2], 10);
+    const mOut = parseInt(pOut[1], 10) - 1;
+    if (mIn === mOut) {
+      return `${dIn} al ${dOut} ${months[mIn] || ''}`;
+    }
+    return `${dIn} ${months[mIn] || ''} al ${dOut} ${months[mOut] || ''}`;
+  }
+  return `${checkIn} al ${checkOut}`;
+}
+
 export const MobileLightView: React.FC<MobileLightViewProps> = ({
   demoState,
   onOpenReservationDetail,
@@ -76,7 +82,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
   complexName,
 }) => {
   // Mobile Active Tab: 'today' | 'units' | 'guests' | 'xenia' | 'more'
-  const [mobileTab, setMobileTab] = useState<'today' | 'units' | 'guests' | 'xenia' | 'more'>('today');
+  const [mobileTab, setMobileTab] = useState<'today' | 'units' | 'guests' | 'xenia' | 'more'>('guests');
   const [guestSearch, setGuestSearch] = useState('');
   const [copiedWifi, setCopiedWifi] = useState<string | null>(null);
 
@@ -134,7 +140,6 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
     setTranscript('');
     setIsXeniaLoading(true);
 
-    // Fast 1200ms timeout for remote API with instant local fallback
     const controller = new AbortController();
     abortControllerRef.current = controller;
     const timeoutId = setTimeout(() => controller.abort(), 1200);
@@ -174,7 +179,6 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
       }
     } catch {
       clearTimeout(timeoutId);
-      // Instant super-fast local engine response (0ms lag)
       const fallback = getClientXeniaReply(query, demoState);
       const asstId = `a-${Date.now()}`;
       setXeniaMessages((prev) => [...prev, { id: asstId, role: 'assistant', text: fallback }]);
@@ -228,14 +232,13 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
     setTimeout(() => setCopiedWifi(null), 2000);
   };
 
-  // Helper to build WhatsApp direct link with clean formatted message
+  // Helper to build WhatsApp direct link
   const buildWhatsAppLink = (phone: string, text: string) => {
-    const cleanPhone = (phone || '').replace(/[^\d]/g, '');
+    const cleanPhone = phone.replace(/\D/g, '');
     const encoded = encodeURIComponent(text);
     return `https://wa.me/${cleanPhone}?text=${encoded}`;
   };
 
-  // Active property of selected action modal
   const selectedActionProperty = selectedGuestAction
     ? demoState.properties.find((p) => p.id === selectedGuestAction.propertyId)
     : undefined;
@@ -257,20 +260,20 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
     : '';
 
   return (
-    <div className="min-h-screen bg-[#F4F2EE] dark:bg-[#090A0C] text-[#18181B] dark:text-[#EDE8DF] font-sans pb-24 transition-colors">
+    <div className="min-h-screen bg-[#ECE7E0] dark:bg-[#111215] text-[#2D3748] dark:text-[#E2E8F0] font-sans antialiased pb-28 transition-colors">
       {/* ========================================================================= */}
-      {/* 1. COMPACT LIGHT MOBILE TOP BAR                                           */}
+      {/* 1. HEADER ZEN & OMOTENASHI (COPIA EXACTA DE LA IMAGEN)                    */}
       {/* ========================================================================= */}
-      <header className="sticky top-0 z-30 bg-[#FAF8F5]/95 dark:bg-[#0E0F12]/95 backdrop-blur-md border-b border-[#C8C4B7]/60 dark:border-[#222328] px-4 py-2.5 flex items-center justify-between shadow-2xs">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-[#E1500A] text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
+      <header className="sticky top-0 z-30 bg-[#ECE7E0]/95 dark:bg-[#111215]/95 backdrop-blur-md px-4 pt-3.5 pb-2.5 flex items-center justify-between border-b border-[#DDD7CD]/50 dark:border-zinc-800/60">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-full bg-[#DDD7CD] dark:bg-zinc-800 text-gray-800 dark:text-gray-200 flex items-center justify-center font-bold text-base shrink-0 shadow-2xs">
             L
           </div>
           <div className="min-w-0">
-            <h1 className="text-xs font-black text-[#18181B] dark:text-white truncate">
+            <h1 className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate tracking-tight">
               {complexName}
             </h1>
-            <p className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] truncate">
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium truncate">
               {capitalizedDate}
             </p>
           </div>
@@ -280,23 +283,22 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
           {/* Switch to Full / Desktop view */}
           <button
             onClick={onSwitchToFullView}
-            className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-xs hover:bg-[#E1500A] dark:hover:bg-[#E1500A] dark:hover:text-white active:scale-95 transition-all cursor-pointer"
+            className="w-9 h-9 rounded-xl bg-[#DDD7CD]/70 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 flex items-center justify-center hover:bg-[#DDD7CD] transition-colors cursor-pointer"
             title="Cambiar a Vista Completa (Escritorio)"
           >
-            <Laptop className="w-3.5 h-3.5 text-[#FF7A38]" />
-            <span>Vista Completa</span>
+            <Laptop className="w-4 h-4 text-gray-700 dark:text-gray-300" />
           </button>
 
           {/* Dark / Light Mode Toggle */}
           <button
             onClick={onToggleTheme}
-            className="p-1.5 rounded-md bg-[#ECEAE4] dark:bg-[#18191D] border border-[#C8C4B7] dark:border-[#2E3038] text-[#18181B] dark:text-white active:scale-95 transition-all cursor-pointer"
+            className="w-9 h-9 rounded-xl bg-[#DDD7CD]/70 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 flex items-center justify-center hover:bg-[#DDD7CD] transition-colors cursor-pointer"
             title="Cambiar tema"
           >
             {theme === 'dark' ? (
-              <Sun className="w-3.5 h-3.5 text-[#E1500A]" />
+              <Sun className="w-4 h-4 text-[#D86F35]" />
             ) : (
-              <Moon className="w-3.5 h-3.5 text-[#18181B]" />
+              <Moon className="w-4 h-4 text-gray-700" />
             )}
           </button>
         </div>
@@ -305,375 +307,26 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
       {/* ========================================================================= */}
       {/* 2. MAIN CONTENT AREA (BY TAB)                                             */}
       {/* ========================================================================= */}
-      <main className="p-3.5 sm:p-4 max-w-lg mx-auto space-y-4 pb-28">
+      <main className="p-4 max-w-md mx-auto space-y-4">
         {/* ======================================================================= */}
-        {/* TAB 1: ☀️ HOY (Día a Día / Check-ins / Salidas / Limpieza)              */}
-        {/* ======================================================================= */}
-        {mobileTab === 'today' && (
-          <div className="space-y-4">
-            {/* Occupancy Status Banner */}
-            <div className="p-3.5 rounded-xl bg-white dark:bg-[#121316] border border-[#C8C4B7]/70 dark:border-[#222328] shadow-xs flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-[#71717A] dark:text-[#8E8E93] block">
-                  Ocupación Actual
-                </span>
-                <div className="flex items-baseline gap-2 mt-0.5">
-                  <span className="text-2xl font-black text-[#18181B] dark:text-white">
-                    {occupancyPercent}%
-                  </span>
-                  <span className="text-xs font-bold text-[#71717A] dark:text-[#8E8E93]">
-                    ({occupiedCount} de {totalUnits} unidades)
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={onOpenNewReservation}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#E1500A] text-white text-xs font-bold shadow-sm shadow-[#E1500A]/30 active:scale-95 transition-all cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Nueva Reserva</span>
-              </button>
-            </div>
-
-            {/* QUICK ACTIONS BAR (ATAJOS DIRECTOS EN PANTALLA) */}
-            <div className="p-3 rounded-xl bg-white dark:bg-[#141518] border border-[#C8C4B7]/70 dark:border-[#24262E] shadow-2xs space-y-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#71717A] dark:text-[#8E8E93] flex items-center gap-1">
-                <Zap className="w-3 h-3 text-[#E1500A]" />
-                <span>Atajos Rápidos</span>
-              </span>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  onClick={onOpenNewReservation}
-                  className="p-2.5 rounded-lg bg-zinc-100 dark:bg-[#1E2025] hover:bg-zinc-200 dark:hover:bg-[#282A31] border border-zinc-200 dark:border-[#2D3039] text-zinc-900 dark:text-zinc-100 text-[11px] font-bold flex flex-col items-center gap-1 active:scale-95 transition-all cursor-pointer text-center"
-                >
-                  <Plus className="w-4 h-4 text-[#E1500A]" />
-                  <span>+ Reserva</span>
-                </button>
-
-                <button
-                  onClick={() => setMobileTab('guests')}
-                  className="p-2.5 rounded-lg bg-zinc-100 dark:bg-[#1E2025] hover:bg-zinc-200 dark:hover:bg-[#282A31] border border-zinc-200 dark:border-[#2D3039] text-zinc-900 dark:text-zinc-100 text-[11px] font-bold flex flex-col items-center gap-1 active:scale-95 transition-all cursor-pointer text-center"
-                >
-                  <Users className="w-4 h-4 text-zinc-600 dark:text-zinc-300" />
-                  <span>WhatsApp</span>
-                </button>
-
-                <button
-                  onClick={() => setMobileTab('more')}
-                  className="p-2.5 rounded-lg bg-zinc-100 dark:bg-[#1E2025] hover:bg-zinc-200 dark:hover:bg-[#282A31] border border-zinc-200 dark:border-[#2D3039] text-zinc-900 dark:text-zinc-100 text-[11px] font-bold flex flex-col items-center gap-1 active:scale-95 transition-all cursor-pointer text-center"
-                >
-                  <Zap className="w-4 h-4 text-zinc-600 dark:text-zinc-300" />
-                  <span>Más Atajos</span>
-                </button>
-              </div>
-            </div>
-
-            {/* SECTION: LLEGAN HOY (CHECK-INS) */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xs font-black uppercase tracking-wider text-[#18181B] dark:text-white flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#E1500A] inline-block" />
-                  <span>Llegan Hoy ({checkInsToday.length})</span>
-                </h2>
-                <span className="text-[11px] font-bold text-[#71717A] dark:text-[#8E8E93]">
-                  Check-in desde 14:00hs
-                </span>
-              </div>
-
-              {checkInsToday.length === 0 ? (
-                <div className="p-4 rounded-xl bg-white/70 dark:bg-[#141518]/70 border border-dashed border-[#C8C4B7] dark:border-[#24262E] text-center text-xs text-[#71717A] dark:text-[#8E8E93] font-medium">
-                  No hay ingresos previstos para hoy.
-                </div>
-              ) : (
-                <div className="space-y-2.5">
-                  {checkInsToday.map((res) => {
-                    const prop = demoState.properties.find((p) => p.id === res.propertyId);
-                    const isFullyPaid = res.paymentStatus === 'paid';
-
-                    return (
-                      <div
-                        key={res.id}
-                        className="p-3.5 rounded-xl bg-white dark:bg-[#141518] border border-[#C8C4B7]/80 dark:border-[#24262E] shadow-2xs space-y-3"
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-black text-sm text-[#18181B] dark:text-white">
-                                {res.guestName}
-                              </span>
-                              <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700/60">
-                                {res.platform}
-                              </span>
-                            </div>
-                            <p className="text-xs font-bold text-[#E1500A] mt-0.5">
-                              {prop?.name || 'Cabaña'} • {res.nights} {res.nights === 1 ? 'noche' : 'noches'}
-                            </p>
-                          </div>
-
-                          <span
-                            className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-[#1E2025] text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700/60"
-                          >
-                            {isFullyPaid ? '100% Pagado' : `Saldo: ${formatCurrency(res.totalAmount)}`}
-                          </span>
-                        </div>
-
-                        {/* Fast 1-Tap Actions */}
-                        <div className="grid grid-cols-3 gap-2 pt-1 border-t border-zinc-100 dark:border-zinc-800/80">
-                          <button
-                            onClick={() => setSelectedGuestAction(res)}
-                            className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] hover:bg-[#E1500A] dark:hover:bg-[#E1500A] dark:hover:text-white text-xs font-bold active:scale-95 transition-all cursor-pointer shadow-2xs"
-                          >
-                            <MessageCircle className="w-3.5 h-3.5" />
-                            <span>WhatsApp</span>
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              onUpdateReservationStatus(
-                                res.id,
-                                res.status === 'checked_in' ? 'confirmed' : 'checked_in'
-                              )
-                            }
-                            className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-bold border active:scale-95 transition-all cursor-pointer ${
-                              res.status === 'checked_in'
-                                ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border-zinc-300 dark:border-zinc-700'
-                                : 'bg-zinc-100 dark:bg-[#1E2025] text-zinc-800 dark:text-zinc-200 border-zinc-200 dark:border-[#2D3039]'
-                            }`}
-                          >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>{res.status === 'checked_in' ? 'Ingresó' : 'Marcar In'}</span>
-                          </button>
-
-                          <button
-                            onClick={() => onOpenReservationDetail(res)}
-                            className="flex items-center justify-center gap-1 py-2 px-2 rounded-lg bg-zinc-100 dark:bg-[#1E2025] text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-[#2D3039] text-xs font-bold active:scale-95 transition-all cursor-pointer"
-                          >
-                            <span>Ficha</span>
-                            <ArrowRight className="w-3 h-3 text-zinc-400" />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* SECTION: SALEN HOY (CHECK-OUTS) */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xs font-black uppercase tracking-wider text-[#18181B] dark:text-white flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 dark:bg-zinc-500 inline-block" />
-                  <span>Salen Hoy ({checkOutsToday.length})</span>
-                </h2>
-                <span className="text-[11px] font-bold text-[#71717A] dark:text-[#8E8E93]">
-                  Check-out hasta 10:00hs
-                </span>
-              </div>
-
-              {checkOutsToday.length === 0 ? (
-                <div className="p-4 rounded-xl bg-white/70 dark:bg-[#141518]/70 border border-dashed border-[#C8C4B7] dark:border-[#24262E] text-center text-xs text-[#71717A] dark:text-[#8E8E93] font-medium">
-                  No hay salidas previstas para hoy.
-                </div>
-              ) : (
-                <div className="space-y-2.5">
-                  {checkOutsToday.map((res) => {
-                    const prop = demoState.properties.find((p) => p.id === res.propertyId);
-
-                    return (
-                      <div
-                        key={res.id}
-                        className="p-3.5 rounded-xl bg-white dark:bg-[#141518] border border-[#C8C4B7]/80 dark:border-[#24262E] shadow-2xs flex items-center justify-between gap-3"
-                      >
-                        <div>
-                          <p className="font-black text-sm text-[#18181B] dark:text-white">
-                            {res.guestName}
-                          </p>
-                          <p className="text-xs font-bold text-[#71717A] dark:text-[#8E8E93]">
-                            {prop?.name || 'Cabaña'}
-                          </p>
-                        </div>
-
-                        <button
-                          onClick={() => onUpdateReservationStatus(res.id, 'checked_out')}
-                          className="px-3 py-1.5 rounded-lg bg-[#18181B] dark:bg-zinc-800 hover:bg-[#E1500A] dark:hover:bg-[#E1500A] text-white text-xs font-bold active:scale-95 transition-all cursor-pointer border border-transparent dark:border-zinc-700 shadow-xs"
-                        >
-                          Confirmar Salida
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* SECTION: LIMPIEZAS PENDIENTES */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xs font-black uppercase tracking-wider text-[#18181B] dark:text-white flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#E1500A] inline-block" />
-                  <span>Limpiezas del Día ({pendingCleanings.length})</span>
-                </h2>
-              </div>
-
-              {pendingCleanings.length === 0 ? (
-                <div className="p-3.5 rounded-xl bg-zinc-100 dark:bg-[#141518] border border-zinc-200 dark:border-[#24262E] text-zinc-800 dark:text-zinc-200 text-xs font-bold flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span>Todas las cabañas están limpias y listas para recibir pasajeros.</span>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {pendingCleanings.map((task) => {
-                    const prop = demoState.properties.find((p) => p.id === task.propertyId);
-                    return (
-                      <div
-                        key={task.id}
-                        className="p-3 rounded-xl bg-white dark:bg-[#141518] border border-[#C8C4B7]/70 dark:border-[#24262E] shadow-2xs flex items-center justify-between gap-2"
-                      >
-                        <div>
-                          <p className="font-bold text-xs text-[#18181B] dark:text-white">
-                            {prop?.name || 'Cabaña'}
-                          </p>
-                          <p className="text-[11px] text-[#71717A] dark:text-[#8E8E93]">
-                            Asignada a: <span className="font-semibold">{task.cleanerName}</span> ({task.scheduledTime})
-                          </p>
-                        </div>
-
-                        <button
-                          onClick={() => onToggleCleaningStatus(task.id, task.status)}
-                          className="px-2.5 py-1.5 rounded-lg bg-[#18181B] dark:bg-zinc-800 hover:bg-[#E1500A] dark:hover:bg-[#E1500A] text-white text-xs font-bold active:scale-95 transition-all cursor-pointer border border-transparent dark:border-zinc-700 shadow-xs flex items-center gap-1"
-                        >
-                          <Check className="w-3.5 h-3.5" />
-                          <span>Marcar Lista</span>
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ======================================================================= */}
-        {/* TAB 2: 🏡 CABAÑAS / DEPARTAMENTOS                                       */}
-        {/* ======================================================================= */}
-        {mobileTab === 'units' && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between mb-1">
-              <h2 className="text-xs font-black uppercase tracking-wider text-[#18181B] dark:text-white">
-                Unidades ({demoState.properties.length})
-              </h2>
-              <span className="text-[11px] font-bold text-[#71717A] dark:text-[#8E8E93]">
-                Estado en tiempo real
-              </span>
-            </div>
-
-            {demoState.properties.map((prop) => {
-              const currentRes = currentlyStaying.find((r) => r.propertyId === prop.id);
-              const isOccupied = !!currentRes;
-              const hasCleaning = pendingCleanings.some((c) => c.propertyId === prop.id);
-
-              return (
-                <div
-                  key={prop.id}
-                  className="p-3.5 rounded-xl bg-white dark:bg-[#141518] border border-[#C8C4B7]/80 dark:border-[#24262E] shadow-2xs space-y-3"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h3 className="font-black text-sm text-[#18181B] dark:text-white">
-                        {prop.name}
-                      </h3>
-                      <p className="text-xs text-[#71717A] dark:text-[#8E8E93] font-medium">
-                        {prop.type} • Hasta {prop.maxGuests} pax
-                      </p>
-                    </div>
-
-                    <span
-                      className={`text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider border ${
-                        isOccupied
-                          ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-zinc-900 dark:border-white font-black'
-                          : hasCleaning
-                          ? 'bg-zinc-100 dark:bg-[#1E2025] text-zinc-800 dark:text-zinc-200 border-zinc-300 dark:border-zinc-700'
-                          : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800'
-                      }`}
-                    >
-                      {isOccupied ? 'Ocupada' : hasCleaning ? 'En Limpieza' : 'Disponible'}
-                    </span>
-                  </div>
-
-                  {/* Current Stay details if occupied */}
-                  {isOccupied && currentRes && (
-                    <div className="p-2.5 rounded-lg bg-[#FAF8F5] dark:bg-[#1E2025] border border-[#C8C4B7]/40 dark:border-[#2D3039] text-xs space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-[#18181B] dark:text-white">
-                          Huésped: {currentRes.guestName}
-                        </span>
-                        <span className="text-[10px] font-mono font-bold text-[#E1500A]">
-                          Sale {formatDisplayDate(currentRes.checkOut)}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-[11px] text-[#71717A] dark:text-[#8E8E93]">
-                        <span>Tel: {currentRes.guestPhone}</span>
-                        <button
-                          onClick={() => setSelectedGuestAction(currentRes)}
-                          className="text-[#18181B] dark:text-white font-bold hover:underline flex items-center gap-1 cursor-pointer"
-                        >
-                          <MessageCircle className="w-3 h-3 text-[#E1500A]" />
-                          <span>WhatsApp & Cobro</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Wi-Fi and Keys Quick Info */}
-                  <div className="flex items-center justify-between text-xs pt-1 border-t border-zinc-100 dark:border-zinc-800 text-[#71717A] dark:text-[#8E8E93]">
-                    <div className="flex items-center gap-1.5 truncate">
-                      <Wifi className="w-3.5 h-3.5 text-[#E1500A] shrink-0" />
-                      <span className="truncate">{prop.wifiNetwork}</span>
-                    </div>
-
-                    <button
-                      onClick={() => handleCopyWifi(prop.wifiPassword, prop.id)}
-                      className="flex items-center gap-1 text-[11px] font-bold text-[#18181B] dark:text-white px-2 py-1 rounded bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer shrink-0 border border-zinc-200 dark:border-zinc-700"
-                    >
-                      {copiedWifi === prop.id ? (
-                        <>
-                          <Check className="w-3 h-3 text-emerald-500" />
-                          <span>¡Copiada!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3 h-3" />
-                          <span>Copiar Clave</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* ======================================================================= */}
-        {/* TAB 3: 👥 HUÉSPEDES (Directorio de Contacto y Pasajeros)                 */}
+        {/* TAB 3: 👥 HUÉSPEDES (PANTALLA EXACTA COMO LA IMAGEN ENVIADA POR EL USUARIO)*/}
         {/* ======================================================================= */}
         {mobileTab === 'guests' && (
-          <div className="space-y-3">
+          <div className="space-y-3.5">
+            {/* Search Input Box */}
             <div className="relative">
-              <Search className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93] absolute left-3 top-3" />
+              <Search className="w-4 h-4 text-gray-400 absolute left-4 top-4" />
               <input
                 type="text"
                 placeholder="Buscar por nombre o teléfono..."
                 value={guestSearch}
                 onChange={(e) => setGuestSearch(e.target.value)}
-                className="w-full text-xs font-bold bg-white dark:bg-[#121316] border border-[#C8C4B7] dark:border-[#222328] rounded-xl pl-9 pr-3 py-2.5 text-[#18181B] dark:text-white focus:outline-none focus:border-[#E1500A] transition-colors"
+                className="w-full text-xs font-medium bg-white dark:bg-[#1A1B20] border-0 rounded-2xl pl-11 pr-4 py-3.5 text-gray-800 dark:text-gray-100 placeholder-gray-400 shadow-[0_2px_10px_rgba(0,0,0,0.02)] focus:outline-none focus:ring-1 focus:ring-[#D86F35]/40"
               />
             </div>
 
-            <div className="space-y-2.5">
+            {/* Guest Cards */}
+            <div className="space-y-3">
               {activeReservations
                 .filter(
                   (r) =>
@@ -684,63 +337,68 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                 .slice(0, 15)
                 .map((res) => {
                   const prop = demoState.properties.find((p) => p.id === res.propertyId);
+                  const isPaid = res.paymentStatus === 'paid';
 
                   return (
                     <div
                       key={res.id}
-                      className="p-3.5 rounded-xl bg-white dark:bg-[#121316] border border-[#C8C4B7]/80 dark:border-[#222328] shadow-2xs space-y-2.5"
+                      className="bg-white dark:bg-[#1A1B20] rounded-[22px] p-4 shadow-[0_4px_16px_rgba(0,0,0,0.025)] border border-black/[0.02] dark:border-white/[0.04] space-y-2.5 transition-all"
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="font-black text-sm text-[#18181B] dark:text-white">
-                            {res.guestName}
-                          </p>
-                          <p className="text-xs font-semibold text-[#71717A] dark:text-[#A1A1AA] mt-0.5">
-                            {prop?.name || 'Cabaña'} • {formatDisplayDate(res.checkIn)} al{' '}
-                            {formatDisplayDate(res.checkOut)}
-                          </p>
-                        </div>
-
-                        <div className="text-right">
-                          <span className="text-xs font-bold font-mono text-[#18181B] dark:text-white block">
-                            {formatCurrency(res.totalAmount)}
+                      {/* Top Row: Name on Left, Price + Badge on Right */}
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                          {res.guestName}
+                        </h3>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-gray-900 dark:text-gray-100 font-sans">
+                            USD {res.totalAmount.toLocaleString('es-AR')}
                           </span>
                           <span
-                            className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded border inline-block mt-0.5 ${
-                              res.paymentStatus === 'paid'
-                                ? 'bg-zinc-100 dark:bg-[#1C1E24] text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-[#2D3039]'
-                                : 'bg-[#FAF8F5] dark:bg-[#201C1A] text-[#E1500A] dark:text-[#F37A3D] border-amber-300/80 dark:border-[#4A291A]'
+                            className={`text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-md uppercase ${
+                              isPaid
+                                ? 'bg-[#E2F7E7] text-[#2EA44F] dark:bg-[#193A24] dark:text-[#52C474]'
+                                : 'bg-[#FDF3E7] text-[#D86F35] dark:bg-[#3D2516] dark:text-[#F39A68]'
                             }`}
                           >
-                            {res.paymentStatus === 'paid' ? 'Pagado' : 'Seña Pendiente'}
+                            {isPaid ? 'PAGADO' : 'SEÑA PEND'}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-1 border-t border-zinc-100 dark:border-zinc-800">
-                        <button
-                          onClick={() => setSelectedGuestAction(res)}
-                          className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-[#18181B] hover:bg-black dark:bg-[#1E2026] dark:hover:bg-[#282A33] text-white text-xs font-bold active:scale-95 transition-all cursor-pointer shadow-2xs border border-zinc-800 dark:border-[#2E303A]"
-                        >
-                          <MessageCircle className="w-4 h-4 text-emerald-500 shrink-0" />
-                          <span>WhatsApp & Acciones</span>
-                        </button>
+                      {/* Bottom Row: Subtitle on Left, 3 Pastel Square Action Buttons on Right */}
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs text-gray-400 dark:text-gray-400 font-medium truncate">
+                          {prop?.name || 'Cabaña'} • {formatShortDateRange(res.checkIn, res.checkOut)}
+                        </p>
 
-                        <a
-                          href={`tel:${res.guestPhone}`}
-                          className="flex items-center justify-center p-2 rounded-lg bg-zinc-100 dark:bg-[#1E2026] text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-[#282A33] active:scale-95 transition-all cursor-pointer border border-zinc-200 dark:border-[#2E303A]"
-                          title="Llamar"
-                        >
-                          <Phone className="w-3.5 h-3.5" />
-                        </a>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {/* Button 1: WhatsApp (Soft Pastel Green Square) */}
+                          <button
+                            onClick={() => setSelectedGuestAction(res)}
+                            className="w-9 h-9 rounded-xl bg-[#E6F8EA] hover:bg-[#D4F5DC] dark:bg-[#1C3B24] dark:hover:bg-[#254C2E] text-[#25D366] flex items-center justify-center transition-colors cursor-pointer"
+                            title="Enviar WhatsApp & Guía"
+                          >
+                            <MessageCircle className="w-4 h-4 fill-current/10 stroke-[2]" />
+                          </button>
 
-                        <button
-                          onClick={() => onOpenReservationDetail(res)}
-                          className="flex items-center justify-center p-2 rounded-lg bg-zinc-100 dark:bg-[#1E2026] text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-[#282A33] active:scale-95 transition-all cursor-pointer border border-zinc-200 dark:border-[#2E303A]"
-                          title="Ver Ficha"
-                        >
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
+                          {/* Button 2: Call Phone (Soft Warm Beige/Gray Square) */}
+                          <a
+                            href={`tel:${res.guestPhone}`}
+                            className="w-9 h-9 rounded-xl bg-[#EDE8E1] hover:bg-[#E3DDD4] dark:bg-[#2A2B32] dark:hover:bg-[#34353E] text-[#7A7369] dark:text-gray-300 flex items-center justify-center transition-colors cursor-pointer"
+                            title="Llamar al pasajero"
+                          >
+                            <Phone className="w-4 h-4 stroke-[2]" />
+                          </a>
+
+                          {/* Button 3: Ficha / Detalle (Soft Pastel Terracotta/Peach Square with Arrow) */}
+                          <button
+                            onClick={() => onOpenReservationDetail(res)}
+                            className="w-9 h-9 rounded-xl bg-[#F6D8C3] hover:bg-[#F0C9B0] dark:bg-[#3E281C] dark:hover:bg-[#4E3324] text-[#D86F35] flex items-center justify-center transition-colors cursor-pointer"
+                            title="Ver Ficha Completa"
+                          >
+                            <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   );
@@ -750,121 +408,308 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
         )}
 
         {/* ======================================================================= */}
-        {/* TAB 4: 🎙️ XENIA VOZ (Copiloto Inteligente en Movimiento)                 */}
+        {/* TAB 1: ☀️ HOY (VISTA EN VIVO ADAPTADA A LA MISMA ESTÉTICA)              */}
+        {/* ======================================================================= */}
+        {mobileTab === 'today' && (
+          <div className="space-y-4">
+            {/* 3 ATAJOS SUPERIORES */}
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={onOpenNewReservation}
+                className="bg-white dark:bg-[#1A1B20] p-4 rounded-[22px] shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-black/[0.02] flex flex-col items-center justify-center space-y-2 active:scale-95 transition-all cursor-pointer"
+              >
+                <div className="p-2.5 bg-[#F6D8C3] text-[#D86F35] rounded-xl">
+                  <Plus className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Reserva</span>
+              </button>
+
+              <button
+                onClick={() => setMobileTab('guests')}
+                className="bg-white dark:bg-[#1A1B20] p-4 rounded-[22px] shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-black/[0.02] flex flex-col items-center justify-center space-y-2 active:scale-95 transition-all cursor-pointer"
+              >
+                <div className="p-2.5 bg-[#E6F8EA] text-[#25D366] rounded-xl">
+                  <MessageCircle className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-gray-800 dark:text-gray-200">WhatsApp</span>
+              </button>
+
+              <button
+                onClick={() => setMobileTab('more')}
+                className="bg-white dark:bg-[#1A1B20] p-4 rounded-[22px] shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-black/[0.02] flex flex-col items-center justify-center space-y-2 active:scale-95 transition-all cursor-pointer"
+              >
+                <div className="p-2.5 bg-[#EDE8E1] text-[#7A7369] rounded-xl">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Más Atajos</span>
+              </button>
+            </div>
+
+            {/* OCUPACIÓN ACTUAL */}
+            <div className="bg-white dark:bg-[#1A1B20] rounded-[22px] p-4 shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-black/[0.02] flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                  Ocupación Actual
+                </span>
+                <div className="flex items-baseline gap-2 mt-0.5">
+                  <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    {occupancyPercent}%
+                  </span>
+                  <span className="text-xs text-gray-400 font-medium">
+                    ({occupiedCount} de {totalUnits} unidades ocupadas)
+                  </span>
+                </div>
+              </div>
+              <span className="bg-[#FDF3E7] text-[#D86F35] text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-md uppercase">
+                En vivo
+              </span>
+            </div>
+
+            {/* LIMPIEZAS DEL DÍA */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between px-1">
+                <h2 className="text-xs font-bold tracking-wider text-gray-400 uppercase flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#D86F35]" />
+                  LIMPIEZAS DEL DÍA ({demoState.cleaningTasks.length})
+                </h2>
+              </div>
+
+              {demoState.cleaningTasks.map((task) => {
+                const prop = demoState.properties.find((p) => p.id === task.propertyId);
+                const isCompleted = task.status === 'completed';
+
+                return (
+                  <div
+                    key={task.id}
+                    className={`rounded-[22px] p-4 border transition-all flex items-center justify-between ${
+                      isCompleted
+                        ? 'bg-[#E2F7E7]/50 dark:bg-[#193A24]/30 border-[#2EA44F]/20'
+                        : 'bg-white dark:bg-[#1A1B20] border-black/[0.02] shadow-[0_4px_16px_rgba(0,0,0,0.02)]'
+                    }`}
+                  >
+                    <div className="space-y-0.5">
+                      <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                        {prop?.name || 'Cabaña'}
+                      </h3>
+                      <p className="text-xs text-gray-400 font-medium">
+                        {isCompleted ? `Lista por ${task.cleanerName}` : `Asignada a: ${task.cleanerName} • ${task.scheduledTime}`}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => onToggleCleaningStatus(task.id, task.status)}
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+                        isCompleted
+                          ? 'bg-[#2EA44F] text-white shadow-xs'
+                          : 'bg-[#EDE8E1] hover:bg-[#E2F7E7] text-gray-400 hover:text-[#2EA44F]'
+                      }`}
+                    >
+                      <Check className="w-5 h-5 stroke-[2.5]" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* LLEGAN HOY */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between px-1">
+                <h2 className="text-xs font-bold tracking-wider text-gray-400 uppercase flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#D86F35]" />
+                  LLEGAN HOY ({checkInsToday.length})
+                </h2>
+              </div>
+
+              {checkInsToday.map((res) => {
+                const prop = demoState.properties.find((p) => p.id === res.propertyId);
+
+                return (
+                  <div
+                    key={res.id}
+                    className="bg-white dark:bg-[#1A1B20] rounded-[22px] p-4 shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-black/[0.02] space-y-2.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">
+                        {res.guestName}
+                      </h3>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase bg-[#FDF3E7] text-[#D86F35]">
+                        Check-in 14hs
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-gray-400 font-medium">
+                        {prop?.name} • {res.nights} {res.nights === 1 ? 'noche' : 'noches'}
+                      </p>
+                      <button
+                        onClick={() => setSelectedGuestAction(res)}
+                        className="flex items-center gap-1.5 text-xs font-bold text-[#D86F35] bg-[#F6D8C3] px-3 py-1.5 rounded-xl cursor-pointer"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        <span>Bienvenida</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================================= */}
+        {/* TAB 2: 🏡 CABAÑAS / UNIDADES (ADAPTADA A LA MISMA ESTÉTICA)             */}
+        {/* ======================================================================= */}
+        {mobileTab === 'units' && (
+          <div className="space-y-3.5">
+            <div className="flex items-center justify-between px-1 mb-1">
+              <h2 className="text-xs font-bold tracking-wider text-gray-400 uppercase flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D86F35]" />
+                UNIDADES ({demoState.properties.length})
+              </h2>
+            </div>
+
+            {demoState.properties.map((prop) => {
+              const currentRes = currentlyStaying.find((r) => r.propertyId === prop.id);
+              const isOccupied = !!currentRes;
+
+              return (
+                <div
+                  key={prop.id}
+                  className="bg-white dark:bg-[#1A1B20] rounded-[22px] p-4 shadow-[0_4px_16px_rgba(0,0,0,0.025)] border border-black/[0.02] space-y-3"
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                        {prop.name}
+                      </h3>
+                      <p className="text-xs text-gray-400 font-medium">
+                        {prop.type} • Hasta {prop.maxGuests} pax
+                      </p>
+                    </div>
+                    <span
+                      className={`text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-md uppercase ${
+                        isOccupied
+                          ? 'bg-[#FDF3E7] text-[#D86F35]'
+                          : 'bg-[#EDE8E1] text-[#7A7369]'
+                      }`}
+                    >
+                      {isOccupied ? 'OCUPADA' : 'DISPONIBLE'}
+                    </span>
+                  </div>
+
+                  {isOccupied && currentRes && (
+                    <div className="p-3 bg-[#FBF9F6] dark:bg-[#16171B] rounded-xl flex items-center justify-between border border-black/[0.02]">
+                      <div className="space-y-0.5">
+                        <span className="text-[10px] text-gray-400 font-medium">Huésped actual</span>
+                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                          {currentRes.guestName}
+                        </p>
+                        <p className="text-[10px] text-gray-400 font-mono">
+                          Salida: {formatDisplayDate(currentRes.checkOut)}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setSelectedGuestAction(currentRes)}
+                        className="w-9 h-9 rounded-xl bg-[#E6F8EA] text-[#25D366] flex items-center justify-center cursor-pointer"
+                        title="Contactar"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="pt-2 border-t border-gray-100 dark:border-zinc-800/60 flex items-center justify-between text-xs text-gray-400">
+                    <div className="flex items-center gap-2">
+                      <Wifi className="w-4 h-4 text-gray-300" />
+                      <span className="font-mono text-gray-500">{prop.wifiNetwork}</span>
+                    </div>
+                    <button
+                      onClick={() => handleCopyWifi(prop.wifiPassword, prop.id)}
+                      className="px-2.5 py-1 rounded-lg bg-[#EDE8E1] text-[#7A7369] font-medium text-[11px] hover:text-[#D86F35] transition-colors cursor-pointer"
+                    >
+                      {copiedWifi === prop.id ? '¡Copiada!' : 'Copiar Clave'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ======================================================================= */}
+        {/* TAB 4: 🎙️ XENIA VOZ                                                     */}
         {/* ======================================================================= */}
         {mobileTab === 'xenia' && (
           <div className="space-y-4">
-            
-            {/* Active Voice Stop Banner (Always Visible when Speaking) */}
             {isSpeaking && (
               <button
                 onClick={handleStopXenia}
-                className="w-full p-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center justify-between shadow-lg animate-pulse transition-all cursor-pointer border border-red-400"
+                className="w-full p-3.5 rounded-2xl bg-red-100 text-red-700 font-bold text-xs flex items-center justify-between shadow-xs transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-2">
-                  <Square className="w-4 h-4 fill-white shrink-0" />
-                  <span>Xenia está hablando... <strong>Tocá acá para Detener / Silenciar</strong></span>
+                  <Square className="w-4 h-4 fill-current shrink-0" />
+                  <span>Xenia respondiendo... <strong>Tocá para silenciar</strong></span>
                 </div>
-                <span className="px-2 py-0.5 rounded-md bg-black/30 text-[10px] font-mono">⏹️ PARAR</span>
+                <span className="px-2 py-0.5 rounded-md bg-red-200 text-[10px] font-mono">⏹️ PARAR</span>
               </button>
             )}
 
-            {/* Loading / Thinking Banner */}
-            {isXeniaLoading && (
-              <div className="w-full p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs font-bold flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-3.5 h-3.5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-                  <span>Xenia analizando...</span>
-                </div>
-                <button
-                  onClick={handleStopXenia}
-                  className="px-2 py-0.5 rounded-md bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 text-[10px] font-mono font-bold"
-                >
-                  Cancelar
-                </button>
-              </div>
-            )}
-
-            {/* Big Voice Hero Card */}
-            <div className="p-5 rounded-2xl bg-linear-to-b from-[#18191D] to-[#0A0B0D] text-white border border-[#c5a880]/40 shadow-lg text-center space-y-3 relative overflow-hidden">
-              
-              {/* Voice auto-play toggle at top right */}
-              <div className="absolute top-3 right-3 flex items-center gap-1.5">
+            <div className="p-6 rounded-[24px] bg-white dark:bg-[#1A1B20] shadow-[0_4px_16px_rgba(0,0,0,0.025)] border border-black/[0.02] text-center space-y-4 relative">
+              <div className="absolute top-4 right-4 flex items-center gap-1.5">
                 <button
                   onClick={toggleAutoVoice}
-                  className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold flex items-center gap-1 border transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 border transition-all cursor-pointer ${
                     autoVoice
-                      ? 'bg-[#E1500A]/20 border-[#E1500A] text-[#FF7A38]'
-                      : 'bg-stone-800/80 border-stone-700 text-stone-400'
+                      ? 'bg-[#FDF3E7] border-orange-200 text-[#D86F35]'
+                      : 'bg-[#EDE8E1] border-gray-200 text-gray-500'
                   }`}
-                  title="Activar/Desactivar lectura por voz"
                 >
-                  {autoVoice ? <Volume2 className="w-3 h-3 text-[#E1500A]" /> : <VolumeX className="w-3 h-3 text-stone-400" />}
+                  {autoVoice ? <Volume2 className="w-3 h-3" /> : <VolumeX className="w-3 h-3" />}
                   <span>{autoVoice ? 'Voz ON' : 'Voz Mute'}</span>
                 </button>
               </div>
 
-              <div className="w-16 h-16 mx-auto rounded-full overflow-hidden border-2 border-[#c5a880] shadow-md">
-                <XeniaAvatar size="lg" className="w-full h-full" />
+              <div className="w-20 h-20 mx-auto rounded-full overflow-hidden border-2 border-[#F6D8C3] p-0.5 shadow-sm">
+                <XeniaAvatar size="lg" className="w-full h-full rounded-full" />
               </div>
 
               <div>
-                <h3 className="text-base font-black text-[#EDE8DF]">
+                <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">
                   Xenia Copiloto por Voz
                 </h3>
-                <p className="text-xs text-stone-300">
-                  Tocá el micrófono para hablar o escribí tu duda abajo
+                <p className="text-xs text-gray-400 font-medium">
+                  Consultas sobre reservas, números y tareas
                 </p>
               </div>
 
-              {/* Big Mic / Stop Button */}
-              <div className="flex items-center justify-center gap-3 pt-2">
+              <div className="flex items-center justify-center pt-1">
                 {isSpeaking ? (
                   <button
                     onClick={handleStopXenia}
-                    className="w-18 h-18 rounded-full bg-red-600 hover:bg-red-700 text-white flex flex-col items-center justify-center transition-all cursor-pointer shadow-xl animate-pulse ring-4 ring-red-500/40 active:scale-95"
-                    title="Detener voz"
+                    className="w-16 h-16 rounded-2xl bg-red-500 text-white flex flex-col items-center justify-center shadow-lg active:scale-95 cursor-pointer"
                   >
                     <Square className="w-6 h-6 fill-white" />
-                    <span className="text-[9px] font-black uppercase mt-1">Parar</span>
+                    <span className="text-[9px] font-bold mt-1">Parar</span>
                   </button>
                 ) : (
                   <button
                     onClick={() => {
-                      if (isListening) {
-                        stopListening();
-                      } else {
-                        startListening();
-                      }
+                      if (isListening) stopListening();
+                      else startListening();
                     }}
-                    className={`w-18 h-18 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-xl ${
-                      isListening
-                        ? 'bg-red-500 text-white animate-pulse scale-110 ring-8 ring-red-500/30'
-                        : 'bg-[#E1500A] text-white hover:bg-[#C94305] active:scale-95 shadow-[#E1500A]/40'
+                    className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all cursor-pointer shadow-md ${
+                      isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-[#D86F35] text-white'
                     }`}
                   >
-                    {isListening ? (
-                      <MicOff className="w-8 h-8" />
-                    ) : (
-                      <Mic className="w-8 h-8" />
-                    )}
+                    {isListening ? <MicOff className="w-7 h-7" /> : <Mic className="w-7 h-7" />}
                   </button>
                 )}
               </div>
-
-              <p className="text-[11px] text-stone-400 font-bold">
-                {isSpeaking
-                  ? '🔊 Xenia respondiendo en voz alta... Tocá "Parar" para silenciar'
-                  : isListening
-                  ? '🎙️ Escuchando... Hablá ahora'
-                  : 'Presioná para consultar por voz'}
-              </p>
             </div>
 
-            {/* Quick Question Chips */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#71717A] dark:text-[#8E8E93] block">
-                Preguntas Rápidas Sugeridas:
+            {/* Quick Prompts */}
+            <div className="space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block px-1">
+                Preguntas Sugeridas:
               </span>
               <div className="grid grid-cols-1 gap-2">
                 {[
@@ -872,389 +717,197 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                   '¿Cómo paso del Modo Light a la Vista Completa (PC)?',
                   '¿Quién llega hoy y qué cabañas se ocupan?',
                   '¿Cuál es mi ganancia en octubre y comisiones?',
-                  '¿Cómo modifico o cambio fechas de una reserva?',
                 ].map((q, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleSendXenia(q)}
-                    className="p-2.5 rounded-xl bg-white dark:bg-[#121316] border border-[#C8C4B7]/70 dark:border-[#222328] text-xs font-bold text-left text-[#18181B] dark:text-white hover:border-[#E1500A] active:scale-98 transition-all cursor-pointer shadow-2xs flex items-center justify-between"
+                    className="p-3 rounded-2xl bg-white dark:bg-[#1A1B20] text-xs font-semibold text-left text-gray-800 dark:text-gray-200 shadow-2xs hover:text-[#D86F35] flex items-center justify-between cursor-pointer"
                   >
                     <span>{q}</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-[#E1500A] shrink-0 ml-2" />
+                    <ArrowRight className="w-3.5 h-3.5 text-gray-300 shrink-0 ml-2" />
                   </button>
                 ))}
               </div>
-            </div>
-
-            {/* Chat Input Bar */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSendXenia();
-              }}
-              className="flex items-center gap-2 bg-white dark:bg-[#121316] p-2 rounded-2xl border border-[#C8C4B7]/80 dark:border-[#222328] shadow-sm"
-            >
-              <input
-                type="text"
-                value={xeniaInput}
-                onChange={(e) => setXeniaInput(e.target.value)}
-                placeholder="Escribí tu consulta..."
-                className="flex-1 bg-transparent px-2.5 py-1 text-xs text-[#18181B] dark:text-white focus:outline-hidden"
-              />
-              {isSpeaking || isXeniaLoading ? (
-                <button
-                  type="button"
-                  onClick={handleStopXenia}
-                  className="px-3 py-1.5 rounded-xl bg-red-600 text-white font-bold text-xs flex items-center gap-1 active:scale-95 transition-all cursor-pointer shrink-0"
-                >
-                  <Square className="w-3 h-3 fill-white" />
-                  <span>Parar</span>
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  disabled={!xeniaInput.trim() || isXeniaLoading}
-                  className="p-2 rounded-xl bg-[#E1500A] hover:bg-[#C94305] disabled:opacity-40 text-white transition-all cursor-pointer shrink-0"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </form>
-
-            {/* Chat History Snippet */}
-            <div className="space-y-2.5 pt-1">
-              {xeniaMessages.map((m) => (
-                <div
-                  key={m.id}
-                  className={`p-3 rounded-2xl text-xs ${
-                    m.role === 'user'
-                      ? 'bg-[#E1500A] text-white ml-6 font-bold shadow-xs'
-                      : 'bg-white dark:bg-[#121316] border border-[#C8C4B7]/80 dark:border-[#222328] text-[#18181B] dark:text-[#EDE8DF] mr-4 shadow-2xs space-y-2'
-                  }`}
-                >
-                  <p className="whitespace-pre-line leading-relaxed">{m.text}</p>
-                  
-                  {m.role === 'assistant' && (
-                    <div className="flex items-center gap-2 pt-1 border-t border-[#C8C4B7]/30 dark:border-white/10 text-[10px]">
-                      <button
-                        onClick={() => {
-                          if (isSpeaking) {
-                            stopSpeaking();
-                          } else {
-                            speakMessage(m.text, m.id);
-                          }
-                        }}
-                        className="px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-700 dark:text-stone-300 font-medium flex items-center gap-1 cursor-pointer"
-                      >
-                        {isSpeaking ? <Square className="w-2.5 h-2.5 fill-current text-red-500" /> : <Volume2 className="w-2.5 h-2.5" />}
-                        <span>{isSpeaking ? 'Silenciar' : 'Escuchar'}</span>
-                      </button>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(m.text);
-                          setCopiedTextNotice('Respuesta copiada');
-                          setTimeout(() => setCopiedTextNotice(null), 2000);
-                        }}
-                        className="px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-700 dark:text-stone-300 font-medium flex items-center gap-1 cursor-pointer"
-                      >
-                        <Copy className="w-2.5 h-2.5" />
-                        <span>Copiar</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
             </div>
           </div>
         )}
 
         {/* ======================================================================= */}
-        {/* TAB 5: ⚡ ACCIONES / MÁS (Atajos Operativos Rápidos)                     */}
+        {/* TAB 5: ⚡ ATAJOS                                                        */}
         {/* ======================================================================= */}
         {mobileTab === 'more' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xs font-black uppercase tracking-wider text-[#18181B] dark:text-white flex items-center gap-1.5">
-                <Zap className="w-4 h-4 text-[#E1500A]" />
-                <span>Atajos Operativos</span>
+          <div className="space-y-3.5">
+            <div className="flex items-center justify-between px-1">
+              <h2 className="text-xs font-bold tracking-wider text-gray-400 uppercase flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D86F35]" />
+                ATAJOS OPERATIVOS
               </h2>
-              <span className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93]">
-                Acciones rápidas con 1 toque
-              </span>
             </div>
 
-            {/* SECCIÓN 1: RESERVAS & HUÉSPEDES */}
-            <div className="space-y-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93] px-1 block">
-                1. Reservas & Huéspedes
-              </span>
-              <div className="grid grid-cols-1 gap-2">
-                <button
-                  onClick={onOpenNewReservation}
-                  className="w-full p-3.5 rounded-xl bg-white dark:bg-[#121316] border border-[#C8C4B7]/80 dark:border-[#222328] flex items-center justify-between text-xs font-bold text-[#18181B] dark:text-white shadow-2xs hover:border-[#E1500A] active:scale-98 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#FAF8F5] dark:bg-[#1C1E24] text-[#E1500A] border border-[#C8C4B7]/50 dark:border-[#2D3039] flex items-center justify-center shrink-0">
-                      <Plus className="w-4 h-4" />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-black text-sm text-[#18181B] dark:text-white">Cargar Nueva Reserva</p>
-                      <p className="text-[11px] text-[#71717A] dark:text-[#8E8E93] font-medium">
-                        Reserva manual, telefónica o directa
-                      </p>
-                    </div>
+            <div className="grid grid-cols-1 gap-2.5">
+              <button
+                onClick={onOpenNewReservation}
+                className="w-full p-4 rounded-[22px] bg-white dark:bg-[#1A1B20] flex items-center justify-between shadow-[0_4px_16px_rgba(0,0,0,0.02)] active:scale-98 transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#F6D8C3] text-[#D86F35] flex items-center justify-center shrink-0">
+                    <Plus className="w-5 h-5" />
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#E1500A]" />
-                </button>
-
-                <button
-                  onClick={() => setMobileTab('guests')}
-                  className="w-full p-3.5 rounded-xl bg-white dark:bg-[#121316] border border-[#C8C4B7]/80 dark:border-[#222328] flex items-center justify-between text-xs font-bold text-[#18181B] dark:text-white shadow-2xs hover:border-[#E1500A] active:scale-98 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#FAF8F5] dark:bg-[#1C1E24] text-zinc-700 dark:text-zinc-300 border border-[#C8C4B7]/50 dark:border-[#2D3039] flex items-center justify-center shrink-0">
-                      <Users className="w-4 h-4" />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-black text-sm text-[#18181B] dark:text-white">Directorio de Huéspedes</p>
-                      <p className="text-[11px] text-[#71717A] dark:text-[#8E8E93] font-medium">
-                        Buscar teléfonos, WhatsApp y cobros
-                      </p>
-                    </div>
+                  <div className="text-left">
+                    <p className="font-bold text-sm text-gray-900 dark:text-gray-100">Cargar Nueva Reserva</p>
+                    <p className="text-xs text-gray-400 font-medium">Reserva manual, telefónica o directa</p>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-zinc-400" />
-                </button>
-              </div>
-            </div>
-
-            {/* SECCIÓN 2: HOUSEKEEPING & CABAÑAS */}
-            <div className="space-y-2 pt-1">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93] px-1 block">
-                2. Housekeeping & Cabañas
-              </span>
-              <div className="grid grid-cols-1 gap-2">
-                <button
-                  onClick={() => setMobileTab('units')}
-                  className="w-full p-3.5 rounded-xl bg-white dark:bg-[#121316] border border-[#C8C4B7]/80 dark:border-[#222328] flex items-center justify-between text-xs font-bold text-[#18181B] dark:text-white shadow-2xs hover:border-[#E1500A] active:scale-98 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#FAF8F5] dark:bg-[#1C1E24] text-zinc-700 dark:text-zinc-300 border border-[#C8C4B7]/50 dark:border-[#2D3039] flex items-center justify-center shrink-0">
-                      <Home className="w-4 h-4" />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-black text-sm text-[#18181B] dark:text-white">Estado de Cabañas & Wi-Fi</p>
-                      <p className="text-[11px] text-[#71717A] dark:text-[#8E8E93] font-medium">
-                        Ver unidades libres, ocupadas y claves
-                      </p>
-                    </div>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-zinc-400" />
-                </button>
-
-                <button
-                  onClick={() => setMobileTab('xenia')}
-                  className="w-full p-3.5 rounded-xl bg-white dark:bg-[#121316] border border-[#C8C4B7]/80 dark:border-[#222328] flex items-center justify-between text-xs font-bold text-[#18181B] dark:text-white shadow-2xs hover:border-[#E1500A] active:scale-98 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#E1500A]/15 text-[#E1500A] flex items-center justify-center shrink-0">
-                      <Mic className="w-4 h-4" />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-black text-sm text-[#18181B] dark:text-white">Preguntarle a Xenia por Voz</p>
-                      <p className="text-[11px] text-[#71717A] dark:text-[#8E8E93] font-medium">
-                        Consultas instantáneas de facturación y ocupación
-                      </p>
-                    </div>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-[#E1500A]" />
-                </button>
-              </div>
-            </div>
-
-            {/* SECCIÓN 3: ADMINISTRACIÓN & ESCRITORIO */}
-            <div className="space-y-2 pt-1">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93] px-1 block">
-                3. Administración & Vista Completa
-              </span>
-              <div className="grid grid-cols-1 gap-2">
-                <button
-                  onClick={onSwitchToFullView}
-                  className="w-full p-3.5 rounded-xl bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] border border-[#18181B] dark:border-white flex items-center justify-between text-xs font-bold shadow-md hover:bg-[#E1500A] dark:hover:bg-[#E1500A] dark:hover:text-white active:scale-98 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-white/20 dark:bg-black/10 flex items-center justify-center shrink-0">
-                      <Laptop className="w-4 h-4" />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-black text-sm">Cambiar a Vista Completa (Escritorio)</p>
-                      <p className="text-[11px] opacity-80 font-medium">
-                        Calendario Rack, Rendimiento y Configuración
-                      </p>
-                    </div>
-                  </div>
-                  <ArrowRight className="w-4 h-4 shrink-0" />
-                </button>
-              </div>
-            </div>
-
-            {/* Quick Numbers Preview */}
-            <div className="p-4 rounded-xl bg-white dark:bg-[#121316] border border-[#C8C4B7]/80 dark:border-[#222328] shadow-2xs space-y-2 mt-4">
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#71717A] dark:text-[#8E8E93] block">
-                Resumen Económico Rápido
-              </span>
-              <div className="grid grid-cols-2 gap-3 pt-1">
-                <div>
-                  <p className="text-[11px] text-[#71717A] dark:text-[#8E8E93] font-bold">
-                    Ganancia Neta Real
-                  </p>
-                  <p className="text-lg font-black text-[#18181B] dark:text-white">
-                    {formatCurrency(
-                      activeReservations.reduce((sum, r) => sum + r.netRevenue, 0)
-                    )}
-                  </p>
                 </div>
-                <div>
-                  <p className="text-[11px] text-[#71717A] dark:text-[#8E8E93] font-bold">
-                    Ahorro Directo (0%)
-                  </p>
-                  <p className="text-lg font-black text-emerald-600 dark:text-emerald-400">
-                    +{formatCurrency(
-                      activeReservations
-                        .filter((r) => r.platform === 'direct')
-                        .reduce((sum, r) => sum + r.totalAmount * 0.18, 0)
-                    )}
-                  </p>
+                <ArrowRight className="w-4 h-4 text-gray-300" />
+              </button>
+
+              <button
+                onClick={() => setMobileTab('guests')}
+                className="w-full p-4 rounded-[22px] bg-white dark:bg-[#1A1B20] flex items-center justify-between shadow-[0_4px_16px_rgba(0,0,0,0.02)] active:scale-98 transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#E6F8EA] text-[#25D366] flex items-center justify-center shrink-0">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-bold text-sm text-gray-900 dark:text-gray-100">Directorio de Huéspedes</p>
+                    <p className="text-xs text-gray-400 font-medium">WhatsApp, bienvenida y cobros</p>
+                  </div>
                 </div>
-              </div>
+                <ArrowRight className="w-4 h-4 text-gray-300" />
+              </button>
+
+              <button
+                onClick={() => setMobileTab('units')}
+                className="w-full p-4 rounded-[22px] bg-white dark:bg-[#1A1B20] flex items-center justify-between shadow-[0_4px_16px_rgba(0,0,0,0.02)] active:scale-98 transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#EDE8E1] text-[#7A7369] flex items-center justify-center shrink-0">
+                    <Home className="w-5 h-5" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-bold text-sm text-gray-900 dark:text-gray-100">Estado de Cabañas & Wi-Fi</p>
+                    <p className="text-xs text-gray-400 font-medium">Ver disponibilidad y claves</p>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-gray-300" />
+              </button>
+
+              <button
+                onClick={onSwitchToFullView}
+                className="w-full p-4 rounded-[22px] bg-white dark:bg-[#1A1B20] flex items-center justify-between shadow-[0_4px_16px_rgba(0,0,0,0.02)] active:scale-98 transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#F6D8C3] text-[#D86F35] flex items-center justify-center shrink-0">
+                    <Laptop className="w-5 h-5" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-bold text-sm text-gray-900 dark:text-gray-100">Cambiar a Vista Completa (PC)</p>
+                    <p className="text-xs text-gray-400 font-medium">Calendario Rack y finanzas</p>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-[#D86F35]" />
+              </button>
             </div>
           </div>
         )}
       </main>
 
       {/* ========================================================================= */}
-      {/* 3. MODAL / BOTTOM DRAWER: ACCIONES RÁPIDAS DE WHATSAPP Y COBROS           */}
+      {/* 3. MODAL DE ACCIONES RÁPIDAS (WHATSAPP, SEÑA, GUÍA)                       */}
       {/* ========================================================================= */}
       {selectedGuestAction && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
           <div
-            className="w-full max-w-lg bg-[#FAF8F5] dark:bg-[#121316] rounded-t-2xl sm:rounded-2xl border-t sm:border border-[#C8C4B7] dark:border-[#222328] p-4 sm:p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-md bg-white dark:bg-[#1A1B20] rounded-t-[28px] sm:rounded-[28px] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Drawer Header */}
-            <div className="flex items-start justify-between pb-3 border-b border-[#C8C4B7]/60 dark:border-[#222328]">
+            <div className="flex items-start justify-between pb-3 border-b border-gray-100 dark:border-zinc-800">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-[#E1500A] block">
-                  Acciones Rápidas con el Huésped
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#D86F35] block">
+                  Acciones Rápidas
                 </span>
-                <h3 className="font-black text-base text-[#18181B] dark:text-white">
+                <h3 className="font-bold text-base text-gray-900 dark:text-gray-100">
                   {selectedGuestAction.guestName}
                 </h3>
-                <p className="text-xs font-bold text-[#71717A] dark:text-[#8E8E93]">
+                <p className="text-xs text-gray-400 font-medium">
                   {selectedActionProperty?.name} • {formatDisplayDate(selectedGuestAction.checkIn)} al {formatDisplayDate(selectedGuestAction.checkOut)}
                 </p>
               </div>
 
               <button
                 onClick={() => setSelectedGuestAction(null)}
-                className="p-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white cursor-pointer"
+                className="p-2 rounded-full bg-[#EDE8E1] text-[#7A7369] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Quick WhatsApp Templates */}
             <div className="space-y-3">
-              {/* ACTION 1: SOLICITAR SEÑA / PAGO */}
-              <div className="p-3.5 rounded-xl bg-white dark:bg-[#18191E] border border-[#C8C4B7]/70 dark:border-[#282A33] space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-[#FAF8F5] dark:bg-[#22242D] text-[#18181B] dark:text-[#E4E4E7] flex items-center justify-center border border-[#C8C4B7]/40 dark:border-[#323540]">
-                      <CreditCard className="w-3.5 h-3.5 text-[#E1500A]" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-black text-[#18181B] dark:text-[#F4F4F5]">
-                        1. Solicitar Seña o Saldo
-                      </h4>
-                      <p className="text-[10px] text-[#71717A] dark:text-[#A1A1AA]">
-                        Envía Alias, CBU y monto sugerido ({depositAmount} USD)
-                      </p>
-                    </div>
-                  </div>
+              {/* ACCIÓN 1: SOLICITAR SEÑA */}
+              <div className="p-4 rounded-2xl bg-[#FDF3E7]/60 dark:bg-[#251D17] border border-orange-100/60 dark:border-orange-900/30 space-y-2">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-[#D86F35]" />
+                  <span className="text-xs font-bold text-gray-900 dark:text-gray-100">1. Solicitar Seña (50%)</span>
                 </div>
-
+                <p className="text-[11px] text-gray-400 font-medium">
+                  Envía CBU/Alias y sugerencia de seña ({depositAmount} USD)
+                </p>
                 <a
                   href={buildWhatsAppLink(selectedGuestAction.guestPhone, paymentMessageText)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-2.5 px-3 rounded-lg bg-[#18181B] hover:bg-black dark:bg-[#22242C] dark:hover:bg-[#2B2D37] text-white text-xs font-bold flex items-center justify-center gap-2 border border-zinc-800 dark:border-[#383B47] shadow-xs active:scale-98 transition-all cursor-pointer"
+                  className="w-full py-2.5 px-3 rounded-xl bg-[#F6D8C3] hover:bg-[#F0C9B0] text-[#D86F35] text-xs font-bold flex items-center justify-center gap-2 transition-colors"
                 >
-                  <MessageCircle className="w-4 h-4 text-[#E1500A]" />
-                  <span>Enviar Solicitud de Seña por WhatsApp</span>
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Enviar Seña por WhatsApp</span>
                 </a>
               </div>
 
-              {/* ACTION 2: ENVIAR BIENVENIDA & GUÍA DIGITAL */}
-              <div className="p-3.5 rounded-xl bg-white dark:bg-[#18191E] border border-[#C8C4B7]/70 dark:border-[#282A33] space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-[#FAF8F5] dark:bg-[#22242D] text-[#18181B] dark:text-[#E4E4E7] flex items-center justify-center border border-[#C8C4B7]/40 dark:border-[#323540]">
-                      <Navigation className="w-3.5 h-3.5 text-[#E1500A]" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-black text-[#18181B] dark:text-[#F4F4F5]">
-                        2. Enviar Bienvenida & Guía Digital
-                      </h4>
-                      <p className="text-[10px] text-[#71717A] dark:text-[#A1A1AA]">
-                        Incluye ruta GPS interactiva, fotos de acceso y claves
-                      </p>
-                    </div>
-                  </div>
+              {/* ACCIÓN 2: ENVIAR BIENVENIDA Y GUÍA DIGITAL */}
+              <div className="p-4 rounded-2xl bg-[#E6F8EA]/60 dark:bg-[#16291C] border border-green-100/60 dark:border-green-900/30 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Navigation className="w-4 h-4 text-[#25D366]" />
+                  <span className="text-xs font-bold text-gray-900 dark:text-gray-100">2. Enviar Bienvenida & Guía Digital</span>
                 </div>
-
+                <p className="text-[11px] text-gray-400 font-medium">
+                  Incluye mapa GPS interactivo, fotos de acceso y Wi-Fi
+                </p>
                 <a
                   href={buildWhatsAppLink(selectedGuestAction.guestPhone, welcomeMessageText)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-2.5 px-3 rounded-lg bg-[#18181B] hover:bg-black dark:bg-[#22242C] dark:hover:bg-[#2B2D37] text-white text-xs font-bold flex items-center justify-center gap-2 border border-zinc-800 dark:border-[#383B47] shadow-xs active:scale-98 transition-all cursor-pointer"
+                  className="w-full py-2.5 px-3 rounded-xl bg-[#E6F8EA] hover:bg-[#D4F5DC] text-[#2EA44F] text-xs font-bold flex items-center justify-center gap-2 transition-colors"
                 >
-                  <Send className="w-4 h-4 text-[#E1500A]" />
-                  <span>Enviar Bienvenida & Guía por WhatsApp</span>
+                  <Send className="w-4 h-4" />
+                  <span>Enviar Guía por WhatsApp</span>
                 </a>
               </div>
 
-              {/* ACTION 3: ENVIAR CLAVE WI-FI Y UBICACIÓN */}
-              <div className="p-3.5 rounded-xl bg-white dark:bg-[#18191E] border border-[#C8C4B7]/70 dark:border-[#282A33] space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-[#FAF8F5] dark:bg-[#22242D] text-[#18181B] dark:text-[#E4E4E7] flex items-center justify-center border border-[#C8C4B7]/40 dark:border-[#323540]">
-                      <Wifi className="w-3.5 h-3.5 text-zinc-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-black text-[#18181B] dark:text-[#F4F4F5]">
-                        3. Enviar Wi-Fi y Dirección
-                      </h4>
-                      <p className="text-[10px] text-[#71717A] dark:text-[#A1A1AA]">
-                        Red: {selectedActionProperty?.wifiNetwork}
-                      </p>
-                    </div>
-                  </div>
+              {/* ACCIÓN 3: ENVIAR WI-FI */}
+              <div className="p-4 rounded-2xl bg-[#EDE8E1]/60 dark:bg-[#202128] border border-gray-200/60 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Wifi className="w-4 h-4 text-[#7A7369]" />
+                  <span className="text-xs font-bold text-gray-900 dark:text-gray-100">3. Enviar Clave Wi-Fi</span>
                 </div>
-
+                <p className="text-[11px] text-gray-400 font-medium">
+                  Red: {selectedActionProperty?.wifiNetwork}
+                </p>
                 <a
                   href={buildWhatsAppLink(selectedGuestAction.guestPhone, wifiMessageText)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-2.5 px-3 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-[#1E2027] dark:hover:bg-[#282A33] text-zinc-800 dark:text-zinc-200 text-xs font-bold flex items-center justify-center gap-2 border border-zinc-200 dark:border-[#323540] shadow-xs active:scale-98 transition-all cursor-pointer"
+                  className="w-full py-2.5 px-3 rounded-xl bg-[#EDE8E1] hover:bg-[#E3DDD4] text-[#7A7369] text-xs font-bold flex items-center justify-center gap-2 transition-colors"
                 >
-                  <ExternalLink className="w-4 h-4 text-zinc-500" />
-                  <span>Enviar Wi-Fi y Dirección por WhatsApp</span>
+                  <ExternalLink className="w-4 h-4" />
+                  <span>Enviar Wi-Fi por WhatsApp</span>
                 </a>
               </div>
 
-              {/* ACTION 4: REGISTRAR COBRO CON 1 CLIC */}
-              <div className="p-3.5 rounded-xl bg-white dark:bg-[#18191E] border border-[#C8C4B7]/70 dark:border-[#282A33] space-y-2">
-                <span className="text-[10px] font-black uppercase tracking-wider text-[#71717A] dark:text-[#A1A1AA] block">
-                  Registrar Cobro / Estado de Pago:
+              {/* ACCIÓN 4: ESTADO DE PAGO */}
+              <div className="p-4 rounded-2xl bg-white dark:bg-[#1A1B20] border border-gray-100 dark:border-zinc-800 space-y-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                  Registrar Cobro:
                 </span>
                 <div className="grid grid-cols-3 gap-2">
                   <button
@@ -1262,10 +915,10 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                       onUpdatePaymentStatus?.(selectedGuestAction.id, 'deposit_only');
                       setSelectedGuestAction({ ...selectedGuestAction, paymentStatus: 'deposit_only' });
                     }}
-                    className={`py-2 px-1 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                    className={`py-2 px-1 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                       selectedGuestAction.paymentStatus === 'deposit_only'
-                        ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 border-zinc-900 dark:border-white shadow-xs font-black'
-                        : 'bg-[#FAF8F5] dark:bg-[#1C1E24] text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-[#2E303B]'
+                        ? 'bg-[#FDF3E7] border-orange-200 text-[#D86F35]'
+                        : 'bg-[#EDE8E1] border-transparent text-[#7A7369]'
                     }`}
                   >
                     Seña 50%
@@ -1276,13 +929,13 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                       onUpdatePaymentStatus?.(selectedGuestAction.id, 'paid');
                       setSelectedGuestAction({ ...selectedGuestAction, paymentStatus: 'paid' });
                     }}
-                    className={`py-2 px-1 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                    className={`py-2 px-1 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                       selectedGuestAction.paymentStatus === 'paid'
-                        ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 border-zinc-900 dark:border-white shadow-xs font-black'
-                        : 'bg-[#FAF8F5] dark:bg-[#1C1E24] text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-[#2E303B]'
+                        ? 'bg-[#E2F7E7] border-green-200 text-[#2EA44F]'
+                        : 'bg-[#EDE8E1] border-transparent text-[#7A7369]'
                     }`}
                   >
-                    100% Pagado
+                    100% Pago
                   </button>
 
                   <button
@@ -1290,10 +943,10 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                       onUpdatePaymentStatus?.(selectedGuestAction.id, 'pending');
                       setSelectedGuestAction({ ...selectedGuestAction, paymentStatus: 'pending' });
                     }}
-                    className={`py-2 px-1 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                    className={`py-2 px-1 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                       selectedGuestAction.paymentStatus === 'pending'
-                        ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 border-zinc-900 dark:border-white shadow-xs font-black'
-                        : 'bg-[#FAF8F5] dark:bg-[#1C1E24] text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-[#2E303B]'
+                        ? 'bg-[#FDF3E7] border-orange-200 text-[#D86F35]'
+                        : 'bg-[#EDE8E1] border-transparent text-[#7A7369]'
                     }`}
                   >
                     Pendiente
@@ -1306,66 +959,68 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* 4. FIXED BOTTOM TAB BAR (HIGH Z-INDEX & NATIVE FEEL)                       */}
+      {/* 4. FIXED BOTTOM TAB BAR (COPIA EXACTA DE LA IMAGEN)                        */}
       {/* ========================================================================= */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#FAF8F5] dark:bg-[#0E0F12] border-t-2 border-[#C8C4B7] dark:border-[#282A33] py-2 px-2 flex items-center justify-around shadow-[0_-4px_25px_rgba(0,0,0,0.18)] select-none">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-[#15161A] border-t border-black/[0.04] dark:border-white/[0.06] py-2 px-3 flex items-center justify-around shadow-[0_-4px_20px_rgba(0,0,0,0.03)] select-none">
         <button
           onClick={() => setMobileTab('today')}
-          className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-lg transition-all cursor-pointer ${
+          className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-xl transition-all cursor-pointer ${
             mobileTab === 'today'
-              ? 'text-[#E1500A] font-black scale-105'
-              : 'text-[#71717A] dark:text-[#8E8E93] font-bold hover:text-[#18181B] dark:hover:text-white'
+              ? 'text-[#C97B51] font-bold'
+              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 font-medium'
           }`}
         >
-          <Sun className={`w-5 h-5 ${mobileTab === 'today' ? 'text-[#E1500A]' : ''}`} />
+          <Sun className="w-5 h-5 stroke-[1.8]" />
           <span className="text-[11px] leading-none">Hoy</span>
         </button>
 
         <button
           onClick={() => setMobileTab('units')}
-          className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-lg transition-all cursor-pointer ${
+          className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-xl transition-all cursor-pointer ${
             mobileTab === 'units'
-              ? 'text-[#E1500A] font-black scale-105'
-              : 'text-[#71717A] dark:text-[#8E8E93] font-bold hover:text-[#18181B] dark:hover:text-white'
+              ? 'text-[#C97B51] font-bold'
+              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 font-medium'
           }`}
         >
-          <Home className={`w-5 h-5 ${mobileTab === 'units' ? 'text-[#E1500A]' : ''}`} />
+          <Home className="w-5 h-5 stroke-[1.8]" />
           <span className="text-[11px] leading-none">Cabañas</span>
         </button>
 
         <button
           onClick={() => setMobileTab('guests')}
-          className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-lg transition-all cursor-pointer ${
+          className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-xl transition-all cursor-pointer ${
             mobileTab === 'guests'
-              ? 'text-[#E1500A] font-black scale-105'
-              : 'text-[#71717A] dark:text-[#8E8E93] font-bold hover:text-[#18181B] dark:hover:text-white'
+              ? 'text-[#C97B51] font-bold'
+              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 font-medium'
           }`}
         >
-          <Users className={`w-5 h-5 ${mobileTab === 'guests' ? 'text-[#E1500A]' : ''}`} />
+          <div className="w-5 h-5 rounded-full border-[1.8px] border-current flex items-center justify-center">
+            <span className="w-2.5 h-2.5 rounded-full border-[1.8px] border-current -mb-0.5" />
+          </div>
           <span className="text-[11px] leading-none">Huéspedes</span>
         </button>
 
         <button
           onClick={() => setMobileTab('xenia')}
-          className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-lg transition-all cursor-pointer ${
+          className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-xl transition-all cursor-pointer ${
             mobileTab === 'xenia'
-              ? 'text-[#E1500A] font-black scale-105'
-              : 'text-[#71717A] dark:text-[#8E8E93] font-bold hover:text-[#18181B] dark:hover:text-white'
+              ? 'text-[#C97B51] font-bold'
+              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 font-medium'
           }`}
         >
-          <Mic className={`w-5 h-5 ${mobileTab === 'xenia' ? 'text-[#E1500A]' : ''}`} />
+          <Mic className="w-5 h-5 stroke-[1.8]" />
           <span className="text-[11px] leading-none">Xenia Voz</span>
         </button>
 
         <button
           onClick={() => setMobileTab('more')}
-          className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-lg transition-all cursor-pointer ${
+          className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-xl transition-all cursor-pointer ${
             mobileTab === 'more'
-              ? 'text-[#E1500A] font-black scale-105'
-              : 'text-[#71717A] dark:text-[#8E8E93] font-bold hover:text-[#18181B] dark:hover:text-white'
+              ? 'text-[#C97B51] font-bold'
+              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 font-medium'
           }`}
         >
-          <Zap className={`w-5 h-5 ${mobileTab === 'more' ? 'text-[#E1500A]' : ''}`} />
+          <Zap className="w-5 h-5 stroke-[1.8]" />
           <span className="text-[11px] leading-none">Atajos</span>
         </button>
       </nav>

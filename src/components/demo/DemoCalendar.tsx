@@ -231,78 +231,79 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
   const getPlatformColors = (platform: BookingPlatform) => {
     switch (platform) {
       case 'airbnb':
-        // Soft pastel coral / terracotta (Airbnb)
-        return 'bg-[#c46850] hover:bg-[#b05842] border-[#d87a62] text-[#fbf7f5] shadow-xs';
+        // Soft warm terracotta / coral (Airbnb)
+        return 'bg-[#d96748] hover:bg-[#c85a3c] border-[#e27d60] text-white shadow-xs rounded-lg';
       case 'booking':
-        // Soft pastel slate blue (Booking)
-        return 'bg-[#4a6b8c] hover:bg-[#3e5b78] border-[#5e82a6] text-[#f4f7fb] shadow-xs';
+        // Serene slate blue (Booking)
+        return 'bg-[#3d688d] hover:bg-[#34597a] border-[#4e7d9f] text-white shadow-xs rounded-lg';
       case 'direct':
-        // Soft pastel sage olive (Direct)
-        return 'bg-[#5c8a66] hover:bg-[#4d7555] border-[#72a37d] text-[#f2f8f3] shadow-xs';
+        // Natural bamboo sage green (Direct)
+        return 'bg-[#4e815a] hover:bg-[#41704c] border-[#639970] text-white shadow-xs rounded-lg';
       case 'vrbo':
-        // Soft pastel dusty purple (VRBO)
-        return 'bg-[#6b5882] hover:bg-[#5a4970] border-[#816c9c] text-[#f8f5fa] shadow-xs';
+        // Soft wisteria purple (VRBO)
+        return 'bg-[#6a5b82] hover:bg-[#5b4c73] border-[#7f6f97] text-white shadow-xs rounded-lg';
       default:
-        return 'bg-[#525252] text-white';
+        return 'bg-stone-600 text-white rounded-lg';
     }
   };
 
   return (
-    <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-2xs overflow-hidden transition-colors font-sans">
+    <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] overflow-hidden transition-colors font-sans">
       {/* Calendar Header / Filters */}
-      <div className="p-4 sm:p-5 border-b border-[#C8C4B7] dark:border-[#222328] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+      <div className="p-5 border-b border-stone-200/70 dark:border-zinc-800/70 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93]">
-              RACK MULTICANAL / EN VIVO
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]"></span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-400">
+              RACK MULTICANAL • EN TIEMPO REAL
             </span>
           </div>
-          <div className="flex items-center gap-2 mt-1">
-            <h3 className="text-xl font-black text-[#18181B] dark:text-white flex items-center gap-2">
-              <CalendarIcon className="w-5 h-5 text-[#E1500A]" />
-              <span>Ocupación</span>
+          <div className="flex items-center gap-2.5 mt-1">
+            <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2 tracking-tight">
+              <CalendarIcon className="w-5 h-5 text-[#E67E22]" />
+              <span>Ocupación & Disponibilidad</span>
             </h3>
-            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-none bg-[#E1500A]/15 text-[#E1500A] border border-[#E1500A]/30 flex items-center gap-1">
-              <RotateCw className="w-3 h-3 text-[#E1500A]" />
+            <span className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-md bg-orange-50 dark:bg-orange-950/40 text-[#E67E22] border border-orange-200/60 flex items-center gap-1.5">
+              <RotateCw className="w-3 h-3 text-[#E67E22]" />
               <span>Recambios Mismo Día</span>
             </span>
           </div>
-          <p className="text-xs text-[#71717A] dark:text-[#8E8E93] mt-0.5 font-bold">
-            Calendario Rack PMS — Check-in 14hs / Check-out 10hs sincronizado en tiempo real
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 font-medium">
+            Rack sincronizado con Google Calendar, Airbnb y canales directos • Check-in 14:00 / Check-out 10:00
           </p>
         </div>
 
         {/* Controls Bar */}
-        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
           {onOpenImportModal && (
             <button
               onClick={onOpenImportModal}
-              className="text-xs font-black uppercase tracking-wider px-3 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] hover:border-[#E1500A] text-[#18181B] dark:text-white flex items-center gap-1.5 transition-all cursor-pointer"
+              className="text-xs font-semibold px-3.5 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800/60 hover:bg-stone-100 dark:hover:bg-zinc-800 text-stone-700 dark:text-stone-200 flex items-center gap-1.5 transition-all cursor-pointer"
               title="Importar reservas desde Google Calendar (.ics) o archivos CSV / Excel"
             >
-              <CalendarIcon className="w-3.5 h-3.5 text-[#E1500A]" />
-              <span>Importar Google Cal / CSV</span>
+              <CalendarIcon className="w-3.5 h-3.5 text-[#E67E22]" />
+              <span>Importar Cal / CSV</span>
             </button>
           )}
 
           {/* Month & Year Navigator */}
-          <div className="flex items-center gap-1 bg-white dark:bg-[#18181B] p-1 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
+          <div className="flex items-center gap-1 bg-stone-50 dark:bg-zinc-800/60 p-1 rounded-xl border border-stone-200/80 dark:border-zinc-700/80">
             <button
               onClick={handlePrevMonth}
               title="Mes anterior"
-              className="p-1 hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] rounded-none transition-colors text-[#71717A] dark:text-[#8E8E93] cursor-pointer"
+              className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded-lg transition-colors text-stone-500 dark:text-stone-400 cursor-pointer"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3.5 h-3.5" />
             </button>
 
             {/* Month Selector */}
             <select
               value={currentVisibleMonth}
               onChange={(e) => handleMonthYearChange(Number(e.target.value), currentVisibleYear)}
-              className="text-xs font-black px-1.5 py-0.5 bg-transparent text-[#18181B] dark:text-white border-none focus:outline-hidden cursor-pointer uppercase"
+              className="text-xs font-semibold px-2 py-1 bg-transparent text-stone-800 dark:text-stone-200 border-none focus:outline-hidden cursor-pointer"
             >
               {MONTH_NAMES.map((m, idx) => (
-                <option key={idx} value={idx} className="bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white font-bold">
+                <option key={idx} value={idx} className="bg-white dark:bg-zinc-800 text-stone-800 dark:text-stone-200 font-medium">
                   {m}
                 </option>
               ))}
@@ -312,10 +313,10 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             <select
               value={currentVisibleYear}
               onChange={(e) => handleMonthYearChange(currentVisibleMonth, Number(e.target.value))}
-              className="text-xs font-black px-1 py-0.5 bg-transparent text-[#18181B] dark:text-white border-none focus:outline-hidden cursor-pointer"
+              className="text-xs font-semibold px-1.5 py-1 bg-transparent text-stone-800 dark:text-stone-200 border-none focus:outline-hidden cursor-pointer"
             >
               {[2025, 2026, 2027, 2028, 2029, 2030].map((y) => (
-                <option key={y} value={y} className="bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white font-bold">
+                <option key={y} value={y} className="bg-white dark:bg-zinc-800 text-stone-800 dark:text-stone-200 font-medium">
                   {y}
                 </option>
               ))}
@@ -324,24 +325,24 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             <button
               onClick={handleNextMonth}
               title="Mes siguiente"
-              className="p-1 hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] rounded-none transition-colors text-[#71717A] dark:text-[#8E8E93] cursor-pointer"
+              className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded-lg transition-colors text-stone-500 dark:text-stone-400 cursor-pointer"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
           {/* Quick Day Offset Navigator */}
-          <div className="flex items-center gap-1 bg-white dark:bg-[#18181B] p-1 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
+          <div className="flex items-center gap-1 bg-stone-50 dark:bg-zinc-800/60 p-1 rounded-xl border border-stone-200/80 dark:border-zinc-700/80">
             <button
               onClick={() => setDayOffset((prev) => prev - 7)}
               title="Retroceder 7 días"
-              className="p-1 hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] rounded-none transition-colors text-[#71717A] dark:text-[#8E8E93] cursor-pointer"
+              className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded-lg transition-colors text-stone-500 dark:text-stone-400 cursor-pointer"
             >
-              <ChevronsLeft className="w-4 h-4" />
+              <ChevronsLeft className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => setDayOffset(-2)}
-              className="text-[11px] font-black uppercase px-2 py-0.5 hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] rounded-none transition-colors text-[#18181B] dark:text-white cursor-pointer"
+              className="text-xs font-semibold px-2.5 py-1 hover:bg-white dark:hover:bg-zinc-700 rounded-lg transition-colors text-stone-800 dark:text-stone-200 cursor-pointer"
               title="Ir al día de hoy"
             >
               Hoy
@@ -349,20 +350,20 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             <button
               onClick={() => setDayOffset((prev) => prev + 7)}
               title="Avanzar 7 días"
-              className="p-1 hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] rounded-none transition-colors text-[#71717A] dark:text-[#8E8E93] cursor-pointer"
+              className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded-lg transition-colors text-stone-500 dark:text-stone-400 cursor-pointer"
             >
-              <ChevronsRight className="w-4 h-4" />
+              <ChevronsRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
           {/* Date Picker Quick Jump */}
-          <div className="flex items-center gap-1.5 bg-white dark:bg-[#18181B] px-2 py-1 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#71717A] dark:text-[#8E8E93]">Ir a:</span>
+          <div className="flex items-center gap-1.5 bg-stone-50 dark:bg-zinc-800/60 px-2.5 py-1.5 rounded-xl border border-stone-200/80 dark:border-zinc-700/80">
+            <span className="text-[11px] font-semibold text-stone-400 dark:text-stone-500">Ir a:</span>
             <input
               type="date"
               value={startDateStr}
               onChange={(e) => handleJumpToSpecificDate(e.target.value)}
-              className="text-[11px] bg-transparent text-[#18181B] dark:text-white border-none focus:outline-hidden cursor-pointer font-mono"
+              className="text-xs bg-transparent text-stone-800 dark:text-stone-200 border-none focus:outline-hidden cursor-pointer font-sans"
             />
           </div>
 
@@ -370,7 +371,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           <select
             value={selectedPropertyId}
             onChange={(e) => setSelectedPropertyId(e.target.value)}
-            className="text-xs font-bold px-2.5 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white cursor-pointer focus:outline-hidden"
+            className="text-xs font-semibold px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 text-stone-800 dark:text-stone-200 cursor-pointer focus:outline-hidden"
           >
             <option value="all">Todas las unidades ({demoState.properties.length})</option>
             {demoState.properties.map((p) => (
@@ -384,7 +385,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           <select
             value={platformFilter}
             onChange={(e) => setPlatformFilter(e.target.value)}
-            className="text-xs font-bold px-2.5 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white cursor-pointer focus:outline-hidden"
+            className="text-xs font-semibold px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 text-stone-800 dark:text-stone-200 cursor-pointer focus:outline-hidden"
           >
             <option value="all">Todos los canales</option>
             <option value="airbnb">Airbnb</option>
@@ -393,19 +394,19 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             <option value="vrbo">VRBO</option>
           </select>
 
-          {/* Column Width Selector: Compacta (48px) | Estándar (105px) | Amplia (185px) */}
-          <div className="flex items-center gap-1 bg-white dark:bg-[#18181B] p-1 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#71717A] dark:text-[#8E8E93] px-1.5 flex items-center gap-1">
-              <Columns className="w-3 h-3 text-[#E1500A]" />
+          {/* Column Width Selector */}
+          <div className="flex items-center gap-1 bg-stone-50 dark:bg-zinc-800/60 p-1 rounded-xl border border-stone-200/80 dark:border-zinc-700/80">
+            <span className="text-[11px] font-semibold text-stone-400 dark:text-stone-500 px-1.5 flex items-center gap-1">
+              <Columns className="w-3 h-3 text-[#E67E22]" />
               <span>Col:</span>
             </span>
             <button
               onClick={() => setColumnMode('compact')}
               title="Columna compacta (48px)"
-              className={`text-[11px] font-black uppercase px-2 py-1 rounded-none transition-colors cursor-pointer ${
+              className={`text-xs font-semibold px-2 py-1 rounded-lg transition-colors cursor-pointer ${
                 columnMode === 'compact'
-                  ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] shadow-2xs'
-                  : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white'
+                  ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-white shadow-xs'
+                  : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
               }`}
             >
               48px
@@ -413,10 +414,10 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             <button
               onClick={() => setColumnMode('medium')}
               title="Columna estándar (105px)"
-              className={`text-[11px] font-black uppercase px-2 py-1 rounded-none transition-colors cursor-pointer ${
+              className={`text-xs font-semibold px-2 py-1 rounded-lg transition-colors cursor-pointer ${
                 columnMode === 'medium'
-                  ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] shadow-2xs'
-                  : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white'
+                  ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-white shadow-xs'
+                  : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
               }`}
             >
               105px
@@ -424,10 +425,10 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             <button
               onClick={() => setColumnMode('full')}
               title="Columna completa (185px)"
-              className={`text-[11px] font-black uppercase px-2 py-1 rounded-none transition-colors cursor-pointer ${
+              className={`text-xs font-semibold px-2 py-1 rounded-lg transition-colors cursor-pointer ${
                 columnMode === 'full'
-                  ? 'bg-[#18181B] dark:bg-white text-white dark:text-[#18181B] shadow-2xs'
-                  : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white'
+                  ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-white shadow-xs'
+                  : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
               }`}
             >
               185px
@@ -437,83 +438,81 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
       </div>
 
       {/* Legend Bar & Turnover Indicator */}
-      <div className="bg-[#DEDBD2]/40 dark:bg-[#141518] px-4 sm:px-5 py-2.5 border-b border-[#C8C4B7] dark:border-[#222328] flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[#71717A] dark:text-[#8E8E93]">
-          <span className="font-black text-[#18181B] dark:text-white text-[11px] uppercase tracking-wider">Canales:</span>
-          <span className="flex items-center gap-1.5 font-bold">
-            <span className="w-2.5 h-2.5 rounded-none bg-[#E1500A] inline-block" />
-            <span className="text-[11px]">Airbnb</span>
+      <div className="bg-[#FAF9F6]/70 dark:bg-[#15161A] px-5 py-3 border-b border-stone-200/70 dark:border-zinc-800/70 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-stone-600 dark:text-stone-400">
+          <span className="font-bold text-stone-800 dark:text-stone-200 text-xs">Canales:</span>
+          <span className="flex items-center gap-1.5 font-medium">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#d96748] inline-block" />
+            <span className="text-xs">Airbnb</span>
           </span>
-          <span className="flex items-center gap-1.5 font-bold">
-            <span className="w-2.5 h-2.5 rounded-none bg-[#2563EB] inline-block" />
-            <span className="text-[11px]">Booking.com</span>
+          <span className="flex items-center gap-1.5 font-medium">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#3d688d] inline-block" />
+            <span className="text-xs">Booking.com</span>
           </span>
-          <span className="flex items-center gap-1.5 font-bold">
-            <span className="w-2.5 h-2.5 rounded-none bg-emerald-600 inline-block" />
-            <span className="text-[11px]">Directo</span>
+          <span className="flex items-center gap-1.5 font-medium">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#4e815a] inline-block" />
+            <span className="text-xs">Directo</span>
           </span>
-          <span className="flex items-center gap-1.5 font-bold">
-            <span className="w-2.5 h-2.5 rounded-none bg-purple-600 inline-block" />
-            <span className="text-[11px]">VRBO</span>
+          <span className="flex items-center gap-1.5 font-medium">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#6a5b82] inline-block" />
+            <span className="text-xs">VRBO</span>
           </span>
 
-          <span className="h-3 w-px bg-[#C8C4B7] dark:bg-[#222328] hidden sm:inline-block" />
+          <span className="h-3 w-px bg-stone-300 dark:bg-zinc-700 hidden sm:inline-block" />
 
           {/* Special Turnover Legend Indicator */}
-          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-none bg-[#E1500A]/10 text-[#E1500A] border border-[#E1500A]/30 text-[11px] font-bold uppercase tracking-wider">
-            <span className="w-2 h-2 rounded-none bg-[#E1500A] animate-pulse" />
-            <span className="font-black">🔄 Recambio mismo día:</span>
-            <span>Check-out 10hs & Check-in 14hs</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-50/80 dark:bg-orange-950/40 text-[#E67E22] border border-orange-200/50 text-xs font-medium">
+            <span className="w-2 h-2 rounded-full bg-[#E67E22] animate-pulse" />
+            <span className="font-bold">Recambio mismo día:</span>
+            <span className="text-stone-600 dark:text-stone-400">Salida 10:00 & Entrada 14:00</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-[11px] text-[#71717A] dark:text-[#8E8E93]">
-          <span className="font-mono text-[10px]">
-            Check-in 14:00 • Check-out 10:00
-          </span>
+        <div className="flex items-center gap-2 text-xs text-stone-400 dark:text-stone-500 font-mono">
+          <span>Check-in 14:00 • Check-out 10:00</span>
         </div>
       </div>
 
       {/* High-Visibility Timeline Slider & Controller */}
-      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] px-4 sm:px-5 py-2.5 border-b border-[#C8C4B7] dark:border-[#222328] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2">
-          <SlidersHorizontal className="w-4 h-4 text-[#E1500A] shrink-0" />
-          <span className="font-black uppercase tracking-wider text-[#18181B] dark:text-white text-xs whitespace-nowrap">
+      <div className="bg-white dark:bg-[#18191E] px-5 py-3 border-b border-stone-200/70 dark:border-zinc-800/70 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-2.5">
+          <SlidersHorizontal className="w-4 h-4 text-[#E67E22] shrink-0" />
+          <span className="font-bold text-stone-700 dark:text-stone-300 text-xs whitespace-nowrap">
             Desplazamiento horizontal:
           </span>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => handleScrollTimeline('left')}
-              className="px-2.5 py-1 rounded-none bg-white dark:bg-[#18181B] hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] border border-[#C8C4B7] dark:border-[#222328] font-bold text-[#18181B] dark:text-white text-xs flex items-center gap-1 shadow-2xs cursor-pointer transition-colors"
+              className="px-3 py-1.5 rounded-xl bg-stone-50 dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 border border-stone-200/80 dark:border-zinc-700 font-medium text-stone-700 dark:text-stone-200 text-xs flex items-center gap-1 transition-colors cursor-pointer"
               title="Deslizar hacia la izquierda"
             >
-              <ChevronLeft className="w-3.5 h-3.5 text-[#E1500A]" />
+              <ChevronLeft className="w-3.5 h-3.5 text-[#E67E22]" />
               <span>‹ Anterior</span>
             </button>
             <button
               onClick={() => handleScrollTimeline('right')}
-              className="px-2.5 py-1 rounded-none bg-white dark:bg-[#18181B] hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] border border-[#C8C4B7] dark:border-[#222328] font-bold text-[#18181B] dark:text-white text-xs flex items-center gap-1 shadow-2xs cursor-pointer transition-colors"
+              className="px-3 py-1.5 rounded-xl bg-stone-50 dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 border border-stone-200/80 dark:border-zinc-700 font-medium text-stone-700 dark:text-stone-200 text-xs flex items-center gap-1 transition-colors cursor-pointer"
               title="Deslizar hacia la derecha"
             >
               <span>Siguiente ›</span>
-              <ChevronRight className="w-3.5 h-3.5 text-[#E1500A]" />
+              <ChevronRight className="w-3.5 h-3.5 text-[#E67E22]" />
             </button>
           </div>
         </div>
 
         <div className="flex items-center gap-2.5 flex-1 max-w-full sm:max-w-md">
-          <span className="text-[10px] text-[#71717A] dark:text-[#8E8E93] font-mono">Día 1</span>
+          <span className="text-[11px] text-stone-400 font-mono">Día 1</span>
           <input
             type="range"
             min="0"
             max="100"
             value={scrollProgress}
             onChange={(e) => handleSliderChange(Number(e.target.value))}
-            className="w-full h-2 bg-[#C8C4B7] dark:bg-[#222328] rounded-none appearance-none cursor-pointer accent-[#E1500A]"
+            className="w-full h-1.5 bg-stone-200 dark:bg-zinc-700 rounded-full appearance-none cursor-pointer accent-[#E67E22]"
             title="Arrastra esta barra para deslizar horizontalmente por todo el calendario"
           />
-          <span className="text-[10px] text-[#71717A] dark:text-[#8E8E93] font-mono">Día 14</span>
-          <span className="font-mono text-[11px] font-black text-[#E1500A] min-w-[36px] text-right">
+          <span className="text-[11px] text-stone-400 font-mono">Día 14</span>
+          <span className="font-mono text-xs font-bold text-[#E67E22] min-w-[36px] text-right">
             {Math.round(scrollProgress)}%
           </span>
         </div>
@@ -523,32 +522,32 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
       <div
         ref={timelineContainerRef}
         onScroll={updateScrollProgress}
-        className="overflow-x-auto rounded-none bg-white dark:bg-[#0C0D0F] shadow-xs calendar-scrollbar"
+        className="overflow-x-auto bg-white dark:bg-[#18191E] calendar-scrollbar"
       >
         <div className="min-w-[980px]">
           {/* Header Row of Days */}
-          <div className="flex border-b border-[#C8C4B7] dark:border-[#222328] bg-[#EAE8E3] dark:bg-[#141518] text-[#18181B] dark:text-white">
+          <div className="flex border-b border-stone-200/70 dark:border-zinc-800/70 bg-stone-50/70 dark:bg-[#141518] text-stone-700 dark:text-stone-300">
             {/* Responsive Sticky Property Header Column */}
-            <div className={`${getColumnWidthClass(columnMode)} font-black text-xs uppercase tracking-wider border-r border-[#C8C4B7] dark:border-[#222328] flex items-center justify-between sticky left-0 bg-[#DEDBD2] dark:bg-[#141518] z-30 shadow-[3px_0_8px_rgba(0,0,0,0.06)] shrink-0`}>
+            <div className={`${getColumnWidthClass(columnMode)} font-bold text-xs uppercase tracking-wider border-r border-stone-200/70 dark:border-zinc-800/70 flex items-center justify-between sticky left-0 bg-stone-100/80 dark:bg-[#141518] z-30 shadow-[3px_0_8px_rgba(0,0,0,0.03)] shrink-0`}>
               <span className="truncate">
                 {columnMode === 'compact' ? 'Depto' : columnMode === 'medium' ? 'Depto' : 'Departamento'}
               </span>
               {columnMode === 'full' && (
-                <span className="text-[10px] text-[#71717A] dark:text-[#8E8E93] font-mono">Tarifa/N</span>
+                <span className="text-[10px] text-stone-400 dark:text-stone-500 font-mono">Tarifa/N</span>
               )}
             </div>
             <div className="flex-1 grid grid-cols-[repeat(14,minmax(0,1fr))] min-w-[840px]">
               {dates.map((d) => (
                 <div
                   key={d.dateStr}
-                  className={`p-2 text-center border-r border-[#C8C4B7] dark:border-[#222328] last:border-r-0 ${
+                  className={`p-2.5 text-center border-r border-stone-100 dark:border-zinc-800/50 last:border-r-0 ${
                     d.isToday
-                      ? 'bg-[#E1500A]/15 dark:bg-[#E1500A]/20 font-black text-[#E1500A]'
+                      ? 'bg-orange-50/70 dark:bg-orange-950/20 text-[#E67E22]'
                       : ''
                   }`}
                 >
-                  <div className="text-[10px] uppercase font-black text-[#71717A] dark:text-[#8E8E93]">{d.dayName}</div>
-                  <div className={`text-sm ${d.isToday ? 'text-[#E1500A] underline decoration-2 font-black' : 'text-[#18181B] dark:text-white font-bold'}`}>
+                  <div className="text-[10px] uppercase font-bold text-stone-400 dark:text-stone-500">{d.dayName}</div>
+                  <div className={`text-sm mt-0.5 ${d.isToday ? 'text-[#E67E22] font-extrabold' : 'text-stone-800 dark:text-stone-200 font-medium'}`}>
                     {d.dayNum}
                   </div>
                 </div>
@@ -563,45 +562,45 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             return (
               <div
                 key={prop.id}
-                className="flex border-b border-[#C8C4B7] dark:border-[#222328] min-h-[68px] hover:bg-[#DEDBD2]/20 dark:hover:bg-[#141518]/60 transition-colors"
+                className="flex border-b border-stone-100 dark:border-zinc-800/50 min-h-[68px] hover:bg-stone-50/40 dark:hover:bg-zinc-800/30 transition-colors"
               >
                 {/* Property Label Column */}
-                <div className={`${getColumnWidthClass(columnMode)} border-r border-[#C8C4B7] dark:border-[#222328] bg-[#F4F2EE] dark:bg-[#0C0D0F] flex flex-col justify-center sticky left-0 z-20 shadow-[3px_0_8px_rgba(0,0,0,0.06)] shrink-0`}>
+                <div className={`${getColumnWidthClass(columnMode)} border-r border-stone-200/70 dark:border-zinc-800/70 bg-[#FAF9F6] dark:bg-[#15161A] flex flex-col justify-center sticky left-0 z-20 shadow-[3px_0_8px_rgba(0,0,0,0.03)] shrink-0`}>
                   {columnMode === 'compact' ? (
                     <div className="flex flex-col items-center justify-center">
                       <span
-                        className="text-[11px] font-black px-1 py-0.5 rounded-none bg-[#DEDBD2] dark:bg-[#18181B] text-[#18181B] dark:text-white border border-[#C8C4B7] dark:border-[#222328] block text-center"
+                        className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-white dark:bg-zinc-800 text-stone-800 dark:text-stone-200 border border-stone-200/80 dark:border-zinc-700/80 block text-center"
                         title={prop.name}
                       >
                         {getShortName(prop.name, propIndex)}
                       </span>
-                      <span className="text-[10px] font-bold text-[#E1500A] mt-0.5 block font-mono">
+                      <span className="text-[10px] font-semibold text-[#E67E22] mt-0.5 block font-mono">
                         ${prop.basePrice}
                       </span>
                     </div>
                   ) : columnMode === 'medium' ? (
                     <div>
-                      <div className="font-black text-xs text-[#18181B] dark:text-white truncate" title={prop.name}>
+                      <div className="font-bold text-xs text-stone-800 dark:text-stone-200 truncate" title={prop.name}>
                         {prop.name}
                       </div>
-                      <div className="text-[10px] font-bold text-[#E1500A] mt-0.5 font-mono">
+                      <div className="text-[10px] font-semibold text-[#E67E22] mt-0.5 font-mono">
                         ${prop.basePrice}/n
                       </div>
                     </div>
                   ) : (
                     <div>
-                      <div className="font-black text-xs text-[#18181B] dark:text-white truncate" title={prop.name}>
+                      <div className="font-bold text-xs text-stone-800 dark:text-stone-200 truncate" title={prop.name}>
                         {prop.name}
                       </div>
-                      <div className="flex items-center justify-between text-[10px] text-[#71717A] dark:text-[#8E8E93] mt-0.5 font-mono">
+                      <div className="flex items-center justify-between text-[10px] text-stone-400 dark:text-stone-500 mt-0.5 font-mono">
                         <span className="truncate pr-1">{prop.neighborhood}</span>
-                        <span className="font-bold text-[#E1500A] shrink-0">${prop.basePrice}/n</span>
+                        <span className="font-semibold text-[#E67E22] shrink-0">${prop.basePrice}/n</span>
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* 14 Day Timeline Container - contains both background slots and reservation bars */}
+                {/* 14 Day Timeline Container */}
                 <div className="flex-1 relative grid grid-cols-[repeat(14,minmax(0,1fr))] min-w-[840px]">
                   {/* 14 Day Background Slots */}
                   {dates.map((d) => {
@@ -612,14 +611,14 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                     return (
                       <div
                         key={d.dateStr}
-                        className={`h-full border-r border-[#C8C4B7] dark:border-[#222328] last:border-r-0 relative flex items-center justify-center ${
-                          d.isToday ? 'bg-[#E1500A]/5 dark:bg-[#E1500A]/10' : ''
-                        } ${isTurnoverDayHere ? 'bg-[#E1500A]/10 dark:bg-[#E1500A]/15' : ''}`}
+                        className={`h-full border-r border-stone-100 dark:border-zinc-800/40 last:border-r-0 relative flex items-center justify-center ${
+                          d.isToday ? 'bg-orange-50/20 dark:bg-orange-950/10' : ''
+                        } ${isTurnoverDayHere ? 'bg-orange-50/40 dark:bg-orange-950/15' : ''}`}
                       >
-                        {/* Subtle turnover vertical guideline marker in the middle of the turnover column */}
+                        {/* Subtle turnover vertical guideline marker in the middle */}
                         {isTurnoverDayHere && (
                           <div
-                            className="absolute inset-y-0 left-1/2 w-0.5 border-l border-dashed border-[#E1500A]/50 z-0 pointer-events-none"
+                            className="absolute inset-y-0 left-1/2 w-0.5 border-l border-dashed border-[#E67E22]/40 z-0 pointer-events-none"
                             title={`Día de recambio: Salida a la mañana (10hs) y Entrada a la tarde (14hs)`}
                           />
                         )}
@@ -630,7 +629,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                             onOpenNewReservationWithProperty(prop.id, d.dateStr)
                           }
                           title={`Crear reserva libre el ${d.dateStr}`}
-                          className="w-full h-full opacity-0 hover:opacity-100 hover:bg-[#DEDBD2]/50 dark:hover:bg-[#18181B] flex items-center justify-center text-[#71717A] hover:text-[#18181B] dark:hover:text-white transition-all cursor-pointer text-xs z-0"
+                          className="w-full h-full opacity-0 hover:opacity-100 hover:bg-stone-100/60 dark:hover:bg-zinc-800/60 flex items-center justify-center text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-all cursor-pointer text-xs z-0"
                         >
                           <Plus className="w-3.5 h-3.5" />
                         </button>
@@ -705,11 +704,11 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                           style={{
                             clipPath: isContinuingAfter 
                               ? undefined 
-                              : 'polygon(0% 0%, calc(100% - 9px) 0%, 100% 50%, calc(100% - 9px) 100%, 0% 100%)',
+                              : 'polygon(0% 0%, calc(100% - 8px) 0%, 100% 50%, calc(100% - 8px) 100%, 0% 100%)',
                           }}
                           className={`w-full h-full relative ${
-                            isContinuingFromBefore || hasIncomingTurnover ? 'rounded-l-none' : 'rounded-none'
-                          } pl-2 sm:pl-2.5 pr-4 py-1 flex items-center justify-between text-left text-xs font-bold cursor-pointer shadow-xs border transition-all hover:scale-[1.01] hover:brightness-110 hover:shadow-md hover:z-30 overflow-hidden ${getPlatformColors(
+                            isContinuingFromBefore || hasIncomingTurnover ? 'rounded-l-none' : 'rounded-lg'
+                          } pl-2 sm:pl-3 pr-3.5 py-1 flex items-center justify-between text-left text-xs font-semibold cursor-pointer shadow-xs border transition-all hover:scale-[1.01] hover:brightness-105 hover:shadow-md hover:z-30 overflow-hidden ${getPlatformColors(
                             res.platform
                           )}`}
                           title={`${res.guestName} (${res.platform.toUpperCase()}) · Entrada: ${formatDisplayDate(
@@ -719,7 +718,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                           <div className="flex items-center gap-1.5 truncate min-w-0 pr-1 z-10">
                             {res.platform === 'airbnb' && res.airbnbFeeMode === 'traditional_3' && (
                               <span
-                                className="text-[9px] font-black px-1 py-0.2 rounded-none bg-white/25 text-white shrink-0"
+                                className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/20 text-white shrink-0"
                                 title="Comisión Airbnb 3% anfitrión tradicional"
                               >
                                 3%
@@ -728,19 +727,19 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
 
                             {(res.earlyCheckIn || res.lateCheckOut) && (
                               <span
-                                className="text-[9px] font-black px-1 py-0.2 rounded-none bg-amber-400 text-amber-950 shrink-0"
+                                className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-300 text-amber-950 shrink-0"
                                 title={res.earlyCheckIn ? 'Early Check-in' : 'Late Check-out'}
                               >
                                 {res.earlyCheckIn ? 'Early' : 'Late'}
                               </span>
                             )}
 
-                            <span className="font-black text-xs truncate">
+                            <span className="font-bold text-xs truncate text-white">
                               {res.guestName}
                             </span>
                           </div>
 
-                          <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-mono opacity-90 shrink-0 font-bold z-10 mr-2">
+                          <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-mono opacity-90 shrink-0 font-medium z-10 mr-2 text-white">
                             {res.totalAmount !== undefined && (
                               <span>${res.totalAmount}</span>
                             )}
@@ -748,7 +747,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
 
                           {!isContinuingAfter && (
                             <div
-                              className="absolute right-0 top-0 bottom-0 w-3 bg-white/25 dark:bg-black/35 border-l border-white/25 flex items-center justify-center pointer-events-none"
+                              className="absolute right-0 top-0 bottom-0 w-3 bg-white/20 dark:bg-black/30 border-l border-white/20 flex items-center justify-center pointer-events-none"
                               style={{
                                 clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)',
                               }}
@@ -767,33 +766,33 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
       </div>
 
       {/* Interactive Horizontal Scroll Slider & Pan Bar */}
-      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] border-t border-[#C8C4B7] dark:border-[#222328] px-4 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <div className="bg-stone-50/50 dark:bg-[#141518] border-t border-stone-200/70 dark:border-zinc-800/70 px-5 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
           <button
             onClick={() => handleScrollTimeline('left')}
-            className="flex items-center gap-1 font-bold text-xs bg-white dark:bg-[#18181B] hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] text-[#18181B] dark:text-white px-3 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-2xs cursor-pointer transition-colors"
+            className="flex items-center gap-1 font-semibold text-xs bg-white dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 text-stone-700 dark:text-stone-200 px-3.5 py-1.5 rounded-xl border border-stone-200/80 dark:border-zinc-700 cursor-pointer transition-colors"
             title="Deslizar hacia días anteriores"
           >
-            <ChevronLeft className="w-4 h-4 text-[#E1500A]" />
+            <ChevronLeft className="w-3.5 h-3.5 text-[#E67E22]" />
             <span>‹ Días anteriores</span>
           </button>
-          <span className="text-[11px] text-[#71717A] dark:text-[#8E8E93] sm:hidden font-mono">
+          <span className="text-[11px] text-stone-400 sm:hidden font-mono">
             Deslizar timeline
           </span>
           <button
             onClick={() => handleScrollTimeline('right')}
-            className="flex items-center gap-1 font-bold text-xs bg-white dark:bg-[#18181B] hover:bg-[#DCD8CE] dark:hover:bg-[#27272A] text-[#18181B] dark:text-white px-3 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-2xs cursor-pointer transition-colors"
+            className="flex items-center gap-1 font-semibold text-xs bg-white dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 text-stone-700 dark:text-stone-200 px-3.5 py-1.5 rounded-xl border border-stone-200/80 dark:border-zinc-700 cursor-pointer transition-colors"
             title="Deslizar hacia días siguientes"
           >
             <span>Días siguientes ›</span>
-            <ChevronRight className="w-4 h-4 text-[#E1500A]" />
+            <ChevronRight className="w-3.5 h-3.5 text-[#E67E22]" />
           </button>
         </div>
 
         {/* Slider track */}
         <div className="w-full sm:max-w-md flex items-center gap-3">
-          <SlidersHorizontal className="w-3.5 h-3.5 text-[#E1500A] shrink-0" />
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#71717A] dark:text-[#8E8E93] whitespace-nowrap hidden md:inline">
+          <SlidersHorizontal className="w-3.5 h-3.5 text-[#E67E22] shrink-0" />
+          <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 whitespace-nowrap hidden md:inline">
             Barra de desplazamiento:
           </span>
           <input
@@ -802,10 +801,10 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             max="100"
             value={scrollProgress}
             onChange={(e) => handleSliderChange(Number(e.target.value))}
-            className="w-full h-2 bg-[#C8C4B7] dark:bg-[#222328] rounded-none appearance-none cursor-pointer accent-[#E1500A]"
+            className="w-full h-1.5 bg-stone-200 dark:bg-zinc-700 rounded-full appearance-none cursor-pointer accent-[#E67E22]"
             title="Arrastra para navegar por los 14 días"
           />
-          <span className="text-[11px] font-mono text-[#18181B] dark:text-white font-bold min-w-[34px] text-right">
+          <span className="text-xs font-mono text-stone-700 dark:text-stone-300 font-bold min-w-[34px] text-right">
             {Math.round(scrollProgress)}%
           </span>
         </div>

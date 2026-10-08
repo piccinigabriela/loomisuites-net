@@ -73,98 +73,101 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({ demoState }) => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 font-sans">
+    <div className="space-y-5 sm:space-y-6 font-sans">
       {/* Header */}
-      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
+      <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 sm:p-6 shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
         <div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93]">
-            FINANZAS / RENDIMIENTO & LIQUIDACIONES
-          </span>
-          <h3 className="text-xl font-black text-[#18181B] dark:text-white flex items-center gap-2 mt-0.5">
-            <DollarSign className="w-5 h-5 text-[#E1500A]" />
-            <span>Finanzas, Métricas & Liquidación a Propietarios</span>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]"></span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-400">
+              FINANZAS & LIQUIDACIONES
+            </span>
+          </div>
+          <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2 tracking-tight">
+            <DollarSign className="w-5 h-5 text-[#E67E22]" />
+            <span>Rendimiento, Métricas & Liquidación a Propietarios</span>
           </h3>
-          <p className="text-xs text-[#71717A] dark:text-[#8E8E93] mt-0.5 font-bold">
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 font-medium">
             Desglose automático de ingresos brutos, comisiones de plataformas y honorarios de administración.
           </p>
         </div>
 
         <button
           onClick={handlePrint}
-          className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#18181B] dark:text-white bg-white dark:bg-[#18181B] hover:border-[#E1500A] px-3.5 py-2 rounded-none transition-colors cursor-pointer border border-[#C8C4B7] dark:border-[#222328] shadow-2xs"
+          className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 dark:text-stone-200 bg-stone-50 dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 px-4 py-2.5 rounded-xl transition-colors cursor-pointer border border-stone-200/80 dark:border-zinc-700"
         >
-          <Printer className="w-3.5 h-3.5 text-[#E1500A]" />
+          <Printer className="w-3.5 h-3.5 text-[#E67E22]" />
           <span>Imprimir / Exportar Reporte</span>
         </button>
       </div>
 
       {/* 4 Financial Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-4 sm:p-5 border border-[#C8C4B7] dark:border-[#222328] shadow-2xs transition-colors">
-          <span className="text-[10px] font-black text-[#71717A] dark:text-[#8E8E93] uppercase tracking-widest block mb-1">
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_12px_rgba(0,0,0,0.01)] transition-colors">
+          <span className="text-[11px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider block mb-1">
             Ingresos Brutos
           </span>
-          <div className="text-2xl font-black text-[#18181B] dark:text-white">
+          <div className="text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
             {formatCurrency(grossRevenue)}
           </div>
-          <p className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] mt-1">Suma de todas las estadías</p>
+          <p className="text-xs text-stone-400 dark:text-stone-500 mt-1 font-medium">Suma de todas las estadías</p>
         </div>
 
-        <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-4 sm:p-5 border border-[#C8C4B7] dark:border-[#222328] shadow-2xs transition-colors">
-          <span className="text-[10px] font-black text-[#71717A] dark:text-[#8E8E93] uppercase tracking-widest block mb-1">
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_12px_rgba(0,0,0,0.01)] transition-colors">
+          <span className="text-[11px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider block mb-1">
             Comisiones a OTAs
           </span>
-          <div className="text-2xl font-black text-red-600 dark:text-red-400">
+          <div className="text-2xl font-bold text-rose-600 dark:text-rose-400 tracking-tight">
             -{formatCurrency(totalOtaCommissions)}
           </div>
-          <p className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] mt-1">Airbnb / Booking / VRBO</p>
+          <p className="text-xs text-stone-400 dark:text-stone-500 mt-1 font-medium">Airbnb / Booking / VRBO</p>
         </div>
 
-        <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-4 sm:p-5 border border-[#C8C4B7] dark:border-[#222328] shadow-2xs transition-colors">
-          <span className="text-[10px] font-black text-[#71717A] dark:text-[#8E8E93] uppercase tracking-widest block mb-1">
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_12px_rgba(0,0,0,0.01)] transition-colors">
+          <span className="text-[11px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider block mb-1">
             Tarifa Promedio (ADR)
           </span>
-          <div className="text-2xl font-black text-[#E1500A]">
+          <div className="text-2xl font-bold text-[#E67E22] tracking-tight">
             {formatCurrency(averageDailyRate)}
           </div>
-          <p className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] mt-1">
+          <p className="text-xs text-stone-400 dark:text-stone-500 mt-1 font-medium">
             Sobre {totalNights} noches vendidas
           </p>
         </div>
 
-        <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none p-4 sm:p-5 border border-[#C8C4B7] dark:border-[#222328] shadow-2xs transition-colors">
-          <span className="text-[10px] font-black text-[#71717A] dark:text-[#8E8E93] uppercase tracking-widest block mb-1">
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_12px_rgba(0,0,0,0.01)] transition-colors">
+          <span className="text-[11px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider block mb-1">
             Ingreso Neto Cobrado
           </span>
-          <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+          <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tracking-tight">
             {formatCurrency(netRevenue)}
           </div>
-          <p className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] mt-1">Limpio en tus cuentas</p>
+          <p className="text-xs text-stone-400 dark:text-stone-500 mt-1 font-medium">Limpio en tus cuentas</p>
         </div>
       </div>
 
       {/* Owner Payout Generator */}
-      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-5 sm:p-6 shadow-2xs transition-colors">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-[#C8C4B7] dark:border-[#222328]">
+      <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 sm:p-6 shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-colors">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-stone-200/70 dark:border-zinc-800/70">
           <div>
-            <span className="text-[10px] font-black text-[#E1500A] uppercase tracking-widest">
+            <span className="text-[11px] font-bold text-[#E67E22] uppercase tracking-wider">
               MÓDULO DE CO-HOSTING Y ADMINISTRACIÓN
             </span>
-            <h4 className="text-base font-black uppercase tracking-tight text-[#18181B] dark:text-white mt-0.5">
+            <h4 className="text-base font-bold text-stone-900 dark:text-stone-100 tracking-tight mt-0.5">
               Generador de Liquidación para el Propietario
             </h4>
-            <p className="text-xs text-[#71717A] dark:text-[#8E8E93] font-medium">
+            <p className="text-xs text-stone-500 dark:text-stone-400 font-medium mt-0.5">
               Selecciona una propiedad para calcular la rendición mensual lista para enviar por correo o WhatsApp.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <div>
-              <label className="text-[10px] font-black uppercase tracking-wider text-[#71717A] dark:text-[#8E8E93] block mb-1">Propiedad:</label>
+              <label className="text-[11px] font-semibold text-stone-400 dark:text-stone-500 block mb-1">Propiedad:</label>
               <select
                 value={selectedPropertyId}
                 onChange={(e) => setSelectedPropertyId(e.target.value)}
-                className="text-xs font-bold p-2 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white focus:outline-none focus:border-[#E1500A]"
+                className="text-xs font-semibold px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-200 focus:outline-none"
               >
                 {demoState.properties.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -175,11 +178,11 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({ demoState }) => {
             </div>
 
             <div>
-              <label className="text-[10px] font-black uppercase tracking-wider text-[#71717A] dark:text-[#8E8E93] block mb-1">Honorario Gestor:</label>
+              <label className="text-[11px] font-semibold text-stone-400 dark:text-stone-500 block mb-1">Honorario Gestor:</label>
               <select
                 value={commissionRate}
                 onChange={(e) => setCommissionRate(Number(e.target.value))}
-                className="text-xs font-bold p-2 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white focus:outline-none focus:border-[#E1500A]"
+                className="text-xs font-semibold px-3 py-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-200 focus:outline-none"
               >
                 <option value="15">15%</option>
                 <option value="20">20% (Estándar)</option>
@@ -191,57 +194,57 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({ demoState }) => {
         </div>
 
         {/* Statement Mockup */}
-        <div className="mt-6 max-w-2xl mx-auto bg-white dark:bg-[#18181B] rounded-none p-6 border border-[#C8C4B7] dark:border-[#222328] shadow-2xs font-sans transition-colors">
-          <div className="flex items-center justify-between border-b border-[#C8C4B7] dark:border-[#222328] pb-4 mb-4">
+        <div className="mt-6 max-w-2xl mx-auto bg-[#FDFBF9] dark:bg-[#131418] rounded-2xl p-6 border border-stone-200/80 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.01)] font-sans transition-colors">
+          <div className="flex items-center justify-between border-b border-stone-200/70 dark:border-zinc-800/70 pb-4 mb-4">
             <div>
-              <h5 className="text-sm font-black uppercase tracking-tight text-[#18181B] dark:text-white">
+              <h5 className="text-sm font-bold text-stone-900 dark:text-stone-100">
                 Liquidación Mensual de Rendimiento
               </h5>
-              <p className="text-xs text-[#71717A] dark:text-[#8E8E93] font-medium">
-                Propiedad: <strong>{selectedProperty?.name}</strong> ({selectedProperty?.address})
+              <p className="text-xs text-stone-500 dark:text-stone-400 font-medium mt-0.5">
+                Propiedad: <strong className="text-stone-800 dark:text-stone-200">{selectedProperty?.name}</strong> ({selectedProperty?.address})
               </p>
             </div>
             <div className="text-right">
-              <span className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] block">Período: Mes en curso</span>
-              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/40 px-2 py-0.5 rounded-none border border-emerald-300 dark:border-emerald-800">
+              <span className="text-[11px] text-stone-400 dark:text-stone-500 block">Período: Mes en curso</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-md border border-emerald-200/60 inline-block mt-0.5">
                 Aprobada
               </span>
             </div>
           </div>
 
           {/* Lines */}
-          <div className="space-y-2.5 text-xs text-[#18181B] dark:text-[#EFECE5]">
-            <div className="flex justify-between py-1 border-b border-[#C8C4B7]/40 dark:border-[#222328]">
+          <div className="space-y-3 text-xs text-stone-700 dark:text-stone-300">
+            <div className="flex justify-between py-1 border-b border-stone-200/50 dark:border-zinc-800/60">
               <span>Total Facturado ({propReservations.length} reservas):</span>
-              <span className="font-bold">{formatCurrency(propGross)}</span>
+              <span className="font-semibold text-stone-900 dark:text-stone-100">{formatCurrency(propGross)}</span>
             </div>
-            <div className="flex justify-between py-1 border-b border-[#C8C4B7]/40 dark:border-[#222328] text-red-600 dark:text-red-400">
+            <div className="flex justify-between py-1 border-b border-stone-200/50 dark:border-zinc-800/60 text-rose-600 dark:text-rose-400">
               <span>Menos comisiones pagadas a plataformas (OTAs):</span>
-              <span>-{formatCurrency(propOtaCommissions)}</span>
+              <span className="font-medium">-{formatCurrency(propOtaCommissions)}</span>
             </div>
-            <div className="flex justify-between py-1 border-b border-[#C8C4B7]/40 dark:border-[#222328] text-[#71717A] dark:text-[#8E8E93]">
+            <div className="flex justify-between py-1 border-b border-stone-200/50 dark:border-zinc-800/60 text-stone-500 dark:text-stone-400">
               <span>Menos costos de limpieza y reposición:</span>
-              <span>-{formatCurrency(propCleaning)}</span>
+              <span className="font-medium">-{formatCurrency(propCleaning)}</span>
             </div>
-            <div className="flex justify-between py-1 border-b border-[#C8C4B7]/40 dark:border-[#222328] font-bold">
+            <div className="flex justify-between py-1 border-b border-stone-200/50 dark:border-zinc-800/60 font-medium text-stone-800 dark:text-stone-200">
               <span>Subtotal Neto Operativo:</span>
-              <span>{formatCurrency(propNetBeforeAgency)}</span>
+              <span className="font-semibold">{formatCurrency(propNetBeforeAgency)}</span>
             </div>
-            <div className="flex justify-between py-1 border-b border-[#C8C4B7]/40 dark:border-[#222328] text-[#E1500A] font-bold">
+            <div className="flex justify-between py-1 border-b border-stone-200/50 dark:border-zinc-800/60 text-[#E67E22] font-medium">
               <span>Honorarios de Co-hosting ({commissionRate}%):</span>
-              <span>-{formatCurrency(agencyFee)}</span>
+              <span className="font-semibold">-{formatCurrency(agencyFee)}</span>
             </div>
-            <div className="flex justify-between py-2 pt-3 text-sm font-black border-t-2 border-[#18181B] dark:border-white">
-              <span className="uppercase tracking-wider">Neto a Transferir al Propietario:</span>
-              <span className="text-emerald-600 dark:text-emerald-400 text-base font-black">
+            <div className="flex justify-between py-2 pt-3 text-sm font-bold border-t border-stone-300 dark:border-zinc-700">
+              <span className="text-stone-900 dark:text-white">Neto a Transferir al Propietario:</span>
+              <span className="text-emerald-600 dark:text-emerald-400 text-base font-bold">
                 {formatCurrency(ownerPayout)}
               </span>
             </div>
           </div>
 
-          <div className="mt-5 pt-3 border-t border-[#C8C4B7] dark:border-[#222328] text-center">
-            <p className="text-[10px] text-[#71717A] dark:text-[#8E8E93] font-medium">
-              Documento emitido con Loomi Suite. Información consolidada en tiempo real.
+          <div className="mt-5 pt-3 border-t border-stone-200/60 dark:border-zinc-800/60 text-center">
+            <p className="text-[11px] text-stone-400 dark:text-stone-500 font-medium">
+              Documento emitido con Loomi Suite • Información consolidada en tiempo real
             </p>
           </div>
         </div>

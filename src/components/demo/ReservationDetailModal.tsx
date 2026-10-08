@@ -281,79 +281,88 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200 font-sans">
-      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] w-full max-w-lg rounded-none shadow-2xl border border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-[#EFECE5] overflow-hidden transition-colors flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200 font-sans">
+      <div className="bg-[#F8F9FA] dark:bg-[#111215] w-full max-w-lg rounded-[28px] shadow-2xl border border-black/[0.03] dark:border-white/[0.04] text-[#2D3748] dark:text-[#E2E8F0] overflow-hidden transition-colors flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="bg-[#18181B] dark:bg-[#141518] text-white p-4 sm:p-5 flex items-center justify-between border-b border-[#222328] shrink-0">
+        <div className="bg-[#ECE7E0] dark:bg-[#18191E] text-gray-900 dark:text-gray-100 p-4 sm:p-5 flex items-center justify-between border-b border-[#DDD7CD]/50 dark:border-zinc-800 shrink-0">
           <div className="flex items-center gap-3">
             {!isEditing && (
-              <img
-                src={
-                  reservation.guestAvatar ||
-                  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'
-                }
-                alt={reservation.guestName}
-                className="w-10 h-10 rounded-none object-cover border border-[#3A3C44]"
-              />
+              <div className="w-11 h-11 rounded-full bg-[#DDD7CD] dark:bg-zinc-800 text-gray-800 dark:text-gray-200 flex items-center justify-center font-bold text-base shrink-0 shadow-2xs overflow-hidden">
+                {reservation.guestAvatar ? (
+                  <img
+                    src={reservation.guestAvatar}
+                    alt={reservation.guestName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span>{reservation.guestName.charAt(0)}</span>
+                )}
+              </div>
             )}
             <div>
-              <h3 className="text-base font-bold flex items-center gap-2 uppercase tracking-wide">
+              <h3 className="text-base font-bold flex items-center gap-2 tracking-tight text-gray-900 dark:text-gray-100">
                 <span>{isEditing ? 'Editar Reserva' : reservation.guestName}</span>
                 {isEditing && (
-                  <span className="text-[10px] font-black bg-[#E1500A] text-white px-2 py-0.5 rounded-none uppercase">
-                    Modo Edición
+                  <span className="text-[10px] font-bold bg-[#D86F35] text-white px-2 py-0.5 rounded-md uppercase">
+                    Edición
                   </span>
                 )}
               </h3>
               {!isEditing ? (
                 <div className="flex items-center gap-2 mt-0.5">
                   <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-none uppercase ${
-                      reservation.platform === 'airbnb'
-                        ? 'bg-[#E1500A] text-white'
-                        : reservation.platform === 'booking'
-                        ? 'bg-[#2563EB] text-white'
-                        : reservation.platform === 'direct'
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-purple-600 text-white'
+                    className={`text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-md uppercase ${
+                      reservation.platform === 'direct'
+                        ? 'bg-[#E2F7E7] text-[#2EA44F]'
+                        : 'bg-[#FDF3E7] text-[#D86F35]'
                     }`}
                   >
-                    Canal: {reservation.platform}
+                    {reservation.platform === 'direct' ? 'Directa (0% com)' : reservation.platform.toUpperCase()}
                   </span>
-                  <span className="text-[10px] text-[#8E8E93] font-mono">
+                  <span className="text-[11px] text-gray-400 font-medium">
                     ID: {reservation.id.slice(0, 8)}
                   </span>
                 </div>
               ) : (
-                <p className="text-xs text-[#8E8E93]">Modifica fechas, precios, cabaña o datos del huésped</p>
+                <p className="text-xs text-gray-400 font-medium">Modificá fechas, precios, cabaña o datos</p>
               )}
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            {!isEditing && reservation.guestPhone && (
+              <a
+                href={`tel:${reservation.guestPhone}`}
+                className="w-9 h-9 rounded-xl bg-[#EDE8E1] hover:bg-[#E3DDD4] text-[#7A7369] flex items-center justify-center transition-colors cursor-pointer"
+                title="Llamar al pasajero"
+              >
+                <Phone className="w-4 h-4 stroke-[2]" />
+              </a>
+            )}
+
             {!isEditing && onUpdateReservation && (
               <button
                 id="btn-open-edit-reservation"
                 onClick={() => setIsEditing(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-[#E1500A] hover:bg-[#C44307] text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-xs"
-                title="Editar todos los datos de la reserva"
+                className="w-9 h-9 rounded-xl bg-[#F6D8C3] hover:bg-[#F0C9B0] text-[#D86F35] flex items-center justify-center transition-colors cursor-pointer"
+                title="Editar datos de la reserva"
               >
-                <Pencil className="w-3.5 h-3.5" />
-                <span>Editar</span>
+                <Pencil className="w-4 h-4 stroke-[2]" />
               </button>
             )}
 
             <button
               onClick={onClose}
-              className="text-[#71717A] hover:text-white p-1 rounded-none transition-colors cursor-pointer"
+              className="w-9 h-9 rounded-xl bg-[#EDE8E1] hover:bg-[#E3DDD4] text-gray-500 flex items-center justify-center transition-colors cursor-pointer"
+              title="Cerrar"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 stroke-[2]" />
             </button>
           </div>
         </div>
 
         {/* Content Container */}
-        <div className="p-6 space-y-4 overflow-y-auto flex-1">
+        <div className="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
           {isEditing ? (
             /* ================= FULL EDIT FORM ================= */
             <form id="edit-reservation-form" onSubmit={handleSaveFullEdit} className="space-y-4">
@@ -738,37 +747,37 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
             /* ================= VIEW MODE ================= */
             <>
               {/* Property name */}
-              <div className="p-3 bg-zinc-50 dark:bg-zinc-800/60 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80">
-                <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider block">
+              <div className="p-4 bg-white dark:bg-[#1A1B20] rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
+                <span className="text-[10px] font-bold text-[#D86F35] uppercase tracking-wider block">
                   Alojamiento
                 </span>
-                <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">{property?.name}</h4>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 mt-0.5">{property?.name}</h4>
+                <p className="text-xs text-gray-400 font-medium">
                   {property?.address}, {property?.neighborhood}
                 </p>
               </div>
 
               {/* Same-Day Turnover Alert Banner */}
               {hasTurnover && (
-                <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800/60 rounded-xl p-3.5 flex items-start gap-2.5 text-xs text-amber-950 dark:text-amber-200 shadow-2xs">
-                  <RotateCw className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <div className="bg-[#FDF3E7] dark:bg-[#251D17] border border-orange-200 dark:border-orange-900/40 rounded-2xl p-4 flex items-start gap-3 text-xs text-amber-950 dark:text-amber-200">
+                  <RotateCw className="w-4 h-4 text-[#D86F35] shrink-0 mt-0.5" />
                   <div className="space-y-1 w-full">
                     <div className="font-bold flex items-center justify-between">
-                      <span className="text-xs text-amber-900 dark:text-amber-200">
-                        🔄 Recambio el mismo día (Check-in / Check-out compartido)
+                      <span className="text-xs text-gray-900 dark:text-gray-100">
+                        🔄 Recambio el mismo día
                       </span>
-                      <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200">
-                        Atención Limpieza
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#F6D8C3] text-[#D86F35]">
+                        Limpieza prioritaria
                       </span>
                     </div>
                     {incomingTurnover && (
-                      <p className="text-[11px] leading-relaxed text-amber-900/90 dark:text-amber-200/90">
-                        • <strong>Entrada ({formatDisplayDate(reservation.checkIn)} a las 14:00):</strong> Comparte fecha con el check-out de <strong>{incomingTurnover.guestName}</strong> (10:00 hs).
+                      <p className="text-[11px] text-gray-600 dark:text-gray-300">
+                        • Entrada a las 14hs coincide con salida de <strong>{incomingTurnover.guestName}</strong> (10hs).
                       </p>
                     )}
                     {outgoingTurnover && (
-                      <p className="text-[11px] leading-relaxed text-amber-900/90 dark:text-amber-200/90">
-                        • <strong>Salida ({formatDisplayDate(reservation.checkOut)} a las 10:00):</strong> Comparte fecha con el check-in de <strong>{outgoingTurnover.guestName}</strong> (14:00 hs).
+                      <p className="text-[11px] text-gray-600 dark:text-gray-300">
+                        • Salida a las 10hs coincide con entrada de <strong>{outgoingTurnover.guestName}</strong> (14hs).
                       </p>
                     )}
                   </div>
@@ -776,310 +785,128 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
               )}
 
               {/* Dates & Nights */}
-              <div className="grid grid-cols-3 gap-3 text-center">
-                <div className="bg-zinc-50 dark:bg-zinc-800/60 p-2.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80">
-                  <span className="text-[10px] text-zinc-400 font-medium block">Check-in</span>
-                  <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
+              <div className="grid grid-cols-3 gap-2.5 text-center">
+                <div className="bg-white dark:bg-[#1A1B20] p-3 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
+                  <span className="text-[10px] text-gray-400 font-medium block">Check-in</span>
+                  <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
                     {formatDisplayDate(reservation.checkIn)}
                   </span>
                   {reservation.earlyCheckIn && (
-                    <span className="inline-block mt-1 text-[9px] font-extrabold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 px-1.5 py-0.5 rounded">
+                    <span className="inline-block mt-1 text-[9px] font-bold bg-[#FDF3E7] text-[#D86F35] px-1.5 py-0.5 rounded-md">
                       Early Check
                     </span>
                   )}
                 </div>
-                <div className="bg-zinc-50 dark:bg-zinc-800/60 p-2.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80">
-                  <span className="text-[10px] text-zinc-400 font-medium block">Estadía</span>
-                  <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="bg-white dark:bg-[#1A1B20] p-3 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
+                  <span className="text-[10px] text-gray-400 font-medium block">Estadía</span>
+                  <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
                     {reservation.nights} noches
                   </span>
                 </div>
-                <div className="bg-zinc-50 dark:bg-zinc-800/60 p-2.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80">
-                  <span className="text-[10px] text-zinc-400 font-medium block">Check-out</span>
-                  <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="bg-white dark:bg-[#1A1B20] p-3 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
+                  <span className="text-[10px] text-gray-400 font-medium block">Check-out</span>
+                  <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
                     {formatDisplayDate(reservation.checkOut)}
                   </span>
                   {reservation.lateCheckOut && (
-                    <span className="inline-block mt-1 text-[9px] font-extrabold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 px-1.5 py-0.5 rounded">
+                    <span className="inline-block mt-1 text-[9px] font-bold bg-[#FDF3E7] text-[#D86F35] px-1.5 py-0.5 rounded-md">
                       Late Check
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* Smart Lock PIN Box (Only shown if property has smartLock enabled) */}
+              {/* Smart Lock PIN Box */}
               {isSmartLockEnabled && (
-                <div className="bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 rounded-xl p-3.5 flex items-center justify-between">
+                <div className="bg-white dark:bg-[#1A1B20] border border-gray-100 dark:border-zinc-800 rounded-2xl p-4 flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
                   <div className="flex items-center gap-2.5">
-                    <KeyRound className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <KeyRound className="w-5 h-5 text-[#D86F35]" />
                     <div>
-                      <span className="text-[11px] font-bold text-blue-900 dark:text-blue-200 block">
+                      <span className="text-xs font-bold text-gray-900 dark:text-gray-100 block">
                         PIN de Cerradura Inteligente
                       </span>
-                      <span className="text-xs text-blue-700 dark:text-blue-300">
-                        Válido exclusivamente durante las fechas de estancia
+                      <span className="text-[11px] text-gray-400">
+                        Válido exclusivamente durante la estadía
                       </span>
                     </div>
                   </div>
-                  <span className="text-base font-extrabold font-mono bg-white dark:bg-zinc-900 px-3 py-1 rounded-lg border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-300">
+                  <span className="text-sm font-bold font-mono bg-[#EDE8E1] px-3 py-1 rounded-xl text-gray-800">
                     {reservation.pinCode}
                   </span>
                 </div>
               )}
 
               {/* Guest contact */}
-              <div className="space-y-2 text-xs text-zinc-600 dark:text-zinc-300">
-                <div className="flex items-center justify-between py-1.5 border-b border-zinc-100 dark:border-zinc-800">
-                  <span className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400">
-                    <Phone className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> WhatsApp:
+              <div className="p-4 bg-white dark:bg-[#1A1B20] rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-2.5 text-xs">
+                <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
+                  <span className="flex items-center gap-1.5 text-gray-400">
+                    <Phone className="w-3.5 h-3.5 text-[#25D366]" /> Teléfono:
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-zinc-900 dark:text-zinc-100 font-mono text-xs">
+                    <span className="font-semibold text-gray-800 dark:text-gray-200 font-mono">
                       {reservation.guestPhone || 'No registrado'}
                     </span>
-                    {reservation.guestPhone && (
-                      <a
-                        href={`https://wa.me/${reservation.guestPhone.replace(/[^0-9]/g, '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition-all shadow-2xs cursor-pointer"
-                        title="Abrir chat directo en WhatsApp"
-                      >
-                        <MessageCircle className="w-3 h-3" />
-                        <span>Chatear</span>
-                      </a>
-                    )}
                   </div>
                 </div>
-                <div className="flex items-center justify-between py-1 border-b border-zinc-100 dark:border-zinc-800">
-                  <span className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400">
+                <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
+                  <span className="flex items-center gap-1.5 text-gray-400">
                     <Mail className="w-3.5 h-3.5" /> Correo:
                   </span>
-                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">
                     {reservation.guestEmail}
                   </span>
                 </div>
-                <div className="flex items-center justify-between py-1 border-b border-zinc-100 dark:border-zinc-800">
-                  <span className="text-zinc-500 dark:text-zinc-400">Huéspedes:</span>
-                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400">Huéspedes:</span>
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">
                     {reservation.guestsCount} personas
                   </span>
                 </div>
                 {reservation.specialNotes ? (
-                  <div className="py-1 text-zinc-600 dark:text-zinc-300">
-                    <span className="text-zinc-400 block text-[10px] font-bold uppercase">Notas:</span>
-                    <p className="mt-0.5 text-xs italic bg-zinc-50 dark:bg-zinc-800/50 p-2 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                  <div className="pt-2 text-xs border-t border-gray-50 dark:border-zinc-800">
+                    <span className="text-gray-400 block text-[10px] font-bold uppercase">Notas:</span>
+                    <p className="mt-1 text-xs text-gray-600 dark:text-gray-300 italic bg-[#FAF8F5] dark:bg-zinc-800/40 p-2.5 rounded-xl border border-gray-100">
                       {reservation.specialNotes}
                     </p>
                   </div>
                 ) : null}
               </div>
 
-              {/* Optional Modules / Add-on Services In View Mode */}
-              {reservation.addons && reservation.addons.length > 0 && (
-                <div className="bg-purple-50/60 dark:bg-purple-950/20 border border-purple-200/80 dark:border-purple-900/40 rounded-xl p-3 text-xs space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-purple-950 dark:text-purple-200 flex items-center gap-1.5">
-                      <ShoppingBag className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-                      <span>Servicios & Opcionales Contratados</span>
-                    </span>
-                    <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/50 px-2 py-0.5 rounded-full">
-                      Total: +${reservation.addons.reduce((acc, a) => acc + a.total, 0)} USD
-                    </span>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    {reservation.addons.map((addon) => (
-                      <div
-                        key={addon.addonId}
-                        className="flex items-center justify-between p-2 bg-white dark:bg-zinc-800/90 rounded-lg border border-purple-100 dark:border-purple-900/40"
-                      >
-                        <div className="flex items-center gap-2">
-                          {getAddonIcon(addon.category)}
-                          <div>
-                            <span className="font-semibold text-zinc-900 dark:text-zinc-100 block text-xs">
-                              {addon.name}
-                            </span>
-                            <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
-                              {addon.quantity} un. (${addon.unitPrice} USD c/u)
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-purple-700 dark:text-purple-300 text-xs">
-                            +${addon.total}
-                          </span>
-
-                          {/* Status pill with quick toggle */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const nextStatus =
-                                addon.status === 'solicitado'
-                                  ? 'entregado'
-                                  : addon.status === 'entregado'
-                                  ? 'cobrado'
-                                  : 'solicitado';
-                              handleUpdateAddonStatus(addon.addonId, nextStatus);
-                            }}
-                            title="Click para cambiar estado"
-                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full cursor-pointer transition-colors ${
-                              addon.status === 'cobrado'
-                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
-                                : addon.status === 'entregado'
-                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300'
-                                : 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
-                            }`}
-                          >
-                            {addon.status === 'solicitado' && '⏳ Solicitado'}
-                            {addon.status === 'entregado' && '✓ Entregado'}
-                            {addon.status === 'cobrado' && '✓ Cobrado'}
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Financials breakdown (Hidden in employee mode) */}
+              {/* Financials breakdown */}
               {!isEmployeeMode ? (
-                <div className="bg-zinc-50 dark:bg-zinc-800/60 p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs space-y-2">
-                  <div className="flex items-center justify-between text-zinc-600 dark:text-zinc-400">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="font-semibold text-zinc-800 dark:text-zinc-200">
-                        Total Abonado por Huésped:
-                      </span>
-                      {reservation.platform !== 'direct' && (
-                        <span
-                          className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-200/80 dark:bg-zinc-700 px-1.5 py-0.5 rounded"
-                          title="En bloqueos iCal puedes fijar o ajustar aquí el valor real"
-                        >
-                          {reservation.platform.toUpperCase()}
-                        </span>
-                      )}
-                    </div>
-
-                    {isEditingPrice ? (
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-zinc-500 font-bold">$</span>
-                        <input
-                          type="number"
-                          min="0"
-                          value={tempPrice}
-                          onChange={(e) => setTempPrice(Math.max(0, Number(e.target.value)))}
-                          className="w-20 px-2 py-0.5 text-xs font-bold border rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border-rose-400 focus:outline-rose-500"
-                        />
-                        <button
-                          onClick={() => {
-                            onUpdatePrice?.(reservation.id, tempPrice);
-                            setIsEditingPrice(false);
-                          }}
-                          className="text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-0.5 rounded cursor-pointer transition-colors"
-                          title="Guardar nuevo precio"
-                        >
-                          Guardar
-                        </button>
-                        <button
-                          onClick={() => {
-                            setTempPrice(reservation.totalAmount);
-                            setIsEditingPrice(false);
-                          }}
-                          className="text-[11px] text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 px-1.5 py-0.5 rounded cursor-pointer"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-zinc-900 dark:text-zinc-100 text-sm">
-                          ${reservation.totalAmount} USD
-                        </span>
-                        {onUpdatePrice && (
-                          <button
-                            onClick={() => setIsEditingPrice(true)}
-                            className="text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 p-1 rounded hover:bg-zinc-200/70 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
-                            title="Modificar tarifa rápida"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    )}
+                <div className="bg-white dark:bg-[#1A1B20] p-4 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-[0_2px_8px_rgba(0,0,0,0.01)] text-xs space-y-2.5">
+                  <div className="flex items-center justify-between text-gray-600 dark:text-gray-300">
+                    <span className="font-bold text-gray-900 dark:text-gray-100">
+                      Total de la Estadía:
+                    </span>
+                    <span className="font-bold text-sm text-gray-900 dark:text-gray-100">
+                      ${reservation.totalAmount} USD
+                    </span>
                   </div>
 
-                  {reservation.customDiscountPercent ? (
-                    <div className="flex justify-between text-emerald-600 dark:text-emerald-400 text-[11px]">
-                      <span>Descuento Directo Aplicado:</span>
-                      <span>-{reservation.customDiscountPercent}%</span>
-                    </div>
-                  ) : null}
-
-                  {reservation.earlyLateFee ? (
-                    <div className="flex justify-between text-amber-700 dark:text-amber-400 text-[11px]">
-                      <span>Adicional Early/Late Check:</span>
-                      <span>+${reservation.earlyLateFee} USD</span>
-                    </div>
-                  ) : null}
-
-                  {reservation.addons && reservation.addons.length > 0 ? (
-                    <div className="flex justify-between text-purple-700 dark:text-purple-400 text-[11px]">
-                      <span>Servicios & Opcionales ({reservation.addons.length} items):</span>
-                      <span>+${reservation.addons.reduce((acc, a) => acc + a.total, 0)} USD</span>
-                    </div>
-                  ) : null}
-
-                  <div className="flex justify-between text-zinc-500 dark:text-zinc-400 text-[11px]">
-                    <span>
-                      Comisión (
-                      {reservation.platform === 'airbnb'
-                        ? reservation.airbnbFeeMode === 'traditional_3'
-                          ? 'Airbnb 3% Tradicional'
-                          : 'Airbnb 15%'
-                        : reservation.platform.toUpperCase()}
-                      ):
-                    </span>
+                  <div className="flex justify-between text-gray-400 text-[11px]">
+                    <span>Comisión Plataforma ({reservation.platform.toUpperCase()}):</span>
                     <span>-${reservation.commissionPaid} USD</span>
                   </div>
 
-                  <div className="flex justify-between text-emerald-700 dark:text-emerald-400 font-bold pt-1 border-t border-zinc-200 dark:border-zinc-700">
-                    <span>Ingreso Neto para Anfitrión:</span>
-                    <span>${reservation.netRevenue} USD</span>
+                  <div className="flex justify-between text-[#2EA44F] font-bold pt-2 border-t border-gray-50 dark:border-zinc-800">
+                    <span>Ingreso Neto Limpio en Mano:</span>
+                    <span className="text-sm font-sans">${reservation.netRevenue} USD</span>
                   </div>
                 </div>
-              ) : (
-                <div className="bg-amber-50/60 dark:bg-amber-950/30 p-3 rounded-xl border border-amber-200 dark:border-amber-900/60 text-xs flex items-center justify-between text-amber-900 dark:text-amber-300">
-                  <span className="font-medium">Detalle Financiero & Comisiones:</span>
-                  <span className="text-[11px] font-bold bg-amber-200/80 dark:bg-amber-900 text-amber-900 dark:text-amber-200 px-2 py-0.5 rounded-full">
-                    🔒 Oculto en Modo Día a Día
-                  </span>
-                </div>
-              )}
+              ) : null}
 
               {/* Action triggers */}
-              <div className="pt-2 flex flex-col gap-2 font-sans">
-                {/* Prominent Edit button at the bottom */}
-                {onUpdateReservation && (
-                  <button
-                    id="btn-edit-reservation-footer"
-                    onClick={() => setIsEditing(true)}
-                    className="w-full py-2.5 px-4 rounded-none bg-white hover:bg-[#DCD8CE] dark:bg-[#141518] dark:hover:bg-[#222328] text-[#18181B] dark:text-[#EFECE5] border border-[#C8C4B7] dark:border-[#222328] text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 shadow-2xs"
-                  >
-                    <Pencil className="w-3.5 h-3.5 text-[#E1500A]" />
-                    <span>Editar Datos de la Reserva</span>
-                  </button>
-                )}
-
+              <div className="pt-2 flex flex-col gap-2.5">
                 <button
                   onClick={() => {
                     onClose();
                     onOpenMessagesWithGuest(reservation.id);
                   }}
-                  className="w-full py-2.5 px-4 rounded-none bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs"
+                  className="w-full py-3 px-4 rounded-2xl bg-[#E6F8EA] hover:bg-[#D4F5DC] text-[#2EA44F] text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2"
                 >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Abrir Plantilla de WhatsApp</span>
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Enviar Plantilla por WhatsApp</span>
                 </button>
 
                 {/* Status updates */}
@@ -1092,7 +919,7 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                       );
                       onClose();
                     }}
-                    className="py-2 px-3 rounded-none border border-[#C8C4B7] dark:border-[#222328] hover:bg-white dark:hover:bg-[#141518] text-xs font-bold uppercase tracking-wider text-[#18181B] dark:text-[#EFECE5] transition-colors cursor-pointer text-center"
+                    className="py-2.5 px-3 rounded-xl bg-[#EDE8E1] hover:bg-[#E3DDD4] text-xs font-bold text-gray-700 transition-colors cursor-pointer text-center"
                   >
                     {reservation.status === 'checked_in' ? 'Marcar Check-out' : 'Marcar Check-in'}
                   </button>
@@ -1102,10 +929,10 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                       onDeleteReservation(reservation.id);
                       onClose();
                     }}
-                    className="py-2 px-3 rounded-none border border-rose-300 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1"
+                    className="py-2.5 px-3 rounded-xl border border-red-200/60 text-red-500 hover:bg-red-50 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>Eliminar Reserva</span>
+                    <span>Eliminar</span>
                   </button>
                 </div>
               </div>

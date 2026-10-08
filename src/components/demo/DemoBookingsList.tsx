@@ -59,7 +59,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
 
     return {
       code,
-      color: 'bg-[#FAF8F5] text-zinc-900 dark:bg-[#18191E] dark:text-white border border-[#C8C4B7]/80 dark:border-[#2E303A] font-black',
+      color: 'bg-stone-100 text-stone-700 dark:bg-zinc-800 dark:text-stone-200 border border-stone-200/80 dark:border-zinc-700 font-semibold',
     };
   };
 
@@ -144,28 +144,28 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
   const getStatusLabelAndStyles = (status: ReservationStatus) => {
     switch (status) {
       case 'confirmed':
-        return { label: 'Confirmada', color: 'bg-zinc-100 text-zinc-900 dark:bg-[#1E2028] dark:text-[#E4E4E7] border border-zinc-300 dark:border-[#343744]' };
+        return { label: 'Confirmada', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/80' };
       case 'checked_in':
-        return { label: 'En Cabaña', color: 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border border-zinc-900 dark:border-white font-black' };
+        return { label: 'En Cabaña', color: 'bg-orange-50 text-[#E67E22] dark:bg-orange-950/40 dark:text-orange-300 border border-orange-200/80 font-semibold' };
       case 'checked_out':
-        return { label: 'Salida', color: 'bg-zinc-50 text-zinc-600 dark:bg-[#15161A] dark:text-zinc-400 border border-zinc-200 dark:border-[#24262E]' };
+        return { label: 'Salida', color: 'bg-stone-100 text-stone-500 dark:bg-zinc-800 dark:text-stone-400 border border-stone-200 dark:border-zinc-700' };
       case 'cancelled':
-        return { label: 'Cancelada', color: 'bg-zinc-100 text-zinc-500 dark:bg-[#15161A] dark:text-zinc-500 line-through border border-zinc-200 dark:border-[#24262E]' };
+        return { label: 'Cancelada', color: 'bg-stone-50 text-stone-400 dark:bg-zinc-900 dark:text-zinc-500 line-through border border-stone-200 dark:border-zinc-800' };
       default:
-        return { label: status, color: 'bg-zinc-100 text-zinc-800 dark:bg-[#1C1E24] dark:text-zinc-200 border border-zinc-200 dark:border-[#2E303B]' };
+        return { label: status, color: 'bg-stone-100 text-stone-700 dark:bg-zinc-800 dark:text-zinc-300 border border-stone-200 dark:border-zinc-700' };
     }
   };
 
   const getPaymentStatusLabelAndStyles = (paymentStatus: PaymentStatus) => {
     switch (paymentStatus) {
       case 'paid':
-        return { label: 'Pagado', color: 'bg-zinc-100 text-zinc-900 dark:bg-[#1C1E24] dark:text-white border border-zinc-300 dark:border-[#323540]' };
+        return { label: '100% Abonado', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/80 font-medium' };
       case 'pending':
-        return { label: 'Pendiente', color: 'bg-[#FAF8F5] text-[#E1500A] dark:bg-[#201C1A] dark:text-[#F37A3D] border border-amber-300 dark:border-[#4A291A]' };
+        return { label: 'Pendiente', color: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200/80 font-medium' };
       case 'deposit_only':
-        return { label: 'Seña Cobrada', color: 'bg-zinc-100 text-zinc-800 dark:bg-[#1A1C22] dark:text-[#C5C8D4] border border-zinc-300 dark:border-[#2E323E]' };
+        return { label: 'Seña 50%', color: 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200/80 font-medium' };
       default:
-        return { label: paymentStatus, color: 'bg-zinc-100 text-zinc-800 dark:bg-[#1C1E24] dark:text-zinc-200' };
+        return { label: paymentStatus, color: 'bg-stone-100 text-stone-700 dark:bg-zinc-800 dark:text-zinc-300' };
     }
   };
 
@@ -181,33 +181,36 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 font-sans">
+    <div className="space-y-5 sm:space-y-6 font-sans">
       {/* Search and Filters Header */}
-      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-4 sm:p-5 shadow-2xs space-y-4 print:hidden transition-colors">
+      <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 shadow-[0_4px_16px_rgba(0,0,0,0.02)] space-y-4 print:hidden transition-colors">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div>
-            <h3 className="text-base font-bold text-[#18181B] dark:text-[#EFECE5] flex items-center gap-2 tracking-tight">
-              <Calendar className="w-5 h-5 text-[#E1500A]" />
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500 flex items-center gap-1.5 mb-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" /> GESTIÓN DE OCUPACIÓN • RESERVAS
+            </span>
+            <h3 className="text-base sm:text-lg font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2 tracking-tight">
+              <Calendar className="w-5 h-5 text-[#E67E22]" />
               <span>Lista de Reservas del Complejo</span>
             </h3>
-            <p className="text-xs text-[#71717A] dark:text-[#8E8E93] mt-0.5">
-              Gestión total, filtros de estado, buscador de clientes y registración de cobros.
+            <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5 font-normal">
+              Gestión centralizada, filtros de fecha, estados y cobros registrados en un solo lugar.
             </p>
           </div>
 
           <div className="flex items-center gap-2 w-full lg:w-auto shrink-0">
             <button
               onClick={handleExportCSV}
-              className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#18181B] dark:text-[#EFECE5] bg-white dark:bg-[#18181B] hover:bg-[#DCD8CE] dark:hover:bg-[#222328] border border-[#C8C4B7] dark:border-[#222328] px-3.5 py-2 rounded-none transition-colors cursor-pointer"
+              className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 text-xs font-semibold text-stone-700 dark:text-stone-200 bg-stone-50 dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 border border-stone-200/80 dark:border-zinc-700 px-3.5 py-2 rounded-xl transition-all cursor-pointer shadow-xs"
             >
-              <Download className="w-4 h-4 text-[#71717A] dark:text-[#8E8E93]" />
+              <Download className="w-4 h-4 text-stone-400" />
               <span>Exportar CSV</span>
             </button>
             <button
               onClick={handlePrint}
-              className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#18181B] dark:text-[#EFECE5] bg-white dark:bg-[#18181B] hover:bg-[#DCD8CE] dark:hover:bg-[#222328] border border-[#C8C4B7] dark:border-[#222328] px-3.5 py-2 rounded-none transition-colors cursor-pointer"
+              className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 text-xs font-semibold text-white bg-[#E67E22] hover:bg-[#D35400] px-3.5 py-2 rounded-xl transition-all cursor-pointer shadow-xs active:scale-95"
             >
-              <Printer className="w-4 h-4 text-[#E1500A]" />
+              <Printer className="w-4 h-4" />
               <span>Imprimir / PDF</span>
             </button>
           </div>
@@ -217,11 +220,11 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {/* Property Select */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider block">Propiedad</label>
+            <label className="text-[10px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider block">Propiedad</label>
             <select
               value={propertyFilter}
               onChange={(e) => setPropertyFilter(e.target.value)}
-              className="w-full text-xs font-bold bg-[#F4F2EE] dark:bg-[#141518] border border-[#C8C4B7] dark:border-[#222328] rounded-none px-3 py-2 text-[#18181B] dark:text-[#EFECE5] focus:outline-none focus:border-[#E1500A] transition-colors cursor-pointer"
+              className="w-full text-xs font-medium bg-stone-50 dark:bg-zinc-800 border border-stone-200/80 dark:border-zinc-700 rounded-xl px-3 py-2 text-stone-800 dark:text-stone-200 focus:outline-none focus:border-[#E67E22] transition-colors cursor-pointer"
             >
               <option value="todos">Todas las unidades</option>
               {demoState.properties.map((p) => (
@@ -234,11 +237,11 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
 
           {/* Status Select */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider block">Estado Reserva</label>
+            <label className="text-[10px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider block">Estado Reserva</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full text-xs font-bold bg-[#F4F2EE] dark:bg-[#141518] border border-[#C8C4B7] dark:border-[#222328] rounded-none px-3 py-2 text-[#18181B] dark:text-[#EFECE5] focus:outline-none focus:border-[#E1500A] transition-colors cursor-pointer"
+              className="w-full text-xs font-medium bg-stone-50 dark:bg-zinc-800 border border-stone-200/80 dark:border-zinc-700 rounded-xl px-3 py-2 text-stone-800 dark:text-stone-200 focus:outline-none focus:border-[#E67E22] transition-colors cursor-pointer"
             >
               <option value="todos">Todos los Estados</option>
               <option value="confirmed">Confirmada</option>
@@ -250,46 +253,46 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
 
           {/* Check-In Start */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider block">Check-in Desde</label>
+            <label className="text-[10px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider block">Check-in Desde</label>
             <div className="relative">
               <input
                 type="date"
                 value={checkInStart}
                 onChange={(e) => setCheckInStart(e.target.value)}
-                className="w-full text-xs font-bold bg-[#F4F2EE] dark:bg-[#141518] border border-[#C8C4B7] dark:border-[#222328] rounded-none px-3 py-2 text-[#18181B] dark:text-[#EFECE5] focus:outline-none focus:border-[#E1500A] transition-colors font-mono cursor-pointer"
+                className="w-full text-xs font-medium bg-stone-50 dark:bg-zinc-800 border border-stone-200/80 dark:border-zinc-700 rounded-xl px-3 py-2 text-stone-800 dark:text-stone-200 focus:outline-none focus:border-[#E67E22] transition-colors font-mono cursor-pointer"
               />
             </div>
           </div>
 
           {/* Check-In End */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider block">Check-in Hasta</label>
+            <label className="text-[10px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider block">Check-in Hasta</label>
             <div className="relative">
               <input
                 type="date"
                 value={checkInEnd}
                 onChange={(e) => setCheckInEnd(e.target.value)}
-                className="w-full text-xs font-bold bg-[#F4F2EE] dark:bg-[#141518] border border-[#C8C4B7] dark:border-[#222328] rounded-none px-3 py-2 text-[#18181B] dark:text-[#EFECE5] focus:outline-none focus:border-[#E1500A] transition-colors font-mono cursor-pointer"
+                className="w-full text-xs font-medium bg-stone-50 dark:bg-zinc-800 border border-stone-200/80 dark:border-zinc-700 rounded-xl px-3 py-2 text-stone-800 dark:text-stone-200 focus:outline-none focus:border-[#E67E22] transition-colors font-mono cursor-pointer"
               />
             </div>
           </div>
 
           {/* Search Term */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider block">Buscar Huésped</label>
+            <label className="text-[10px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider block">Buscar Huésped</label>
             <div className="relative">
-              <Search className="w-3.5 h-3.5 text-[#71717A] dark:text-[#8E8E93] absolute left-3 top-2.5" />
+              <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-2.5" />
               <input
                 type="text"
                 placeholder="Buscar por nombre..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full text-xs font-bold bg-[#F4F2EE] dark:bg-[#141518] border border-[#C8C4B7] dark:border-[#222328] rounded-none pl-9 pr-8 py-2 text-[#18181B] dark:text-[#EFECE5] focus:outline-none focus:border-[#E1500A] transition-colors"
+                className="w-full text-xs font-medium bg-stone-50 dark:bg-zinc-800 border border-stone-200/80 dark:border-zinc-700 rounded-xl pl-9 pr-8 py-2 text-stone-800 dark:text-stone-200 focus:outline-none focus:border-[#E67E22] transition-colors"
               />
               {(searchTerm || statusFilter !== 'todos' || propertyFilter !== 'todos' || checkInStart || checkInEnd) && (
                 <button
                   onClick={handleClearFilters}
-                  className="absolute right-2.5 top-2.5 text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white cursor-pointer"
+                  className="absolute right-2.5 top-2.5 text-stone-400 hover:text-stone-700 dark:hover:text-white cursor-pointer"
                   title="Limpiar Filtros"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -301,12 +304,12 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
       </div>
 
       {/* Main Bookings Table Card */}
-      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-2xs overflow-hidden transition-colors">
+      <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] overflow-hidden transition-colors">
         {/* Responsive Table Wrapper */}
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-[#C8C4B7] dark:border-[#222328] bg-[#DEDBD2] dark:bg-[#141518] text-[#71717A] dark:text-[#8E8E93] text-[10px] font-black uppercase tracking-wider transition-colors">
+              <tr className="border-b border-stone-100 dark:border-zinc-800 bg-stone-50/70 dark:bg-zinc-800/50 text-stone-400 dark:text-stone-500 text-[10px] font-semibold uppercase tracking-wider transition-colors">
                 <th className="py-3 px-4 text-center w-10">#</th>
                 <th className="py-3 px-4 w-16">Depto</th>
                 <th className="py-3 px-4">Huésped</th>
@@ -357,55 +360,55 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
 
                       {/* Depto badge */}
                       <td className="py-3.5 px-4">
-                        <span className={`inline-flex items-center justify-center w-7 h-7 text-[10px] font-black rounded-none ${badge.color}`}>
+                        <span className={`inline-flex items-center justify-center w-7 h-7 text-[10px] font-bold rounded-lg ${badge.color}`}>
                           {badge.code}
                         </span>
                       </td>
 
                       {/* Guest info */}
-                      <td className="py-3.5 px-4 font-semibold text-[#18181B] dark:text-[#EFECE5]">
+                      <td className="py-3.5 px-4 font-semibold text-stone-800 dark:text-stone-100">
                         <div>
-                          <p className="font-black tracking-tight">{res.guestName}</p>
-                          <p className="text-[10px] text-[#71717A] dark:text-[#8E8E93] font-mono group-hover:text-[#18181B] dark:group-hover:text-white transition-colors">
+                          <p className="font-bold tracking-tight">{res.guestName}</p>
+                          <p className="text-[11px] text-stone-400 dark:text-stone-500 font-mono group-hover:text-stone-700 dark:group-hover:text-stone-300 transition-colors">
                             {res.guestPhone}
                           </p>
                         </div>
                       </td>
 
                       {/* Check-In */}
-                      <td className="py-3.5 px-4 font-bold font-mono text-[#18181B] dark:text-[#EFECE5]">
+                      <td className="py-3.5 px-4 font-medium font-mono text-stone-700 dark:text-stone-300">
                         {formatDisplayDate(res.checkIn)}
                       </td>
 
                       {/* Check-Out */}
-                      <td className="py-3.5 px-4 font-bold font-mono text-[#18181B] dark:text-[#EFECE5]">
+                      <td className="py-3.5 px-4 font-medium font-mono text-stone-700 dark:text-stone-300">
                         {formatDisplayDate(res.checkOut)}
                       </td>
 
                       {/* Noches count */}
-                      <td className="py-3.5 px-3 text-center font-black text-[#18181B] dark:text-[#EFECE5]">
+                      <td className="py-3.5 px-3 text-center font-bold text-stone-800 dark:text-stone-100">
                         {res.nights}
                       </td>
 
                       {/* Nightly rate in USD */}
-                      <td className="py-3.5 px-4 text-right font-bold font-mono text-[#71717A] dark:text-[#8E8E93]">
+                      <td className="py-3.5 px-4 text-right font-medium font-mono text-stone-500 dark:text-stone-400">
                         USD {nightlyRate.toFixed(2)}
                       </td>
 
                       {/* Subtotal amount */}
-                      <td className="py-3.5 px-4 text-right font-black font-mono text-[#18181B] dark:text-[#EFECE5]">
+                      <td className="py-3.5 px-4 text-right font-bold font-mono text-stone-800 dark:text-stone-100">
                         USD {res.totalAmount.toFixed(2)}
                       </td>
 
                       {/* Platform / Canal */}
                       <td className="py-3.5 px-4 text-center">
-                        <div className="inline-flex items-center justify-center px-2 py-1 rounded-none bg-white dark:bg-[#141518] border border-[#C8C4B7] dark:border-[#222328]">
+                        <div className="inline-flex items-center justify-center px-2 py-0.5 rounded-md bg-stone-50 dark:bg-zinc-800 border border-stone-200/60 dark:border-zinc-700">
                           {getPlatformIcon(res.platform)}
                         </div>
                       </td>
 
                       {/* Neto revenue */}
-                      <td className="py-3.5 px-4 text-right font-black font-mono text-[#18181B] dark:text-[#EFECE5]">
+                      <td className="py-3.5 px-4 text-right font-bold font-mono text-stone-800 dark:text-stone-100">
                         USD {res.netRevenue.toFixed(2)}
                       </td>
 
@@ -417,31 +420,31 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                               setActivePaymentDropdown(activePaymentDropdown === res.id ? null : res.id);
                               setActiveStatusDropdown(null);
                             }}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none text-[10px] font-bold border transition-all cursor-pointer ${paymentInfo.color}`}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all cursor-pointer ${paymentInfo.color}`}
                           >
                             <span>{paymentInfo.label}</span>
                             <ChevronDown className="w-3 h-3 opacity-60" />
                           </button>
 
                           {activePaymentDropdown === res.id && (
-                            <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-[#141518] rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-lg z-50 overflow-hidden text-left py-1 animate-in fade-in slide-in-from-top-1">
+                            <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-zinc-800 rounded-xl border border-stone-200/80 dark:border-zinc-700 shadow-xl z-50 overflow-hidden text-left py-1 animate-in fade-in slide-in-from-top-1">
                               <button
                                 onClick={() => handleUpdatePaymentStatusInline(res.id, 'paid')}
-                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 hover:bg-[#DEDBD2] dark:hover:bg-[#222328] transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 hover:bg-stone-50 dark:hover:bg-zinc-700 transition-colors"
                               >
-                                Pagado
+                                100% Abonado
                               </button>
                               <button
                                 onClick={() => handleUpdatePaymentStatusInline(res.id, 'pending')}
-                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-amber-700 dark:text-amber-400 hover:bg-[#DEDBD2] dark:hover:bg-[#222328] transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-amber-700 dark:text-amber-400 hover:bg-stone-50 dark:hover:bg-zinc-700 transition-colors"
                               >
                                 Pendiente
                               </button>
                               <button
                                 onClick={() => handleUpdatePaymentStatusInline(res.id, 'deposit_only')}
-                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-blue-700 dark:text-blue-400 hover:bg-[#DEDBD2] dark:hover:bg-[#222328] transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-blue-700 dark:text-blue-400 hover:bg-stone-50 dark:hover:bg-zinc-700 transition-colors"
                               >
-                                Seña Cobrada
+                                Seña 50%
                               </button>
                             </div>
                           )}
@@ -456,20 +459,20 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                               setActiveStatusDropdown(activeStatusDropdown === res.id ? null : res.id);
                               setActivePaymentDropdown(null);
                             }}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none text-[10px] font-bold border transition-all cursor-pointer ${statusInfo.color}`}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all cursor-pointer ${statusInfo.color}`}
                           >
                             <span>{statusInfo.label}</span>
                             <ChevronDown className="w-3 h-3 opacity-60" />
                           </button>
 
                           {activeStatusDropdown === res.id && (
-                            <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-[#141518] rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-lg z-50 overflow-hidden text-left py-1 animate-in fade-in slide-in-from-top-1">
+                            <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-zinc-800 rounded-xl border border-stone-200/80 dark:border-zinc-700 shadow-xl z-50 overflow-hidden text-left py-1 animate-in fade-in slide-in-from-top-1">
                               <button
                                 onClick={() => {
                                   onUpdateReservationStatus(res.id, 'confirmed');
                                   setActiveStatusDropdown(null);
                                 }}
-                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-emerald-700 hover:bg-[#DEDBD2] dark:hover:bg-[#222328] transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-emerald-700 hover:bg-stone-50 dark:hover:bg-zinc-700 transition-colors"
                               >
                                 Confirmada
                               </button>
@@ -478,7 +481,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                                   onUpdateReservationStatus(res.id, 'checked_in');
                                   setActiveStatusDropdown(null);
                                 }}
-                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-blue-700 hover:bg-[#DEDBD2] dark:hover:bg-[#222328] transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-orange-600 hover:bg-stone-50 dark:hover:bg-zinc-700 transition-colors"
                               >
                                 En Cabaña
                               </button>
@@ -487,7 +490,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                                   onUpdateReservationStatus(res.id, 'checked_out');
                                   setActiveStatusDropdown(null);
                                 }}
-                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-[#71717A] hover:bg-[#DEDBD2] dark:hover:bg-[#222328] transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-stone-600 hover:bg-stone-50 dark:hover:bg-zinc-700 transition-colors"
                               >
                                 Salida
                               </button>
@@ -496,7 +499,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                                   onUpdateReservationStatus(res.id, 'cancelled');
                                   setActiveStatusDropdown(null);
                                 }}
-                                className="w-full text-left px-3 py-1.5 text-[10px] font-bold text-rose-700 hover:bg-[#DEDBD2] dark:hover:bg-[#222328] transition-colors"
+                                className="w-full text-left px-3 py-1.5 text-[11px] font-medium text-rose-600 hover:bg-stone-50 dark:hover:bg-zinc-700 transition-colors"
                               >
                                 Cancelar
                               </button>
@@ -510,7 +513,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                         <div className="flex items-center justify-center gap-1">
                           <button
                             onClick={() => onSelectReservation(res)}
-                            className="p-1.5 text-[#71717A] dark:text-[#8E8E93] hover:bg-[#DEDBD2] dark:hover:bg-[#222328] rounded-none transition-colors cursor-pointer"
+                            className="p-1.5 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
                             title="Ver Ficha / Editar Cobros"
                           >
                             <Eye className="w-3.5 h-3.5" />

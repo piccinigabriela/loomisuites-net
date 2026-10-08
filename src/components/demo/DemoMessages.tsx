@@ -171,17 +171,20 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 font-sans">
+    <div className="space-y-5 sm:space-y-6 font-sans">
       {/* Header Banner */}
-      <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-4 sm:p-5 shadow-2xs transition-colors">
-        <span className="text-[10px] font-black uppercase tracking-widest text-[#71717A] dark:text-[#8E8E93]">
-          MENSAJERÍA & WHATSAPP / AUTOMATIZACIONES
-        </span>
-        <h3 className="text-xl font-black text-[#18181B] dark:text-white flex items-center gap-2 mt-0.5">
-          <MessageSquare className="w-5 h-5 text-[#E1500A]" />
+      <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 sm:p-6 shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-colors">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]"></span>
+          <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-400">
+            MENSAJERÍA & WHATSAPP • AUTOMATIZACIONES
+          </span>
+        </div>
+        <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2 tracking-tight mt-0.5">
+          <MessageSquare className="w-5 h-5 text-[#E67E22]" />
           <span>Simulador y Envío Directo de WhatsApp</span>
         </h3>
-        <p className="text-xs text-[#71717A] dark:text-[#8E8E93] mt-0.5 font-bold">
+        <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 font-medium">
           Elegí el huésped y la plantilla inteligente. Los datos de la reserva, wifi, fechas y cerraduras se rellenan automáticamente listos para enviar en 1 toque.
         </p>
       </div>
@@ -190,25 +193,25 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
         {/* Left Side: Selectors (6 cols) */}
         <div className="lg:col-span-6 space-y-4">
           {/* Reservation Selector with Smart Filters */}
-          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-4 sm:p-5 shadow-2xs transition-colors space-y-3.5">
+          <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-colors space-y-4">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-black uppercase tracking-wider text-[#18181B] dark:text-white">
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-800 dark:text-stone-200">
                 1. Selecciona el Huésped o Reserva
               </label>
-              <span className="text-[10px] font-bold text-[#71717A] dark:text-[#8E8E93]">
+              <span className="text-xs font-medium text-stone-400 dark:text-stone-500">
                 {filteredReservations.length} {filteredReservations.length === 1 ? 'reserva' : 'reservas'}
               </span>
             </div>
 
             {/* Scope Filter Buttons */}
-            <div className="flex flex-wrap items-center gap-1.5 p-1 bg-white dark:bg-[#18181B] rounded-none border border-[#C8C4B7] dark:border-[#222328]">
+            <div className="flex flex-wrap items-center gap-1.5 p-1 bg-stone-100/70 dark:bg-zinc-800/60 rounded-xl border border-stone-200/80 dark:border-zinc-700/80">
               <button
                 type="button"
                 onClick={() => setFilterScope('upcoming')}
-                className={`px-2.5 py-1 rounded-none text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   filterScope === 'upcoming'
-                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] shadow-xs'
-                    : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white'
+                    ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-white shadow-xs'
+                    : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
                 }`}
               >
                 Próximas & Hoy ({categorizedReservations.activeToday.length + categorizedReservations.upcoming.length})
@@ -216,10 +219,10 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
               <button
                 type="button"
                 onClick={() => setFilterScope('today')}
-                className={`px-2.5 py-1 rounded-none text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   filterScope === 'today'
-                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] shadow-xs'
-                    : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white'
+                    ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-white shadow-xs'
+                    : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
                 }`}
               >
                 En Estadía ({categorizedReservations.activeToday.length})
@@ -227,10 +230,10 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
               <button
                 type="button"
                 onClick={() => setFilterScope('next7')}
-                className={`px-2.5 py-1 rounded-none text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   filterScope === 'next7'
-                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] shadow-xs'
-                    : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white'
+                    ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-white shadow-xs'
+                    : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
                 }`}
               >
                 7 Días
@@ -238,10 +241,10 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
               <button
                 type="button"
                 onClick={() => setFilterScope('all')}
-                className={`px-2.5 py-1 rounded-none text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   filterScope === 'all'
-                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] shadow-xs'
-                    : 'text-[#71717A] dark:text-[#8E8E93] hover:text-[#18181B] dark:hover:text-white'
+                    ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-white shadow-xs'
+                    : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
                 }`}
               >
                 Todas
@@ -250,13 +253,13 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
 
             {/* Quick search */}
             <div className="relative">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#71717A] dark:text-[#8E8E93]" />
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Filtrar por nombre de huésped, teléfono o depto..."
-                className="w-full pl-8 pr-3 py-2 text-xs font-bold rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white focus:outline-none focus:border-[#E1500A]"
+                className="w-full pl-8 pr-3 py-2 text-xs font-medium rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800/60 text-stone-800 dark:text-stone-200 focus:outline-none"
               />
             </div>
 
@@ -265,7 +268,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
               <select
                 value={activeSelectedResId}
                 onChange={(e) => setSelectedResId(e.target.value)}
-                className="w-full text-xs font-bold p-2.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] text-[#18181B] dark:text-white focus:outline-none focus:border-[#E1500A]"
+                className="w-full text-xs font-medium p-3 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800/60 text-stone-800 dark:text-stone-200 focus:outline-none"
               >
                 {categorizedReservations.activeToday.length > 0 && (
                   <optgroup label="📍 EN ESTADÍA HOY">
@@ -307,25 +310,25 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                 )}
               </select>
             ) : (
-              <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-none border border-amber-200 dark:border-amber-900/50 text-xs text-amber-900 dark:text-amber-300 text-center font-bold">
+              <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-xl border border-amber-200/60 dark:border-amber-900/40 text-xs text-amber-800 dark:text-amber-300 text-center font-medium">
                 No hay reservas para este filtro. Probá con <strong>"Todas"</strong> o limpiá la búsqueda.
               </div>
             )}
 
             {selectedReservation && (
-              <div className="p-3 bg-white dark:bg-[#18181B] rounded-none border border-[#C8C4B7] dark:border-[#222328] flex flex-wrap items-center justify-between gap-2 text-xs text-[#71717A] dark:text-[#8E8E93]">
+              <div className="p-3.5 bg-stone-50 dark:bg-zinc-800/50 rounded-xl border border-stone-200/80 dark:border-zinc-700/80 flex flex-wrap items-center justify-between gap-2 text-xs text-stone-600 dark:text-stone-300">
                 <div className="flex items-center gap-1.5">
                   <Phone className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>WhatsApp: <strong className="text-[#18181B] dark:text-white font-mono">{selectedReservation.guestPhone || 'No cargado'}</strong></span>
+                  <span>WhatsApp: <strong className="text-stone-900 dark:text-white font-mono">{selectedReservation.guestPhone || 'No cargado'}</strong></span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span>PIN: <strong className="font-mono text-[#E1500A]">{selectedReservation.pinCode || '—'}</strong></span>
+                  <span>PIN: <strong className="font-mono text-[#E67E22]">{selectedReservation.pinCode || '—'}</strong></span>
                   {selectedReservation.guestPhone && (
                     <a
                       href={getWhatsAppLaunchUrl()}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-2.5 py-1 rounded-none bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
+                      className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-all cursor-pointer"
                       title="Abrir chat en WhatsApp"
                     >
                       <ExternalLink className="w-3 h-3" />
@@ -337,30 +340,30 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
             )}
           </div>
 
-          {/* Template Selector with all 6 Templates */}
-          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-4 sm:p-5 shadow-2xs transition-colors">
-            <div className="flex items-center justify-between mb-3">
-              <label className="block text-xs font-black uppercase tracking-wider text-[#18181B] dark:text-white">
+          {/* Template Selector with all Templates */}
+          <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-colors">
+            <div className="flex items-center justify-between mb-3.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-800 dark:text-stone-200">
                 2. Elige el Disparador o Plantilla
               </label>
-              <span className="text-[10px] font-black uppercase text-[#E1500A] bg-white dark:bg-[#18181B] px-2 py-0.5 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
+              <span className="text-[10px] font-bold text-[#E67E22] bg-orange-50 dark:bg-orange-950/40 px-2.5 py-0.5 rounded-md border border-orange-200/50">
                 {templatesList.length} Plantillas
               </span>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {templatesList.map((tpl) => (
                 <div
                   key={tpl.id}
                   onClick={() => setSelectedTemplateId(tpl.id)}
-                  className={`p-3 rounded-none border text-xs cursor-pointer transition-all ${
+                  className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all ${
                     selectedTemplateId === tpl.id
-                      ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-xs'
-                      : 'bg-white dark:bg-[#18181B] border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-[#EFECE5] hover:border-[#E1500A]'
+                      ? 'bg-orange-50/70 dark:bg-orange-950/30 border-[#E67E22]/60 text-stone-900 dark:text-stone-100 shadow-xs'
+                      : 'bg-stone-50/50 dark:bg-zinc-800/40 border-stone-200/70 dark:border-zinc-800 text-stone-700 dark:text-stone-300 hover:border-stone-300 dark:hover:border-zinc-700'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1 gap-2">
-                    <span className="font-bold flex items-center gap-1.5">
+                    <span className="font-semibold flex items-center gap-1.5 text-stone-900 dark:text-stone-100">
                       {tpl.id === 'tpl-5' && '🚗'}
                       {tpl.id === 'tpl-6' && '🛡️'}
                       {tpl.id === 'tpl-1' && '👋'}
@@ -369,11 +372,11 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                       {tpl.id === 'tpl-4' && '🌟'}
                       <span>{tpl.title}</span>
                     </span>
-                    <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-none font-black border border-current opacity-80 shrink-0">
+                    <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md font-semibold bg-white dark:bg-zinc-700 border border-stone-200/80 dark:border-zinc-600 text-stone-500 dark:text-stone-400 shrink-0">
                       {tpl.triggerEvent}
                     </span>
                   </div>
-                  <p className="text-[11px] opacity-80 line-clamp-2">{tpl.content}</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 line-clamp-2 leading-relaxed">{tpl.content}</p>
                 </div>
               ))}
             </div>
@@ -382,9 +385,9 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
 
         {/* Right Side: WhatsApp Phone Mockup (6 cols) */}
         <div className="lg:col-span-6 flex justify-center">
-          <div className="w-full max-w-sm rounded-none bg-[#18181B] p-2.5 shadow-2xl border-2 border-[#C8C4B7] dark:border-[#222328] relative">
+          <div className="w-full max-w-sm rounded-[2.5rem] bg-stone-900 dark:bg-zinc-950 p-3 shadow-2xl border-4 border-stone-700 dark:border-zinc-800 relative">
             {/* Screen */}
-            <div className="bg-[#EFEAE2] rounded-none overflow-hidden flex flex-col h-[540px] shadow-inner text-zinc-900 font-sans">
+            <div className="bg-[#EFEAE2] rounded-[2rem] overflow-hidden flex flex-col h-[540px] shadow-inner text-zinc-900 font-sans">
               {/* WhatsApp Header */}
               <div className="bg-[#075E54] p-3 text-white flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
@@ -396,13 +399,13 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                     />
                   </div>
                   <div>
-                    <h5 className="text-xs font-bold leading-none">{selectedReservation?.guestName || 'Huésped'}</h5>
+                    <h5 className="text-xs font-semibold leading-none">{selectedReservation?.guestName || 'Huésped'}</h5>
                     <span className="text-[10px] text-emerald-200 font-mono">
                       {selectedReservation?.guestPhone || 'En línea'}
                     </span>
                   </div>
                 </div>
-                <div className="text-[9px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-none">
+                <div className="text-[10px] font-semibold bg-white/20 px-2 py-0.5 rounded-full">
                   Loomi Bot
                 </div>
               </div>
@@ -410,17 +413,17 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
               {/* Chat Canvas */}
               <div className="flex-1 p-3 overflow-y-auto flex flex-col justify-end space-y-3">
                 <div className="text-center">
-                  <span className="text-[10px] font-bold bg-white/80 text-zinc-500 px-2 py-0.5 rounded-none shadow-xs uppercase">
+                  <span className="text-[10px] font-semibold bg-white/80 text-zinc-500 px-2.5 py-0.5 rounded-full shadow-xs uppercase">
                     Hoy
                   </span>
                 </div>
 
                 {/* Sent Bubble */}
-                <div className="self-end bg-[#DCF8C6] rounded-none p-3 max-w-[88%] shadow-xs text-xs text-zinc-800 leading-relaxed relative">
-                  <div className="whitespace-pre-line text-[11px] font-medium">
+                <div className="self-end bg-[#DCF8C6] rounded-2xl rounded-tr-xs p-3.5 max-w-[88%] shadow-xs text-xs text-zinc-800 leading-relaxed relative">
+                  <div className="whitespace-pre-line text-xs font-medium">
                     {getInterpolatedMessage()}
                   </div>
-                  <div className="text-right mt-1 flex items-center justify-end gap-1 text-[10px] text-zinc-500 font-mono">
+                  <div className="text-right mt-1.5 flex items-center justify-end gap-1 text-[10px] text-zinc-500 font-mono">
                     <span>10:14</span>
                     <CheckCheck className="w-3.5 h-3.5 text-blue-600" />
                   </div>
@@ -428,11 +431,11 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
               </div>
 
               {/* Bottom Actions inside mockup */}
-              <div className="p-2.5 bg-white border-t border-zinc-200 flex flex-col gap-1.5">
+              <div className="p-3 bg-white border-t border-zinc-200 flex flex-col gap-2">
                 <div className="flex items-center justify-between gap-2">
                   <button
                     onClick={handleCopy}
-                    className="flex-1 text-xs font-black uppercase tracking-wider py-2 px-3 rounded-none bg-zinc-100 hover:bg-zinc-200 text-zinc-800 flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-zinc-300"
+                    className="flex-1 text-xs font-semibold py-2 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-zinc-300"
                   >
                     {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                     <span>{copied ? 'Copiado' : 'Copiar'}</span>
@@ -440,7 +443,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
 
                   <button
                     onClick={handleSendSimulate}
-                    className="flex-1 text-xs font-black uppercase tracking-wider py-2 px-3 rounded-none bg-[#18181B] hover:bg-black text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                    className="flex-1 text-xs font-semibold py-2 px-3 rounded-xl bg-stone-900 hover:bg-black text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>{simulatedSent ? '¡Simulado!' : 'Simular'}</span>
@@ -452,7 +455,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                   href={getWhatsAppLaunchUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full text-xs font-black uppercase tracking-wider py-2 px-3 rounded-none bg-[#25D366] hover:bg-[#1EBE5D] text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                  className="w-full text-xs font-semibold py-2.5 px-3 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>Enviar por WhatsApp Real</span>

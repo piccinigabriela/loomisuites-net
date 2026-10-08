@@ -52,9 +52,9 @@ export const DemoNavTabs: React.FC<DemoNavTabsProps> = ({
   const tabs = isEmployeeMode ? allTabs.filter((t) => !t.adminOnly) : allTabs;
 
   return (
-    <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] border-b border-[#C8C4B7] dark:border-[#222328] transition-colors sticky top-12 z-19">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-2 scrollbar-thin">
+    <div className="bg-[#F8F9FA]/90 dark:bg-[#0E0F12]/90 border-b border-stone-200/70 dark:border-zinc-800/70 transition-colors sticky top-14 z-19 backdrop-blur-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-2.5 scrollbar-thin">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -62,19 +62,19 @@ export const DemoNavTabs: React.FC<DemoNavTabsProps> = ({
               <button
                 key={tab.id}
                 onClick={() => onSelectTab(tab.id)}
-                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer border ${
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs transition-all cursor-pointer border ${
                   isActive
-                    ? 'bg-[#18181B] text-white dark:bg-white dark:text-[#18181B] border-[#18181B] dark:border-white shadow-sm font-black'
-                    : 'bg-white/80 dark:bg-[#18181B]/80 text-[#52525B] dark:text-[#A1A1AA] hover:text-[#18181B] dark:hover:text-white hover:bg-white dark:hover:bg-[#222328] border-[#DCD8CE] dark:border-[#2A2C34]'
+                    ? 'bg-white dark:bg-zinc-800 text-[#E67E22] dark:text-[#E67E22] border-stone-200/90 dark:border-zinc-700 shadow-[0_2px_8px_rgba(0,0,0,0.03)] font-semibold'
+                    : 'bg-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:bg-stone-100/60 dark:hover:bg-zinc-800/50 border-transparent font-medium'
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#E1500A]' : 'text-[#71717A] dark:text-[#A1A1AA]'}`} />
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#E67E22]' : 'text-stone-400 dark:text-stone-500'}`} />
                 <span>{tab.label}</span>
                 {tab.badge && (
-                  <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                     isActive
-                      ? 'bg-[#E1500A] text-white'
-                      : 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300'
+                      ? 'bg-orange-50 text-[#E67E22] dark:bg-orange-950/50 dark:text-orange-300'
+                      : 'bg-stone-100 text-stone-500 dark:bg-zinc-800 dark:text-zinc-400'
                   }`}>
                     {tab.badge}
                   </span>
