@@ -39,7 +39,7 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
               
               <div className="space-y-1">
                 <h3 className="text-xl font-light text-gray-900 dark:text-white tracking-tight">
-                  Loomi <span className="font-semibold text-gray-800 dark:text-gray-100">Simple</span>
+                  <span className="font-semibold text-gray-800 dark:text-gray-100">Loomi</span>
                 </h3>
                 <div className="pt-2">
                   <div className="text-4xl font-light text-gray-900 dark:text-white tracking-tight">
@@ -52,7 +52,7 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
               </div>
 
               <p className="text-xs text-gray-400 font-medium leading-relaxed pt-2">
-                La herramienta perfecta para dueños que gestionan todo de forma autónoma desde el celular.
+                La herramienta esencial para dueños que gestionan todo de forma autónoma desde el celular.
               </p>
 
               {/* Lista de Funciones Incluidas (Modo Light) */}
@@ -77,7 +77,7 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
 
             <div className="pt-6 space-y-2">
               <button
-                onClick={() => onOpenContact('Plan Loomi Simple ($45.000/mes)')}
+                onClick={() => onOpenContact('Plan Loomi ($45.000/mes)')}
                 className="w-full bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-700 dark:text-zinc-200 font-bold py-3 rounded-xl text-xs transition-all cursor-pointer shadow-xs"
               >
                 Comenzar Prueba de 15 días gratis
@@ -92,7 +92,7 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
             </div>
           </div>
 
-          {/* PLAN 2: COMPLEJO TOTAL (El plan máster ilimitado con Housekeeping y Recepción) */}
+          {/* PLAN 2: LOOMI SUITE (El plan máster ilimitado con Housekeeping y Recepción) */}
           <div className="bg-gradient-to-b from-white to-[#FDFBF9] dark:from-[#18191E] dark:to-[#1e1c19] rounded-3xl p-8 shadow-[0_4px_25px_rgba(0,0,0,0.015)] border-2 border-orange-200/60 dark:border-orange-900/60 flex flex-col justify-between relative">
             {/* Badge Destacado */}
             <div className="absolute -top-3 right-6">
@@ -111,7 +111,7 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
               
               <div className="space-y-1">
                 <h3 className="text-xl font-light text-gray-900 dark:text-white tracking-tight">
-                  Loomi <span className="font-semibold text-gray-800 dark:text-gray-100">Completo</span>
+                  Loomi <span className="font-semibold text-gray-800 dark:text-gray-100">Suite</span>
                 </h3>
                 <div className="pt-2">
                   <div className="text-4xl font-light text-gray-900 dark:text-white tracking-tight">
@@ -130,7 +130,7 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
               {/* Lista de Funciones Completas */}
               <ul className="space-y-2.5 text-xs font-medium text-gray-600 dark:text-zinc-300 pt-4 border-t border-gray-50 dark:border-zinc-800/60">
                 <li className="flex items-center gap-2 text-gray-700 dark:text-zinc-200 font-semibold">
-                  <span className="text-emerald-500 font-bold">✓</span> Todo lo del Plan Simple e iCal avanzado
+                  <span className="text-emerald-500 font-bold">✓</span> Todo lo del Plan Loomi e iCal avanzado
                 </li>
                 <li className="flex items-center gap-2 text-gray-700 dark:text-zinc-200">
                   <span className="text-emerald-500 font-bold">✓</span> Módulo Housekeeping Completo (Semáforo de Mucamas en vivo)
@@ -149,10 +149,10 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
 
             <div className="pt-6 space-y-2">
               <button
-                onClick={() => onOpenContact('Plan Loomi Completo ($60.000/mes)')}
+                onClick={() => onOpenContact('Plan Loomi Suite ($60.000/mes)')}
                 className="w-full bg-[#E67E22] text-white font-bold py-3 rounded-xl text-xs hover:bg-[#d35400] transition-all cursor-pointer shadow-md shadow-orange-500/10"
               >
-                Activar Complejo Full
+                Activar Loomi Suite
               </button>
               <button
                 onClick={onOpenDemo}

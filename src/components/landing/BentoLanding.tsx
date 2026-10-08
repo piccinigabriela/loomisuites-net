@@ -81,7 +81,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
   const plans = [
     {
       id: 'plan-simple',
-      name: 'Loomi Simple',
+      name: 'Loomi',
       tag: 'Hasta 5 unidades • Dueños sin personal',
       price: 45000,
       usd: 30,
@@ -96,8 +96,8 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
       ],
     },
     {
-      id: 'plan-completo',
-      name: 'Loomi Completo',
+      id: 'plan-suite',
+      name: 'Loomi Suite',
       tag: 'Unidades Ilimitadas • Complejo Total',
       price: 60000,
       usd: 40,
@@ -105,7 +105,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
       badge: 'RECOMENDADO • TODO INCLUIDO',
       description: 'La solución definitiva para complejos que operan con personal de recepción y equipos de limpieza. Ecosistema ilimitado.',
       features: [
-        'Todo lo del Plan Simple e iCal avanzado',
+        'Todo lo del Plan Loomi e iCal avanzado',
         'Módulo Housekeeping Completo (Semáforo de Mucamas en vivo)',
         'Modo Recepción con Roles de Usuario Separados',
         'Asistente Xenia AI (Voz & Copiloto 24/7)',
@@ -487,7 +487,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 </span>
               </div>
               <h4 className="text-xs font-medium text-gray-700 dark:text-zinc-200">
-                Simple • Completo
+                Loomi • Loomi Suite
               </h4>
               <p className="text-[11px] text-gray-400 dark:text-zinc-400 font-light leading-relaxed">
                 Sin comisiones por reserva ni cobro por habitación.
@@ -893,7 +893,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                   <button
                     onClick={() => {
                       setActiveModule(null);
-                      onOpenContact('Planes y Tarifas Loomi Suite (Simple / Completo)');
+                      onOpenContact('Planes y Tarifas (Loomi / Loomi Suite)');
                     }}
                     className="px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
                   >

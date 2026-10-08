@@ -240,7 +240,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                   : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
               }`}
             >
-              <span>🏡 Loomi Simple (Hasta 5u)</span>
+              <span>🏡 Loomi (Hasta 5u)</span>
               <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
                 activePlan === 'inicial' ? 'bg-orange-50 text-[#E67E22]' : 'bg-stone-200/60 dark:bg-zinc-600 text-stone-600 dark:text-stone-300'
               }`}>
@@ -257,7 +257,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
               }`}
             >
               <Building2 className="w-3.5 h-3.5" />
-              <span>🏢 Loomi Completo (Full)</span>
+              <span>🏢 Loomi Suite (Full)</span>
               <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
                 activePlan === 'escala' ? 'bg-orange-50 text-[#E67E22]' : 'bg-stone-200/60 dark:bg-zinc-600 text-stone-600 dark:text-stone-300'
               }`}>
@@ -269,14 +269,14 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
 
         {/* Dynamic Detail Card for the Active Plan */}
         <div className="mt-2">
-          {/* 1. PLAN SIMPLE */}
+          {/* 1. PLAN LOOMI */}
           {activePlan === 'inicial' && (
             <div className="bg-[#FAF9F6] dark:bg-[#15161A] rounded-2xl p-4 border border-emerald-200/60 dark:border-emerald-900/40 space-y-3">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] font-bold uppercase border border-emerald-200/60">
-                      Plan Propietario • Loomi Simple
+                      Plan Propietario • Loomi
                     </span>
                     <span className="text-xs font-mono font-bold text-[#E67E22]">
                       $45.000 ARS / mes
@@ -334,14 +334,14 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
             </div>
           )}
 
-          {/* 2. PLAN COMPLETO */}
+          {/* 2. PLAN LOOMI SUITE */}
           {activePlan === 'escala' && (
             <div className="bg-[#FAF9F6] dark:bg-[#15161A] rounded-2xl p-4 border border-blue-200/60 dark:border-blue-900/40 space-y-3">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-mono text-[10px] font-bold uppercase border border-blue-200/60">
-                      Plan Complejo • Loomi Completo
+                      Plan Complejo • Loomi Suite
                     </span>
                     <span className="text-xs font-mono font-bold text-[#E67E22]">
                       $60.000 ARS / mes

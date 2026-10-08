@@ -69,7 +69,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
   const plans = [
     {
       id: 'plan-simple',
-      name: 'Loomi Simple',
+      name: 'Loomi',
       range: 'Hasta 5 unidades • Complejo entero',
       priceMonthly: 45000,
       description: 'Enfocado en dueños de 4 o 5 cabañas sin personal. Calendario modo light y reservas.',
@@ -87,15 +87,15 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
       ]
     },
     {
-      id: 'plan-completo',
-      name: 'Loomi Completo',
+      id: 'plan-suite',
+      name: 'Loomi Suite',
       range: 'Unidades Ilimitadas • Complejo entero',
       priceMonthly: 60000,
       description: 'Todo el ecosistema ilimitado para complejos con recepción y equipos de limpieza.',
       popular: true,
       badge: 'Recomendado',
       includedFeatures: [
-        'Todo lo del Plan Simple e iCal avanzado',
+        'Todo lo del Plan Loomi e iCal avanzado',
         'Módulo Housekeeping Completo (Semáforo de Mucamas en vivo)',
         'Modo Recepción con Roles de Usuario Separados',
         'Asistente Xenia AI (Voz & Copiloto 24/7)',

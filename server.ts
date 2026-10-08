@@ -221,8 +221,8 @@ IMPORTANTE SOBRE EL PERFIL DE NUESTROS CLIENTES:
   * "¿Cómo hago para que no me alquilen dos veces la misma cabaña?" -> Explícales el iCal bidireccional entre Airbnb, Booking y Loomi.
   * "¿Cuánto cuesta Loomi y cómo se paga?", "¿Cuáles son los planes de precios?" -> Explícales con total claridad:
     - Son 2 planes fijos por complejo entero (sin cobrar por habitación y sin comisiones por reserva):
-      1) Plan Loomi Simple: $45.000 ARS/mes (final). Para dueños de 4 o 5 cabañas sin personal; incluye calendario modo light móvil, reservas e iCal, rendimiento básico. Sin housekeeping ni recepción multiusuario.
-      2) Plan Loomi Completo: $60.000 ARS/mes (final). Todo el ecosistema ilimitado: Housekeeping en vivo para mucamas, modo recepción con roles, asistente Xenia AI 24/7 y Portal de Bienvenida del Huésped.
+      1) Plan Loomi: $45.000 ARS/mes (final). Para dueños de 4 o 5 cabañas sin personal; incluye calendario modo light móvil, reservas e iCal, rendimiento básico. Sin housekeeping ni recepción multiusuario.
+      2) Plan Loomi Suite: $60.000 ARS/mes (final). Todo el ecosistema ilimitado: Housekeeping en vivo para mucamas, modo recepción con roles, asistente Xenia AI 24/7 y Portal de Bienvenida del Huésped.
     - Se abona por transferencia bancaria (CBU/Alias) o PayPal. 15 días de prueba gratis sin ingresar tarjeta.
 
 DATOS EN VIVO DEL ALOJAMIENTO:
