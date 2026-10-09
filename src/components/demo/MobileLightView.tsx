@@ -339,18 +339,14 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                   );
                 })
                 .sort((a, b) => {
-                  // Orden cronológico desde hoy hacia adelante:
-                  const aIsPast = a.checkOut < todayStr;
-                  const bIsPast = b.checkOut < todayStr;
+                  // Orden estrictamente cronológico desde hoy hacia adelante:
+                  const aIsUpcoming = a.checkIn >= todayStr || (a.checkIn <= todayStr && a.checkOut >= todayStr);
+                  const bIsUpcoming = b.checkIn >= todayStr || (b.checkIn <= todayStr && b.checkOut >= todayStr);
 
-                  if (!aIsPast && bIsPast) return -1;
-                  if (aIsPast && !bIsPast) return 1;
+                  if (aIsUpcoming && !bIsUpcoming) return -1;
+                  if (!aIsUpcoming && bIsUpcoming) return 1;
 
-                  if (!aIsPast && !bIsPast) {
-                    const aToday = a.checkIn === todayStr;
-                    const bToday = b.checkIn === todayStr;
-                    if (aToday && !bToday) return -1;
-                    if (!aToday && bToday) return 1;
+                  if (aIsUpcoming && bIsUpcoming) {
                     return a.checkIn.localeCompare(b.checkIn);
                   }
 
@@ -392,15 +388,11 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                         </div>
                       </div>
 
-                      {/* Bottom Row: Nombre del Huésped más pequeño debajo on Left, 3 Botones de Acción on Right */}
+                      {/* Bottom Row: Nombre completo del Huésped on Left, 3 Botones de Acción on Right */}
                       <div className="flex items-center justify-between gap-2">
-                        <div className="min-w-0 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium truncate">
-                          <span className="font-semibold text-gray-700 dark:text-gray-300 truncate">
+                        <div className="min-w-0 flex items-center gap-1.5 text-xs text-gray-700 dark:text-gray-200 font-semibold truncate">
+                          <span className="truncate">
                             {res.guestName}
-                          </span>
-                          <span className="text-gray-300 dark:text-zinc-600">•</span>
-                          <span className="text-[11px] font-mono text-gray-400 dark:text-gray-500 truncate">
-                            {res.guestPhone}
                           </span>
                         </div>
 

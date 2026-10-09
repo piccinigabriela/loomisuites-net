@@ -24,7 +24,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
             </p>
             <div className="mt-4 flex items-center gap-2 text-xs text-[#E67E22] font-medium">
               <ShieldCheck className="w-4 h-4 text-[#E67E22]" />
-              <span>Sincronización encriptada SSL 256-bit</span>
+              <span>Conexión segura y respaldo en la nube</span>
             </div>
             <div className="mt-3">
               <a
@@ -69,8 +69,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
             </h4>
             <ul className="space-y-2 text-xs text-[#A3A3A3]">
               <li>Sincronización bidireccional iCal</li>
-              <li>Airbnb (enlace iCal en tiempo real)</li>
-              <li>Booking.com (enlace iCal en tiempo real)</li>
+              <li>Airbnb (enlace de sincronización de calendarios)</li>
+              <li>Booking.com (enlace de sincronización de calendarios)</li>
               <li>VRBO / Expedia (enlace iCal)</li>
               <li>TripAdvisor & Portales iCal</li>
               <li>Motor Propio de Reservas Directas</li>

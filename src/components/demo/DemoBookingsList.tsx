@@ -300,10 +300,10 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                     ? 'bg-white text-gray-800 shadow-sm font-medium'
                     : 'text-gray-400 hover:text-gray-600'
                 }`}
-                title="Vista de Acordeón Zen"
+                title="Vista de Acordeón Desplegable"
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
-                <span>Acordeón Zen</span>
+                <span>Acordeón</span>
               </button>
               <button
                 onClick={() => setViewMode('table')}

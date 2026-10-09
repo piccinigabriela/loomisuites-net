@@ -98,9 +98,9 @@ export const CATALINAS_WELCOME_GUIDE: WelcomeGuideData = {
   googleMapsUrl: 'https://maps.google.com/?q=Tres+Sargentos+Retiro+Buenos+Aires',
   wifiNetwork: 'CatalinasAptos_Fibra_5G',
   wifiPassword: 'CatalinasDemo2026',
-  poolHours: 'No aplica (Edificio residencial histórico con seguridad y ascensor)',
-  checkoutHour: '11:00 hs (Consultar con Recepción para custodia de equipaje)',
-  woodBagPrice: 'Servicio de mucama extra: $15 USD / $15.000 ARS',
+  poolHours: 'No aplica (Edificio residencial urbano con seguridad y ascensor)',
+  checkoutHour: '10:00 hs (Consultar con Recepción para custodia de equipaje)',
+  woodBagPrice: 'Servicio de mucama extra: $18 USD / $18.000 ARS',
   specialAnnouncement: '🏙️ ¡Bienvenidos a Catalinas Apartamentos! Ubicación inmejorable a pasos de Galerías Pacífico, Puerto Madero y Plaza San Martín.',
   transportation: [
     {

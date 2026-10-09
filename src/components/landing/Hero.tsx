@@ -24,8 +24,8 @@ export const Hero: React.FC<HeroProps> = ({ onOpenDemo, onOpenContact }) => {
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#222222] dark:text-[#FFFFFF] tracking-tight leading-[1.12]">
-            Tus cabañas y departamentos sin overbookings ni planillas, <span className="text-[#E1500A]">por un precio fijo en pesos</span>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#222222] dark:text-[#FFFFFF] tracking-tight leading-[1.12]">
+            Software de gestión. Todo tu complejo en una pantalla.
           </h1>
 
           {/* Subtitle */}
@@ -62,7 +62,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenDemo, onOpenContact }) => {
               <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" />
               </div>
-              <span>Probar Demo Interactiva en Vivo</span>
+              <span>Probar Demo en Vivo</span>
               <ArrowRight className="w-4 h-4 text-white/90 group-hover:translate-x-1 transition-transform" />
             </button>
 

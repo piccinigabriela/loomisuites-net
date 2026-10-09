@@ -120,7 +120,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
     : 'bg-white hover:bg-white border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.015)] hover:border-orange-200/50 text-[#2D3748]';
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] bg-[#F8F9FA] dark:bg-[#0E0F12] text-[#2D3748] dark:text-[#E2E8F0] transition-colors py-4 sm:py-6 md:py-8 px-3 sm:px-6 lg:px-8 font-sans select-none flex flex-col justify-center">
+    <div className="min-h-[calc(100vh-3.5rem)] bg-[#F8F9FA] dark:bg-[#0E0F12] text-[#2D3748] dark:text-[#E2E8F0] transition-colors pt-4 sm:pt-6 md:pt-8 pb-16 sm:pb-24 px-3 sm:px-6 lg:px-8 font-sans select-none flex flex-col">
       <div className="max-w-7xl mx-auto w-full space-y-4 sm:space-y-5">
 
         {/* ========================================================================= */}
@@ -150,8 +150,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             {/* Main Headline */}
             <div className="my-5 sm:my-6 space-y-4 sm:space-y-5">
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-[1.18] text-gray-900 dark:text-white">
-                Software de gestión <br className="hidden sm:inline" />
-                <span className="font-normal text-slate-900 dark:text-gray-200">a la medida de tu alojamiento</span>
+                Software de gestión. Todo tu complejo en una pantalla.
               </h1>
 
               {/* Dynamic Rotator Line: Accommodation Types + Orange Keywords */}
@@ -230,7 +229,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             </div>
 
             <div className="pt-3.5 border-t border-gray-100 dark:border-white/5 flex items-center justify-between text-xs text-slate-700 dark:text-zinc-400 font-medium">
-              <span>Rendimiento probado</span>
+              <span>Tranquilidad para el anfitrión</span>
               <span className="text-slate-900 dark:text-gray-200 font-semibold group-hover:text-[#E67E22] transition-colors flex items-center gap-1">
                 Ver detalle <ChevronRight className="w-3.5 h-3.5" />
               </span>
@@ -378,7 +377,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 Anti-<span className="font-semibold text-gray-800 dark:text-gray-100">Overbooking</span>
               </h3>
               <p className="text-xs text-slate-800 dark:text-zinc-300 font-normal leading-relaxed">
-                Airbnb, Booking.com y tu web oficial sincronizados en 3 segundos sin dobles reservas.
+                Airbnb, Booking.com y tu web oficial sincronizados automáticamente sin dobles reservas.
               </p>
             </div>
 
@@ -640,7 +639,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                     01 / FILOSOFÍA DEL SISTEMA
                   </span>
                   <h3 className="text-2xl font-light text-gray-900 dark:text-white">
-                    Loomi Suite: <span className="font-semibold">Gestión Zen & Ágil</span>
+                    Loomi Suite: <span className="font-semibold">Gestión Simple & Sin Vueltas</span>
                   </h3>
                 </div>
 
@@ -738,7 +737,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 </div>
 
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-300 leading-relaxed font-light">
-                  Sincronizá Airbnb, Booking.com y tus reservas directas. Cuando entra una reserva en cualquier portal, las fechas se bloquean automáticamente en todos los demás en 3 segundos.
+                  Sincronizá Airbnb, Booking.com y tus reservas directas. Cuando entra una reserva en cualquier portal, las fechas se bloquean automáticamente en todos los demás sin demoras.
                 </p>
 
                 <div className="p-3.5 rounded-2xl border border-gray-100 dark:border-white/5 bg-gray-50/70 dark:bg-zinc-800/50 space-y-2 text-xs font-mono">
@@ -911,7 +910,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                     07 / CANALES OFICIALES
                   </span>
                   <h3 className="text-2xl font-light text-gray-900 dark:text-white">
-                    Conexión bidireccional <span className="font-semibold">en tiempo real</span>
+                    Conexión bidireccional <span className="font-semibold">y centralizada</span>
                   </h3>
                 </div>
 

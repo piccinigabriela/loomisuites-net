@@ -78,17 +78,17 @@ interface ApplianceGuide {
 
 const APPLIANCE_GUIDES: ApplianceGuide[] = [
   {
-    id: 'jacuzzi',
-    name: 'Jacuzzi / Hidromasaje',
-    icon: 'Waves',
-    subtitle: 'Instrucciones para activar los jets y mantener el agua caliente',
+    id: 'cafetera',
+    name: 'Cafetera Nespresso & Té de Cortesía',
+    icon: 'Coffee',
+    subtitle: 'Instrucciones para preparar espresso y selección de infusiones',
     steps: [
-      'Llenar la tina hasta cubrir todos los jets de agua (mínimo 5 cm por encima de las boquillas) antes de presionar cualquier botón.',
-      'Presionar el pulsador neumático plateado para encender las bombas de hidromasaje.',
-      'Girar la perilla de aire superior para regular la intensidad de las burbujas.',
-      'Al terminar, presionar nuevamente el pulsador para apagar y dejar desagotar abriendo el tapón giratorio.'
+      'Verificar que el depósito de agua posterior se encuentre lleno con agua filtrada.',
+      'Levantar la palanca superior, insertar la cápsula de cortesía y bajar la palanca con firmeza.',
+      'Colocar tu taza en la base y presionar el botón de taza corta (Espresso) o taza larga (Lungo).',
+      'Al terminar la extracción, levantar nuevamente la palanca para expulsar la cápsula al contenedor interno.'
     ],
-    tips: '⚠️ Nunca encender el hidromasaje en seco, ya que puede dañar el motor.'
+    tips: '☕ En la bandeja de cortesía tenés cápsulas de bienvenida, té en hebras y azúcar/edulcorante.'
   },
   {
     id: 'clima',
@@ -118,7 +118,7 @@ const APPLIANCE_GUIDES: ApplianceGuide[] = [
   },
   {
     id: 'cocina',
-    name: 'Cocina & Anafe Eléctrico',
+    name: 'Cocina & Anafe Eléctrico Vitrocerámico',
     icon: 'Flame',
     subtitle: 'Encendido seguro y uso de electrodomésticos',
     steps: [
@@ -128,19 +128,6 @@ const APPLIANCE_GUIDES: ApplianceGuide[] = [
       'La heladera cuenta con selector de temperatura interior en nivel 3 para frío estándar.'
     ],
     tips: '✨ Utilizar solo recipientes aptos de fondo plano para no rayar la superficie de vidrio.'
-  },
-  {
-    id: 'parrilla',
-    name: 'Parrilla & Asador',
-    icon: 'Flame',
-    subtitle: 'Kit de asado, leña y sector de fuego',
-    steps: [
-      'Los utensilios de asador (pinza, pala, atizador y tabla) se encuentran en el cajón inferior bajo la mesada.',
-      'Iniciar el fuego en el quemador lateral con astillas finas antes de pasar las brasas debajo de la parrilla.',
-      'La altura del emparrillado se regula mediante la manivela frontal con traba de seguridad.',
-      'Al terminar el asado, esparcir las cenizas y verificar que las brasas queden apagadas.'
-    ],
-    tips: '🪵 Disponemos de bolsas de leña dura de quebracho y carbón si necesitás recarga.'
   }
 ];
 
@@ -172,12 +159,12 @@ const IN_STAY_SERVICES: InStayService[] = [
     icon: 'Coffee'
   },
   {
-    id: 'leña_asador',
-    name: 'Bolsa de Leña Dura + Carbón & Kit Fuego',
-    priceUSD: 8,
-    description: 'Bolsa de 10 kg de leña seleccionada de quebracho, iniciador ecológico y fósforos largos.',
+    id: 'cochera_cubierta',
+    name: 'Cochera Cubierta Privada en el Complejo',
+    priceUSD: 12,
+    description: 'Espacio de estacionamiento exclusivo y seguro con acceso directo y vigilancia.',
     category: 'confort',
-    icon: 'Flame'
+    icon: 'Car'
   },
   {
     id: 'limpieza_extra',

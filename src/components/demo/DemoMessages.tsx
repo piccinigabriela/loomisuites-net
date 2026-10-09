@@ -357,7 +357,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
             checkInDate={selectedReservation ? formatDisplayDate(selectedReservation.checkIn) : '15 de Octubre'}
             checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '19 de Octubre'}
             checkInTime="14:00 hs"
-            accessCode={selectedReservation?.pinCode || '4820'}
+            accessCode={selectedReservation?.pinCode || '1024'}
             wifiNetwork={selectedProperty?.wifiNetwork || 'Catalinas_Guest_5G'}
             wifiPassword={selectedProperty?.wifiPassword || 'bienvenidoscatalinas'}
             address={selectedProperty ? `${selectedProperty.address}, ${selectedProperty.neighborhood}` : 'Tres Sargentos 400, Retiro / Catalinas Norte, CABA'}
@@ -653,7 +653,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                     checkInDate={selectedReservation ? formatDisplayDate(selectedReservation.checkIn) : '15 de Octubre'}
                     checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '19 de Octubre'}
                     checkInTime="14:00 hs"
-                    accessCode={selectedReservation?.pinCode || '4820'}
+                    accessCode={selectedReservation?.pinCode || '1024'}
                     wifiNetwork={selectedProperty?.wifiNetwork || 'Catalinas_Guest_5G'}
                     wifiPassword={selectedProperty?.wifiPassword || 'bienvenidoscatalinas'}
                     address={selectedProperty ? `${selectedProperty.address}, ${selectedProperty.neighborhood}` : 'Tres Sargentos 400, Retiro / Catalinas Norte, CABA'}

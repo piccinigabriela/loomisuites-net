@@ -109,8 +109,8 @@ Quedamos a tu completa disposición para asistirte en lo que precises.`;
   ) {
     const wifiNet = p0?.wifiNetwork || 'Loomi_Fibra_Optica';
     const wifiPass = p0?.wifiPassword || 'Bienvenido2026';
-    const pin = '4820';
-    const address = p0?.address || 'Tres Sargentos 400, CABA';
+    const pin = (contextData?.reservations?.[0]?.pinCode) || '1024';
+    const address = p0?.address || 'Tres Sargentos 400, Retiro / Catalinas Norte, CABA';
 
     return `¡Hola! Con gusto te paso los datos para tu llegada y estancia:
 

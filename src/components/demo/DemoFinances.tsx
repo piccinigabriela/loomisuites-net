@@ -145,7 +145,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({ demoState }) => {
               Finanzas & Reportes de Rendimiento
             </span>
             <span className="text-[11px] text-gray-300">·</span>
-            <span className="text-[11px] text-gray-400 font-light">Modo Zen & Claridad</span>
+            <span className="text-[11px] text-gray-400 font-light">Claridad Operativa</span>
           </div>
           <h2 className="text-xl font-light text-gray-800 tracking-tight">
             Control de Rendimiento & <span className="font-normal text-gray-900">Liquidación</span>

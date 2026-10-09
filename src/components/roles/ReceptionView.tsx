@@ -652,10 +652,10 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                 checkInDate={selectedResForCard.checkIn}
                 checkOutDate={selectedResForCard.checkOut}
                 checkInTime="14:00 hs"
-                accessCode={selectedResForCard.pinCode || '4820'}
+                accessCode={selectedResForCard.pinCode || '1024'}
                 wifiNetwork={getProp(selectedResForCard.propertyId)?.wifiNetwork || 'Loomi_Fibra_Optica'}
                 wifiPassword={getProp(selectedResForCard.propertyId)?.wifiPassword || 'Bienvenido2026'}
-                address={getProp(selectedResForCard.propertyId)?.address || 'Tres Sargentos 400, CABA'}
+                address={getProp(selectedResForCard.propertyId)?.address || 'Tres Sargentos 400, Retiro / Catalinas Norte, CABA'}
                 guideUrl={`https://loomisuite.net/guia/${selectedResForCard.propertyId}`}
                 hostPhone={selectedResForCard.guestPhone || '5491155550100'}
               />
@@ -667,9 +667,9 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                 onClick={() => {
                   const prop = getProp(selectedResForCard.propertyId);
                   const text = `¡Hola ${selectedResForCard.guestName}! Te compartimos tu tarjeta de bienvenida digital a ${prop?.name || 'tu alojamiento'}:\n\n` +
-                    `🔑 Código cerradura: ${selectedResForCard.pinCode || '4820'}\n` +
+                    `🔑 Código cerradura: ${selectedResForCard.pinCode || '1024'}\n` +
                     `📶 Wi-Fi: ${prop?.wifiNetwork || 'Loomi_Fibra'} (Clave: ${prop?.wifiPassword || 'Bienvenido2026'})\n` +
-                    `📍 Dirección: ${prop?.address || 'Tres Sargentos 400'}\n` +
+                    `📍 Dirección: ${prop?.address || 'Tres Sargentos 400, CABA'}\n` +
                     `🌐 Guía completa y mapa: https://loomisuite.net/guia/${selectedResForCard.propertyId}\n\n` +
                     `¡Que tengas un excelente descanso!`;
                   navigator.clipboard.writeText(text);
@@ -683,7 +683,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
 
               <a
                 href={`https://wa.me/${(selectedResForCard.guestPhone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                  `¡Hola ${selectedResForCard.guestName}! Te enviamos tu tarjeta de bienvenida para ingresar a ${getProp(selectedResForCard.propertyId)?.name || 'tu departamento'}: https://loomisuite.net/guia/${selectedResForCard.propertyId} (Cerradura: ${selectedResForCard.pinCode || '4820'} | Wi-Fi: ${getProp(selectedResForCard.propertyId)?.wifiNetwork || 'Loomi'}). ¡Buen descanso!`
+                  `¡Hola ${selectedResForCard.guestName}! Te enviamos tu tarjeta de bienvenida para ingresar a ${getProp(selectedResForCard.propertyId)?.name || 'tu departamento'}: https://loomisuite.net/guia/${selectedResForCard.propertyId} (Cerradura: ${selectedResForCard.pinCode || '1024'} | Wi-Fi: ${getProp(selectedResForCard.propertyId)?.wifiNetwork || 'Loomi'}). ¡Buen descanso!`
                 )}`}
                 target="_blank"
                 rel="noreferrer"

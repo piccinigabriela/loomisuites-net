@@ -7,6 +7,9 @@ import { getClientXeniaReply } from "./src/components/xenia/xeniaLocalEngine";
 const app = express();
 const PORT = 3000;
 
+// Trust proxy for accurate client IP resolution behind reverse proxies
+app.set("trust proxy", true);
+
 // CORS configuration for loomisuite.net, Cloudflare Pages, and local dev
 app.use((req: Request, res: Response, next) => {
   const allowedOrigins = [
@@ -50,60 +53,8 @@ app.get("/api/health", (_req: Request, res: Response) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// Endpoints for persistent complex state across devices and sessions
+// Path to fallback clean demo state
 const STATE_FILE_PATH = path.join(process.cwd(), "data", "app_state.json");
-
-app.get("/api/state", (_req: Request, res: Response) => {
-  try {
-    if (fs.existsSync(STATE_FILE_PATH)) {
-      const data = fs.readFileSync(STATE_FILE_PATH, "utf-8");
-      return res.json({ success: true, state: JSON.parse(data) });
-    }
-    return res.json({ success: true, state: null });
-  } catch (error: any) {
-    console.error("Error reading server state:", error);
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-app.post("/api/state", (req: Request, res: Response) => {
-  try {
-    const { state } = req.body;
-    if (!state) {
-      return res.status(400).json({ error: "No state provided" });
-    }
-    const dataDir = path.join(process.cwd(), "data");
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true });
-    }
-    fs.writeFileSync(STATE_FILE_PATH, JSON.stringify(state, null, 2), "utf-8");
-    return res.json({ success: true });
-  } catch (error: any) {
-    console.error("Error saving server state:", error);
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-// Endpoint to permanently store and serve custom Xenia avatar image
-app.post("/api/xenia/avatar", (req: Request, res: Response) => {
-  try {
-    const { imageBase64 } = req.body;
-    if (!imageBase64 || typeof imageBase64 !== "string") {
-      return res.status(400).json({ error: "No imageBase64 provided" });
-    }
-    const publicDir = path.join(process.cwd(), "public");
-    if (!fs.existsSync(publicDir)) {
-      fs.mkdirSync(publicDir, { recursive: true });
-    }
-    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
-    const buffer = Buffer.from(base64Data, "base64");
-    fs.writeFileSync(path.join(publicDir, "xenia.jpeg"), buffer);
-    return res.json({ success: true, url: "/xenia.jpeg" });
-  } catch (error: any) {
-    console.error("Error saving Xenia avatar:", error);
-    return res.status(500).json({ error: error.message });
-  }
-});
 
 // Helper for fallback rule-based response if GEMINI_API_KEY is not configured or rate-limited
 function generateRuleBasedXeniaResponse(
@@ -156,9 +107,9 @@ function checkRateLimit(ip: string): boolean {
 app.post("/api/xenia/chat", async (req: Request, res: Response) => {
   try {
     const clientIp =
+      req.ip ||
       (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
       req.socket.remoteAddress ||
-      req.ip ||
       "client-ip";
 
     if (!checkRateLimit(clientIp)) {
@@ -297,7 +248,7 @@ REGLAS CRÍTICAS DE MONEDAS Y FECHAS:
 PLANES COMERCIALES DE LOOMI SUITE (SI CONSULTA EL ANFITRIÓN):
 =============================================================================
 - 2 planes fijos por complejo entero (sin costos por habitación y sin comisiones):
-  1) Plan Loomi: $45.000 ARS/mes. Para dueños de 4 o 5 cabañas sin personal (Rack Modo Light móvil, gestión directa e iCal, rendimiento básico).
+  1) Plan Loomi: $45.000 ARS/mes. Para dueños de 4 a 10 unidades (Rack Modo Light móvil, gestión directa y sincronización de calendarios).
   2) Plan Loomi Suite: $60.000 ARS/mes. Ecosistema ilimitado para todo el complejo (Housekeeping en vivo para mucamas, modo recepción con roles, asistente Xenia AI 24/7 y 3 Modelos Web Oficiales con Portal del Huésped).
 
 =============================================================================
@@ -347,6 +298,7 @@ ${addonsSummary || "No hay servicios adicionales registrados."}
         },
       });
     } catch (_geminiErr) {
+      console.error("Gemini API Error al consultar modelo:", _geminiErr);
       // Graceful fallback to rule-based engine on any error (e.g. rate limit, quota, network)
       const fallbackReply = generateRuleBasedXeniaResponse(message, contextData);
       res.json({
@@ -363,7 +315,7 @@ ${addonsSummary || "No hay servicios adicionales registrados."}
       source: "gemini_api",
     });
   } catch (_error) {
-    console.error("Error interno al procesar /api/xenia/chat");
+    console.error("Error interno al procesar /api/xenia/chat:", _error);
     // Graceful fallback to rule-based engine on any error (sin exponer trazas del servidor)
     const fallbackReply = generateRuleBasedXeniaResponse(
       typeof req.body?.message === "string" ? req.body.message : "",

@@ -60,16 +60,32 @@ import { SuperAdminView } from './components/admin/SuperAdminView';
 import { DemoPlanFunctionalBar } from './components/demo/DemoPlanFunctionalBar';
 import { ReceptionView } from './components/roles/ReceptionView';
 import { HousekeepingMobileView } from './components/roles/HousekeepingMobileView';
+import { GuestWelcomePortal } from './components/guide/GuestWelcomePortal';
 import { INITIAL_WELCOME_GUIDE } from './data/initialData';
 
 export default function App() {
-  // App view: 'landing' (clean landing site) or 'demo' (active PMS panel)
-  const [currentView, setCurrentView] = useState<'landing' | 'demo' | 'superadmin'>(() => {
+  // App view: 'landing' (clean landing site), 'demo' (active PMS panel), 'guide' (public guest portal), or 'superadmin'
+  const [currentView, setCurrentView] = useState<'landing' | 'demo' | 'superadmin' | 'guide'>(() => {
     try {
       if (typeof window !== 'undefined') {
         const path = window.location.pathname.toLowerCase();
         const hash = window.location.hash.toLowerCase();
         const params = new URLSearchParams(window.location.search);
+
+        // Si la URL apunta a /guia/... o /guide/..., renderizar de forma pública la Guía Interactiva del Huésped
+        if (
+          path.startsWith('/guia') ||
+          path.startsWith('/guide') ||
+          hash.startsWith('#/guia') ||
+          hash.startsWith('#/guide') ||
+          (params.has('guia') && !params.has('panel')) ||
+          (params.has('guide') && !params.has('panel')) ||
+          params.get('view') === 'guia' ||
+          params.get('view') === 'guide'
+        ) {
+          return 'guide';
+        }
+
         // Acceso por ?superadmin desactivado en la versión pública para seguridad y protección de accesos
         if (
           path.includes('/admin') ||
@@ -85,8 +101,6 @@ export default function App() {
           params.has('login') ||
           params.has('ingresar') ||
           params.has('tab') ||
-          params.has('guia') ||
-          params.has('guide') ||
           params.has('reservas') ||
           params.has('booking') ||
           params.has('housekeeping') ||
@@ -109,8 +123,6 @@ export default function App() {
           path.includes('/demo') ||
           path.includes('/login') ||
           path.includes('/ingresar') ||
-          path.includes('/guia') ||
-          path.includes('/guide') ||
           path.includes('/web') ||
           path.includes('/housekeeping') ||
           path.includes('/reservas') ||
@@ -119,7 +131,6 @@ export default function App() {
           hash.includes('app') ||
           hash.includes('panel') ||
           hash.includes('login') ||
-          hash.includes('guia') ||
           hash.includes('web') ||
           hash.includes('limpieza') ||
           hash.includes('recepcion') ||
@@ -888,7 +899,7 @@ export default function App() {
 
       {/* RENDER VIEW: LANDING, SUPERADMIN OR DEMO PMS */}
       {currentView === 'landing' ? (
-        <main className="bg-[#F8F9FA] dark:bg-[#0E0F12] min-h-screen transition-colors text-[#2D3748] dark:text-[#E2E8F0]">
+        <main className="bg-[#F8F9FA] dark:bg-[#0E0F12] min-h-screen transition-colors text-[#2D3748] dark:text-[#E2E8F0] relative">
           <Navbar
             theme={theme}
             onToggleTheme={toggleTheme}
@@ -926,24 +937,22 @@ export default function App() {
               setIsLeadModalOpen(true);
             }}
           />
-
-          {/* Floating Sticky CTA Bar on Mobile/Desktop (<12% viewport height) */}
-          <div className="fixed bottom-4 sm:bottom-5 left-1/2 -translate-x-1/2 z-30 bg-white/95 dark:bg-[#121316]/95 backdrop-blur-md text-slate-900 dark:text-[#EFECE5] px-4 py-2.5 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.12)] border border-slate-200 dark:border-white/10 flex items-center gap-3 max-w-[92vw]">
-            <span className="text-xs font-semibold hidden md:inline text-slate-700 dark:text-zinc-300">
-              ¿Querés ver cómo funciona en la vida real?
-            </span>
-            <button
-              onClick={() => {
-                setCurrentView('demo');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="min-h-[40px] bg-[#E67E22] hover:bg-[#D35400] active:scale-95 text-white text-xs font-bold px-5 py-2 rounded-full flex items-center gap-2 transition-all cursor-pointer shadow-sm shrink-0"
-            >
-              <Play className="w-3.5 h-3.5 fill-white" />
-              <span>Probar Demo en Vivo</span>
-            </button>
-          </div>
         </main>
+      ) : currentView === 'guide' ? (
+        /* VISTA PÚBLICA INTERACTIVA DE LA GUÍA DEL HUÉSPED (/guia/...) */
+        <div className="min-h-screen bg-[#18191E] py-4 sm:py-8 px-2 sm:px-4">
+          <GuestWelcomePortal
+            guideData={demoState.welcomeGuide || INITIAL_WELCOME_GUIDE}
+            isMobilePreview={false}
+            template={guideTemplate}
+            onSelectTemplate={setGuideTemplate}
+            onBackToPanel={() => {
+              setCurrentView('demo');
+              setDemoTab('welcome-guide');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        </div>
       ) : currentView === 'superadmin' ? (
         /* SUPERADMIN MASTER VIEW FOR PLATFORM OWNER */
         <SuperAdminView
@@ -1158,7 +1167,7 @@ export default function App() {
                   title="Cambiar a Versión Celular Light"
                 >
                   <Smartphone className="w-3.5 h-3.5 text-[#E67E22]" />
-                  <span className="hidden sm:inline">Modo Celular Zen</span>
+                  <span className="hidden sm:inline">Modo Celular Ágil</span>
                   <span className="sm:hidden">Light</span>
                 </button>
 
@@ -1384,8 +1393,8 @@ export default function App() {
         </div>
       )}
 
-      {/* Persistent Floating Xenia AI Assistant (activo en el panel de Demo en escritorio; desactivado en landing para evitar solapamiento con la barra de Demo y despejar la esquina) */}
-      {currentView === 'demo' && !(mobileMode === 'light' || isEmployeeMode || demoTab === 'direct-booking') && (
+      {/* Persistent Floating Xenia AI Assistant (activo en el panel de Demo en escritorio; desactivado en landing y en recepción para evitar solapamiento con caja chica y cobros pendientes) */}
+      {currentView === 'demo' && userRole !== 'frontdesk' && !(mobileMode === 'light' || isEmployeeMode || demoTab === 'direct-booking') && (
         <XeniaFloatingWidget
           demoState={demoState}
           onOpenFullView={() => {

@@ -6,10 +6,10 @@ export const ChannelIntegrations: React.FC = () => {
     {
       name: 'Airbnb',
       category: 'Sincronización iCal',
-      badge: 'Sincronización en 3 seg',
+      badge: 'Sincronización Simple',
       color: 'border-[#18181B] bg-[#18181B] text-white',
       icon: '🏠',
-      desc: 'Sincronizá tu calendario y disponibilidad en tiempo real sin dobles reservas ni planillas.',
+      desc: 'Sincronizá tu calendario y disponibilidad sin dobles reservas ni planillas.',
     },
     {
       name: 'Booking.com',
@@ -17,7 +17,7 @@ export const ChannelIntegrations: React.FC = () => {
       badge: 'iCal Bidireccional',
       color: 'border-[#E1500A] bg-[#E1500A] text-white',
       icon: '🏨',
-      desc: 'Bloqueo automático de fechas en menos de 3 segundos vía sincronización de enlaces iCal.',
+      desc: 'Bloqueo automático de fechas vía sincronización de enlaces iCal.',
     },
     {
       name: 'VRBO / Expedia',

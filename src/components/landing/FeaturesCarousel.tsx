@@ -53,11 +53,11 @@ export const FeaturesCarousel: React.FC<FeaturesCarouselProps> = ({ onOpenDemo, 
     },
     {
       id: 'calendar',
-      category: 'SINCRONIZACIÓN OFICIAL EN TIEMPO REAL',
+      category: 'SINCRONIZACIÓN DE CALENDARIOS',
       badge: 'Cero Overbooking',
       title: 'Calendarios conectados: Chau al miedo a la doble reserva',
       subtitle:
-        'Sincronizá Airbnb, Booking.com, Vrbo y tus reservas directas. Cuando entra una reserva en cualquier portal, las fechas se bloquean automáticamente en todos los demás en 3 segundos.',
+        'Sincronizá Airbnb, Booking.com, Vrbo y tus reservas directas. Cuando entra una reserva en cualquier portal, las fechas se bloquean automáticamente en todos los demás de manera confiable.',
       highlights: [
         'Conexión iCal bidireccional incluida sin costos extras',
         'Rack visual interactivo de cabañas y departamentos',
@@ -256,7 +256,7 @@ export const FeaturesCarousel: React.FC<FeaturesCarouselProps> = ({ onOpenDemo, 
                 </div>
 
                 <p className="text-center text-[11px] text-[#666666] dark:text-[#A3A3A3] font-medium">
-                  👉 Si entra una reserva en Airbnb, el Domo se bloquea en Booking y en tu web en 3 segundos.
+                  👉 Si entra una reserva en Airbnb, el Domo se bloquea en Booking y en tu web automáticamente.
                 </p>
               </div>
             )}
