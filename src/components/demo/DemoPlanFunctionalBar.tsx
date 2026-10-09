@@ -280,7 +280,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                     </span>
                   </div>
                   <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 max-w-2xl leading-relaxed font-medium">
-                    <strong>Ideado para dueños de 4 o 5 cabañas sin personal:</strong> Calendario Rack (Modo Light móvil), gestión de reservas directas y rendimiento básico. Sin cobro por habitación.
+                    <strong>Ideado para dueños de 4 a 10 unidades sin personal:</strong> Calendario Rack (Modo Light móvil), gestión de reservas directas y rendimiento básico. Sin cobro por habitación.
                   </p>
                 </div>
 

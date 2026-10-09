@@ -543,7 +543,7 @@ ${pendingPayments.length > 0 ? `⚠️ **Cobros y Saldos Pendientes:** Tenés ${
 En Loomi tenemos **2 planes fijos por complejo entero** en **pesos argentinos (ARS)** (sin cobrar por habitación y sin comisiones por reserva):
 
 1. **🏡 Plan Loomi:** **$45.000 / mes (Final ARS)**
-   - Enfocado en dueños de 4 o 5 cabañas sin personal.
+   - Enfocado en dueños de 4 a 10 unidades sin personal.
    - Incluye calendario en modo light (optimizado para celular), gestión de reservas directas, sincronización iCal con portales y reportes de rendimiento básicos.
    - *No incluye módulo de housekeeping ni modo recepción multiusuario.*
 
