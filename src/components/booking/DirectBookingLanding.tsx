@@ -870,7 +870,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
               </div>
 
               <h1 className="text-4xl sm:text-6xl md:text-7xl font-extralight tracking-tight text-white leading-tight">
-                {guideData.propertyName || 'Refugio Dos Aguas'}
+                {guideData.propertyName || 'Catalinas Apartamentos'}
               </h1>
 
               <p className="text-stone-400 max-w-xl text-sm sm:text-base font-light leading-relaxed">
@@ -1056,7 +1056,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
       <footer className="py-12 px-6 sm:px-12 text-center text-xs border-t bg-stone-950 border-stone-800 text-stone-400">
         <div className="max-w-4xl mx-auto space-y-3">
           <span className="font-bold text-sm text-white tracking-widest uppercase">
-            {isCorteVette ? 'Corte delle Vette — Bodega Lodge & Suites' : isDosAguas ? 'Refugio Dos Aguas — Glamping & Bosque' : 'Médano Blanco — Posada Costera'}
+            {guideData.propertyName || 'Catalinas Apartamentos'}
           </span>
           <p className="text-stone-400 text-xs">
             Reservas directas sin intermediarios • {isCorteVette ? 'Valle de Uco, Mendoza — Argentina' : (guideData.locationAddress || 'Buenos Aires, Argentina')}

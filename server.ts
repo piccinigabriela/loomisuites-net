@@ -7,8 +7,8 @@ import { getClientXeniaReply } from "./src/components/xenia/xeniaLocalEngine";
 const app = express();
 const PORT = 3000;
 
-// Trust proxy for accurate client IP resolution behind reverse proxies
-app.set("trust proxy", true);
+// Trust proxy for accurate client IP resolution behind Cloud Run / reverse proxies (1 hop)
+app.set("trust proxy", 1);
 
 // CORS configuration for loomisuite.net, Cloudflare Pages, and local dev
 app.use((req: Request, res: Response, next) => {

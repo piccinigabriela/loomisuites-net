@@ -39,7 +39,7 @@ export const FeatureBento: React.FC<FeatureBentoProps> = ({ onOpenDemo }) => {
               </h3>
               <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-3 leading-relaxed max-w-xl">
                 Visualiza en una sola grilla tipo tape-chart todas tus unidades: Cabaña 1, Cabaña 2, Habitación 101, etc.
-                Sincroniza en tiempo real Booking.com, Airbnb y tus reservas telefónicas o por WhatsApp. Arrastra para cambiar de fecha o unidad con un toque.
+                Sincronizá automáticamente Booking.com, Airbnb y tus reservas telefónicas o por WhatsApp. Arrastrá para cambiar de fecha o unidad con un toque.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">

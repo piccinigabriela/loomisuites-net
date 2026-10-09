@@ -944,13 +944,20 @@ export default function App() {
           <GuestWelcomePortal
             guideData={demoState.welcomeGuide || INITIAL_WELCOME_GUIDE}
             isMobilePreview={false}
+            isPublicView={true}
             template={guideTemplate}
-            onSelectTemplate={setGuideTemplate}
-            onBackToPanel={() => {
-              setCurrentView('demo');
-              setDemoTab('welcome-guide');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+            unitName={
+              typeof window !== 'undefined'
+                ? (() => {
+                    const params = new URLSearchParams(window.location.search);
+                    const unitParam = params.get('unidad') || params.get('depto') || params.get('unit') || params.get('propiedad');
+                    if (unitParam) return unitParam;
+                    const pathname = window.location.pathname;
+                    const matchedProp = demoState.properties.find((p) => pathname.includes(p.id));
+                    return matchedProp ? matchedProp.name : undefined;
+                  })()
+                : undefined
+            }
           />
         </div>
       ) : currentView === 'superadmin' ? (

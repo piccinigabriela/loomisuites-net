@@ -75,13 +75,13 @@ export const ChannelIntegrations: React.FC = () => {
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#252525] text-[#18181B] dark:text-[#EFECE5] border border-[#DCD8CE] dark:border-[#383838] text-xs font-black mb-3 shadow-2xs">
             <RefreshCw className="w-3.5 h-3.5 text-[#E1500A] animate-spin" style={{ animationDuration: '6s' }} />
-            <span>Sincronización Multicanal en Tiempo Real</span>
+            <span>Sincronización Automática de Calendarios</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-[#18181B] dark:text-[#FFFFFF] tracking-tight">
             Todas tus plataformas conectadas en un único panel
           </h2>
           <p className="mt-3 text-base text-[#666666] dark:text-[#A3A3A3]">
-            Publica en todos lados sin miedo a una sobreventa. Cuando entra una reserva en Booking o Airbnb, Loomi Suite bloquea las demás plataformas en tiempo real.
+            Publicá en todos lados sin miedo a una sobreventa. Cuando entra una reserva en Booking o Airbnb, Loomi Suite bloquea las demás plataformas de forma automática.
           </p>
         </div>
 

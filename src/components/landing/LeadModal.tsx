@@ -194,15 +194,16 @@ export const LeadModal: React.FC<LeadModalProps> = ({
 
                 <div>
                   <label className="block text-xs font-bold text-zinc-800 dark:text-zinc-200 mb-1">
-                    ¿Cuántas unidades gestionas?
+                    ¿Cuántas unidades gestionás?
                   </label>
                   <select
                     value={propertiesCount}
                     onChange={(e) => setPropertiesCount(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-[#48372b] bg-zinc-50 dark:bg-[#121110] text-zinc-900 dark:text-zinc-100 focus:outline-hidden focus:border-[#c46d45] text-sm"
                   >
-                    <option value="hasta-20">Complejo completo (Hasta 20 unidades) • $60.000 / mes</option>
-                    <option value="20+">Más de 20 unidades (Plan personalizado)</option>
+                    <option value="plan-loomi">Plan Loomi: 4 a 10 unidades ($45.000 / mes)</option>
+                    <option value="plan-suite">Plan Loomi Suite: Complejo Completo ($60.000 / mes)</option>
+                    <option value="personalizado">Más de 20 unidades (Plan a medida)</option>
                   </select>
                 </div>
               </div>

@@ -817,7 +817,7 @@ Puedo responderte al instante sobre cualquier tema operativo o comercial:
 2. **💰 Ganancias y Finanzas:** Pregúntame *"¿Cuál es mi ganancia en octubre?"*, cuánta plata ingresó o cuánto ahorraste en comisiones de Airbnb y Booking.
 3. **🔑 Llaves y Limpieza:** Pregúntame cómo operar con llaves comunes tradicionales o cómo coordinar con la mucama.
 4. **🔄 Sincronización:** Pregúntame cómo conectar Booking y Airbnb para evitar dobles reservas.
-5. **🏷️ Planes y Precios:** Pregúntame cuánto cuesta Loomi Suite ($60.000 ARS/mes) y cómo se paga por transferencia o Mercado Pago.
+5. **🏷️ Planes y Precios:** Pregúntame cuánto cuesta Loomi ($45.000 ARS/mes) o Loomi Suite ($60.000 ARS/mes) y cómo se paga por transferencia o Mercado Pago.
 
 *¿Qué te gustaría consultar o resolver?*`;
 }
