@@ -5,7 +5,7 @@ import { SpotlightCard } from './SpotlightCard';
 export const PainVersusGain: React.FC = () => {
   const pains = [
     'Doble reserva (overbooking) de una cabaña en temporada alta: tener que reubicar a una familia y pagar multas.',
-    'Llevar las reservas en un cuaderno o Excel que no puedes consultar ni actualizar cuando estás recorriendo el predio.',
+    'Llevar las reservas en un cuaderno o Excel que no podés consultar ni actualizar cuando estás recorriendo el predio.',
     'La mucama no sabe qué cabaña preparar primero ni cuántas camas armar porque los mensajes se pierden en WhatsApp.',
     'Pagar 18% a 20% de comisión a las plataformas cuando un huésped recurrente quiere volver el próximo fin de semana.',
     'Sistemas hoteleros tradicionales o de inmobiliarias incomprensibles, con 200 botones que jamás vas a necesitar.',
@@ -13,7 +13,7 @@ export const PainVersusGain: React.FC = () => {
 
   const gains = [
     'Sincronización automática entre Booking, Airbnb y reservas directas: Cero dobles reservas.',
-    'Rack visual en tu celular: miras en 2 segundos qué cabañas o habitaciones están ocupadas, libres o sucias.',
+    'Rack visual en tu celular: mirás en 2 segundos qué cabañas o habitaciones están ocupadas, libres o sucias.',
     'Gestión de limpieza y mucamas con checklist por unidad: sábanas, toallas, leña y control en un clic.',
     'Página propia de reservas directas con seña para ahorrar comisiones y ganar hasta 20% más por noche.',
     'Simplicidad total estilo BananaDesk: listo para usar en 15 minutos sin técnicos ni manuales de 100 páginas.',
@@ -26,10 +26,10 @@ export const PainVersusGain: React.FC = () => {
           <span className="text-xs font-bold text-rose-600 uppercase tracking-wider">
             La transformación en tu complejo, glamping o posada
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight mt-2">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-2">
             Dejar el cuaderno y el Excel para tener el control total en tu celular
           </h2>
-          <p className="mt-3 text-base text-zinc-600 dark:text-zinc-400">
+          <p className="mt-3 text-base text-slate-800 dark:text-zinc-300 font-medium">
             La diferencia entre vivir estresado respondiendo mensajes y gestionar tus cabañas, domos o departamentos con serenidad.
           </p>
         </div>
@@ -48,7 +48,7 @@ export const PainVersusGain: React.FC = () => {
             </div>
             <ul className="space-y-4">
               {pains.map((pain, idx) => (
-                <li key={idx} className="flex items-start gap-3 text-sm text-zinc-600 dark:text-zinc-400">
+                <li key={idx} className="flex items-start gap-3 text-sm text-slate-700 dark:text-zinc-300 font-medium">
                   <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
                   <span>{pain}</span>
                 </li>

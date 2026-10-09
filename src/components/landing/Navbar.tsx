@@ -30,11 +30,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center space-x-4 sm:space-x-6 text-xs font-medium text-gray-500 dark:text-gray-400">
+        <div className="flex items-center space-x-4 sm:space-x-6 text-xs font-semibold text-slate-700 dark:text-zinc-300">
           {onToggleTheme && (
             <button
               onClick={onToggleTheme}
-              className="hover:text-gray-800 dark:hover:text-gray-200 transition-colors cursor-pointer flex items-center gap-1.5"
+              className="hover:text-slate-900 dark:hover:text-gray-200 transition-colors cursor-pointer flex items-center gap-1.5"
               title={isDark ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
             >
               {isDark ? (
@@ -44,7 +44,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </>
               ) : (
                 <>
-                  <Moon className="w-3.5 h-3.5 text-gray-500" />
+                  <Moon className="w-3.5 h-3.5 text-slate-700" />
                   <span className="hidden md:inline text-xs">Modo Oscuro</span>
                 </>
               )}
@@ -55,7 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="btn-nav-login"
               onClick={onOpenLogin}
-              className="hover:text-gray-800 dark:hover:text-gray-200 transition-colors cursor-pointer"
+              className="hover:text-slate-900 dark:hover:text-gray-200 transition-colors cursor-pointer"
             >
               Ingresar
             </button>
@@ -64,7 +64,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="btn-nav-contact"
             onClick={onOpenContact}
-            className="text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-200 transition-colors cursor-pointer hidden sm:inline"
+            className="text-slate-700 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-gray-200 transition-colors cursor-pointer hidden sm:inline"
           >
             Hablar con un Asesor
           </button>

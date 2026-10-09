@@ -86,7 +86,7 @@ export const OnboardingSection: React.FC<OnboardingSectionProps> = ({
             ¿Cómo es el Onboarding de este modelo?
           </h2>
           <p className="mt-3 text-base text-zinc-300 leading-relaxed">
-            Sin semanas de capacitación, sin cursos complicados y sin técnicos instalando servidores. Así de rápido y transparente pasas del cuaderno o Excel a operar con Loomi Suite:
+            Sin semanas de capacitación, sin cursos complicados y sin técnicos instalando servidores. Así de rápido y transparente pasás del cuaderno o Excel a operar con Loomi Suite:
           </p>
         </div>
 

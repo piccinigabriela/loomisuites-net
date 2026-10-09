@@ -25,12 +25,12 @@ export const Hero: React.FC<HeroProps> = ({ onOpenDemo, onOpenContact }) => {
 
           {/* Main Headline */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#222222] dark:text-[#FFFFFF] tracking-tight leading-[1.12]">
-            El software simple para tu complejo, <span className="text-[#E1500A]">sin la pesadez de los sistemas hoteleros gigantes</span>
+            Tus cabañas y departamentos sin overbookings ni planillas, <span className="text-[#E1500A]">por un precio fijo en pesos</span>
           </h1>
 
           {/* Subtitle */}
-          <p className="mt-6 text-lg sm:text-xl text-[#666666] dark:text-[#A3A3A3] leading-relaxed max-w-2xl mx-auto font-normal">
-            Hecho para alojamientos independientes de <strong>4 a 30+ unidades</strong>. Reemplaza el cuaderno o las planillas con un <strong>rack visual intuitivo</strong>: sincroniza Booking y Airbnb sin dobles reservas, organiza la limpieza en el celular y gestiona tus reservas directas de manera ágil.
+          <p className="mt-6 text-lg sm:text-xl text-slate-900 dark:text-[#A3A3A3] leading-relaxed max-w-2xl mx-auto font-normal">
+            Hecho para alojamientos independientes de <strong>4 a 30+ unidades</strong>. Reemplazá el cuaderno o las planillas con un <strong>rack visual intuitivo</strong>: sincronizá Booking y Airbnb sin dobles reservas, organizá la limpieza en el celular y gestioná tus reservas directas de manera ágil.
           </p>
 
           {/* Accommodation Types Badges */}
@@ -75,10 +75,10 @@ export const Hero: React.FC<HeroProps> = ({ onOpenDemo, onOpenContact }) => {
           </div>
 
           {/* Micro-guarantees */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium text-[#666666] dark:text-[#A3A3A3]">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold text-slate-900 dark:text-[#A3A3A3]">
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-[#E1500A]" />
-              Prueba la demo sin tarjeta ni registro
+              Probá la demo sin tarjeta ni registro
             </span>
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-[#E1500A]" />
@@ -177,20 +177,20 @@ export const Hero: React.FC<HeroProps> = ({ onOpenDemo, onOpenContact }) => {
         {/* 4 Proof Numbers Bar */}
         <div className="mt-16 border-y border-[#DCD8CE] dark:border-[#2D2D2D] py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <div>
-            <div className="text-3xl font-black text-[#222222] dark:text-[#FFFFFF]">+850</div>
-            <div className="text-xs text-[#666666] dark:text-[#A3A3A3] mt-1 font-semibold">Cabañas y habitaciones activas</div>
+            <div className="text-3xl font-black text-[#222222] dark:text-[#FFFFFF]">100%</div>
+            <div className="text-xs text-slate-900 dark:text-[#A3A3A3] mt-1 font-bold">Gestión centralizada y sin sorpresas</div>
           </div>
           <div>
             <div className="text-3xl font-black text-[#E1500A]">0</div>
-            <div className="text-xs text-[#666666] dark:text-[#A3A3A3] mt-1 font-semibold">Dobles reservas (overbookings)</div>
+            <div className="text-xs text-slate-900 dark:text-[#A3A3A3] mt-1 font-bold">Dobles reservas (sin overbookings)</div>
           </div>
           <div>
             <div className="text-3xl font-black text-[#222222] dark:text-[#FFFFFF]">15 min</div>
-            <div className="text-xs text-[#666666] dark:text-[#A3A3A3] mt-1 font-semibold">Puesta en marcha (Onboarding)</div>
+            <div className="text-xs text-slate-900 dark:text-[#A3A3A3] mt-1 font-bold">Puesta en marcha (Onboarding)</div>
           </div>
           <div>
             <div className="text-3xl font-black text-[#E1500A]">+30%</div>
-            <div className="text-xs text-[#666666] dark:text-[#A3A3A3] mt-1 font-semibold">Más margen con reservas directas</div>
+            <div className="text-xs text-slate-900 dark:text-[#A3A3A3] mt-1 font-bold">Más margen con reservas directas</div>
           </div>
         </div>
       </div>

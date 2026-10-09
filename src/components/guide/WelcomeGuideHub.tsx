@@ -64,7 +64,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
 
   // Quick edit state for Wi-Fi in the quick bar
   const [ssidInput, setSsidInput] = useState(guideData.wifiNetwork || 'Catalinas_Fibra');
-  const [passwordInput, setPasswordInput] = useState(guideData.wifiPassword || 'TresSargentos435');
+  const [passwordInput, setPasswordInput] = useState(guideData.wifiPassword || 'CatalinasDemo2026');
   const [isSavedFeedback, setIsSavedFeedback] = useState(false);
 
   // Compute slug from property name
@@ -319,43 +319,43 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
 
           {activeSubTab === 'landing-booking' && (
             <div className="flex flex-wrap items-center gap-1.5 text-xs pr-1 font-mono">
-              <span className="text-gray-400 text-[10px] uppercase hidden md:inline">Modelos Oficiales:</span>
+              <span className="text-gray-400 text-[10px] uppercase hidden md:inline">Plantillas Base:</span>
               <div className="flex items-center gap-1 bg-gray-50 dark:bg-zinc-800/60 p-1 rounded-xl border border-gray-200/80 dark:border-zinc-700">
                 <button
-                  onClick={() => handleSetTemplate('dos-aguas')}
+                  onClick={() => handleSetTemplate('clara')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
-                    selectedTemplate === 'dos-aguas' || selectedTemplate === 'retrato'
+                    selectedTemplate === 'clara' || selectedTemplate === 'dos-aguas' || selectedTemplate === 'retrato'
                       ? 'bg-white dark:bg-zinc-700 text-[#E67E22] shadow-xs'
                       : 'text-gray-500 hover:text-gray-800 dark:hover:text-white'
                   }`}
-                  title="Refugio Dos Aguas • Glamping & Bosque"
+                  title="Plantilla 1: Clara • Estructuras limpias, luz franca y geometría noble"
                 >
-                  <span>🌲 Dos Aguas</span>
-                  <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Glamping)</span>
+                  <span>☀️ Clara</span>
+                  <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Luz franca)</span>
                 </button>
                 <button
-                  onClick={() => handleSetTemplate('corte-vette')}
+                  onClick={() => handleSetTemplate('tierra')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
-                    selectedTemplate === 'corte-vette' || (selectedTemplate as string) === 'triptych'
+                    selectedTemplate === 'tierra' || selectedTemplate === 'corte-vette' || (selectedTemplate as string) === 'triptych'
                       ? 'bg-white dark:bg-zinc-700 text-[#E67E22] shadow-xs'
                       : 'text-gray-500 hover:text-gray-800 dark:hover:text-white'
                   }`}
-                  title="Corte delle Vette • Bodega Lodge"
+                  title="Plantilla 2: Tierra • Texturas nobles, maderas, revoques cálidos e imperfección natural"
                 >
-                  <span>🍷 Corte delle Vette</span>
-                  <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Bodega)</span>
+                  <span>🪵 Tierra</span>
+                  <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Maderas)</span>
                 </button>
                 <button
-                  onClick={() => handleSetTemplate('medano-blanco')}
+                  onClick={() => handleSetTemplate('sombra')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
-                    selectedTemplate === 'medano-blanco' || selectedTemplate === 'bay' || selectedTemplate === 'urbano'
+                    selectedTemplate === 'sombra' || selectedTemplate === 'medano-blanco' || selectedTemplate === 'bay' || selectedTemplate === 'urbano'
                       ? 'bg-white dark:bg-zinc-700 text-[#E67E22] shadow-xs'
                       : 'text-gray-500 hover:text-gray-800 dark:hover:text-white'
                   }`}
-                  title="Médano Blanco • Posada Costera"
+                  title="Plantilla 3: Sombra • Atmósfera íntima, maderas oscuras y penumbra elegante"
                 >
-                  <span>🌊 Médano Blanco</span>
-                  <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Posada)</span>
+                  <span>🌑 Sombra</span>
+                  <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Íntima)</span>
                 </button>
               </div>
             </div>

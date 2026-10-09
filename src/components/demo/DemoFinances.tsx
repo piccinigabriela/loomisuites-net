@@ -331,8 +331,8 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({ demoState }) => {
                 <span className="font-medium text-gray-800">
                   {MONTHLY_DATA[hoveredMonthIndex].month}:
                 </span>{' '}
-                <span className="text-emerald-700">
-                  ${MONTHLY_DATA[hoveredMonthIndex].revenue.toLocaleString()} USD
+                <span className="text-emerald-700 font-semibold">
+                  USD {MONTHLY_DATA[hoveredMonthIndex].revenue.toLocaleString('es-AR')}
                 </span>{' '}
                 ·{' '}
                 <span className="text-[#E67E22]">
@@ -342,7 +342,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({ demoState }) => {
               </div>
             ) : (
               <span className="text-[11px] text-gray-400 font-light hidden sm:inline">
-                Pasa el mouse sobre los puntos para ver el detalle mensual
+                Pasá el mouse sobre los puntos para ver el detalle mensual
               </span>
             )}
           </div>

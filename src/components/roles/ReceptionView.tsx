@@ -27,7 +27,7 @@ import {
   Send,
 } from 'lucide-react';
 import { DemoState, Reservation, ReservationStatus, PaymentStatus, CashMovement } from '../../types';
-import { formatDisplayDate, getRelativeDate } from '../../data/initialData';
+import { formatDisplayDate, getRelativeDate, formatCurrency } from '../../data/initialData';
 import { GuestWelcomeCard } from '../GuestWelcomeCard';
 
 interface ReceptionViewProps {
@@ -85,20 +85,42 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
     (r) => r.status === 'checked_in' || (r.checkIn <= today && r.checkOut >= today)
   );
 
-  const displayedReservations = allReservations.filter((r) => {
-    const prop = getProp(r.propertyId);
-    const matchesSearch =
-      r.guestName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (prop && prop.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (r.guestPhone && r.guestPhone.includes(searchTerm));
+  const displayedReservations = allReservations
+    .filter((r) => {
+      const prop = getProp(r.propertyId);
+      const matchesSearch =
+        r.guestName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (prop && prop.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (r.guestPhone && r.guestPhone.includes(searchTerm));
 
-    if (!matchesSearch) return false;
+      if (!matchesSearch) return false;
 
-    if (activeFilter === 'checkin') return r.checkIn === today;
-    if (activeFilter === 'checkout') return r.checkOut === today;
-    if (activeFilter === 'in_house') return r.status === 'checked_in';
-    return true;
-  });
+      if (activeFilter === 'checkin') return r.checkIn === today;
+      if (activeFilter === 'checkout') return r.checkOut === today;
+      if (activeFilter === 'in_house') return r.status === 'checked_in' || (r.checkIn <= today && r.checkOut >= today);
+      return true;
+    })
+    .sort((a, b) => {
+      // Orden cronológico desde hoy hacia adelante:
+      const aIsPast = a.checkOut < today;
+      const bIsPast = b.checkOut < today;
+
+      // 1. Estadías presentes y futuras van primero
+      if (!aIsPast && bIsPast) return -1;
+      if (aIsPast && !bIsPast) return 1;
+
+      // 2. Si ambas son presentes/futuras: orden ascendente por checkIn (hoy, mañana, próximas)
+      if (!aIsPast && !bIsPast) {
+        const aToday = a.checkIn === today;
+        const bToday = b.checkIn === today;
+        if (aToday && !bToday) return -1;
+        if (!aToday && bToday) return 1;
+        return a.checkIn.localeCompare(b.checkIn);
+      }
+
+      // 3. Si ambas ya finalizaron: mostrar las más recientes primero
+      return b.checkOut.localeCompare(a.checkOut);
+    });
 
   // Cash movements calculations
   const openingCash = 50000;
@@ -360,6 +382,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                 const isTodayOut = res.checkOut === today;
                 const isCheckedIn = res.status === 'checked_in';
                 const isCheckedOut = res.status === 'checked_out';
+                const isPastStay = res.checkOut < today;
 
                 return (
                   <div
@@ -400,7 +423,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
 
                       <div className="flex items-center gap-3 text-[11px] text-stone-400 font-light flex-wrap">
                         <span>Del <strong>{res.checkIn}</strong> al <strong>{res.checkOut}</strong></span>
-                        <span>• Total: <strong>USD {res.totalAmount}</strong></span>
+                        <span>• Total: <strong>{formatCurrency(res.totalAmount, 'USD')}</strong></span>
                         <span className={res.paymentStatus === 'paid' ? 'text-emerald-600 font-medium' : 'text-amber-600 font-medium'}>
                           • {res.paymentStatus === 'paid' ? 'Pagado 100%' : 'Saldo pendiente'}
                         </span>
@@ -424,8 +447,8 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                         <span>Tarjeta WhatsApp</span>
                       </button>
 
-                      {/* Check-in / Check-out Buttons */}
-                      {!isCheckedIn && !isCheckedOut && (
+                      {/* Check-in / Check-out Buttons (Sin botón de check-in en estadías que concluyeron) */}
+                      {!isCheckedIn && !isCheckedOut && !isPastStay && (
                         <button
                           onClick={() => {
                             onQuickCheckIn(res.id);
@@ -436,6 +459,12 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                           <Check className="w-3.5 h-3.5" />
                           <span>Check-in</span>
                         </button>
+                      )}
+
+                      {!isCheckedIn && !isCheckedOut && isPastStay && (
+                        <span className="px-3 py-1 rounded-xl text-[11px] font-semibold bg-stone-100 text-stone-500 dark:bg-zinc-800 dark:text-stone-400">
+                          Estadía Concluida
+                        </span>
                       )}
 
                       {isCheckedIn && (
@@ -626,9 +655,9 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                 accessCode={selectedResForCard.pinCode || '4820'}
                 wifiNetwork={getProp(selectedResForCard.propertyId)?.wifiNetwork || 'Loomi_Fibra_Optica'}
                 wifiPassword={getProp(selectedResForCard.propertyId)?.wifiPassword || 'Bienvenido2026'}
-                address={getProp(selectedResForCard.propertyId)?.address || 'Tres Sargentos 435, CABA'}
+                address={getProp(selectedResForCard.propertyId)?.address || 'Tres Sargentos 400, CABA'}
                 guideUrl={`https://loomisuite.net/guia/${selectedResForCard.propertyId}`}
-                hostPhone={selectedResForCard.guestPhone || '5491140506070'}
+                hostPhone={selectedResForCard.guestPhone || '5491155550100'}
               />
             </div>
 
@@ -640,7 +669,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                   const text = `¡Hola ${selectedResForCard.guestName}! Te compartimos tu tarjeta de bienvenida digital a ${prop?.name || 'tu alojamiento'}:\n\n` +
                     `🔑 Código cerradura: ${selectedResForCard.pinCode || '4820'}\n` +
                     `📶 Wi-Fi: ${prop?.wifiNetwork || 'Loomi_Fibra'} (Clave: ${prop?.wifiPassword || 'Bienvenido2026'})\n` +
-                    `📍 Dirección: ${prop?.address || 'Tres Sargentos 435'}\n` +
+                    `📍 Dirección: ${prop?.address || 'Tres Sargentos 400'}\n` +
                     `🌐 Guía completa y mapa: https://loomisuite.net/guia/${selectedResForCard.propertyId}\n\n` +
                     `¡Que tengas un excelente descanso!`;
                   navigator.clipboard.writeText(text);

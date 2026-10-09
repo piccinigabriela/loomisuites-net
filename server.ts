@@ -121,14 +121,60 @@ function generateRuleBasedXeniaResponse(
   return getClientXeniaReply(message, demoState);
 }
 
+// Rate limiting para /api/xenia/chat: control de flujo por IP para prevenir abusos
+interface RateLimitRecord {
+  timestamps: number[];
+}
+const ipRateLimits = new Map<string, RateLimitRecord>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // Ventana de 1 minuto
+const RATE_LIMIT_MAX_REQUESTS = 25; // Máximo 25 peticiones por minuto por IP
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = ipRateLimits.get(ip) || { timestamps: [] };
+  // Filtrar las peticiones ocurridas dentro de la ventana activa
+  const recentTimestamps = record.timestamps.filter((ts) => now - ts < RATE_LIMIT_WINDOW_MS);
+  if (recentTimestamps.length >= RATE_LIMIT_MAX_REQUESTS) {
+    ipRateLimits.set(ip, { timestamps: recentTimestamps });
+    return false; // Límite excedido
+  }
+  recentTimestamps.push(now);
+  ipRateLimits.set(ip, { timestamps: recentTimestamps });
+
+  // Limpieza periódica si el mapa supera 500 IPs
+  if (ipRateLimits.size > 500) {
+    for (const [key, val] of ipRateLimits.entries()) {
+      if (val.timestamps.every((ts) => now - ts >= RATE_LIMIT_WINDOW_MS)) {
+        ipRateLimits.delete(key);
+      }
+    }
+  }
+  return true;
+}
+
 // Xenia Chat API Endpoint
 app.post("/api/xenia/chat", async (req: Request, res: Response) => {
   try {
+    const clientIp =
+      (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
+      req.socket.remoteAddress ||
+      req.ip ||
+      "client-ip";
+
+    if (!checkRateLimit(clientIp)) {
+      res.status(429).json({
+        error: "Límite de solicitudes alcanzado. Por favor, aguardá un minuto antes de enviar más consultas a Xenia.",
+        reply: "Has realizado varias consultas consecutivas. Por favor aguardá un momento para continuar nuestra conversación.",
+        source: "rate_limit_exceeded",
+      });
+      return;
+    }
+
     const { message, history = [], contextData: rawContextData, context: rawContext } = req.body;
     let contextData = rawContextData || rawContext || {};
 
     if (!message || typeof message !== "string") {
-      res.status(400).json({ error: "El mensaje es obligatorio" });
+      res.status(400).json({ error: "El mensaje es obligatorio." });
       return;
     }
 
@@ -316,11 +362,11 @@ ${addonsSummary || "No hay servicios adicionales registrados."}
       reply,
       source: "gemini_api",
     });
-  } catch (error: any) {
-    console.error("Error en endpoint /api/xenia/chat:", error);
-    // Graceful fallback to rule-based engine on any error
+  } catch (_error) {
+    console.error("Error interno al procesar /api/xenia/chat");
+    // Graceful fallback to rule-based engine on any error (sin exponer trazas del servidor)
     const fallbackReply = generateRuleBasedXeniaResponse(
-      req.body?.message || "",
+      typeof req.body?.message === "string" ? req.body.message : "",
       req.body?.contextData
     );
     res.json({

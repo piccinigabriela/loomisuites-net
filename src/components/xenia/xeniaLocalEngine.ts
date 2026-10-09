@@ -110,7 +110,7 @@ Quedamos a tu completa disposición para asistirte en lo que precises.`;
     const wifiNet = p0?.wifiNetwork || 'Loomi_Fibra_Optica';
     const wifiPass = p0?.wifiPassword || 'Bienvenido2026';
     const pin = '4820';
-    const address = p0?.address || 'Tres Sargentos 435, CABA';
+    const address = p0?.address || 'Tres Sargentos 400, CABA';
 
     return `¡Hola! Con gusto te paso los datos para tu llegada y estancia:
 

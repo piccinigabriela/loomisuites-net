@@ -118,7 +118,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#222222] dark:text-[#FFFFFF] tracking-tight">
             Todo lo que querés saber antes de decidir
           </h2>
-          <p className="mt-3 text-base sm:text-lg text-[#666666] dark:text-[#A3A3A3]">
+          <p className="mt-3 text-base sm:text-lg text-slate-900 dark:text-[#A3A3A3]">
             Sin rodeos, sin planillas eternas y con precios a la vista en pesos. Elegí la pregunta que tenés en mente:
           </p>
         </div>
@@ -756,8 +756,8 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                               </li>
                             ))}
                             {plan.excludedFeatures?.map((excluded, idx) => (
-                              <li key={idx} className="flex items-start gap-2 text-gray-400 line-through">
-                                <span className="text-gray-300 font-bold">✕</span>
+                              <li key={idx} className="flex items-start gap-2 text-slate-500 dark:text-zinc-500 line-through">
+                                <span className="text-slate-400 dark:text-zinc-600 font-bold">✕</span>
                                 <span>{excluded}</span>
                               </li>
                             ))}

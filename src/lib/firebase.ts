@@ -163,8 +163,10 @@ export async function saveRegisteredAccountToCloud(profile: any): Promise<void> 
   try {
     const docId = profile.adminEmail.toLowerCase().trim();
     const ref = doc(db, 'registered_complexes', docId);
+    // Blindaje de seguridad: Nunca almacenar contraseñas en colecciones en la nube
+    const { password, ...safeProfile } = profile;
     await setDoc(ref, {
-      ...profile,
+      ...safeProfile,
       updatedAt: serverTimestamp(),
     }, { merge: true });
   } catch (error) {

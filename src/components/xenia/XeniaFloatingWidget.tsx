@@ -206,12 +206,12 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 font-sans">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 font-sans pointer-events-auto">
       {/* Floating Launcher Button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="relative group p-1 bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#C8C4B7] dark:border-[#222328] shadow-2xl hover:border-[#E1500A] dark:hover:border-[#E1500A] transition-all duration-200 cursor-pointer focus:outline-none flex items-center gap-2"
+          className="relative group p-1.5 bg-[#EAE8E3]/95 dark:bg-[#0C0D0F]/95 backdrop-blur-md border border-[#C8C4B7] dark:border-[#222328] shadow-2xl hover:border-[#E1500A] dark:hover:border-[#E1500A] transition-all duration-200 cursor-pointer focus:outline-none flex items-center gap-2 rounded-2xl"
           aria-label="Abrir Asistente Xenia"
         >
           <div className="relative">
@@ -226,7 +226,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
 
       {/* Floating Chat Window */}
       {isOpen && (
-        <div className="w-[360px] sm:w-[420px] h-[580px] bg-[#ECEAE4] dark:bg-[#0E0F12] border border-[#C8C4B7] dark:border-[#222328] shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-3 duration-150 text-[#18181B] dark:text-[#EFECE5]">
+        <div className="w-[calc(100vw-32px)] max-w-[420px] h-[min(560px,calc(100vh-100px))] bg-[#ECEAE4] dark:bg-[#0E0F12] border border-[#C8C4B7] dark:border-[#222328] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-3 duration-150 text-[#18181B] dark:text-[#EFECE5]">
           {/* Header */}
           <div className="p-3.5 bg-[#EAE8E3] dark:bg-[#0C0D0F] flex items-center justify-between border-b border-[#C8C4B7] dark:border-[#222328]">
             <div className="flex items-center gap-2.5">

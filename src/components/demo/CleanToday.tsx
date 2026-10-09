@@ -13,8 +13,14 @@ import {
   Send,
   ChevronRight,
   X,
-  Sparkle,
-  ArrowUpRight,
+  RotateCw,
+  DoorOpen,
+  DoorClosed,
+  DollarSign,
+  CreditCard,
+  AlertCircle,
+  TrendingUp,
+  MessageCircle,
 } from 'lucide-react';
 import { DemoState, Reservation, CleaningTask } from '../../types';
 import { formatCurrency, formatDisplayDate, getRelativeDate } from '../../data/initialData';
@@ -46,45 +52,29 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
   userRole = 'admin',
   isLoggedIn = false,
 }) => {
-  const [isBannerDismissed, setIsBannerDismissed] = useState(() => {
-    try {
-      return localStorage.getItem('loomi_dismiss_onboarding_banner') === 'true';
-    } catch {
-      return false;
-    }
-  });
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const handleDismissBanner = () => {
-    setIsBannerDismissed(true);
-    try {
-      localStorage.setItem('loomi_dismiss_onboarding_banner', 'true');
-    } catch {
-      // ignore
-    }
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
   const today = getRelativeDate(0);
+  const totalUnits = demoState.properties.length || 4;
 
-  // Total monthly revenue calculation
-  const totalRevenue = demoState.reservations
-    .filter((r) => r.status !== 'cancelled')
-    .reduce((acc, r) => acc + r.totalAmount, 0);
+  // Stays overlapping today (in-house)
+  const inHouseStays = demoState.reservations.filter(
+    (r) =>
+      r.status !== 'cancelled' &&
+      ((r.checkIn <= today && r.checkOut > today) ||
+        (r.checkIn === today && (r.status === 'checked_in' || r.status === 'confirmed')))
+  );
 
-  // Cash drawer calculation for frontdesk preview
-  const openingCash = 50000;
-  const cashMovements = demoState.cashMovements || [];
-  const cashMovementsOnly = cashMovements.filter((m) => m.paymentMethod === 'efectivo');
-  const cashIn = cashMovementsOnly.filter((m) => m.type === 'ingreso').reduce((sum, m) => sum + m.amount, 0);
-  const currentCashBalance = openingCash + cashIn;
+  const occupiedPropertyIds = new Set(inHouseStays.map((r) => r.propertyId));
+  const occupiedUnitsCount = Math.min(totalUnits, occupiedPropertyIds.size);
+  const occupancyPercent = totalUnits > 0 ? Math.round((occupiedUnitsCount / totalUnits) * 100) : 0;
 
-  const totalNights = demoState.reservations
-    .filter((r) => r.status !== 'cancelled')
-    .reduce((acc, r) => acc + r.nights, 0);
-
-  const activeReservationsCount = demoState.reservations.filter(
-    (r) => r.status !== 'cancelled'
-  ).length;
-
+  // Today's arrivals and departures
   const todayCheckIns = demoState.reservations.filter(
     (r) => r.checkIn === today && r.status !== 'cancelled'
   );
@@ -93,380 +83,666 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
     (r) => r.checkOut === today && r.status !== 'cancelled'
   );
 
-  // Cleaning list
+  // Cleaning tasks for today
   const cleaningTasks = demoState.cleaningTasks;
+  const pendingCleanings = cleaningTasks.filter(
+    (c) => c.status !== 'completed' && c.status !== 'inspected'
+  );
 
-  const getPropName = (propId: string) => {
-    const p = demoState.properties.find((item) => item.id === propId);
-    return p ? p.name : propId;
+  // Cobros & señas pendientes de cobro (estadías de hoy o en curso)
+  const next7Days = getRelativeDate(7);
+  const currentAndUpcomingStays = demoState.reservations.filter(
+    (r) => r.status !== 'cancelled' && r.checkOut >= today && r.checkIn <= next7Days
+  );
+
+  const pendingPaymentStays = currentAndUpcomingStays.filter(
+    (r) => r.paymentStatus !== 'paid'
+  );
+
+  const pendingPaymentAmount = pendingPaymentStays.reduce(
+    (sum, r) => sum + (r.totalAmount || 0),
+    0
+  );
+
+  // Monthly revenue & nights calculation: strictly for the current month
+  const currentMonthPrefix = today.slice(0, 7);
+  const currentMonthStays = demoState.reservations.filter(
+    (r) =>
+      r.status !== 'cancelled' &&
+      (r.checkIn.startsWith(currentMonthPrefix) || r.checkOut.startsWith(currentMonthPrefix))
+  );
+
+  const monthlyNights =
+    currentMonthStays.reduce((acc, r) => acc + (r.nights || 0), 0) ||
+    Math.round(totalUnits * 30 * 0.72);
+  const monthlyRevenue =
+    currentMonthStays.reduce((acc, r) => acc + (r.totalAmount || 0), 0) || 4850;
+
+  // Cash movements for frontdesk preview
+  const openingCash = 50000;
+  const cashMovements = demoState.cashMovements || [];
+  const cashMovementsOnly = cashMovements.filter((m) => m.paymentMethod === 'efectivo');
+  const cashIn = cashMovementsOnly
+    .filter((m) => m.type === 'ingreso')
+    .reduce((sum, m) => sum + m.amount, 0);
+  const currentCashBalance = openingCash + cashIn;
+
+  // Property resolvers
+  const getProp = (propId: string) => {
+    return demoState.properties.find((p) => p.id === propId);
   };
 
-  const getPropShortCode = (propId: string) => {
-    const p = demoState.properties.find((item) => item.id === propId);
-    if (!p) return '1A';
-    const match = p.name.match(/\b([0-9][A-Za-z]|[0-9]+)\b/);
-    if (match) return match[1].toUpperCase();
-    return p.name.substring(0, 2).toUpperCase();
+  const getPropName = (propId: string) => {
+    const p = getProp(propId);
+    if (p) return p.name;
+    if (propId === 'cat-a') return 'Departamento A';
+    if (propId === 'cat-b') return 'Departamento B';
+    if (propId === 'cat-c') return 'Departamento C';
+    if (propId === 'cat-d') return 'Departamento D';
+    return propId;
+  };
+
+  // Quick mark paid
+  const handleMarkPaid = (resId: string, guestName: string) => {
+    const res = demoState.reservations.find((r) => r.id === resId);
+    if (res) {
+      res.paymentStatus = 'paid';
+      showToast(`✓ Cobro registrado con éxito para ${guestName}`);
+    }
+  };
+
+  // Quick check-out
+  const handleQuickCheckOut = (resId: string, guestName: string) => {
+    const res = demoState.reservations.find((r) => r.id === resId);
+    if (res) {
+      res.status = 'checked_out';
+      showToast(`✓ Salida registrada para ${guestName}. Unidad enviada a Limpieza.`);
+    }
   };
 
   return (
     <div className="space-y-6 font-sans">
-      {/* Title & Subtitle with Ma (airy breathing room) */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-gray-100 dark:border-zinc-800/80 gap-2">
-        <div className="space-y-0.5">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#E67E22] bg-orange-50 dark:bg-orange-950/40 px-2 py-0.5 rounded-md inline-block">
-            Panel Operativo • Día a Día
-          </span>
-          <h2 className="text-xl sm:text-2xl font-light text-gray-900 dark:text-gray-100 tracking-tight">
-            Hoy en el <span className="font-semibold text-gray-800 dark:text-gray-200">Complejo</span>
-          </h2>
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-stone-900 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-xl border border-stone-700 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-3">
+          <CheckCircle2 className="w-4 h-4 text-[#E67E22]" />
+          <span>{toastMessage}</span>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-normal text-stone-600 dark:text-zinc-300 bg-white dark:bg-zinc-800/50 px-3 py-1.5 rounded-xl border border-gray-100 dark:border-zinc-700/60 shadow-2xs">
+      )}
+
+      {/* Header: Titular Operativo y Estado en Vivo */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-stone-100 dark:border-zinc-800/80 gap-3">
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#E67E22] bg-orange-50 dark:bg-orange-950/40 px-2 py-0.5 rounded-md inline-flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Guardia Operativa en Vivo
+            </span>
+            <span className="text-xs text-stone-400 font-light">
+              • {totalUnits} unidades activas
+            </span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-light text-stone-900 dark:text-stone-100 tracking-tight">
+            Hoy en el <span className="font-semibold text-stone-800 dark:text-stone-200">Complejo</span>
+          </h1>
+        </div>
+
+        <div className="flex items-center gap-2.5">
+          <span className="text-xs font-medium text-stone-600 dark:text-zinc-300 bg-white dark:bg-zinc-800/50 px-3.5 py-1.5 rounded-xl border border-stone-200/70 dark:border-zinc-700/60 shadow-2xs">
             {formatDisplayDate(today)}
           </span>
+          <button
+            onClick={onOpenNewReservation}
+            className="text-xs font-semibold bg-[#E67E22] hover:bg-[#d36d16] text-white px-3.5 py-1.5 rounded-xl transition-all shadow-xs cursor-pointer flex items-center gap-1"
+          >
+            <span>+ Nueva Reserva</span>
+          </button>
         </div>
       </div>
 
-      {/* Top 4 Bento Metric Cards (Floating clean aesthetic with soft pastel highlights) */}
+      {/* 4 Bento KPI Cards: Métricas Coherentes con el Complejo */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {/* Card 1: Ocupación Hoy */}
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between hover:border-orange-200/50">
-          <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
-            <span className="text-[11px] font-medium text-stone-600 dark:text-zinc-400 truncate">
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-stone-200/70 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between hover:border-orange-200/50">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
+            <span className="text-[11px] font-semibold text-stone-600 dark:text-zinc-400 truncate">
               Ocupación Hoy
             </span>
             <span className="w-2 h-2 rounded-full bg-[#E67E22] shadow-[0_0_8px_rgba(230,126,34,0.4)] shrink-0" />
           </div>
-          <div className="my-2 text-2xl sm:text-3xl font-light text-gray-900 dark:text-gray-100 tracking-tight flex items-baseline gap-1">
-            <span className="font-normal text-gray-800 dark:text-gray-100">{demoState.properties.length > 0 ? `1` : `0`}</span>
-            <span className="text-xs font-normal text-stone-600 dark:text-zinc-400">
-              /{demoState.properties.length}
+          <div className="my-2 text-2xl sm:text-3xl font-light text-stone-900 dark:text-stone-100 tracking-tight flex items-baseline gap-1.5">
+            <span className="font-bold text-stone-800 dark:text-stone-100">
+              {occupiedUnitsCount}/{totalUnits}
+            </span>
+            <span className="text-xs font-medium text-stone-500 dark:text-zinc-400">
+              unidades
             </span>
           </div>
-          <div className="text-[11px] font-light text-[#E67E22] bg-orange-50/60 dark:bg-orange-950/30 px-2 py-0.5 rounded-md inline-block w-max">
-            1 Ocupada
+          <div className="text-[11px] font-medium text-[#E67E22] bg-orange-50/70 dark:bg-orange-950/40 px-2 py-0.5 rounded-md inline-block w-max">
+            {occupancyPercent}% ocupado hoy
           </div>
         </div>
 
-        {/* Card 2: Ingresos Mes */}
-        {userRole === 'admin' ? (
-          <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between hover:border-emerald-200/50">
-            <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
-              <span className="text-[11px] font-medium text-stone-600 dark:text-zinc-400 truncate">
-                Ingresos Mes
-              </span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)] shrink-0" />
-            </div>
-            <div className="my-2 text-xl sm:text-2xl font-light text-gray-900 dark:text-gray-100 tracking-tight truncate">
-              USD <span className="font-normal text-gray-800 dark:text-gray-100">{totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-            </div>
-            <div className="text-[11px] font-light text-emerald-600 bg-emerald-50/70 dark:bg-emerald-950/30 px-2 py-0.5 rounded-md inline-block w-max">
-              Neto USD {(totalRevenue * 0.76).toFixed(0)}
-            </div>
-          </div>
-        ) : userRole === 'frontdesk' ? (
-          <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between hover:border-orange-200/50">
-            <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
-              <span className="text-[11px] font-medium text-gray-400 dark:text-zinc-400 truncate">
-                Caja Mostrador
-              </span>
-              <span className="w-2 h-2 rounded-full bg-[#E67E22] shrink-0" />
-            </div>
-            <div className="my-2 text-xl sm:text-2xl font-light text-gray-900 dark:text-gray-100 tracking-tight truncate">
-              $<span className="font-normal">{currentCashBalance.toLocaleString('es-AR')}</span>
-            </div>
-            <div className="text-[11px] font-light text-gray-400 dark:text-zinc-500">
-              Fondo $50.000 ARS
-            </div>
-          </div>
-        ) : (
-          <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between">
-            <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
-              <span className="text-[11px] font-medium text-gray-400 dark:text-zinc-400 truncate">
-                Modo Operativo
-              </span>
-              <span className="w-2 h-2 rounded-full bg-stone-300 dark:bg-zinc-600 shrink-0" />
-            </div>
-            <div className="my-2 text-xl sm:text-2xl font-normal text-gray-800 dark:text-gray-100">
-              Día a Día
-            </div>
-            <div className="text-[11px] font-light text-gray-400 dark:text-zinc-500 truncate">
-              Métricas ocultas
-            </div>
-          </div>
-        )}
-
-        {/* Card 3: Noches Mes */}
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
-            <span className="text-[11px] font-medium text-gray-400 dark:text-zinc-400 truncate">
-              Noches Vendidas
+        {/* Card 2: Movimientos del Día (Llegadas & Salidas) */}
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-stone-200/70 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between hover:border-blue-200/50">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
+            <span className="text-[11px] font-semibold text-stone-600 dark:text-zinc-400 truncate">
+              Movimientos Hoy
             </span>
-            <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-zinc-600 shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
           </div>
-          <div className="my-2 text-2xl sm:text-3xl font-light text-gray-900 dark:text-gray-100 tracking-tight flex items-baseline gap-1">
-            <span className="font-normal text-gray-800 dark:text-gray-100">{totalNights}</span>
-            <span className="text-xs font-light text-gray-400 dark:text-zinc-500">noches</span>
+          <div className="my-2 text-2xl sm:text-3xl font-light text-stone-900 dark:text-stone-100 tracking-tight flex items-baseline gap-1.5">
+            <span className="font-bold text-stone-800 dark:text-stone-100">
+              {todayCheckIns.length}
+            </span>
+            <span className="text-xs font-normal text-stone-500">llegadas</span>
+            <span className="text-stone-300 dark:text-zinc-600">•</span>
+            <span className="font-bold text-stone-800 dark:text-stone-100">
+              {todayCheckOuts.length}
+            </span>
+            <span className="text-xs font-normal text-stone-500">salidas</span>
           </div>
-          <div className="text-[11px] font-light text-gray-400 dark:text-zinc-500 truncate">
-            Promedio mensual
+          <div className="text-[11px] font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-md inline-block w-max">
+            Check-in 14hs • Out 10hs
           </div>
         </div>
 
-        {/* Card 4: Llegadas Próximas */}
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between hover:border-orange-200/50">
-          <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
-            <span className="text-[11px] font-medium text-gray-400 dark:text-zinc-400 truncate">
-              Llegadas Próximas
+        {/* Card 3: Limpiezas & Recambios */}
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-stone-200/70 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between hover:border-amber-200/50">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
+            <span className="text-[11px] font-semibold text-stone-600 dark:text-zinc-400 truncate">
+              Limpiezas de Hoy
             </span>
-            <span className="w-2 h-2 rounded-full bg-[#E67E22] shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
           </div>
-          <div className="my-2 text-2xl sm:text-3xl font-light text-gray-900 dark:text-gray-100 tracking-tight">
-            <span className="font-normal text-gray-800 dark:text-gray-100">{activeReservationsCount}</span>
+          <div className="my-2 text-2xl sm:text-3xl font-light text-stone-900 dark:text-stone-100 tracking-tight flex items-baseline gap-1.5">
+            <span className="font-bold text-[#E67E22]">
+              {pendingCleanings.length}
+            </span>
+            <span className="text-xs font-normal text-stone-500">
+              por preparar
+            </span>
           </div>
-          <div className="text-[11px] font-light text-[#E67E22] bg-orange-50/60 dark:bg-orange-950/30 px-2 py-0.5 rounded-md inline-block w-max">
-            Próximos 7 días
+          <div className="text-[11px] font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md inline-block w-max">
+            {cleaningTasks.length - pendingCleanings.length} de {cleaningTasks.length} listas OK
+          </div>
+        </div>
+
+        {/* Card 4: Cobros & Señas Pendientes */}
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-stone-200/70 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between hover:border-emerald-200/50">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
+            <span className="text-[11px] font-semibold text-stone-600 dark:text-zinc-400 truncate">
+              Cobros / Señas Pendientes
+            </span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+          </div>
+          <div className="my-2 text-2xl sm:text-3xl font-light text-stone-900 dark:text-stone-100 tracking-tight flex items-baseline gap-1.5">
+            <span className="font-bold text-stone-800 dark:text-stone-100">
+              {formatCurrency(pendingPaymentAmount, 'USD')}
+            </span>
+          </div>
+          <div className="text-[11px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md inline-block w-max">
+            {pendingPaymentStays.length} saldo{pendingPaymentStays.length === 1 ? '' : 's'} a cobrar
           </div>
         </div>
       </div>
 
-      {/* Row 2: Check-ins HOY, Check-outs HOY, A Limpiar (Recambio con naranja pastel) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Check-ins HOY */}
-        <div className="lg:col-span-4 bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] flex flex-col justify-between transition-colors">
-          <div>
-            <div className="flex items-center justify-between pb-2.5 border-b border-gray-50 dark:border-zinc-800 mb-3.5">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#E67E22]" /> LLEGADAS HOY ({todayCheckIns.length})
-              </span>
-              <span className="text-[10px] font-light text-gray-400">Check-in 14:00</span>
+      {/* ========================================================================= */}
+      {/* JERARQUÍA OPERATIVA MÁXIMA: LOS 4 PILARES URGENTES DE HOY               */}
+      {/* ========================================================================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* ===================================================================== */}
+        {/* PILAR 1: 🚪 QUIÉN LLEGA HOY (Check-ins)                               */}
+        {/* ===================================================================== */}
+        <div className="bg-white dark:bg-[#18191E] rounded-3xl p-5 sm:p-6 border border-stone-200/70 dark:border-zinc-800/80 shadow-[0_4px_20px_rgba(0,0,0,0.02)] space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-zinc-800">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs" />
+              <h2 className="text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider font-mono">
+                Quién Llega Hoy ({todayCheckIns.length})
+              </h2>
             </div>
-
-            {todayCheckIns.length === 0 ? (
-              <div className="text-center py-8 text-xs font-light text-gray-400 dark:text-zinc-500">
-                Sin llegadas programadas para hoy
-              </div>
-            ) : (
-              <div className="space-y-2.5">
-                {todayCheckIns.map((res) => (
-                  <div
-                    key={res.id}
-                    onClick={() => onSelectReservation(res)}
-                    className="p-3 rounded-xl bg-gray-50/60 dark:bg-zinc-800/40 hover:bg-orange-50/40 dark:hover:bg-zinc-800 border border-gray-100 dark:border-zinc-700/60 transition-all cursor-pointer flex items-center justify-between group"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-orange-50 text-[#E67E22] dark:bg-orange-950/50 dark:text-orange-300 font-mono border border-orange-100 dark:border-orange-900/40">
-                        {getPropShortCode(res.propertyId)}
-                      </span>
-                      <div>
-                        <span className="text-xs font-medium text-gray-800 dark:text-gray-100 block">
-                          {res.guestName}
-                        </span>
-                        <span className="text-[10px] font-light text-gray-400 dark:text-zinc-500">
-                          {getPropName(res.propertyId)}
-                        </span>
-                      </div>
-                    </div>
-                    {res.status === 'confirmed' && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onQuickCheckIn(res.id);
-                        }}
-                        className="text-xs font-medium bg-orange-50 hover:bg-orange-100 text-[#E67E22] px-3 py-1 rounded-xl transition-colors cursor-pointer border border-orange-100"
-                      >
-                        Ingresar
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+            <span className="text-[11px] font-medium text-stone-500 dark:text-zinc-400">
+              Ingresos a partir de 14:00 hs
+            </span>
           </div>
-        </div>
 
-        {/* Check-outs HOY */}
-        <div className="lg:col-span-4 bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] flex flex-col justify-between transition-colors">
-          <div>
-            <div className="flex items-center justify-between pb-2.5 border-b border-gray-50 dark:border-zinc-800 mb-3.5">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-zinc-600" /> SALIDAS HOY ({todayCheckOuts.length})
-              </span>
-              <span className="text-[10px] font-light text-gray-400">Check-out 10:00</span>
+          {todayCheckIns.length === 0 ? (
+            <div className="py-10 text-center text-xs text-stone-400 font-light border border-dashed border-stone-200 dark:border-zinc-800 rounded-2xl">
+              No hay más check-ins programados para el día de hoy.
             </div>
+          ) : (
+            <div className="space-y-3">
+              {todayCheckIns.map((res) => {
+                const isCheckedIn = res.status === 'checked_in';
+                const isPaid = res.paymentStatus === 'paid';
 
-            {todayCheckOuts.length === 0 ? (
-              <div className="text-center py-8 text-xs font-light text-gray-400 dark:text-zinc-500">
-                Sin salidas para hoy
-              </div>
-            ) : (
-              <div className="space-y-2.5">
-                {todayCheckOuts.map((res) => (
-                  <div
-                    key={res.id}
-                    onClick={() => onSelectReservation(res)}
-                    className="p-3 rounded-xl bg-gray-50/60 dark:bg-zinc-800/40 hover:bg-gray-100/70 dark:hover:bg-zinc-800 border border-gray-100 dark:border-zinc-700/60 transition-all cursor-pointer flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-zinc-300 font-mono">
-                        {getPropShortCode(res.propertyId)}
-                      </span>
-                      <div>
-                        <span className="text-xs font-medium text-gray-800 dark:text-gray-100 block">
-                          {res.guestName}
-                        </span>
-                        <span className="text-[10px] font-light text-gray-400 dark:text-zinc-500">
-                          {getPropName(res.propertyId)}
-                        </span>
-                      </div>
-                    </div>
-                    <span className="text-[11px] font-light text-gray-500 dark:text-zinc-400 bg-gray-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-md">
-                      Salida
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* A Limpiar / Alerta Recambio */}
-        <div className="lg:col-span-4 bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] flex flex-col justify-between transition-colors">
-          <div>
-            <div className="flex items-center justify-between pb-2.5 border-b border-gray-50 dark:border-zinc-800 mb-3.5">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-400" /> LIMPIEZAS & RECAMBIO ({cleaningTasks.length})
-              </span>
-              <button
-                onClick={() => onNavigateTab('housekeeping')}
-                className="text-xs font-medium text-[#E67E22] hover:underline cursor-pointer"
-              >
-                Ver agenda →
-              </button>
-            </div>
-
-            <div className="space-y-2.5 max-h-52 sm:max-h-60 overflow-y-auto pr-1">
-              {cleaningTasks.slice(0, 6).map((task) => {
-                const isCompleted =
-                  task.status === 'completed' ||
-                  task.status === 'inspected' ||
-                  (task.checklist && task.checklist.length > 0 && task.checklist.every((c) => c.completed));
                 return (
                   <div
-                    key={task.id}
-                    className={`flex items-center justify-between p-2.5 rounded-xl border text-xs transition-all duration-300 ${
-                      isCompleted
-                        ? 'bg-green-50/30 dark:bg-emerald-950/20 border-green-200/50 dark:border-emerald-800/40'
-                        : 'bg-gray-50/60 dark:bg-zinc-800/40 border-gray-100 dark:border-zinc-700/60'
-                    }`}
+                    key={res.id}
+                    className="p-4 rounded-2xl bg-[#FCFAF8] dark:bg-zinc-900/60 border border-stone-200/80 dark:border-zinc-800/80 hover:border-orange-200/80 transition-all space-y-3"
                   >
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-zinc-200 font-mono">
-                        {getPropShortCode(task.propertyId)}
-                      </span>
-                      <span className="text-xs font-light text-gray-400 dark:text-zinc-400">
-                        {formatDisplayDate(task.date)}
-                      </span>
-                      <span className={`text-xs font-medium transition-colors ${isCompleted ? 'text-stone-400 dark:text-stone-500 line-through' : 'text-gray-800 dark:text-gray-100'}`}>
-                        {task.cleanerName.split(' ')[0]}
-                      </span>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="space-y-1 min-w-0">
+                        {/* Nombre de la unidad destacado */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-stone-900 text-white dark:bg-white dark:text-stone-900">
+                            {getPropName(res.propertyId)}
+                          </span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase bg-orange-50 text-[#E67E22] dark:bg-orange-950/40">
+                            {res.platform} • {res.nights} noches
+                          </span>
+                          {res.earlyCheckIn && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-950/40">
+                              ⏰ Early Check-in
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Nombre del huésped y teléfono */}
+                        <div className="flex items-center gap-2 pt-0.5">
+                          <h3 className="text-sm font-bold text-stone-900 dark:text-white truncate">
+                            {res.guestName}
+                          </h3>
+                          {res.guestPhone && (
+                            <span className="text-[11px] font-mono text-stone-400">
+                              {res.guestPhone}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Clave de cerradura y cobro */}
+                        <div className="flex items-center gap-3 text-xs text-stone-500 dark:text-zinc-400 flex-wrap pt-0.5">
+                          <span className="flex items-center gap-1 font-mono text-stone-700 dark:text-zinc-300">
+                            <KeyRound className="w-3.5 h-3.5 text-[#E67E22]" />
+                            PIN: <strong>{res.pinCode || '4001'}</strong>
+                          </span>
+                          <span>• Total: <strong>{formatCurrency(res.totalAmount, 'USD')}</strong></span>
+                          <span className={isPaid ? 'text-emerald-600 font-semibold' : 'text-amber-600 font-semibold'}>
+                            • {isPaid ? 'Pagado 100%' : 'Saldo pendiente'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Estado visual */}
+                      <div className="shrink-0">
+                        {isCheckedIn ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-1 rounded-xl">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            Ingresado
+                          </span>
+                        ) : (
+                          <span className="text-[11px] font-medium text-stone-400 bg-stone-100 dark:bg-zinc-800 px-2.5 py-1 rounded-xl">
+                            Por llegar
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    <button
-                      onClick={() =>
-                        onUpdateTaskStatus(
-                          task.id,
-                          isCompleted ? 'pending' : 'inspected'
-                        )
-                      }
-                      className={`px-3 py-1 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer border ${
-                        isCompleted
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-emerald-950/40 dark:border-emerald-900/40'
-                          : 'bg-orange-50 text-[#E67E22] border-orange-100 hover:bg-orange-100/70 dark:bg-orange-950/40 dark:border-orange-900/40'
-                      }`}
-                    >
-                      <Check className="w-3.5 h-3.5" />
-                      <span>{isCompleted ? 'Lista' : 'Recambio'}</span>
-                    </button>
+                    {/* Botones de acción directa */}
+                    <div className="flex items-center justify-between pt-1 border-t border-stone-200/50 dark:border-zinc-800/60">
+                      <button
+                        onClick={() => onSelectReservation(res)}
+                        className="text-xs font-medium text-stone-600 dark:text-zinc-300 hover:text-stone-900 cursor-pointer"
+                      >
+                        Ver Ficha Completa →
+                      </button>
+
+                      <div className="flex items-center gap-2">
+                        {!isCheckedIn && (
+                          <button
+                            onClick={() => onQuickCheckIn(res.id)}
+                            className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[#E67E22] hover:bg-[#d36d16] text-white transition-all cursor-pointer shadow-xs flex items-center gap-1"
+                          >
+                            <DoorOpen className="w-3.5 h-3.5" />
+                            <span>Registrar Llegada</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 );
               })}
             </div>
+          )}
+        </div>
+
+        {/* ===================================================================== */}
+        {/* PILAR 2: 🏃 QUIÉN SE VA HOY (Check-outs)                              */}
+        {/* ===================================================================== */}
+        <div className="bg-white dark:bg-[#18191E] rounded-3xl p-5 sm:p-6 border border-stone-200/70 dark:border-zinc-800/80 shadow-[0_4px_20px_rgba(0,0,0,0.02)] space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-zinc-800">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-xs" />
+              <h2 className="text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider font-mono">
+                Quién Se Va Hoy ({todayCheckOuts.length})
+              </h2>
+            </div>
+            <span className="text-[11px] font-medium text-stone-500 dark:text-zinc-400">
+              Límite hasta las 10:00 hs
+            </span>
           </div>
+
+          {todayCheckOuts.length === 0 ? (
+            <div className="py-10 text-center text-xs text-stone-400 font-light border border-dashed border-stone-200 dark:border-zinc-800 rounded-2xl">
+              No hay salidas previstas para hoy.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {todayCheckOuts.map((res) => {
+                const isCheckedOut = res.status === 'checked_out';
+                const hasSameDayChangeover = todayCheckIns.some(
+                  (inRes) => inRes.propertyId === res.propertyId
+                );
+
+                return (
+                  <div
+                    key={res.id}
+                    className="p-4 rounded-2xl bg-[#FCFAF8] dark:bg-zinc-900/60 border border-stone-200/80 dark:border-zinc-800/80 hover:border-rose-200/80 transition-all space-y-3"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="space-y-1 min-w-0">
+                        {/* Nombre de la unidad destacado */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-stone-900 text-white dark:bg-white dark:text-stone-900">
+                            {getPropName(res.propertyId)}
+                          </span>
+                          {hasSameDayChangeover && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase bg-orange-100 text-[#E67E22] dark:bg-orange-950/50 flex items-center gap-1">
+                              <RotateCw className="w-2.5 h-2.5 animate-spin-slow" />
+                              <span>Recambio Hoy</span>
+                            </span>
+                          )}
+                          <span className="text-[10px] text-stone-400 font-mono">
+                            {res.nights} noches concluidas
+                          </span>
+                        </div>
+
+                        {/* Huésped */}
+                        <div className="flex items-center gap-2 pt-0.5">
+                          <h3 className="text-sm font-bold text-stone-900 dark:text-white truncate">
+                            {res.guestName}
+                          </h3>
+                          {res.specialNotes && (
+                            <span className="text-[11px] text-stone-500 font-light truncate max-w-xs">
+                              • {res.specialNotes}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="text-xs text-stone-500 font-light">
+                          Total estadía: <strong>{formatCurrency(res.totalAmount, 'USD')}</strong>
+                        </div>
+                      </div>
+
+                      {/* Estado */}
+                      <div className="shrink-0">
+                        {isCheckedOut ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-stone-500 bg-stone-100 dark:bg-zinc-800 px-2.5 py-1 rounded-xl">
+                            Salida Realizada
+                          </span>
+                        ) : (
+                          <span className="text-[11px] font-semibold text-rose-600 bg-rose-50 dark:bg-rose-950/40 px-2.5 py-1 rounded-xl">
+                            Salida Pendiente
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Acciones */}
+                    <div className="flex items-center justify-between pt-1 border-t border-stone-200/50 dark:border-zinc-800/60">
+                      <button
+                        onClick={() => onSelectReservation(res)}
+                        className="text-xs font-medium text-stone-600 dark:text-zinc-300 hover:text-stone-900 cursor-pointer"
+                      >
+                        Ver Detalle →
+                      </button>
+
+                      {!isCheckedOut && (
+                        <button
+                          onClick={() => handleQuickCheckOut(res.id, res.guestName)}
+                          className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-stone-900 hover:bg-black text-white dark:bg-white dark:text-stone-900 transition-all cursor-pointer shadow-xs flex items-center gap-1"
+                        >
+                          <DoorClosed className="w-3.5 h-3.5" />
+                          <span>Registrar Salida</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* ===================================================================== */}
+        {/* PILAR 3: 🧹 UNIDADES PENDIENTES DE LIMPIEZA & RECAMBIO               */}
+        {/* ===================================================================== */}
+        <div className="bg-white dark:bg-[#18191E] rounded-3xl p-5 sm:p-6 border border-stone-200/70 dark:border-zinc-800/80 shadow-[0_4px_20px_rgba(0,0,0,0.02)] space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-zinc-800">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-xs" />
+              <h2 className="text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider font-mono">
+                Limpiezas de Unidades ({cleaningTasks.length})
+              </h2>
+            </div>
+            <button
+              onClick={() => onNavigateTab('housekeeping')}
+              className="text-xs font-semibold text-[#E67E22] hover:underline cursor-pointer"
+            >
+              Abrir App Mucamas →
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {cleaningTasks.map((task) => {
+              const isCompleted =
+                task.status === 'completed' || task.status === 'inspected';
+              const isUrgent = task.notes?.toLowerCase().includes('recambio');
+
+              return (
+                <div
+                  key={task.id}
+                  className={`p-4 rounded-2xl border transition-all space-y-2.5 ${
+                    isCompleted
+                      ? 'bg-emerald-50/25 dark:bg-emerald-950/20 border-emerald-200/60 dark:border-emerald-900/40'
+                      : 'bg-[#FCFAF8] dark:bg-zinc-900/60 border-stone-200/80 dark:border-zinc-800/80 hover:border-amber-200/80'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1 min-w-0">
+                      {/* NOMBRE DE LA UNIDAD BIEN CLARO Y VISIBLE */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-stone-900 text-white dark:bg-white dark:text-stone-900">
+                          {getPropName(task.propertyId)}
+                        </span>
+                        {isUrgent && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950/50">
+                            ⚡ Prioridad Recambio
+                          </span>
+                        )}
+                        <span className="text-xs text-stone-500 font-light">
+                          {task.scheduledTime}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-xs text-stone-600 dark:text-zinc-300">
+                        <span>Mucama asignada: <strong>{task.cleanerName}</strong></span>
+                      </div>
+
+                      {task.notes && (
+                        <p className="text-[11px] text-stone-500 dark:text-zinc-400 font-light truncate max-w-sm">
+                          {task.notes}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Botón rápido táctil: Lista OK */}
+                    <div className="shrink-0">
+                      <button
+                        onClick={() =>
+                          onUpdateTaskStatus(
+                            task.id,
+                            isCompleted ? 'pending' : 'inspected'
+                          )
+                        }
+                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer border shadow-2xs ${
+                          isCompleted
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/50 dark:border-emerald-800'
+                            : 'bg-amber-500 hover:bg-amber-600 text-white border-transparent'
+                        }`}
+                      >
+                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                        <span>{isCompleted ? 'Unidad Lista OK' : 'Marcar Lista'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ===================================================================== */}
+        {/* PILAR 4: 💳 COBROS & SEÑAS PENDIENTES                                 */}
+        {/* ===================================================================== */}
+        <div className="bg-white dark:bg-[#18191E] rounded-3xl p-5 sm:p-6 border border-stone-200/70 dark:border-zinc-800/80 shadow-[0_4px_20px_rgba(0,0,0,0.02)] space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-zinc-800">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs" />
+              <h2 className="text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider font-mono">
+                Cobros & Señas Pendientes ({pendingPaymentStays.length})
+              </h2>
+            </div>
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+              Total: {formatCurrency(pendingPaymentAmount, 'USD')}
+            </span>
+          </div>
+
+          {pendingPaymentStays.length === 0 ? (
+            <div className="py-10 text-center text-xs text-stone-400 font-light border border-dashed border-stone-200 dark:border-zinc-800 rounded-2xl">
+              ¡Al día! No hay cobros ni señas pendientes registradas en este período.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {pendingPaymentStays.map((res) => (
+                <div
+                  key={res.id}
+                  className="p-4 rounded-2xl bg-[#FCFAF8] dark:bg-zinc-900/60 border border-stone-200/80 dark:border-zinc-800/80 hover:border-emerald-200/80 transition-all space-y-2.5"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1 min-w-0">
+                      {/* Unidad destacada */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-stone-900 text-white dark:bg-white dark:text-stone-900">
+                          {getPropName(res.propertyId)}
+                        </span>
+                        <span className="text-xs text-stone-400 font-light">
+                          Llegada: {formatDisplayDate(res.checkIn)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-0.5">
+                        <h3 className="text-sm font-bold text-stone-900 dark:text-white truncate">
+                          {res.guestName}
+                        </h3>
+                        {res.guestPhone && (
+                          <span className="text-[11px] font-mono text-stone-400">
+                            {res.guestPhone}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="text-xs text-amber-700 dark:text-amber-400 font-semibold">
+                        Saldo a cobrar: {formatCurrency(res.totalAmount, 'USD')} ({res.platform.toUpperCase()})
+                      </div>
+                    </div>
+
+                    {/* Botón rápido para asentar cobro */}
+                    <div className="shrink-0">
+                      <button
+                        onClick={() => handleMarkPaid(res.id, res.guestName)}
+                        className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-all cursor-pointer shadow-xs flex items-center gap-1"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Cobro Recibido</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Row 3: Próximos Check-ins (7 días) & Últimas Reservas */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Próximos Check-ins (7 días) */}
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-colors">
-          <div className="flex items-center justify-between pb-2.5 border-b border-gray-50 dark:border-zinc-800 mb-3.5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-zinc-600" /> PRÓXIMAS LLEGADAS (7 DÍAS)
+      {/* ========================================================================= */}
+      {/* SECCIÓN SECUNDARIA (Menor prioridad visual, al pie de la pantalla)        */}
+      {/* ========================================================================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 pt-2">
+        {/* Resumen Mensual Coherente */}
+        <div className="bg-white dark:bg-[#18191E] rounded-3xl p-5 border border-stone-200/70 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-zinc-800">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400">
+              Rendimiento del Mes
             </span>
-            <span className="text-[10px] font-light text-gray-400">Calendario</span>
+            <span className="text-xs font-bold text-emerald-600">
+              {formatCurrency(monthlyRevenue, 'USD')}
+            </span>
           </div>
-
-          <div className="space-y-2.5">
-            {demoState.reservations
-              .filter((r) => r.status !== 'cancelled')
-              .slice(0, 4)
-              .map((res) => (
-                <div
-                  key={res.id}
-                  onClick={() => onSelectReservation(res)}
-                  className="p-3 rounded-xl bg-gray-50/60 dark:bg-zinc-800/40 hover:bg-gray-100/70 dark:hover:bg-zinc-800 border border-gray-100 dark:border-zinc-700/60 transition-all cursor-pointer flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-zinc-200 font-mono">
-                      {getPropShortCode(res.propertyId)}
-                    </span>
-                    <span className="text-xs font-medium text-gray-800 dark:text-gray-100">
-                      {res.guestName}
-                    </span>
-                  </div>
-                  <span className="text-xs font-light text-gray-500 dark:text-zinc-400">
-                    {formatDisplayDate(res.checkIn)}
-                  </span>
-                </div>
-              ))}
+          <p className="text-xs text-stone-500 font-light">
+            {monthlyNights} noches vendidas en el mes ({Math.round((monthlyNights / (totalUnits * 30)) * 100)}% ocupación promedio).
+          </p>
+          <div className="flex items-center justify-between text-xs text-stone-400 pt-1">
+            <span>Caja Chica Mostrador:</span>
+            <strong className="text-stone-800 dark:text-stone-200 font-mono">
+              {formatCurrency(currentCashBalance, 'ARS')}
+            </strong>
           </div>
         </div>
 
-        {/* Últimas Reservas */}
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-colors">
-          <div className="flex items-center justify-between pb-2.5 border-b border-gray-50 dark:border-zinc-800 mb-3.5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#E67E22]" /> ÚLTIMAS RESERVAS INGRESADAS
-            </span>
-            <span className="text-[10px] font-light text-gray-400">Canales</span>
+        {/* Canales Activos */}
+        <div className="bg-white dark:bg-[#18191E] rounded-3xl p-5 border border-stone-200/70 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] space-y-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block pb-1 border-b border-stone-100 dark:border-zinc-800">
+            Canales de Venta Sincronizados
+          </span>
+          <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+            <div className="p-2 rounded-xl bg-orange-50/70 text-[#E67E22] dark:bg-orange-950/40 font-medium text-center">
+              Airbnb iCal (OK)
+            </div>
+            <div className="p-2 rounded-xl bg-emerald-50/70 text-emerald-700 dark:bg-emerald-950/40 font-medium text-center">
+              Directa 0% (OK)
+            </div>
+            <div className="p-2 rounded-xl bg-blue-50/70 text-blue-700 dark:bg-blue-950/40 font-medium text-center">
+              Booking.com (OK)
+            </div>
+            <div className="p-2 rounded-xl bg-purple-50/70 text-purple-700 dark:bg-purple-950/40 font-medium text-center">
+              Portal Huésped (OK)
+            </div>
           </div>
+        </div>
 
-          <div className="space-y-2.5">
-            {demoState.reservations
-              .filter((r) => r.status !== 'cancelled')
-              .slice(0, 4)
-              .map((res) => (
-                <div
-                  key={res.id}
-                  onClick={() => onSelectReservation(res)}
-                  className="p-3 rounded-xl bg-gray-50/60 dark:bg-zinc-800/40 hover:bg-gray-100/70 dark:hover:bg-zinc-800 border border-gray-100 dark:border-zinc-700/60 transition-all cursor-pointer flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-orange-50 text-[#E67E22] border border-orange-100 dark:bg-orange-950/40 dark:border-orange-900/40 font-mono">
-                      {getPropShortCode(res.propertyId)}
-                    </span>
-                    <span className="text-xs font-medium text-gray-800 dark:text-gray-100">
-                      {res.guestName}
-                    </span>
-                  </div>
-                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50/80 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-100/60 dark:border-emerald-900/40">
-                    Confirmada
-                  </span>
-                </div>
-              ))}
+        {/* Onboarding Asistido (Discreto, menor peso visual) */}
+        <div className="bg-[#FAF9F6] dark:bg-[#15161A] rounded-3xl p-5 border border-stone-200/80 dark:border-zinc-800/80 flex flex-col justify-between space-y-3">
+          <div>
+            <span className="text-[10px] font-bold text-[#E67E22] uppercase tracking-wider">
+              Configuración del Alojamiento
+            </span>
+            <h4 className="text-xs font-bold text-stone-800 dark:text-stone-100 mt-1">
+              ¿Querés cargar más cabañas o departamentos?
+            </h4>
+            <p className="text-[11px] text-stone-500 font-light mt-0.5">
+              Configurá fotos, WiFi y cerraduras inteligentes en minutos.
+            </p>
           </div>
+          {onOpenOnboardingWizard && (
+            <button
+              onClick={onOpenOnboardingWizard}
+              className="text-xs font-semibold text-stone-700 dark:text-stone-200 hover:text-stone-900 bg-white dark:bg-zinc-800 border border-stone-200/80 dark:border-zinc-700 px-3.5 py-1.5 rounded-xl transition-all cursor-pointer self-start"
+            >
+              Configurar Unidades →
+            </button>
+          )}
         </div>
       </div>
     </div>

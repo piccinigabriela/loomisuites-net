@@ -28,7 +28,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { DemoState, Reservation, Property, ReservationStatus, PaymentStatus } from '../../types';
-import { formatDisplayDate } from '../../data/initialData';
+import { formatDisplayDate, formatCurrency } from '../../data/initialData';
 import { XeniaAvatar } from '../xenia/XeniaAvatar';
 import { useXeniaVoice } from '../../hooks/useXeniaVoice';
 import { getClientXeniaReply } from '../xenia/xeniaLocalEngine';
@@ -256,7 +256,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
     : '';
 
   const wifiMessageText = selectedGuestAction
-    ? `¡Hola ${selectedGuestAction.guestName}! Te dejamos los datos de conexión de ${selectedActionProperty?.name || 'tu cabaña'}:\n\n📶 *Red Wi-Fi:* ${selectedActionProperty?.wifiNetwork || 'CatalinasAptos'}\n🔑 *Clave:* ${selectedActionProperty?.wifiPassword || 'TresSargentos435'}\n📍 *Dirección:* ${selectedActionProperty?.address || 'Tres Sargentos 435, CABA'}\n\n¡Que tengas una hermosa estadía!`
+    ? `¡Hola ${selectedGuestAction.guestName}! Te dejamos los datos de conexión de ${selectedActionProperty?.name || 'tu cabaña'}:\n\n📶 *Red Wi-Fi:* ${selectedActionProperty?.wifiNetwork || 'CatalinasAptos'}\n🔑 *Clave:* ${selectedActionProperty?.wifiPassword || 'CatalinasDemo2026'}\n📍 *Dirección:* ${selectedActionProperty?.address || 'Tres Sargentos 400, CABA'}\n\n¡Que tengas una hermosa estadía!`
     : '';
 
   return (
@@ -338,7 +338,25 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                     (prop && prop.name.toLowerCase().includes(q))
                   );
                 })
-                .slice(0, 15)
+                .sort((a, b) => {
+                  // Orden cronológico desde hoy hacia adelante:
+                  const aIsPast = a.checkOut < todayStr;
+                  const bIsPast = b.checkOut < todayStr;
+
+                  if (!aIsPast && bIsPast) return -1;
+                  if (aIsPast && !bIsPast) return 1;
+
+                  if (!aIsPast && !bIsPast) {
+                    const aToday = a.checkIn === todayStr;
+                    const bToday = b.checkIn === todayStr;
+                    if (aToday && !bToday) return -1;
+                    if (!aToday && bToday) return 1;
+                    return a.checkIn.localeCompare(b.checkIn);
+                  }
+
+                  return b.checkOut.localeCompare(a.checkOut);
+                })
+                .slice(0, 20)
                 .map((res) => {
                   const prop = demoState.properties.find((p) => p.id === res.propertyId);
                   const isPaid = res.paymentStatus === 'paid';
@@ -360,7 +378,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <span className="text-xs font-bold text-gray-900 dark:text-gray-100 font-sans">
-                            USD {res.totalAmount.toLocaleString('es-AR')}
+                            {formatCurrency(res.totalAmount, 'USD')}
                           </span>
                           <span
                             className={`text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-md uppercase ${

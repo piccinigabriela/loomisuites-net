@@ -15,9 +15,9 @@ export const FeatureBento: React.FC<FeatureBentoProps> = ({ onOpenDemo }) => {
             Funcionalidades Esenciales y Simples
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight mt-2">
-            Todo lo que necesitas, sin los enredos de los sistemas de grandes hoteles
+            Todo lo que necesitás, sin los enredos de los sistemas de grandes hoteles
           </h2>
-          <p className="mt-3 text-base text-zinc-600 dark:text-zinc-400">
+          <p className="mt-3 text-base text-slate-900 dark:text-zinc-400">
             Diseñado a medida para <strong>complejos de cabañas, glampings, domos, departamentos y posadas boutique</strong>. Fácil de entender y usar desde el primer día.
           </p>
         </div>

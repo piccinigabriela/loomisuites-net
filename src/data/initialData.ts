@@ -1,5 +1,4 @@
 import { DemoState, Property, Reservation, CleaningTask, MessageTemplate, WelcomeGuideData, AddonService, CashMovement } from '../types';
-import { saveComplexToCloud } from '../lib/firebase';
 import { IMPORTED_CATALINAS_RESERVATIONS } from './importedReservations';
 
 // Helper to format date offset from today
@@ -29,7 +28,7 @@ export const INITIAL_PROPERTIES: Property[] = [
     id: 'cat-a',
     name: 'Departamento A',
     type: '2 Ambientes con Cocina Completa (hasta 3 pax)',
-    address: 'Tres Sargentos 435',
+    address: 'Tres Sargentos 400 (Piso Demo)',
     neighborhood: 'Retiro / Catalinas Norte',
     city: 'Ciudad Autónoma de Buenos Aires',
     bedrooms: 1,
@@ -44,13 +43,13 @@ export const INITIAL_PROPERTIES: Property[] = [
     syncStatus: { airbnb: true, booking: true, vrbo: false },
     smartLock: { enabled: true, brand: 'Cerradura Digital Touch / Teclado' },
     wifiNetwork: 'CatalinasAptos_Fibra_A',
-    wifiPassword: 'TresSargentos435',
+    wifiPassword: 'CatalinasDemo2026',
   },
   {
     id: 'cat-b',
     name: 'Departamento B',
     type: 'Estudio de Diseño con Sommier Matrimonial (2 pax)',
-    address: 'Tres Sargentos 435',
+    address: 'Tres Sargentos 400 (Piso Demo)',
     neighborhood: 'Retiro / Catalinas Norte',
     city: 'Ciudad Autónoma de Buenos Aires',
     bedrooms: 1,
@@ -65,13 +64,13 @@ export const INITIAL_PROPERTIES: Property[] = [
     syncStatus: { airbnb: true, booking: true, vrbo: false },
     smartLock: { enabled: true, brand: 'Cerradura Digital Touch / Teclado' },
     wifiNetwork: 'CatalinasAptos_Fibra_B',
-    wifiPassword: 'TresSargentos435',
+    wifiPassword: 'CatalinasDemo2026',
   },
   {
     id: 'cat-c',
     name: 'Departamento C',
     type: '2 Ambientes con 2 Camas Sommier Individuales (hasta 3 pax)',
-    address: 'Tres Sargentos 435',
+    address: 'Tres Sargentos 400 (Piso Demo)',
     neighborhood: 'Retiro / Catalinas Norte',
     city: 'Ciudad Autónoma de Buenos Aires',
     bedrooms: 1,
@@ -86,13 +85,13 @@ export const INITIAL_PROPERTIES: Property[] = [
     syncStatus: { airbnb: true, booking: true, vrbo: false },
     smartLock: { enabled: true, brand: 'Cerradura Digital Touch / Teclado' },
     wifiNetwork: 'CatalinasAptos_Fibra_C',
-    wifiPassword: 'TresSargentos435',
+    wifiPassword: 'CatalinasDemo2026',
   },
   {
     id: 'cat-d',
     name: 'Departamento D',
     type: 'Estudio con 2 Camas Sommier Individuales (2 pax)',
-    address: 'Tres Sargentos 435',
+    address: 'Tres Sargentos 400 (Piso Demo)',
     neighborhood: 'Retiro / Catalinas Norte',
     city: 'Ciudad Autónoma de Buenos Aires',
     bedrooms: 1,
@@ -107,38 +106,34 @@ export const INITIAL_PROPERTIES: Property[] = [
     syncStatus: { airbnb: true, booking: true, vrbo: false },
     smartLock: { enabled: true, brand: 'Cerradura Digital Touch / Teclado' },
     wifiNetwork: 'CatalinasAptos_Fibra_D',
-    wifiPassword: 'TresSargentos435',
+    wifiPassword: 'CatalinasDemo2026',
   },
 ];
 
 export function generateInitialReservations(): Reservation[] {
-  return [...IMPORTED_CATALINAS_RESERVATIONS];
-}
-
-function _unusedOldReservations(): Reservation[] {
   return [
     {
       id: 'res-101',
-      propertyId: 'prop-1',
+      propertyId: 'cat-a',
       guestName: 'Lucas Fernández',
-      guestEmail: 'lucas.fernandez@gmail.com',
+      guestEmail: 'lucas.fernandez@huesped.com',
       guestPhone: '+54 9 11 4512-8890',
       guestAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-      checkIn: getRelativeDate(0), // Check-in TODAY!
+      checkIn: getRelativeDate(0), // Check-in HOY 14:00 hs
       checkOut: getRelativeDate(3),
       nights: 3,
       guestsCount: 2,
       platform: 'airbnb',
-      totalAmount: 245,
-      cleaningFee: 15,
-      commissionPaid: 6.9, // Airbnb 3% modalidad tradicional para anfitrión
-      netRevenue: 238.1,
+      totalAmount: 174,
+      cleaningFee: 20,
+      commissionPaid: 5.22,
+      netRevenue: 168.78,
       status: 'confirmed',
-      paymentStatus: 'paid',
-      pinCode: '4821#',
+      paymentStatus: 'pending', // Saldo pendiente al ingresar
+      pinCode: '4821',
       carPlate: 'AF 729 ZX',
-      specialNotes: 'Modalidad Airbnb 3% anfitrión tradicional. Llega en vuelo a las 14:00.',
-      createdAt: getRelativeDate(-5),
+      specialNotes: 'Llega en vuelo a las 14:00 hs. Solicitó coordinar acceso temprano si está lista la unidad.',
+      createdAt: getRelativeDate(-4),
       earlyCheckIn: true,
       earlyLateFee: 15,
       airbnbFeeMode: 'traditional_3',
@@ -156,26 +151,71 @@ function _unusedOldReservations(): Reservation[] {
     },
     {
       id: 'res-102',
-      propertyId: 'prop-2',
+      propertyId: 'cat-b',
+      guestName: 'Elena Miller',
+      guestEmail: 'elena.miller@huesped.com',
+      guestPhone: '+1 212 555-0199',
+      guestAvatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80',
+      checkIn: getRelativeDate(-3),
+      checkOut: getRelativeDate(0), // Check-out HOY 10:00 hs (Recambio mismo día)
+      nights: 3,
+      guestsCount: 2,
+      platform: 'booking',
+      totalAmount: 144,
+      cleaningFee: 18,
+      commissionPaid: 21.6,
+      netRevenue: 122.4,
+      status: 'checked_in',
+      paymentStatus: 'paid',
+      pinCode: '1420',
+      specialNotes: 'Check-out puntual a las 10:00 hs. Deja equipaje en guarda hasta el mediodía.',
+      createdAt: getRelativeDate(-14),
+    },
+    {
+      id: 'res-103',
+      propertyId: 'cat-b',
+      guestName: 'Agustina Gómez',
+      guestEmail: 'agustina.gomez@huesped.com',
+      guestPhone: '+54 9 223 543-2211',
+      guestAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
+      checkIn: getRelativeDate(0), // Check-in HOY 14:00 hs (Recambio)
+      checkOut: getRelativeDate(4),
+      nights: 4,
+      guestsCount: 2,
+      platform: 'airbnb',
+      totalAmount: 192,
+      cleaningFee: 18,
+      commissionPaid: 5.76,
+      netRevenue: 186.24,
+      status: 'confirmed',
+      paymentStatus: 'paid',
+      pinCode: '7732',
+      specialNotes: 'Llega en remise desde Aeroparque a las 14:30 hs.',
+      createdAt: getRelativeDate(-3),
+      airbnbFeeMode: 'traditional_3',
+    },
+    {
+      id: 'res-104',
+      propertyId: 'cat-c',
       guestName: 'Claire Dupont',
-      guestEmail: 'claire.dupont@paris.fr',
+      guestEmail: 'claire.dupont@huesped.com',
       guestPhone: '+33 6 12 34 56 78',
       guestAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80',
       checkIn: getRelativeDate(-2),
-      checkOut: getRelativeDate(1), // Check-out TOMORROW
-      nights: 3,
-      guestsCount: 1,
-      platform: 'booking',
-      totalAmount: 246,
-      cleaningFee: 30,
-      commissionPaid: 36.9,
-      netRevenue: 209.1,
+      checkOut: getRelativeDate(2), // Estadía en curso (sale en 2 días)
+      nights: 4,
+      guestsCount: 2,
+      platform: 'direct',
+      totalAmount: 232,
+      cleaningFee: 20,
+      commissionPaid: 0,
+      netRevenue: 232,
       status: 'checked_in',
       paymentStatus: 'paid',
-      pinCode: '0310#',
+      pinCode: '0310',
       carPlate: 'AB 415 KM',
-      specialNotes: 'Viaje por negocios. Requiere factura A / Invoice comercial.',
-      createdAt: getRelativeDate(-12),
+      specialNotes: 'Viaje de trabajo y turismo. Todo en orden en la unidad.',
+      createdAt: getRelativeDate(-10),
       addons: [
         {
           addonId: 'addon-desayuno-artesanal',
@@ -189,116 +229,233 @@ function _unusedOldReservations(): Reservation[] {
       ],
     },
     {
-      id: 'res-103',
-      propertyId: 'prop-3',
+      id: 'res-105',
+      propertyId: 'cat-d',
       guestName: 'Martín Soria & Familia',
-      guestEmail: 'martin.soria@techco.com',
+      guestEmail: 'martin.soria@huesped.com',
       guestPhone: '+54 9 11 6789-2234',
       guestAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
-      checkIn: getRelativeDate(1),
+      checkIn: getRelativeDate(1), // Llega mañana
       checkOut: getRelativeDate(5),
       nights: 4,
-      guestsCount: 4,
-      platform: 'direct', // Direct booking! (0% commission)
-      totalAmount: 565,
-      cleaningFee: 45,
+      guestsCount: 2,
+      platform: 'direct', // Direct booking 0% comisión
+      totalAmount: 192,
+      cleaningFee: 18,
       commissionPaid: 0,
-      netRevenue: 565,
+      netRevenue: 192,
       status: 'confirmed',
       paymentStatus: 'paid',
-      pinCode: '2140#',
+      pinCode: '2140',
       carPlate: 'AC 910 TR',
-      specialNotes: 'Reserva directa por link web de Loomi Suite. Ahorró comisiones de Airbnb.',
-      createdAt: getRelativeDate(-3),
+      specialNotes: 'Reserva directa por link web de Loomi Suite. Ahorró comisiones de intermediarios.',
+      createdAt: getRelativeDate(-2),
     },
     {
-      id: 'res-104',
-      propertyId: 'prop-6',
-      guestName: 'Elena Rostova & John Miller',
-      guestEmail: 'emiller@nytravel.org',
-      guestPhone: '+1 212 555 0199',
-      guestAvatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80',
-      checkIn: getRelativeDate(-4),
-      checkOut: getRelativeDate(0), // Check-out TODAY!
-      nights: 4,
-      guestsCount: 3,
-      platform: 'vrbo',
-      totalAmount: 280,
-      cleaningFee: 20,
-      commissionPaid: 33.6,
-      netRevenue: 246.4,
-      status: 'checked_in',
-      paymentStatus: 'paid',
-      pinCode: '1420#',
-      specialNotes: 'Late check-out solicitado a las 12:00 hs.',
-      createdAt: getRelativeDate(-20),
-    },
-    {
-      id: 'res-105',
-      propertyId: 'prop-1',
+      id: 'res-106',
+      propertyId: 'cat-a',
       guestName: 'Santiago Morales',
-      guestEmail: 'santi.morales@outlook.com',
+      guestEmail: 'santi.morales@huesped.com',
       guestPhone: '+54 9 351 223-9911',
       guestAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80',
-      checkIn: getRelativeDate(3), // Recambio en Depto 101 (Lucas sale día +3, Santiago entra día +3)
+      checkIn: getRelativeDate(3), // Recambio en Depto A
       checkOut: getRelativeDate(7),
       nights: 4,
       guestsCount: 2,
       platform: 'airbnb',
-      totalAmount: 290,
-      cleaningFee: 35,
-      commissionPaid: 8.7, // Airbnb 3% anfitrión tradicional ($290 * 0.03)
-      netRevenue: 281.3,
+      totalAmount: 232,
+      cleaningFee: 20,
+      commissionPaid: 6.96,
+      netRevenue: 225.04,
       status: 'confirmed',
-      paymentStatus: 'paid',
-      pinCode: '9082#',
-      specialNotes: 'Modalidad Airbnb 3% tradicional. Viene por festival de música en la ciudad.',
-      createdAt: getRelativeDate(-2),
+      paymentStatus: 'pending', // Seña pendiente
+      pinCode: '9082',
+      specialNotes: 'Modalidad Airbnb tradicional. Viene por evento corporativo.',
+      createdAt: getRelativeDate(-1),
       airbnbFeeMode: 'traditional_3',
     },
     {
-      id: 'res-106',
-      propertyId: 'prop-2',
+      id: 'res-107',
+      propertyId: 'cat-c',
       guestName: 'Valeria Benítez',
-      guestEmail: 'valeria.benitez@empresa.com',
+      guestEmail: 'valeria.benitez@huesped.com',
       guestPhone: '+598 99 876 543',
       guestAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80',
-      checkIn: getRelativeDate(1), // Recambio en Depto 102 (Claire sale mañana día +1, Valeria entra mañana día +1)
-      checkOut: getRelativeDate(5),
+      checkIn: getRelativeDate(2),
+      checkOut: getRelativeDate(6),
       nights: 4,
       guestsCount: 2,
       platform: 'direct',
-      totalAmount: 340,
-      cleaningFee: 30,
+      totalAmount: 232,
+      cleaningFee: 20,
       commissionPaid: 0,
-      netRevenue: 340,
+      netRevenue: 232,
       status: 'confirmed',
       paymentStatus: 'paid',
-      pinCode: '5541#',
-      specialNotes: 'Cliente recurrente. Reservó por la web propia sin pagar comisiones.',
-      createdAt: getRelativeDate(-1),
+      pinCode: '5541',
+      specialNotes: 'Huésped frecuente de Montevideo.',
+      createdAt: getRelativeDate(-2),
+    },
+    // Reservas históricas recientes del mes para métricas coherentes (~70% ocupación mensual para 4 unidades)
+    {
+      id: 'res-108',
+      propertyId: 'cat-a',
+      guestName: 'Mateo Rossi',
+      guestEmail: 'mateo.rossi@huesped.com',
+      guestPhone: '+54 9 11 3322-1100',
+      checkIn: getRelativeDate(-7),
+      checkOut: getRelativeDate(-3),
+      nights: 4,
+      guestsCount: 2,
+      platform: 'airbnb',
+      totalAmount: 232,
+      cleaningFee: 20,
+      commissionPaid: 6.96,
+      netRevenue: 225.04,
+      status: 'checked_out',
+      paymentStatus: 'paid',
+      pinCode: '3120',
+      createdAt: getRelativeDate(-15),
     },
     {
-      id: 'res-107',
-      propertyId: 'prop-6',
-      guestName: 'Agustín Gómez',
-      guestEmail: 'agustin.gomez@gmail.com',
-      guestPhone: '+54 9 223 543-2211',
-      guestAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
-      checkIn: getRelativeDate(0), // Recambio HOY en Depto 201 (Elena sale hoy día 0 a las 11:30, Agustín entra a las 14:00)
-      checkOut: getRelativeDate(4),
-      nights: 4,
-      guestsCount: 3,
+      id: 'res-109',
+      propertyId: 'cat-b',
+      guestName: 'Camila Torres',
+      guestEmail: 'camila.torres@huesped.com',
+      guestPhone: '+54 9 11 8899-7711',
+      checkIn: getRelativeDate(-8),
+      checkOut: getRelativeDate(-3),
+      nights: 5,
+      guestsCount: 2,
       platform: 'booking',
-      totalAmount: 280,
-      cleaningFee: 20,
-      commissionPaid: 42,
-      netRevenue: 238,
-      status: 'confirmed',
+      totalAmount: 240,
+      cleaningFee: 18,
+      commissionPaid: 36,
+      netRevenue: 204,
+      status: 'checked_out',
       paymentStatus: 'paid',
-      pinCode: '7732#',
-      specialNotes: 'Visita de turismo cultural en la ciudad en pareja. Llega a las 14:30 hs.',
-      createdAt: getRelativeDate(-4),
+      pinCode: '7819',
+      createdAt: getRelativeDate(-16),
+    },
+    {
+      id: 'res-110',
+      propertyId: 'cat-c',
+      guestName: 'Gonzalo Silva',
+      guestEmail: 'gonzalo.silva@huesped.com',
+      guestPhone: '+54 9 341 456-7890',
+      checkIn: getRelativeDate(-9),
+      checkOut: getRelativeDate(-4),
+      nights: 5,
+      guestsCount: 3,
+      platform: 'airbnb',
+      totalAmount: 290,
+      cleaningFee: 20,
+      commissionPaid: 8.7,
+      netRevenue: 281.3,
+      status: 'checked_out',
+      paymentStatus: 'paid',
+      pinCode: '4452',
+      createdAt: getRelativeDate(-20),
+    },
+    {
+      id: 'res-111',
+      propertyId: 'cat-d',
+      guestName: 'Lucía Albornoz',
+      guestEmail: 'lucia.albornoz@huesped.com',
+      guestPhone: '+54 9 11 7711-2233',
+      checkIn: getRelativeDate(-12),
+      checkOut: getRelativeDate(-7),
+      nights: 5,
+      guestsCount: 2,
+      platform: 'direct',
+      totalAmount: 240,
+      cleaningFee: 18,
+      commissionPaid: 0,
+      netRevenue: 240,
+      status: 'checked_out',
+      paymentStatus: 'paid',
+      pinCode: '6618',
+      createdAt: getRelativeDate(-22),
+    },
+    {
+      id: 'res-112',
+      propertyId: 'cat-a',
+      guestName: 'Federico Balbi',
+      guestEmail: 'federico.balbi@huesped.com',
+      guestPhone: '+54 9 261 411-9988',
+      checkIn: getRelativeDate(-16),
+      checkOut: getRelativeDate(-11),
+      nights: 5,
+      guestsCount: 2,
+      platform: 'airbnb',
+      totalAmount: 290,
+      cleaningFee: 20,
+      commissionPaid: 8.7,
+      netRevenue: 281.3,
+      status: 'checked_out',
+      paymentStatus: 'paid',
+      pinCode: '8821',
+      createdAt: getRelativeDate(-28),
+    },
+    {
+      id: 'res-113',
+      propertyId: 'cat-b',
+      guestName: 'Sofía Carrizo',
+      guestEmail: 'sofia.carrizo@huesped.com',
+      guestPhone: '+54 9 11 9900-1122',
+      checkIn: getRelativeDate(-18),
+      checkOut: getRelativeDate(-13),
+      nights: 5,
+      guestsCount: 2,
+      platform: 'booking',
+      totalAmount: 240,
+      cleaningFee: 18,
+      commissionPaid: 36,
+      netRevenue: 204,
+      status: 'checked_out',
+      paymentStatus: 'paid',
+      pinCode: '1092',
+      createdAt: getRelativeDate(-29),
+    },
+    {
+      id: 'res-114',
+      propertyId: 'cat-c',
+      guestName: 'Ignacio Roldán',
+      guestEmail: 'ignacio.roldan@huesped.com',
+      guestPhone: '+54 9 11 5566-4433',
+      checkIn: getRelativeDate(-20),
+      checkOut: getRelativeDate(-15),
+      nights: 5,
+      guestsCount: 3,
+      platform: 'direct',
+      totalAmount: 290,
+      cleaningFee: 20,
+      commissionPaid: 0,
+      netRevenue: 290,
+      status: 'checked_out',
+      paymentStatus: 'paid',
+      pinCode: '9920',
+      createdAt: getRelativeDate(-30),
+    },
+    {
+      id: 'res-115',
+      propertyId: 'cat-d',
+      guestName: 'Marina Peña',
+      guestEmail: 'marina.pena@huesped.com',
+      guestPhone: '+54 9 11 4455-8899',
+      checkIn: getRelativeDate(-21),
+      checkOut: getRelativeDate(-17),
+      nights: 4,
+      guestsCount: 2,
+      platform: 'airbnb',
+      totalAmount: 192,
+      cleaningFee: 18,
+      commissionPaid: 5.76,
+      netRevenue: 186.24,
+      status: 'checked_out',
+      paymentStatus: 'paid',
+      pinCode: '3319',
+      createdAt: getRelativeDate(-32),
     },
   ];
 }
@@ -307,10 +464,10 @@ export function generateInitialCleaningTasks(): CleaningTask[] {
   return [
     {
       id: 'clean-1',
-      propertyId: 'prop-6',
-      reservationId: 'res-104',
-      date: getRelativeDate(0), // Today!
-      scheduledTime: '11:00 - 13:45 (Urgente - Recambio)',
+      propertyId: 'cat-b',
+      reservationId: 'res-102',
+      date: getRelativeDate(0), // HOY
+      scheduledTime: '10:30 - 13:30 (Urgente - Recambio)',
       cleanerName: 'Marta González',
       cleanerPhone: '+54 9 11 5566-7788',
       status: 'in_progress',
@@ -321,57 +478,60 @@ export function generateInitialCleaningTasks(): CleaningTask[] {
         { id: 'c4', task: 'Verificación de cerradura inteligente y pilas', completed: false },
         { id: 'c5', task: 'Fotos de control y reporte final', completed: false },
       ],
-      notes: '⚡ RECAMBIO MISMO DÍA: Sale Elena Rostova 10:30hs y entra Agustín Gómez 14:00hs. Prioridad alta.',
+      notes: '⚡ RECAMBIO MISMO DÍA: Sale Elena Miller a las 10:00 hs y entra Agustina Gómez a las 14:00 hs. Prioridad máxima.',
       photosUploaded: 2,
     },
     {
       id: 'clean-2',
-      propertyId: 'prop-1',
-      date: getRelativeDate(3),
-      scheduledTime: '11:00 - 13:30 (Recambio)',
+      propertyId: 'cat-a',
+      reservationId: 'res-101',
+      date: getRelativeDate(0), // HOY
+      scheduledTime: '09:00 - 11:30 (Preparación Depto A)',
       cleanerName: 'Carlos Ruiz',
       cleanerPhone: '+54 9 11 2233-4455',
-      status: 'pending',
+      status: 'inspected',
       checklist: [
-        { id: 'c1', task: 'Cambio de blancos 400 hilos y aromatización', completed: false },
-        { id: 'c2', task: 'Limpieza de terraza y parrilla', completed: false },
-        { id: 'c3', task: 'Reposición de cápsulas Nespresso (x4)', completed: false },
-        { id: 'c4', task: 'Control de inventario de copas de vino', completed: false },
+        { id: 'c1', task: 'Cambio de blancos 400 hilos y aromatización', completed: true },
+        { id: 'c2', task: 'Limpieza de terraza y balcón', completed: true },
+        { id: 'c3', task: 'Reposición de cápsulas de café y amenities', completed: true },
+        { id: 'c4', task: 'Control de vajilla y copas', completed: true },
       ],
-      notes: '⚡ RECAMBIO: Sale Lucas Fernández y entra Santiago Morales el mismo día.',
+      notes: 'Unidad higienizada y lista para el check-in de Lucas Fernández a las 14:00 hs.',
+      photosUploaded: 4,
     },
     {
       id: 'clean-3',
-      propertyId: 'prop-2',
-      reservationId: 'res-102',
-      date: getRelativeDate(1), // Tomorrow
-      scheduledTime: '11:00 - 13:30 (Recambio)',
+      propertyId: 'cat-c',
+      reservationId: 'res-104',
+      date: getRelativeDate(2),
+      scheduledTime: '11:00 - 13:30 (Salida Depto C)',
       cleanerName: 'Ana Méndez',
       cleanerPhone: '+54 9 11 9988-7766',
       status: 'pending',
       checklist: [
         { id: 'c1', task: 'Lavado y tendido de ropa blanca', completed: false },
-        { id: 'c2', task: 'Aspirado de alfombras y pisos de parquet', completed: false },
+        { id: 'c2', task: 'Aspirado y desinfección de pisos', completed: false },
         { id: 'c3', task: 'Comprobación de control remoto de A/C y TV', completed: false },
       ],
-      notes: '⚡ RECAMBIO: Sale Claire Dupont y entra Valeria Benítez.',
+      notes: 'Salida de Claire Dupont.',
     },
     {
       id: 'clean-4',
-      propertyId: 'prop-3',
-      date: getRelativeDate(-1),
-      scheduledTime: '12:00 - 14:30',
+      propertyId: 'cat-d',
+      reservationId: 'res-105',
+      date: getRelativeDate(1),
+      scheduledTime: '11:00 - 13:00 (Preparación Depto D)',
       cleanerName: 'Marta González',
       cleanerPhone: '+54 9 11 5566-7788',
       status: 'inspected',
       checklist: [
         { id: 'c1', task: 'Desinfección integral y sanitización', completed: true },
-        { id: 'c2', task: 'Limpieza de cristales de balcón', completed: true },
-        { id: 'c3', task: 'Set de toallas de baño y mano dobladas en cisne', completed: true },
+        { id: 'c2', task: 'Limpieza de ventanales', completed: true },
+        { id: 'c3', task: 'Toallas dobladas y amenities de baño', completed: true },
         { id: 'c4', task: 'Inspección de daños aprobada', completed: true },
       ],
-      notes: 'Todo en perfecto estado. Fotos de entrega registradas en la app.',
-      photosUploaded: 4,
+      notes: 'Todo en perfecto orden. Lista para la llegada de Martín Soria mañana.',
+      photosUploaded: 3,
     },
   ];
 }
@@ -424,8 +584,8 @@ const LOCAL_STORAGE_KEY = 'loomisuite_demo_state_v5';
 export const INITIAL_WELCOME_GUIDE: WelcomeGuideData = {
   propertyName: 'Tu Complejo',
   tagline: 'Guía Digital de Bienvenida Interactiva • Buenos Aires, Argentina',
-  hostName: 'Gabriela',
-  hostPhone: '+54 9 11 4050-6070',
+  hostName: 'Administración',
+  hostPhone: '+54 9 11 5555-0100',
   locationAddress: 'Av. de Mayo 100, San Telmo / Monserrat, Buenos Aires',
   googleMapsUrl: 'https://maps.google.com/?q=Plaza+de+Mayo+Buenos+Aires',
   wifiNetwork: 'TuComplejo_Huespedes_5G',
@@ -441,8 +601,8 @@ export const INITIAL_WELCOME_GUIDE: WelcomeGuideData = {
       type: 'airport' as const,
       description: 'Servicio de traslado privado puerta a puerta desde Aeroparque, Ezeiza o Terminal de Ómnibus, coordinado previamente con chofer profesional.',
       estimatedCost: 'Tarifa pactada ~$12.000 ARS',
-      contactPhone: '+54 9 11 4050-6070',
-      actionUrl: 'https://wa.me/5491140506070?text=Hola%20Gabriela,%20soy%20huésped%20de%20Tu%20Complejo%20y%20quisiera%20coordinar%20el%20traslado',
+      contactPhone: '+54 9 11 5555-0100',
+      actionUrl: 'https://wa.me/5491155550100?text=Hola,%20soy%20huésped%20de%20Tu%20Complejo%20y%20quisiera%20coordinar%20el%20traslado',
       actionLabel: 'Pedir Traslado Privado',
     },
     {
@@ -701,48 +861,33 @@ export function getDemoState(): DemoState {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Ensure properties are Depto A, B, C, D
-      const hasOldProps = !parsed.properties || parsed.properties.some((p: Property) => p.id === 'prop-1' || p.id === 'prop-2');
-      if (hasOldProps || parsed.properties.length === 0) {
+      // Ensure properties array exists
+      if (!parsed.properties || !Array.isArray(parsed.properties) || parsed.properties.length === 0) {
         parsed.properties = INITIAL_PROPERTIES;
       }
-      // Ensure reservations have all real imported reservations from her CSV
-      const hasOldRes = !parsed.reservations || parsed.reservations.length < 20 || parsed.reservations.some((r: any) => r.propertyId === 'prop-1');
-      if (hasOldRes) {
-        parsed.reservations = IMPORTED_CATALINAS_RESERVATIONS;
+      // Preserve user reservations without force-overwriting their simulation
+      if (!parsed.reservations || !Array.isArray(parsed.reservations)) {
+        parsed.reservations = generateInitialReservations();
       }
-      // Force update welcomeGuide to the new Tu Complejo setup to avoid any Iguazú mix
-      if (!parsed.welcomeGuide || parsed.welcomeGuide.propertyName !== 'Tu Complejo') {
+      // Ensure welcomeGuide exists
+      if (!parsed.welcomeGuide) {
         parsed.welcomeGuide = INITIAL_WELCOME_GUIDE;
       }
-      // Ensure templates have all up-to-date templates with master texts
-      const hasOldTemplates = !parsed.templates ||
-        parsed.templates.length < INITIAL_TEMPLATES.length ||
-        !parsed.templates.some((t: any) => t.title?.includes('Blindaje Anti-Quejas')) ||
-        !parsed.templates.some((t: any) => t.content?.includes('{{nombre_huésped}}'));
-      if (hasOldTemplates) {
+      // Ensure templates exist
+      if (!parsed.templates || !Array.isArray(parsed.templates) || parsed.templates.length === 0) {
         parsed.templates = INITIAL_TEMPLATES;
       }
-      // Ensure availableAddons and addons are updated to the Buenos Aires versions
-      const hasOldAddons = parsed.availableAddons?.some((a: any) => a.name?.includes('IGR') || a.name?.includes('Cataratas') || a.name?.includes('Selva') || a.name?.includes('Misionero'));
-      if (!parsed.availableAddons || parsed.availableAddons.length === 0 || hasOldAddons) {
+      // Ensure addons exist
+      if (!parsed.availableAddons || !Array.isArray(parsed.availableAddons) || parsed.availableAddons.length === 0) {
         parsed.availableAddons = INITIAL_ADDONS;
-        parsed.addons = INITIAL_ADDONS;
       }
-      if (!parsed.addons || parsed.addons.length === 0) {
+      if (!parsed.addons || !Array.isArray(parsed.addons) || parsed.addons.length === 0) {
         parsed.addons = parsed.availableAddons || INITIAL_ADDONS;
       }
-      const hasOldCash = parsed.cashMovements?.some((m: any) => m.concept?.includes('leña') || m.concept?.includes('cabaña') || m.concept?.includes('Canasta'));
-      if (!parsed.cashMovements || parsed.cashMovements.length === 0 || hasOldCash) {
+      // Ensure cash movements exist
+      if (!parsed.cashMovements || !Array.isArray(parsed.cashMovements)) {
         parsed.cashMovements = INITIAL_CASH_MOVEMENTS;
       }
-      // Ensure property 3 smartLock matches updated status
-      const p3 = parsed.properties?.find((p: Property) => p.id === 'prop-3');
-      if (p3 && p3.smartLock?.brand?.includes('Recepción')) {
-        p3.smartLock.enabled = false;
-        p3.smartLock.brand = 'Llave física tradicional (Sin cerradura digital)';
-      }
-      saveDemoState(parsed);
       return parsed;
     }
   } catch (e) {
@@ -761,37 +906,19 @@ export function getDemoState(): DemoState {
     lastUpdated: new Date().toISOString(),
   };
 
-  saveDemoState(defaultState);
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(defaultState));
+  } catch {}
   return defaultState;
 }
 
-export function saveDemoState(state: DemoState, complexId?: string): void {
+export function saveDemoState(state: DemoState, _complexId?: string): void {
+  // Aislamiento total: la demo vive exclusivamente en el localStorage del usuario
   try {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
   } catch (e) {
     console.error('Error saving demo state to localStorage', e);
   }
-
-  // Also persist to Firebase Cloud Firestore for multi-device & multi-user sync
-  try {
-    const activeId = complexId || (typeof localStorage !== 'undefined' ? localStorage.getItem('loomi_active_complex') || 'default' : 'default');
-    saveComplexToCloud(activeId, state);
-  } catch (e) {
-    console.warn('Firestore cloud background sync notice:', e);
-  }
-
-  // Also persist to server in background for multi-device sync
-  try {
-    if (typeof window !== 'undefined' && typeof fetch === 'function') {
-      fetch('/api/state', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ state }),
-      }).catch((err) => {
-        console.warn('Silent server state sync notice:', err);
-      });
-    }
-  } catch {}
 }
 
 export function resetDemoState(): DemoState {

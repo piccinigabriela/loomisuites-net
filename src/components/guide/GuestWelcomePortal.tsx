@@ -43,6 +43,9 @@ import {
 import { WelcomeGuideData, AttractionItem, DiningItem } from '../../types';
 
 export type PortalTheme =
+  | 'clara'
+  | 'tierra'
+  | 'sombra'
   | 'dos-aguas'
   | 'corte-vette'
   | 'medano-blanco'
@@ -327,11 +330,15 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
   )}`;
 
   // =========================================================================
-  // THEME STYLING CONFIGURATION (3 MODELOS OFICIALES DE LOOMI SUITE)
+  // THEME STYLING CONFIGURATION (3 MODELOS: "Clara", "Tierra", "Sombra")
   // =========================================================================
-  const isDosAguas = activeTemplate === 'dos-aguas' || activeTemplate === 'retrato';
-  const isCorteVette = activeTemplate === 'corte-vette' || (activeTemplate as string) === 'triptych';
-  const isMedanoBlanco = activeTemplate === 'medano-blanco' || activeTemplate === 'bay' || activeTemplate === 'urbano';
+  const isClara = activeTemplate === 'clara' || activeTemplate === 'dos-aguas' || activeTemplate === 'retrato';
+  const isTierra = activeTemplate === 'tierra' || activeTemplate === 'corte-vette' || (activeTemplate as string) === 'triptych';
+  const isSombra = activeTemplate === 'sombra' || activeTemplate === 'medano-blanco' || activeTemplate === 'bay' || activeTemplate === 'urbano';
+
+  const isDosAguas = isClara;
+  const isCorteVette = isTierra;
+  const isMedanoBlanco = isSombra;
 
   const theme = {
     wrapper: isCorteVette
@@ -475,34 +482,34 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
 
         <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-stone-950 border border-stone-800">
           <button
-            onClick={() => handleSetTemplate('dos-aguas')}
+            onClick={() => handleSetTemplate('clara')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
-              isDosAguas ? 'bg-emerald-600 text-white shadow-xs' : 'text-stone-300 hover:text-white'
+              isClara ? 'bg-emerald-600 text-white shadow-xs' : 'text-stone-300 hover:text-white'
             }`}
-            title="Refugio Dos Aguas • Glamping & Bosque"
+            title="Plantilla 1: Clara • Estructuras limpias, luz franca y geometría noble"
           >
-            <span>🌲 Refugio Dos Aguas</span>
-            <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Glamping)</span>
+            <span>☀️ Clara</span>
+            <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Luz franca)</span>
           </button>
           <button
-            onClick={() => handleSetTemplate('corte-vette')}
+            onClick={() => handleSetTemplate('tierra')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
-              isCorteVette ? 'bg-[#9E3D31] text-white shadow-xs' : 'text-stone-300 hover:text-white'
+              isTierra ? 'bg-[#9E3D31] text-white shadow-xs' : 'text-stone-300 hover:text-white'
             }`}
-            title="Corte delle Vette • Bodega Lodge"
+            title="Plantilla 2: Tierra • Texturas nobles, maderas, revoques cálidos e imperfección natural"
           >
-            <span>🍷 Corte delle Vette</span>
-            <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Bodega)</span>
+            <span>🪵 Tierra</span>
+            <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Maderas)</span>
           </button>
           <button
-            onClick={() => handleSetTemplate('medano-blanco')}
+            onClick={() => handleSetTemplate('sombra')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
-              isMedanoBlanco ? 'bg-amber-600 text-white shadow-xs' : 'text-stone-300 hover:text-white'
+              isSombra ? 'bg-amber-600 text-white shadow-xs' : 'text-stone-300 hover:text-white'
             }`}
-            title="Médano Blanco • Posada Costera"
+            title="Plantilla 3: Sombra • Atmósfera íntima, maderas oscuras y penumbra elegante"
           >
-            <span>🌊 Médano Blanco</span>
-            <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Posada)</span>
+            <span>🌑 Sombra</span>
+            <span className="text-[10px] font-normal opacity-70 hidden sm:inline">(Íntima)</span>
           </button>
         </div>
       </div>
@@ -1016,7 +1023,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                         <div className="flex items-start justify-between gap-2 mb-1">
                           <span className="font-bold text-sm">{serv.name}</span>
                           <span className={`px-2 py-0.5 rounded-md font-bold text-xs ${theme.accentBadge}`}>
-                            ${serv.priceUSD} USD
+                            USD {serv.priceUSD}
                           </span>
                         </div>
                         <p className="text-xs opacity-75 leading-relaxed">

@@ -86,7 +86,7 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onOpenDemo }) => {
                   Tarifa promedio por noche (USD)
                 </label>
                 <span className="text-lg font-bold text-emerald-400 bg-emerald-500/10 px-3 py-0.5 rounded-lg border border-emerald-500/20">
-                  ${avgNightRate} USD
+                  USD {avgNightRate}
                 </span>
               </div>
               <input
@@ -99,10 +99,10 @@ export const RoiCalculator: React.FC<RoiCalculatorProps> = ({ onOpenDemo }) => {
                 className="w-full accent-emerald-500 cursor-pointer h-2 bg-zinc-700 rounded-lg"
               />
               <div className="flex justify-between text-[11px] text-zinc-500 mt-1">
-                <span>$30</span>
-                <span>$100</span>
-                <span>$180</span>
-                <span>$250+</span>
+                <span>USD 30</span>
+                <span>USD 100</span>
+                <span>USD 180</span>
+                <span>USD 250+</span>
               </div>
             </div>
 

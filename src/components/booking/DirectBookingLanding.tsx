@@ -47,6 +47,9 @@ interface DirectBookingLandingProps {
 }
 
 export type LandingTemplate =
+  | 'clara'
+  | 'tierra'
+  | 'sombra'
   | 'dos-aguas'
   | 'corte-vette'
   | 'medano-blanco'
@@ -247,15 +250,20 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
     `• Estadía: ${checkInDate} al ${checkOutDate} (${nights} noches, ${guestsCount} personas)\n` +
     `${earlyCheckIn ? '• Incluye Ingreso Temprano & Copa de Bienvenida\n' : ''}` +
     `${lateCheckOut ? '• Incluye Salida Extendida (Sunset Tasting)\n' : ''}` +
-    `• Total con ${totalDiscountPercent}% descuento directo: $${finalTotal} USD\n` +
-    `• Seña 50% ($${depositAmount} USD) a transferir a ${guideData.directBookingSettings?.bankAlias || 'AURA.MENDOZA'}\n` +
+    `• Total con ${totalDiscountPercent}% descuento directo: USD ${finalTotal}\n` +
+    `• Seña 50% (USD ${depositAmount}) a transferir a ${guideData.directBookingSettings?.bankAlias || 'AURA.MENDOZA'}\n` +
     `• Mi nombre: ${guestName || 'Huésped'} - Tel: ${guestPhone}`
   );
 
-  // Template flags: 3 modelos oficiales de Loomi Suite
-  const isDosAguas = selectedTemplate === 'dos-aguas' || selectedTemplate === 'retrato';
-  const isCorteVette = selectedTemplate === 'corte-vette' || (selectedTemplate as string) === 'triptych';
-  const isMedanoBlanco = selectedTemplate === 'medano-blanco' || selectedTemplate === 'bay' || selectedTemplate === 'urbano';
+  // Template flags: 3 plantillas oficiales de Loomi Suite ("Clara", "Tierra", "Sombra")
+  const isClara = selectedTemplate === 'clara' || selectedTemplate === 'dos-aguas' || selectedTemplate === 'retrato';
+  const isTierra = selectedTemplate === 'tierra' || selectedTemplate === 'corte-vette' || (selectedTemplate as string) === 'triptych';
+  const isSombra = selectedTemplate === 'sombra' || selectedTemplate === 'medano-blanco' || selectedTemplate === 'bay' || selectedTemplate === 'urbano';
+
+  // Aliases for layout compatibility
+  const isDosAguas = isClara;
+  const isCorteVette = isTierra;
+  const isMedanoBlanco = isSombra;
 
   return (
     <div className={`w-full transition-all duration-300 relative ${
@@ -268,54 +276,54 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
       {/* ========================================================================= */}
       {/* BOTÓN FLOTANTE FIJO DE SALIDA: VOLVER AL PANEL (SIEMPRE VISIBLE)          */}
       {/* ========================================================================= */}
-      <div className="fixed top-16 sm:top-20 left-3 sm:left-6 z-30 font-sans pointer-events-auto">
+      <div className="fixed top-14 sm:top-20 left-3 sm:left-6 z-30 font-sans pointer-events-auto">
         <button
           onClick={handleBackToPanel}
-          className="bg-stone-900/95 hover:bg-black text-white px-3.5 py-2 rounded-xl text-xs font-semibold shadow-2xl border border-white/15 flex items-center gap-2 backdrop-blur-md cursor-pointer transition-all hover:scale-105 active:scale-95 group"
+          className="bg-stone-900/95 hover:bg-black text-white px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-semibold shadow-2xl border border-white/15 flex items-center gap-1.5 backdrop-blur-md cursor-pointer transition-all hover:scale-105 active:scale-95 group"
           title="Volver al Panel de Control de Loomi Suite"
         >
           <ArrowLeft className="w-3.5 h-3.5 text-[#E67E22] group-hover:-translate-x-0.5 transition-transform" />
-          <span>← Volver al Panel</span>
+          <span>Volver al Panel</span>
         </button>
       </div>
 
       {/* ========================================================================= */}
       {/* SELECTOR FLOTANTE ELEGANTE DE MODELOS (DOCK FLOTANTE DEBAJO DE BARRA TOP)  */}
       {/* ========================================================================= */}
-      <div className="fixed top-16 sm:top-20 right-3 sm:right-6 z-30 font-sans pointer-events-auto flex items-center gap-2">
+      <div className="fixed top-14 sm:top-20 right-3 sm:right-6 z-30 font-sans pointer-events-auto flex items-center gap-2">
         {showSimulatorBar ? (
           <div className="bg-[#181614]/95 backdrop-blur-xl border border-stone-700/70 rounded-2xl p-2 sm:p-2.5 shadow-2xl flex items-center gap-2 text-xs text-stone-200 animate-in fade-in zoom-in-95 duration-200">
-            <span className="text-[10px] font-mono text-stone-400 uppercase px-1 hidden sm:inline">Modelos Oficiales:</span>
+            <span className="text-[10px] font-mono text-stone-400 uppercase px-1 hidden sm:inline">Plantillas Base:</span>
             <div className="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/10">
               <button
-                onClick={() => setSelectedTemplate('dos-aguas')}
+                onClick={() => setSelectedTemplate('clara')}
                 className={`px-3 py-1.5 text-[11px] font-medium rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                  isDosAguas ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-stone-300 hover:text-white'
+                  isClara ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-stone-300 hover:text-white'
                 }`}
-                title="Refugio Dos Aguas • Glamping & Bosque"
+                title="Plantilla 1: Clara • Estructuras limpias, luz franca y geometría noble"
               >
-                <span>🌲 Refugio Dos Aguas</span>
-                <span className="text-[9px] opacity-75 font-light hidden md:inline">(Glamping)</span>
+                <span>☀️ Clara</span>
+                <span className="text-[9px] opacity-75 font-light hidden md:inline">(Luz franca)</span>
               </button>
               <button
-                onClick={() => setSelectedTemplate('corte-vette')}
+                onClick={() => setSelectedTemplate('tierra')}
                 className={`px-3 py-1.5 text-[11px] font-medium rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                  isCorteVette ? 'bg-[#9E3D31] text-white font-bold shadow-xs' : 'text-stone-300 hover:text-white'
+                  isTierra ? 'bg-[#9E3D31] text-white font-bold shadow-xs' : 'text-stone-300 hover:text-white'
                 }`}
-                title="Corte delle Vette • Bodega Lodge"
+                title="Plantilla 2: Tierra • Texturas nobles, maderas, revoques cálidos e imperfección natural"
               >
-                <span>🍷 Corte delle Vette</span>
-                <span className="text-[9px] opacity-75 font-light hidden md:inline">(Bodega)</span>
+                <span>🪵 Tierra</span>
+                <span className="text-[9px] opacity-75 font-light hidden md:inline">(Maderas)</span>
               </button>
               <button
-                onClick={() => setSelectedTemplate('medano-blanco')}
+                onClick={() => setSelectedTemplate('sombra')}
                 className={`px-3 py-1.5 text-[11px] font-medium rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                  isMedanoBlanco ? 'bg-amber-600 text-white font-bold shadow-xs' : 'text-stone-300 hover:text-white'
+                  isSombra ? 'bg-amber-600 text-white font-bold shadow-xs' : 'text-stone-300 hover:text-white'
                 }`}
-                title="Médano Blanco • Posada Costera"
+                title="Plantilla 3: Sombra • Atmósfera íntima, maderas oscuras y penumbra elegante"
               >
-                <span>🌊 Médano Blanco</span>
-                <span className="text-[9px] opacity-75 font-light hidden md:inline">(Posada)</span>
+                <span>🌑 Sombra</span>
+                <span className="text-[9px] opacity-75 font-light hidden md:inline">(Íntima)</span>
               </button>
             </div>
 
@@ -334,11 +342,11 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
             <button
               onClick={() => setShowSimulatorBar(true)}
               className="px-3.5 py-2 rounded-full bg-black/90 hover:bg-black text-[#E67E22] border border-[#E67E22]/40 text-xs font-mono backdrop-blur-md shadow-xl flex items-center gap-2 transition-all cursor-pointer hover:scale-105"
-              title="Cambiar modelo web oficial"
+              title="Cambiar plantilla web base"
             >
               <Palette className="w-3.5 h-3.5 text-[#E67E22]" />
               <span className="font-sans font-medium text-[11px] text-white">
-                {isDosAguas ? '🌲 Refugio Dos Aguas' : isCorteVette ? '🍷 Corte delle Vette' : '🌊 Médano Blanco'}
+                {isClara ? '☀️ Clara' : isTierra ? '🪵 Tierra' : '🌑 Sombra'}
               </span>
               <span className="text-[10px] text-stone-300 ml-0.5">▼</span>
             </button>

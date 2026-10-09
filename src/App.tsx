@@ -63,23 +63,14 @@ import { HousekeepingMobileView } from './components/roles/HousekeepingMobileVie
 import { INITIAL_WELCOME_GUIDE } from './data/initialData';
 
 export default function App() {
-  // App view: 'landing' (clean landing site), 'demo' (active PMS panel) or 'superadmin' (master control)
+  // App view: 'landing' (clean landing site) or 'demo' (active PMS panel)
   const [currentView, setCurrentView] = useState<'landing' | 'demo' | 'superadmin'>(() => {
     try {
       if (typeof window !== 'undefined') {
         const path = window.location.pathname.toLowerCase();
         const hash = window.location.hash.toLowerCase();
         const params = new URLSearchParams(window.location.search);
-        if (
-          params.has('superadmin') ||
-          params.has('master') ||
-          params.get('view') === 'superadmin' ||
-          path.includes('/superadmin') ||
-          path.includes('/master') ||
-          hash.includes('superadmin')
-        ) {
-          return 'superadmin';
-        }
+        // Acceso por ?superadmin desactivado en la versión pública para seguridad y protección de accesos
         if (
           path.includes('/admin') ||
           path.includes('/recepcion') ||
@@ -937,8 +928,8 @@ export default function App() {
           />
 
           {/* Floating Sticky CTA Bar on Mobile/Desktop (<12% viewport height) */}
-          <div className="fixed bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-30 bg-white/95 dark:bg-[#121316]/95 backdrop-blur-md text-gray-800 dark:text-[#EFECE5] px-4 py-2 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-gray-100 dark:border-white/10 flex items-center gap-3 max-w-[92vw]">
-            <span className="text-xs font-medium hidden md:inline text-gray-500 dark:text-zinc-400">
+          <div className="fixed bottom-4 sm:bottom-5 left-1/2 -translate-x-1/2 z-30 bg-white/95 dark:bg-[#121316]/95 backdrop-blur-md text-slate-900 dark:text-[#EFECE5] px-4 py-2.5 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.12)] border border-slate-200 dark:border-white/10 flex items-center gap-3 max-w-[92vw]">
+            <span className="text-xs font-semibold hidden md:inline text-slate-700 dark:text-zinc-300">
               ¿Querés ver cómo funciona en la vida real?
             </span>
             <button
@@ -1238,31 +1229,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Top Demo Scenario & Plan Guide (Solo en modo demo no logueado y si no fue descartada) */}
-            {!loggedUser && !isDemoPlanBarDismissed && (
-              <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 pt-3.5 sm:pt-4">
-                <DemoPlanFunctionalBar
-                  onSelectTab={setDemoTab}
-                  onSwitchComplex={setActiveComplex}
-                  activeComplex={activeComplex}
-                  currentTab={demoTab}
-                  isEmployeeMode={isEmployeeMode}
-                  onToggleEmployeeMode={() => handleRoleChange(isEmployeeMode ? 'admin' : 'housekeeping')}
-                  onOpenGuideWith={(subTab, template) => {
-                    setGuideSubTab(subTab);
-                    if (template) setGuideTemplate(template);
-                    setDemoTab('welcome-guide');
-                  }}
-                  onOpenOnboardingWizard={() => setIsOnboardingModalOpen(true)}
-                  onRequestPlan={() => {
-                    setSelectedPlanForLead('Plan Cabañas & Deptos');
-                    setIsLeadModalOpen(true);
-                  }}
-                  onDismiss={handleDismissDemoPlanBar}
-                />
-              </div>
-            )}
-
             {/* Main Content Body: Real System Dashboard Exactly as on PC */}
             <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-3.5 sm:py-5">
               {demoTab === 'overview' && (
@@ -1389,12 +1355,37 @@ export default function App() {
                 <XeniaCopilotView demoState={demoState} />
               )}
             </div>
+
+            {/* Selector de Planes & Escenarios Comerciales (Plano de menor prioridad visual, al pie del panel) */}
+            {!loggedUser && !isDemoPlanBarDismissed && (
+              <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 pb-6 pt-2">
+                <DemoPlanFunctionalBar
+                  onSelectTab={setDemoTab}
+                  onSwitchComplex={setActiveComplex}
+                  activeComplex={activeComplex}
+                  currentTab={demoTab}
+                  isEmployeeMode={isEmployeeMode}
+                  onToggleEmployeeMode={() => handleRoleChange(isEmployeeMode ? 'admin' : 'housekeeping')}
+                  onOpenGuideWith={(subTab, template) => {
+                    setGuideSubTab(subTab);
+                    if (template) setGuideTemplate(template);
+                    setDemoTab('welcome-guide');
+                  }}
+                  onOpenOnboardingWizard={() => setIsOnboardingModalOpen(true)}
+                  onRequestPlan={() => {
+                    setSelectedPlanForLead('Plan Cabañas & Deptos');
+                    setIsLeadModalOpen(true);
+                  }}
+                  onDismiss={handleDismissDemoPlanBar}
+                />
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* Persistent Floating Xenia AI Assistant (visible in landing and desktop full view) */}
-      {!(currentView === 'demo' && mobileMode === 'light') && (
+      {/* Persistent Floating Xenia AI Assistant (activo en el panel de Demo en escritorio; desactivado en landing para evitar solapamiento con la barra de Demo y despejar la esquina) */}
+      {currentView === 'demo' && !(mobileMode === 'light' || isEmployeeMode || demoTab === 'direct-booking') && (
         <XeniaFloatingWidget
           demoState={demoState}
           onOpenFullView={() => {

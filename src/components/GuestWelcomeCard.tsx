@@ -23,7 +23,7 @@ export interface GuestWelcomeCardProps {
   wifiPassword?: string;
   address?: string;
   guideUrl?: string;
-  hostPhone?: string; // Número de WhatsApp con prefijo internacional, ej: "5491140506070"
+  hostPhone?: string; // Número de WhatsApp con prefijo internacional, ej: "5491155550100"
 }
 
 export const GuestWelcomeCard: React.FC<GuestWelcomeCardProps> = ({
@@ -34,10 +34,10 @@ export const GuestWelcomeCard: React.FC<GuestWelcomeCardProps> = ({
   checkInTime = "14:00 hs",
   accessCode = "4820",
   wifiNetwork = "CatalinasAptos_Fibra_B",
-  wifiPassword = "TresSargentos435",
-  address = "Tres Sargentos 435, Retiro / Catalinas Norte, CABA",
+  wifiPassword = "CatalinasDemo2026",
+  address = "Tres Sargentos 400, Retiro / Catalinas Norte, CABA",
   guideUrl = "https://loomisuite.net/guia/cat-b",
-  hostPhone = "5491140506070"
+  hostPhone = "5491155550100"
 }) => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 

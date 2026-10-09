@@ -360,9 +360,9 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
             accessCode={selectedReservation?.pinCode || '4820'}
             wifiNetwork={selectedProperty?.wifiNetwork || 'Catalinas_Guest_5G'}
             wifiPassword={selectedProperty?.wifiPassword || 'bienvenidoscatalinas'}
-            address={selectedProperty ? `${selectedProperty.address}, ${selectedProperty.neighborhood}` : 'Tres Sargentos 435, Retiro / Catalinas Norte, CABA'}
+            address={selectedProperty ? `${selectedProperty.address}, ${selectedProperty.neighborhood}` : 'Tres Sargentos 400, Retiro / Catalinas Norte, CABA'}
             guideUrl={`https://loomisuite.com/guia/${selectedProperty?.id || 'cat-b'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
-            hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5491140506070'}
+            hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5491155550100'}
           />
         </div>
       )}
@@ -656,9 +656,9 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                     accessCode={selectedReservation?.pinCode || '4820'}
                     wifiNetwork={selectedProperty?.wifiNetwork || 'Catalinas_Guest_5G'}
                     wifiPassword={selectedProperty?.wifiPassword || 'bienvenidoscatalinas'}
-                    address={selectedProperty ? `${selectedProperty.address}, ${selectedProperty.neighborhood}` : 'Tres Sargentos 435, Retiro / Catalinas Norte, CABA'}
+                    address={selectedProperty ? `${selectedProperty.address}, ${selectedProperty.neighborhood}` : 'Tres Sargentos 400, Retiro / Catalinas Norte, CABA'}
                     guideUrl={`https://loomisuite.com/guia/${selectedProperty?.id || 'cat-b'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
-                    hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5491140506070'}
+                    hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5491155550100'}
                   />
                 </div>
               ) : (

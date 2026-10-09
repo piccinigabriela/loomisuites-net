@@ -88,9 +88,9 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
   // Step 1: Complex info
   const [complexName, setComplexName] = useState(initialInfo.name);
   const [city, setCity] = useState(initialInfo.city);
-  const [address, setAddress] = useState('Tres Sargentos 435');
+  const [address, setAddress] = useState('Tres Sargentos 400 (Piso Demo)');
   const [wifiNetwork, setWifiNetwork] = useState('Catalinas_Fibra_WiFi');
-  const [wifiPassword, setWifiPassword] = useState('TresSargentos435');
+  const [wifiPassword, setWifiPassword] = useState('CatalinasDemo2026');
   const [hostName, setHostName] = useState(initialInfo.hostName);
   const [hostPhone, setHostPhone] = useState(initialInfo.hostPhone);
 

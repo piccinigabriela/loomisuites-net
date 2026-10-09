@@ -622,14 +622,14 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                               {item.name}
                             </span>
                             <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
-                              {item.quantity} x ${item.unitPrice} USD
+                              {item.quantity} x {formatCurrency(item.unitPrice, 'USD')}
                             </span>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-purple-700 dark:text-purple-300">
-                            +${item.total} USD
+                            +{formatCurrency(item.total, 'USD')}
                           </span>
                           <button
                             type="button"
@@ -699,13 +699,13 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                   <div>
                     <span>Comisión Plataforma:</span>
                     <strong className="block text-red-600 dark:text-red-400">
-                      -${getCalculatedFinancials().commissionPaid} USD
+                      -{formatCurrency(getCalculatedFinancials().commissionPaid, 'USD')}
                     </strong>
                   </div>
                   <div>
                     <span>Ingreso Neto Anfitrión:</span>
                     <strong className="block text-emerald-600 dark:text-emerald-400">
-                      ${getCalculatedFinancials().netRevenue} USD
+                      {formatCurrency(getCalculatedFinancials().netRevenue, 'USD')}
                     </strong>
                   </div>
                 </div>
@@ -880,18 +880,18 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                       Total de la Estadía:
                     </span>
                     <span className="font-bold text-sm text-gray-900 dark:text-gray-100">
-                      ${reservation.totalAmount} USD
+                      {formatCurrency(reservation.totalAmount, 'USD')}
                     </span>
                   </div>
 
                   <div className="flex justify-between text-gray-400 text-[11px]">
                     <span>Comisión Plataforma ({reservation.platform.toUpperCase()}):</span>
-                    <span>-${reservation.commissionPaid} USD</span>
+                    <span>-{formatCurrency(reservation.commissionPaid, 'USD')}</span>
                   </div>
 
                   <div className="flex justify-between text-[#2EA44F] font-bold pt-2 border-t border-gray-50 dark:border-zinc-800">
                     <span>Ingreso Neto Limpio en Mano:</span>
-                    <span className="text-sm font-sans">${reservation.netRevenue} USD</span>
+                    <span className="text-sm font-sans">{formatCurrency(reservation.netRevenue, 'USD')}</span>
                   </div>
                 </div>
               ) : null}

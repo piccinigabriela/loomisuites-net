@@ -23,7 +23,7 @@ export const CtaBanner: React.FC<CtaBannerProps> = ({ onOpenDemo, onOpenContact 
         </h2>
 
         <p className="mt-4 text-base sm:text-xl text-rose-100 max-w-2xl mx-auto font-normal">
-          Pasa del cuaderno o Excel a un rack ágil sincronizado con Booking y Airbnb. Prueba la demo interactiva en 1 segundo y comprueba lo simple que es.
+          Pasá del cuaderno o Excel a un rack ágil sincronizado con Booking y Airbnb. Probá la demo interactiva en 1 segundo y comprobá lo simple que es.
         </p>
 
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">

@@ -18,7 +18,7 @@ export const Testimonials: React.FC = () => {
       propertiesCount: '5 cabañas turísticas',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&q=80',
       rating: 5,
-      metric: '+$1.400 USD/mes en reservas directas',
+      metric: '+USD 1.400 / mes en reservas directas',
       text: 'Buscaba algo simple para mis cabañas sin tener que contratar sistemas hoteleros gigantescos que me cobraban fortunas. Loomi Suite es justo lo necesario: reservas directas por WhatsApp y calendario ordenado.',
     },
     {
@@ -39,11 +39,11 @@ export const Testimonials: React.FC = () => {
           <span className="text-xs font-bold text-rose-600 uppercase tracking-wider">
             Casos Reales
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight mt-2">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-2">
             La herramienta preferida para alojamientos independientes
           </h2>
-          <p className="mt-3 text-base text-zinc-600">
-            Descubre por qué anfitriones de departamentos, cabañas y pequeños hostales eligen la simplicidad de Loomi Suite.
+          <p className="mt-3 text-base text-slate-800 font-medium">
+            Descubrí por qué anfitriones de departamentos, cabañas y pequeños hostales eligen la simplicidad de Loomi Suite.
           </p>
         </div>
 
@@ -60,11 +60,11 @@ export const Testimonials: React.FC = () => {
                   ))}
                 </div>
 
-                <div className="inline-block px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold mb-4 border border-emerald-200">
+                <div className="inline-block px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold mb-4 border border-emerald-200">
                   {t.metric}
                 </div>
 
-                <p className="text-sm text-zinc-600 leading-relaxed italic">
+                <p className="text-sm text-slate-800 font-medium leading-relaxed italic">
                   "{t.text}"
                 </p>
               </div>
@@ -76,9 +76,9 @@ export const Testimonials: React.FC = () => {
                   className="w-11 h-11 rounded-full object-cover border border-zinc-200"
                 />
                 <div>
-                  <h4 className="text-sm font-bold text-zinc-900">{t.name}</h4>
-                  <p className="text-xs text-zinc-500">{t.role}</p>
-                  <span className="text-[11px] font-medium text-rose-600">{t.propertiesCount}</span>
+                  <h4 className="text-sm font-bold text-slate-900">{t.name}</h4>
+                  <p className="text-xs text-slate-700 font-medium">{t.role}</p>
+                  <span className="text-[11px] font-semibold text-rose-600">{t.propertiesCount}</span>
                 </div>
               </div>
             </div>

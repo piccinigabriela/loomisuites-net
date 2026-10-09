@@ -68,13 +68,14 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
               Canales Conectados
             </h4>
             <ul className="space-y-2 text-xs text-[#A3A3A3]">
-              <li>Airbnb Channel Partner</li>
-              <li>Booking.com Connectivity Oficial</li>
-              <li>VRBO / Expedia (iCal + API)</li>
+              <li>Sincronización bidireccional iCal</li>
+              <li>Airbnb (enlace iCal en tiempo real)</li>
+              <li>Booking.com (enlace iCal en tiempo real)</li>
+              <li>VRBO / Expedia (enlace iCal)</li>
               <li>TripAdvisor & Portales iCal</li>
-              <li>WhatsApp Cloud API</li>
+              <li>Motor Propio de Reservas Directas</li>
+              <li>WhatsApp & Guía Digital para Huéspedes</li>
               <li>Mercado Pago, PayPal & CBU (Para tus Huéspedes)</li>
-              <li>Cerraduras Digitales (Módulo Opcional)</li>
             </ul>
           </div>
 
@@ -84,7 +85,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
               Probar el Sistema
             </h4>
             <p className="text-xs text-[#A3A3A3] mb-3">
-              Comprueba el funcionamiento en vivo con datos interactivos de muestra:
+              Comprobá el funcionamiento en vivo con datos interactivos de muestra:
             </p>
             <button
               onClick={onOpenDemo}

@@ -5,27 +5,27 @@ export const ChannelIntegrations: React.FC = () => {
   const channels = [
     {
       name: 'Airbnb',
-      category: 'Canal Oficial',
+      category: 'Sincronización iCal',
       badge: 'Sincronización en 3 seg',
       color: 'border-[#18181B] bg-[#18181B] text-white',
       icon: '🏠',
-      desc: 'Sincroniza tarifas, calendario, mensajes y reglas de cancelación de forma bidireccional.',
+      desc: 'Sincronizá tu calendario y disponibilidad en tiempo real sin dobles reservas ni planillas.',
     },
     {
       name: 'Booking.com',
-      category: 'Conectividad Oficial',
-      badge: 'API Oficial + iCal',
+      category: 'Sincronización iCal',
+      badge: 'iCal Bidireccional',
       color: 'border-[#E1500A] bg-[#E1500A] text-white',
       icon: '🏨',
-      desc: 'Bloqueo instantáneo en menos de 3 segundos vía API directa de conectividad y sincronización de tarifas.',
+      desc: 'Bloqueo automático de fechas en menos de 3 segundos vía sincronización de enlaces iCal.',
     },
     {
       name: 'VRBO / Expedia',
       category: 'Mercado Internacional',
-      badge: 'iCal Incluido + API',
+      badge: 'iCal Incluido',
       color: 'border-[#DCD8CE] dark:border-[#383838] bg-[#EFECE5] dark:bg-[#252525] text-[#18181B] dark:text-[#FFFFFF]',
       icon: '✈️',
-      desc: 'Sincronización de calendario iCal bidireccional incluida sin costos ocultos, y conectividad con el grupo Expedia.',
+      desc: 'Sincronización de calendario iCal bidireccional incluida sin costos ocultos con portales internacionales.',
     },
     {
       name: 'TripAdvisor & Portales iCal',
@@ -41,7 +41,7 @@ export const ChannelIntegrations: React.FC = () => {
       badge: 'Sin intervención manual',
       color: 'border-[#18181B] bg-[#18181B] text-white',
       icon: '💬',
-      desc: 'Envía ubicación por GPS, clave de Wi-Fi y código de cerradura justo en el momento preciso.',
+      desc: 'Enviá ubicación por GPS, clave de Wi-Fi y código de acceso justo en el momento preciso.',
     },
     {
       name: 'Cerraduras Digitales (Módulo Opcional)',
