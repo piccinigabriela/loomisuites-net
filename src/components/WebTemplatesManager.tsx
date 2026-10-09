@@ -5,7 +5,8 @@ import {
   Check,
   Eye,
   Clock,
-  Info
+  Info,
+  ArrowLeft,
 } from 'lucide-react';
 
 export interface MessageTemplateItem {
@@ -66,11 +67,13 @@ const AVAILABLE_VARIABLES = [
 export interface WebTemplatesManagerProps {
   initialTemplates?: MessageTemplateItem[];
   onSelectTemplate?: (template: MessageTemplateItem) => void;
+  onBackToPanel?: () => void;
 }
 
 export const WebTemplatesManager: React.FC<WebTemplatesManagerProps> = ({
   initialTemplates = DEFAULT_TEMPLATES,
-  onSelectTemplate
+  onSelectTemplate,
+  onBackToPanel,
 }) => {
   const [templates, setTemplates] = useState<MessageTemplateItem[]>(initialTemplates);
   const [activeTemplateId, setActiveTemplateId] = useState<string>(initialTemplates[0]?.id || 'tpl-1');
@@ -142,27 +145,38 @@ export const WebTemplatesManager: React.FC<WebTemplatesManagerProps> = ({
 
   return (
     <div className="w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 font-['Inter',sans-serif] font-light text-stone-800 space-y-6">
-      {/* Encabezado Zen y Aireado */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-stone-100 gap-3">
+      {/* Encabezado Zen y Aireado con Salida Rápida */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-stone-200 gap-3">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#E67E22]"></span>
-            <span className="text-[10px] font-medium tracking-widest text-stone-400 uppercase">
+            <span className="text-[10px] font-medium tracking-widest text-stone-600 dark:text-stone-400 uppercase">
               Centro de Comunicación • Omotenashi
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-light tracking-tight text-stone-900">
             Plantillas Web de Mensajería
           </h2>
-          <p className="text-xs text-stone-400 font-light">
+          <p className="text-xs text-stone-600 dark:text-stone-400 font-normal">
             Textos maestros preconfigurados con variables dinámicas y links destacados.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
+          {onBackToPanel && (
+            <button
+              onClick={onBackToPanel}
+              className="px-3.5 py-2 rounded-xl text-xs font-medium border border-stone-200 hover:border-stone-300 bg-white hover:bg-stone-50 text-stone-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+              title="Volver a la vista del panel"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-[#E67E22]" />
+              <span>← Volver al Panel</span>
+            </button>
+          )}
+
           <button
             onClick={() => setPreviewMode(!previewMode)}
-            className="px-3.5 py-2 rounded-xl text-xs font-light border border-stone-200 hover:border-orange-200 bg-white hover:bg-[#FDFBF9] text-stone-600 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+            className="px-3.5 py-2 rounded-xl text-xs font-medium border border-stone-200 hover:border-orange-200 bg-white hover:bg-[#FDFBF9] text-stone-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
           >
             <Eye className="w-3.5 h-3.5 text-[#C55A1B]" />
             <span>{previewMode ? 'Modo Edición' : 'Vista Previa'}</span>
@@ -173,7 +187,7 @@ export const WebTemplatesManager: React.FC<WebTemplatesManagerProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Columna Izquierda: Selector de Plantillas (4 columnas) */}
         <div className="lg:col-span-4 space-y-3">
-          <span className="text-[11px] font-medium tracking-wider uppercase text-stone-400 block px-1">
+          <span className="text-[11px] font-medium tracking-wider uppercase text-stone-600 dark:text-stone-400 block px-1">
             Plantillas Disponibles ({templates.length})
           </span>
 

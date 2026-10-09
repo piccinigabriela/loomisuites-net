@@ -13,6 +13,45 @@ body {
   color-scheme: dark;
 }
 
+/* ========================================================================= */
+/* MEJORA DE CONTRASTE EN MODO CLARO (LIGHT MODE TEXT ENHANCEMENT)           */
+/* En modo claro, los grises lavados (gray-400, stone-400) se elevan a un    */
+/* tono grafito/pizarra firme (#52525b / #4b5563) legible y elegante (WCAG)  */
+/* sin afectar elementos que estén sobre contenedores oscuros.               */
+/* ========================================================================= */
+:root:not(.dark) {
+  --loomi-graphite-text: #4b5563; /* text-gray-600 */
+}
+
+/* Textos secundarios en modo claro sobre fondos claros */
+html:not(.dark) :where(.text-stone-400, .text-gray-400, .text-zinc-400, .text-neutral-400):not(
+  [class*="bg-black"] *,
+  [class*="bg-stone-9"] *,
+  [class*="bg-stone-8"] *,
+  [class*="bg-zinc-9"] *,
+  [class*="bg-zinc-8"] *,
+  [class*="bg-gray-9"] *,
+  [class*="bg-gray-8"] *,
+  [class*="bg-[#1"] *,
+  [class*="bg-[#0"] *
+) {
+  color: #4b5563 !important;
+}
+
+html:not(.dark) :where(.text-stone-300, .text-gray-300, .text-zinc-300):not(
+  [class*="bg-black"] *,
+  [class*="bg-stone-9"] *,
+  [class*="bg-stone-8"] *,
+  [class*="bg-zinc-9"] *,
+  [class*="bg-zinc-8"] *,
+  [class*="bg-gray-9"] *,
+  [class*="bg-gray-8"] *,
+  [class*="bg-[#1"] *,
+  [class*="bg-[#0"] *
+) {
+  color: #6b7280 !important;
+}
+
 /* Highly visible persistent scrollbar for laptops and desktops */
 .calendar-scrollbar {
   overflow-x: scroll !important;

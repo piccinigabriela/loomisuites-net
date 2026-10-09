@@ -149,12 +149,12 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
             <h1 className="text-xs font-semibold text-gray-800 dark:text-gray-100 truncate leading-tight tracking-tight">
               {complexName || 'Catalinas Apartamentos'}
             </h1>
-            <p className="text-[10px] text-gray-400 dark:text-zinc-500 truncate font-light">Gestión hotelera & cabañas</p>
+            <p className="text-[10px] text-stone-600 dark:text-zinc-400 truncate font-normal">Gestión hotelera & cabañas</p>
           </div>
 
           {/* User / Role Selector */}
           <div className="bg-white dark:bg-[#18191E] rounded-2xl p-3 border border-gray-100 dark:border-zinc-800/70 shadow-[0_4px_12px_rgba(0,0,0,0.015)] space-y-2">
-            <div className="text-[9px] uppercase font-bold text-gray-400 dark:text-zinc-500 tracking-wider px-0.5 flex items-center justify-between">
+            <div className="text-[9px] uppercase font-bold text-stone-600 dark:text-zinc-400 tracking-wider px-0.5 flex items-center justify-between">
               <span>Acceso de Usuario</span>
               {loggedUser && (
                 <span className="inline-flex items-center gap-1 text-[9px] font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 px-1.5 py-0.5 rounded-full">
@@ -664,7 +664,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
         </div>
 
         {/* Back to landing */}
-        <div className="flex flex-col gap-1.5 pt-1 text-[10px] text-gray-400 dark:text-zinc-500">
+        <div className="flex flex-col gap-1.5 pt-1 text-[10px] text-stone-600 dark:text-zinc-400">
           <div className="flex items-center justify-between">
             <button
               onClick={onBackToLanding}

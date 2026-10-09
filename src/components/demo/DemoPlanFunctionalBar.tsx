@@ -77,7 +77,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
               <Activity className="w-3 h-3 text-[#E67E22]" />
               SISTEMA DE GESTIÓN OPERATIVO (PMS)
             </span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono border bg-stone-50 dark:bg-zinc-900 text-stone-500 dark:text-stone-400 border-stone-200/60 dark:border-zinc-800">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-mono border bg-stone-50 dark:bg-zinc-900 text-stone-600 dark:text-stone-300 border-stone-200/60 dark:border-zinc-800">
               <MonitorCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
               Software en tu PC & Móvil
             </span>
@@ -90,7 +90,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
               />
               <span>Panel Operativo del Sistema (PMS)</span>
             </h2>
-            <p className="text-xs leading-relaxed text-stone-500 dark:text-stone-400 font-medium">
+            <p className="text-xs leading-relaxed text-stone-600 dark:text-stone-300 font-normal">
               <strong>Estás en tu centro de trabajo diario:</strong> esta interfaz es el software real donde administrás el calendario iCal, asignás limpiezas a mucamas y registrás cobros.
             </p>
           </div>
@@ -100,7 +100,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
               <Calendar className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#E67E22]" />
               <div>
                 <p className="font-semibold text-stone-800 dark:text-stone-200">Calendario iCal</p>
-                <p className="text-[10px] text-stone-400 dark:text-stone-500">Sincronización total</p>
+                <p className="text-[10px] text-stone-600 dark:text-stone-400">Sincronización total</p>
               </div>
             </div>
 
@@ -108,7 +108,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
               <DollarSign className="w-3.5 h-3.5 shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
               <div>
                 <p className="font-semibold text-stone-800 dark:text-stone-200">Caja & Cobros</p>
-                <p className="text-[10px] text-stone-400 dark:text-stone-500">Señas y arqueos</p>
+                <p className="text-[10px] text-stone-600 dark:text-stone-400">Señas y arqueos</p>
               </div>
             </div>
 
@@ -116,7 +116,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
               <Smartphone className="w-3.5 h-3.5 shrink-0 mt-0.5 text-purple-600 dark:text-purple-400" />
               <div>
                 <p className="font-semibold text-stone-800 dark:text-stone-200">App Mucamas & QR</p>
-                <p className="text-[10px] text-stone-400 dark:text-stone-500">Guía y sábanas</p>
+                <p className="text-[10px] text-stone-600 dark:text-stone-400">Guía y sábanas</p>
               </div>
             </div>
           </div>

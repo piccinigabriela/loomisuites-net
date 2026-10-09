@@ -30,6 +30,7 @@ interface WelcomeGuideHubProps {
   initialTemplate?: LandingTemplate;
   onSelectSubTab?: (subTab: 'landing-booking' | 'guest-view' | 'admin-view') => void;
   onSelectTemplate?: (template: LandingTemplate) => void;
+  onBackToPanel?: () => void;
 }
 
 export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
@@ -40,6 +41,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
   initialTemplate,
   onSelectSubTab,
   onSelectTemplate,
+  onBackToPanel,
 }) => {
   const [internalSubTab, setInternalSubTab] = useState<'landing-booking' | 'guest-view' | 'admin-view'>('guest-view');
   const [internalTemplate, setInternalTemplate] = useState<LandingTemplate>('dos-aguas');
@@ -403,6 +405,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
                 isMobilePreview={isMobileFrame}
                 template={selectedTemplate}
                 onSelectTemplate={handleSetTemplate}
+                onBackToPanel={onBackToPanel}
               />
             </div>
           )}
@@ -417,6 +420,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
               properties={properties}
               activeTemplate={selectedTemplate}
               onSelectTemplate={handleSetTemplate}
+              onBackToPanel={onBackToPanel || (() => handleSetSubTab('guest-view'))}
             />
           )}
         </div>

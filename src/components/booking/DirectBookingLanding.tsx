@@ -43,6 +43,7 @@ interface DirectBookingLandingProps {
   properties: Property[];
   activeTemplate?: LandingTemplate;
   onSelectTemplate?: (template: LandingTemplate) => void;
+  onBackToPanel?: () => void;
 }
 
 export type LandingTemplate =
@@ -58,7 +59,25 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
   properties,
   activeTemplate,
   onSelectTemplate,
+  onBackToPanel,
 }) => {
+  // Safe exit handler to return back to panel without getting trapped
+  const handleBackToPanel = () => {
+    if (onBackToPanel) {
+      onBackToPanel();
+    } else {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('tab');
+        url.searchParams.delete('view');
+        url.searchParams.set('tab', 'overview');
+        window.history.pushState({}, '', url.toString());
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      } catch {
+        window.location.href = '/?tab=overview';
+      }
+    }
+  };
   // Visual template state (3 Modelos Oficiales de Loomi Suite)
   const [internalTemplate, setInternalTemplate] = useState<LandingTemplate>('dos-aguas');
   const selectedTemplate = activeTemplate || internalTemplate;
@@ -247,17 +266,31 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
         : 'bg-[#FAF8F5] text-stone-900'
     }`}>
       {/* ========================================================================= */}
-      {/* SELECTOR FLOTANTE ELEGANTE DE MODELOS (DOCK FLOTANTE CON ACCESO DIRECTO)   */}
+      {/* BOTÓN FLOTANTE FIJO DE SALIDA: VOLVER AL PANEL (SIEMPRE VISIBLE)          */}
       {/* ========================================================================= */}
-      <div className="fixed top-3 sm:top-4 right-3 sm:right-6 z-50 font-sans pointer-events-auto">
+      <div className="fixed top-16 sm:top-20 left-3 sm:left-6 z-30 font-sans pointer-events-auto">
+        <button
+          onClick={handleBackToPanel}
+          className="bg-stone-900/95 hover:bg-black text-white px-3.5 py-2 rounded-xl text-xs font-semibold shadow-2xl border border-white/15 flex items-center gap-2 backdrop-blur-md cursor-pointer transition-all hover:scale-105 active:scale-95 group"
+          title="Volver al Panel de Control de Loomi Suite"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 text-[#E67E22] group-hover:-translate-x-0.5 transition-transform" />
+          <span>← Volver al Panel</span>
+        </button>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* SELECTOR FLOTANTE ELEGANTE DE MODELOS (DOCK FLOTANTE DEBAJO DE BARRA TOP)  */}
+      {/* ========================================================================= */}
+      <div className="fixed top-16 sm:top-20 right-3 sm:right-6 z-30 font-sans pointer-events-auto flex items-center gap-2">
         {showSimulatorBar ? (
-          <div className="bg-[#181614]/90 backdrop-blur-xl border border-stone-700/60 rounded-2xl p-2 sm:p-2.5 shadow-2xl flex items-center gap-2 text-xs text-stone-200 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-[#181614]/95 backdrop-blur-xl border border-stone-700/70 rounded-2xl p-2 sm:p-2.5 shadow-2xl flex items-center gap-2 text-xs text-stone-200 animate-in fade-in zoom-in-95 duration-200">
             <span className="text-[10px] font-mono text-stone-400 uppercase px-1 hidden sm:inline">Modelos Oficiales:</span>
             <div className="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/10">
               <button
                 onClick={() => setSelectedTemplate('dos-aguas')}
                 className={`px-3 py-1.5 text-[11px] font-medium rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                  isDosAguas ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-stone-400 hover:text-white'
+                  isDosAguas ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-stone-300 hover:text-white'
                 }`}
                 title="Refugio Dos Aguas • Glamping & Bosque"
               >
@@ -267,7 +300,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
               <button
                 onClick={() => setSelectedTemplate('corte-vette')}
                 className={`px-3 py-1.5 text-[11px] font-medium rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                  isCorteVette ? 'bg-[#9E3D31] text-white font-bold shadow-xs' : 'text-stone-400 hover:text-white'
+                  isCorteVette ? 'bg-[#9E3D31] text-white font-bold shadow-xs' : 'text-stone-300 hover:text-white'
                 }`}
                 title="Corte delle Vette • Bodega Lodge"
               >
@@ -277,7 +310,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
               <button
                 onClick={() => setSelectedTemplate('medano-blanco')}
                 className={`px-3 py-1.5 text-[11px] font-medium rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                  isMedanoBlanco ? 'bg-amber-600 text-white font-bold shadow-xs' : 'text-stone-400 hover:text-white'
+                  isMedanoBlanco ? 'bg-amber-600 text-white font-bold shadow-xs' : 'text-stone-300 hover:text-white'
                 }`}
                 title="Médano Blanco • Posada Costera"
               >
@@ -289,7 +322,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
             {/* Minimize button */}
             <button
               onClick={() => setShowSimulatorBar(false)}
-              className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-stone-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer ml-1"
+              className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer ml-1"
               title="Minimizar selector"
             >
               <X className="w-3.5 h-3.5" />
@@ -297,17 +330,19 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
           </div>
         ) : (
           /* Compact Floating Badge to Switch Designs */
-          <button
-            onClick={() => setShowSimulatorBar(true)}
-            className="px-3.5 py-2 rounded-full bg-black/85 hover:bg-black text-[#E67E22] border border-[#E67E22]/40 text-xs font-mono backdrop-blur-md shadow-xl flex items-center gap-2 transition-all cursor-pointer hover:scale-105"
-            title="Cambiar modelo web oficial"
-          >
-            <Palette className="w-3.5 h-3.5 text-[#E67E22]" />
-            <span className="font-sans font-medium text-[11px] text-white">
-              {isDosAguas ? '🌲 Refugio Dos Aguas' : isCorteVette ? '🍷 Corte delle Vette' : '🌊 Médano Blanco'}
-            </span>
-            <span className="text-[10px] text-stone-400 ml-0.5">▼</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowSimulatorBar(true)}
+              className="px-3.5 py-2 rounded-full bg-black/90 hover:bg-black text-[#E67E22] border border-[#E67E22]/40 text-xs font-mono backdrop-blur-md shadow-xl flex items-center gap-2 transition-all cursor-pointer hover:scale-105"
+              title="Cambiar modelo web oficial"
+            >
+              <Palette className="w-3.5 h-3.5 text-[#E67E22]" />
+              <span className="font-sans font-medium text-[11px] text-white">
+                {isDosAguas ? '🌲 Refugio Dos Aguas' : isCorteVette ? '🍷 Corte delle Vette' : '🌊 Médano Blanco'}
+              </span>
+              <span className="text-[10px] text-stone-300 ml-0.5">▼</span>
+            </button>
+          </div>
         )}
       </div>
 

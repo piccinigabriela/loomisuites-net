@@ -122,7 +122,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
           </h2>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs font-light text-gray-400 dark:text-zinc-500 bg-white dark:bg-zinc-800/50 px-3 py-1.5 rounded-xl border border-gray-100 dark:border-zinc-700/60 shadow-2xs">
+          <span className="text-xs font-normal text-stone-600 dark:text-zinc-300 bg-white dark:bg-zinc-800/50 px-3 py-1.5 rounded-xl border border-gray-100 dark:border-zinc-700/60 shadow-2xs">
             {formatDisplayDate(today)}
           </span>
         </div>
@@ -133,14 +133,14 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
         {/* Card 1: Ocupación Hoy */}
         <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between hover:border-orange-200/50">
           <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
-            <span className="text-[11px] font-medium text-gray-400 dark:text-zinc-400 truncate">
+            <span className="text-[11px] font-medium text-stone-600 dark:text-zinc-400 truncate">
               Ocupación Hoy
             </span>
             <span className="w-2 h-2 rounded-full bg-[#E67E22] shadow-[0_0_8px_rgba(230,126,34,0.4)] shrink-0" />
           </div>
           <div className="my-2 text-2xl sm:text-3xl font-light text-gray-900 dark:text-gray-100 tracking-tight flex items-baseline gap-1">
             <span className="font-normal text-gray-800 dark:text-gray-100">{demoState.properties.length > 0 ? `1` : `0`}</span>
-            <span className="text-xs font-light text-gray-400 dark:text-zinc-500">
+            <span className="text-xs font-normal text-stone-600 dark:text-zinc-400">
               /{demoState.properties.length}
             </span>
           </div>
@@ -153,7 +153,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
         {userRole === 'admin' ? (
           <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-zinc-800/80 shadow-[0_4px_16px_rgba(0,0,0,0.015)] transition-all flex flex-col justify-between hover:border-emerald-200/50">
             <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
-              <span className="text-[11px] font-medium text-gray-400 dark:text-zinc-400 truncate">
+              <span className="text-[11px] font-medium text-stone-600 dark:text-zinc-400 truncate">
                 Ingresos Mes
               </span>
               <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)] shrink-0" />

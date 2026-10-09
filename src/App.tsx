@@ -46,6 +46,7 @@ import { DemoMessages } from './components/demo/DemoMessages';
 import { DemoFinances } from './components/demo/DemoFinances';
 import { DemoCashDrawer } from './components/demo/DemoCashDrawer';
 import { WelcomeGuideHub } from './components/guide/WelcomeGuideHub';
+import { DirectBookingLanding } from './components/booking/DirectBookingLanding';
 import { XeniaCopilotView } from './components/xenia/XeniaCopilotView';
 import { XeniaFloatingWidget } from './components/xenia/XeniaFloatingWidget';
 import { NewReservationModal } from './components/demo/NewReservationModal';
@@ -1089,7 +1090,7 @@ export default function App() {
           {/* Main Content Area */}
           <div className="flex-1 flex flex-col min-w-0 bg-[#F8F9FA] dark:bg-[#0E0F12] overflow-y-auto transition-colors">
             {/* Minimalist Architectural Top Sub-bar with fast actions & status */}
-            <div className="h-14 border-b border-stone-200/80 dark:border-zinc-800/80 px-4 sm:px-6 flex items-center justify-between bg-white/80 dark:bg-[#0E0F12]/80 sticky top-0 z-20 backdrop-blur-md transition-colors">
+            <div className="h-14 border-b border-stone-200/80 dark:border-zinc-800/80 px-4 sm:px-6 flex items-center justify-between bg-white/90 dark:bg-[#0E0F12]/90 sticky top-0 z-40 backdrop-blur-md transition-colors">
               <div className="flex items-center gap-2 sm:gap-3">
                 <button
                   onClick={() => setIsMobileSidebarOpen(true)}
@@ -1101,7 +1102,7 @@ export default function App() {
                 </button>
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" />
-                  <span className="text-xs font-medium text-stone-500 dark:text-stone-400 truncate max-w-[140px] sm:max-w-none">
+                  <span className="text-xs font-medium text-stone-600 dark:text-stone-300 truncate max-w-[140px] sm:max-w-none">
                     {activeComplex === 'catalinas'
                       ? 'Catalinas Apartamentos (CABA)'
                       : activeComplex === 'woodcabin'
@@ -1121,6 +1122,8 @@ export default function App() {
                     ? 'Rendimiento'
                     : demoTab === 'welcome-guide'
                     ? 'Guía Huésped'
+                    : demoTab === 'direct-booking'
+                    ? 'Tu Web Directa'
                     : demoTab === 'properties'
                     ? 'Departamentos'
                     : demoTab === 'addons'
@@ -1143,14 +1146,14 @@ export default function App() {
                   </button>
                   <button
                     onClick={() => handleRoleChange('frontdesk')}
-                    className="px-2.5 py-1 rounded-lg text-xs font-medium text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white transition-colors cursor-pointer"
+                    className="px-2.5 py-1 rounded-lg text-xs font-medium text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white transition-colors cursor-pointer"
                     title="Recepción (/recepcion): Mostrador PC/tablet"
                   >
                     🛎️ Recepción
                   </button>
                   <button
                     onClick={() => handleRoleChange('housekeeping')}
-                    className="px-2.5 py-1 rounded-lg text-xs font-medium text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white transition-colors cursor-pointer"
+                    className="px-2.5 py-1 rounded-lg text-xs font-medium text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white transition-colors cursor-pointer"
                     title="Housekeeping (/limpieza): PWA Smartphone"
                   >
                     🧹 Mucamas
@@ -1197,7 +1200,7 @@ export default function App() {
                     {isDemoPlanBarDismissed && (
                       <button
                         onClick={handleShowDemoPlanBar}
-                        className="text-xs font-medium text-stone-500 hover:text-[#E67E22] dark:text-stone-400 dark:hover:text-stone-200 transition-colors cursor-pointer hidden md:flex items-center gap-1 px-2.5 py-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-zinc-800"
+                        className="text-xs font-medium text-stone-600 hover:text-[#E67E22] dark:text-stone-400 dark:hover:text-stone-200 transition-colors cursor-pointer hidden md:flex items-center gap-1 px-2.5 py-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-zinc-800"
                         title="Ver guía y simulador de planes"
                       >
                         <span>💡 Guía Planes</span>
@@ -1205,11 +1208,11 @@ export default function App() {
                     )}
                     <button
                       onClick={handleResetData}
-                      className="text-xs font-medium text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors cursor-pointer hidden md:inline"
+                      className="text-xs font-medium text-stone-600 hover:text-stone-900 dark:hover:text-stone-200 transition-colors cursor-pointer hidden md:inline"
                     >
                       Restablecer
                     </button>
-                    <span className="text-stone-200 dark:text-zinc-800 hidden md:inline">|</span>
+                    <span className="text-stone-300 dark:text-zinc-800 hidden md:inline">|</span>
                     <button
                       onClick={() => {
                         setSelectedPlanForLead('Plan Cabañas & Deptos (Demo)');
@@ -1360,6 +1363,7 @@ export default function App() {
                   initialTemplate={guideTemplate}
                   onSelectSubTab={setGuideSubTab}
                   onSelectTemplate={setGuideTemplate}
+                  onBackToPanel={() => setDemoTab('overview')}
                   onUpdateGuideData={(updated) => {
                     updateDemoState((prev) => ({
                       ...prev,
@@ -1368,6 +1372,16 @@ export default function App() {
                     }));
                     showToast('Guía de Bienvenida y datos actualizados en vivo');
                   }}
+                />
+              )}
+
+              {demoTab === 'direct-booking' && (
+                <DirectBookingLanding
+                  guideData={demoState.welcomeGuide || INITIAL_WELCOME_GUIDE}
+                  properties={demoState.properties}
+                  activeTemplate={guideTemplate}
+                  onSelectTemplate={setGuideTemplate}
+                  onBackToPanel={() => setDemoTab('overview')}
                 />
               )}
 

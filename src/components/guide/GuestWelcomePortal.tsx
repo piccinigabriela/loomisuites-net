@@ -38,6 +38,7 @@ import {
   FileText,
   Palette,
   CheckCircle2,
+  ArrowLeft,
 } from 'lucide-react';
 import { WelcomeGuideData, AttractionItem, DiningItem } from '../../types';
 
@@ -59,6 +60,7 @@ interface GuestWelcomePortalProps {
   pinCode?: string;
   template?: PortalTheme;
   onSelectTemplate?: (template: PortalTheme) => void;
+  onBackToPanel?: () => void;
 }
 
 // Pre-defined appliance guides
@@ -202,6 +204,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
   pinCode: propPinCode,
   template: propTemplate,
   onSelectTemplate,
+  onBackToPanel,
 }) => {
   // Theme state: 'dos-aguas' (default), 'corte-vette', 'medano-blanco'
   const [internalTemplate, setInternalTemplate] = useState<PortalTheme>('dos-aguas');
@@ -436,12 +439,36 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
 
   return (
     <div className="space-y-4">
+      {/* Botón flotante al ver en Pantalla Completa para que el usuario nunca quede atrapado */}
+      {!isMobilePreview && onBackToPanel && (
+        <div className="fixed top-16 sm:top-20 left-3 sm:left-6 z-30 font-sans pointer-events-auto">
+          <button
+            onClick={onBackToPanel}
+            className="bg-stone-900/95 hover:bg-black text-white px-3.5 py-2 rounded-xl text-xs font-semibold shadow-2xl border border-white/15 flex items-center gap-2 backdrop-blur-md cursor-pointer transition-all hover:scale-105 active:scale-95 group"
+            title="Volver al Panel de Control de Loomi Suite"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-[#E67E22] group-hover:-translate-x-0.5 transition-transform" />
+            <span>← Volver al Panel</span>
+          </button>
+        </div>
+      )}
+
       {/* Selector Coherente de Estilo Visual para la Guía */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-stone-900 text-white p-3 sm:px-4 rounded-xl text-xs font-sans border border-stone-800 shadow-sm">
-        <div className="flex items-center gap-2">
-          <Palette className="w-4 h-4 text-amber-400" />
+        <div className="flex items-center gap-2.5">
+          {onBackToPanel && (
+            <button
+              onClick={onBackToPanel}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 border border-stone-700 shadow-xs"
+              title="Volver a la vista del panel"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-[#E67E22]" />
+              <span>← Volver al Panel</span>
+            </button>
+          )}
+          <Palette className="w-4 h-4 text-amber-400 shrink-0" />
           <span className="font-bold">Estética Visual Coherente:</span>
-          <span className="text-stone-400 text-[11px] hidden md:inline">
+          <span className="text-stone-300 text-[11px] hidden md:inline">
             (La guía adapta tipografía, colores y ambientación al diseño que elegiste en Tu Web)
           </span>
         </div>
@@ -450,7 +477,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
           <button
             onClick={() => handleSetTemplate('dos-aguas')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
-              isDosAguas ? 'bg-emerald-600 text-white shadow-xs' : 'text-stone-400 hover:text-white'
+              isDosAguas ? 'bg-emerald-600 text-white shadow-xs' : 'text-stone-300 hover:text-white'
             }`}
             title="Refugio Dos Aguas • Glamping & Bosque"
           >
@@ -460,7 +487,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
           <button
             onClick={() => handleSetTemplate('corte-vette')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
-              isCorteVette ? 'bg-[#9E3D31] text-white shadow-xs' : 'text-stone-400 hover:text-white'
+              isCorteVette ? 'bg-[#9E3D31] text-white shadow-xs' : 'text-stone-300 hover:text-white'
             }`}
             title="Corte delle Vette • Bodega Lodge"
           >
@@ -470,7 +497,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
           <button
             onClick={() => handleSetTemplate('medano-blanco')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
-              isMedanoBlanco ? 'bg-amber-600 text-white shadow-xs' : 'text-stone-400 hover:text-white'
+              isMedanoBlanco ? 'bg-amber-600 text-white shadow-xs' : 'text-stone-300 hover:text-white'
             }`}
             title="Médano Blanco • Posada Costera"
           >
