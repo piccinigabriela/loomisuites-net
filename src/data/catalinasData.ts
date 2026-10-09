@@ -230,12 +230,12 @@ export const CATALINAS_WELCOME_GUIDE: WelcomeGuideData = {
   directBookingSettings: {
     customSlug: 'catalinas-apartamentos',
     depositPercentage: 50,
-    bankAlias: 'CATALINAS.APTOS.GABI',
+    bankAlias: 'CATALINAS.APTOS',
     cbu: '0720123988000034567890',
-    bankName: 'Banco Santander Río',
-    accountHolder: 'Gabriela Piccini',
+    bankName: 'Transferencia Bancaria Directa',
+    accountHolder: 'Catalinas Apartamentos',
     mercadoPagoLink: 'https://link.mercadopago.com.ar/catalinasapartamentos',
-    paypalLink: 'https://paypal.me/gabrielapiccini',
+    paypalLink: 'https://paypal.me/catalinasapartamentos',
     directDiscountPercent: 15,
   },
 };

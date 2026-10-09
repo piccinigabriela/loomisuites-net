@@ -140,7 +140,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Ej: Gabriela Piccini"
+                  placeholder="Ej: Laura Gómez"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-[#48372b] bg-zinc-50 dark:bg-[#121110] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-hidden focus:border-[#c46d45] text-sm"
                 />
               </div>
@@ -201,10 +201,8 @@ export const LeadModal: React.FC<LeadModalProps> = ({
                     onChange={(e) => setPropertiesCount(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-[#48372b] bg-zinc-50 dark:bg-[#121110] text-zinc-900 dark:text-zinc-100 focus:outline-hidden focus:border-[#c46d45] text-sm"
                   >
-                    <option value="4-10">4 a 10 unidades ($45.000 / mes)</option>
-                    <option value="10-20">10 a 20 unidades ($60.000 / mes)</option>
-                    <option value="20-30">20 a 30 unidades ($80.000 / mes)</option>
-                    <option value="30+">Más de 30 unidades (Personalizado)</option>
+                    <option value="hasta-20">Complejo completo (Hasta 20 unidades) • $60.000 / mes</option>
+                    <option value="20+">Más de 20 unidades (Plan personalizado)</option>
                   </select>
                 </div>
               </div>

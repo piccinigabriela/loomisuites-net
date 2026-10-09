@@ -422,7 +422,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                       </div>
 
                       <div className="flex items-center gap-3 text-[11px] text-stone-400 font-light flex-wrap">
-                        <span>Del <strong>{res.checkIn}</strong> al <strong>{res.checkOut}</strong></span>
+                        <span>Del <strong>{formatDisplayDate(res.checkIn)}</strong> al <strong>{formatDisplayDate(res.checkOut)}</strong></span>
                         <span>• Total: <strong>{formatCurrency(res.totalAmount, 'USD')}</strong></span>
                         <span className={res.paymentStatus === 'paid' ? 'text-emerald-600 font-medium' : 'text-amber-600 font-medium'}>
                           • {res.paymentStatus === 'paid' ? 'Pagado 100%' : 'Saldo pendiente'}
@@ -608,7 +608,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                       <p className="text-[10px] text-stone-400">{m.paymentMethod}</p>
                     </div>
                     <span className={`font-mono font-semibold shrink-0 ${m.type === 'ingreso' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                      {m.type === 'ingreso' ? '+' : '-'}${m.amount.toLocaleString()}
+                      {m.type === 'ingreso' ? '+' : '-'}${m.amount.toLocaleString('es-AR')}
                     </span>
                   </div>
                 ))}
@@ -649,8 +649,8 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
               <GuestWelcomeCard
                 guestName={selectedResForCard.guestName}
                 propertyName={getProp(selectedResForCard.propertyId)?.name || 'Tu Alojamiento'}
-                checkInDate={selectedResForCard.checkIn}
-                checkOutDate={selectedResForCard.checkOut}
+                checkInDate={formatDisplayDate(selectedResForCard.checkIn)}
+                checkOutDate={formatDisplayDate(selectedResForCard.checkOut)}
                 checkInTime="14:00 hs"
                 accessCode={selectedResForCard.pinCode || '1024'}
                 wifiNetwork={getProp(selectedResForCard.propertyId)?.wifiNetwork || 'Loomi_Fibra_Optica'}

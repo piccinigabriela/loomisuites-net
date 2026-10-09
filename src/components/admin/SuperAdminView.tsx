@@ -139,9 +139,9 @@ export const SuperAdminView: React.FC<SuperAdminViewProps> = ({
       if (raw) return JSON.parse(raw);
     } catch {}
     return {
-      accountHolder: 'Gabriela Piccini (Loomi Suite)',
-      bankName: 'Banco Santander / Transferencia Bancaria',
-      cuit: '27-XXXXXXXX-X',
+      accountHolder: 'Administración Loomi Suite',
+      bankName: 'Transferencia Bancaria Directa (CBU / Alias)',
+      cuit: '30-XXXXXXXX-X',
       cbu: '0000003100000000000000',
       alias: 'LOOMI.SUITE.PAGOS',
       contactEmail: 'pagos@loomisuite.net',
@@ -282,7 +282,7 @@ contacto@loomisuite.net`
           {
             id: 'default',
             name: 'Catalinas Apartamentos',
-            ownerName: 'Gabriela Piccini',
+            ownerName: 'Administración Catalinas',
             type: 'Departamentos Turísticos',
             city: 'Buenos Aires, CABA',
             adminEmail: 'contacto@catalinas.com',

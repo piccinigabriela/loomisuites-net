@@ -172,10 +172,10 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               {/* Sutil Category Badges */}
               <div className="pt-2 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs font-medium">
                 <span className="px-3.5 py-1.5 rounded-xl bg-gray-50 dark:bg-zinc-800/80 text-slate-800 dark:text-zinc-300 border border-gray-200 dark:border-white/5 shrink-0">
-                  🌲 Glampings & Bungalows
+                  🌲 Cabañas & Bungalows
                 </span>
                 <span className="px-3.5 py-1.5 rounded-xl bg-[#FDF3E7] text-[#E67E22] dark:bg-orange-950/40 dark:text-orange-300 border border-orange-100/60 dark:border-orange-900/30 shrink-0">
-                  ⛺ Domos & Lodges
+                  ⛺ Glampings & Domos
                 </span>
                 <span className="px-3.5 py-1.5 rounded-xl bg-gray-50 dark:bg-zinc-800/80 text-slate-800 dark:text-zinc-300 border border-gray-200 dark:border-white/5 shrink-0">
                   🏢 Deptos Turísticos

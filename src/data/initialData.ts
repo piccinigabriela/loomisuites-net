@@ -582,18 +582,18 @@ export const INITIAL_TEMPLATES: MessageTemplate[] = [
 const LOCAL_STORAGE_KEY = 'loomisuite_demo_state_v5';
 
 export const INITIAL_WELCOME_GUIDE: WelcomeGuideData = {
-  propertyName: 'Tu Complejo',
+  propertyName: 'Catalinas Apartamentos',
   tagline: 'Guía Digital de Bienvenida Interactiva • Buenos Aires, Argentina',
   hostName: 'Administración',
   hostPhone: '+54 9 11 5555-0100',
-  locationAddress: 'Av. de Mayo 100, San Telmo / Monserrat, Buenos Aires',
-  googleMapsUrl: 'https://maps.google.com/?q=Plaza+de+Mayo+Buenos+Aires',
-  wifiNetwork: 'TuComplejo_Huespedes_5G',
-  wifiPassword: 'ComplejoDemo2026',
-  poolHours: '08:00 a 21:00 hs (Toallones provistos en el vestidor de terraza)',
-  checkoutHour: '11:00 hs (Late check-out consultar previamente)',
-  woodBagPrice: 'Servicio de Mucama Extra: $15.000 ARS',
-  specialAnnouncement: '🏙️ ¡Bienvenidos a Tu Complejo! Guardá este link en tu celular: tenés la ubicación exacta, clave de WiFi en 1 clic, atracciones locales y todo para disfrutar tu estadía.',
+  locationAddress: 'Tres Sargentos 400, Retiro / Catalinas Norte, CABA',
+  googleMapsUrl: 'https://maps.google.com/?q=Tres+Sargentos+Retiro+Buenos+Aires',
+  wifiNetwork: 'CatalinasAptos_Fibra_5G',
+  wifiPassword: 'CatalinasDemo2026',
+  poolHours: 'No aplica (Edificio residencial urbano con seguridad y ascensor)',
+  checkoutHour: '10:00 hs (Consultar con Recepción para custodia de equipaje)',
+  woodBagPrice: 'Servicio de Mucama Extra: $18 USD / $18.000 ARS',
+  specialAnnouncement: '🏙️ ¡Bienvenidos a Catalinas Apartamentos! Guardá este link en tu celular: tenés la ubicación exacta, clave de WiFi en 1 clic, atracciones de la ciudad y todo para disfrutar tu estadía.',
   transportation: [
     {
       id: 'trans-1',

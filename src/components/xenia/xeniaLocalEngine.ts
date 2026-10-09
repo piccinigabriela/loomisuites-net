@@ -38,11 +38,12 @@ function formatFriendlyDates(checkIn: string, checkOut: string): string {
   return `${checkIn} al ${checkOut}`;
 }
 
-export function getClientXeniaReply(message: string, demoState: DemoState): string {
+export function getClientXeniaReply(message: string, demoState?: DemoState | any): string {
   const q = (message || '').toLowerCase().trim();
-  const properties = demoState.properties || [];
-  const reservations = demoState.reservations || [];
-  const cleaningTasks = demoState.cleaningTasks || [];
+  const safeState = demoState || {};
+  const properties = safeState.properties || [];
+  const reservations = safeState.reservations || [];
+  const cleaningTasks = safeState.cleaningTasks || [];
   const p0 = properties[0];
 
   // =========================================================================
@@ -109,7 +110,7 @@ Quedamos a tu completa disposición para asistirte en lo que precises.`;
   ) {
     const wifiNet = p0?.wifiNetwork || 'Loomi_Fibra_Optica';
     const wifiPass = p0?.wifiPassword || 'Bienvenido2026';
-    const pin = (contextData?.reservations?.[0]?.pinCode) || '1024';
+    const pin = (demoState?.reservations?.[0]?.pinCode) || '1024';
     const address = p0?.address || 'Tres Sargentos 400, Retiro / Catalinas Norte, CABA';
 
     return `¡Hola! Con gusto te paso los datos para tu llegada y estancia:
@@ -816,7 +817,7 @@ Puedo responderte al instante sobre cualquier tema operativo o comercial:
 2. **💰 Ganancias y Finanzas:** Pregúntame *"¿Cuál es mi ganancia en octubre?"*, cuánta plata ingresó o cuánto ahorraste en comisiones de Airbnb y Booking.
 3. **🔑 Llaves y Limpieza:** Pregúntame cómo operar con llaves comunes tradicionales o cómo coordinar con la mucama.
 4. **🔄 Sincronización:** Pregúntame cómo conectar Booking y Airbnb para evitar dobles reservas.
-5. **🏷️ Planes y Precios:** Pregúntame cuánto cuesta Loomi ($45.000 ARS) y cómo se paga por transferencia o Mercado Pago.
+5. **🏷️ Planes y Precios:** Pregúntame cuánto cuesta Loomi Suite ($60.000 ARS/mes) y cómo se paga por transferencia o Mercado Pago.
 
 *¿Qué te gustaría consultar o resolver?*`;
 }

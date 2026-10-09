@@ -524,7 +524,7 @@ export const ClientAuthModal: React.FC<ClientAuthModalProps> = ({
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Ej: Gabriela Piccini"
+                  placeholder="Ej: Martín Rodríguez"
                   className="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-gray-50/70 dark:bg-zinc-800/40 border border-gray-100 dark:border-zinc-700/70 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-200 text-xs font-light text-gray-800 dark:text-gray-100 transition-all placeholder:text-gray-300"
                 />
               </div>
