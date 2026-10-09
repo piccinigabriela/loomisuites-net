@@ -14,5 +14,10 @@ service cloud.firestore {
     match /leads/{leadId} {
       allow read, write: if true;
     }
+
+    // Registro de cuentas y complejos
+    match /registered_complexes/{docId} {
+      allow read, write: if true;
+    }
   }
 }
