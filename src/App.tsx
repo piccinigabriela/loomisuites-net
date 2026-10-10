@@ -314,18 +314,43 @@ export default function App() {
 
   const isEmployeeMode = userRole === 'housekeeping';
 
-  // Synchronize browser URL history when user navigates roles
+  // Navigation Helpers: Open Demo / Back to Landing with PushState & Default Admin Role
+  const handleOpenDemo = (tab?: string) => {
+    try {
+      window.history.pushState({}, '', '/demo');
+    } catch {}
+    setUserRole('admin');
+    if (tab) {
+      setDemoTab(tab);
+      setMobileMode('full');
+    }
+    setCurrentView('demo');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleBackToLanding = () => {
+    try {
+      window.history.pushState({}, '', '/');
+    } catch {}
+    setCurrentView('landing');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Synchronize browser URL history when user navigates roles or back button
   useEffect(() => {
     const handlePopState = () => {
       try {
         const path = window.location.pathname.toLowerCase();
-        if (path.includes('/recepcion')) {
+        if (path === '/' || path === '' || path === '/index.html') {
+          setCurrentView('landing');
+          window.scrollTo(0, 0);
+        } else if (path.includes('/recepcion')) {
           setUserRole('frontdesk');
           setCurrentView('demo');
         } else if (path.includes('/limpieza')) {
           setUserRole('housekeeping');
           setCurrentView('demo');
-        } else if (path.includes('/admin')) {
+        } else if (path.includes('/admin') || path.includes('/demo')) {
           setUserRole('admin');
           setCurrentView('demo');
         }
@@ -1135,7 +1160,7 @@ export default function App() {
     setLoggedUser(null);
     const fresh = resetDemoState();
     setDemoState(fresh);
-    showToast('Sesión cerrada correctamente. Volviendo a Mi complejo.');
+    showToast('Sesión cerrada. Volviendo a la demo.');
   };
 
   // Loading simple en modo App mientras se verifica la sesión o se cargan los datos del complejo
@@ -1179,10 +1204,7 @@ export default function App() {
             theme={theme}
             onToggleTheme={toggleTheme}
             onOpenLogin={() => setIsAuthModalOpen(true)}
-            onOpenDemo={() => {
-              setCurrentView('demo');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+            onOpenDemo={() => handleOpenDemo()}
             onOpenContact={() => {
               setSelectedPlanForLead(undefined);
               setIsLeadModalOpen(true);
@@ -1191,10 +1213,7 @@ export default function App() {
 
           <BentoLanding
             theme={theme}
-            onOpenDemo={() => {
-              setCurrentView('demo');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+            onOpenDemo={(tab) => handleOpenDemo(tab)}
             onOpenContact={(planOrTopic) => {
               setSelectedPlanForLead(planOrTopic || 'Consulta General');
               setIsLeadModalOpen(true);
@@ -1203,10 +1222,7 @@ export default function App() {
           />
 
           <Footer
-            onOpenDemo={() => {
-              setCurrentView('demo');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+            onOpenDemo={() => handleOpenDemo()}
             onOpenContact={() => {
               setSelectedPlanForLead(undefined);
               setIsLeadModalOpen(true);
@@ -1303,6 +1319,9 @@ export default function App() {
           complexName={demoState.welcomeGuide?.propertyName || 'Mi complejo'}
           onLogout={handleLogout}
           isAppMode={isApp}
+          onBackToLanding={handleBackToLanding}
+          userRole={userRole}
+          onSwitchRole={handleRoleChange}
         />
       ) : (
         /* DUEÑO / ADMINISTRADOR: CONTROL TOTAL DE ESCRITORIO (/admin) */
@@ -1324,14 +1343,7 @@ export default function App() {
             onChangeRole={handleRoleChange}
             theme={theme}
             onToggleTheme={toggleTheme}
-            onBackToLanding={() => {
-              if (isApp) {
-                setDemoTab('overview');
-                return;
-              }
-              setCurrentView('landing');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+            onBackToLanding={handleBackToLanding}
             isMobileOpen={isMobileSidebarOpen}
             onMobileClose={() => setIsMobileSidebarOpen(false)}
             onOpenLogin={() => setIsAuthModalOpen(true)}
@@ -1345,6 +1357,15 @@ export default function App() {
             {/* Minimalist Architectural Top Sub-bar with fast actions & status */}
             <div className="h-14 border-b border-stone-200/80 dark:border-zinc-800/80 px-4 sm:px-6 flex items-center justify-between bg-white/90 dark:bg-[#0E0F12]/90 sticky top-0 z-40 backdrop-blur-md transition-colors">
               <div className="flex items-center gap-2 sm:gap-3">
+                {!isApp && (
+                  <button
+                    onClick={handleBackToLanding}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-stone-700 dark:text-stone-200 bg-stone-100 dark:bg-zinc-800 hover:bg-stone-200 dark:hover:bg-zinc-700 border border-stone-200/80 dark:border-zinc-700 transition-colors cursor-pointer mr-0.5 shadow-2xs"
+                    title="Volver a la landing"
+                  >
+                    <span>← Inicio</span>
+                  </button>
+                )}
                 <button
                   onClick={() => setIsMobileSidebarOpen(true)}
                   className="md:hidden px-2.5 py-1.5 rounded-xl text-xs font-semibold text-stone-700 dark:text-stone-200 bg-stone-50 dark:bg-zinc-800 hover:border-orange-300 border border-stone-200/80 dark:border-zinc-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
@@ -1661,7 +1682,7 @@ export default function App() {
             )}
           </div>
         </div>
-      )}
+    )}
 
       {/* Persistent Floating Xenia AI Assistant (activo en el panel de Demo en escritorio; desactivado en landing y en modo app) */}
       {!isApp && currentView === 'demo' && userRole !== 'frontdesk' && !(mobileMode === 'light' || isEmployeeMode || demoTab === 'direct-booking') && (
@@ -1680,10 +1701,7 @@ export default function App() {
         isOpen={isLeadModalOpen}
         selectedPlan={selectedPlanForLead}
         onClose={() => setIsLeadModalOpen(false)}
-        onOpenDemo={() => {
-          setCurrentView('demo');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
+        onOpenDemo={() => handleOpenDemo()}
       />
 
       <NewReservationModal
@@ -1737,10 +1755,7 @@ export default function App() {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         onSelectComplex={handleSelectComplex}
-        onOpenDemo={() => {
-          setCurrentView('demo');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
+        onOpenDemo={() => handleOpenDemo()}
         currentComplexId={activeComplex}
       />
     </div>

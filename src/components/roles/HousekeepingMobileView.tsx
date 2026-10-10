@@ -150,7 +150,15 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
       )}
 
       {/* Header Ultraliviano para Smartphone (PWA) */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#18191E]/95 backdrop-blur-md border-b border-stone-200/60 dark:border-zinc-800 px-4 py-3 transition-colors">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#18191E]/95 backdrop-blur-md border-b border-stone-200/60 dark:border-zinc-800 px-4 py-2.5 transition-colors space-y-2">
+        <div className="max-w-md mx-auto flex items-center justify-between">
+          <button
+            onClick={() => onSwitchRole('admin')}
+            className="flex items-center gap-1.5 text-xs font-semibold text-[#E67E22] hover:text-[#d35400] bg-orange-50 dark:bg-orange-950/40 px-3 py-1 rounded-xl border border-orange-200/60 dark:border-orange-800/60 transition-colors cursor-pointer"
+          >
+            ← Volver al panel del dueño
+          </button>
+        </div>
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="space-y-0.5">
             <div className="flex items-center gap-1.5">

@@ -96,9 +96,9 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
               <button
                 onClick={onBackToLanding}
                 className="flex items-center gap-1.5 text-xs font-semibold text-stone-300 hover:text-white bg-white/5 hover:bg-white/10 px-3.5 py-2 rounded-xl transition-colors cursor-pointer border border-white/10"
+                title="Volver a la landing"
               >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Volver a la Landing</span>
+                <span>← Inicio</span>
               </button>
 
               <div className="h-6 w-px bg-white/10 hidden sm:block" />

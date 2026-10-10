@@ -49,6 +49,9 @@ interface MobileLightViewProps {
   complexName: string;
   onLogout?: () => void;
   isAppMode?: boolean;
+  onBackToLanding?: () => void;
+  userRole?: 'admin' | 'frontdesk' | 'housekeeping';
+  onSwitchRole?: (role: 'admin' | 'frontdesk' | 'housekeeping') => void;
 }
 
 function formatShortDateRange(checkIn: string, checkOut: string): string {
@@ -83,6 +86,9 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
   complexName,
   onLogout,
   isAppMode = false,
+  onBackToLanding,
+  userRole = 'admin',
+  onSwitchRole,
 }) => {
   // Mobile Active Tab: 'today' | 'units' | 'guests' | 'xenia' | 'more'
   const [mobileTab, setMobileTab] = useState<'today' | 'units' | 'guests' | 'xenia' | 'more'>('guests');
@@ -282,7 +288,32 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
+          {/* Botón "← Inicio" solo en demo y cuando !isAppMode */}
+          {!isAppMode && onBackToLanding && (
+            <button
+              onClick={onBackToLanding}
+              className="px-2.5 py-1.5 rounded-xl bg-[#DDD7CD]/70 dark:bg-zinc-800 text-gray-800 dark:text-gray-200 text-xs font-semibold hover:bg-[#DDD7CD] transition-colors cursor-pointer flex items-center gap-1"
+              title="Volver a la landing"
+            >
+              ← Inicio
+            </button>
+          )}
+
+          {/* Selector chico de rol (Dueño / Recepción / Mucamas) */}
+          {onSwitchRole && (
+            <select
+              value={userRole}
+              onChange={(e) => onSwitchRole(e.target.value as 'admin' | 'frontdesk' | 'housekeeping')}
+              className="px-2 py-1.5 rounded-xl bg-[#DDD7CD]/70 dark:bg-zinc-800 text-gray-800 dark:text-gray-200 text-xs font-semibold border-0 focus:ring-1 focus:ring-orange-500 cursor-pointer"
+              title="Cambiar Rol"
+            >
+              <option value="admin">👑 Dueño</option>
+              <option value="frontdesk">🛎️ Recepción</option>
+              <option value="housekeeping">🧹 Mucamas</option>
+            </select>
+          )}
+
           {/* Switch to Full / Desktop view */}
           <button
             onClick={onSwitchToFullView}

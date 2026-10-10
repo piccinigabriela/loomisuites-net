@@ -21,7 +21,7 @@ import {
 } from '../xenia/XeniaAvatar';
 
 interface BentoLandingProps {
-  onOpenDemo: () => void;
+  onOpenDemo: (tab?: string) => void;
   onOpenContact: (planOrTopic?: string) => void;
   onOpenLogin?: () => void;
   theme?: 'light' | 'dark';
@@ -394,9 +394,15 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
 
             <div className="pt-2.5 border-t border-gray-100 dark:border-white/5 flex items-center justify-between text-xs text-slate-700 dark:text-zinc-400 font-medium">
               <span className="text-[#E67E22] font-semibold">0% Comisión Directa</span>
-              <span className="text-slate-900 dark:text-gray-200 font-semibold group-hover:text-[#E67E22] transition-colors flex items-center gap-1">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenDemo('welcome-guide');
+                }}
+                className="text-slate-900 dark:text-gray-200 font-semibold group-hover:text-[#E67E22] transition-colors flex items-center gap-1 cursor-pointer"
+              >
                 Ver diseños →
-              </span>
+              </button>
             </div>
           </div>
 
@@ -593,7 +599,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                   <button
                     onClick={() => {
                       setActiveModule(null);
-                      onOpenDemo();
+                      onOpenDemo('welcome-guide');
                     }}
                     className="px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
                   >
