@@ -329,6 +329,10 @@ export default function App() {
   };
 
   const handleBackToLanding = () => {
+    if (isApp) {
+      setDemoTab('overview');
+      return;
+    }
     try {
       window.history.pushState({}, '', '/');
     } catch {}
@@ -342,8 +346,13 @@ export default function App() {
       try {
         const path = window.location.pathname.toLowerCase();
         if (path === '/' || path === '' || path === '/index.html') {
-          setCurrentView('landing');
-          window.scrollTo(0, 0);
+          if (!isApp) {
+            setCurrentView('landing');
+            window.scrollTo(0, 0);
+          } else {
+            setCurrentView('demo');
+            setUserRole('admin');
+          }
         } else if (path.includes('/recepcion')) {
           setUserRole('frontdesk');
           setCurrentView('demo');
@@ -358,7 +367,7 @@ export default function App() {
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [isApp]);
 
   // State for WelcomeGuideHub subtab & template deep links
   const [guideSubTab, setGuideSubTab] = useState<'landing-booking' | 'guest-view' | 'admin-view'>('guest-view');
