@@ -259,7 +259,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
     : '';
 
   const wifiMessageText = selectedGuestAction
-    ? `¡Hola ${selectedGuestAction.guestName}! Te dejamos los datos de conexión de ${selectedActionProperty?.name || 'tu cabaña'}:\n\n📶 *Red Wi-Fi:* ${selectedActionProperty?.wifiNetwork || 'ComplejoIguazu_Selva_5G'}\n🔑 *Clave:* ${selectedActionProperty?.wifiPassword || 'IguazuDemo2026'}\n📍 *Dirección:* ${selectedActionProperty?.address || 'Ruta Ejemplo km 5, Puerto Iguazú, Misiones'}\n\n¡Que tengas una hermosa estadía!`
+    ? `¡Hola ${selectedGuestAction.guestName}! Te dejamos los datos de conexión de ${selectedActionProperty?.name || 'tu cabaña'}:\n\n📶 *Red Wi-Fi:* ${selectedActionProperty?.wifiNetwork || '(a confirmar)'}\n🔑 *Clave:* ${selectedActionProperty?.wifiPassword || '(a confirmar)'}\n📍 *Dirección:* ${selectedActionProperty?.address || '(a confirmar)'}\n\n¡Que tengas una hermosa estadía!`
     : '';
 
   return (

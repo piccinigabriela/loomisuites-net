@@ -364,9 +364,9 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
             checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '13 de Octubre'}
             checkInTime="14:00 hs"
             accessCode={selectedReservation?.pinCode || '4821'}
-            wifiNetwork={selectedProperty?.wifiNetwork || 'ComplejoIguazu_Selva_5G'}
+            wifiNetwork={selectedProperty?.wifiNetwork || '(a confirmar)'}
             wifiPassword={selectedProperty?.wifiPassword || '(a confirmar)'}
-            address={selectedProperty ? `${selectedProperty.address}` : 'Ruta Ejemplo km 5'}
+            address={selectedProperty?.address ? `${selectedProperty.address}` : '(a confirmar)'}
             guideUrl={`${typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.com'}/guia/${selectedProperty?.id || 'cab-lapacho'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
             hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5493757550100'}
           />
@@ -656,9 +656,9 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                     checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '13 de Octubre'}
                     checkInTime="14:00 hs"
                     accessCode={selectedReservation?.pinCode || '4821'}
-                    wifiNetwork={selectedProperty?.wifiNetwork || 'ComplejoIguazu_Selva_5G'}
-                    wifiPassword={selectedProperty?.wifiPassword || 'IguazuDemo2026'}
-                    address={selectedProperty ? `${selectedProperty.address}` : 'Ruta Ejemplo km 5, Puerto Iguazú, Misiones'}
+                    wifiNetwork={selectedProperty?.wifiNetwork || '(a confirmar)'}
+                    wifiPassword={selectedProperty?.wifiPassword || '(a confirmar)'}
+                    address={selectedProperty?.address ? `${selectedProperty.address}` : '(a confirmar)'}
                     guideUrl={`${typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.com'}/guia/${selectedProperty?.id || 'cab-lapacho'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
                     hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5493757550100'}
                   />

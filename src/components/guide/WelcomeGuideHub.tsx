@@ -64,7 +64,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
 
   // Quick edit state for Wi-Fi in the quick bar
   const [ssidInput, setSsidInput] = useState(guideData.wifiNetwork || 'Iguazu_WiFi');
-  const [passwordInput, setPasswordInput] = useState(guideData.wifiPassword || 'IguazuDemo2026');
+  const [passwordInput, setPasswordInput] = useState(guideData.wifiPassword || '(a confirmar)');
   const [isSavedFeedback, setIsSavedFeedback] = useState(false);
 
   // Compute slug for demo property

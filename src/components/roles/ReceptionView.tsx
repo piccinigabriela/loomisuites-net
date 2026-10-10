@@ -656,9 +656,9 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                 checkOutDate={formatDisplayDate(selectedResForCard.checkOut)}
                 checkInTime="14:00 hs"
                 accessCode={selectedResForCard.pinCode || '1024'}
-                wifiNetwork={getProp(selectedResForCard.propertyId)?.wifiNetwork || 'ComplejoIguazu_Selva_5G'}
-                wifiPassword={getProp(selectedResForCard.propertyId)?.wifiPassword || 'IguazuDemo2026'}
-                address={getProp(selectedResForCard.propertyId)?.address || 'Ruta Ejemplo km 5, Puerto Iguazú, Misiones'}
+                wifiNetwork={getProp(selectedResForCard.propertyId)?.wifiNetwork || '(a confirmar)'}
+                wifiPassword={getProp(selectedResForCard.propertyId)?.wifiPassword || '(a confirmar)'}
+                address={getProp(selectedResForCard.propertyId)?.address || '(a confirmar)'}
                 guideUrl={`https://loomisuite.net/guia/${selectedResForCard.propertyId}`}
                 hostPhone={selectedResForCard.guestPhone || '5493757550100'}
               />
@@ -671,8 +671,8 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                   const prop = getProp(selectedResForCard.propertyId);
                   const text = `¡Hola ${selectedResForCard.guestName}! Te compartimos tu tarjeta de bienvenida digital a ${prop?.name || 'tu cabaña'}:\n\n` +
                     `🔑 Código cerradura: ${selectedResForCard.pinCode || '1024'}\n` +
-                    `📶 Wi-Fi: ${prop?.wifiNetwork || 'ComplejoIguazu_Selva_5G'} (Clave: ${prop?.wifiPassword || 'IguazuDemo2026'})\n` +
-                    `📍 Dirección: ${prop?.address || 'Ruta Ejemplo km 5, Puerto Iguazú, Misiones'}\n` +
+                    `📶 Wi-Fi: ${prop?.wifiNetwork || '(a confirmar)'} (Clave: ${prop?.wifiPassword || '(a confirmar)'})\n` +
+                    `📍 Dirección: ${prop?.address || '(a confirmar)'}\n` +
                     `🌐 Guía completa y mapa: https://loomisuite.net/guia/${selectedResForCard.propertyId}\n\n` +
                     `¡Que tengas un excelente descanso!`;
                   navigator.clipboard.writeText(text);
@@ -686,7 +686,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
 
               <a
                 href={`https://wa.me/${(selectedResForCard.guestPhone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                  `¡Hola ${selectedResForCard.guestName}! Te enviamos tu tarjeta de bienvenida para ingresar a ${getProp(selectedResForCard.propertyId)?.name || 'tu cabaña'}: https://loomisuite.net/guia/${selectedResForCard.propertyId} (Cerradura: ${selectedResForCard.pinCode || '1024'} | Wi-Fi: ${getProp(selectedResForCard.propertyId)?.wifiNetwork || 'ComplejoIguazu_Selva_5G'}). ¡Buen descanso!`
+                  `¡Hola ${selectedResForCard.guestName}! Te enviamos tu tarjeta de bienvenida para ingresar a ${getProp(selectedResForCard.propertyId)?.name || 'tu cabaña'}: https://loomisuite.net/guia/${selectedResForCard.propertyId} (Cerradura: ${selectedResForCard.pinCode || '1024'} | Wi-Fi: ${getProp(selectedResForCard.propertyId)?.wifiNetwork || '(a confirmar)'}). ¡Buen descanso!`
                 )}`}
                 target="_blank"
                 rel="noreferrer"
