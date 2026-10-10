@@ -15,12 +15,14 @@ import {
 } from 'lucide-react';
 import {
   auth,
+  db,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signInWithGooglePopup,
   getAuthErrorMessage,
 } from '../../lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface AppAuthScreenProps {
   onSuccess?: () => void;
@@ -90,7 +92,44 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
     setErrorMessage(null);
 
     try {
-      await createUserWithEmailAndPassword(auth, email.trim(), password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      const user = userCredential.user;
+      const registeredEmail = user?.email || email.trim();
+      const userUid = user?.uid || '';
+
+      // Fondo: aviso por mail y registro de lead en Firestore
+      const nowEsAr = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+
+      // 1) Enviar aviso por mail con fetch POST a Web3Forms
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: '4451c78e-3861-41c1-8c94-f977bbd0c979',
+          subject: 'Nuevo registro en Loomi Suite',
+          from_name: 'Loomi Suite',
+          email: registeredEmail,
+          message: 'Se registró ' + registeredEmail + ' el ' + nowEsAr + '. Prueba de 7 días iniciada.',
+        }),
+      }).catch((err) => {
+        console.warn('Error al enviar aviso de registro a Web3Forms:', err);
+      });
+
+      // 2) Guardar documento en la colección "leads"
+      if (db) {
+        addDoc(collection(db, 'leads'), {
+          type: 'signup',
+          email: registeredEmail,
+          uid: userUid,
+          createdAt: serverTimestamp(),
+        }).catch((err) => {
+          console.warn('Error al guardar documento de lead en Firestore:', err);
+        });
+      }
+
       if (onSuccess) onSuccess();
     } catch (err: any) {
       setErrorMessage(getAuthErrorMessage(err?.code || ''));
