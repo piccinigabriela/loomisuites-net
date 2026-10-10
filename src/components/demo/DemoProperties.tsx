@@ -17,6 +17,9 @@ import {
   CheckCircle2,
   Lock,
   FileText,
+  Plus,
+  Trash2,
+  X,
 } from 'lucide-react';
 import { DemoState, Property } from '../../types';
 import { copyToClipboard } from '../../utils/clipboard';
@@ -25,17 +28,25 @@ import { OnboardingGuideView } from './OnboardingGuideView';
 interface DemoPropertiesProps {
   demoState: DemoState;
   onUpdatePropertyPrice: (propertyId: string, newPrice: number) => void;
+  onSaveProperty?: (property: Property) => void;
+  onDeleteProperty?: (propertyId: string) => void;
   isEmployeeMode?: boolean;
 }
 
 export const DemoProperties: React.FC<DemoPropertiesProps> = ({
   demoState,
   onUpdatePropertyPrice,
+  onSaveProperty,
+  onDeleteProperty,
   isEmployeeMode = false,
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
   const [tempPrice, setTempPrice] = useState<number>(0);
+
+  // Modal State for Create/Edit Property
+  const [modalMode, setModalMode] = useState<'create' | 'edit' | null>(null);
+  const [activeProperty, setActiveProperty] = useState<Property | null>(null);
 
   // Custom Domain state
   const [customDomain, setCustomDomain] = useState<string>('reservas.misalojamientos.com');
@@ -46,7 +57,7 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
   const handleCopyDirectLink = (propertyId: string) => {
     const link = isDomainSaved && customDomain
       ? `https://${customDomain}/${propertyId}`
-      : `https://loomisuite.com/reserva-directa/${propertyId}`;
+      : `${window.location.origin}/reserva-directa/${propertyId}`;
     copyToClipboard(link);
     setCopiedId(propertyId);
     setTimeout(() => setCopiedId(null), 2500);
@@ -57,6 +68,50 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
       onUpdatePropertyPrice(propertyId, tempPrice);
     }
     setEditingPriceId(null);
+  };
+
+  const handleOpenCreate = () => {
+    setActiveProperty({
+      id: `prop-${Date.now()}`,
+      name: 'Nueva Cabaña',
+      type: 'Cabaña',
+      address: demoState.welcomeGuide?.locationAddress || 'Dirección del Complejo',
+      city: 'Complejo',
+      neighborhood: 'Centro',
+      bedrooms: 1,
+      bathrooms: 1,
+      maxGuests: 2,
+      basePrice: 50,
+      cleaningFee: 15,
+      imageUrl: 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=800&q=80',
+      rating: 5.0,
+      reviewsCount: 0,
+      status: 'active',
+      syncStatus: { airbnb: false, booking: false, vrbo: false },
+      smartLock: { enabled: true, brand: 'Yale Smart' },
+      wifiNetwork: '(a confirmar)',
+      wifiPassword: '(a confirmar)',
+    });
+    setModalMode('create');
+  };
+
+  const handleOpenEdit = (prop: Property) => {
+    setActiveProperty({ ...prop });
+    setModalMode('edit');
+  };
+
+  const handleDelete = (propId: string) => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const hasFuture = (demoState.reservations || []).some(
+      (r) => r.propertyId === propId && r.checkOut >= todayStr
+    );
+    if (hasFuture) {
+      alert('⚠️ No se puede borrar la unidad porque tiene reservas futuras activas.');
+      return;
+    }
+    if (confirm('¿Estás seguro de que deseás eliminar esta unidad?')) {
+      onDeleteProperty?.(propId);
+    }
   };
 
   return (
@@ -78,18 +133,18 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
         {!isEmployeeMode && (
           <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
             <button
-              onClick={() => setShowOnboardingGuide(!showOnboardingGuide)}
+              onClick={handleOpenCreate}
               className="flex-1 md:flex-none flex items-center justify-center gap-2 text-xs font-semibold text-white bg-[#E67E22] hover:bg-[#D35400] px-4 py-2 rounded-xl transition-all cursor-pointer shadow-xs active:scale-95"
             >
-              <FileText className="w-3.5 h-3.5" />
-              <span>{showOnboardingGuide ? 'Ocultar Guía' : 'Guía Auto-Configuración'}</span>
+              <Plus className="w-3.5 h-3.5" />
+              <span>Nueva Unidad</span>
             </button>
             <button
-              onClick={() => setShowDomainConfig(!showDomainConfig)}
+              onClick={() => setShowOnboardingGuide(!showOnboardingGuide)}
               className="flex-1 md:flex-none flex items-center justify-center gap-2 text-xs font-semibold text-stone-700 dark:text-stone-200 bg-stone-50 dark:bg-zinc-800 hover:border-orange-300 border border-stone-200/80 dark:border-zinc-700 px-4 py-2 rounded-xl transition-colors cursor-pointer shadow-xs"
             >
-              <Globe className="w-3.5 h-3.5 text-[#E67E22]" />
-              <span>{showDomainConfig ? 'Ocultar Dominio' : 'Dominio Propio'}</span>
+              <FileText className="w-3.5 h-3.5" />
+              <span>{showOnboardingGuide ? 'Ocultar Guía' : 'Guía'}</span>
             </button>
           </div>
         )}
@@ -98,64 +153,9 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
       {/* Onboarding Guide printable cheat sheet card */}
       {showOnboardingGuide && !isEmployeeMode && (
         <OnboardingGuideView
-          complexName={demoState.welcomeGuide?.propertyName || 'Complejo Iguazú (Demo)'}
+          complexName={demoState.welcomeGuide?.propertyName || 'Mi Complejo'}
           onClose={() => setShowOnboardingGuide(false)}
         />
-      )}
-
-      {/* Dominio Propio Configuration Card */}
-      {showDomainConfig && !isEmployeeMode && (
-        <div className="p-5 rounded-2xl bg-white dark:bg-[#18191E] border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] space-y-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-100 dark:border-zinc-800 pb-3">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-950/40 text-[#E67E22] flex items-center justify-center font-bold">
-                <Globe className="w-4 h-4" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-stone-800 dark:text-stone-100">Dominio Propio para Motor Directo</h4>
-                <p className="text-xs text-stone-500 dark:text-stone-400 font-normal">
-                  Vinculación de tu dominio (.com o .com.ar) con certificado SSL gratuito provisto por Loomi.
-                </p>
-              </div>
-            </div>
-            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>SSL Seguro Activo</span>
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-            <div className="md:col-span-8 space-y-1.5">
-              <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300">Tu dominio personalizado:</label>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-stone-400">https://</span>
-                <input
-                  type="text"
-                  value={customDomain}
-                  onChange={(e) => {
-                    setCustomDomain(e.target.value);
-                    setIsDomainSaved(false);
-                  }}
-                  placeholder="ej: reservas.misalojamientos.com"
-                  className="flex-1 text-xs font-medium text-stone-800 dark:text-stone-100 p-2.5 rounded-xl border border-stone-200/80 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 focus:outline-none focus:border-[#E67E22]"
-                />
-                <button
-                  onClick={() => setIsDomainSaved(true)}
-                  className="text-xs font-semibold px-4 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white transition-colors cursor-pointer shadow-xs"
-                >
-                  {isDomainSaved ? 'Guardado' : 'Guardar'}
-                </button>
-              </div>
-            </div>
-
-            <div className="md:col-span-4 p-3.5 rounded-xl bg-stone-50 dark:bg-zinc-800 border border-stone-200/70 dark:border-zinc-700 text-xs text-stone-500 dark:text-stone-400 space-y-1">
-              <span className="font-semibold text-stone-700 dark:text-stone-200 block text-[11px]">Registro DNS CNAME:</span>
-              <p className="font-mono text-[11px] text-[#E67E22] bg-white dark:bg-zinc-900 p-2 rounded-lg border border-stone-200/70 dark:border-zinc-700">
-                CNAME @ → cname.loomisuite.com
-              </p>
-            </div>
-          </div>
-        </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -186,9 +186,24 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
               <div className="p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-2 mb-1">
                   <h4 className="text-base font-bold text-stone-800 dark:text-stone-100 tracking-tight">{prop.name}</h4>
-                  <span className="text-[10px] font-semibold text-stone-400 bg-stone-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md uppercase">
-                    Disponible
-                  </span>
+                  {!isEmployeeMode && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleOpenEdit(prop)}
+                        className="text-stone-400 hover:text-[#E67E22] p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                        title="Editar unidad"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(prop.id)}
+                        className="text-stone-400 hover:text-rose-500 p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                        title="Eliminar unidad"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <p className="text-xs text-stone-400 dark:text-stone-500 mb-4 font-medium">{prop.address} • {prop.type}</p>
 
@@ -317,7 +332,7 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
               <div className="text-xs text-stone-500 dark:text-stone-400 truncate">
                 <span className="block text-[10px] font-semibold text-stone-400 dark:text-stone-500">Motor directo (0% comisiones)</span>
                 <span className="font-mono text-stone-700 dark:text-stone-300 text-[11px]">
-                  {isDomainSaved && customDomain ? customDomain : 'loomisuite.com'}/{prop.id}
+                  {window.location.host}/{prop.id}
                 </span>
               </div>
               <button
@@ -340,6 +355,137 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
           </div>
         ))}
       </div>
+
+      {/* Property Create/Edit Modal */}
+      {modalMode && activeProperty && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200 dark:border-zinc-800 w-full max-w-lg p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-stone-100 dark:border-zinc-800 pb-4">
+              <h4 className="text-base font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-[#E67E22]" />
+                <span>{modalMode === 'create' ? 'Nueva Unidad de Alojamiento' : 'Editar Unidad'}</span>
+              </h4>
+              <button
+                onClick={() => setModalMode(null)}
+                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Nombre de la unidad:</label>
+                <input
+                  type="text"
+                  value={activeProperty.name}
+                  onChange={(e) => setActiveProperty({ ...activeProperty, name: e.target.value })}
+                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Tipo de unidad:</label>
+                  <input
+                    type="text"
+                    value={activeProperty.type}
+                    onChange={(e) => setActiveProperty({ ...activeProperty, type: e.target.value })}
+                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Capacidad (huéspedes):</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={activeProperty.maxGuests}
+                    onChange={(e) => setActiveProperty({ ...activeProperty, maxGuests: Number(e.target.value) })}
+                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Precio base por noche (USD):</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={activeProperty.basePrice}
+                    onChange={(e) => setActiveProperty({ ...activeProperty, basePrice: Number(e.target.value) })}
+                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Tarifa de limpieza (USD):</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={activeProperty.cleaningFee}
+                    onChange={(e) => setActiveProperty({ ...activeProperty, cleaningFee: Number(e.target.value) })}
+                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Red Wi-Fi:</label>
+                  <input
+                    type="text"
+                    value={activeProperty.wifiNetwork}
+                    onChange={(e) => setActiveProperty({ ...activeProperty, wifiNetwork: e.target.value })}
+                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Clave Wi-Fi:</label>
+                  <input
+                    type="text"
+                    value={activeProperty.wifiPassword}
+                    onChange={(e) => setActiveProperty({ ...activeProperty, wifiPassword: e.target.value })}
+                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Marca / Cerradura inteligente:</label>
+                <input
+                  type="text"
+                  value={activeProperty.smartLock.brand}
+                  onChange={(e) => setActiveProperty({
+                    ...activeProperty,
+                    smartLock: { ...activeProperty.smartLock, brand: e.target.value }
+                  })}
+                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-100 dark:border-zinc-800">
+              <button
+                onClick={() => setModalMode(null)}
+                className="px-4 py-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-zinc-800 transition-colors font-semibold cursor-pointer text-xs"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  if (activeProperty) {
+                    onSaveProperty?.(activeProperty);
+                    setModalMode(null);
+                  }
+                }}
+                className="px-5 py-2 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white font-semibold transition-colors cursor-pointer text-xs shadow-xs"
+              >
+                Guardar Unidad
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

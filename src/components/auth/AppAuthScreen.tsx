@@ -28,6 +28,8 @@ interface AppAuthScreenProps {
 
 type AuthMode = 'login' | 'register' | 'forgot_password';
 
+const SHOW_GOOGLE_LOGIN = false;
+
 export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
@@ -222,7 +224,7 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
             )}
 
             {/* Google Authentication Button (For Login & Register) */}
-            {mode !== 'forgot_password' && (
+            {SHOW_GOOGLE_LOGIN && mode !== 'forgot_password' && (
               <>
                 <button
                   type="button"

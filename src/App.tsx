@@ -17,7 +17,7 @@ import {
   Menu,
   Smartphone,
 } from 'lucide-react';
-import { DemoState, Reservation, CleaningTask, ReservationStatus, PaymentStatus, CashMovement } from './types';
+import { DemoState, Reservation, CleaningTask, ReservationStatus, PaymentStatus, CashMovement, CleaningStatus, Property } from './types';
 import {
   getDemoState,
   saveDemoState,
@@ -65,6 +65,19 @@ import { INITIAL_WELCOME_GUIDE, getEmptyAppState } from './data/initialData';
 import { isAppMode } from './lib/appMode';
 import { auth, onAuthStateChanged, signOut, User } from './lib/firebase';
 import { AppAuthScreen } from './components/auth/AppAuthScreen';
+import {
+  subscribeToTenant,
+  initializeTenantOnboarding,
+  savePropertyDoc,
+  deletePropertyDoc,
+  saveReservationDoc,
+  deleteReservationDoc,
+  saveCleaningTaskDoc,
+  deleteCleaningTaskDoc,
+  saveCashMovementDoc,
+  deleteCashMovementDoc,
+  saveTenantData,
+} from './lib/tenantStore';
 
 export default function App() {
   const isApp = isAppMode();
@@ -72,18 +85,56 @@ export default function App() {
   // Firebase Auth State in App Mode
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState<boolean>(() => isApp);
+  const [tenantLoading, setTenantLoading] = useState<boolean>(() => isApp);
 
   useEffect(() => {
     if (!isApp) {
       setAuthLoading(false);
+      setTenantLoading(false);
       return;
     }
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       setAuthLoading(false);
+      if (user) {
+        setTenantLoading(true);
+        setDemoState(getEmptyAppState());
+      } else {
+        setTenantLoading(false);
+        setDemoState(getEmptyAppState());
+      }
     });
     return () => unsubscribe();
   }, [isApp]);
+
+  // Real-time Firestore subscription in App Mode
+  useEffect(() => {
+    if (!isApp || !currentUser) {
+      return;
+    }
+    const unsubscribe = subscribeToTenant(currentUser.uid, (data) => {
+      if (!data.loading) {
+        setTenantLoading(false);
+        if (!data.exists) {
+          setDemoState(getEmptyAppState());
+          setIsOnboardingModalOpen(true);
+        } else {
+          setDemoState({
+            properties: data.properties,
+            reservations: data.reservations,
+            cleaningTasks: data.cleaningTasks,
+            templates: data.tenant?.templates || [],
+            welcomeGuide: data.tenant?.welcomeGuide || INITIAL_WELCOME_GUIDE,
+            availableAddons: data.tenant?.availableAddons || [],
+            addons: data.tenant?.availableAddons || [],
+            cashMovements: data.cashMovements,
+            lastUpdated: new Date().toISOString(),
+          });
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, [isApp, currentUser]);
 
   // App view: 'landing' (clean landing site), 'demo' (active PMS panel), 'guide' (public guest portal), or 'superadmin'
   const [currentView, setCurrentView] = useState<'landing' | 'demo' | 'superadmin' | 'guide'>(() => {
@@ -463,7 +514,7 @@ export default function App() {
   };
 
   // Handle Onboarding Completion
-  const handleCompleteOnboarding = (data: {
+  const handleCompleteOnboarding = async (data: {
     complexName: string;
     city: string;
     address: string;
@@ -472,89 +523,104 @@ export default function App() {
     properties: any[];
     addons: any[];
   }) => {
-    const today = getRelativeDate(0);
-    const in2days = getRelativeDate(2);
-    const in4days = getRelativeDate(4);
+    if (isApp && currentUser) {
+      await initializeTenantOnboarding(
+        currentUser.uid,
+        currentUser.email || '',
+        data.complexName,
+        data.address,
+        data.city,
+        data.wifiNetwork,
+        data.wifiPassword,
+        data.properties,
+        [],
+        [],
+        data.addons
+      );
+    } else {
+      const today = getRelativeDate(0);
+      const in2days = getRelativeDate(2);
+      const in4days = getRelativeDate(4);
 
-    // Create initial sample reservations for the user's units
-    const initialRealReservations: Reservation[] = data.properties.map((prop, idx) => {
-      const isFirst = idx === 0;
-      const cIn = isFirst ? today : in2days;
-      const cOut = isFirst ? in2days : in4days;
-      const nights = 2;
-      const totalAmount = prop.basePrice * nights + prop.cleaningFee;
-      const commissionPaid = Math.round(totalAmount * 0.03 * 10) / 10;
-      return {
-        id: `res-real-${idx + 1}`,
+      const initialRealReservations: Reservation[] = data.properties.map((prop, idx) => {
+        const isFirst = idx === 0;
+        const cIn = isFirst ? today : in2days;
+        const cOut = isFirst ? in2days : in4days;
+        const nights = 2;
+        const totalAmount = prop.basePrice * nights + prop.cleaningFee;
+        const commissionPaid = Math.round(totalAmount * 0.03 * 10) / 10;
+        return {
+          id: `res-real-${idx + 1}`,
+          propertyId: prop.id,
+          guestName: isFirst ? 'Huésped de Prueba 1' : 'Huésped de Prueba 2',
+          guestEmail: isFirst ? 'huesped1@gmail.com' : 'huesped2@hotmail.com',
+          guestPhone: isFirst ? '+54 9 11 4455-8899' : '+54 9 351 778-9900',
+          checkIn: cIn,
+          checkOut: cOut,
+          nights,
+          guestsCount: Math.min(2, prop.maxGuests),
+          platform: isFirst ? 'airbnb' : 'direct',
+          totalAmount,
+          cleaningFee: prop.cleaningFee,
+          commissionPaid,
+          netRevenue: totalAmount - commissionPaid,
+          status: isFirst ? 'checked_in' : 'confirmed',
+          paymentStatus: isFirst ? 'paid' : 'deposit_only',
+          pinCode: prop.smartLock?.enabled ? '4912' : '',
+          createdAt: new Date().toISOString(),
+          earlyCheckIn: false,
+          lateCheckOut: false,
+          addons: data.addons.length > 0 ? [
+            {
+              addonId: data.addons[0].id,
+              name: data.addons[0].name,
+              category: data.addons[0].category,
+              unitPrice: data.addons[0].price,
+              quantity: 1,
+              total: data.addons[0].price,
+              status: 'entregado',
+            }
+          ] : [],
+        };
+      });
+
+      const initialRealTasks: CleaningTask[] = data.properties.map((prop, idx) => ({
+        id: `clean-real-${idx + 1}`,
         propertyId: prop.id,
-        guestName: isFirst ? 'Martín Palermo (Huésped de Prueba)' : 'Carolina Herrera',
-        guestEmail: isFirst ? 'martin.palermo@gmail.com' : 'caro.herrera@hotmail.com',
-        guestPhone: isFirst ? '+54 9 11 4455-8899' : '+54 9 351 778-9900',
-        checkIn: cIn,
-        checkOut: cOut,
-        nights,
-        guestsCount: Math.min(2, prop.maxGuests),
-        platform: isFirst ? 'airbnb' : 'direct',
-        totalAmount,
-        cleaningFee: prop.cleaningFee,
-        commissionPaid,
-        netRevenue: totalAmount - commissionPaid,
-        status: isFirst ? 'checked_in' : 'confirmed',
-        paymentStatus: isFirst ? 'paid' : 'deposit_only',
-        pinCode: prop.smartLock?.enabled ? '4912' : '',
-        createdAt: new Date().toISOString(),
-        earlyCheckIn: false,
-        lateCheckOut: false,
-        addons: data.addons.length > 0 ? [
-          {
-            addonId: data.addons[0].id,
-            name: data.addons[0].name,
-            category: data.addons[0].category,
-            unitPrice: data.addons[0].price,
-            quantity: 1,
-            total: data.addons[0].price,
-            status: 'entregado',
-          }
-        ] : [],
+        date: idx === 0 ? today : in2days,
+        scheduledTime: '11:00 - 13:30',
+        cleanerName: 'Sin asignar',
+        cleanerPhone: '',
+        status: (idx === 0 ? 'completed' : 'pending') as CleaningStatus,
+        checklist: [
+          { id: 'c1', task: 'Cambio de sábanas y toallas sanitizadas', completed: idx === 0 },
+          { id: 'c2', task: 'Limpieza profunda de baño y reposición de amenities', completed: idx === 0 },
+          { id: 'c3', task: 'Desinfección de superficies y vajilla', completed: idx === 0 },
+          { id: 'c4', task: 'Verificación de WiFi y cerradura', completed: idx === 0 },
+        ],
+        notes: `Limpieza para ${prop.name}`,
+      }));
+
+      const newCustomState: DemoState = {
+        properties: data.properties,
+        reservations: initialRealReservations,
+        cleaningTasks: initialRealTasks,
+        templates: demoState.templates || [],
+        availableAddons: data.addons,
+        addons: data.addons,
+        welcomeGuide: {
+          ...(demoState.welcomeGuide || INITIAL_WELCOME_GUIDE),
+          propertyName: data.complexName,
+          tagline: `${data.city} • Departamentos Exclusivos`,
+          locationAddress: data.address,
+          wifiNetwork: data.wifiNetwork,
+          wifiPassword: data.wifiPassword,
+        },
+        lastUpdated: new Date().toISOString(),
       };
-    });
+      updateDemoState(() => newCustomState);
+    }
 
-    const initialRealTasks: CleaningTask[] = data.properties.map((prop, idx) => ({
-      id: `clean-real-${idx + 1}`,
-      propertyId: prop.id,
-      date: idx === 0 ? today : in2days,
-      scheduledTime: '11:00 - 13:30',
-      cleanerName: 'Equipo de Limpieza',
-      cleanerPhone: '+54 9 11 9988-7766',
-      status: idx === 0 ? 'completed' : 'pending',
-      checklist: [
-        { id: 'c1', task: 'Cambio de sábanas y toallas sanitizadas', completed: idx === 0 },
-        { id: 'c2', task: 'Limpieza profunda de baño y reposición de amenities', completed: idx === 0 },
-        { id: 'c3', task: 'Desinfección de superficies y vajilla', completed: idx === 0 },
-        { id: 'c4', task: 'Verificación de WiFi y cerradura', completed: idx === 0 },
-      ],
-      notes: `Limpieza para ${prop.name}`,
-    }));
-
-    const newCustomState: DemoState = {
-      properties: data.properties,
-      reservations: initialRealReservations,
-      cleaningTasks: initialRealTasks,
-      templates: demoState.templates || [],
-      availableAddons: data.addons,
-      addons: data.addons,
-      welcomeGuide: {
-        ...(demoState.welcomeGuide || INITIAL_WELCOME_GUIDE),
-        propertyName: data.complexName,
-        tagline: `${data.city} • Departamentos Exclusivos`,
-        locationAddress: data.address,
-        wifiNetwork: data.wifiNetwork,
-        wifiPassword: data.wifiPassword,
-      },
-      lastUpdated: new Date().toISOString(),
-    };
-
-    updateDemoState(() => newCustomState);
     setIsOnboardingModalOpen(false);
     setDemoTab('overview');
     showToast(`🎉 ¡Felicitaciones! "${data.complexName}" configurado con éxito (${data.properties.length} unidades).`);
@@ -573,141 +639,229 @@ export default function App() {
   };
 
   // Import JSON data
-  const handleImportData = (newState: DemoState) => {
-    saveDemoState(newState);
-    setDemoState(newState);
-    showToast('Datos personalizados cargados y guardados en localStorage.');
+  const handleImportData = async (newState: DemoState) => {
+    if (isApp && currentUser) {
+      for (const prop of newState.properties) {
+        await savePropertyDoc(currentUser.uid, prop);
+      }
+      for (const res of newState.reservations) {
+        await saveReservationDoc(currentUser.uid, res);
+      }
+      for (const task of newState.cleaningTasks) {
+        await saveCleaningTaskDoc(currentUser.uid, task);
+      }
+      for (const mov of newState.cashMovements || []) {
+        await saveCashMovementDoc(currentUser.uid, mov);
+      }
+      await saveTenantData(currentUser.uid, {
+        welcomeGuide: newState.welcomeGuide,
+        templates: newState.templates,
+        availableAddons: newState.availableAddons || newState.addons,
+      });
+      showToast('Datos personalizados cargados y guardados en Firestore.');
+    } else {
+      saveDemoState(newState);
+      setDemoState(newState);
+      showToast('Datos personalizados cargados y guardados en localStorage.');
+    }
   };
 
   // Handle import from Google Calendar / CSV
-  const handleImportCalendarReservations = (newRes: Reservation[], mode: 'add' | 'replace') => {
-    updateDemoState((prev) => {
-      let finalReservations = [...(prev.reservations || [])];
-      if (mode === 'replace') {
-        finalReservations = newRes;
-      } else {
-        // Mode 'add' - filter duplicates or keep existing and append new ones
-        const existingIds = new Set((prev.reservations || []).map(r => `${r.propertyId}_${r.checkIn}_${r.checkOut}`));
-        const filterNew = newRes.filter(r => !existingIds.has(`${r.propertyId}_${r.checkIn}_${r.checkOut}`));
-        finalReservations = [...filterNew, ...(prev.reservations || [])];
-      }
-
-      // Automatically create cleaning tasks for upcoming / active reservations
+  const handleImportCalendarReservations = async (newRes: Reservation[], mode: 'add' | 'replace') => {
+    if (isApp && currentUser) {
+      const existingReservations = demoState.reservations || [];
+      const existingIds = new Set(existingReservations.map(r => `${r.propertyId}_${r.checkIn}_${r.checkOut}`));
       const todayStr = new Date().toISOString().split('T')[0];
-      const activeForCleaning = newRes.filter(r => r.checkOut >= todayStr);
 
-      const newCleaningTasks = activeForCleaning.map((r) => ({
-        id: `clean-import-${Date.now()}-${Math.random()}`,
-        propertyId: r.propertyId,
-        reservationId: r.id,
-        date: r.checkOut,
-        scheduledTime: '11:00 - 13:30',
-        cleanerName: 'Marta González',
-        cleanerPhone: '+54 9 11 5566-7788',
-        status: 'pending' as const,
-        checklist: [
-          { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
-          { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
-          { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
-          { id: 'c4', task: 'Comprobación de cerradura inteligente', completed: false },
-        ],
-        notes: `Generado automáticamente por importación de ${r.guestName}`,
-      }));
+      let addedCount = 0;
+      for (const r of newRes) {
+        const key = `${r.propertyId}_${r.checkIn}_${r.checkOut}`;
+        if (existingIds.has(key)) continue; // omit duplicates
 
-      const finalCleaningTasks = mode === 'replace'
-        ? newCleaningTasks
-        : [...newCleaningTasks, ...(prev.cleaningTasks || [])];
+        await saveReservationDoc(currentUser.uid, r);
+        addedCount++;
 
-      return {
-        ...prev,
-        reservations: finalReservations,
-        cleaningTasks: finalCleaningTasks,
-        lastUpdated: new Date().toISOString(),
-      };
-    });
+        if (r.checkOut >= todayStr) {
+          const newCleaningTask: CleaningTask = {
+            id: `clean-import-${Date.now()}-${Math.random()}`,
+            propertyId: r.propertyId,
+            reservationId: r.id,
+            date: r.checkOut,
+            scheduledTime: '11:00 - 13:30',
+            cleanerName: 'Sin asignar',
+            cleanerPhone: '',
+            status: 'pending',
+            checklist: [
+              { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
+              { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
+              { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
+              { id: 'c4', task: 'Comprobación de cerradura inteligente', completed: false },
+            ],
+            notes: `Generado automáticamente por importación de ${r.guestName}`,
+          };
+          await saveCleaningTaskDoc(currentUser.uid, newCleaningTask);
+        }
+      }
+      showToast(`🎉 ¡Éxito! Se importaron ${addedCount} nuevas reservas a Firestore.`);
+    } else {
+      updateDemoState((prev) => {
+        let finalReservations = [...(prev.reservations || [])];
+        if (mode === 'replace') {
+          finalReservations = newRes;
+        } else {
+          // Mode 'add' - filter duplicates or keep existing and append new ones
+          const existingIds = new Set((prev.reservations || []).map(r => `${r.propertyId}_${r.checkIn}_${r.checkOut}`));
+          const filterNew = newRes.filter(r => !existingIds.has(`${r.propertyId}_${r.checkIn}_${r.checkOut}`));
+          finalReservations = [...filterNew, ...(prev.reservations || [])];
+        }
 
-    showToast(`🎉 ¡Éxito! Se procesaron e importaron ${newRes.length} reservas correctamente.`);
+        // Automatically create cleaning tasks for upcoming / active reservations
+        const todayStr = new Date().toISOString().split('T')[0];
+        const activeForCleaning = newRes.filter(r => r.checkOut >= todayStr);
+
+        const newCleaningTasks = activeForCleaning.map((r) => ({
+          id: `clean-import-${Date.now()}-${Math.random()}`,
+          propertyId: r.propertyId,
+          reservationId: r.id,
+          date: r.checkOut,
+          scheduledTime: '11:00 - 13:30',
+          cleanerName: 'Sin asignar',
+          cleanerPhone: '',
+          status: 'pending' as const,
+          checklist: [
+            { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
+            { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
+            { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
+            { id: 'c4', task: 'Comprobación de cerradura inteligente', completed: false },
+          ],
+          notes: `Generado automáticamente por importación de ${r.guestName}`,
+        }));
+
+        const finalCleaningTasks = mode === 'replace'
+          ? newCleaningTasks
+          : [...newCleaningTasks, ...(prev.cleaningTasks || [])];
+
+        return {
+          ...prev,
+          reservations: finalReservations,
+          cleaningTasks: finalCleaningTasks,
+          lastUpdated: new Date().toISOString(),
+        };
+      });
+
+      showToast(`🎉 ¡Éxito! Se procesaron e importaron ${newRes.length} reservas correctamente.`);
+    }
   };
 
   // New Reservation creation
-  const handleSaveReservation = (newRes: Reservation) => {
-    updateDemoState((prev) => {
-      // Also automatically create a cleaning task scheduled on checkout!
-      const newCleaningTask: CleaningTask = {
-        id: `clean-${Date.now()}`,
-        propertyId: newRes.propertyId,
-        reservationId: newRes.id,
-        date: newRes.checkOut,
-        scheduledTime: '11:00 - 13:30',
-        cleanerName: 'Marta González',
-        cleanerPhone: '+54 9 11 5566-7788',
-        status: 'pending',
-        checklist: [
-          { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
-          { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
-          { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
-          { id: 'c4', task: 'Comprobación de cerradura inteligente', completed: false },
-        ],
-        notes: `Generado automáticamente por check-out de ${newRes.guestName}`,
-      };
+  const handleSaveReservation = async (newRes: Reservation) => {
+    const newCleaningTask: CleaningTask = {
+      id: `clean-${Date.now()}`,
+      propertyId: newRes.propertyId,
+      reservationId: newRes.id,
+      date: newRes.checkOut,
+      scheduledTime: '11:00 - 13:30',
+      cleanerName: 'Sin asignar',
+      cleanerPhone: '',
+      status: 'pending',
+      checklist: [
+        { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
+        { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
+        { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
+        { id: 'c4', task: 'Comprobación de cerradura inteligente', completed: false },
+      ],
+      notes: `Generado automáticamente por check-out de ${newRes.guestName}`,
+    };
 
-      return {
+    if (isApp && currentUser) {
+      await saveReservationDoc(currentUser.uid, newRes);
+      await saveCleaningTaskDoc(currentUser.uid, newCleaningTask);
+    } else {
+      updateDemoState((prev) => ({
         ...prev,
         reservations: [newRes, ...prev.reservations],
         cleaningTasks: [newCleaningTask, ...prev.cleaningTasks],
         lastUpdated: new Date().toISOString(),
-      };
-    });
+      }));
+    }
 
     showToast(`¡Reserva de ${newRes.guestName} creada y sincronizada!`);
   };
 
   // Update full reservation details
-  const handleUpdateReservation = (updatedRes: Reservation) => {
-    updateDemoState((prev) => ({
-      ...prev,
-      reservations: prev.reservations.map((r) =>
-        r.id === updatedRes.id ? updatedRes : r
-      ),
-      // Automatically keep cleaning task synced with property and checkout date
-      cleaningTasks: prev.cleaningTasks.map((t) => {
-        if (t.reservationId === updatedRes.id) {
-          return {
-            ...t,
-            propertyId: updatedRes.propertyId,
-            date: updatedRes.checkOut,
-            notes: `Generado automáticamente por check-out de ${updatedRes.guestName}`,
-          };
-        }
-        return t;
-      }),
-      lastUpdated: new Date().toISOString(),
-    }));
+  const handleUpdateReservation = async (updatedRes: Reservation) => {
+    if (isApp && currentUser) {
+      await saveReservationDoc(currentUser.uid, updatedRes);
+      const existingTask = demoState.cleaningTasks.find((t) => t.reservationId === updatedRes.id);
+      if (existingTask) {
+        await saveCleaningTaskDoc(currentUser.uid, {
+          ...existingTask,
+          propertyId: updatedRes.propertyId,
+          date: updatedRes.checkOut,
+          notes: `Generado automáticamente por check-out de ${updatedRes.guestName}`,
+        });
+      }
+    } else {
+      updateDemoState((prev) => ({
+        ...prev,
+        reservations: prev.reservations.map((r) =>
+          r.id === updatedRes.id ? updatedRes : r
+        ),
+        cleaningTasks: prev.cleaningTasks.map((t) => {
+          if (t.reservationId === updatedRes.id) {
+            return {
+              ...t,
+              propertyId: updatedRes.propertyId,
+              date: updatedRes.checkOut,
+              notes: `Generado automáticamente por check-out de ${updatedRes.guestName}`,
+            };
+          }
+          return t;
+        }),
+        lastUpdated: new Date().toISOString(),
+      }));
+    }
     setSelectedReservationForDetail(updatedRes);
     showToast(`Reserva de ${updatedRes.guestName} guardada y actualizada.`);
   };
 
   // Update reservation status
-  const handleUpdateReservationStatus = (resId: string, newStatus: ReservationStatus) => {
-    updateDemoState((prev) => ({
-      ...prev,
-      reservations: prev.reservations.map((r) =>
-        r.id === resId ? { ...r, status: newStatus } : r
-      ),
-      lastUpdated: new Date().toISOString(),
-    }));
+  const handleUpdateReservationStatus = async (resId: string, newStatus: ReservationStatus) => {
+    const res = demoState.reservations.find((r) => r.id === resId);
+    if (res) {
+      const updated = { ...res, status: newStatus };
+      if (isApp && currentUser) {
+        await saveReservationDoc(currentUser.uid, updated);
+      } else {
+        updateDemoState((prev) => ({
+          ...prev,
+          reservations: prev.reservations.map((r) =>
+            r.id === resId ? updated : r
+          ),
+          lastUpdated: new Date().toISOString(),
+        }));
+      }
+    }
     showToast(`Estado de reserva actualizado a ${newStatus}`);
   };
 
   // Update payment status (e.g. from Mobile Light quick action)
-  const handleUpdatePaymentStatus = (resId: string, newPaymentStatus: PaymentStatus) => {
-    updateDemoState((prev) => ({
-      ...prev,
-      reservations: prev.reservations.map((r) =>
-        r.id === resId ? { ...r, paymentStatus: newPaymentStatus } : r
-      ),
-      lastUpdated: new Date().toISOString(),
-    }));
+  const handleUpdatePaymentStatus = async (resId: string, newPaymentStatus: PaymentStatus) => {
+    const res = demoState.reservations.find((r) => r.id === resId);
+    if (res) {
+      const updated = { ...res, paymentStatus: newPaymentStatus };
+      if (isApp && currentUser) {
+        await saveReservationDoc(currentUser.uid, updated);
+      } else {
+        updateDemoState((prev) => ({
+          ...prev,
+          reservations: prev.reservations.map((r) =>
+            r.id === resId ? updated : r
+          ),
+          lastUpdated: new Date().toISOString(),
+        }));
+      }
+    }
     showToast(
       `Estado de cobro actualizado a: ${
         newPaymentStatus === 'paid'
@@ -720,80 +874,99 @@ export default function App() {
   };
 
   // Update reservation price (e.g. for iCal blocks or manual adjustments across any channel)
-  const handleUpdateReservationPrice = (resId: string, newTotal: number) => {
-    updateDemoState((prev) => ({
-      ...prev,
-      reservations: prev.reservations.map((r) => {
-        if (r.id !== resId) return r;
-        let rate = 0;
-        if (r.platform === 'airbnb') {
-          rate = r.airbnbFeeMode === 'traditional_3' ? 0.03 : 0.15;
-        } else if (r.platform === 'booking' || r.platform === 'vrbo') {
-          rate = 0.15;
-        }
-        const accommodation = Math.max(0, newTotal - (r.cleaningFee || 0));
-        const commissionPaid = Math.round(accommodation * rate * 10) / 10;
-        const netRevenue = Math.round((newTotal - commissionPaid) * 10) / 10;
-        return {
-          ...r,
-          totalAmount: newTotal,
-          commissionPaid,
-          netRevenue,
-        };
-      }),
-      lastUpdated: new Date().toISOString(),
-    }));
+  const handleUpdateReservationPrice = async (resId: string, newTotal: number) => {
+    const res = demoState.reservations.find((r) => r.id === resId);
+    if (res) {
+      let rate = 0;
+      if (res.platform === 'airbnb') {
+        rate = res.airbnbFeeMode === 'traditional_3' ? 0.03 : 0.15;
+      } else if (res.platform === 'booking' || res.platform === 'vrbo') {
+        rate = 0.15;
+      }
+      const accommodation = Math.max(0, newTotal - (res.cleaningFee || 0));
+      const commissionPaid = Math.round(accommodation * rate * 10) / 10;
+      const netRevenue = Math.round((newTotal - commissionPaid) * 10) / 10;
+      const updated = {
+        ...res,
+        totalAmount: newTotal,
+        commissionPaid,
+        netRevenue,
+      };
+      if (isApp && currentUser) {
+        await saveReservationDoc(currentUser.uid, updated);
+      } else {
+        updateDemoState((prev) => ({
+          ...prev,
+          reservations: prev.reservations.map((r) => (r.id === resId ? updated : r)),
+          lastUpdated: new Date().toISOString(),
+        }));
+      }
+    }
     showToast(`Tarifa de la reserva actualizada a $${newTotal} USD.`);
   };
 
   // Delete reservation
-  const handleDeleteReservation = (resId: string) => {
-    updateDemoState((prev) => ({
-      ...prev,
-      reservations: prev.reservations.filter((r) => r.id !== resId),
-      lastUpdated: new Date().toISOString(),
-    }));
+  const handleDeleteReservation = async (resId: string) => {
+    if (isApp && currentUser) {
+      await deleteReservationDoc(currentUser.uid, resId);
+    } else {
+      updateDemoState((prev) => ({
+        ...prev,
+        reservations: prev.reservations.filter((r) => r.id !== resId),
+        lastUpdated: new Date().toISOString(),
+      }));
+    }
     showToast('Reserva eliminada del calendario.');
   };
 
   // Toggle housekeeping item
-  const handleToggleChecklistItem = (taskId: string, itemId: string) => {
-    updateDemoState((prev) => ({
-      ...prev,
-      cleaningTasks: prev.cleaningTasks.map((t) => {
-        if (t.id !== taskId) return t;
-        const updatedChecklist = t.checklist.map((item) =>
-          item.id === itemId ? { ...item, completed: !item.completed } : item
-        );
-        const allDone = updatedChecklist.length > 0 && updatedChecklist.every((i) => i.completed);
-        const newStatus = allDone
-          ? 'inspected'
-          : t.status === 'inspected' || t.status === 'completed'
-          ? 'in_progress'
-          : t.status;
-        return { ...t, checklist: updatedChecklist, status: newStatus };
-      }),
-      lastUpdated: new Date().toISOString(),
-    }));
+  const handleToggleChecklistItem = async (taskId: string, itemId: string) => {
+    const task = demoState.cleaningTasks.find((t) => t.id === taskId);
+    if (task) {
+      const updatedChecklist = task.checklist.map((item) =>
+        item.id === itemId ? { ...item, completed: !item.completed } : item
+      );
+      const allDone = updatedChecklist.length > 0 && updatedChecklist.every((i) => i.completed);
+      const newStatus: CleaningStatus = allDone
+        ? 'inspected'
+        : task.status === 'inspected' || task.status === 'completed'
+        ? 'in_progress'
+        : task.status;
+      const updatedTask: CleaningTask = { ...task, checklist: updatedChecklist, status: newStatus };
+      if (isApp && currentUser) {
+        await saveCleaningTaskDoc(currentUser.uid, updatedTask);
+      } else {
+        updateDemoState((prev) => ({
+          ...prev,
+          cleaningTasks: prev.cleaningTasks.map((t) => (t.id === taskId ? updatedTask : t)),
+          lastUpdated: new Date().toISOString(),
+        }));
+      }
+    }
   };
 
   // Update cleaning task status
-  const handleUpdateTaskStatus = (taskId: string, newStatus: CleaningTask['status']) => {
-    updateDemoState((prev) => ({
-      ...prev,
-      cleaningTasks: prev.cleaningTasks.map((t) => {
-        if (t.id !== taskId) return t;
-        const isNowDone = newStatus === 'inspected' || newStatus === 'completed';
-        const isNowPending = newStatus === 'pending';
-        const updatedChecklist = isNowDone
-          ? t.checklist.map((c) => ({ ...c, completed: true }))
-          : isNowPending
-          ? t.checklist.map((c) => ({ ...c, completed: false }))
-          : t.checklist;
-        return { ...t, status: newStatus, checklist: updatedChecklist };
-      }),
-      lastUpdated: new Date().toISOString(),
-    }));
+  const handleUpdateTaskStatus = async (taskId: string, newStatus: CleaningTask['status']) => {
+    const task = demoState.cleaningTasks.find((t) => t.id === taskId);
+    if (task) {
+      const isNowDone = newStatus === 'inspected' || newStatus === 'completed';
+      const isNowPending = newStatus === 'pending';
+      const updatedChecklist = isNowDone
+        ? task.checklist.map((c) => ({ ...c, completed: true }))
+        : isNowPending
+        ? task.checklist.map((c) => ({ ...c, completed: false }))
+        : task.checklist;
+      const updatedTask = { ...task, status: newStatus, checklist: updatedChecklist };
+      if (isApp && currentUser) {
+        await saveCleaningTaskDoc(currentUser.uid, updatedTask);
+      } else {
+        updateDemoState((prev) => ({
+          ...prev,
+          cleaningTasks: prev.cleaningTasks.map((t) => (t.id === taskId ? updatedTask : t)),
+          lastUpdated: new Date().toISOString(),
+        }));
+      }
+    }
     showToast(
       newStatus === 'inspected' || newStatus === 'completed'
         ? '✨ Tarea Completada: Unidad lista para el huésped'
@@ -802,41 +975,93 @@ export default function App() {
   };
 
   // Update property price
-  const handleUpdatePropertyPrice = (propertyId: string, newPrice: number) => {
-    updateDemoState((prev) => ({
-      ...prev,
-      properties: prev.properties.map((p) =>
-        p.id === propertyId ? { ...p, basePrice: newPrice } : p
-      ),
-      lastUpdated: new Date().toISOString(),
-    }));
+  const handleUpdatePropertyPrice = async (propertyId: string, newPrice: number) => {
+    const prop = demoState.properties.find((p) => p.id === propertyId);
+    if (prop) {
+      const updated = { ...prop, basePrice: newPrice };
+      if (isApp && currentUser) {
+        await savePropertyDoc(currentUser.uid, updated);
+      } else {
+        updateDemoState((prev) => ({
+          ...prev,
+          properties: prev.properties.map((p) => (p.id === propertyId ? updated : p)),
+          lastUpdated: new Date().toISOString(),
+        }));
+      }
+    }
     showToast(`Tarifa por noche actualizada a $${newPrice} USD`);
   };
 
+  const handleSaveProperty = async (property: Property) => {
+    if (isApp && currentUser) {
+      await savePropertyDoc(currentUser.uid, property);
+    } else {
+      updateDemoState((prev) => {
+        const exists = prev.properties.some((p) => p.id === property.id);
+        const newProps = exists
+          ? prev.properties.map((p) => (p.id === property.id ? property : p))
+          : [...prev.properties, property];
+        return {
+          ...prev,
+          properties: newProps,
+          lastUpdated: new Date().toISOString(),
+        };
+      });
+    }
+    showToast(`Unidad "${property.name}" guardada correctamente`);
+  };
+
+  const handleDeleteProperty = async (propertyId: string) => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const hasFuture = (demoState.reservations || []).some(
+      (r) => r.propertyId === propertyId && r.checkOut >= todayStr
+    );
+    if (hasFuture) {
+      showToast('❌ No se puede borrar la unidad porque tiene reservas futuras.');
+      return;
+    }
+    if (isApp && currentUser) {
+      await deletePropertyDoc(currentUser.uid, propertyId);
+    } else {
+      updateDemoState((prev) => ({
+        ...prev,
+        properties: prev.properties.filter((p) => p.id !== propertyId),
+        lastUpdated: new Date().toISOString(),
+      }));
+    }
+    showToast('Unidad eliminada correctamente');
+  };
+
   // Add Cash Movement / Gasto
-  const handleAddCashMovement = (newMov: Omit<CashMovement, 'id' | 'date'>) => {
-    updateDemoState((prev) => {
-      const dateStr = new Date().toISOString().split('T')[0];
-      const added: CashMovement = {
-        ...newMov,
-        id: `mov-${Date.now()}`,
-        date: dateStr,
-      };
-      return {
+  const handleAddCashMovement = async (newMov: Omit<CashMovement, 'id' | 'date'>) => {
+    const dateStr = new Date().toISOString().split('T')[0];
+    const added: CashMovement = {
+      ...newMov,
+      id: `mov-${Date.now()}`,
+      date: dateStr,
+    };
+    if (isApp && currentUser) {
+      await saveCashMovementDoc(currentUser.uid, added);
+    } else {
+      updateDemoState((prev) => ({
         ...prev,
         cashMovements: [added, ...(prev.cashMovements || [])],
         lastUpdated: new Date().toISOString(),
-      };
-    });
+      }));
+    }
   };
 
   // Delete Cash Movement / Gasto
-  const handleDeleteCashMovement = (id: string) => {
-    updateDemoState((prev) => ({
-      ...prev,
-      cashMovements: (prev.cashMovements || []).filter((m) => m.id !== id),
-      lastUpdated: new Date().toISOString(),
-    }));
+  const handleDeleteCashMovement = async (id: string) => {
+    if (isApp && currentUser) {
+      await deleteCashMovementDoc(currentUser.uid, id);
+    } else {
+      updateDemoState((prev) => ({
+        ...prev,
+        cashMovements: (prev.cashMovements || []).filter((m) => m.id !== id),
+        lastUpdated: new Date().toISOString(),
+      }));
+    }
   };
 
   // Quick check in
@@ -887,6 +1112,15 @@ export default function App() {
       try {
         await signOut(auth);
         setCurrentUser(null);
+        setDemoState(getEmptyAppState());
+        setTenantLoading(false);
+        setIsOnboardingModalOpen(false);
+        setIsNewResModalOpen(false);
+        setSelectedReservationForDetail(null);
+        setIsJsonModalOpen(false);
+        setIsImportModalOpen(false);
+        setIsLeadModalOpen(false);
+        setIsAuthModalOpen(false);
         showToast('Sesión cerrada con éxito');
       } catch (err) {
         console.warn('Error signing out:', err);
@@ -904,8 +1138,8 @@ export default function App() {
     showToast('Sesión cerrada correctamente. Volviendo a Complejo Iguazú.');
   };
 
-  // Loading simple en modo App mientras se verifica la sesión (sin parpadeo)
-  if (isApp && authLoading) {
+  // Loading simple en modo App mientras se verifica la sesión o se cargan los datos del complejo
+  if (isApp && (authLoading || (currentUser && tenantLoading))) {
     return (
       <div className="min-h-screen w-full bg-[#0B0F17] text-white flex flex-col items-center justify-center p-4 selection:bg-[#E67E22]">
         <div className="flex flex-col items-center gap-4 animate-in fade-in duration-300">
@@ -914,7 +1148,9 @@ export default function App() {
           </div>
           <div className="text-center space-y-1">
             <p className="text-sm font-semibold tracking-tight text-white">Loomi Suite</p>
-            <p className="text-xs text-slate-400">Verificando sesión...</p>
+            <p className="text-xs text-slate-400">
+              {authLoading ? 'Verificando sesión...' : 'Cargando tu complejo…'}
+            </p>
           </div>
         </div>
       </div>
@@ -1320,6 +1556,8 @@ export default function App() {
                 <DemoProperties
                   demoState={demoState}
                   onUpdatePropertyPrice={handleUpdatePropertyPrice}
+                  onSaveProperty={handleSaveProperty}
+                  onDeleteProperty={handleDeleteProperty}
                   isEmployeeMode={isEmployeeMode}
                 />
               )}
@@ -1327,12 +1565,16 @@ export default function App() {
               {demoTab === 'addons' && (
                 <DemoAddons
                   demoState={demoState}
-                  onUpdateAddons={(updatedAddons) => {
-                    updateDemoState((prev) => ({
-                      ...prev,
-                      addons: updatedAddons,
-                      lastUpdated: new Date().toISOString(),
-                    }));
+                  onUpdateAddons={async (updatedAddons) => {
+                    if (isApp && currentUser) {
+                      await saveTenantData(currentUser.uid, { availableAddons: updatedAddons });
+                    } else {
+                      updateDemoState((prev) => ({
+                        ...prev,
+                        addons: updatedAddons,
+                        lastUpdated: new Date().toISOString(),
+                      }));
+                    }
                     showToast('Catálogo de Servicios Opcionales actualizado');
                   }}
                   isEmployeeMode={isEmployeeMode}
@@ -1365,12 +1607,16 @@ export default function App() {
                   onSelectSubTab={setGuideSubTab}
                   onSelectTemplate={setGuideTemplate}
                   onBackToPanel={() => setDemoTab('overview')}
-                  onUpdateGuideData={(updated) => {
-                    updateDemoState((prev) => ({
-                      ...prev,
-                      welcomeGuide: updated,
-                      lastUpdated: new Date().toISOString(),
-                    }));
+                  onUpdateGuideData={async (updated) => {
+                    if (isApp && currentUser) {
+                      await saveTenantData(currentUser.uid, { welcomeGuide: updated });
+                    } else {
+                      updateDemoState((prev) => ({
+                        ...prev,
+                        welcomeGuide: updated,
+                        lastUpdated: new Date().toISOString(),
+                      }));
+                    }
                     showToast('Guía de Bienvenida y datos actualizados en vivo');
                   }}
                 />

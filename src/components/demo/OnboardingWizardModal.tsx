@@ -22,6 +22,7 @@ import {
   Compass,
 } from 'lucide-react';
 import { DemoState, Property, AddonService, WelcomeGuideData } from '../../types';
+import { isAppMode } from '../../lib/appMode';
 
 interface OnboardingWizardModalProps {
   isOpen: boolean;
@@ -105,55 +106,19 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
     }
   }, [isOpen]);
 
-  // Step 2: Units / Properties (A, B, C, D defaults)
+  // Step 2: Units / Properties
   const [units, setUnits] = useState<TempProperty[]>([
     {
-      id: 'unit-a',
-      name: 'Departamento A',
-      type: '2 Ambientes con Cocina Completa (hasta 3 pax)',
-      maxGuests: 3,
-      bedrooms: 1,
-      bathrooms: 1,
-      basePrice: 58,
-      cleaningFee: 20,
-      hasSmartLock: true,
-      smartLockBrand: 'Cerradura Digital Teclado / Tuya / TTlock',
-    },
-    {
-      id: 'unit-b',
-      name: 'Departamento B',
-      type: 'Estudio de Diseño con Sommier Matrimonial (2 pax)',
+      id: 'unit-1',
+      name: 'Cabaña 1',
+      type: 'Cabaña',
       maxGuests: 2,
       bedrooms: 1,
       bathrooms: 1,
-      basePrice: 48,
-      cleaningFee: 18,
-      hasSmartLock: true,
-      smartLockBrand: 'Cerradura Digital Teclado / Tuya / TTlock',
-    },
-    {
-      id: 'unit-c',
-      name: 'Departamento C',
-      type: '2 Ambientes con 2 Camas Sommier Individuales (hasta 3 pax)',
-      maxGuests: 3,
-      bedrooms: 1,
-      bathrooms: 1,
-      basePrice: 58,
-      cleaningFee: 20,
-      hasSmartLock: true,
-      smartLockBrand: 'Cerradura Digital Teclado / Tuya / TTlock',
-    },
-    {
-      id: 'unit-d',
-      name: 'Departamento D',
-      type: 'Estudio con 2 Camas Sommier Individuales (2 pax)',
-      maxGuests: 2,
-      bedrooms: 1,
-      bathrooms: 1,
-      basePrice: 48,
-      cleaningFee: 18,
-      hasSmartLock: true,
-      smartLockBrand: 'Cerradura Digital Teclado / Tuya / TTlock',
+      basePrice: 50,
+      cleaningFee: 15,
+      hasSmartLock: false,
+      smartLockBrand: '',
     },
   ]);
 

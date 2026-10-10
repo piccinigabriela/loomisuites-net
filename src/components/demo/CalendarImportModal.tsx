@@ -17,6 +17,7 @@ import {
 import * as XLSX from 'xlsx';
 import { DemoState, Reservation, Property, BookingPlatform } from '../../types';
 import { INITIAL_PROPERTIES } from '../../data/initialData';
+import { isAppMode } from '../../lib/appMode';
 
 interface CalendarImportModalProps {
   isOpen: boolean;
@@ -156,7 +157,7 @@ function parseAnyDate(raw: any): string | null {
   return null;
 }
 
-// Smart Property Matcher that handles units, letters, and avoid false greedy matches
+// Smart Property Matcher that handles units and matching with client's properties
 function smartMatchProperty(
   rawCabin: string,
   otherRowValues: string[] = [],
@@ -165,47 +166,13 @@ function smartMatchProperty(
   try {
     const safeProps = Array.isArray(properties) && properties.length > 0
       ? properties.filter(Boolean)
-      : (INITIAL_PROPERTIES || [{ id: 'cat-a', name: 'Departamento A' } as any]);
-    const defaultPropertyId = safeProps[0]?.id || 'cat-a';
+      : [];
+    const defaultPropertyId = safeProps[0]?.id || '';
 
     const cleanRaw = rawCabin ? String(rawCabin).trim() : '';
 
     if (cleanRaw) {
       const normRaw = normalizeString(cleanRaw);
-      const upperRaw = cleanRaw.toUpperCase().trim();
-
-      // Find by explicit unit letter helper
-      const findPropByLetter = (letter: 'A' | 'B' | 'C' | 'D') => {
-        const lowerLetter = letter.toLowerCase();
-        return safeProps.find(p => {
-          const id = (p?.id || '').toLowerCase();
-          const name = (p?.name || '').toUpperCase();
-          if (id === `cat-${lowerLetter}` || id === `prop-${letter === 'A' ? 1 : letter === 'B' ? 2 : letter === 'C' ? 3 : 4}`) return true;
-          if (id.endsWith(`-${lowerLetter}`) || id.endsWith(`_${lowerLetter}`)) return true;
-          // Match standalone letter with word boundaries: "Departamento D", "Cabaña D (Estudio)"
-          if (new RegExp(`(?:\\b|\\s|\\()${letter}(?:\\b|\\s|\\))`, 'i').test(name)) return true;
-          if (name.endsWith(` ${letter}`) || name.endsWith(`(${letter})`)) return true;
-          return false;
-        });
-      };
-
-      // Direct Argentine Apartment Naming (1A, 1B, 2C, 2D, PB5, Depto A, etc.)
-      if (upperRaw === '1A' || upperRaw === 'A' || upperRaw === 'DEPTO A' || upperRaw === 'DEPARTAMENTO A' || upperRaw === 'PB5' || upperRaw === 'PB 5') {
-        const propA = findPropByLetter('A');
-        if (propA) return propA.id;
-      }
-      if (upperRaw === '1B' || upperRaw === 'B' || upperRaw === 'DEPTO B' || upperRaw === 'DEPARTAMENTO B') {
-        const propB = findPropByLetter('B');
-        if (propB) return propB.id;
-      }
-      if (upperRaw === '2C' || upperRaw === 'C' || upperRaw === 'DEPTO C' || upperRaw === 'DEPARTAMENTO C') {
-        const propC = findPropByLetter('C');
-        if (propC) return propC.id;
-      }
-      if (upperRaw === '2D' || upperRaw === 'D' || upperRaw === 'DEPTO D' || upperRaw === 'DEPARTAMENTO D') {
-        const propD = findPropByLetter('D');
-        if (propD) return propD.id;
-      }
 
       // Exact name or ID match
       for (const prop of safeProps) {
@@ -216,13 +183,11 @@ function smartMatchProperty(
         }
       }
 
-      // Extract trailing letter (e.g. "2D" -> "D", "1B" -> "B")
-      const lettersInRaw = cleanRaw.replace(/[^a-zA-Z]/g, '').toUpperCase();
-      if (lettersInRaw.length >= 1) {
-        const primaryLetter = lettersInRaw.charAt(lettersInRaw.length - 1) as 'A' | 'B' | 'C' | 'D';
-        if (['A', 'B', 'C', 'D'].includes(primaryLetter)) {
-          const letterMatch = findPropByLetter(primaryLetter);
-          if (letterMatch) return letterMatch.id;
+      // Substring match
+      for (const prop of safeProps) {
+        const propNorm = normalizeString(prop?.name || '');
+        if (propNorm && (normRaw.includes(propNorm) || propNorm.includes(normRaw))) {
+          return prop.id;
         }
       }
 
@@ -252,7 +217,7 @@ function smartMatchProperty(
 
     return defaultPropertyId;
   } catch {
-    return 'cat-a';
+    return '';
   }
 }
 
@@ -409,11 +374,11 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
       if (cabinCandidate) {
         matchedPropId = smartMatchProperty(cabinCandidate, parts, safeProperties);
         const propObj = safeProperties.find(p => p.id === matchedPropId);
-        propertyName = propObj ? propObj.name : 'Departamento A';
+        propertyName = propObj ? propObj.name : 'Elegí una unidad';
       } else {
         matchedPropId = smartMatchProperty('', parts, safeProperties);
         const propObj = safeProperties.find(p => p.id === matchedPropId);
-        propertyName = propObj ? `${propObj.name} (Auto-asignado)` : 'Departamento A (Auto-asignado)';
+        propertyName = propObj ? `${propObj.name} (Auto-asignado)` : 'Elegí una unidad';
         warnings.push('No se especificó cabaña/departamento. Se asignará al primero disponible.');
       }
 
@@ -752,7 +717,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
         } else {
           const sepEscaped = sep === '|' ? '\\|' : sep;
           const sepMatches = (line.match(new RegExp(sepEscaped, 'g')) || []).length;
-          const isNewRow = sepMatches >= 4 || /^(1A|1B|2C|2D|PB5|[0-9][A-Za-z]|[A-Za-z][0-9]?|\d{4}-\d{2}-\d{2})/i.test(line);
+          const isNewRow = sepMatches >= 4 || /^([0-9][A-Za-z]|[A-Za-z][0-9]?|\d{4}-\d{2}-\d{2})/i.test(line);
           if (isNewRow) {
             combinedLines.push(currentBuffer);
             currentBuffer = line;
@@ -1568,30 +1533,36 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
               </div>
 
               {/* Mode Switcher */}
-              <div className="flex bg-[#1c1c1c] p-1 rounded-lg border border-[#2c2c2c] text-[11px]">
-                <button
-                  type="button"
-                  onClick={() => setImportMode('add')}
-                  className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
-                    importMode === 'add'
-                      ? 'bg-[#2a221b] text-[#d88d5e] border border-[#d88d5e]/30'
-                      : 'text-[#8e8c87] hover:text-white'
-                  }`}
-                >
-                  Sumar al calendario
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setImportMode('replace')}
-                  className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
-                    importMode === 'replace'
-                      ? 'bg-red-950 text-red-300 border border-red-800/40'
-                      : 'text-[#8e8c87] hover:text-white'
-                  }`}
-                >
-                  Reemplazar todo
-                </button>
-              </div>
+              {!isAppMode() ? (
+                <div className="flex bg-[#1c1c1c] p-1 rounded-lg border border-[#2c2c2c] text-[11px]">
+                  <button
+                    type="button"
+                    onClick={() => setImportMode('add')}
+                    className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                      importMode === 'add'
+                        ? 'bg-[#2a221b] text-[#d88d5e] border border-[#d88d5e]/30'
+                        : 'text-[#8e8c87] hover:text-white'
+                    }`}
+                  >
+                    Sumar al calendario
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImportMode('replace')}
+                    className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                      importMode === 'replace'
+                        ? 'bg-red-950 text-red-300 border border-red-800/40'
+                        : 'text-[#8e8c87] hover:text-white'
+                    }`}
+                  >
+                    Reemplazar todo
+                  </button>
+                </div>
+              ) : (
+                <div className="text-[11px] text-[#d88d5e] font-semibold bg-[#2a221b]/60 px-2.5 py-1 rounded-md border border-[#d88d5e]/30">
+                  Modo Agregar (Omitiendo duplicados)
+                </div>
+              )}
             </div>
 
             {/* Distribution Badges */}

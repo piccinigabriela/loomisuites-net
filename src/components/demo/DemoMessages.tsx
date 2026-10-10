@@ -135,9 +135,15 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
     if (!selectedTemplate || !selectedReservation || !selectedProperty) return '';
 
     const guestFirstName = selectedReservation.guestName.split(' ')[0];
-    const personalizedGuideUrl = `https://loomisuite.com/guia/${selectedProperty.id}?huesped=${encodeURIComponent(guestFirstName)}&unidad=${encodeURIComponent(selectedProperty.name)}&pin=${encodeURIComponent(selectedReservation.pinCode || '')}`;
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.com';
+    const personalizedGuideUrl = `${baseUrl}/guia/${selectedProperty.id}?huesped=${encodeURIComponent(guestFirstName)}&unidad=${encodeURIComponent(selectedProperty.name)}&pin=${encodeURIComponent(selectedReservation.pinCode || '')}`;
 
     let content = selectedTemplate.content;
+    const complexName = demoState.welcomeGuide?.propertyName || 'Mi Complejo';
+
+    // Complex name
+    content = content.replace(/\{\{nombre_complejo\}\}/gi, complexName);
+    content = content.replace(/\{nombre_complejo\}/gi, complexName);
 
     // Double curly braces {{...}}
     content = content.replace(/\{\{nombre_huésped\}\}/gi, guestFirstName);
@@ -153,14 +159,14 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
     content = content.replace(/\{nombre_huésped\}/gi, guestFirstName);
     content = content.replace(/\{nombre_propiedad\}/gi, selectedProperty.name);
     content = content.replace(/\{propiedad_id\}/gi, selectedProperty.id);
-    content = content.replace(/https:\/\/loomisuite\.com\/guia\/\{propiedad_id\}/gi, personalizedGuideUrl);
+    content = content.replace(/https?:\/\/[^\/]+\/guia\/\{propiedad_id\}/gi, personalizedGuideUrl);
     content = content.replace(/\{link_guia\}/gi, personalizedGuideUrl);
     content = content.replace(/\{direccion_propiedad\}/gi, `${selectedProperty.address}, ${selectedProperty.neighborhood}`);
     content = content.replace(/\{fecha_llegada\}/gi, formatDisplayDate(selectedReservation.checkIn));
     content = content.replace(/\{fecha_salida\}/gi, formatDisplayDate(selectedReservation.checkOut));
-    content = content.replace(/\{codigo_cerradura\}/gi, selectedReservation.pinCode || '1234#');
-    content = content.replace(/\{nombre_wifi\}/gi, selectedProperty.wifiNetwork || 'WiFi-Complejo');
-    content = content.replace(/\{clave_wifi\}/gi, selectedProperty.wifiPassword || 'Bienvenido2026');
+    content = content.replace(/\{codigo_cerradura\}/gi, selectedReservation.pinCode || '(a confirmar)');
+    content = content.replace(/\{nombre_wifi\}/gi, selectedProperty.wifiNetwork || '(a confirmar)');
+    content = content.replace(/\{clave_wifi\}/gi, selectedProperty.wifiPassword || '(a confirmar)');
 
     return content;
   };
@@ -359,9 +365,9 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
             checkInTime="14:00 hs"
             accessCode={selectedReservation?.pinCode || '4821'}
             wifiNetwork={selectedProperty?.wifiNetwork || 'ComplejoIguazu_Selva_5G'}
-            wifiPassword={selectedProperty?.wifiPassword || 'IguazuDemo2026'}
-            address={selectedProperty ? `${selectedProperty.address}` : 'Ruta Ejemplo km 5, Puerto Iguazú, Misiones'}
-            guideUrl={`https://loomisuite.com/guia/${selectedProperty?.id || 'cab-lapacho'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
+            wifiPassword={selectedProperty?.wifiPassword || '(a confirmar)'}
+            address={selectedProperty ? `${selectedProperty.address}` : 'Ruta Ejemplo km 5'}
+            guideUrl={`${typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.com'}/guia/${selectedProperty?.id || 'cab-lapacho'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
             hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5493757550100'}
           />
         </div>
@@ -653,7 +659,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                     wifiNetwork={selectedProperty?.wifiNetwork || 'ComplejoIguazu_Selva_5G'}
                     wifiPassword={selectedProperty?.wifiPassword || 'IguazuDemo2026'}
                     address={selectedProperty ? `${selectedProperty.address}` : 'Ruta Ejemplo km 5, Puerto Iguazú, Misiones'}
-                    guideUrl={`https://loomisuite.com/guia/${selectedProperty?.id || 'cab-lapacho'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
+                    guideUrl={`${typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.com'}/guia/${selectedProperty?.id || 'cab-lapacho'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
                     hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5493757550100'}
                   />
                 </div>

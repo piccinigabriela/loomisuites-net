@@ -13,6 +13,9 @@ import {
   User,
 } from 'firebase/auth';
 import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   getFirestore,
   doc,
   setDoc,
@@ -103,15 +106,31 @@ export function getAuthErrorMessage(code: string): string {
       return 'Demasiados intentos fallidos. Por seguridad, esperá unos minutos antes de volver a intentar.';
     case 'auth/user-disabled':
       return 'Esta cuenta fue desactivada por un administrador.';
+    case 'auth/unauthorized-domain':
+      return 'Este dominio no está autorizado para autenticación en Firebase. Agregalo en la consola de Firebase Authentication (Authentication > Configuración > Dominios autorizados).';
     default:
+      console.error('Firebase Auth error desconocido:', code);
       return 'Ocurrió un error inesperado al procesar la solicitud. Intentá de nuevo en unos instantes.';
   }
 }
 
-// Initialize Firestore with specific database ID if provided
-export const db = databaseId && databaseId !== '(default)'
-  ? getFirestore(firebaseApp, databaseId)
-  : getFirestore(firebaseApp);
+// Initialize Firestore with persistent offline cache and tab manager
+let dbInstance;
+try {
+  dbInstance = initializeFirestore(
+    firebaseApp,
+    {
+      ignoreUndefinedProperties: true,
+      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+    },
+    databaseId
+  );
+} catch {
+  dbInstance = databaseId && databaseId !== '(default)'
+    ? getFirestore(firebaseApp, databaseId)
+    : getFirestore(firebaseApp);
+}
+export const db = dbInstance;
 
 /**
  * Persist complex state to Firebase Cloud Firestore
