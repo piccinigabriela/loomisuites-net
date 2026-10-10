@@ -486,17 +486,17 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
           >
             <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 dark:border-white/5">
               <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-700 dark:text-zinc-400">
-                72 HORAS
+                MUDANZA
               </span>
               <span className="w-2 h-2 rounded-full bg-gray-900 dark:bg-white shrink-0" />
             </div>
 
             <div className="my-auto py-2 space-y-1">
               <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
-                Llave en Mano
+                Te mudamos nosotros
               </h3>
               <p className="text-xs text-slate-800 dark:text-zinc-300 leading-relaxed font-normal">
-                Carga inicial de fotos y calendarios iCal en 72hs.
+                Mandanos tu Excel, tu sistema anterior o fotos del cuaderno. Cargamos tus reservas por vos.
               </p>
             </div>
 
@@ -915,33 +915,37 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               <div className="space-y-5">
                 <div className="space-y-1">
                   <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#E67E22]">
-                    08 / ASISTENCIA CONCIERGE
+                    08 / MUDANZA LLAVE EN MANO
                   </span>
                   <h3 className="text-2xl font-light text-gray-900 dark:text-white">
-                    Servicio Llave en Mano <span className="font-semibold">en 72 horas</span>
+                    Tu mudanza, <span className="font-semibold">sin pelearte con planillas</span>
                   </h3>
                 </div>
 
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-300 leading-relaxed font-light">
-                  Si no disponés de tiempo para cargar fotos, registrar tus unidades o vincular los enlaces iCal de Airbnb y Booking, nuestro equipo hace el 100% de la configuración inicial por vos.
+                  Importar un Excel suena fácil hasta que las columnas no coinciden, las fechas vienen en otro formato y la mitad de las reservas queda afuera. Por eso no te dejamos solo con un importador: mandanos lo que tengas —Excel, CSV, exportación de otro sistema o fotos del cuaderno— y nuestro equipo carga todo a mano y lo revisa con vos.
                 </p>
 
                 <div className="p-4 rounded-xl border border-gray-100 dark:border-white/5 bg-gray-50/70 dark:bg-zinc-800/40 text-xs font-light space-y-1.5">
-                  <p>• Configuración de todas tus unidades y fotos</p>
-                  <p>• Enlace bidireccional de calendarios iCal</p>
-                  <p>• Guía digital interactiva con clave Wi-Fi y mapa</p>
-                  <p>• Capacitación personalizada para vos y tu equipo</p>
+                  <p>• Reservas futuras con huésped, fechas, unidad y seña</p>
+                  <p>• Unidades, fotos y datos del complejo</p>
+                  <p>• Conexión de calendarios de Airbnb y Booking</p>
+                  <p>• Revisión final juntos antes de que empieces a operar</p>
+                </div>
+
+                <div className="p-3.5 rounded-xl border border-orange-100/80 dark:border-orange-950/40 bg-[#FDF3E7]/60 dark:bg-orange-950/20 text-xs font-semibold text-[#E67E22] dark:text-orange-300">
+                  Servicio único · listo en 72 hs hábiles · se descuenta de tu primer mes si activás el plan
                 </div>
 
                 <div className="pt-3 border-t border-gray-100 dark:border-white/5 flex justify-end">
                   <button
                     onClick={() => {
                       setActiveModule(null);
-                      onOpenContact('Servicio Concierge Onboarding Llave en Mano');
+                      onOpenContact('Mudanza Llave en Mano');
                     }}
                     className="px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
                   >
-                    Pedir Presupuesto Llave en Mano
+                    Quiero que me carguen mis reservas
                   </button>
                 </div>
               </div>

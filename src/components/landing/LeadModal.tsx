@@ -217,7 +217,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
                   <span>Enviar y Chatear por WhatsApp ({SALES_PHONE_DISPLAY})</span>
                 </button>
                 <p className="text-[11px] text-zinc-500 dark:text-zinc-400 text-center mt-2">
-                  🔒 Sin tarjeta de crédito para comenzar. Activación y configuración guiada en 24 horas.
+                  🔒 Sin tarjeta de crédito para comenzar. Activación y configuración guiada en 72 hs hábiles.
                 </p>
 
                 <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-[#382b20] flex items-center justify-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-400">

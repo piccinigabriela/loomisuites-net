@@ -65,6 +65,8 @@ import { INITIAL_WELCOME_GUIDE, getEmptyAppState } from './data/initialData';
 import { isAppMode } from './lib/appMode';
 import { auth, onAuthStateChanged, signOut, User } from './lib/firebase';
 import { AppAuthScreen } from './components/auth/AppAuthScreen';
+import { TrialEndedScreen } from './components/auth/TrialEndedScreen';
+import { subscribeToSubscription, getAccessStatus, SubscriptionDoc } from './lib/subscription';
 import {
   subscribeToTenant,
   initializeTenantOnboarding,
@@ -87,10 +89,15 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState<boolean>(() => isApp);
   const [tenantLoading, setTenantLoading] = useState<boolean>(() => isApp);
 
+  // Subscription state in App Mode
+  const [subscriptionDoc, setSubscriptionDoc] = useState<SubscriptionDoc | null>(null);
+  const [subscriptionLoading, setSubscriptionLoading] = useState<boolean>(() => isApp);
+
   useEffect(() => {
     if (!isApp) {
       setAuthLoading(false);
       setTenantLoading(false);
+      setSubscriptionLoading(false);
       return;
     }
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -98,14 +105,34 @@ export default function App() {
       setAuthLoading(false);
       if (user) {
         setTenantLoading(true);
+        setSubscriptionLoading(true);
         setDemoState(getEmptyAppState());
       } else {
         setTenantLoading(false);
+        setSubscriptionLoading(false);
+        setSubscriptionDoc(null);
         setDemoState(getEmptyAppState());
       }
     });
     return () => unsubscribe();
   }, [isApp]);
+
+  // Real-time Subscription doc listener in App Mode
+  useEffect(() => {
+    if (!isApp || !currentUser) {
+      setSubscriptionDoc(null);
+      setSubscriptionLoading(false);
+      return;
+    }
+    setSubscriptionLoading(true);
+    const unsubscribe = subscribeToSubscription(currentUser.uid, (doc) => {
+      setSubscriptionDoc(doc);
+      setSubscriptionLoading(false);
+    });
+    return () => unsubscribe();
+  }, [isApp, currentUser]);
+
+  const accessStatus = (isApp && currentUser) ? getAccessStatus(currentUser, subscriptionDoc) : null;
 
   // Real-time Firestore subscription in App Mode
   useEffect(() => {
@@ -1172,8 +1199,8 @@ export default function App() {
     showToast('Sesión cerrada. Volviendo a la demo.');
   };
 
-  // Loading simple en modo App mientras se verifica la sesión o se cargan los datos del complejo
-  if (isApp && (authLoading || (currentUser && tenantLoading))) {
+  // Loading simple en modo App mientras se verifica la sesión o se cargan los datos del complejo / suscripción
+  if (isApp && (authLoading || (currentUser && (tenantLoading || subscriptionLoading)))) {
     return (
       <div className="min-h-screen w-full bg-[#0B0F17] text-white flex flex-col items-center justify-center p-4 selection:bg-[#E67E22]">
         <div className="flex flex-col items-center gap-4 animate-in fade-in duration-300">
@@ -1196,8 +1223,40 @@ export default function App() {
     return <AppAuthScreen onSuccess={() => {}} />;
   }
 
+  // Pantalla de prueba finalizada si la prueba de 7 días expiró
+  if (isApp && currentUser && accessStatus?.state === 'expired') {
+    return (
+      <TrialEndedScreen
+        email={currentUser.email || ''}
+        onSignOut={handleLogout}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans antialiased selection:bg-rose-500 selection:text-white transition-colors">
+      {/* Barra superior fina para prueba gratis */}
+      {isApp && accessStatus?.state === 'trial' && (
+        <div className="bg-amber-500/10 border-b border-amber-500/20 py-1.5 px-4 text-center text-xs text-amber-300 font-medium flex items-center justify-center gap-2 relative z-50">
+          <span>
+            {accessStatus.daysLeft === 1
+              ? 'Último día de prueba gratis'
+              : `Te quedan ${accessStatus.daysLeft} días de prueba gratis`}
+          </span>
+          <span>·</span>
+          <a
+            href={`https://wa.me/5491140925939?text=${encodeURIComponent(
+              `Hola, quiero activar mi plan de Loomi Suite. Mi email: ${currentUser?.email || ''}`
+            )}`}
+            target="_blank"
+            rel="noreferrer"
+            className="font-bold underline hover:text-amber-200 transition-colors cursor-pointer"
+          >
+            Activar plan
+          </a>
+        </div>
+      )}
+
       {/* Global Toast */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 bg-zinc-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-2xl border border-zinc-700 flex items-center gap-2 animate-in slide-in-from-bottom-3">

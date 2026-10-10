@@ -1147,7 +1147,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
                 <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Migración Concierge</span>
                 <span className="text-[9px] bg-emerald-500/20 px-1.5 py-0.2 rounded-full font-bold border border-emerald-500/30">
-                  Gratis
+                  72 hs
                 </span>
               </button>
             </div>
@@ -1180,7 +1180,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
                     onClick={() => setActiveTab('concierge')}
                     className="text-xs font-bold text-emerald-400 hover:text-emerald-300 underline flex items-center gap-1 cursor-pointer"
                   >
-                    <span>Te la cargamos nosotros en 24hs sin costo →</span>
+                    <span>¿Preferís que te la carguemos nosotros? →</span>
                   </button>
                 </div>
               </div>
@@ -1285,7 +1285,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1.5">
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold uppercase tracking-wider border border-emerald-500/30">
-                      <Sparkles className="w-3 h-3 text-emerald-400" />
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                       Servicio de Onboarding Llave en Mano
                     </div>
                     <h4 className="text-base font-bold text-white">
@@ -1293,35 +1293,35 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
                     </h4>
                     <p className="text-xs text-zinc-300 leading-relaxed">
                       Sabemos que migrar reservas históricas es una de las tareas más tediosas. 
-                      Mandanos tu planilla por WhatsApp o email tal cual la tengas (en Excel, CSV, PDF o capturas) y el equipo técnico de Loomi Suite se encarga de estructurarla y cargarla en tu cuenta sin ningún costo.
+                      Mandanos tu planilla por WhatsApp o email tal cual la tengas (en Excel, CSV, PDF o capturas) y el equipo técnico de Loomi Suite se encarga de estructurarla y cargarla en tu cuenta como servicio único, que se descuenta de tu primer mes si activás el plan.
                     </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                   <div className="bg-[#0e1612] p-3.5 rounded-xl border border-emerald-900/40 space-y-1">
-                    <span className="font-extrabold text-emerald-400 block text-xs">⚡ Entrega en 24 hs</span>
+                    <span className="font-extrabold text-emerald-400 block text-xs">⚡ Lista en 72 hs hábiles</span>
                     <p className="text-[11px] text-zinc-400">
-                      Cargamos tus reservas históricas y futuras respetando cada seña, huésped y departamento.
+                      Cargamos tus reservas históricas y futuras respetando cada seña, huésped y unidad.
                     </p>
                   </div>
                   <div className="bg-[#0e1612] p-3.5 rounded-xl border border-emerald-900/40 space-y-1">
-                    <span className="font-extrabold text-emerald-400 block text-xs">🛡️ 100% Sin Errores</span>
+                    <span className="font-extrabold text-emerald-400 block text-xs">🛡️ Revisada con vos</span>
                     <p className="text-[11px] text-zinc-400">
-                      Revisamos fechas de recambio y comisiones para que tu rack quede impecable.
+                      Antes de que empieces a operar, repasamos juntos que cada reserva esté en su lugar.
                     </p>
                   </div>
                   <div className="bg-[#0e1612] p-3.5 rounded-xl border border-emerald-900/40 space-y-1">
-                    <span className="font-extrabold text-emerald-400 block text-xs">🎁 100% Bonificado</span>
+                    <span className="font-extrabold text-emerald-400 block text-xs">🏷️ Servicio Único</span>
                     <p className="text-[11px] text-zinc-400">
-                      Incluido sin cargo adicional para todos los usuarios de Loomi Suite.
+                      Se descuenta de tu primer mes si activás el plan.
                     </p>
                   </div>
                 </div>
 
                 <div className="pt-3 border-t border-emerald-900/40 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <a
-                    href={`https://wa.me/5491138446459?text=${encodeURIComponent(
+                    href={`https://wa.me/5491140925939?text=${encodeURIComponent(
                       `Hola equipo de Loomi Suite! 👋 Les escribo porque quiero que me asistan con la carga de mi archivo de reservas para mi complejo. ¿Cómo se los envío?`
                     )}`}
                     target="_blank"
@@ -1332,7 +1332,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
                   </a>
 
                   <a
-                    href={`mailto:soporte@loomisuite.com?subject=${encodeURIComponent(
+                    href={`mailto:contacto@loomisuite.net?subject=${encodeURIComponent(
                       'Migración Asistida de Reservas - Loomi Suite'
                     )}&body=${encodeURIComponent(
                       'Hola equipo de Loomi Suite!\n\nLes adjunto el archivo de reservas de mi complejo para que lo carguen en mi cuenta.\n\nNombre del complejo:\nCantidad de unidades:\n\nMuchas gracias!'
