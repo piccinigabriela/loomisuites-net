@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Plus, Calendar, User, DollarSign, KeyRound, Check, ShoppingBag, Trash2 } from 'lucide-react';
-import { DemoState, Reservation, BookingPlatform, ReservationAddon, AddonService } from '../../types';
+import { DemoState, Reservation, BookingPlatform, ReservationAddon, AddonService, PaymentStatus } from '../../types';
 import { getRelativeDate } from '../../data/initialData';
 
 interface NewReservationModalProps {
@@ -25,11 +25,12 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
   );
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
-  const [guestPhone, setGuestPhone] = useState('+54 9 11 ');
+  const [guestPhone, setGuestPhone] = useState('');
   const [checkIn, setCheckIn] = useState(initialDate || getRelativeDate(2));
   const [checkOut, setCheckOut] = useState(getRelativeDate(5));
   const [platform, setPlatform] = useState<BookingPlatform>('direct');
   const [guestsCount, setGuestsCount] = useState(2);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('pending');
   const [specialNotes, setSpecialNotes] = useState('');
 
   // Nuevas opciones avanzadas solicitadas:
@@ -45,8 +46,46 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
   const [selectedAddons, setSelectedAddons] = useState<ReservationAddon[]>([]);
   const [selectedAddonIdToAdd, setSelectedAddonIdToAdd] = useState<string>('');
 
+  // Reload initial values every time the modal is opened
+  useEffect(() => {
+    if (isOpen) {
+      const defaultPropId = initialPropertyId || demoState.properties[0]?.id || '';
+      setPropertyId(defaultPropId);
+      const defaultCheckIn = initialDate || getRelativeDate(2);
+      setCheckIn(defaultCheckIn);
+
+      const d = new Date(defaultCheckIn);
+      if (!isNaN(d.getTime())) {
+        d.setDate(d.getDate() + 3);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        setCheckOut(`${yyyy}-${mm}-${dd}`);
+      } else {
+        setCheckOut(getRelativeDate(5));
+      }
+
+      setGuestName('');
+      setGuestEmail('');
+      setGuestPhone('');
+      setPlatform('direct');
+      setGuestsCount(2);
+      setPaymentStatus('pending');
+      setSpecialNotes('');
+      setEarlyCheckIn(false);
+      setLateCheckOut(false);
+      setEarlyLateFee(0);
+      setCustomDiscountPercent(0);
+      setIsManualPrice(false);
+      setManualPricePerNight(null);
+      setSelectedAddons([]);
+      setSelectedAddonIdToAdd('');
+    }
+  }, [isOpen, initialPropertyId, initialDate, demoState.properties]);
+
   if (!isOpen) return null;
 
+  const isPropertyValid = Boolean(propertyId && demoState.properties.some((p) => p.id === propertyId));
   const selectedProp = demoState.properties.find((p) => p.id === propertyId);
   const addonsCatalog = demoState.addons || [];
 
@@ -114,15 +153,16 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPropertyValid) return;
 
     const randomPin = `${Math.floor(1000 + Math.random() * 9000)}#`;
 
     const newRes: Reservation = {
       id: `res-${Date.now()}`,
       propertyId,
-      guestName: guestName || 'Huésped Invitado',
-      guestEmail: guestEmail || 'huesped@ejemplo.com',
-      guestPhone: guestPhone || '+54 9 11 5555-0000',
+      guestName: guestName.trim() || 'Huésped Invitado',
+      guestEmail: guestEmail.trim(),
+      guestPhone: guestPhone.trim(),
       checkIn,
       checkOut,
       nights,
@@ -133,9 +173,9 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
       commissionPaid,
       netRevenue,
       status: 'confirmed',
-      paymentStatus: 'paid',
+      paymentStatus,
       pinCode: randomPin,
-      specialNotes,
+      specialNotes: specialNotes.trim(),
       createdAt: new Date().toISOString().split('T')[0],
       earlyCheckIn,
       lateCheckOut,
@@ -184,6 +224,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
               onChange={(e) => setPropertyId(e.target.value)}
               className="w-full text-xs font-semibold p-3 rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-[#D86F35]/40 cursor-pointer shadow-xs"
             >
+              {!isPropertyValid && <option value="">-- Elegí una unidad --</option>}
               {demoState.properties.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.neighborhood} - {p.name} (${p.basePrice}/noche)
@@ -244,7 +285,23 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
             </div>
           </div>
 
-          {/* Modalidad de Comisión Airbnb (Soporte Cuentas Tradicionales 3% vs Simplificada 15%) */}
+          {/* Payment Status Selector */}
+          <div>
+            <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+              Estado de Pago
+            </label>
+            <select
+              value={paymentStatus}
+              onChange={(e) => setPaymentStatus(e.target.value as PaymentStatus)}
+              className="w-full text-xs font-semibold p-3 rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-[#D86F35]/40 cursor-pointer shadow-xs"
+            >
+              <option value="pending">Pendiente</option>
+              <option value="deposit_only">Seña</option>
+              <option value="paid">Pagado</option>
+            </select>
+          </div>
+
+          {/* Modalidad de Comisión Airbnb */}
           {platform === 'airbnb' && (
             <div className="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-xl text-xs space-y-1.5">
               <span className="font-bold text-rose-900 dark:text-rose-300 block">Modalidad de Comisión Airbnb:</span>
@@ -279,7 +336,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
             </div>
           )}
 
-          {/* Tarifas Diferenciales y Descuentos para cualquier canal */}
+          {/* Tarifas Diferenciales y Descuentos */}
           <div className="p-3 bg-zinc-50 dark:bg-zinc-800/80 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs space-y-2">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
               <div>
@@ -400,7 +457,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
               <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">WhatsApp Huésped</label>
               <input
                 type="tel"
-                placeholder="+54 9 11..."
+                placeholder="Ej: +54 9 11 1234-5678"
                 value={guestPhone}
                 onChange={(e) => setGuestPhone(e.target.value)}
                 className="w-full text-xs font-semibold p-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100"
@@ -417,6 +474,17 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
                 className="w-full text-xs font-semibold p-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">Correo Electrónico</label>
+            <input
+              type="email"
+              placeholder="Ej: huesped@mail.com"
+              value={guestEmail}
+              onChange={(e) => setGuestEmail(e.target.value)}
+              className="w-full text-xs font-semibold p-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100"
+            />
           </div>
 
           {/* Optional Addons Picker */}
@@ -541,10 +609,15 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
             </button>
             <button
               type="submit"
-              className="text-xs font-bold uppercase tracking-wider bg-[#E1500A] hover:bg-[#C44307] text-white px-5 py-2.5 rounded-none shadow-2xs transition-all cursor-pointer flex items-center gap-1.5"
+              disabled={!isPropertyValid}
+              className={`text-xs font-bold uppercase tracking-wider px-5 py-2.5 shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 ${
+                !isPropertyValid
+                  ? 'bg-gray-300 dark:bg-zinc-700 text-gray-500 cursor-not-allowed'
+                  : 'bg-[#E1500A] hover:bg-[#C44307] text-white'
+              }`}
             >
               <Check className="w-4 h-4" />
-              <span>Confirmar y Guardar Reserva</span>
+              <span>{!isPropertyValid ? 'Elegí una unidad' : 'Confirmar y Guardar Reserva'}</span>
             </button>
           </div>
         </form>
@@ -552,3 +625,4 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
     </div>
   );
 };
+

@@ -136,11 +136,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
   const getPropName = (propId: string) => {
     const p = getProp(propId);
     if (p) return p.name;
-    if (propId === 'cat-a') return 'Departamento A';
-    if (propId === 'cat-b') return 'Departamento B';
-    if (propId === 'cat-c') return 'Departamento C';
-    if (propId === 'cat-d') return 'Departamento D';
-    return propId;
+    return 'Sin unidad asignada';
   };
 
   // Quick mark paid

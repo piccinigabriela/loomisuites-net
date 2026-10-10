@@ -369,6 +369,9 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                   onChange={(e) => setEditPropertyId(e.target.value)}
                   className="w-full text-xs font-semibold p-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
                 >
+                  {(!editPropertyId || !properties.some((p) => p.id === editPropertyId)) && (
+                    <option value="">-- Asignar unidad --</option>
+                  )}
                   {properties.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name} · {p.neighborhood} (${p.basePrice} USD/noche)
@@ -743,10 +746,22 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                 <span className="text-[10px] font-bold text-[#D86F35] uppercase tracking-wider block">
                   Alojamiento
                 </span>
-                <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 mt-0.5">{property?.name}</h4>
-                <p className="text-xs text-gray-400 font-medium">
-                  {property?.address}, {property?.neighborhood}
-                </p>
+                <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 mt-0.5">
+                  {property?.name || 'Sin unidad asignada'}
+                </h4>
+                {property ? (
+                  <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">
+                    {property.address}, {property.neighborhood}
+                  </p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(true)}
+                    className="text-xs text-[#D86F35] hover:underline font-medium mt-1 cursor-pointer block"
+                  >
+                    + Asignar una unidad ahora
+                  </button>
+                )}
               </div>
 
               {/* Same-Day Turnover Alert Banner */}

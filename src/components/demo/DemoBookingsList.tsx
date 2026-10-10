@@ -47,20 +47,16 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
   const [checkInStart, setCheckInStart] = useState('');
   const [checkInEnd, setCheckInEnd] = useState('');
 
-  // Accordion state: ID of the currently expanded reservation (defaults to first reservation or null)
+  // Accordion state: ID of the currently expanded reservation
   const [expandedReservationId, setExpandedReservationId] = useState<string | null>(() => {
     return demoState.reservations.length > 0 ? demoState.reservations[0].id : null;
   });
 
-  // Display mode: 'zen-cards' (accordion cards per the user's template) vs 'table' (full tabular view)
+  // Display mode: 'zen-cards' vs 'table'
   const [viewMode, setViewMode] = useState<'zen-cards' | 'table'>('zen-cards');
 
   // Copy feedback state
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-
-  // Dropdown states for inline editing
-  const [activeStatusDropdown, setActiveStatusDropdown] = useState<string | null>(null);
-  const [activePaymentDropdown, setActivePaymentDropdown] = useState<string | null>(null);
 
   const toggleRowAccordion = (id: string) => {
     setExpandedReservationId((prev) => (prev === id ? null : id));
@@ -80,10 +76,10 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
     const prop = demoState.properties.find((p) => p.id === propertyId);
     if (!prop) {
       return {
-        name: 'Departamento A',
-        code: 'A',
-        color: 'bg-orange-50 text-[#E67E22] border border-orange-100',
-        dotColor: 'bg-orange-400',
+        name: 'Sin unidad asignada',
+        code: '—',
+        color: 'bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-zinc-300 border border-stone-200 dark:border-zinc-700',
+        dotColor: 'bg-stone-400',
       };
     }
     const codeMatch = prop.name.match(/\b([A-Z0-9]+)\b/);
@@ -91,7 +87,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
     return {
       name: prop.name,
       code,
-      color: 'bg-orange-50 text-[#E67E22] border border-orange-100',
+      color: 'bg-orange-50 dark:bg-orange-950/40 text-[#E67E22] border border-orange-100 dark:border-orange-900/50',
       dotColor: 'bg-orange-400',
     };
   };
@@ -150,7 +146,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
       return [
         r.id,
         `"${r.guestName.replace(/"/g, '""')}"`,
-        `"${(prop?.name || '').replace(/"/g, '""')}"`,
+        `"${(prop?.name || 'Sin unidad asignada').replace(/"/g, '""')}"`,
         r.checkIn,
         r.checkOut,
         r.nights,
@@ -200,18 +196,18 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
       case 'paid':
         return {
           label: 'PAGADO',
-          className: 'bg-green-50 text-green-600',
+          className: 'bg-green-50 dark:bg-emerald-950/40 text-green-700 dark:text-emerald-300',
         };
       case 'deposit_only':
         return {
           label: 'SEÑA 50%',
-          className: 'bg-blue-50 text-blue-600',
+          className: 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300',
         };
       case 'pending':
       default:
         return {
           label: 'PENDIENTE',
-          className: 'bg-amber-50 text-amber-600',
+          className: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300',
         };
     }
   };
@@ -221,40 +217,29 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
       case 'confirmed':
         return {
           label: 'CONFIRMADA',
-          className: 'bg-emerald-50 text-emerald-700',
+          className: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300',
         };
       case 'checked_in':
         return {
           label: 'EN CABAÑA',
-          className: 'bg-orange-50 text-[#E67E22]',
+          className: 'bg-orange-50 dark:bg-orange-950/40 text-[#E67E22]',
         };
       case 'checked_out':
         return {
           label: 'CHECK-OUT',
-          className: 'bg-stone-100 text-stone-600',
+          className: 'bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-stone-300',
         };
       case 'cancelled':
         return {
           label: 'CANCELADA',
-          className: 'bg-rose-50 text-rose-500 line-through',
+          className: 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 line-through',
         };
       default:
         return {
           label: String(status).toUpperCase(),
-          className: 'bg-stone-100 text-stone-600',
+          className: 'bg-stone-100 dark:bg-zinc-800 text-stone-600 dark:text-stone-300',
         };
     }
-  };
-
-  const handleUpdatePaymentStatusInline = (resId: string, newPaymentStatus: PaymentStatus) => {
-    const res = demoState.reservations.find((r) => r.id === resId);
-    if (res) {
-      onUpdateReservation({
-        ...res,
-        paymentStatus: newPaymentStatus,
-      });
-    }
-    setActivePaymentDropdown(null);
   };
 
   const getWhatsAppLink = (res: Reservation) => {
@@ -270,35 +255,35 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
   return (
     <div className="space-y-6 font-sans">
       {/* Search and Filters Header */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_4px_12px_rgba(0,0,0,0.005)] space-y-4 print:hidden transition-colors">
+      <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-gray-100 dark:border-zinc-800 p-5 shadow-[0_4px_12px_rgba(0,0,0,0.005)] space-y-4 print:hidden transition-colors">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center space-x-2">
-              <span className="inline-block bg-orange-50 text-[#E67E22] text-[10px] font-semibold tracking-widest px-2.5 py-0.5 rounded-md uppercase">
+              <span className="inline-block bg-orange-50 dark:bg-orange-950/40 text-[#E67E22] text-[10px] font-semibold tracking-widest px-2.5 py-0.5 rounded-md uppercase">
                 Rack & Reservas • En Tiempo Real
               </span>
-              <span className="text-xs font-light text-gray-400">
+              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                 {filteredReservations.length} {filteredReservations.length === 1 ? 'reserva' : 'reservas'}
               </span>
             </div>
-            <h3 className="text-xl font-light text-gray-800 tracking-tight flex items-center gap-2">
+            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 tracking-tight flex items-center gap-2">
               <Calendar className="w-4 h-4 text-[#E67E22]" />
               <span>Lista de Reservas</span>
             </h3>
-            <p className="text-xs text-gray-400 font-light">
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
               Haz clic en cualquier fila para desplegar su ficha rápida, consumos y WhatsApp con transición suave.
             </p>
           </div>
 
           <div className="flex items-center gap-2 w-full lg:w-auto shrink-0">
             {/* View switcher */}
-            <div className="flex items-center bg-gray-50 p-1 rounded-xl border border-gray-100">
+            <div className="flex items-center bg-gray-50 dark:bg-zinc-800/80 p-1 rounded-xl border border-gray-200/80 dark:border-zinc-700">
               <button
                 onClick={() => setViewMode('zen-cards')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all cursor-pointer ${
                   viewMode === 'zen-cards'
-                    ? 'bg-white text-gray-800 shadow-sm font-medium'
-                    : 'text-gray-400 hover:text-gray-600'
+                    ? 'bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-100 shadow-xs font-semibold'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                 }`}
                 title="Vista de Acordeón Desplegable"
               >
@@ -309,8 +294,8 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                 onClick={() => setViewMode('table')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all cursor-pointer ${
                   viewMode === 'table'
-                    ? 'bg-white text-gray-800 shadow-sm font-medium'
-                    : 'text-gray-400 hover:text-gray-600'
+                    ? 'bg-white dark:bg-zinc-700 text-gray-800 dark:text-gray-100 shadow-xs font-semibold'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                 }`}
                 title="Vista Tabla Completa"
               >
@@ -321,31 +306,31 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
 
             <button
               onClick={handleExportCSV}
-              className="flex items-center justify-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 border border-gray-200/60 px-3.5 py-2 rounded-xl transition-colors cursor-pointer"
+              className="flex items-center justify-center gap-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700 px-3.5 py-2 rounded-xl transition-colors cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5 text-gray-400" />
+              <Download className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
               <span className="hidden sm:inline">CSV</span>
             </button>
             <button
               onClick={handlePrint}
-              className="flex items-center justify-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 border border-gray-200/60 px-3.5 py-2 rounded-xl transition-colors cursor-pointer"
+              className="flex items-center justify-center gap-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700 px-3.5 py-2 rounded-xl transition-colors cursor-pointer"
             >
-              <Printer className="w-3.5 h-3.5 text-gray-400" />
+              <Printer className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
               <span className="hidden sm:inline">Imprimir</span>
             </button>
           </div>
         </div>
 
         {/* Filters Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-3 border-t border-gray-50">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-3 border-t border-gray-100 dark:border-zinc-800">
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block">
               Unidad
             </label>
             <select
               value={propertyFilter}
               onChange={(e) => setPropertyFilter(e.target.value)}
-              className="w-full text-xs font-light bg-[#FDFBF9] border border-gray-200/70 rounded-xl px-3 py-2 text-gray-800 focus:outline-none focus:border-[#E67E22] transition-colors cursor-pointer"
+              className="w-full text-xs font-medium bg-[#FDFBF9] dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-gray-800 dark:text-gray-100 focus:outline-none focus:border-[#E67E22] transition-colors cursor-pointer"
             >
               <option value="todos">Todas las unidades</option>
               {demoState.properties.map((p) => (
@@ -357,13 +342,13 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block">
               Estado
             </label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full text-xs font-light bg-[#FDFBF9] border border-gray-200/70 rounded-xl px-3 py-2 text-gray-800 focus:outline-none focus:border-[#E67E22] transition-colors cursor-pointer"
+              className="w-full text-xs font-medium bg-[#FDFBF9] dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-gray-800 dark:text-gray-100 focus:outline-none focus:border-[#E67E22] transition-colors cursor-pointer"
             >
               <option value="todos">Todos los estados</option>
               <option value="confirmed">Confirmada</option>
@@ -374,31 +359,31 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block">
               Desde
             </label>
             <input
               type="date"
               value={checkInStart}
               onChange={(e) => setCheckInStart(e.target.value)}
-              className="w-full text-xs font-light bg-[#FDFBF9] border border-gray-200/70 rounded-xl px-3 py-2 text-gray-800 focus:outline-none focus:border-[#E67E22] transition-colors font-mono cursor-pointer"
+              className="w-full text-xs font-medium bg-[#FDFBF9] dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-gray-800 dark:text-gray-100 focus:outline-none focus:border-[#E67E22] transition-colors font-mono cursor-pointer"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block">
               Hasta
             </label>
             <input
               type="date"
               value={checkInEnd}
               onChange={(e) => setCheckInEnd(e.target.value)}
-              className="w-full text-xs font-light bg-[#FDFBF9] border border-gray-200/70 rounded-xl px-3 py-2 text-gray-800 focus:outline-none focus:border-[#E67E22] transition-colors font-mono cursor-pointer"
+              className="w-full text-xs font-medium bg-[#FDFBF9] dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-gray-800 dark:text-gray-100 focus:outline-none focus:border-[#E67E22] transition-colors font-mono cursor-pointer"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block">
               Buscar
             </label>
             <div className="relative">
@@ -408,12 +393,12 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                 placeholder="Nombre, auto o mail..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full text-xs font-light bg-[#FDFBF9] border border-gray-200/70 rounded-xl pl-9 pr-8 py-2 text-gray-800 focus:outline-none focus:border-[#E67E22] transition-colors"
+                className="w-full text-xs font-medium bg-[#FDFBF9] dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl pl-9 pr-8 py-2 text-gray-800 dark:text-gray-100 focus:outline-none focus:border-[#E67E22] transition-colors"
               />
               {(searchTerm || statusFilter !== 'todos' || propertyFilter !== 'todos' || checkInStart || checkInEnd) && (
                 <button
                   onClick={handleClearFilters}
-                  className="absolute right-2.5 top-2.5 text-gray-400 hover:text-gray-600 cursor-pointer"
+                  className="absolute right-2.5 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
                   title="Limpiar Filtros"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -428,9 +413,9 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
            SECCIÓN: LISTA DE RESERVAS CON FILAS EXPANDIBLES (ACORDEÓN ZEN)
            ========================================================================= */}
       {viewMode === 'zen-cards' && (
-        <div className="bg-white rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.005)] border border-gray-100 space-y-4">
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.005)] border border-gray-100 dark:border-zinc-800 space-y-4">
           {/* Encabezado de la Tabla */}
-          <div className="flex items-center justify-between px-2 pb-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-50">
+          <div className="flex items-center justify-between px-2 pb-2 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-zinc-800">
             <div className="w-1/4">Huésped / Unidad</div>
             <div className="w-1/4 text-center">Fechas</div>
             <div className="w-1/4 text-center">Estado / Canal</div>
@@ -440,12 +425,12 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
           {/* CONTENEDOR DE FILAS */}
           <div className="space-y-2">
             {filteredReservations.length === 0 ? (
-              <div className="py-12 text-center text-gray-400">
-                <Calendar className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                <p className="font-light text-sm">No se encontraron reservas con los filtros aplicados</p>
+              <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+                <Calendar className="w-8 h-8 text-gray-400 dark:text-zinc-600 mx-auto mb-2" />
+                <p className="font-medium text-sm">No se encontraron reservas con los filtros aplicados</p>
                 <button
                   onClick={handleClearFilters}
-                  className="mt-2 text-xs text-[#E67E22] hover:underline font-light cursor-pointer"
+                  className="mt-2 text-xs text-[#E67E22] hover:underline font-semibold cursor-pointer"
                 >
                   Limpiar filtros
                 </button>
@@ -456,15 +441,15 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                 const isExpanded = expandedReservationId === res.id;
                 const paymentBadge = getPaymentStatusBadge(res.paymentStatus);
                 const channelLabel = getPlatformLabel(res.platform);
-                const guestCarPlate = res.carPlate || 'AF 729 ZX';
+                const guestCarPlate = res.carPlate;
 
                 return (
                   <div
                     key={res.id}
                     className={`rounded-2xl overflow-hidden transition-all duration-300 ${
                       isExpanded
-                        ? 'border border-orange-100 shadow-[0_4px_12px_rgba(230,126,34,0.02)]'
-                        : 'border border-transparent hover:border-gray-100'
+                        ? 'border border-orange-200 dark:border-orange-900/50 shadow-[0_4px_12px_rgba(230,126,34,0.02)]'
+                        : 'border border-transparent hover:border-gray-200 dark:hover:border-zinc-800'
                     }`}
                   >
                     {/* Fila Principal (Gatillo de Clic) */}
@@ -472,23 +457,23 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                       onClick={() => toggleRowAccordion(res.id)}
                       className={`flex items-center justify-between p-4 cursor-pointer transition-colors ${
                         isExpanded
-                          ? 'bg-[#FDFBF9] hover:bg-orange-50/20'
-                          : 'bg-white hover:bg-gray-50/60'
+                          ? 'bg-[#FDFBF9] dark:bg-zinc-900/70 hover:bg-orange-50/20 dark:hover:bg-zinc-900/90'
+                          : 'bg-white dark:bg-[#18191E] hover:bg-gray-50/60 dark:hover:bg-zinc-800/60'
                       }`}
                     >
                       {/* Nombre y Cabaña */}
                       <div className="w-1/4 space-y-0.5">
-                        <div className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+                        <div className="text-sm font-bold text-gray-800 dark:text-gray-100 flex items-center gap-1.5">
                           <span>{res.guestName.split(' ')[0]}</span>
                           <span className={`w-1.5 h-1.5 rounded-full ${propInfo.dotColor}`} />
                         </div>
-                        <div className="text-xs text-gray-400 font-medium">{propInfo.name}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-300 font-semibold">{propInfo.name}</div>
                       </div>
 
                       {/* Fechas */}
-                      <div className="w-1/4 text-center text-xs font-medium text-gray-600">
+                      <div className="w-1/4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300">
                         {formatDisplayDate(res.checkIn)}{' '}
-                        <span className="text-gray-300 mx-1">→</span>{' '}
+                        <span className="text-gray-400 dark:text-zinc-600 mx-1">→</span>{' '}
                         {formatDisplayDate(res.checkOut)}
                       </div>
 
@@ -499,12 +484,12 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                         >
                           {paymentBadge.label}
                         </span>
-                        <span className="text-[10px] font-mono text-gray-400">{channelLabel}</span>
+                        <span className="text-[10px] font-mono text-gray-500 dark:text-gray-400">{channelLabel}</span>
                       </div>
 
                       {/* Monto e Indicador de Apertura */}
                       <div className="w-1/4 flex items-center justify-end space-x-3 text-right">
-                        <div className="text-sm font-bold text-gray-800">
+                        <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
                           {formatCurrency(res.totalAmount)}
                         </div>
                         <button
@@ -512,7 +497,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                             e.stopPropagation();
                             toggleRowAccordion(res.id);
                           }}
-                          className={`text-gray-400 hover:text-gray-600 transition-transform duration-300 p-1 cursor-pointer ${
+                          className={`text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-transform duration-300 p-1 cursor-pointer ${
                             isExpanded ? 'rotate-180 text-[#E67E22]' : ''
                           }`}
                           aria-label={isExpanded ? 'Cerrar detalles' : 'Abrir detalles'}
@@ -522,66 +507,70 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                       </div>
                     </div>
 
-                    {/* BLOQUE EXPANDIDO (ESTRUCTURA TRIPARTITA) */}
+                    {/* BLOQUE EXPANDIDO */}
                     {isExpanded && (
-                      <div className="bg-[#FDFBF9] px-6 pb-6 pt-2 border-t border-orange-50/50">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-gray-100/60">
+                      <div className="bg-[#FDFBF9] dark:bg-zinc-900/80 px-6 pb-6 pt-2 border-t border-orange-100/50 dark:border-zinc-800">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-gray-200/60 dark:border-zinc-800">
                           {/* COLUMNA 1: FICHA DEL HUÉSPED */}
                           <div className="space-y-3">
-                            <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                            <h4 className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                               Ficha del Huésped
                             </h4>
-                            <div className="space-y-1.5 text-xs text-gray-600">
+                            <div className="space-y-1.5 text-xs text-gray-700 dark:text-gray-300">
                               <div className="flex items-center gap-2">
-                                <span className="text-gray-400">Tel:</span>
-                                <span className="font-medium text-gray-800 font-mono">
-                                  {res.guestPhone}
+                                <span className="text-gray-500 dark:text-gray-400">Tel:</span>
+                                <span className="font-semibold text-gray-800 dark:text-gray-200 font-mono">
+                                  {res.guestPhone || 'No registrado'}
                                 </span>
-                                <button
-                                  onClick={(e) => handleCopy(res.guestPhone, `phone-${res.id}`, e)}
-                                  className="text-gray-300 hover:text-gray-600 transition-colors p-0.5"
-                                  title="Copiar teléfono"
-                                >
-                                  {copiedKey === `phone-${res.id}` ? (
-                                    <Check className="w-3 h-3 text-emerald-600" />
-                                  ) : (
-                                    <Copy className="w-3 h-3" />
-                                  )}
-                                </button>
+                                {res.guestPhone && (
+                                  <button
+                                    onClick={(e) => handleCopy(res.guestPhone, `phone-${res.id}`, e)}
+                                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-0.5"
+                                    title="Copiar teléfono"
+                                  >
+                                    {copiedKey === `phone-${res.id}` ? (
+                                      <Check className="w-3 h-3 text-emerald-600" />
+                                    ) : (
+                                      <Copy className="w-3 h-3" />
+                                    )}
+                                  </button>
+                                )}
                               </div>
                               <div className="flex items-center gap-2 truncate">
-                                <span className="text-gray-400">Email:</span>
-                                <span className="font-light text-gray-600 truncate" title={res.guestEmail}>
-                                  {res.guestEmail}
+                                <span className="text-gray-500 dark:text-gray-400">Email:</span>
+                                <span className="font-medium text-gray-700 dark:text-gray-300 truncate" title={res.guestEmail}>
+                                  {res.guestEmail || 'No registrado'}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-gray-400">Patente:</span>
-                                <span className="bg-white px-2 py-0.5 rounded border border-gray-200 text-[10px] font-mono text-gray-700">
-                                  {guestCarPlate}
-                                </span>
-                                <button
-                                  onClick={(e) => handleCopy(guestCarPlate, `plate-${res.id}`, e)}
-                                  className="text-gray-300 hover:text-gray-600 transition-colors p-0.5"
-                                  title="Copiar patente"
-                                >
-                                  {copiedKey === `plate-${res.id}` ? (
-                                    <Check className="w-3 h-3 text-emerald-600" />
-                                  ) : (
-                                    <Copy className="w-3 h-3" />
-                                  )}
-                                </button>
-                              </div>
-                              <div className="text-[11px] text-gray-400 pt-0.5">
-                                Huéspedes: <span className="text-gray-600">{res.guestsCount} personas</span> • PIN Cerradura:{' '}
-                                <span className="font-mono text-gray-700">{res.pinCode}</span>
+                              {guestCarPlate ? (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-gray-500 dark:text-gray-400">Patente:</span>
+                                  <span className="bg-white dark:bg-zinc-800 px-2 py-0.5 rounded border border-gray-200 dark:border-zinc-700 text-[10px] font-mono text-gray-800 dark:text-gray-200">
+                                    {guestCarPlate}
+                                  </span>
+                                  <button
+                                    onClick={(e) => handleCopy(guestCarPlate, `plate-${res.id}`, e)}
+                                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-0.5"
+                                    title="Copiar patente"
+                                  >
+                                    {copiedKey === `plate-${res.id}` ? (
+                                      <Check className="w-3 h-3 text-emerald-600" />
+                                    ) : (
+                                      <Copy className="w-3 h-3" />
+                                    )}
+                                  </button>
+                                </div>
+                              ) : null}
+                              <div className="text-[11px] text-gray-500 dark:text-gray-400 pt-0.5">
+                                Huéspedes: <span className="text-gray-700 dark:text-gray-300 font-semibold">{res.guestsCount} personas</span> • PIN Cerradura:{' '}
+                                <span className="font-mono text-gray-800 dark:text-gray-200 font-bold">{res.pinCode}</span>
                               </div>
                             </div>
                           </div>
 
                           {/* COLUMNA 2: SERVICIOS ADICIONALES */}
                           <div className="space-y-3">
-                            <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                            <h4 className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                               Servicios Adicionales
                             </h4>
                             <div className="space-y-2 text-xs">
@@ -590,26 +579,26 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                                   {res.addons.map((ad, idx) => (
                                     <div
                                       key={idx}
-                                      className="flex items-center justify-between bg-white p-2 rounded-xl border border-gray-100"
+                                      className="flex items-center justify-between bg-white dark:bg-zinc-800 p-2 rounded-xl border border-gray-200 dark:border-zinc-700"
                                     >
-                                      <span className="text-gray-700 flex items-center gap-1.5">
+                                      <span className="text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
                                         <Coffee className="w-3 h-3 text-emerald-600" />
                                         <span>{ad.name}</span>
                                       </span>
-                                      <span className="text-gray-400 font-medium font-mono text-[11px]">
+                                      <span className="text-gray-500 dark:text-gray-400 font-semibold font-mono text-[11px]">
                                         x{ad.quantity} ({formatCurrency(ad.total)})
                                       </span>
                                     </div>
                                   ))}
                                 </div>
                               ) : (
-                                <div className="flex items-center justify-between bg-white p-2 rounded-xl border border-gray-100 text-gray-400">
+                                <div className="flex items-center justify-between bg-white dark:bg-zinc-800 p-2 rounded-xl border border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-gray-400">
                                   <span>Desayuno Seco / Extras</span>
-                                  <span className="text-gray-400 font-medium">No contratado</span>
+                                  <span className="font-medium">No contratado</span>
                                 </div>
                               )}
-                              <div className="bg-white p-2 rounded-xl border border-gray-100 text-gray-500 font-light text-[11px] leading-relaxed">
-                                <span className="text-gray-400 block text-[9px] uppercase font-bold tracking-wider mb-0.5">
+                              <div className="bg-white dark:bg-zinc-800 p-2 rounded-xl border border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-300 font-medium text-[11px] leading-relaxed">
+                                <span className="text-gray-500 dark:text-gray-400 block text-[9px] uppercase font-bold tracking-wider mb-0.5">
                                   Nota Interna:
                                 </span>
                                 {res.specialNotes || 'Sin notas especiales para esta estadía.'}
@@ -619,11 +608,11 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
 
                           {/* COLUMNA 3: ACCIONES RÁPIDAS */}
                           <div className="space-y-3">
-                            <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                            <h4 className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                               Acciones Rápidas
                             </h4>
                             <div className="space-y-2">
-                              {/* Botón WhatsApp Suavizado */}
+                              {/* Botón WhatsApp */}
                               <a
                                 href={getWhatsAppLink(res)}
                                 target="_blank"
@@ -641,16 +630,16 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                                   e.stopPropagation();
                                   onSelectReservation(res);
                                 }}
-                                className="w-full bg-white border border-gray-200/80 text-gray-700 hover:bg-gray-50 p-2.5 rounded-xl text-xs font-medium flex items-center justify-center space-x-2 transition-colors cursor-pointer"
+                                className="w-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-700 p-2.5 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition-colors cursor-pointer"
                               >
                                 <span>Ver Ficha Completa</span>
                                 <ArrowRight className="w-3 h-3 text-gray-400" />
                               </button>
 
                               {/* Atajos de cobro rápido */}
-                              <div className="flex items-center justify-between text-[11px] text-gray-400 pt-1">
+                              <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 pt-1">
                                 <span>Neto alojamiento:</span>
-                                <span className="font-mono text-emerald-600 font-medium">
+                                <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">
                                   {formatCurrency(res.netRevenue)}
                                 </span>
                               </div>
@@ -671,11 +660,11 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
            VISTA ALTERNATIVA: TABLA PMS TRADICIONAL
            ========================================================================= */}
       {viewMode === 'table' && (
-        <div className="bg-white rounded-2xl border border-stone-200/60 shadow-[0_4px_16px_rgba(0,0,0,0.015)] overflow-hidden">
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/80 dark:border-zinc-800 shadow-[0_4px_16px_rgba(0,0,0,0.015)] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-stone-100 bg-stone-50/50 text-stone-400 text-[10px] font-medium uppercase tracking-wider">
+                <tr className="border-b border-stone-200 dark:border-zinc-800 bg-stone-50/50 dark:bg-zinc-800/50 text-stone-600 dark:text-stone-300 text-[10px] font-semibold uppercase tracking-wider">
                   <th className="py-3 px-3 text-center w-12">#</th>
                   <th className="py-3 px-4 w-16">Depto</th>
                   <th className="py-3 px-4">Huésped</th>
@@ -690,7 +679,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                   <th className="py-3 px-4 text-center print:hidden">Acción</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-100/80 text-xs text-stone-700">
+              <tbody className="divide-y divide-stone-100 dark:divide-zinc-800 text-xs text-stone-700 dark:text-stone-200">
                 {filteredReservations.map((res, index) => {
                   const propInfo = getPropertyInfo(res.propertyId);
                   const statusBadge = getStatusBadge(res.status);
@@ -701,9 +690,9 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                     <tr
                       key={res.id}
                       onClick={() => onSelectReservation(res)}
-                      className="cursor-pointer hover:bg-stone-50/60 transition-colors"
+                      className="cursor-pointer hover:bg-stone-50/60 dark:hover:bg-zinc-800/50 transition-colors"
                     >
-                      <td className="py-3.5 px-3 text-center font-mono text-[11px] text-stone-400">
+                      <td className="py-3.5 px-3 text-center font-mono text-[11px] text-stone-500 dark:text-stone-400">
                         {index + 1}
                       </td>
                       <td className="py-3.5 px-4">
@@ -711,26 +700,26 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                           {propInfo.code}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 font-normal text-stone-800">
+                      <td className="py-3.5 px-4 font-medium text-stone-800 dark:text-stone-100">
                         <div>{res.guestName}</div>
-                        <div className="text-[11px] text-stone-400 font-mono">{res.guestPhone}</div>
+                        <div className="text-[11px] text-stone-500 dark:text-stone-400 font-mono">{res.guestPhone || 'Sin tel.'}</div>
                       </td>
-                      <td className="py-3.5 px-4 font-mono text-stone-600">
+                      <td className="py-3.5 px-4 font-mono text-stone-700 dark:text-stone-300">
                         {formatDisplayDate(res.checkIn)}
                       </td>
-                      <td className="py-3.5 px-4 font-mono text-stone-600">
+                      <td className="py-3.5 px-4 font-mono text-stone-700 dark:text-stone-300">
                         {formatDisplayDate(res.checkOut)}
                       </td>
-                      <td className="py-3.5 px-3 text-center text-stone-700">{res.nights}</td>
-                      <td className="py-3.5 px-4 text-right font-mono text-stone-800">
+                      <td className="py-3.5 px-3 text-center text-stone-800 dark:text-stone-200 font-semibold">{res.nights}</td>
+                      <td className="py-3.5 px-4 text-right font-mono text-stone-900 dark:text-stone-100 font-bold">
                         {formatCurrency(res.totalAmount)}
                       </td>
                       <td className="py-3.5 px-4 text-center">
-                        <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
+                        <span className="text-[10px] font-mono text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-zinc-800 px-2 py-0.5 rounded">
                           {channelLabel}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-right font-mono text-emerald-700">
+                      <td className="py-3.5 px-4 text-right font-mono text-emerald-700 dark:text-emerald-400 font-bold">
                         {formatCurrency(res.netRevenue)}
                       </td>
                       <td className="py-3.5 px-4 text-center">
@@ -754,7 +743,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                               e.stopPropagation();
                               onSelectReservation(res);
                             }}
-                            className="p-1.5 text-stone-400 hover:text-stone-700 rounded-lg"
+                            className="p-1.5 text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 rounded-lg"
                           >
                             <Eye className="w-3.5 h-3.5" />
                           </button>
@@ -765,7 +754,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                                 onDeleteReservation(res.id);
                               }
                             }}
-                            className="p-1.5 text-rose-400 hover:text-rose-600 rounded-lg"
+                            className="p-1.5 text-rose-500 hover:text-rose-700 rounded-lg"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>

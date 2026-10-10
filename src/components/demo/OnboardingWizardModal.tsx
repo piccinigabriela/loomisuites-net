@@ -68,19 +68,19 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
         const current = complexes.find((c: any) => c.id === activeId) || complexes[0];
         if (current) {
           return {
-            name: current.name || 'Complejo Iguazú (Demo)',
-            city: current.city || 'Puerto Iguazú, Misiones',
-            hostPhone: current.adminPhone || '+54 9 3757 55-0100',
-            hostName: current.adminName || 'Administración',
+            name: current.name || '',
+            city: current.city || '',
+            hostPhone: current.adminPhone || '',
+            hostName: current.adminName || '',
           };
         }
       }
     } catch {}
     return {
-      name: 'Complejo Iguazú (Demo)',
-      city: 'Puerto Iguazú, Misiones',
-      hostPhone: '+54 9 3757 55-0100',
-      hostName: 'Administración',
+      name: '',
+      city: '',
+      hostPhone: '',
+      hostName: '',
     };
   };
 
@@ -89,9 +89,9 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
   // Step 1: Complex info
   const [complexName, setComplexName] = useState(initialInfo.name);
   const [city, setCity] = useState(initialInfo.city);
-  const [address, setAddress] = useState('Ruta Ejemplo km 5, Puerto Iguazú, Misiones');
-  const [wifiNetwork, setWifiNetwork] = useState('ComplejoIguazu_Selva_5G');
-  const [wifiPassword, setWifiPassword] = useState('IguazuDemo2026');
+  const [address, setAddress] = useState('');
+  const [wifiNetwork, setWifiNetwork] = useState('');
+  const [wifiPassword, setWifiPassword] = useState('');
   const [hostName, setHostName] = useState(initialInfo.hostName);
   const [hostPhone, setHostPhone] = useState(initialInfo.hostPhone);
 
@@ -101,6 +101,9 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
       const info = getInitialComplexInfo();
       setComplexName(info.name);
       setCity(info.city);
+      setAddress('');
+      setWifiNetwork('');
+      setWifiPassword('');
       setHostPhone(info.hostPhone);
       setHostName(info.hostName);
     }
@@ -260,13 +263,13 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
             </div>
             <div>
               <h3 className="text-base font-bold font-['Outfit'] flex items-center gap-2">
-                <span>Configurar Mis Departamentos / Cabañas</span>
+                <span>Configurá tu complejo</span>
                 <span className="text-[10px] bg-[#3a271e] text-[#e89f78] font-semibold px-2 py-0.5 rounded-full border border-[#5a3a2a]">
                   Paso a Paso
                 </span>
               </h3>
               <p className="text-xs text-[#9e9a94]">
-                Paso {currentStep} de 3 — En 3 minutos tienes todo tu complejo listo para operar
+                Paso {currentStep} de 3 — En 3 minutos tenés todo tu complejo listo para operar
               </p>
             </div>
           </div>
@@ -329,7 +332,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
             <div className="space-y-4 animate-in fade-in duration-150">
               <div className="bg-[#f4eee7] dark:bg-[#2c221a] p-3.5 rounded-xl border border-[#e4d6c9] dark:border-[#533928] text-xs text-[#9c512a] dark:text-[#d88d5e]">
                 <p className="font-semibold">
-                  Ingresa el nombre de tu complejo o grupo de departamentos y los datos de acceso para tus huéspedes.
+                  Ingresá el nombre de tu complejo o grupo de departamentos y los datos de acceso para tus huéspedes.
                 </p>
               </div>
 
