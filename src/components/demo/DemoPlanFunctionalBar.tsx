@@ -146,7 +146,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                   </div>
                   <div>
                     <p className="text-[11px] font-bold text-stone-800 dark:text-stone-200 leading-tight">
-                      Complejo Iguazú (Demo)
+                      Mi complejo
                     </p>
                     <p className="text-[10px] text-stone-400">
                       4 Cabañas Activas

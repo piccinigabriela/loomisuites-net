@@ -63,7 +63,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   // Quick edit state for Wi-Fi in the quick bar
-  const [ssidInput, setSsidInput] = useState(guideData.wifiNetwork || 'Iguazu_WiFi');
+  const [ssidInput, setSsidInput] = useState(guideData.wifiNetwork || '');
   const [passwordInput, setPasswordInput] = useState(guideData.wifiPassword || '(a confirmar)');
   const [isSavedFeedback, setIsSavedFeedback] = useState(false);
 

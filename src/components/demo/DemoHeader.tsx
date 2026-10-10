@@ -47,7 +47,7 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
   isAppMode = false,
   currentUser,
   onSignOut,
-  complexName = 'Complejo Iguazú (Demo)',
+  complexName = 'Mi complejo',
 }) => {
   return (
     <div className="bg-[#18191E] dark:bg-[#0C0D0F] text-white border-b border-stone-800 dark:border-zinc-800 sticky top-0 z-40 font-sans">

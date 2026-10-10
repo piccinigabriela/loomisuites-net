@@ -145,7 +145,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
 
           <div className="pt-2 border-t border-gray-100/80 dark:border-zinc-800/80">
             <h1 className="text-xs font-semibold text-gray-800 dark:text-gray-100 truncate leading-tight tracking-tight">
-              {complexName || 'Complejo Iguazú (Demo)'}
+              {complexName || 'Mi complejo'}
             </h1>
             <p className="text-[10px] text-stone-600 dark:text-zinc-400 truncate font-normal">Gestión hotelera & cabañas</p>
           </div>

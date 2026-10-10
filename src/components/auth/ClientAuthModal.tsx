@@ -103,7 +103,7 @@ export const ClientAuthModal: React.FC<ClientAuthModalProps> = ({
     return [
       {
         id: 'iguazu',
-        name: 'Complejo Iguazú (Demo)',
+        name: 'Mi complejo',
         type: 'Complejo de Cabañas',
         city: 'Puerto Iguazú, Misiones',
         adminName: 'Administración Demo Iguazú',

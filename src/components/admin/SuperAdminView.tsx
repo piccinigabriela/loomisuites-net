@@ -281,7 +281,7 @@ contacto@loomisuite.net`
         localList = [
           {
             id: 'default',
-            name: 'Complejo Iguazú (Demo)',
+            name: 'Mi complejo',
             ownerName: 'Administración',
             type: 'Cabañas en la Selva',
             city: 'Puerto Iguazú, Misiones',

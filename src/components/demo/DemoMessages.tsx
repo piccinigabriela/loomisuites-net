@@ -363,7 +363,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
             checkInDate={selectedReservation ? formatDisplayDate(selectedReservation.checkIn) : '10 de Octubre'}
             checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '13 de Octubre'}
             checkInTime="14:00 hs"
-            accessCode={selectedReservation?.pinCode || '4821'}
+            accessCode={selectedReservation?.pinCode || '(a confirmar)'}
             wifiNetwork={selectedProperty?.wifiNetwork || '(a confirmar)'}
             wifiPassword={selectedProperty?.wifiPassword || '(a confirmar)'}
             address={selectedProperty?.address ? `${selectedProperty.address}` : '(a confirmar)'}
@@ -655,7 +655,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                     checkInDate={selectedReservation ? formatDisplayDate(selectedReservation.checkIn) : '10 de Octubre'}
                     checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '13 de Octubre'}
                     checkInTime="14:00 hs"
-                    accessCode={selectedReservation?.pinCode || '4821'}
+                    accessCode={selectedReservation?.pinCode || '(a confirmar)'}
                     wifiNetwork={selectedProperty?.wifiNetwork || '(a confirmar)'}
                     wifiPassword={selectedProperty?.wifiPassword || '(a confirmar)'}
                     address={selectedProperty?.address ? `${selectedProperty.address}` : '(a confirmar)'}

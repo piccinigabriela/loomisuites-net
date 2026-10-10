@@ -108,15 +108,18 @@ Quedamos a tu completa disposición para asistirte en lo que precises.`;
     q.includes('direccion') ||
     q.includes('dirección')
   ) {
-    const wifiNet = p0?.wifiNetwork || 'ComplejoIguazu_Selva_5G';
-    const wifiPass = p0?.wifiPassword || 'IguazuDemo2026';
-    const pin = (demoState?.reservations?.[0]?.pinCode) || '4821';
-    const address = p0?.address || 'Ruta Ejemplo km 5, Puerto Iguazú, Misiones';
+    const wifiNet = p0?.wifiNetwork || '(a confirmar)';
+    const wifiPass = p0?.wifiPassword || '(a confirmar)';
+    const rawPin = demoState?.reservations?.[0]?.pinCode;
+    const pinText = rawPin
+      ? `Cerradura digital con PIN **${rawPin}**.`
+      : 'Tu código de acceso te lo enviamos antes de tu llegada.';
+    const address = p0?.address || '(a confirmar)';
 
     return `¡Hola! Con gusto te paso los datos para tu llegada y estancia:
 
 • **Horarios:** Check-in a partir de las 14:00 hs | Check-out hasta las 10:00 hs.
-• **Acceso autónomo:** Cerradura digital o recepción en el complejo con PIN **${pin}#**.
+• **Acceso autónomo:** ${pinText}
 • **Wi-Fi:** Red **${wifiNet}** (Clave: **${wifiPass}**).
 • **Dirección:** ${address}.
 

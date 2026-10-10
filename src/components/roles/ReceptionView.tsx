@@ -51,7 +51,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
   onQuickCheckIn,
   onSwitchRole,
   onOpenNewReservation,
-  complexName = 'Complejo Iguazú (Demo)',
+  complexName = 'Mi complejo',
 }) => {
   const [activeFilter, setActiveFilter] = useState<'all' | 'checkin' | 'checkout' | 'in_house'>('all');
   const [searchTerm, setSearchTerm] = useState('');

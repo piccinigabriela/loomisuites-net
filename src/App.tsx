@@ -282,7 +282,7 @@ export default function App() {
     return 'overview';
   });
 
-  // Active Complex: Complejo Iguazú (Demo)
+  // Active Complex: Mi complejo
   const activeComplex = 'iguazu';
 
   // User Role State: 'admin' | 'frontdesk' | 'housekeeping'
@@ -1135,7 +1135,7 @@ export default function App() {
     setLoggedUser(null);
     const fresh = resetDemoState();
     setDemoState(fresh);
-    showToast('Sesión cerrada correctamente. Volviendo a Complejo Iguazú.');
+    showToast('Sesión cerrada correctamente. Volviendo a Mi complejo.');
   };
 
   // Loading simple en modo App mientras se verifica la sesión o se cargan los datos del complejo
@@ -1254,7 +1254,7 @@ export default function App() {
           onToggleChecklistItem={handleToggleChecklistItem}
           onUpdateTaskStatus={handleUpdateTaskStatus}
           onSwitchRole={handleRoleChange}
-          complexName={demoState.welcomeGuide?.propertyName || 'Complejo Iguazú (Demo)'}
+          complexName={demoState.welcomeGuide?.propertyName || 'Mi complejo'}
         />
       ) : userRole === 'frontdesk' ? (
         /* VISTA RECEPCIÓN / MOSTRADOR: OPTIMIZADA PARA PC / TABLET (/recepcion) */
@@ -1272,7 +1272,7 @@ export default function App() {
               setInitialDateForRes(undefined);
               setIsNewResModalOpen(true);
             }}
-            complexName={demoState.welcomeGuide?.propertyName || 'Complejo Iguazú (Demo)'}
+            complexName={demoState.welcomeGuide?.propertyName || 'Mi complejo'}
           />
         </div>
       ) : mobileMode === 'light' ? (
@@ -1300,7 +1300,7 @@ export default function App() {
           onSwitchToFullView={() => handleSetMobileMode('full')}
           theme={theme}
           onToggleTheme={toggleTheme}
-          complexName={demoState.welcomeGuide?.propertyName || (isApp ? 'Mi Complejo' : 'Complejo Iguazú (Demo)')}
+          complexName={demoState.welcomeGuide?.propertyName || 'Mi complejo'}
           onLogout={handleLogout}
           isAppMode={isApp}
         />
@@ -1312,7 +1312,7 @@ export default function App() {
             activeTab={demoTab}
             onSelectTab={setDemoTab}
             pendingCleaningsCount={pendingCleaningsCount}
-            complexName={demoState.welcomeGuide?.propertyName || (isApp ? 'Mi Complejo' : 'Complejo Iguazú (Demo)')}
+            complexName={demoState.welcomeGuide?.propertyName || 'Mi complejo'}
             onOpenNewReservation={() => {
               setInitialPropertyForRes(undefined);
               setInitialDateForRes(undefined);
@@ -1335,7 +1335,7 @@ export default function App() {
             isMobileOpen={isMobileSidebarOpen}
             onMobileClose={() => setIsMobileSidebarOpen(false)}
             onOpenLogin={() => setIsAuthModalOpen(true)}
-            loggedUser={isApp && currentUser ? { name: currentUser.displayName || currentUser.email?.split('@')[0] || 'Usuario', email: currentUser.email || '', complexId: 'app-user', complexName: demoState.welcomeGuide?.propertyName || 'Mi Complejo' } : loggedUser}
+            loggedUser={isApp && currentUser ? { name: currentUser.displayName || currentUser.email?.split('@')[0] || 'Usuario', email: currentUser.email || '', complexId: 'app-user', complexName: demoState.welcomeGuide?.propertyName || 'Mi complejo' } : loggedUser}
             onLogout={handleLogout}
             isAppMode={isApp}
           />
@@ -1356,7 +1356,7 @@ export default function App() {
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" />
                   <span className="text-xs font-medium text-stone-600 dark:text-stone-300 truncate max-w-[140px] sm:max-w-none">
-                    {demoState.welcomeGuide?.propertyName || 'Complejo Iguazú (Demo)'}
+                    {demoState.welcomeGuide?.propertyName || 'Mi complejo'}
                   </span>
                 </div>
                 <span className="text-stone-300 dark:text-zinc-700">/</span>

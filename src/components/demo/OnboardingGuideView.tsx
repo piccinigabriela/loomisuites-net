@@ -21,7 +21,7 @@ interface OnboardingGuideViewProps {
 
 export const OnboardingGuideView: React.FC<OnboardingGuideViewProps> = ({
   onClose,
-  complexName = 'Complejo Iguazú (Demo)',
+  complexName = 'Mi complejo',
 }) => {
   const printAreaRef = useRef<HTMLDivElement>(null);
 

@@ -210,7 +210,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
     }
   };
 
-  // Extract URL parameters if present (e.g., ?huesped=Lucas&unidad=Depto%20D&pin=4821)
+  // Extract URL parameters if present (e.g., ?huesped=Lucas&unidad=Depto%20D&pin=1234)
   const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const effectiveGuestName = propGuestName || urlParams?.get('huesped') || urlParams?.get('guest') || '';
   const effectiveUnitName = propUnitName || urlParams?.get('unidad') || urlParams?.get('depto') || urlParams?.get('unit') || '';
@@ -541,7 +541,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                 Guía del Huésped • App Digital
               </span>
               <span className={`px-2 py-0.5 rounded-full border ${theme.headerTag}`}>
-                {guideData.propertyName || 'Complejo Iguazú (Demo)'}
+                {guideData.propertyName || 'Mi complejo'}
               </span>
             </div>
 

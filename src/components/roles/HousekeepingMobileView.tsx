@@ -44,7 +44,7 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
   onToggleChecklistItem,
   onUpdateTaskStatus,
   onSwitchRole,
-  complexName = 'Complejo Iguazú (Demo)',
+  complexName = 'Mi complejo',
 }) => {
   const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'ready'>('all');
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
