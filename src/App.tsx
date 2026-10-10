@@ -1237,7 +1237,7 @@ export default function App() {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans antialiased selection:bg-rose-500 selection:text-white transition-colors">
       {/* Barra superior fina para prueba gratis */}
       {isApp && accessStatus?.state === 'trial' && (
-        <div className="bg-amber-500/10 border-b border-amber-500/20 py-1.5 px-4 text-center text-xs text-amber-300 font-medium flex items-center justify-center gap-2 relative z-50">
+        <div className="bg-amber-50 border-b border-amber-200 text-amber-900 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-300 py-1.5 px-4 text-center text-xs font-medium flex items-center justify-center gap-2 relative z-50">
           <span>
             {accessStatus.daysLeft === 1
               ? 'Último día de prueba gratis'
@@ -1250,7 +1250,7 @@ export default function App() {
             )}`}
             target="_blank"
             rel="noreferrer"
-            className="font-bold underline hover:text-amber-200 transition-colors cursor-pointer"
+            className="font-bold underline text-amber-950 dark:text-amber-300 dark:hover:text-amber-200 transition-colors cursor-pointer"
           >
             Activar plan
           </a>
