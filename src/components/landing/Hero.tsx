@@ -30,7 +30,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenDemo, onOpenContact }) => {
 
           {/* Subtitle */}
           <p className="mt-6 text-lg sm:text-xl text-slate-900 dark:text-[#A3A3A3] leading-relaxed max-w-2xl mx-auto font-normal">
-            Hecho para alojamientos independientes de <strong>4 a 30+ unidades</strong>. Reemplazá el cuaderno o las planillas con un <strong>rack visual intuitivo</strong>: sincronizá Booking y Airbnb sin dobles reservas, organizá la limpieza en el celular y gestioná tus reservas directas de manera ágil.
+            Hecho para alojamientos independientes de <strong>4 a 30+ unidades</strong>. Reemplazá el cuaderno o las planillas con un <strong>rack visual intuitivo</strong>: sincronizá Booking y Airbnb con sincronización automática de calendarios, organizá la limpieza en el celular y gestioná tus reservas directas de manera ágil.
           </p>
 
           {/* Accommodation Types Badges */}

@@ -9,7 +9,7 @@ export const ChannelIntegrations: React.FC = () => {
       badge: 'Sincronización Simple',
       color: 'border-[#18181B] bg-[#18181B] text-white',
       icon: '🏠',
-      desc: 'Sincronizá tu calendario y disponibilidad sin dobles reservas ni planillas.',
+      desc: 'Sincronizá tu calendario y disponibilidad con sincronización automática de calendarios.',
     },
     {
       name: 'Booking.com',

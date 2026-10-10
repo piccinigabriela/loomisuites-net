@@ -50,23 +50,6 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
   // Active module for interactive clean modal
   const [activeModule, setActiveModule] = useState<ModuleKey | null>(null);
 
-  // Dynamic rotating accommodation types
-  const ROTATING_ITEMS = [
-    { type: 'Cabañas & Bungalows', icon: '🌲', adjective: 'Simple' },
-    { type: 'Glampings & Domos', icon: '⛺', adjective: 'Ágil' },
-    { type: 'Departamentos Turísticos', icon: '🏢', adjective: 'Modular' },
-    { type: 'Posadas & Lodges', icon: '🏡', adjective: 'Intuitivo' },
-    { type: 'Alquileres Temporarios', icon: '🛎️', adjective: 'Sin Comisiones' },
-  ];
-  const [rotatingIndex, setRotatingIndex] = useState(0);
-
-  React.useEffect(() => {
-    const timer = setInterval(() => {
-      setRotatingIndex((prev) => (prev + 1) % ROTATING_ITEMS.length);
-    }, 2800);
-    return () => clearInterval(timer);
-  }, [ROTATING_ITEMS.length]);
-
   // Dynamic Xenia Avatar state synced with app
   const [xeniaAvatarUrl, setXeniaAvatarUrl] = useState<string>(() => getStoredXeniaAvatar());
 
@@ -153,21 +136,10 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 Software de gestión. Todo tu complejo en una pantalla.
               </h1>
 
-              {/* Dynamic Rotator Line: Accommodation Types + Orange Keywords */}
-              <div className="flex items-center gap-2.5 flex-wrap pt-1 text-xs sm:text-sm">
-                <div className="inline-flex items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-3.5 py-1.5 rounded-xl font-medium shadow-xs">
-                  <span>{ROTATING_ITEMS[rotatingIndex].icon}</span>
-                  <span className="transition-all duration-300">
-                    {ROTATING_ITEMS[rotatingIndex].type}
-                  </span>
-                </div>
-                <span className="text-[#E67E22] font-semibold uppercase tracking-wider bg-orange-50 dark:bg-orange-950/40 px-3 py-1.5 rounded-xl border border-orange-100/60 dark:border-orange-900/30">
-                  {ROTATING_ITEMS[rotatingIndex].adjective}
-                </span>
-                <span className="text-slate-800 dark:text-zinc-300 font-medium">
-                  • Web propia + Bienvenida en misma estética
-                </span>
-              </div>
+              {/* Subtitle */}
+              <p className="text-sm sm:text-base text-slate-800 dark:text-zinc-300 font-normal">
+                Web propia + Bienvenida en misma estética
+              </p>
 
               {/* Sutil Category Badges */}
               <div className="pt-2 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs font-medium">
@@ -377,7 +349,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 Anti-<span className="font-semibold text-gray-800 dark:text-gray-100">Overbooking</span>
               </h3>
               <p className="text-xs text-slate-800 dark:text-zinc-300 font-normal leading-relaxed">
-                Airbnb, Booking.com y tu web oficial sincronizados automáticamente sin dobles reservas.
+                Airbnb, Booking.com y tu web oficial sincronizados automáticamente con prevención inteligente de superposiciones.
               </p>
             </div>
 

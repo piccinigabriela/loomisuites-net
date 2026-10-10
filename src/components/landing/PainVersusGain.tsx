@@ -12,7 +12,7 @@ export const PainVersusGain: React.FC = () => {
   ];
 
   const gains = [
-    'Sincronización automática entre Booking, Airbnb y reservas directas: Cero dobles reservas.',
+    'Sincronización automática entre Booking, Airbnb y reservas directas: Prevención inteligente de superposiciones.',
     'Rack visual en tu celular: mirás en 2 segundos qué cabañas o habitaciones están ocupadas, libres o sucias.',
     'Gestión de limpieza y mucamas con checklist por unidad: sábanas, toallas, leña y control en un clic.',
     'Página propia de reservas directas con seña para ahorrar comisiones y ganar hasta 20% más por noche.',
