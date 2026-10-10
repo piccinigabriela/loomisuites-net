@@ -18,7 +18,7 @@ import {
   RotateCw,
 } from 'lucide-react';
 import { DemoState, Reservation, CleaningTask } from '../../types';
-import { formatCurrency, formatDisplayDate, getRelativeDate } from '../../data/initialData';
+import { formatCurrency, formatDisplayDate, getRelativeDate, getGuestInitials } from '../../data/initialData';
 
 interface DemoOverviewProps {
   demoState: DemoState;
@@ -267,11 +267,9 @@ export const DemoOverview: React.FC<DemoOverviewProps> = ({
                       className="p-4 rounded-xl border border-stone-100 dark:border-zinc-800 bg-[#FAF9F6] dark:bg-[#15161A] hover:border-stone-200 dark:hover:border-zinc-700 transition-colors flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
                     >
                       <div className="flex items-center gap-3">
-                        <img
-                          src={res.guestAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
-                          alt={res.guestName}
-                          className="w-10 h-10 rounded-full object-cover border border-stone-200 dark:border-zinc-700 shrink-0"
-                        />
+                        <div className="w-10 h-10 rounded-full bg-stone-200 dark:bg-zinc-800 text-stone-700 dark:text-stone-200 flex items-center justify-center font-bold text-xs shrink-0 border border-stone-300/60 dark:border-zinc-700 select-none">
+                          {getGuestInitials(res.guestName)}
+                        </div>
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
                             <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100">{res.guestName}</h4>

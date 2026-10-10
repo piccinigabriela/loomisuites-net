@@ -114,8 +114,8 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
   const [promoCode, setPromoCode] = useState<string>('');
   const [appliedPromo, setAppliedPromo] = useState<number>(0);
 
-  // Urbano Buenos Aires custom hero image state
-  const [urbanoHeroImage, setUrbanoHeroImage] = useState<string>('/catalinas/edificio.jpg');
+  // Urbano custom hero image state
+  const [urbanoHeroImage, setUrbanoHeroImage] = useState<string>('/cabanas/cabana-terraza.jpg');
   const [showUrbanoImageModal, setShowUrbanoImageModal] = useState<boolean>(false);
   const [customImageUrlInput, setCustomImageUrlInput] = useState<string>('');
   const [lightboxImage, setLightboxImage] = useState<{ src: string; title: string; subtitle: string; tag: string } | null>(null);
@@ -131,14 +131,14 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
     sunset: string;
     facade: string;
   }>({
-    suite1: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1600&auto=format&fit=crop',
-    bathroom: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1600&auto=format&fit=crop',
-    suite2: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1600&auto=format&fit=crop',
-    terrace: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=1600&auto=format&fit=crop',
-    pool: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=1600&auto=format&fit=crop',
-    cellar: 'https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?q=80&w=1600&auto=format&fit=crop',
-    sunset: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?q=80&w=1600&auto=format&fit=crop',
-    facade: '/entrada.jpeg',
+    suite1: '/cabanas/cabana-terraza.jpg',
+    bathroom: '/cabanas/deck-hamaca.jpg',
+    suite2: '/cabanas/cabana-hamaca.jpg',
+    terrace: '/cabanas/deck-hamaca.jpg',
+    pool: '/cabanas/piscina.jpg',
+    cellar: '/cabanas/mate-jardin.jpg',
+    sunset: '/cabanas/sendero-noche.jpg',
+    facade: '/cabanas/cabana-terraza.jpg',
   });
   const [editingPhotoKey, setEditingPhotoKey] = useState<string | null>(null);
   const [photoEditInput, setPhotoEditInput] = useState<string>('');
@@ -790,7 +790,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
           <section className="relative min-h-[640px] lg:min-h-[720px] flex flex-col justify-between overflow-hidden bg-stone-950 text-white">
             <div className="absolute inset-0 z-0">
               <img
-                src={selectedCabin?.imageUrl || '/catalinas/1dormA.jpg'}
+                src={selectedCabin?.imageUrl || '/cabanas/cabana-hamaca.jpg'}
                 alt={guideData.propertyName}
                 className="w-full h-full object-cover opacity-60 scale-105 transition-transform duration-1000"
               />
@@ -854,7 +854,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
           <section className="relative min-h-[660px] lg:min-h-[740px] flex flex-col justify-between overflow-hidden bg-[#0c0e0d] text-[#EDE8DF]">
             <div className="absolute inset-0 z-0">
               <img
-                src={selectedCabin?.imageUrl || '/catalinas/1dormC.jpg'}
+                src={selectedCabin?.imageUrl || '/cabanas/deck-hamaca.jpg'}
                 alt={guideData.propertyName}
                 className="w-full h-full object-cover opacity-45 scale-100"
               />
@@ -870,7 +870,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
               </div>
 
               <h1 className="text-4xl sm:text-6xl md:text-7xl font-extralight tracking-tight text-white leading-tight">
-                {guideData.propertyName || 'Catalinas Apartamentos'}
+                {guideData.propertyName || 'Complejo Iguazú (Demo)'}
               </h1>
 
               <p className="text-stone-400 max-w-xl text-sm sm:text-base font-light leading-relaxed">
@@ -931,7 +931,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                   <div className="space-y-4">
                     <div className="h-48 rounded-2xl overflow-hidden relative">
                       <img
-                        src={property.imageUrl || '/catalinas/1dormA.jpg'}
+                        src={property.imageUrl || '/cabanas/cabana-terraza.jpg'}
                         alt={property.name}
                         className="w-full h-full object-cover"
                       />
@@ -1056,10 +1056,10 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
       <footer className="py-12 px-6 sm:px-12 text-center text-xs border-t bg-stone-950 border-stone-800 text-stone-400">
         <div className="max-w-4xl mx-auto space-y-3">
           <span className="font-bold text-sm text-white tracking-widest uppercase">
-            {guideData.propertyName || 'Catalinas Apartamentos'}
+            {guideData.propertyName || 'Complejo Iguazú (Demo)'}
           </span>
           <p className="text-stone-400 text-xs">
-            Reservas directas sin intermediarios • {isCorteVette ? 'Valle de Uco, Mendoza — Argentina' : (guideData.locationAddress || 'Buenos Aires, Argentina')}
+            Reservas directas sin intermediarios • {isCorteVette ? 'Valle de Uco, Mendoza — Argentina' : (guideData.locationAddress || 'Ruta Ejemplo km 5, Puerto Iguazú, Misiones')}
           </p>
           <div className="text-[11px] text-stone-500">
             Desarrollado con Loomi Suite PMS & Motor de Reservas Directas

@@ -63,16 +63,12 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   // Quick edit state for Wi-Fi in the quick bar
-  const [ssidInput, setSsidInput] = useState(guideData.wifiNetwork || 'Catalinas_Fibra');
-  const [passwordInput, setPasswordInput] = useState(guideData.wifiPassword || 'CatalinasDemo2026');
+  const [ssidInput, setSsidInput] = useState(guideData.wifiNetwork || 'Iguazu_WiFi');
+  const [passwordInput, setPasswordInput] = useState(guideData.wifiPassword || 'IguazuDemo2026');
   const [isSavedFeedback, setIsSavedFeedback] = useState(false);
 
-  // Compute slug from property name
-  const slug = guideData.propertyName.toLowerCase().includes('wood')
-    ? 'woodcabin'
-    : guideData.propertyName.toLowerCase().includes('catalinas')
-    ? 'catalinas'
-    : guideData.propertyName.toLowerCase().replace(/[^a-z0-9]/g, '');
+  // Compute slug for demo property
+  const slug = 'iguazu';
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.net';
 

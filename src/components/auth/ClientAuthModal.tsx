@@ -102,12 +102,12 @@ export const ClientAuthModal: React.FC<ClientAuthModalProps> = ({
     } catch {}
     return [
       {
-        id: 'catalinas',
-        name: 'Catalinas Apartamentos',
-        type: 'Departamentos Turísticos',
-        city: 'Buenos Aires, CABA',
-        adminName: 'Administración Demo Catalinas',
-        adminEmail: 'contacto@democatalinas.com',
+        id: 'iguazu',
+        name: 'Complejo Iguazú (Demo)',
+        type: 'Complejo de Cabañas',
+        city: 'Puerto Iguazú, Misiones',
+        adminName: 'Administración Demo Iguazú',
+        adminEmail: 'contacto@complejoiguazu.com',
         authProvider: 'password',
         createdAt: new Date().toISOString(),
       },
@@ -591,7 +591,7 @@ export const ClientAuthModal: React.FC<ClientAuthModalProps> = ({
                   required
                   value={complexName}
                   onChange={(e) => setComplexName(e.target.value)}
-                  placeholder="Ej: Catalinas Apartamentos, Cabañas del Bosque"
+                  placeholder="Ej: Cabañas del Bosque, Posada de la Selva"
                   className="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-gray-50/70 dark:bg-zinc-800/40 border border-gray-100 dark:border-zinc-700/70 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-200 text-xs font-light text-gray-800 dark:text-gray-100 transition-all placeholder:text-gray-300"
                 />
               </div>

@@ -98,7 +98,7 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
       {/* Onboarding Guide printable cheat sheet card */}
       {showOnboardingGuide && !isEmployeeMode && (
         <OnboardingGuideView
-          complexName={demoState.welcomeGuide?.propertyName || 'Catalinas Apartamentos'}
+          complexName={demoState.welcomeGuide?.propertyName || 'Complejo Iguazú (Demo)'}
           onClose={() => setShowOnboardingGuide(false)}
         />
       )}

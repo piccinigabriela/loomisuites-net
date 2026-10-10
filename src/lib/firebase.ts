@@ -1,5 +1,18 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signOut,
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence,
+  User,
+} from 'firebase/auth';
+import {
   getFirestore,
   doc,
   setDoc,
@@ -29,6 +42,71 @@ const databaseId = firebaseConfigJson.firestoreDatabaseId || '(default)';
 
 // Initialize Firebase App
 export const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+
+// Initialize Firebase Auth
+export const auth = getAuth(firebaseApp);
+
+// Configure auth persistence to browser local storage
+if (typeof window !== 'undefined') {
+  setPersistence(auth, browserLocalPersistence).catch((err) => {
+    console.warn('Silent auth persistence notice:', err);
+  });
+}
+
+export const googleAuthProvider = new GoogleAuthProvider();
+
+export {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signOut,
+  onAuthStateChanged,
+  browserLocalPersistence,
+};
+export type { User };
+
+/**
+ * Sign in with Google using Firebase Authentication popup (Real Firebase Auth)
+ */
+export async function signInWithGooglePopup() {
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+  return await signInWithPopup(auth, provider);
+}
+
+/**
+ * Helper to translate Firebase Auth error codes to rioplatense Spanish
+ */
+export function getAuthErrorMessage(code: string): string {
+  switch (code) {
+    case 'auth/invalid-email':
+      return 'El correo electrónico ingresado no tiene un formato válido.';
+    case 'auth/user-not-found':
+      return 'No encontramos ninguna cuenta con este correo. Verificalo o creá una nueva cuenta.';
+    case 'auth/wrong-password':
+      return 'La contraseña que ingresaste es incorrecta. Verificala o usá "¿Olvidaste tu contraseña?".';
+    case 'auth/invalid-credential':
+      return 'El correo o la contraseña son incorrectos. Verificalos e intentá de nuevo.';
+    case 'auth/email-already-in-use':
+      return 'Este correo electrónico ya está registrado. Iniciá sesión o restablecé tu contraseña.';
+    case 'auth/weak-password':
+      return 'La contraseña debe tener al menos 6 caracteres.';
+    case 'auth/missing-password':
+      return 'Por favor ingresá tu contraseña.';
+    case 'auth/popup-closed-by-user':
+      return 'Se cerró la ventana de Google antes de completar el inicio de sesión.';
+    case 'auth/popup-blocked':
+      return 'El navegador bloqueó la ventana emergente de Google. Habilitá las ventanas emergentes para continuar.';
+    case 'auth/network-request-failed':
+      return 'Hubo un problema de conexión. Verificá tu internet e intentá de nuevo.';
+    case 'auth/too-many-requests':
+      return 'Demasiados intentos fallidos. Por seguridad, esperá unos minutos antes de volver a intentar.';
+    case 'auth/user-disabled':
+      return 'Esta cuenta fue desactivada por un administrador.';
+    default:
+      return 'Ocurrió un error inesperado al procesar la solicitud. Intentá de nuevo en unos instantes.';
+  }
+}
 
 // Initialize Firestore with specific database ID if provided
 export const db = databaseId && databaseId !== '(default)'

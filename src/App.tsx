@@ -61,11 +61,33 @@ import { DemoPlanFunctionalBar } from './components/demo/DemoPlanFunctionalBar';
 import { ReceptionView } from './components/roles/ReceptionView';
 import { HousekeepingMobileView } from './components/roles/HousekeepingMobileView';
 import { GuestWelcomePortal } from './components/guide/GuestWelcomePortal';
-import { INITIAL_WELCOME_GUIDE } from './data/initialData';
+import { INITIAL_WELCOME_GUIDE, getEmptyAppState } from './data/initialData';
+import { isAppMode } from './lib/appMode';
+import { auth, onAuthStateChanged, signOut, User } from './lib/firebase';
+import { AppAuthScreen } from './components/auth/AppAuthScreen';
 
 export default function App() {
+  const isApp = isAppMode();
+
+  // Firebase Auth State in App Mode
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState<boolean>(() => isApp);
+
+  useEffect(() => {
+    if (!isApp) {
+      setAuthLoading(false);
+      return;
+    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      setAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, [isApp]);
+
   // App view: 'landing' (clean landing site), 'demo' (active PMS panel), 'guide' (public guest portal), or 'superadmin'
   const [currentView, setCurrentView] = useState<'landing' | 'demo' | 'superadmin' | 'guide'>(() => {
+    if (isAppMode()) return 'demo';
     try {
       if (typeof window !== 'undefined') {
         const path = window.location.pathname.toLowerCase();
@@ -209,27 +231,8 @@ export default function App() {
     return 'overview';
   });
 
-  // Active Complex: Catalinas Apartamentos, Wood Cabin or Custom
-  const [activeComplex, setActiveComplex] = useState<'catalinas' | 'woodcabin' | 'custom'>(() => {
-    try {
-      if (typeof window !== 'undefined') {
-        const path = window.location.pathname.toLowerCase();
-        const hash = window.location.hash.toLowerCase();
-        const params = new URLSearchParams(window.location.search);
-        
-        const complexParam = params.get('complex') || params.get('c') || params.get('slug') || params.get('propiedad') || params.get('hotel');
-        if (complexParam === 'woodcabin' || path.includes('woodcabin') || hash.includes('woodcabin')) return 'woodcabin';
-        if (complexParam === 'custom' || path.includes('custom') || hash.includes('custom') || path.includes('mi-complejo') || path.includes('micomplejo')) return 'custom';
-        if (complexParam === 'catalinas' || path.includes('catalinas') || hash.includes('catalinas')) return 'catalinas';
-
-        const saved = localStorage.getItem('loomi_active_complex');
-        if (saved === 'catalinas' || saved === 'woodcabin' || saved === 'custom') {
-          return saved;
-        }
-      }
-    } catch {}
-    return 'catalinas';
-  });
+  // Active Complex: Complejo Iguazú (Demo)
+  const activeComplex = 'iguazu';
 
   // User Role State: 'admin' | 'frontdesk' | 'housekeeping'
   const [userRole, setUserRole] = useState<'admin' | 'frontdesk' | 'housekeeping'>(() => {
@@ -355,8 +358,9 @@ export default function App() {
     showToast(`Rol activo: ${roleNames[newRole]}`);
   };
 
-  // Persistent Demo State (from localStorage)
-  const [demoState, setDemoState] = useState<DemoState>(getDemoState);
+  // Persistent Demo State:
+  // En modo App: NUNCA se cargan datos de ejemplo (initialData) ni se lee/escribe la clave de localStorage de la demo
+  const [demoState, setDemoState] = useState<DemoState>(() => (isApp ? getEmptyAppState() : getDemoState()));
 
   // Active logged-in user profile
   const [loggedUser, setLoggedUser] = useState<{ name: string; email: string; complexId: string; complexName: string } | null>(() => {
@@ -447,11 +451,13 @@ export default function App() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Sync state to localStorage whenever demoState changes
+  // Sync state to localStorage whenever demoState changes (solo en modo demo)
   const updateDemoState = (updater: (prev: DemoState) => DemoState) => {
     setDemoState((prev) => {
       const next = updater(prev);
-      saveDemoState(next);
+      if (!isApp) {
+        saveDemoState(next);
+      }
       return next;
     });
   };
@@ -484,7 +490,6 @@ export default function App() {
         guestName: isFirst ? 'Martín Palermo (Huésped de Prueba)' : 'Carolina Herrera',
         guestEmail: isFirst ? 'martin.palermo@gmail.com' : 'caro.herrera@hotmail.com',
         guestPhone: isFirst ? '+54 9 11 4455-8899' : '+54 9 351 778-9900',
-        guestAvatar: isFirst ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120' : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120',
         checkIn: cIn,
         checkOut: cOut,
         nights,
@@ -550,7 +555,6 @@ export default function App() {
     };
 
     updateDemoState(() => newCustomState);
-    setActiveComplex('custom');
     setIsOnboardingModalOpen(false);
     setDemoTab('overview');
     showToast(`🎉 ¡Felicitaciones! "${data.complexName}" configurado con éxito (${data.properties.length} unidades).`);
@@ -558,6 +562,11 @@ export default function App() {
 
   // Reset to factory defaults
   const handleResetData = () => {
+    if (isApp) {
+      setDemoState(getEmptyAppState());
+      showToast('Panel reiniciado.');
+      return;
+    }
     const fresh = resetDemoState();
     setDemoState(fresh);
     showToast('Datos ficticios restablecidos correctamente.');
@@ -851,8 +860,7 @@ export default function App() {
     (c) => c.status !== 'completed' && c.status !== 'inspected'
   ).length;
 
-  const handleSelectComplex = (complexId: string, isNew?: boolean) => {
-    setActiveComplex(complexId as any);
+  const handleSelectComplex = (_complexId: string, isNew?: boolean) => {
     setCurrentView('demo');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -874,18 +882,49 @@ export default function App() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (isApp) {
+      try {
+        await signOut(auth);
+        setCurrentUser(null);
+        showToast('Sesión cerrada con éxito');
+      } catch (err) {
+        console.warn('Error signing out:', err);
+      }
+      return;
+    }
     try {
       localStorage.removeItem('loomi_logged_user');
       localStorage.removeItem('loomi_active_complex');
       localStorage.removeItem('loomi_demo_state');
     } catch {}
     setLoggedUser(null);
-    setActiveComplex('catalinas');
     const fresh = resetDemoState();
     setDemoState(fresh);
-    showToast('Sesión cerrada correctamente. Volviendo a Catalinas.');
+    showToast('Sesión cerrada correctamente. Volviendo a Complejo Iguazú.');
   };
+
+  // Loading simple en modo App mientras se verifica la sesión (sin parpadeo)
+  if (isApp && authLoading) {
+    return (
+      <div className="min-h-screen w-full bg-[#0B0F17] text-white flex flex-col items-center justify-center p-4 selection:bg-[#E67E22]">
+        <div className="flex flex-col items-center gap-4 animate-in fade-in duration-300">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#E67E22] to-amber-500 flex items-center justify-center text-white shadow-xl shadow-orange-500/20 animate-pulse">
+            <Building2 className="w-6 h-6" />
+          </div>
+          <div className="text-center space-y-1">
+            <p className="text-sm font-semibold tracking-tight text-white">Loomi Suite</p>
+            <p className="text-xs text-slate-400">Verificando sesión...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Pantalla de autenticación completa de Firebase en modo App si no inició sesión
+  if (isApp && !currentUser) {
+    return <AppAuthScreen onSuccess={() => {}} />;
+  }
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans antialiased selection:bg-rose-500 selection:text-white transition-colors">
@@ -979,13 +1018,7 @@ export default function App() {
           onToggleChecklistItem={handleToggleChecklistItem}
           onUpdateTaskStatus={handleUpdateTaskStatus}
           onSwitchRole={handleRoleChange}
-          complexName={
-            activeComplex === 'catalinas'
-              ? 'Catalinas Apartamentos'
-              : activeComplex === 'woodcabin'
-              ? 'Tu Complejo'
-              : demoState.welcomeGuide?.propertyName || 'Mi Complejo Real'
-          }
+          complexName={demoState.welcomeGuide?.propertyName || 'Complejo Iguazú (Demo)'}
         />
       ) : userRole === 'frontdesk' ? (
         /* VISTA RECEPCIÓN / MOSTRADOR: OPTIMIZADA PARA PC / TABLET (/recepcion) */
@@ -1003,13 +1036,7 @@ export default function App() {
               setInitialDateForRes(undefined);
               setIsNewResModalOpen(true);
             }}
-            complexName={
-              activeComplex === 'catalinas'
-                ? 'Catalinas Apartamentos'
-                : activeComplex === 'woodcabin'
-                ? 'Tu Complejo'
-                : demoState.welcomeGuide?.propertyName || 'Mi Complejo Real'
-            }
+            complexName={demoState.welcomeGuide?.propertyName || 'Complejo Iguazú (Demo)'}
           />
         </div>
       ) : mobileMode === 'light' ? (
@@ -1037,14 +1064,9 @@ export default function App() {
           onSwitchToFullView={() => handleSetMobileMode('full')}
           theme={theme}
           onToggleTheme={toggleTheme}
-          activeComplex={activeComplex}
-          complexName={
-            activeComplex === 'catalinas'
-              ? 'Catalinas Apartamentos'
-              : activeComplex === 'woodcabin'
-              ? 'Tu Complejo'
-              : demoState.welcomeGuide?.propertyName || 'Mi Complejo Real'
-          }
+          complexName={demoState.welcomeGuide?.propertyName || (isApp ? 'Mi Complejo' : 'Complejo Iguazú (Demo)')}
+          onLogout={handleLogout}
+          isAppMode={isApp}
         />
       ) : (
         /* DUEÑO / ADMINISTRADOR: CONTROL TOTAL DE ESCRITORIO (/admin) */
@@ -1054,13 +1076,7 @@ export default function App() {
             activeTab={demoTab}
             onSelectTab={setDemoTab}
             pendingCleaningsCount={pendingCleaningsCount}
-            complexName={
-              activeComplex === 'catalinas'
-                ? 'Catalinas Apartamentos'
-                : activeComplex === 'woodcabin'
-                ? 'Tu Complejo'
-                : demoState.welcomeGuide?.propertyName || 'Mi Complejo Real'
-            }
+            complexName={demoState.welcomeGuide?.propertyName || (isApp ? 'Mi Complejo' : 'Complejo Iguazú (Demo)')}
             onOpenNewReservation={() => {
               setInitialPropertyForRes(undefined);
               setInitialDateForRes(undefined);
@@ -1073,25 +1089,19 @@ export default function App() {
             theme={theme}
             onToggleTheme={toggleTheme}
             onBackToLanding={() => {
+              if (isApp) {
+                setDemoTab('overview');
+                return;
+              }
               setCurrentView('landing');
               window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            activeComplex={activeComplex}
-            onSwitchComplex={(c) => {
-              setActiveComplex(c);
-              showToast(
-                c === 'catalinas'
-                  ? 'Cambiado a Catalinas Apartamentos'
-                  : c === 'woodcabin'
-                  ? 'Cambiado a Wood Cabin'
-                  : 'Cambiado a Mi Complejo Real'
-              );
             }}
             isMobileOpen={isMobileSidebarOpen}
             onMobileClose={() => setIsMobileSidebarOpen(false)}
             onOpenLogin={() => setIsAuthModalOpen(true)}
-            loggedUser={loggedUser}
+            loggedUser={isApp && currentUser ? { name: currentUser.displayName || currentUser.email?.split('@')[0] || 'Usuario', email: currentUser.email || '', complexId: 'app-user', complexName: demoState.welcomeGuide?.propertyName || 'Mi Complejo' } : loggedUser}
             onLogout={handleLogout}
+            isAppMode={isApp}
           />
 
           {/* Main Content Area */}
@@ -1110,11 +1120,7 @@ export default function App() {
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" />
                   <span className="text-xs font-medium text-stone-600 dark:text-stone-300 truncate max-w-[140px] sm:max-w-none">
-                    {activeComplex === 'catalinas'
-                      ? 'Catalinas Apartamentos (CABA)'
-                      : activeComplex === 'woodcabin'
-                      ? 'Tu Complejo (Buenos Aires)'
-                      : 'Mi Complejo Real'}
+                    {demoState.welcomeGuide?.propertyName || 'Complejo Iguazú (Demo)'}
                   </span>
                 </div>
                 <span className="text-stone-300 dark:text-zinc-700">/</span>
@@ -1132,7 +1138,7 @@ export default function App() {
                     : demoTab === 'direct-booking'
                     ? 'Tu Web Directa'
                     : demoTab === 'properties'
-                    ? 'Departamentos'
+                    ? 'Cabañas'
                     : demoTab === 'addons'
                     ? 'Opcionales'
                     : demoTab === 'messages'
@@ -1197,7 +1203,20 @@ export default function App() {
                   )}
                 </button>
 
-                {loggedUser ? (
+                {isApp ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-stone-500 dark:text-zinc-400 font-medium hidden sm:inline truncate max-w-[200px]">
+                      {currentUser?.email}
+                    </span>
+                    <button
+                      onClick={handleLogout}
+                      className="text-xs font-semibold text-rose-500 hover:text-rose-600 dark:text-rose-400 px-3 py-1.5 rounded-xl border border-rose-200/60 dark:border-rose-900/50 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                      title="Cerrar sesión en Loomi Suite"
+                    >
+                      <span>Cerrar sesión</span>
+                    </button>
+                  </div>
+                ) : loggedUser ? (
                   <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-50/70 dark:bg-orange-950/40 border border-orange-200/70 dark:border-orange-900/50 text-xs font-semibold text-[#E67E22]">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" />
                     <span className="truncate max-w-[140px]">{loggedUser.name}</span>
@@ -1222,7 +1241,7 @@ export default function App() {
                     <span className="text-stone-300 dark:text-zinc-800 hidden md:inline">|</span>
                     <button
                       onClick={() => {
-                        setSelectedPlanForLead('Plan Cabañas & Deptos (Demo)');
+                        setSelectedPlanForLead('Plan Loomi ($45.000/mes)');
                         setIsLeadModalOpen(true);
                       }}
                       className="bg-white hover:bg-stone-50 text-stone-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-stone-200 border border-stone-200/80 dark:border-zinc-800 text-xs font-medium px-3 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
@@ -1262,7 +1281,7 @@ export default function App() {
                   onQuickCheckIn={handleQuickCheckIn}
                   onOpenOnboardingWizard={() => setIsOnboardingModalOpen(true)}
                   onRequestPlan={() => {
-                    setSelectedPlanForLead('Plan Cabañas & Deptos');
+                    setSelectedPlanForLead('Plan Loomi ($45.000/mes)');
                     setIsLeadModalOpen(true);
                   }}
                   isEmployeeMode={isEmployeeMode}
@@ -1373,12 +1392,10 @@ export default function App() {
             </div>
 
             {/* Selector de Planes & Escenarios Comerciales (Plano de menor prioridad visual, al pie del panel) */}
-            {!loggedUser && !isDemoPlanBarDismissed && (
+            {!isApp && !loggedUser && !isDemoPlanBarDismissed && (
               <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 pb-6 pt-2">
                 <DemoPlanFunctionalBar
                   onSelectTab={setDemoTab}
-                  onSwitchComplex={setActiveComplex}
-                  activeComplex={activeComplex}
                   currentTab={demoTab}
                   isEmployeeMode={isEmployeeMode}
                   onToggleEmployeeMode={() => handleRoleChange(isEmployeeMode ? 'admin' : 'housekeeping')}
@@ -1389,7 +1406,7 @@ export default function App() {
                   }}
                   onOpenOnboardingWizard={() => setIsOnboardingModalOpen(true)}
                   onRequestPlan={() => {
-                    setSelectedPlanForLead('Plan Cabañas & Deptos');
+                    setSelectedPlanForLead('Plan Loomi Suite ($60.000/mes)');
                     setIsLeadModalOpen(true);
                   }}
                   onDismiss={handleDismissDemoPlanBar}
@@ -1400,8 +1417,8 @@ export default function App() {
         </div>
       )}
 
-      {/* Persistent Floating Xenia AI Assistant (activo en el panel de Demo en escritorio; desactivado en landing y en recepción para evitar solapamiento con caja chica y cobros pendientes) */}
-      {currentView === 'demo' && userRole !== 'frontdesk' && !(mobileMode === 'light' || isEmployeeMode || demoTab === 'direct-booking') && (
+      {/* Persistent Floating Xenia AI Assistant (activo en el panel de Demo en escritorio; desactivado en landing y en modo app) */}
+      {!isApp && currentView === 'demo' && userRole !== 'frontdesk' && !(mobileMode === 'light' || isEmployeeMode || demoTab === 'direct-booking') && (
         <XeniaFloatingWidget
           demoState={demoState}
           onOpenFullView={() => {

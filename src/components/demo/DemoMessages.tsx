@@ -13,7 +13,7 @@ import {
   Info,
 } from 'lucide-react';
 import { DemoState, Reservation, MessageTemplate } from '../../types';
-import { formatDisplayDate, INITIAL_TEMPLATES } from '../../data/initialData';
+import { formatDisplayDate, INITIAL_TEMPLATES, getGuestInitials } from '../../data/initialData';
 import { copyToClipboard } from '../../utils/clipboard';
 import { WebTemplatesManager } from '../WebTemplatesManager';
 import { GuestWelcomeCard } from '../GuestWelcomeCard';
@@ -353,16 +353,16 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
           {/* Render del componente GuestWelcomeCard */}
           <GuestWelcomeCard
             guestName={selectedReservation?.guestName || 'Huésped'}
-            propertyName={selectedProperty?.name || 'Departamento'}
-            checkInDate={selectedReservation ? formatDisplayDate(selectedReservation.checkIn) : '15 de Octubre'}
-            checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '19 de Octubre'}
+            propertyName={selectedProperty?.name || 'Cabaña Lapacho'}
+            checkInDate={selectedReservation ? formatDisplayDate(selectedReservation.checkIn) : '10 de Octubre'}
+            checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '13 de Octubre'}
             checkInTime="14:00 hs"
-            accessCode={selectedReservation?.pinCode || '1024'}
-            wifiNetwork={selectedProperty?.wifiNetwork || 'Catalinas_Guest_5G'}
-            wifiPassword={selectedProperty?.wifiPassword || 'bienvenidoscatalinas'}
-            address={selectedProperty ? `${selectedProperty.address}, ${selectedProperty.neighborhood}` : 'Tres Sargentos 400, Retiro / Catalinas Norte, CABA'}
-            guideUrl={`https://loomisuite.com/guia/${selectedProperty?.id || 'cat-b'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
-            hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5491155550100'}
+            accessCode={selectedReservation?.pinCode || '4821'}
+            wifiNetwork={selectedProperty?.wifiNetwork || 'ComplejoIguazu_Selva_5G'}
+            wifiPassword={selectedProperty?.wifiPassword || 'IguazuDemo2026'}
+            address={selectedProperty ? `${selectedProperty.address}` : 'Ruta Ejemplo km 5, Puerto Iguazú, Misiones'}
+            guideUrl={`https://loomisuite.com/guia/${selectedProperty?.id || 'cab-lapacho'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
+            hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5493757550100'}
           />
         </div>
       )}
@@ -599,12 +599,8 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
               {/* WhatsApp Header */}
               <div className="bg-[#075E54] p-3 text-white flex items-center justify-between shadow-xs">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-zinc-300 overflow-hidden ring-1 ring-white/20">
-                    <img
-                      src={selectedReservation?.guestAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
-                      alt="avatar"
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-8 h-8 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-xs ring-1 ring-white/20 shrink-0 select-none">
+                    {getGuestInitials(selectedReservation?.guestName || 'Huésped')}
                   </div>
                   <div>
                     <h5 className="text-xs font-normal leading-none text-white tracking-tight">
@@ -649,16 +645,16 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                 <div className="flex-1 p-2 overflow-y-auto bg-[#FAF8F5]">
                   <GuestWelcomeCard
                     guestName={selectedReservation?.guestName || 'Huésped'}
-                    propertyName={selectedProperty?.name || 'Departamento'}
-                    checkInDate={selectedReservation ? formatDisplayDate(selectedReservation.checkIn) : '15 de Octubre'}
-                    checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '19 de Octubre'}
+                    propertyName={selectedProperty?.name || 'Cabaña Lapacho'}
+                    checkInDate={selectedReservation ? formatDisplayDate(selectedReservation.checkIn) : '10 de Octubre'}
+                    checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '13 de Octubre'}
                     checkInTime="14:00 hs"
-                    accessCode={selectedReservation?.pinCode || '1024'}
-                    wifiNetwork={selectedProperty?.wifiNetwork || 'Catalinas_Guest_5G'}
-                    wifiPassword={selectedProperty?.wifiPassword || 'bienvenidoscatalinas'}
-                    address={selectedProperty ? `${selectedProperty.address}, ${selectedProperty.neighborhood}` : 'Tres Sargentos 400, Retiro / Catalinas Norte, CABA'}
-                    guideUrl={`https://loomisuite.com/guia/${selectedProperty?.id || 'cat-b'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
-                    hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5491155550100'}
+                    accessCode={selectedReservation?.pinCode || '4821'}
+                    wifiNetwork={selectedProperty?.wifiNetwork || 'ComplejoIguazu_Selva_5G'}
+                    wifiPassword={selectedProperty?.wifiPassword || 'IguazuDemo2026'}
+                    address={selectedProperty ? `${selectedProperty.address}` : 'Ruta Ejemplo km 5, Puerto Iguazú, Misiones'}
+                    guideUrl={`https://loomisuite.com/guia/${selectedProperty?.id || 'cab-lapacho'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
+                    hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5493757550100'}
                   />
                 </div>
               ) : (

@@ -26,9 +26,10 @@ import {
   Navigation,
   Square,
   UserCheck,
+  LogOut,
 } from 'lucide-react';
 import { DemoState, Reservation, Property, ReservationStatus, PaymentStatus } from '../../types';
-import { formatDisplayDate, formatCurrency } from '../../data/initialData';
+import { formatDisplayDate, formatCurrency, getGuestInitials } from '../../data/initialData';
 import { XeniaAvatar } from '../xenia/XeniaAvatar';
 import { useXeniaVoice } from '../../hooks/useXeniaVoice';
 import { getClientXeniaReply } from '../xenia/xeniaLocalEngine';
@@ -45,8 +46,9 @@ interface MobileLightViewProps {
   onSwitchToFullView: () => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
-  activeComplex: 'catalinas' | 'woodcabin' | 'custom';
   complexName: string;
+  onLogout?: () => void;
+  isAppMode?: boolean;
 }
 
 function formatShortDateRange(checkIn: string, checkOut: string): string {
@@ -78,8 +80,9 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
   onSwitchToFullView,
   theme,
   onToggleTheme,
-  activeComplex,
   complexName,
+  onLogout,
+  isAppMode = false,
 }) => {
   // Mobile Active Tab: 'today' | 'units' | 'guests' | 'xenia' | 'more'
   const [mobileTab, setMobileTab] = useState<'today' | 'units' | 'guests' | 'xenia' | 'more'>('guests');
@@ -248,15 +251,15 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
 
   // Pre-formatted messages for 1-tap mobile sending
   const paymentMessageText = selectedGuestAction
-    ? `¡Hola ${selectedGuestAction.guestName}! Te escribo de ${complexName}. Para confirmar tu reserva en ${selectedActionProperty?.name || 'la cabaña'} del ${formatDisplayDate(selectedGuestAction.checkIn)} al ${formatDisplayDate(selectedGuestAction.checkOut)}, te solicitamos la seña del 50% (${depositAmount} USD o equivalente en pesos).\n\n📌 *Datos de Transferencia Bancaria:*\n• Alias: CATALINAS.APARTS\n• CBU: 0720000000000012345678\n• Titular: ${complexName}\n\nO podés abonar con Mercado Pago / Tarjeta. ¡Avisanos cuando realices el pago para enviarte la confirmación!`
+    ? `¡Hola ${selectedGuestAction.guestName}! Te escribo de ${complexName}. Para confirmar tu reserva en ${selectedActionProperty?.name || 'la cabaña'} del ${formatDisplayDate(selectedGuestAction.checkIn)} al ${formatDisplayDate(selectedGuestAction.checkOut)}, te solicitamos la seña del 50% (${depositAmount} USD o equivalente en pesos).\n\n📌 *Datos de Transferencia Bancaria:*\n• Alias: IGUAZU.CABANAS.DEMO\n• CBU: 0140999803400012345678\n• Titular: ${complexName}\n\nO podés abonar con Mercado Pago / Tarjeta. ¡Avisanos cuando realices el pago para enviarte la confirmación!`
     : '';
 
   const welcomeMessageText = selectedGuestAction
-    ? `¡Hola, ${selectedGuestAction.guestName.split(' ')[0]}! 🌲 Te confirmamos que tu reserva para la unidad ${selectedActionProperty?.name || 'tu alojamiento'} está registrada con éxito desde el ${formatDisplayDate(selectedGuestAction.checkIn)} hasta el ${formatDisplayDate(selectedGuestAction.checkOut)}.\nPara que tu llegada sea perfecta y sin demoras, te compartimos tu Guía Digital de Bienvenida exclusiva. Desde allí vas a poder ver el mapa interactivo con la ruta de acceso, las claves de Wi-Fi y completar tu registro de pasajeros digital:\n🔗 https://loomisuite.com/guia/${selectedGuestAction.propertyId}?huesped=${encodeURIComponent(selectedGuestAction.guestName.split(' ')[0])}\n¡Estamos felices de recibirte! Cualquier duda, estamos a un toque de distancia por acá.`
+    ? `¡Hola, ${selectedGuestAction.guestName.split(' ')[0]}! 🌲 Te confirmamos que tu reserva para la unidad ${selectedActionProperty?.name || 'tu cabaña'} está registrada con éxito desde el ${formatDisplayDate(selectedGuestAction.checkIn)} hasta el ${formatDisplayDate(selectedGuestAction.checkOut)}.\nPara que tu llegada sea perfecta y sin demoras, te compartimos tu Guía Digital de Bienvenida exclusiva. Desde allí vas a poder ver el mapa interactivo con la ruta de acceso desde el aeropuerto o terminal, las claves de Wi-Fi y completar tu registro de pasajeros digital:\n🔗 https://loomisuite.com/guia/${selectedGuestAction.propertyId}?huesped=${encodeURIComponent(selectedGuestAction.guestName.split(' ')[0])}\n¡Estamos felices de recibirte! Cualquier duda, estamos a un toque de distancia por acá.`
     : '';
 
   const wifiMessageText = selectedGuestAction
-    ? `¡Hola ${selectedGuestAction.guestName}! Te dejamos los datos de conexión de ${selectedActionProperty?.name || 'tu cabaña'}:\n\n📶 *Red Wi-Fi:* ${selectedActionProperty?.wifiNetwork || 'CatalinasAptos'}\n🔑 *Clave:* ${selectedActionProperty?.wifiPassword || 'CatalinasDemo2026'}\n📍 *Dirección:* ${selectedActionProperty?.address || 'Tres Sargentos 400, CABA'}\n\n¡Que tengas una hermosa estadía!`
+    ? `¡Hola ${selectedGuestAction.guestName}! Te dejamos los datos de conexión de ${selectedActionProperty?.name || 'tu cabaña'}:\n\n📶 *Red Wi-Fi:* ${selectedActionProperty?.wifiNetwork || 'ComplejoIguazu_Selva_5G'}\n🔑 *Clave:* ${selectedActionProperty?.wifiPassword || 'IguazuDemo2026'}\n📍 *Dirección:* ${selectedActionProperty?.address || 'Ruta Ejemplo km 5, Puerto Iguazú, Misiones'}\n\n¡Que tengas una hermosa estadía!`
     : '';
 
   return (
@@ -301,6 +304,17 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
               <Moon className="w-4 h-4 text-gray-700" />
             )}
           </button>
+
+          {/* Logout in App mode */}
+          {isAppMode && onLogout && (
+            <button
+              onClick={onLogout}
+              className="w-9 h-9 rounded-xl bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center hover:bg-rose-500/20 transition-colors cursor-pointer"
+              title="Cerrar sesión"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </header>
 
@@ -318,7 +332,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
               <Search className="w-4 h-4 text-gray-400 absolute left-4 top-4" />
               <input
                 type="text"
-                placeholder="Buscar por departamento, huésped o teléfono..."
+                placeholder="Buscar por cabaña, huésped o teléfono..."
                 value={guestSearch}
                 onChange={(e) => setGuestSearch(e.target.value)}
                 className="w-full text-xs font-medium bg-white dark:bg-[#1A1B20] border-0 rounded-2xl pl-11 pr-4 py-3.5 text-gray-800 dark:text-gray-100 placeholder-gray-400 shadow-[0_2px_10px_rgba(0,0,0,0.02)] focus:outline-none focus:ring-1 focus:ring-[#D86F35]/40"
@@ -390,7 +404,10 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
 
                       {/* Bottom Row: Nombre completo del Huésped on Left, 3 Botones de Acción on Right */}
                       <div className="flex items-center justify-between gap-2">
-                        <div className="min-w-0 flex items-center gap-1.5 text-xs text-gray-700 dark:text-gray-200 font-semibold truncate">
+                        <div className="min-w-0 flex items-center gap-2 text-xs text-gray-700 dark:text-gray-200 font-semibold truncate">
+                          <div className="w-7 h-7 rounded-full bg-stone-200 dark:bg-zinc-800 text-stone-700 dark:text-stone-200 flex items-center justify-center font-bold text-[10px] shrink-0 border border-stone-300/60 dark:border-zinc-700 select-none">
+                            {getGuestInitials(res.guestName)}
+                          </div>
                           <span className="truncate">
                             {res.guestName}
                           </span>
@@ -584,7 +601,10 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                      <div className="min-w-0 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium truncate">
+                      <div className="min-w-0 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 font-medium truncate">
+                        <div className="w-6 h-6 rounded-full bg-stone-200 dark:bg-zinc-800 text-stone-700 dark:text-stone-200 flex items-center justify-center font-bold text-[9px] shrink-0 border border-stone-300/60 dark:border-zinc-700 select-none">
+                          {getGuestInitials(res.guestName)}
+                        </div>
                         <span className="font-semibold text-gray-700 dark:text-gray-300 truncate">
                           {res.guestName}
                         </span>

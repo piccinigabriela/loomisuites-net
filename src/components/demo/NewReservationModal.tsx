@@ -123,7 +123,6 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
       guestName: guestName || 'Huésped Invitado',
       guestEmail: guestEmail || 'huesped@ejemplo.com',
       guestPhone: guestPhone || '+54 9 11 5555-0000',
-      guestAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
       checkIn,
       checkOut,
       nights,

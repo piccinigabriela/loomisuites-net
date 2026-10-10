@@ -1,76 +1,76 @@
 {
   "properties": [
     {
-      "id": "cat-a",
-      "name": "Departamento A",
-      "type": "2 Ambientes con Cocina Completa (hasta 3 pax)",
-      "address": "Tres Sargentos 400 (Piso Demo)",
-      "neighborhood": "Retiro / Catalinas Norte",
-      "city": "Ciudad Autónoma de Buenos Aires",
+      "id": "cab-lapacho",
+      "name": "Cabaña Lapacho",
+      "type": "Cabaña Familiar con Deck y Parrilla (hasta 4 pax)",
+      "address": "Ruta Ejemplo km 5, Puerto Iguazú, Misiones",
+      "neighborhood": "Puerto Iguazú",
+      "city": "Puerto Iguazú, Misiones",
+      "bedrooms": 2,
+      "bathrooms": 1,
+      "maxGuests": 4,
+      "basePrice": 65,
+      "cleaningFee": 20,
+      "imageUrl": "/cabanas/cabana-terraza.jpg",
+      "rating": 4.97,
+      "reviewsCount": 114,
+      "status": "active",
+      "syncStatus": {
+        "airbnb": true,
+        "booking": true,
+        "vrbo": false
+      },
+      "smartLock": {
+        "enabled": true,
+        "brand": "Cerradura Digital Touch / Teclado"
+      },
+      "wifiNetwork": "Iguazu_Lapacho_WiFi",
+      "wifiPassword": "IguazuDemo2026"
+    },
+    {
+      "id": "cab-timbo",
+      "name": "Cabaña Timbó",
+      "type": "Cabaña Matrimonial con Vista a la Selva (hasta 2 pax)",
+      "address": "Ruta Ejemplo km 5, Puerto Iguazú, Misiones",
+      "neighborhood": "Puerto Iguazú",
+      "city": "Puerto Iguazú, Misiones",
+      "bedrooms": 1,
+      "bathrooms": 1,
+      "maxGuests": 2,
+      "basePrice": 50,
+      "cleaningFee": 18,
+      "imageUrl": "/cabanas/cabana-hamaca.jpg",
+      "rating": 4.95,
+      "reviewsCount": 98,
+      "status": "active",
+      "syncStatus": {
+        "airbnb": true,
+        "booking": true,
+        "vrbo": false
+      },
+      "smartLock": {
+        "enabled": true,
+        "brand": "Cerradura Digital Touch / Teclado"
+      },
+      "wifiNetwork": "Iguazu_Timbo_WiFi",
+      "wifiPassword": "IguazuDemo2026"
+    },
+    {
+      "id": "cab-guatambu",
+      "name": "Cabaña Guatambú",
+      "type": "Cabaña Clásica de Madera con Galería (hasta 3 pax)",
+      "address": "Ruta Ejemplo km 5, Puerto Iguazú, Misiones",
+      "neighborhood": "Puerto Iguazú",
+      "city": "Puerto Iguazú, Misiones",
       "bedrooms": 1,
       "bathrooms": 1,
       "maxGuests": 3,
       "basePrice": 58,
       "cleaningFee": 20,
-      "imageUrl": "/catalinas/1dormA.jpg",
-      "rating": 4.97,
-      "reviewsCount": 112,
-      "status": "active",
-      "syncStatus": {
-        "airbnb": true,
-        "booking": true,
-        "vrbo": false
-      },
-      "smartLock": {
-        "enabled": true,
-        "brand": "Cerradura Digital Touch / Teclado"
-      },
-      "wifiNetwork": "CatalinasAptos_Fibra_A",
-      "wifiPassword": "CatalinasDemo2026"
-    },
-    {
-      "id": "cat-b",
-      "name": "Departamento B",
-      "type": "Estudio de Diseño con Sommier Matrimonial (2 pax)",
-      "address": "Tres Sargentos 400 (Piso Demo)",
-      "neighborhood": "Retiro / Catalinas Norte",
-      "city": "Ciudad Autónoma de Buenos Aires",
-      "bedrooms": 1,
-      "bathrooms": 1,
-      "maxGuests": 2,
-      "basePrice": 48,
-      "cleaningFee": 18,
-      "imageUrl": "/catalinas/estudioB.jpg",
-      "rating": 4.95,
-      "reviewsCount": 94,
-      "status": "active",
-      "syncStatus": {
-        "airbnb": true,
-        "booking": true,
-        "vrbo": false
-      },
-      "smartLock": {
-        "enabled": true,
-        "brand": "Cerradura Digital Touch / Teclado"
-      },
-      "wifiNetwork": "CatalinasAptos_Fibra_B",
-      "wifiPassword": "CatalinasDemo2026"
-    },
-    {
-      "id": "cat-c",
-      "name": "Departamento C",
-      "type": "Estudio Ejecutivo Vista Ciudad (2 pax)",
-      "address": "Tres Sargentos 400 (Piso Demo)",
-      "neighborhood": "Retiro / Catalinas Norte",
-      "city": "Ciudad Autónoma de Buenos Aires",
-      "bedrooms": 1,
-      "bathrooms": 1,
-      "maxGuests": 2,
-      "basePrice": 52,
-      "cleaningFee": 18,
-      "imageUrl": "/catalinas/estudioC.jpg",
+      "imageUrl": "/cabanas/deck-hamaca.jpg",
       "rating": 4.98,
-      "reviewsCount": 87,
+      "reviewsCount": 89,
       "status": "active",
       "syncStatus": {
         "airbnb": true,
@@ -81,24 +81,24 @@
         "enabled": true,
         "brand": "Cerradura Digital Touch / Teclado"
       },
-      "wifiNetwork": "CatalinasAptos_Fibra_C",
-      "wifiPassword": "CatalinasDemo2026"
+      "wifiNetwork": "Iguazu_Guatambu_WiFi",
+      "wifiPassword": "IguazuDemo2026"
     },
     {
-      "id": "cat-d",
-      "name": "Departamento D",
-      "type": "Master Suite con Balcón Francés (hasta 4 pax)",
-      "address": "Tres Sargentos 400 (Piso Demo)",
-      "neighborhood": "Retiro / Catalinas Norte",
-      "city": "Ciudad Autónoma de Buenos Aires",
-      "bedrooms": 2,
+      "id": "cab-palorosa",
+      "name": "Cabaña Palo Rosa",
+      "type": "Suite Superior Selva con Hidromasaje (hasta 2 pax)",
+      "address": "Ruta Ejemplo km 5, Puerto Iguazú, Misiones",
+      "neighborhood": "Puerto Iguazú",
+      "city": "Puerto Iguazú, Misiones",
+      "bedrooms": 1,
       "bathrooms": 1,
-      "maxGuests": 4,
-      "basePrice": 75,
-      "cleaningFee": 25,
-      "imageUrl": "/catalinas/suiteD.jpg",
+      "maxGuests": 2,
+      "basePrice": 72,
+      "cleaningFee": 22,
+      "imageUrl": "/cabanas/sendero-noche.jpg",
       "rating": 4.99,
-      "reviewsCount": 140,
+      "reviewsCount": 104,
       "status": "active",
       "syncStatus": {
         "airbnb": true,
@@ -109,34 +109,34 @@
         "enabled": true,
         "brand": "Cerradura Digital Touch / Teclado"
       },
-      "wifiNetwork": "CatalinasAptos_Fibra_D",
-      "wifiPassword": "CatalinasDemo2026"
+      "wifiNetwork": "Iguazu_PaloRosa_WiFi",
+      "wifiPassword": "IguazuDemo2026"
     }
   ],
   "reservations": [
     {
       "id": "res-demo-101",
-      "propertyId": "cat-a",
-      "guestName": "Martín Soria",
-      "guestPhone": "+54 9 11 4455-6677",
-      "checkIn": "2026-10-09",
-      "checkOut": "2026-10-12",
+      "propertyId": "cab-lapacho",
+      "guestName": "Lucas Fernández",
+      "guestPhone": "+54 9 11 4512-8890",
+      "checkIn": "2026-10-10",
+      "checkOut": "2026-10-13",
       "nights": 3,
-      "guestsCount": 2,
+      "guestsCount": 3,
       "platform": "direct",
-      "totalAmount": 174,
-      "depositPaid": 87,
+      "totalAmount": 195,
+      "depositPaid": 97,
       "paymentStatus": "paid",
       "status": "confirmed",
-      "netRevenue": 174,
+      "netRevenue": 195,
       "commissionPaid": 0,
       "cleaningStatus": "clean",
-      "pinCode": "1024",
+      "pinCode": "4821",
       "createdAt": "2026-10-01"
     },
     {
       "id": "res-demo-102",
-      "propertyId": "cat-b",
+      "propertyId": "cab-timbo",
       "guestName": "Valeria Rossi",
       "guestPhone": "+54 9 11 8899-1122",
       "checkIn": "2026-10-10",
@@ -144,51 +144,51 @@
       "nights": 4,
       "guestsCount": 2,
       "platform": "airbnb",
-      "totalAmount": 192,
-      "depositPaid": 192,
+      "totalAmount": 200,
+      "depositPaid": 200,
       "paymentStatus": "paid",
       "status": "confirmed",
-      "netRevenue": 163,
-      "commissionPaid": 29,
+      "netRevenue": 194,
+      "commissionPaid": 6,
       "cleaningStatus": "clean",
       "pinCode": "2048",
       "createdAt": "2026-10-03"
     },
     {
       "id": "res-demo-103",
-      "propertyId": "cat-c",
+      "propertyId": "cab-guatambu",
       "guestName": "Carlos Méndez",
       "guestPhone": "+54 9 11 3344-5566",
       "checkIn": "2026-10-12",
       "checkOut": "2026-10-15",
       "nights": 3,
-      "guestsCount": 1,
+      "guestsCount": 2,
       "platform": "booking",
-      "totalAmount": 156,
-      "depositPaid": 78,
+      "totalAmount": 174,
+      "depositPaid": 87,
       "paymentStatus": "deposit_only",
       "status": "confirmed",
-      "netRevenue": 132,
-      "commissionPaid": 24,
+      "netRevenue": 148,
+      "commissionPaid": 26,
       "cleaningStatus": "needs_cleaning",
       "pinCode": "3096",
       "createdAt": "2026-10-04"
     },
     {
       "id": "res-demo-104",
-      "propertyId": "cat-d",
+      "propertyId": "cab-palorosa",
       "guestName": "Sofía Albarracín",
       "guestPhone": "+54 9 11 6677-8899",
       "checkIn": "2026-10-15",
-      "checkOut": "2026-10-18",
-      "nights": 3,
-      "guestsCount": 3,
+      "checkOut": "2026-10-19",
+      "nights": 4,
+      "guestsCount": 2,
       "platform": "direct",
-      "totalAmount": 225,
-      "depositPaid": 225,
+      "totalAmount": 288,
+      "depositPaid": 288,
       "paymentStatus": "paid",
       "status": "confirmed",
-      "netRevenue": 225,
+      "netRevenue": 288,
       "commissionPaid": 0,
       "cleaningStatus": "clean",
       "pinCode": "4012",
@@ -198,31 +198,31 @@
   "cleaningTasks": [
     {
       "id": "clean-1",
-      "propertyId": "cat-a",
+      "propertyId": "cab-lapacho",
       "reservationId": "res-demo-101",
-      "cleanerName": "Marta González",
+      "cleanerName": "Carlos Ruiz",
       "scheduledTime": "11:00",
       "status": "completed",
-      "notes": "Departamento A impecable y sanitizado."
+      "notes": "Cabaña Lapacho ventilada, leña repuesta y sanitizada."
     },
     {
       "id": "clean-2",
-      "propertyId": "cat-c",
+      "propertyId": "cab-guatambu",
       "reservationId": "res-demo-103",
-      "cleanerName": "Rosa Benítez",
+      "cleanerName": "Ana Méndez",
       "scheduledTime": "12:00",
       "status": "pending",
-      "notes": "Cambio de ropa blanca y toallas."
+      "notes": "Recambio de ropa blanca, toallas y limpieza de galería."
     }
   ],
   "addons": [
     {
-      "id": "addon-parking",
-      "name": "Cochera Cubierta Privada",
+      "id": "addon-lena",
+      "name": "Bolsa de Leña Seca & Carbón",
       "category": "servicios",
-      "price": 12,
-      "unitLabel": "por día",
-      "description": "Espacio de estacionamiento exclusivo y seguro con acceso por control remoto 24 hs."
+      "price": 5,
+      "unitLabel": "por bolsa",
+      "description": "Leña dura para parrilla y bolsa de carbón lista en el parrillero."
     },
     {
       "id": "addon-latecheckout",
@@ -230,15 +230,29 @@
       "category": "servicios",
       "price": 20,
       "unitLabel": "hasta las 17:00 hs",
-      "description": "Permite aprovechar la tarde o descansar antes de tu vuelo o traslado."
+      "description": "Permite aprovechar la piscina y descansar antes de tu vuelo o traslado."
     },
     {
-      "id": "addon-cleaning",
-      "name": "Servicio de Mucama Extra",
+      "id": "addon-desayuno",
+      "name": "Canasta de Desayuno Misionero",
       "category": "servicios",
-      "price": 18,
-      "unitLabel": "por servicio",
-      "description": "Limpieza integral con recambio completo de sábanas y toallones."
+      "price": 12,
+      "unitLabel": "por persona / día",
+      "description": "Chipitas caseras de almidón calientes, mermeladas de frutos de la selva y café."
     }
-  ]
+  ],
+  "welcomeGuide": {
+    "propertyName": "Complejo Iguazú (Demo)",
+    "tagline": "Cabañas en la Selva Misionera • Puerto Iguazú, Misiones",
+    "hostName": "Administración",
+    "hostPhone": "+54 9 3757 55-0100",
+    "locationAddress": "Ruta Ejemplo km 5, Puerto Iguazú, Misiones",
+    "googleMapsUrl": "https://maps.google.com/?q=Puerto+Iguazu+Misiones",
+    "wifiNetwork": "ComplejoIguazu_Selva_5G",
+    "wifiPassword": "IguazuDemo2026",
+    "poolHours": "Piscina al aire libre habilitada todos los días de 09:00 a 20:30 hs",
+    "checkoutHour": "10:00 hs (Late check-out disponible según disponibilidad previa)",
+    "woodBagPrice": "Bolsa de leña seca y carbón para parrilla: $5.000 ARS",
+    "specialAnnouncement": "🌿 ¡Bienvenidos a Complejo Iguazú! Guardá este link en tu celular: tenés la ruta de acceso desde el aeropuerto y terminal, clave de WiFi en 1 clic, excursiones a Cataratas y asistencia 24 hs."
+  }
 }

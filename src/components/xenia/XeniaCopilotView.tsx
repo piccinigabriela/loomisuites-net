@@ -59,7 +59,7 @@ export const XeniaCopilotView: React.FC<XeniaCopilotViewProps> = ({ demoState })
       role: 'assistant',
       content: `### 👋 ¡Hola! Soy **Xenia**, tu Copiloto Inteligente de Hospitalidad
 
-Estoy conectada a tus **${demoState.properties.length} departamentos y cabañas** y al motor de Loomi Suite. Podés escribirme o **hablarme directamente por voz con el micrófono** 🎙️ y te responderé en español argentino:
+Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de Loomi Suite. Podés escribirme o **hablarme directamente por voz con el micrófono** 🎙️ y te responderé en español argentino:
 
 1. **📊 Rendición de Cuentas Financieras & Huéspedes:**
    - Consulta facturación total, comisiones de OTAs (Booking / Airbnb), ingresos netos y comisiones ahorradas por reservas directas.

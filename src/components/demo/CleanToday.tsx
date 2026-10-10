@@ -60,7 +60,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
   };
 
   const today = getRelativeDate(0);
-  const totalUnits = demoState.properties.length || 4;
+  const totalUnits = demoState.properties.length;
 
   // Stays overlapping today (in-house)
   const inHouseStays = demoState.reservations.filter(
@@ -71,7 +71,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
   );
 
   const occupiedPropertyIds = new Set(inHouseStays.map((r) => r.propertyId));
-  const occupiedUnitsCount = Math.min(totalUnits, occupiedPropertyIds.size);
+  const occupiedUnitsCount = totalUnits > 0 ? Math.min(totalUnits, occupiedPropertyIds.size) : 0;
   const occupancyPercent = totalUnits > 0 ? Math.round((occupiedUnitsCount / totalUnits) * 100) : 0;
 
   // Today's arrivals and departures
@@ -112,14 +112,15 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
       (r.checkIn.startsWith(currentMonthPrefix) || r.checkOut.startsWith(currentMonthPrefix))
   );
 
-  const monthlyNights =
-    currentMonthStays.reduce((acc, r) => acc + (r.nights || 0), 0) ||
-    Math.round(totalUnits * 30 * 0.72);
-  const monthlyRevenue =
-    currentMonthStays.reduce((acc, r) => acc + (r.totalAmount || 0), 0) || 4850;
+  const monthlyNights = totalUnits > 0
+    ? (currentMonthStays.reduce((acc, r) => acc + (r.nights || 0), 0) || Math.round(totalUnits * 30 * 0.72))
+    : 0;
+  const monthlyRevenue = totalUnits > 0
+    ? (currentMonthStays.reduce((acc, r) => acc + (r.totalAmount || 0), 0) || 4850)
+    : 0;
 
   // Cash movements for frontdesk preview
-  const openingCash = 50000;
+  const openingCash = totalUnits > 0 ? 50000 : 0;
   const cashMovements = demoState.cashMovements || [];
   const cashMovementsOnly = cashMovements.filter((m) => m.paymentMethod === 'efectivo');
   const cashIn = cashMovementsOnly
@@ -199,6 +200,32 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Aviso destacado para configurar el complejo si no hay unidades cargadas */}
+      {demoState.properties.length === 0 && (
+        <div className="bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-emerald-500/10 border-2 border-dashed border-[#E67E22]/40 rounded-3xl p-6 sm:p-8 text-center space-y-4 shadow-sm">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-[#E67E22]/15 text-[#E67E22] flex items-center justify-center shadow-inner">
+            <Sparkles className="w-7 h-7" />
+          </div>
+          <div className="max-w-md mx-auto space-y-1.5">
+            <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">
+              Configurá tu complejo
+            </h3>
+            <p className="text-xs text-stone-600 dark:text-zinc-400 leading-relaxed">
+              Todavía no tenés cabañas o departamentos dados de alta. Iniciá el asistente de configuración para cargar tus unidades, fotos, reglas y servicios en pocos minutos.
+            </p>
+          </div>
+          {onOpenOnboardingWizard && (
+            <button
+              onClick={onOpenOnboardingWizard}
+              className="inline-flex items-center gap-2 bg-[#E67E22] hover:bg-[#d36d16] text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition-all shadow-md cursor-pointer hover:scale-[1.02]"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Configurar mi complejo ahora</span>
+            </button>
+          )}
+        </div>
+      )}
 
       {/* 4 Bento KPI Cards: Métricas Coherentes con el Complejo */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">

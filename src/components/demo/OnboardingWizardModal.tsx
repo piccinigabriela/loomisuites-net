@@ -67,18 +67,18 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
         const current = complexes.find((c: any) => c.id === activeId) || complexes[0];
         if (current) {
           return {
-            name: current.name || 'Catalinas Apartamentos',
-            city: current.city || 'Buenos Aires, CABA',
-            hostPhone: current.adminPhone || '+54 9 11 1234-5678',
+            name: current.name || 'Complejo Iguazú (Demo)',
+            city: current.city || 'Puerto Iguazú, Misiones',
+            hostPhone: current.adminPhone || '+54 9 3757 55-0100',
             hostName: current.adminName || 'Administración',
           };
         }
       }
     } catch {}
     return {
-      name: 'Catalinas Apartamentos',
-      city: 'Buenos Aires, Argentina',
-      hostPhone: '+54 9 11 1234-5678',
+      name: 'Complejo Iguazú (Demo)',
+      city: 'Puerto Iguazú, Misiones',
+      hostPhone: '+54 9 3757 55-0100',
       hostName: 'Administración',
     };
   };
@@ -88,9 +88,9 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
   // Step 1: Complex info
   const [complexName, setComplexName] = useState(initialInfo.name);
   const [city, setCity] = useState(initialInfo.city);
-  const [address, setAddress] = useState('Tres Sargentos 400 (Piso Demo)');
-  const [wifiNetwork, setWifiNetwork] = useState('Catalinas_Fibra_WiFi');
-  const [wifiPassword, setWifiPassword] = useState('CatalinasDemo2026');
+  const [address, setAddress] = useState('Ruta Ejemplo km 5, Puerto Iguazú, Misiones');
+  const [wifiNetwork, setWifiNetwork] = useState('ComplejoIguazu_Selva_5G');
+  const [wifiPassword, setWifiPassword] = useState('IguazuDemo2026');
   const [hostName, setHostName] = useState(initialInfo.hostName);
   const [hostPhone, setHostPhone] = useState(initialInfo.hostPhone);
 

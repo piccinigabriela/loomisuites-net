@@ -32,7 +32,7 @@ export interface Property {
   wifiPassword: string;
 }
 
-export type AddonCategory = 'frigobar' | 'transfers' | 'spa' | 'desayuno' | 'experiencias';
+export type AddonCategory = 'frigobar' | 'transfers' | 'spa' | 'desayuno' | 'experiencias' | 'servicios';
 
 export interface AddonService {
   id: string;
@@ -172,7 +172,7 @@ export interface WelcomeGuideData {
   }[];
   directBookingSettings: {
     customSlug: string;
-    customDomain?: string; // Dominio propio del cliente (ej: woodcabiniguazu.com.ar)
+    customDomain?: string; // Dominio propio del cliente (ej: complejoiguazu.com.ar)
     customDomainStatus?: 'active' | 'pending_dns' | 'not_configured'; // Estado de configuración DNS
     customDomainDnsTarget?: string; // Target CNAME o IP de Loomi
     depositPercentage: number;

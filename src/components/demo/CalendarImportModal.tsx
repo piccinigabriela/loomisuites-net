@@ -1087,7 +1087,6 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
         guestName: ev.guestName,
         guestEmail: ev.guestEmail || `${ev.guestName.toLowerCase().replace(/[^a-z0-9]/g, '.')}@example.com`,
         guestPhone: ev.guestPhone || '+54 9 11 ' + Math.floor(10000000 + Math.random() * 90000000),
-        guestAvatar: `https://images.unsplash.com/photo-${1500000000000 + idx}?w=120`,
         checkIn: ev.checkIn,
         checkOut: ev.checkOut,
         nights: ev.nights,

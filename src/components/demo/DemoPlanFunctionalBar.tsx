@@ -26,8 +26,6 @@ import { LandingTemplate } from '../booking/DirectBookingLanding';
 
 interface DemoPlanFunctionalBarProps {
   onSelectTab: (tab: string) => void;
-  onSwitchComplex: (complex: 'catalinas' | 'woodcabin' | 'custom') => void;
-  activeComplex: 'catalinas' | 'woodcabin' | 'custom';
   currentTab: string;
   isEmployeeMode?: boolean;
   onToggleEmployeeMode?: () => void;
@@ -39,8 +37,6 @@ interface DemoPlanFunctionalBarProps {
 
 export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
   onSelectTab,
-  onSwitchComplex,
-  activeComplex,
   currentTab,
   isEmployeeMode = false,
   onToggleEmployeeMode,
@@ -150,14 +146,10 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                   </div>
                   <div>
                     <p className="text-[11px] font-bold text-stone-800 dark:text-stone-200 leading-tight">
-                      {activeComplex === 'woodcabin'
-                        ? 'Cabañas del Bosque'
-                        : activeComplex === 'catalinas'
-                        ? 'Catalinas Suites'
-                        : 'Mi Complejo'}
+                      Complejo Iguazú (Demo)
                     </p>
                     <p className="text-[10px] text-stone-400">
-                      4 Unidades Activas
+                      4 Cabañas Activas
                     </p>
                   </div>
                 </div>
@@ -288,7 +280,6 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                 <div className="flex flex-wrap items-center gap-2 shrink-0">
                   <button
                     onClick={() => {
-                      onSwitchComplex('woodcabin');
                       if (onOpenGuideWith) {
                         onOpenGuideWith('guest-view', 'retrato');
                       } else {
@@ -303,7 +294,6 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
 
                   <button
                     onClick={() => {
-                      onSwitchComplex('woodcabin');
                       onSelectTab('calendar');
                     }}
                     className="px-3.5 py-2 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-semibold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
@@ -314,7 +304,6 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
 
                   <button
                     onClick={() => {
-                      onSwitchComplex('woodcabin');
                       if (onOpenGuideWith) {
                         onOpenGuideWith('landing-booking', 'retrato');
                       } else {
@@ -353,7 +342,6 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                 <div className="flex flex-wrap items-center gap-2 shrink-0">
                   <button
                     onClick={() => {
-                      onSwitchComplex('catalinas');
                       onSelectTab('housekeeping');
                     }}
                     className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
@@ -364,7 +352,6 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
 
                   <button
                     onClick={() => {
-                      onSwitchComplex('catalinas');
                       onSelectTab('overview');
                     }}
                     className="px-3.5 py-2 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-semibold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"

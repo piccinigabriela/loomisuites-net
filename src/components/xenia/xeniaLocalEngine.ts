@@ -108,20 +108,20 @@ Quedamos a tu completa disposición para asistirte en lo que precises.`;
     q.includes('direccion') ||
     q.includes('dirección')
   ) {
-    const wifiNet = p0?.wifiNetwork || 'Loomi_Fibra_Optica';
-    const wifiPass = p0?.wifiPassword || 'Bienvenido2026';
-    const pin = (demoState?.reservations?.[0]?.pinCode) || '1024';
-    const address = p0?.address || 'Tres Sargentos 400, Retiro / Catalinas Norte, CABA';
+    const wifiNet = p0?.wifiNetwork || 'ComplejoIguazu_Selva_5G';
+    const wifiPass = p0?.wifiPassword || 'IguazuDemo2026';
+    const pin = (demoState?.reservations?.[0]?.pinCode) || '4821';
+    const address = p0?.address || 'Ruta Ejemplo km 5, Puerto Iguazú, Misiones';
 
     return `¡Hola! Con gusto te paso los datos para tu llegada y estancia:
 
 • **Horarios:** Check-in a partir de las 14:00 hs | Check-out hasta las 10:00 hs.
-• **Acceso autónomo:** Cerradura digital touch con PIN **${pin}#**.
+• **Acceso autónomo:** Cerradura digital o recepción en el complejo con PIN **${pin}#**.
 • **Wi-Fi:** Red **${wifiNet}** (Clave: **${wifiPass}**).
 • **Dirección:** ${address}.
 
 Podés consultar el mapa interactivo y todos los detalles en tu **Portal del Huésped**:
-👉 https://loomisuite.net/guia/${p0?.id || 'departamento'}`;
+👉 https://loomisuite.net/guia/${p0?.id || 'cab-lapacho'}`;
   }
 
   // =========================================================================
@@ -144,10 +144,12 @@ Podés consultar el mapa interactivo y todos los detalles en tu **Portal del Hu�
   ) {
     return `¡Por supuesto! Contamos con los siguientes servicios adicionales en el complejo:
 
-• **Cochera privada cubierta:** Vigilada 24hs (USD 15 / día).
-• **Late Check-out:** Salida extendida hasta las 16:00 hs sujeta a disponibilidad (USD 20).
-• **Transfer Aeropuerto (AEP/EZE):** Recepción personalizada en arribos (USD 30 por viaje).
-• **Canasta de Desayuno Artesanal:** Medialunas, tostadas y café de especialidad (USD 14 / persona).
+• **Estacionamiento privado techado:** Incluido sin cargo en cada cabaña.
+• **Late Check-out:** Salida extendida hasta las 17:00 hs sujeta a disponibilidad (USD 20).
+• **Transfer Aeropuerto Cataratas (IGR):** Recepción personalizada en arribos y traslados (USD 25 por viaje).
+• **Canasta de Desayuno Misionero:** Chipitas caseras de almidón calientes, mermeladas de frutos de la selva y café (USD 12 / persona).
+• **Bolsa de Leña Seca & Carbón:** Lista en el parrillero de tu cabaña (USD 5).
+• **Excursión guiada Parque Nacional Iguazú:** Traslado y guía bilingüe (USD 40 / persona).
 
 Si querés sumar alguno de estos servicios a tu reserva, avisanos y te lo dejamos coordinado de inmediato.`;
   }
@@ -373,7 +375,7 @@ En Loomi lo hacés en segundos, sin complicaciones técnicas ni términos difíc
 
 2. **Tocá el ícono del Lápiz (✏️ Editar):**
    - **Cambiar Fechas o Noches:** Ajustás el check-in, check-out o sumás noches si el huésped se queda más tiempo. *(¡En el calendario también podés arrastrar la barra directamente con el mouse!)*.
-   - **Mover de Cabaña o Departamento:** Si necesitás cambiarlo de unidad por mantenimiento o preferencia, seleccionás la nueva cabaña desde el menú desplegable.
+   - **Mover de Cabaña:** Si necesitás cambiarlo de unidad por mantenimiento o preferencia, seleccionás la nueva cabaña desde el menú desplegable.
    - **Modificar la Tarifa o Precio:** Podés cambiar el importe total facturado (si le hiciste descuento o cobraste extras). Loomi recalcula al instante la comisión real y tu ingreso neto limpio.
    - **Anotar Señas y Cobros de Saldo:** Cambiás el estado de *"Seña Pendiente"* a *"Seña 50%"* o *"100% Abonado"* cuando el huésped te transfiera o pague en recepción.
    - **Early Check-in o Late Check-out:** Marcás si llega antes o sale más tarde para coordinar con la mucama.

@@ -269,7 +269,7 @@ export const FeaturesCarousel: React.FC<FeaturesCarouselProps> = ({ onOpenDemo, 
                     <div className="w-6 h-6 rounded-full bg-[#E1500A] text-white flex items-center justify-center font-bold">
                       W
                     </div>
-                    <span className="font-bold">WhatsApp Huésped • Cabañas Catalinas</span>
+                    <span className="font-bold">WhatsApp Huésped • Complejo Iguazú</span>
                   </div>
                   <span className="text-[10px] bg-[#E1500A] text-white px-2 py-0.5 rounded font-black">Envío en 1 Clic</span>
                 </div>
@@ -278,7 +278,7 @@ export const FeaturesCarousel: React.FC<FeaturesCarouselProps> = ({ onOpenDemo, 
                   <div className="bg-white dark:bg-[#1E1E1E] text-[#222222] dark:text-[#EFECE5] p-3 rounded-xl rounded-tr-none shadow-2xs leading-relaxed border border-[#DCD8CE] dark:border-[#333333]">
                     <p className="font-extrabold mb-1 text-[#E1500A]">🚗 Coordinación en Ruta:</p>
                     <p>
-                      «¡Hola Laura! Esperamos que tengan un lindo viaje hacia Cabañas Catalinas. Avísennos cuando estén a unos 40 minutos de llegar así les esperamos con las luces prendidas y la cabaña templada.»
+                      «¡Hola Laura! Esperamos que tengan un lindo viaje hacia Complejo Iguazú. Avísennos cuando estén a unos 40 minutos de llegar así les esperamos con las luces prendidas y la cabaña templada.»
                     </p>
                   </div>
 
@@ -349,11 +349,11 @@ export const FeaturesCarousel: React.FC<FeaturesCarouselProps> = ({ onOpenDemo, 
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="p-2.5 rounded-xl bg-[#EFECE5] dark:bg-[#1A1A1A] border border-[#DCD8CE] dark:border-[#333333]">
                       <span className="text-[10px] text-[#666666] dark:text-[#A3A3A3] block">Red Wi-Fi</span>
-                      <strong className="text-xs text-[#222222] dark:text-[#FFFFFF]">Catalinas_5G</strong>
+                      <strong className="text-xs text-[#222222] dark:text-[#FFFFFF]">ComplejoIguazu_5G</strong>
                     </div>
                     <div className="p-2.5 rounded-xl bg-[#EFECE5] dark:bg-[#1A1A1A] border border-[#DCD8CE] dark:border-[#333333]">
                       <span className="text-[10px] text-[#666666] dark:text-[#A3A3A3] block">Clave Wi-Fi</span>
-                      <strong className="text-xs text-[#222222] dark:text-[#FFFFFF]">Vacaciones2026</strong>
+                      <strong className="text-xs text-[#222222] dark:text-[#FFFFFF]">IguazuDemo2026</strong>
                     </div>
                   </div>
 

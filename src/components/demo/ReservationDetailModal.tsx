@@ -31,7 +31,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import { Reservation, Property, ReservationStatus, BookingPlatform, AddonService, ReservationAddon } from '../../types';
-import { formatCurrency, formatDisplayDate } from '../../data/initialData';
+import { formatCurrency, formatDisplayDate, getGuestInitials } from '../../data/initialData';
 
 interface ReservationDetailModalProps {
   reservation: Reservation | null;
@@ -287,16 +287,8 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
         <div className="bg-[#ECE7E0] dark:bg-[#18191E] text-gray-900 dark:text-gray-100 p-4 sm:p-5 flex items-center justify-between border-b border-[#DDD7CD]/50 dark:border-zinc-800 shrink-0">
           <div className="flex items-center gap-3">
             {!isEditing && (
-              <div className="w-11 h-11 rounded-full bg-[#DDD7CD] dark:bg-zinc-800 text-gray-800 dark:text-gray-200 flex items-center justify-center font-bold text-base shrink-0 shadow-2xs overflow-hidden">
-                {reservation.guestAvatar ? (
-                  <img
-                    src={reservation.guestAvatar}
-                    alt={reservation.guestName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span>{reservation.guestName.charAt(0)}</span>
-                )}
+              <div className="w-11 h-11 rounded-full bg-stone-200 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs overflow-hidden border border-stone-300/60 dark:border-zinc-700 select-none">
+                <span>{getGuestInitials(reservation.guestName)}</span>
               </div>
             )}
             <div>

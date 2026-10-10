@@ -44,7 +44,7 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
   onToggleChecklistItem,
   onUpdateTaskStatus,
   onSwitchRole,
-  complexName = 'Catalinas Apartamentos',
+  complexName = 'Complejo Iguazú (Demo)',
 }) => {
   const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'ready'>('all');
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
@@ -303,7 +303,7 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
 
                         {/* NOMBRE DE LA UNIDAD: El dato principal y más grande de la tarjeta */}
                         <h2 className="text-lg sm:text-xl font-extrabold text-stone-900 dark:text-white tracking-tight pt-0.5">
-                          {prop?.name || (task.propertyId === 'cat-a' ? 'Departamento A' : task.propertyId === 'cat-b' ? 'Departamento B' : task.propertyId === 'cat-c' ? 'Departamento C' : 'Departamento D')}
+                          {prop?.name || 'Cabaña Lapacho'}
                         </h2>
 
                         <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">

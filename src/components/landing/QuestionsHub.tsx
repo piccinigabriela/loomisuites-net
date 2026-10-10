@@ -431,7 +431,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 text-[#18181B] dark:text-[#FFFFFF] font-black text-lg">
                       <Building2 className="w-5 h-5 text-[#E1500A]" />
-                      <span>Si administrás Departamentos (como Catalinas Apartamentos):</span>
+                      <span>Si administrás Departamentos o Alquileres Temporarios:</span>
                     </div>
                     <p className="text-sm text-[#444444] dark:text-[#CCCCCC] leading-relaxed">
                       Tu mayor dolor suele ser la <strong>coordinación a distancia</strong>: entregar llaves tradicionales o coordinar llegada sin esperas infinitas, evitar que te reserven dos veces la misma noche mientras estás en la calle, y liquidar mensualmente a cada propietario con claridad.

@@ -36,13 +36,12 @@ interface CleanSidebarProps {
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
   onBackToLanding: () => void;
-  activeComplex: 'catalinas' | 'woodcabin' | 'custom';
-  onSwitchComplex: (complex: 'catalinas' | 'woodcabin' | 'custom') => void;
   isMobileOpen?: boolean;
   onMobileClose?: () => void;
   onOpenLogin?: () => void;
   loggedUser?: { name: string; email: string; complexId: string; complexName: string } | null;
   onLogout?: () => void;
+  isAppMode?: boolean;
 }
 
 export const CleanSidebar: React.FC<CleanSidebarProps> = ({
@@ -59,13 +58,12 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
   theme,
   onToggleTheme,
   onBackToLanding,
-  activeComplex,
-  onSwitchComplex,
   isMobileOpen = false,
   onMobileClose,
   onOpenLogin,
   loggedUser,
   onLogout,
+  isAppMode = false,
 }) => {
   const isDark = theme === 'dark';
 
@@ -147,7 +145,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
 
           <div className="pt-2 border-t border-gray-100/80 dark:border-zinc-800/80">
             <h1 className="text-xs font-semibold text-gray-800 dark:text-gray-100 truncate leading-tight tracking-tight">
-              {complexName || 'Catalinas Apartamentos'}
+              {complexName || 'Complejo Iguazú (Demo)'}
             </h1>
             <p className="text-[10px] text-stone-600 dark:text-zinc-400 truncate font-normal">Gestión hotelera & cabañas</p>
           </div>
@@ -623,56 +621,26 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
           </span>
         </button>
 
-        {/* Complex / Tier Selector */}
-        <div className="space-y-1.5 px-1">
-          <div className="flex items-center justify-between text-[11px] text-gray-400 dark:text-zinc-400 font-light">
-            <span>Escenario Demo:</span>
-            <span className="text-[10px] font-semibold text-[#E67E22]">1 Clic</span>
-          </div>
-          <div className="grid grid-cols-2 gap-1.5">
-            <button
-              onClick={() => onSwitchComplex('woodcabin')}
-              className={`px-2.5 py-1.5 rounded-xl text-[10px] font-medium transition-all flex items-center justify-center gap-1 cursor-pointer ${
-                activeComplex === 'woodcabin'
-                  ? 'bg-orange-50 text-[#E67E22] border border-orange-200 dark:bg-orange-950/40 dark:border-orange-900/50 shadow-2xs'
-                  : 'bg-gray-50 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white border border-gray-100 dark:border-zinc-700/70'
-              }`}
-              title="Plan Inicial: Cabañas & Glampings (5 a 10 unidades • $45k)"
-            >
-              <span>🏡 Cabañas</span>
-            </button>
-            <button
-              onClick={() => onSwitchComplex('catalinas')}
-              className={`px-2.5 py-1.5 rounded-xl text-[10px] font-medium transition-all flex items-center justify-center gap-1 cursor-pointer ${
-                activeComplex === 'catalinas'
-                  ? 'bg-orange-50 text-[#E67E22] border border-orange-200 dark:bg-orange-950/40 dark:border-orange-900/50 shadow-2xs'
-                  : 'bg-gray-50 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white border border-gray-100 dark:border-zinc-700/70'
-              }`}
-              title="Plan Escala: Complejos & Aparts (15 a 20 unidades • $60k)"
-            >
-              <span>🏢 Complejo</span>
-            </button>
-          </div>
-          {activeComplex === 'custom' && (
-            <button
-              onClick={() => onSwitchComplex('custom')}
-              className="w-full mt-1 px-2.5 py-1.5 rounded-xl text-[10px] font-medium bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-2xs"
-            >
-              ✨ Mi Complejo Real
-            </button>
-          )}
-        </div>
-
         {/* Back to landing */}
         <div className="flex flex-col gap-1.5 pt-1 text-[10px] text-stone-600 dark:text-zinc-400">
           <div className="flex items-center justify-between">
-            <button
-              onClick={onBackToLanding}
-              className="hover:text-[#E67E22] transition-colors flex items-center gap-1 font-medium"
-            >
-              <LogOut className="w-3 h-3" />
-              <span>Volver a la Portada</span>
-            </button>
+            {isAppMode && onLogout ? (
+              <button
+                onClick={onLogout}
+                className="hover:text-rose-400 text-rose-500/80 transition-colors flex items-center gap-1 font-medium cursor-pointer"
+              >
+                <LogOut className="w-3 h-3" />
+                <span>Cerrar Sesión</span>
+              </button>
+            ) : (
+              <button
+                onClick={onBackToLanding}
+                className="hover:text-[#E67E22] transition-colors flex items-center gap-1 font-medium cursor-pointer"
+              >
+                <LogOut className="w-3 h-3" />
+                <span>Volver a la Portada</span>
+              </button>
+            )}
             <span className="font-mono text-gray-300 dark:text-zinc-600">v2.2</span>
           </div>
         </div>

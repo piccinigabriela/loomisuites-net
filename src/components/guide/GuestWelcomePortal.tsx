@@ -113,7 +113,7 @@ const APPLIANCE_GUIDES: ApplianceGuide[] = [
       'Encender el televisor con el botón rojo del control remoto principal.',
       'Presionar el botón "HOME" para acceder al menú de aplicaciones.',
       'La unidad cuenta con Netflix y YouTube con cuenta precargada para huéspedes.',
-      'Podés transmitir desde tu celular seleccionando el dispositivo "Smart TV Depto" en tu app de streaming favorita.'
+      'Podés transmitir desde tu celular seleccionando el dispositivo "Smart TV Cabaña" en tu app de streaming favorita.'
     ],
     tips: '🔒 Podés iniciar sesión con tus propias cuentas y recordá cerrarlas el día de tu check-out.'
   },
@@ -153,25 +153,25 @@ const IN_STAY_SERVICES: InStayService[] = [
   },
   {
     id: 'desayuno_artesanal',
-    name: 'Desayuno Artesanal en la Unidad',
-    priceUSD: 10,
-    description: 'Canasta con panes de masa madre, mermeladas regionales, frutas frescas, café y jugo natural.',
+    name: 'Canasta de Desayuno Misionero',
+    priceUSD: 12,
+    description: 'Canasta con chipitas caseras de almidón calientes, mermeladas regionales de la selva, café y jugo natural.',
     category: 'gastronomia',
     icon: 'Coffee'
   },
   {
-    id: 'cochera_cubierta',
-    name: 'Cochera Cubierta Privada en el Complejo',
-    priceUSD: 12,
-    description: 'Espacio de estacionamiento exclusivo y seguro con acceso directo y vigilancia.',
+    id: 'lena_carbon',
+    name: 'Bolsa de Leña Seca & Carbón para Parrilla',
+    priceUSD: 5,
+    description: 'Leña dura seleccionada y carbón listo junto al parrillero de tu cabaña.',
     category: 'confort',
-    icon: 'Car'
+    icon: 'Flame'
   },
   {
     id: 'limpieza_extra',
     name: 'Servicio de Mucama & Cambio de Blancos',
     priceUSD: 18,
-    description: 'Limpieza profunda del departamento, cambio completo de sábanas, toallones y reposición de amenities.',
+    description: 'Limpieza profunda de la cabaña, cambio completo de sábanas, toallones y reposición de amenities.',
     category: 'confort',
     icon: 'Sparkles'
   },
@@ -429,8 +429,8 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
     heroPhoto: isCorteVette
       ? '/cabanas/cabana-terraza.jpg'
       : isDosAguas
-      ? '/catalinas/1dormC.jpg'
-      : '/catalinas/1dormA.jpg',
+      ? '/cabanas/deck-hamaca.jpg'
+      : '/cabanas/cabana-hamaca.jpg',
   };
 
   return (
@@ -541,7 +541,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                 Guía del Huésped • App Digital
               </span>
               <span className={`px-2 py-0.5 rounded-full border ${theme.headerTag}`}>
-                {guideData.propertyName || 'Catalinas Apartamentos'}
+                {guideData.propertyName || 'Complejo Iguazú (Demo)'}
               </span>
             </div>
 

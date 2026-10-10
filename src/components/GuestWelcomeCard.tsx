@@ -27,17 +27,17 @@ export interface GuestWelcomeCardProps {
 }
 
 export const GuestWelcomeCard: React.FC<GuestWelcomeCardProps> = ({
-  guestName = "Camila",
-  propertyName = "Departamento B",
-  checkInDate = "15 de Octubre",
-  checkOutDate = "19 de Octubre",
+  guestName = "Lucas",
+  propertyName = "Cabaña Lapacho",
+  checkInDate = "10 de Octubre",
+  checkOutDate = "13 de Octubre",
   checkInTime = "14:00 hs",
-  accessCode = "1024",
-  wifiNetwork = "CatalinasAptos_Fibra_B",
-  wifiPassword = "CatalinasDemo2026",
-  address = "Tres Sargentos 400, Retiro / Catalinas Norte, CABA",
-  guideUrl = "https://loomisuite.net/guia/cat-b",
-  hostPhone = "5491155550100"
+  accessCode = "4821",
+  wifiNetwork = "Iguazu_Lapacho_WiFi",
+  wifiPassword = "IguazuDemo2026",
+  address = "Ruta Ejemplo km 5, Puerto Iguazú, Misiones",
+  guideUrl = "https://loomisuite.net/guia/cab-lapacho",
+  hostPhone = "5493757550100"
 }) => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
