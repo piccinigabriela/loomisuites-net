@@ -73,7 +73,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
           </div>
 
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-stone-900 dark:text-white">
-            Bienvenido/a a Loomi Suite
+            Te damos la bienvenida a Loomi Suite
           </h1>
 
           <p className="text-sm sm:text-base text-stone-600 dark:text-zinc-400 leading-relaxed max-w-lg mx-auto">

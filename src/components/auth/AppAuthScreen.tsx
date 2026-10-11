@@ -131,6 +131,24 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
         console.warn('Error al enviar aviso de registro a Web3Forms:', err);
       });
 
+      // 2) Enviar mail de bienvenida al cliente con EmailJS
+      fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          service_id: 'service_z8apzek',
+          template_id: 'template_ecutysm',
+          user_id: 'htm2fLHklqyTWMn0U',
+          template_params: {
+            email: registeredEmail,
+          },
+        }),
+      }).catch((err) => {
+        console.warn('Error al enviar mail de bienvenida con EmailJS:', err);
+      });
+
       // 2) Guardar documento en la colección "leads"
       if (db) {
         addDoc(collection(db, 'leads'), {
