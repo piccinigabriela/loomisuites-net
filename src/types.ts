@@ -89,6 +89,10 @@ export interface Reservation {
   airbnbFeeMode?: 'traditional_3' | 'simplified_15'; // Soporte para cuentas Airbnb con 3% anfitrión
   // Módulo de Opcionales / Extras / Consumos:
   addons?: ReservationAddon[];
+  // Sincronización iCal:
+  source?: 'manual' | 'ical';
+  icalUid?: string;
+  icalSource?: 'airbnb' | 'booking' | 'vrbo';
 }
 
 export interface CleaningChecklistItem {

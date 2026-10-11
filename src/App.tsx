@@ -87,6 +87,7 @@ import {
   savePublicCalendar,
   TenantDoc,
 } from './lib/tenantStore';
+import { syncCalendars } from './lib/icalSync';
 
 export default function App() {
   const isApp = isAppMode();
@@ -644,6 +645,81 @@ export default function App() {
 
     return () => clearTimeout(timer);
   }, [isApp, currentUser, tenantLoading, demoState.reservations, demoState.properties]);
+
+  // Ref for latest demoState so syncCalendars always reads fresh properties and reservations
+  const demoStateRef = React.useRef(demoState);
+  useEffect(() => {
+    demoStateRef.current = demoState;
+  }, [demoState]);
+
+  // State for last iCal sync result (modo app)
+  const [icalSyncState, setIcalSyncState] = useState<{
+    lastSyncAt: string | null;
+    errores: Array<{ propertyId: string; propertyName: string; portal: string; error: string }>;
+    conflictos: Array<{ propertyId: string; unitName: string; resA: Reservation; resB: Reservation }>;
+  }>({
+    lastSyncAt: null,
+    errores: [],
+    conflictos: [],
+  });
+
+  const isSyncingRef = React.useRef(false);
+
+  useEffect(() => {
+    if (!isApp || !currentUser || tenantLoading) return;
+
+    const properties = demoStateRef.current.properties || [];
+    const hasIcalUrls = properties.some(
+      (p) => Boolean(p.icalAirbnbUrl || p.icalBookingUrl || p.icalOtherUrl)
+    );
+
+    if (!hasIcalUrls) return;
+
+    const runSync = async () => {
+      if (isSyncingRef.current) return;
+      isSyncingRef.current = true;
+      try {
+        const currentProps = demoStateRef.current.properties || [];
+        const currentRes = demoStateRef.current.reservations || [];
+
+        const result = await syncCalendars(currentUser.uid, currentProps, currentRes);
+
+        setIcalSyncState({
+          lastSyncAt: new Date().toISOString(),
+          errores: result.errores,
+          conflictos: result.conflictos,
+        });
+
+        if (result.agregadas > 0 || result.actualizadas > 0 || result.canceladas > 0) {
+          showToast(`Calendarios sincronizados: ${result.agregadas} nuevas, ${result.canceladas} canceladas`);
+        }
+
+        if (result.conflictos.length > 0) {
+          const firstUnit = result.conflictos[0].unitName;
+          showToast(`⚠️ Posible doble reserva en ${firstUnit}. Revisá el calendario.`);
+        }
+      } catch (err) {
+        console.warn('Error en la sincronización automática de iCal:', err);
+      } finally {
+        isSyncingRef.current = false;
+      }
+    };
+
+    // Run 5 seconds after tenant loads
+    const initialTimer = setTimeout(() => {
+      runSync();
+    }, 5000);
+
+    // Run every 15 minutes while app is open
+    const intervalTimer = setInterval(() => {
+      runSync();
+    }, 15 * 60 * 1000);
+
+    return () => {
+      clearTimeout(initialTimer);
+      clearInterval(intervalTimer);
+    };
+  }, [isApp, currentUser, tenantLoading]);
 
   // Onboarding Checklist Handlers in App Mode
   const handleUpdateChecklist = async (update: { calendarios?: boolean; guia?: boolean; diaADia?: boolean }) => {
