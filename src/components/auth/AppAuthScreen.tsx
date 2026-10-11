@@ -22,6 +22,7 @@ import {
   signInWithGooglePopup,
   getAuthErrorMessage,
 } from '../../lib/firebase';
+import { sendEmailVerification } from 'firebase/auth';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface AppAuthScreenProps {
@@ -96,6 +97,18 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
       const user = userCredential.user;
       const registeredEmail = user?.email || email.trim();
       const userUid = user?.uid || '';
+
+      // Enviar verificación de correo en segundo plano
+      if (user) {
+        try {
+          auth.languageCode = 'es';
+          sendEmailVerification(user, { url: 'https://app.loomisuite.net' }).catch((err) => {
+            console.warn('Error al enviar mail de verificación de correo:', err);
+          });
+        } catch (err) {
+          console.warn('Error preparando verificación de correo:', err);
+        }
+      }
 
       // Fondo: aviso por mail y registro de lead en Firestore
       const nowEsAr = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });

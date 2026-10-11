@@ -65,6 +65,7 @@ import { PublicGuideView } from './components/guide/PublicGuideView';
 import { INITIAL_WELCOME_GUIDE, getEmptyAppState } from './data/initialData';
 import { isAppMode } from './lib/appMode';
 import { auth, onAuthStateChanged, signOut, User } from './lib/firebase';
+import { sendEmailVerification } from 'firebase/auth';
 import { AppAuthScreen } from './components/auth/AppAuthScreen';
 import { TrialEndedScreen } from './components/auth/TrialEndedScreen';
 import { subscribeToSubscription, getAccessStatus, SubscriptionDoc } from './lib/subscription';
@@ -98,6 +99,79 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState<boolean>(() => isApp);
   const [tenantLoading, setTenantLoading] = useState<boolean>(() => isApp);
+
+  // Email Verification State in App Mode
+  const [isEmailVerified, setIsEmailVerified] = useState<boolean>(() => Boolean(currentUser?.emailVerified));
+  const [resendCooldown, setResendCooldown] = useState<number>(0);
+
+  useEffect(() => {
+    setIsEmailVerified(Boolean(currentUser?.emailVerified));
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [resendCooldown]);
+
+  // Window focus listener to check email verification status silently in App Mode
+  useEffect(() => {
+    if (!isApp || !currentUser || isEmailVerified) return;
+
+    const checkVerificationStatus = async () => {
+      if (document.visibilityState === 'visible' && auth.currentUser) {
+        try {
+          await auth.currentUser.reload();
+          const currentVerified = Boolean(auth.currentUser.emailVerified);
+          if (currentVerified) {
+            setIsEmailVerified(true);
+          }
+        } catch (err) {
+          console.warn('Error reloading user status on focus:', err);
+        }
+      }
+    };
+
+    window.addEventListener('focus', checkVerificationStatus);
+    document.addEventListener('visibilitychange', checkVerificationStatus);
+
+    return () => {
+      window.removeEventListener('focus', checkVerificationStatus);
+      document.removeEventListener('visibilitychange', checkVerificationStatus);
+    };
+  }, [isApp, currentUser, isEmailVerified]);
+
+  const handleResendVerificationEmail = async () => {
+    if (!currentUser || resendCooldown > 0) return;
+    try {
+      auth.languageCode = 'es';
+      await sendEmailVerification(currentUser, { url: 'https://app.loomisuite.net' });
+      setResendCooldown(60);
+      showToast('Te reenviamos el mail de confirmación. Revisá también Spam.');
+    } catch (err: any) {
+      console.warn('Error al reenviar email de verificación:', err);
+      showToast('Te reenviamos el mail de confirmación. Revisá también Spam.');
+    }
+  };
+
+  const handleCheckEmailVerified = async () => {
+    if (!currentUser) return;
+    try {
+      await currentUser.reload();
+      const updatedVerified = Boolean(auth.currentUser?.emailVerified);
+      setIsEmailVerified(updatedVerified);
+      if (updatedVerified) {
+        showToast('¡Correo confirmado! 🎉');
+      } else {
+        showToast('Todavía no figura confirmado. Abrí el link del mail y volvé a intentar.');
+      }
+    } catch (err) {
+      console.warn('Error checking verification:', err);
+      showToast('Todavía no figura confirmado. Abrí el link del mail y volvé a intentar.');
+    }
+  };
 
   // Subscription state in App Mode
   const [subscriptionDoc, setSubscriptionDoc] = useState<SubscriptionDoc | null>(null);
@@ -1353,6 +1427,30 @@ export default function App() {
           >
             Activar plan
           </a>
+        </div>
+      )}
+
+      {/* Aviso fino de confirmación de correo electrónico */}
+      {isApp && currentUser && !isEmailVerified && (
+        <div className="bg-sky-50 border-b border-sky-200 text-sky-900 dark:bg-sky-500/10 dark:border-sky-500/20 dark:text-sky-200 py-2 px-4 text-xs font-medium flex flex-wrap items-center justify-between gap-2 relative z-50 transition-colors">
+          <span>
+            📩 Confirmá tu correo ({currentUser.email || ''}) para poder recuperar tu contraseña si la olvidás.
+          </span>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleResendVerificationEmail}
+              disabled={resendCooldown > 0}
+              className="px-2.5 py-1 rounded-lg bg-sky-200/70 dark:bg-sky-500/20 hover:bg-sky-200 dark:hover:bg-sky-500/30 text-sky-900 dark:text-sky-200 font-semibold text-[11px] disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            >
+              {resendCooldown > 0 ? `Reenviar mail (${resendCooldown}s)` : 'Reenviar mail'}
+            </button>
+            <button
+              onClick={handleCheckEmailVerified}
+              className="px-2.5 py-1 rounded-lg bg-sky-700 hover:bg-sky-800 text-white font-semibold text-[11px] transition-colors cursor-pointer shadow-2xs"
+            >
+              Ya lo confirmé
+            </button>
+          </div>
         </div>
       )}
 
