@@ -68,6 +68,8 @@ import { auth, onAuthStateChanged, signOut, User } from './lib/firebase';
 import { AppAuthScreen } from './components/auth/AppAuthScreen';
 import { TrialEndedScreen } from './components/auth/TrialEndedScreen';
 import { subscribeToSubscription, getAccessStatus, SubscriptionDoc } from './lib/subscription';
+import { WelcomeScreen } from './components/onboarding/WelcomeScreen';
+import { FirstStepsChecklist } from './components/onboarding/FirstStepsChecklist';
 import {
   subscribeToTenant,
   initializeTenantOnboarding,
@@ -81,6 +83,7 @@ import {
   deleteCashMovementDoc,
   saveTenantData,
   savePublicGuide,
+  TenantDoc,
 } from './lib/tenantStore';
 
 export default function App() {
@@ -141,17 +144,21 @@ export default function App() {
 
   const accessStatus = (isApp && currentUser) ? getAccessStatus(currentUser, subscriptionDoc) : null;
 
+  // Tenant doc state in App Mode
+  const [tenantDoc, setTenantDoc] = useState<TenantDoc | null>(null);
+
   // Real-time Firestore subscription in App Mode
   useEffect(() => {
     if (!isApp || !currentUser) {
+      setTenantDoc(null);
       return;
     }
     const unsubscribe = subscribeToTenant(currentUser.uid, (data) => {
       if (!data.loading) {
         setTenantLoading(false);
+        setTenantDoc(data.tenant);
         if (!data.exists) {
           setDemoState(getEmptyAppState());
-          setIsOnboardingModalOpen(true);
         } else {
           if (data.tenant?.guideTemplate) {
             setGuideTemplate(data.tenant.guideTemplate);
@@ -161,7 +168,7 @@ export default function App() {
             reservations: data.reservations,
             cleaningTasks: data.cleaningTasks,
             templates: data.tenant?.templates || [],
-            welcomeGuide: data.tenant?.welcomeGuide || INITIAL_WELCOME_GUIDE,
+            welcomeGuide: data.tenant?.welcomeGuide || getEmptyAppState().welcomeGuide,
             availableAddons: data.tenant?.availableAddons || [],
             addons: data.tenant?.availableAddons || [],
             cashMovements: data.cashMovements,
@@ -515,6 +522,32 @@ export default function App() {
 
     return () => clearTimeout(timer);
   }, [isApp, currentUser, tenantLoading, demoState.welcomeGuide, guideTemplate, demoState.properties]);
+
+  // Onboarding Checklist Handlers in App Mode
+  const handleUpdateChecklist = async (update: { calendarios?: boolean; guia?: boolean; diaADia?: boolean }) => {
+    if (!currentUser) return;
+    const currentOnboarding = tenantDoc?.onboardingChecklist || {};
+    const nextChecklist = {
+      ...currentOnboarding,
+      ...update,
+    };
+    setTenantDoc((prev) => (prev ? { ...prev, onboardingChecklist: nextChecklist } : null));
+    try {
+      await saveTenantData(currentUser.uid, { onboardingChecklist: nextChecklist });
+    } catch (err) {
+      console.warn('Error saving onboardingChecklist:', err);
+    }
+  };
+
+  const handleDismissChecklist = async () => {
+    if (!currentUser) return;
+    setTenantDoc((prev) => (prev ? { ...prev, checklistDismissed: true } : null));
+    try {
+      await saveTenantData(currentUser.uid, { checklistDismissed: true });
+    } catch (err) {
+      console.warn('Error saving checklistDismissed:', err);
+    }
+  };
 
   // Active logged-in user profile
   const [loggedUser, setLoggedUser] = useState<{ name: string; email: string; complexId: string; complexName: string } | null>(() => {
@@ -1215,6 +1248,7 @@ export default function App() {
       try {
         await signOut(auth);
         setCurrentUser(null);
+        setTenantDoc(null);
         setDemoState(getEmptyAppState());
         setTenantLoading(false);
         setIsOnboardingModalOpen(false);
@@ -1271,6 +1305,29 @@ export default function App() {
       <TrialEndedScreen
         email={currentUser.email || ''}
         onSignOut={handleLogout}
+      />
+    );
+  }
+
+  // Pantalla de bienvenida y primeros pasos en modo App la primera vez que entra
+  if (isApp && currentUser && !tenantDoc?.welcomeSeen) {
+    return (
+      <WelcomeScreen
+        onStart={async () => {
+          try {
+            await saveTenantData(currentUser.uid, { welcomeSeen: true });
+            setTenantDoc((prev) => ({
+              ownerEmail: currentUser.email || '',
+              ...(prev || {}),
+              welcomeSeen: true,
+            }));
+          } catch (err) {
+            console.warn('Error saving welcomeSeen:', err);
+          }
+          if (!demoState.properties || demoState.properties.length === 0) {
+            setIsOnboardingModalOpen(true);
+          }
+        }}
       />
     );
   }
@@ -1638,26 +1695,43 @@ export default function App() {
             {/* Main Content Body: Real System Dashboard Exactly as on PC */}
             <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-3.5 sm:py-5">
               {demoTab === 'overview' && (
-                <CleanToday
-                  demoState={demoState}
-                  userRole={userRole}
-                  onSelectReservation={setSelectedReservationForDetail}
-                  onOpenNewReservation={() => {
-                    setInitialPropertyForRes(undefined);
-                    setInitialDateForRes(undefined);
-                    setIsNewResModalOpen(true);
-                  }}
-                  onNavigateTab={setDemoTab}
-                  onUpdateTaskStatus={handleUpdateTaskStatus}
-                  onQuickCheckIn={handleQuickCheckIn}
-                  onOpenOnboardingWizard={() => setIsOnboardingModalOpen(true)}
-                  onRequestPlan={() => {
-                    setSelectedPlanForLead('Plan Loomi ($45.000/mes)');
-                    setIsLeadModalOpen(true);
-                  }}
-                  isEmployeeMode={isEmployeeMode}
-                  isLoggedIn={!!loggedUser}
-                />
+                <>
+                  {isApp && (
+                    <FirstStepsChecklist
+                      welcomeGuide={demoState.welcomeGuide}
+                      properties={demoState.properties}
+                      reservations={demoState.reservations}
+                      onboardingChecklist={tenantDoc?.onboardingChecklist}
+                      checklistDismissed={tenantDoc?.checklistDismissed}
+                      onOpenOnboarding={() => setIsOnboardingModalOpen(true)}
+                      onNavigateToProperties={() => setDemoTab('properties')}
+                      onNavigateToCalendar={() => setDemoTab('calendar')}
+                      onNavigateToGuide={() => setDemoTab('welcome-guide')}
+                      onUpdateChecklist={handleUpdateChecklist}
+                      onDismissChecklist={handleDismissChecklist}
+                    />
+                  )}
+                  <CleanToday
+                    demoState={demoState}
+                    userRole={userRole}
+                    onSelectReservation={setSelectedReservationForDetail}
+                    onOpenNewReservation={() => {
+                      setInitialPropertyForRes(undefined);
+                      setInitialDateForRes(undefined);
+                      setIsNewResModalOpen(true);
+                    }}
+                    onNavigateTab={setDemoTab}
+                    onUpdateTaskStatus={handleUpdateTaskStatus}
+                    onQuickCheckIn={handleQuickCheckIn}
+                    onOpenOnboardingWizard={() => setIsOnboardingModalOpen(true)}
+                    onRequestPlan={() => {
+                      setSelectedPlanForLead('Plan Loomi ($45.000/mes)');
+                      setIsLeadModalOpen(true);
+                    }}
+                    isEmployeeMode={isEmployeeMode}
+                    isLoggedIn={!!loggedUser}
+                  />
+                </>
               )}
 
               {demoTab === 'calendar' && (

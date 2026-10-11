@@ -660,7 +660,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                 wifiPassword={getProp(selectedResForCard.propertyId)?.wifiPassword || '(a confirmar)'}
                 address={getProp(selectedResForCard.propertyId)?.address || '(a confirmar)'}
                 guideUrl={`https://loomisuite.net/guia/${selectedResForCard.propertyId}`}
-                hostPhone={selectedResForCard.guestPhone || '5493757550100'}
+                hostPhone={demoState.welcomeGuide?.hostPhone || ''}
               />
             </div>
 

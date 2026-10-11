@@ -212,11 +212,15 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
 
   // Extract URL parameters if present (e.g., ?huesped=Lucas&unidad=Depto%20D&pin=1234)
   const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const effectiveGuestName = propGuestName || urlParams?.get('huesped') || urlParams?.get('guest') || '';
+  const rawGuestName = propGuestName || urlParams?.get('huesped') || urlParams?.get('guest') || '';
+  const effectiveGuestName = rawGuestName
+    ? rawGuestName.trim().split(' ').map(w => w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : '').join(' ')
+    : '';
   const effectiveUnitName = propUnitName || urlParams?.get('unidad') || urlParams?.get('depto') || urlParams?.get('unit') || '';
   const effectivePinCode = propPinCode || urlParams?.get('pin') || '';
   const effectiveCheckIn = propCheckInDate || urlParams?.get('llegada') || '';
   const effectiveCheckOut = propCheckOutDate || urlParams?.get('salida') || '';
+  const effectiveHostName = guideData.hostName?.trim() || guideData.propertyName || 'Tu Anfitrión';
 
   const [activeTab, setActiveTab] = useState<'llegar' | 'estadia' | 'recomendaciones' | 'tienda' | 'manuales'>('llegar');
   const [copiedWifi, setCopiedWifi] = useState(false);
@@ -595,26 +599,28 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
             <div className={`mt-4 flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl border ${theme.cardBg}`}>
               <div className="flex items-center gap-2.5 text-xs">
                 <div className={`w-8 h-8 rounded-xl ${theme.accentBg} text-white flex items-center justify-center font-bold text-sm shadow-xs`}>
-                  {guideData.hostName[0]}
+                  {effectiveHostName[0] || 'A'}
                 </div>
                 <div>
-                  <div className="font-bold text-xs">Anfitrión: {guideData.hostName}</div>
+                  <div className="font-bold text-xs">Anfitrión: {effectiveHostName}</div>
                   <div className="text-[10px] opacity-70">Atención directa y soporte</div>
                 </div>
               </div>
               
               <div className="flex items-center gap-1.5">
-                <a
-                  href={`https://wa.me/${guideData.hostPhone.replace(/\D/g, '')}?text=Hola%20${encodeURIComponent(
-                    guideData.hostName
-                  )},%20estoy%20alojado%20en%20${encodeURIComponent(guideData.propertyName)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-black font-bold text-xs transition-colors cursor-pointer rounded-xl shadow-xs"
-                >
-                  <MessageCircle className="w-3.5 h-3.5 fill-current" />
-                  <span>WhatsApp</span>
-                </a>
+                {guideData.hostPhone?.trim() && (
+                  <a
+                    href={`https://wa.me/${guideData.hostPhone.replace(/\D/g, '')}?text=Hola%20${encodeURIComponent(
+                      effectiveHostName
+                    )},%20estoy%20alojado%20en%20${encodeURIComponent(guideData.propertyName)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-black font-bold text-xs transition-colors cursor-pointer rounded-xl shadow-xs"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 fill-current" />
+                    <span>WhatsApp</span>
+                  </a>
+                )}
                 <button
                   onClick={() => setEmergencyModalOpen(true)}
                   className={`p-2 rounded-xl border transition-colors cursor-pointer ${theme.cardInnerBg}`}
@@ -626,7 +632,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
             </div>
 
             {/* Special Announcement Banner */}
-            {guideData.specialAnnouncement && (
+            {guideData.specialAnnouncement?.trim() && (
               <div className={`mt-3 p-3 rounded-xl border text-xs flex items-start gap-2 ${theme.accentBadge}`}>
                 <Info className="w-4 h-4 shrink-0 mt-0.5" />
                 <p className="leading-relaxed font-medium">{guideData.specialAnnouncement}</p>
@@ -640,46 +646,54 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                   <Wifi className="w-3.5 h-3.5" />
                   <span>Conexión Wi-Fi de Alta Velocidad</span>
                 </div>
-                <button
-                  onClick={() => setWifiModalOpen(true)}
-                  className={`text-[10px] font-bold hover:underline flex items-center gap-1 cursor-pointer ${theme.accentText}`}
-                >
-                  <QrCode className="w-3.5 h-3.5" />
-                  <span>Ver Código QR</span>
-                </button>
+                {guideData.wifiNetwork?.trim() && (
+                  <button
+                    onClick={() => setWifiModalOpen(true)}
+                    className={`text-[10px] font-bold hover:underline flex items-center gap-1 cursor-pointer ${theme.accentText}`}
+                  >
+                    <QrCode className="w-3.5 h-3.5" />
+                    <span>Ver Código QR</span>
+                  </button>
+                )}
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={copyWifiNetwork}
-                  className={`p-2.5 text-left rounded-xl border transition-colors cursor-pointer group ${theme.cardInnerBg}`}
-                >
-                  <span className="text-[9px] uppercase tracking-wider font-mono block opacity-60">
-                    Red Wi-Fi
-                  </span>
-                  <span className="text-xs font-bold block mt-0.5 truncate">
-                    {guideData.wifiNetwork}
-                  </span>
-                  <span className={`text-[9px] mt-1 block font-medium ${theme.accentText}`}>
-                    {copiedNetwork ? '✓ Nombre copiado' : 'Tocar para copiar'}
-                  </span>
-                </button>
+              {guideData.wifiNetwork?.trim() ? (
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={copyWifiNetwork}
+                    className={`p-2.5 text-left rounded-xl border transition-colors cursor-pointer group ${theme.cardInnerBg}`}
+                  >
+                    <span className="text-[9px] uppercase tracking-wider font-mono block opacity-60">
+                      Red Wi-Fi
+                    </span>
+                    <span className="text-xs font-bold block mt-0.5 truncate">
+                      {guideData.wifiNetwork}
+                    </span>
+                    <span className={`text-[9px] mt-1 block font-medium ${theme.accentText}`}>
+                      {copiedNetwork ? '✓ Nombre copiado' : 'Tocar para copiar'}
+                    </span>
+                  </button>
 
-                <button
-                  onClick={copyWifiPassword}
-                  className={`p-2.5 text-left rounded-xl border transition-colors cursor-pointer group ${theme.cardInnerBg}`}
-                >
-                  <span className="text-[9px] uppercase tracking-wider font-mono block opacity-60">
-                    Contraseña
-                  </span>
-                  <span className="text-xs font-mono font-bold block mt-0.5 truncate">
-                    {guideData.wifiPassword}
-                  </span>
-                  <span className={`text-[9px] mt-1 block font-medium ${theme.accentText}`}>
-                    {copiedWifi ? '✓ Clave copiada' : 'Tocar para copiar'}
-                  </span>
-                </button>
-              </div>
+                  <button
+                    onClick={copyWifiPassword}
+                    className={`p-2.5 text-left rounded-xl border transition-colors cursor-pointer group ${theme.cardInnerBg}`}
+                  >
+                    <span className="text-[9px] uppercase tracking-wider font-mono block opacity-60">
+                      Contraseña
+                    </span>
+                    <span className="text-xs font-mono font-bold block mt-0.5 truncate">
+                      {guideData.wifiPassword}
+                    </span>
+                    <span className={`text-[9px] mt-1 block font-medium ${theme.accentText}`}>
+                      {copiedWifi ? '✓ Clave copiada' : 'Tocar para copiar'}
+                    </span>
+                  </button>
+                </div>
+              ) : (
+                <div className={`p-3 text-center text-xs opacity-80 rounded-xl border ${theme.cardInnerBg}`}>
+                  Consultá la red Wi-Fi con tu anfitrión
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -781,44 +795,46 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
               </div>
 
               {/* Transportation Options List */}
-              <div className="space-y-2.5">
-                <h4 className={`text-xs font-bold uppercase tracking-wider font-mono ${theme.accentText}`}>
-                  🚗 Medios de Transporte & Accesos
-                </h4>
-                <div className="grid grid-cols-1 gap-2.5">
-                  {guideData.transportation.map((trans) => (
-                    <div
-                      key={trans.id}
-                      className={`p-3.5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${theme.cardBg}`}
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <Car className={`w-4 h-4 ${theme.accentText}`} />
-                          <span className="font-bold text-xs">{trans.title}</span>
-                          {trans.estimatedCost && (
-                            <span className="text-[10px] font-mono opacity-70">
-                              ({trans.estimatedCost})
-                            </span>
-                          )}
+              {guideData.transportation && guideData.transportation.length > 0 && (
+                <div className="space-y-2.5">
+                  <h4 className={`text-xs font-bold uppercase tracking-wider font-mono ${theme.accentText}`}>
+                    🚗 Medios de Transporte & Accesos
+                  </h4>
+                  <div className="grid grid-cols-1 gap-2.5">
+                    {guideData.transportation.map((trans) => (
+                      <div
+                        key={trans.id}
+                        className={`p-3.5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${theme.cardBg}`}
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <Car className={`w-4 h-4 ${theme.accentText}`} />
+                            <span className="font-bold text-xs">{trans.title}</span>
+                            {trans.estimatedCost && (
+                              <span className="text-[10px] font-mono opacity-70">
+                                ({trans.estimatedCost})
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs opacity-80 leading-relaxed max-w-xl">
+                            {trans.description}
+                          </p>
                         </div>
-                        <p className="text-xs opacity-80 leading-relaxed max-w-xl">
-                          {trans.description}
-                        </p>
-                      </div>
 
-                      {trans.contactPhone && (
-                        <a
-                          href={`tel:${trans.contactPhone}`}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer shrink-0 ${theme.cardInnerBg}`}
-                        >
-                          <Phone className="w-3.5 h-3.5" />
-                          <span>Llamar {trans.contactPhone}</span>
-                        </a>
-                      )}
-                    </div>
-                  ))}
+                        {trans.contactPhone && (
+                          <a
+                            href={`tel:${trans.contactPhone}`}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer shrink-0 ${theme.cardInnerBg}`}
+                          >
+                            <Phone className="w-3.5 h-3.5" />
+                            <span>Llamar {trans.contactPhone}</span>
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
@@ -826,54 +842,60 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
           {activeTab === 'estadia' && (
             <div className="space-y-5 animate-in fade-in duration-200">
               {/* House Rules Overview */}
-              <div className={`p-4 rounded-2xl border space-y-4 ${theme.cardBg}`}>
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-sm flex items-center gap-2">
-                    <ShieldAlert className={`w-4 h-4 ${theme.accentText}`} />
-                    <span>Normas de Convivencia y Cuidado</span>
-                  </h3>
-                  <button
-                    onClick={() => setRulesModalOpen(true)}
-                    className={`text-xs font-bold hover:underline cursor-pointer ${theme.accentText}`}
-                  >
-                    Ver detalle
-                  </button>
-                </div>
+              {guideData.rules && guideData.rules.length > 0 && (
+                <div className={`p-4 rounded-2xl border space-y-4 ${theme.cardBg}`}>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-sm flex items-center gap-2">
+                      <ShieldAlert className={`w-4 h-4 ${theme.accentText}`} />
+                      <span>Normas de Convivencia y Cuidado</span>
+                    </h3>
+                    <button
+                      onClick={() => setRulesModalOpen(true)}
+                      className={`text-xs font-bold hover:underline cursor-pointer ${theme.accentText}`}
+                    >
+                      Ver detalle
+                    </button>
+                  </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  {guideData.rules.map((rule, idx) => (
-                    <div key={idx} className={`p-3 rounded-xl border flex items-start gap-2.5 ${theme.cardInnerBg}`}>
-                      <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${theme.accentText}`} />
-                      <div>
-                        <span className="font-bold block">{rule.title}</span>
-                        <p className="opacity-80 text-[11px] mt-0.5 leading-relaxed">{rule.description}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    {guideData.rules.map((rule, idx) => (
+                      <div key={idx} className={`p-3 rounded-xl border flex items-start gap-2.5 ${theme.cardInnerBg}`}>
+                        <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${theme.accentText}`} />
+                        <div>
+                          <span className="font-bold block">{rule.title}</span>
+                          <p className="opacity-80 text-[11px] mt-0.5 leading-relaxed">{rule.description}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Pool & Schedules */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className={`p-4 rounded-2xl border space-y-2 ${theme.cardBg}`}>
-                  <div className="flex items-center gap-2 font-bold">
-                    <Waves className={`w-4 h-4 ${theme.accentText}`} />
-                    <span>Piscina & Áreas Comunes</span>
+                {guideData.poolHours?.trim() && (
+                  <div className={`p-4 rounded-2xl border space-y-2 ${theme.cardBg}`}>
+                    <div className="flex items-center gap-2 font-bold">
+                      <Waves className={`w-4 h-4 ${theme.accentText}`} />
+                      <span>Piscina & Áreas Comunes</span>
+                    </div>
+                    <p className="opacity-80 text-xs">
+                      Horario habilitado: <strong>{guideData.poolHours}</strong>. Uso exclusivo para huéspedes alojados.
+                    </p>
                   </div>
-                  <p className="opacity-80 text-xs">
-                    Horario habilitado: <strong>{guideData.poolHours}</strong>. Uso exclusivo para huéspedes alojados.
-                  </p>
-                </div>
+                )}
 
-                <div className={`p-4 rounded-2xl border space-y-2 ${theme.cardBg}`}>
-                  <div className="flex items-center gap-2 font-bold">
-                    <Clock className={`w-4 h-4 ${theme.accentText}`} />
-                    <span>Horario de Salida (Check-out)</span>
+                {guideData.checkoutHour?.trim() && (
+                  <div className={`p-4 rounded-2xl border space-y-2 ${theme.cardBg}`}>
+                    <div className="flex items-center gap-2 font-bold">
+                      <Clock className={`w-4 h-4 ${theme.accentText}`} />
+                      <span>Horario de Salida (Check-out)</span>
+                    </div>
+                    <p className="opacity-80 text-xs">
+                      El horario límite de entrega de la unidad es a las <strong>{guideData.checkoutHour}</strong>.
+                    </p>
                   </div>
-                  <p className="opacity-80 text-xs">
-                    El horario límite de entrega de la unidad es a las <strong>{guideData.checkoutHour}</strong>.
-                  </p>
-                </div>
+                )}
               </div>
             </div>
           )}
@@ -1466,16 +1488,18 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
             </div>
 
             <div className="space-y-2 text-xs">
-              <a
-                href={`tel:${guideData.hostPhone}`}
-                className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer ${theme.cardInnerBg}`}
-              >
-                <div>
-                  <span className="font-bold block">Anfitrión / Recepción</span>
-                  <span className="opacity-70 text-[11px]">{guideData.hostPhone}</span>
-                </div>
-                <Phone className="w-4 h-4 text-emerald-500" />
-              </a>
+              {guideData.hostPhone?.trim() && (
+                <a
+                  href={`tel:${guideData.hostPhone}`}
+                  className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer ${theme.cardInnerBg}`}
+                >
+                  <div>
+                    <span className="font-bold block">Anfitrión / Recepción</span>
+                    <span className="opacity-70 text-[11px]">{guideData.hostPhone}</span>
+                  </div>
+                  <Phone className="w-4 h-4 text-emerald-500" />
+                </a>
+              )}
 
               <a
                 href="tel:911"

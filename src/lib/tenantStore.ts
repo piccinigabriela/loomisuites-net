@@ -18,6 +18,13 @@ export interface TenantDoc {
   guideTemplate?: string;
   templates?: MessageTemplate[];
   availableAddons?: AddonService[];
+  welcomeSeen?: boolean;
+  onboardingChecklist?: {
+    calendarios?: boolean;
+    guia?: boolean;
+    diaADia?: boolean;
+  };
+  checklistDismissed?: boolean;
   createdAt?: any;
   updatedAt?: any;
 }
@@ -156,16 +163,16 @@ export async function initializeTenantOnboarding(
   const initialGuide: WelcomeGuideData = {
     propertyName: complexName,
     tagline: 'Cabañas & Alojamiento',
-    hostName: 'Administración',
+    hostName: '',
     hostPhone: '',
     locationAddress: address,
     googleMapsUrl: '',
     wifiNetwork: wifiNetwork,
     wifiPassword: wifiPassword,
-    poolHours: '09:00 - 21:00 hs',
+    poolHours: '',
     checkoutHour: '10:00 hs',
     woodBagPrice: '',
-    specialAnnouncement: '¡Bienvenidos a nuestro complejo! Gestioná tus reservas y servicios desde aquí.',
+    specialAnnouncement: '',
     transportation: [],
     attractions: [],
     dining: [],

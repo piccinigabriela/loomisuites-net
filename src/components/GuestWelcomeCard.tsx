@@ -37,7 +37,7 @@ export const GuestWelcomeCard: React.FC<GuestWelcomeCardProps> = ({
   wifiPassword = "(a confirmar)",
   address = "(a confirmar)",
   guideUrl = "https://loomisuite.net/guia/cab-lapacho",
-  hostPhone = "5493757550100"
+  hostPhone = ""
 }) => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
