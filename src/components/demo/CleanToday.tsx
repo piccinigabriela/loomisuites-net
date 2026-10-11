@@ -37,6 +37,12 @@ interface CleanTodayProps {
   isEmployeeMode?: boolean;
   userRole?: 'admin' | 'frontdesk' | 'housekeeping';
   isLoggedIn?: boolean;
+  isAppMode?: boolean;
+  icalSyncState?: {
+    lastSyncAt: string | null;
+    errores: Array<{ propertyId: string; propertyName: string; portal: string; error: string }>;
+    conflictos: Array<{ propertyId: string; unitName: string; resA: Reservation; resB: Reservation }>;
+  };
 }
 
 export const CleanToday: React.FC<CleanTodayProps> = ({
@@ -51,8 +57,11 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
   isEmployeeMode = false,
   userRole = 'admin',
   isLoggedIn = false,
+  isAppMode = false,
+  icalSyncState,
 }) => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [dismissedConflictKeys, setDismissedConflictKeys] = useState<Set<string>>(new Set());
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -159,6 +168,33 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
 
   return (
     <div className="space-y-6 font-sans">
+      {/* Banner de Doble Reserva (Modo App) */}
+      {isAppMode && icalSyncState?.conflictos && icalSyncState.conflictos.length > 0 && (
+        <div className="space-y-2">
+          {icalSyncState.conflictos
+            .filter((c) => !dismissedConflictKeys.has(`${c.propertyId}_${c.resA.id}_${c.resB.id}`))
+            .map((c) => {
+              const key = `${c.propertyId}_${c.resA.id}_${c.resB.id}`;
+              return (
+                <div
+                  key={key}
+                  className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/60 p-3.5 px-4 rounded-2xl text-xs text-rose-900 dark:text-rose-200 flex flex-wrap items-center justify-between gap-3 shadow-2xs"
+                >
+                  <span className="leading-snug">
+                    ⚠️ <strong>Posible doble reserva en {c.unitName}</strong>: {c.resA.guestName} ({formatDisplayDate(c.resA.checkIn)} a {formatDisplayDate(c.resA.checkOut)}) y {c.resB.guestName} ({formatDisplayDate(c.resB.checkIn)} a {formatDisplayDate(c.resB.checkOut)}). Revisalo cuanto antes.
+                  </span>
+                  <button
+                    onClick={() => setDismissedConflictKeys((prev) => new Set(prev).add(key))}
+                    className="px-3 py-1 bg-rose-200 hover:bg-rose-300 dark:bg-rose-900/60 dark:hover:bg-rose-800 text-rose-950 dark:text-rose-100 rounded-xl font-bold text-[11px] transition-colors cursor-pointer shrink-0"
+                  >
+                    Entendido
+                  </button>
+                </div>
+              );
+            })}
+        </div>
+      )}
+
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 bg-stone-900 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-xl border border-stone-700 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-3">

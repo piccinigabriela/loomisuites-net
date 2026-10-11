@@ -664,55 +664,85 @@ export default function App() {
   });
 
   const isSyncingRef = React.useRef(false);
+  const previousConflictKeysRef = React.useRef<Set<string>>(new Set());
+
+  const runSyncNow = async () => {
+    if (!isApp || !currentUser) {
+      return { agregadas: 0, actualizadas: 0, canceladas: 0, errores: [], conflictos: [] };
+    }
+    if (isSyncingRef.current) {
+      return { agregadas: 0, actualizadas: 0, canceladas: 0, errores: [], conflictos: [] };
+    }
+    isSyncingRef.current = true;
+    try {
+      const currentProps = demoStateRef.current.properties || [];
+      const currentRes = demoStateRef.current.reservations || [];
+      const currentTasks = demoStateRef.current.cleaningTasks || [];
+
+      const hasIcalUrls = currentProps.some(
+        (p) => Boolean(p.icalAirbnbUrl || p.icalBookingUrl || p.icalOtherUrl)
+      );
+
+      if (!hasIcalUrls) {
+        setIcalSyncState((prev) => ({
+          ...prev,
+          lastSyncAt: new Date().toISOString(),
+        }));
+        return { agregadas: 0, actualizadas: 0, canceladas: 0, errores: [], conflictos: [] };
+      }
+
+      const result = await syncCalendars(currentUser.uid, currentProps, currentRes, currentTasks);
+
+      setIcalSyncState({
+        lastSyncAt: new Date().toISOString(),
+        errores: result.errores,
+        conflictos: result.conflictos,
+      });
+
+      if (result.agregadas > 0 || result.actualizadas > 0 || result.canceladas > 0) {
+        showToast(`Calendarios sincronizados: ${result.agregadas} nuevas, ${result.canceladas} canceladas`);
+      }
+
+      // Toast de doble reserva solo para conflictos NUEVOS
+      const newConflictKeys = new Set(
+        result.conflictos.map((c) => `${c.propertyId}_${c.resA.id}_${c.resB.id}`)
+      );
+
+      let hasBrandNewConflict = false;
+      for (const key of newConflictKeys) {
+        if (!previousConflictKeysRef.current.has(key)) {
+          hasBrandNewConflict = true;
+          break;
+        }
+      }
+
+      if (hasBrandNewConflict && result.conflictos.length > 0) {
+        const firstUnit = result.conflictos[0].unitName;
+        showToast(`⚠️ Posible doble reserva en ${firstUnit}. Revisá el calendario.`);
+      }
+
+      previousConflictKeysRef.current = newConflictKeys;
+
+      return result;
+    } catch (err) {
+      console.warn('Error en la sincronización de iCal:', err);
+      return { agregadas: 0, actualizadas: 0, canceladas: 0, errores: [], conflictos: [] };
+    } finally {
+      isSyncingRef.current = false;
+    }
+  };
 
   useEffect(() => {
     if (!isApp || !currentUser || tenantLoading) return;
 
-    const properties = demoStateRef.current.properties || [];
-    const hasIcalUrls = properties.some(
-      (p) => Boolean(p.icalAirbnbUrl || p.icalBookingUrl || p.icalOtherUrl)
-    );
-
-    if (!hasIcalUrls) return;
-
-    const runSync = async () => {
-      if (isSyncingRef.current) return;
-      isSyncingRef.current = true;
-      try {
-        const currentProps = demoStateRef.current.properties || [];
-        const currentRes = demoStateRef.current.reservations || [];
-
-        const result = await syncCalendars(currentUser.uid, currentProps, currentRes);
-
-        setIcalSyncState({
-          lastSyncAt: new Date().toISOString(),
-          errores: result.errores,
-          conflictos: result.conflictos,
-        });
-
-        if (result.agregadas > 0 || result.actualizadas > 0 || result.canceladas > 0) {
-          showToast(`Calendarios sincronizados: ${result.agregadas} nuevas, ${result.canceladas} canceladas`);
-        }
-
-        if (result.conflictos.length > 0) {
-          const firstUnit = result.conflictos[0].unitName;
-          showToast(`⚠️ Posible doble reserva en ${firstUnit}. Revisá el calendario.`);
-        }
-      } catch (err) {
-        console.warn('Error en la sincronización automática de iCal:', err);
-      } finally {
-        isSyncingRef.current = false;
-      }
-    };
-
     // Run 5 seconds after tenant loads
     const initialTimer = setTimeout(() => {
-      runSync();
+      runSyncNow();
     }, 5000);
 
     // Run every 15 minutes while app is open
     const intervalTimer = setInterval(() => {
-      runSync();
+      runSyncNow();
     }, 15 * 60 * 1000);
 
     return () => {
@@ -1952,6 +1982,8 @@ export default function App() {
                     }}
                     isEmployeeMode={isEmployeeMode}
                     isLoggedIn={!!loggedUser}
+                    isAppMode={isApp}
+                    icalSyncState={icalSyncState}
                   />
                 </>
               )}
@@ -1962,6 +1994,9 @@ export default function App() {
                   onSelectReservation={setSelectedReservationForDetail}
                   onOpenNewReservationWithProperty={handleOpenNewReservationWithProperty}
                   onOpenImportModal={() => setIsImportModalOpen(true)}
+                  isAppMode={isApp}
+                  icalSyncState={icalSyncState}
+                  onRunSyncNow={runSyncNow}
                 />
               )}
 

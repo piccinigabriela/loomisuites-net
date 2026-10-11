@@ -1,5 +1,16 @@
 import { Property, Reservation, CleaningTask } from '../types';
-import { saveReservationDoc, saveCleaningTaskDoc } from './tenantStore';
+import { saveReservationDoc, saveCleaningTaskDoc, deleteCleaningTaskDoc } from './tenantStore';
+
+/**
+ * Gets local date string in YYYY-MM-DD format (not UTC)
+ */
+function getLocalDateString(): string {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
 
 /**
  * Short deterministic alphanumeric hash
@@ -117,9 +128,10 @@ export interface SyncResult {
 export async function syncCalendars(
   uid: string,
   properties: Property[],
-  reservations: Reservation[]
+  reservations: Reservation[],
+  cleaningTasks: CleaningTask[] = []
 ): Promise<SyncResult> {
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalDateString();
   let agregadas = 0;
   let actualizadas = 0;
   let canceladas = 0;
@@ -279,6 +291,18 @@ export async function syncCalendars(
             };
             await saveReservationDoc(uid, cancelledRes);
 
+            // Eliminar la tarea de limpieza pendiente asociada a esta reserva cancelada
+            const pendingTask = cleaningTasks.find(
+              (t) => t.reservationId === existingRes.id && t.status === 'pending'
+            );
+            if (pendingTask) {
+              try {
+                await deleteCleaningTaskDoc(uid, pendingTask.id);
+              } catch (err) {
+                console.warn('Error borrando tarea de limpieza de reserva cancelada:', err);
+              }
+            }
+
             workingReservations = workingReservations.map((r) => (r.id === existingRes.id ? cancelledRes : r));
             canceladas++;
           }
@@ -287,12 +311,12 @@ export async function syncCalendars(
     }
   }
 
-  // Superposiciones / Conflictos
+  // Superposiciones / Conflictos (considerar solo reservas con checkOut >= hoy)
   const conflictos: Array<{ propertyId: string; unitName: string; resA: Reservation; resB: Reservation }> = [];
   const activeByProp = new Map<string, Reservation[]>();
 
   for (const r of workingReservations) {
-    if (r.status === 'cancelled') continue;
+    if (r.status === 'cancelled' || r.checkOut < todayStr) continue;
     const list = activeByProp.get(r.propertyId) || [];
     list.push(r);
     activeByProp.set(r.propertyId, list);

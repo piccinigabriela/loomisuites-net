@@ -353,6 +353,23 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
           </div>
         </div>
 
+        {/* Banner para reservas importadas vía iCal */}
+        {reservation.source === 'ical' && (
+          <div className="bg-sky-50 dark:bg-sky-950/30 border-b border-sky-200/80 dark:border-sky-800/40 p-3 px-4 sm:px-5 flex items-start gap-2.5 text-xs text-sky-900 dark:text-sky-200 shrink-0">
+            <Sparkles className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-1.5 font-bold">
+                <span className="px-1.5 py-0.5 rounded bg-sky-200 dark:bg-sky-800/60 text-sky-950 dark:text-sky-100 text-[10px] uppercase font-bold tracking-wide">
+                  Importada de {reservation.icalSource === 'airbnb' ? 'Airbnb' : reservation.icalSource === 'booking' ? 'Booking' : reservation.icalSource === 'vrbo' ? 'otro portal' : reservation.platform === 'airbnb' ? 'Airbnb' : reservation.platform === 'booking' ? 'Booking' : 'otro portal'}
+                </span>
+              </div>
+              <p className="text-[11px] text-sky-800 dark:text-sky-300 leading-snug font-medium">
+                Podés completar el nombre, el teléfono y el monto del huésped; la sincronización no los va a pisar.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Content Container */}
         <div className="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
           {isEditing ? (

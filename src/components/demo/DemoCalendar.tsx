@@ -23,6 +23,13 @@ interface DemoCalendarProps {
   onSelectReservation: (res: Reservation) => void;
   onOpenNewReservationWithProperty?: (propertyId: string, date: string) => void;
   onOpenImportModal?: () => void;
+  isAppMode?: boolean;
+  icalSyncState?: {
+    lastSyncAt: string | null;
+    errores: Array<{ propertyId: string; propertyName: string; portal: string; error: string }>;
+    conflictos: Array<{ propertyId: string; unitName: string; resA: Reservation; resB: Reservation }>;
+  };
+  onRunSyncNow?: () => Promise<any>;
 }
 
 type ColumnMode = 'compact' | 'medium' | 'full';
@@ -32,6 +39,9 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
   onSelectReservation,
   onOpenNewReservationWithProperty,
   onOpenImportModal,
+  isAppMode = false,
+  icalSyncState,
+  onRunSyncNow,
 }) => {
   const [dayOffset, setDayOffset] = useState<number>(-2); // Show from 2 days ago to +12 days ahead
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>('all');
@@ -40,6 +50,30 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
   // Column width: compact (48px) - perfect for mobile, medium (105px), full (185px)
   const [columnMode, setColumnMode] = useState<ColumnMode>('compact');
   const [scrollProgress, setScrollProgress] = useState<number>(0);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [dismissedConflictKeys, setDismissedConflictKeys] = useState<Set<string>>(new Set());
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleSyncNowClick = async () => {
+    if (!onRunSyncNow || isSyncing) return;
+    setIsSyncing(true);
+    try {
+      const res = await onRunSyncNow();
+      if (res.agregadas === 0 && res.actualizadas === 0 && res.canceladas === 0 && res.errores.length === 0) {
+        showToast('Todo al día');
+      }
+    } catch (err) {
+      console.warn('Sync error:', err);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   const timelineContainerRef = useRef<HTMLDivElement>(null);
 
   const getColumnWidthClass = (mode: ColumnMode) => {
@@ -250,6 +284,57 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
 
   return (
     <div className="space-y-4 font-sans">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-stone-900 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-xl border border-stone-700 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-3">
+          <Sparkles className="w-4 h-4 text-[#E67E22]" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Banner de Doble Reserva (Cartel Fijo Rojo - Modo App) */}
+      {isAppMode && icalSyncState?.conflictos && icalSyncState.conflictos.length > 0 && (
+        <div className="space-y-2">
+          {icalSyncState.conflictos
+            .filter((c) => !dismissedConflictKeys.has(`${c.propertyId}_${c.resA.id}_${c.resB.id}`))
+            .map((c) => {
+              const key = `${c.propertyId}_${c.resA.id}_${c.resB.id}`;
+              return (
+                <div
+                  key={key}
+                  className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/60 p-3.5 px-4 rounded-2xl text-xs text-rose-900 dark:text-rose-200 flex flex-wrap items-center justify-between gap-3 shadow-2xs"
+                >
+                  <span className="leading-snug">
+                    ⚠️ <strong>Posible doble reserva en {c.unitName}</strong>: {c.resA.guestName} ({formatDisplayDate(c.resA.checkIn)} a {formatDisplayDate(c.resA.checkOut)}) y {c.resB.guestName} ({formatDisplayDate(c.resB.checkIn)} a {formatDisplayDate(c.resB.checkOut)}). Revisalo cuanto antes.
+                  </span>
+                  <button
+                    onClick={() => setDismissedConflictKeys((prev) => new Set(prev).add(key))}
+                    className="px-3 py-1 bg-rose-200 hover:bg-rose-300 dark:bg-rose-900/60 dark:hover:bg-rose-800 text-rose-950 dark:text-rose-100 rounded-xl font-bold text-[11px] transition-colors cursor-pointer shrink-0"
+                  >
+                    Entendido
+                  </button>
+                </div>
+              );
+            })}
+        </div>
+      )}
+
+      {/* Banner de Errores de lectura iCal (Aviso Ámbar - Modo App) */}
+      {isAppMode && icalSyncState?.errores && icalSyncState.errores.length > 0 && (
+        <div className="space-y-2">
+          {icalSyncState.errores.map((err, idx) => (
+            <div
+              key={idx}
+              className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 p-3 px-4 rounded-2xl text-xs text-amber-900 dark:text-amber-200 flex items-center justify-between gap-2 shadow-2xs"
+            >
+              <span>
+                ⚠️ No se pudo leer el calendario de <strong>{err.portal}</strong> de <strong>{err.propertyName}</strong>. Revisá el enlace en Configurar Unidades.
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* CONTROL SUPERIOR DEL RACK / CALENDARIO ZEN */}
       <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 sm:p-6 shadow-[0_4px_12px_rgba(0,0,0,0.005)] border border-gray-100 dark:border-zinc-800 space-y-5 transition-colors">
         
@@ -269,12 +354,36 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
               Ocupación & <span className="font-semibold text-gray-800 dark:text-white">Disponibilidad</span>
             </h2>
             <p className="text-[11px] text-gray-400 dark:text-zinc-400 font-medium leading-normal max-w-xl">
-              Rack sincronizado con Google Calendars, Airbnb y canales directos. Check-in: 14:00 / Check-out: 10:00.
+              {isAppMode
+                ? 'Sincronizado con Airbnb y Booking cada 15 minutos mientras Loomi está abierto.'
+                : 'Rack sincronizado con Google Calendars, Airbnb y canales directos. Check-in: 14:00 / Check-out: 10:00.'}
             </p>
           </div>
 
-          {/* Acciones de Datos (Importar) compactadas en botones limpios con icono */}
-          <div className="flex items-center space-x-2 w-full lg:w-auto justify-end">
+          {/* Acciones de Datos (Importar & Sincronizar) */}
+          <div className="flex items-center space-x-2.5 w-full lg:w-auto justify-end flex-wrap">
+            {isAppMode && onRunSyncNow && (
+              <div className="flex flex-col items-end gap-1">
+                <button
+                  onClick={handleSyncNowClick}
+                  disabled={isSyncing}
+                  className="px-3 py-2 rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/50 text-[#E67E22] hover:bg-orange-100 dark:hover:bg-orange-900/40 text-xs font-semibold flex items-center gap-1.5 disabled:opacity-60 transition-all cursor-pointer shadow-2xs"
+                  title="Sincronizar calendarios iCal de inmediato"
+                >
+                  <RotateCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                  <span>{isSyncing ? 'Sincronizando…' : '🔄 Sincronizar ahora'}</span>
+                </button>
+                <span className="text-[10px] text-gray-400 font-medium">
+                  {icalSyncState?.lastSyncAt
+                    ? (() => {
+                        const diffMins = Math.floor((Date.now() - new Date(icalSyncState.lastSyncAt).getTime()) / 60000);
+                        return diffMins < 1 ? 'Última sincronización: hace un instante' : `Última sincronización: hace ${diffMins} min`;
+                      })()
+                    : 'Todavía no se sincronizó'}
+                </span>
+              </div>
+            )}
+
             {onOpenImportModal && (
               <button
                 onClick={onOpenImportModal}
