@@ -37,6 +37,7 @@ import {
 } from './XeniaAvatar';
 import { useXeniaVoice } from '../../hooks/useXeniaVoice';
 import { isFemaleVoice, isSpainVoice } from '../../utils/xeniaVoice';
+import { isAppMode } from '../../lib/appMode';
 
 import { getApiUrl } from '../../utils/apiConfig';
 
@@ -53,6 +54,7 @@ interface ChatMessage {
 }
 
 export const XeniaCopilotView: React.FC<XeniaCopilotViewProps> = ({ demoState }) => {
+  const isApp = isAppMode();
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome-1',
@@ -76,7 +78,15 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const chatBottomRef = useRef<HTMLDivElement>(null);
+
+  const toggleCategoryExpanded = (catName: string) => {
+    setExpandedCategories((prev) => ({
+      ...prev,
+      [catName]: !prev[catName],
+    }));
+  };
 
   // Voice Hook
   const {
@@ -213,6 +223,21 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
 
   // Predefined prompts organized by intent
   const quickPrompts = [
+    ...(isApp
+      ? [
+          {
+            category: 'Primeros pasos',
+            icon: Sparkles,
+            prompts: [
+              '¿Cómo cargo mis unidades?',
+              '¿Cómo conecto Airbnb y Booking?',
+              '¿Cómo paso las reservas que ya tengo?',
+              '¿Cómo edito la guía de mis huéspedes?',
+              '¿Cómo mando la bienvenida por WhatsApp?',
+            ],
+          },
+        ]
+      : []),
     {
       category: 'Ocupación & Reservas en Vivo',
       icon: TrendingUp,
@@ -223,16 +248,20 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
         '¿Cuáles reservas son directas con descuento y cuáles vienen de Airbnb al 3% o 15%?',
       ],
     },
-    {
-      category: 'Planes, Precios & Servicios',
-      icon: Tag,
-      prompts: [
-        '¿Cuánto cuesta Loomi y cómo se abona la suscripción?',
-        '¿Qué incluye el abono mensual y cómo funciona con llaves tradicionales?',
-        '¿Qué son los módulos opcionales de frigobar y cerraduras?',
-        '¿Tengo que poner tarjeta de crédito para empezar?',
-      ],
-    },
+    ...(!isApp
+      ? [
+          {
+            category: 'Planes, Precios & Servicios',
+            icon: Tag,
+            prompts: [
+              '¿Cuánto cuesta Loomi y cómo se abona la suscripción?',
+              '¿Qué incluye el abono mensual y cómo funciona con llaves tradicionales?',
+              '¿Qué son los módulos opcionales de frigobar y cerraduras?',
+              '¿Tengo que poner tarjeta de crédito para empezar?',
+            ],
+          },
+        ]
+      : []),
     {
       category: 'Rendición de Cuentas',
       icon: DollarSign,
@@ -613,38 +642,93 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
       )}
 
       {/* Main Grid: Prompts + Chat View */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        {/* Left Column: Quick Action Chips */}
-        <div className="lg:col-span-1 space-y-4">
-          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-4 sm:p-5 shadow-2xs">
-            <h3 className="text-xs font-black uppercase tracking-wider text-[#18181B] dark:text-white flex items-center gap-2 mb-1">
+      <div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-6">
+        {/* Mobile View: Row of horizontally scrollable categories */}
+        <div className="lg:hidden w-full overflow-x-auto pb-2 scrollbar-none">
+          <div className="flex items-start gap-3 min-w-max">
+            {quickPrompts.map((cat, idx) => {
+              const Icon = cat.icon;
+              const isExpanded = Boolean(expandedCategories[cat.category]);
+              const visiblePrompts = isExpanded ? cat.prompts : cat.prompts.slice(0, 3);
+              const hasMore = cat.prompts.length > 3;
+
+              return (
+                <div
+                  key={idx}
+                  className="bg-[#EAE8E3] dark:bg-[#0C0D0F] border border-[#C8C4B7] dark:border-[#222328] p-3 rounded-none w-72 shrink-0 space-y-2"
+                >
+                  <span className="text-[10px] font-black text-[#71717A] dark:text-[#8E8E93] uppercase tracking-wider flex items-center gap-1.5 truncate">
+                    <Icon className="w-3 h-3 text-[#E1500A] shrink-0" />
+                    <span className="truncate">{cat.category}</span>
+                  </span>
+                  <div className="flex flex-col gap-1.5">
+                    {visiblePrompts.map((prompt, pIdx) => (
+                      <button
+                        key={pIdx}
+                        onClick={() => handleSendMessage(prompt)}
+                        disabled={isLoading}
+                        className="w-full text-left text-[11px] px-2.5 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] hover:border-[#E1500A] hover:text-[#E1500A] text-[#18181B] dark:text-[#EFECE5] transition-all cursor-pointer font-medium leading-snug truncate shadow-2xs"
+                        title={prompt}
+                      >
+                        {prompt}
+                      </button>
+                    ))}
+                    {hasMore && (
+                      <button
+                        onClick={() => toggleCategoryExpanded(cat.category)}
+                        className="text-[10px] font-bold text-[#E1500A] hover:underline cursor-pointer text-left pt-0.5"
+                      >
+                        {isExpanded ? 'ver menos' : `ver más (${cat.prompts.length - 3})`}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Desktop Sidebar: Narrow Column */}
+        <div className="hidden lg:block lg:col-span-4 space-y-4">
+          <div className="bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] p-4 sm:p-5 shadow-2xs max-h-[640px] overflow-y-auto space-y-4">
+            <h3 className="text-xs font-black uppercase tracking-wider text-[#18181B] dark:text-white flex items-center gap-2">
               <Zap className="w-3.5 h-3.5 text-[#E1500A]" />
               <span>Consultas Frecuentes</span>
             </h3>
-            <p className="text-xs text-[#71717A] dark:text-[#8E8E93] mb-4 font-medium">
-              Toca cualquier pregunta para que Xenia te responda en el acto:
-            </p>
 
             <div className="space-y-4">
               {quickPrompts.map((cat, idx) => {
                 const Icon = cat.icon;
+                const isExpanded = Boolean(expandedCategories[cat.category]);
+                const visiblePrompts = isExpanded ? cat.prompts : cat.prompts.slice(0, 3);
+                const hasMore = cat.prompts.length > 3;
+
                 return (
-                  <div key={idx} className="space-y-2">
+                  <div key={idx} className="space-y-2 pt-2 border-t border-[#C8C4B7]/40 dark:border-[#222328] first:border-0 first:pt-0">
                     <span className="text-[10px] font-black text-[#71717A] dark:text-[#8E8E93] uppercase tracking-widest flex items-center gap-1.5">
-                      <Icon className="w-3 h-3 text-[#E1500A]" />
-                      {cat.category}
+                      <Icon className="w-3 h-3 text-[#E1500A] shrink-0" />
+                      <span>{cat.category}</span>
                     </span>
-                    <div className="space-y-1.5">
-                      {cat.prompts.map((prompt, pIdx) => (
+                    <div className="flex flex-col gap-1.5">
+                      {visiblePrompts.map((prompt, pIdx) => (
                         <button
                           key={pIdx}
                           onClick={() => handleSendMessage(prompt)}
                           disabled={isLoading}
-                          className="w-full text-left text-xs p-2.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] hover:border-[#E1500A] text-[#18181B] dark:text-[#EFECE5] transition-all cursor-pointer leading-snug font-medium"
+                          className="w-full text-left text-[11px] px-2.5 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] hover:border-[#E1500A] hover:text-[#E1500A] text-[#18181B] dark:text-[#EFECE5] transition-all cursor-pointer font-medium leading-snug truncate shadow-2xs"
+                          title={prompt}
                         >
-                          "{prompt}"
+                          {prompt}
                         </button>
                       ))}
+                      {hasMore && (
+                        <button
+                          onClick={() => toggleCategoryExpanded(cat.category)}
+                          className="text-[10px] font-bold text-[#E1500A] hover:underline cursor-pointer text-left pt-0.5"
+                        >
+                          {isExpanded ? 'ver menos' : `ver más (${cat.prompts.length - 3})`}
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -664,7 +748,7 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
         </div>
 
         {/* Right Column: Chat Conversation */}
-        <div className="lg:col-span-2 bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-2xs flex flex-col h-[640px]">
+        <div className="lg:col-span-8 bg-[#EAE8E3] dark:bg-[#0C0D0F] rounded-none border border-[#C8C4B7] dark:border-[#222328] shadow-2xs flex flex-col h-[640px]">
           {/* Chat Header */}
           <div className="p-3.5 sm:p-4 border-b border-[#C8C4B7] dark:border-[#222328] flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">

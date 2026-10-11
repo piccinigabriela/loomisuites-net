@@ -63,16 +63,11 @@ export const FirstStepsChecklist: React.FC<FirstStepsChecklistProps> = ({
   const isUnitsDone = properties.length > 0;
 
   // 3. Tus calendarios
-  const hasIcalConfigured = properties.some(
-    (p: any) =>
-      p.icalUrl ||
-      p.icalImportUrl ||
-      p.ical ||
-      p.icalExportUrl ||
-      p.airbnbIcal ||
-      p.bookingIcal
+  const hasSyncConfigured = properties.some(
+    (p) =>
+      Boolean(p.syncStatus?.airbnb || p.syncStatus?.booking || p.syncStatus?.vrbo)
   );
-  const isCalendarsDone = Boolean(onboardingChecklist.calendarios || hasIcalConfigured);
+  const isCalendarsDone = Boolean(onboardingChecklist.calendarios || hasSyncConfigured);
 
   // 4. Tus reservas
   const isReservationsDone = reservations.length > 0;

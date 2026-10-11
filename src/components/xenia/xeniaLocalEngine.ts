@@ -47,6 +47,54 @@ export function getClientXeniaReply(message: string, demoState?: DemoState | any
   const p0 = properties[0];
 
   // =========================================================================
+  // RESPUESTAS RÁPIDAS DE PRIMEROS PASOS EN MODO APP
+  // =========================================================================
+  if (
+    q.includes('cargo mis unidades') ||
+    q.includes('cargar mis unidades') ||
+    q.includes('editar mis unidades') ||
+    q.includes('como cargo') ||
+    q.includes('cómo cargo') ||
+    q.includes('configurar unidades')
+  ) {
+    return 'Para cargar o editar tus unidades andá a Administración → Configurar Unidades. Ahí ponés nombre, capacidad, wifi y fotos de cada una.';
+  }
+
+  if (
+    q.includes('paso las reservas') ||
+    q.includes('pasar reservas') ||
+    q.includes('importar reservas') ||
+    q.includes('importar ical') ||
+    q.includes('excel') ||
+    q.includes('planilla')
+  ) {
+    return 'Podés importarlas desde Ocupación (Calendario) → Importar iCal / CSV. Si preferís, mandanos tu planilla por WhatsApp al +54 9 11 4092-5939 y te la cargamos nosotros en 72 hs hábiles.';
+  }
+
+  if (
+    q.includes('edito la guía') ||
+    q.includes('edito la guia') ||
+    q.includes('editar la guía') ||
+    q.includes('editar la guia') ||
+    q.includes('guía de mis huéspedes') ||
+    q.includes('guia de mis huéspedes') ||
+    q.includes('guía de mis huespedes') ||
+    q.includes('guia de mis huespedes')
+  ) {
+    return 'La guía de tus huéspedes se edita en Tu Web & Guía → Ajustes & Edición de Datos. Cargá tu teléfono de anfitrión, el wifi y las normas.';
+  }
+
+  if (
+    q.includes('primeros pasos') ||
+    q.includes('como empiezo') ||
+    q.includes('cómo empiezo') ||
+    q.includes('por donde empiezo') ||
+    q.includes('por dónde empiezo')
+  ) {
+    return 'Te recomiendo seguir los Primeros pasos que ves arriba del Panel Hoy, en orden. Si te trabás, escribinos por WhatsApp al +54 9 11 4092-5939.';
+  }
+
+  // =========================================================================
   // DIRECTIVAS OMOTENASHI: 1. CASOS CRÍTICOS & RECLAMOS (DERIVACIÓN HUMANA)
   // =========================================================================
   if (
