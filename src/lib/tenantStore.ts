@@ -345,3 +345,24 @@ export async function savePublicGuide(
     { merge: true }
   );
 }
+
+export async function savePublicCalendar(
+  uid: string,
+  unitId: string,
+  data: {
+    unitName: string;
+    busy: Array<{ start: string; end: string; ref: string; platform: string }>;
+  }
+): Promise<void> {
+  if (!uid || !unitId || !db) return;
+  const calRef = doc(db, 'publicCalendars', uid, 'units', unitId);
+  await setDoc(
+    calRef,
+    {
+      unitName: data.unitName || '',
+      busy: data.busy || [],
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
+}

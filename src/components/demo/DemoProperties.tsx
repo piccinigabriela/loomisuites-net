@@ -24,6 +24,8 @@ import {
 import { DemoState, Property } from '../../types';
 import { copyToClipboard } from '../../utils/clipboard';
 import { OnboardingGuideView } from './OnboardingGuideView';
+import { isAppMode } from '../../lib/appMode';
+import { auth } from '../../lib/firebase';
 
 interface DemoPropertiesProps {
   demoState: DemoState;
@@ -40,7 +42,10 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
   onDeleteProperty,
   isEmployeeMode = false,
 }) => {
+  const isApp = isAppMode();
+  const uid = isApp ? auth.currentUser?.uid : null;
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copiedCalLink, setCopiedCalLink] = useState<'airbnb' | 'booking' | null>(null);
   const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
   const [tempPrice, setTempPrice] = useState<number>(0);
 
@@ -462,6 +467,129 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
                   className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
                 />
               </div>
+
+              {/* Nueva Sección: Calendarios de Airbnb y Booking */}
+              <div className="pt-3 border-t border-stone-100 dark:border-zinc-800 space-y-3">
+                <h5 className="font-bold text-stone-800 dark:text-stone-100 text-xs flex items-center gap-1.5">
+                  <Globe className="w-4 h-4 text-[#E67E22]" />
+                  <span>Calendarios de Airbnb y Booking</span>
+                </h5>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Enlace iCal de Airbnb:</label>
+                  <input
+                    type="url"
+                    value={activeProperty.icalAirbnbUrl || ''}
+                    onChange={(e) => setActiveProperty({ ...activeProperty, icalAirbnbUrl: e.target.value })}
+                    placeholder="https://www.airbnb.com/calendar/ical/..."
+                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
+                  />
+                  {activeProperty.icalAirbnbUrl && activeProperty.icalAirbnbUrl.trim() !== '' && !activeProperty.icalAirbnbUrl.trim().startsWith('https://') && (
+                    <span className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold block mt-1">
+                      Pegá el enlace completo, empieza con https://
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Enlace iCal de Booking:</label>
+                  <input
+                    type="url"
+                    value={activeProperty.icalBookingUrl || ''}
+                    onChange={(e) => setActiveProperty({ ...activeProperty, icalBookingUrl: e.target.value })}
+                    placeholder="https://admin.booking.com/hotel/hoteladmin/ical/..."
+                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
+                  />
+                  {activeProperty.icalBookingUrl && activeProperty.icalBookingUrl.trim() !== '' && !activeProperty.icalBookingUrl.trim().startsWith('https://') && (
+                    <span className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold block mt-1">
+                      Pegá el enlace completo, empieza con https://
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Otro portal (opcional):</label>
+                  <input
+                    type="url"
+                    value={activeProperty.icalOtherUrl || ''}
+                    onChange={(e) => setActiveProperty({ ...activeProperty, icalOtherUrl: e.target.value })}
+                    placeholder="https://..."
+                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
+                  />
+                  {activeProperty.icalOtherUrl && activeProperty.icalOtherUrl.trim() !== '' && !activeProperty.icalOtherUrl.trim().startsWith('https://') && (
+                    <span className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold block mt-1">
+                      Pegá el enlace completo, empieza con https://
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
+                  En Airbnb y en Booking buscá la opción Exportar calendario o Sincronizar calendarios y copiá el enlace que termina en .ics.
+                </p>
+
+                {/* Tu calendario de Loomi (solo en modo app y si la unidad ya está guardada) */}
+                {isApp && modalMode === 'edit' && uid && (
+                  <div className="mt-3 pt-3 border-t border-dashed border-stone-200 dark:border-zinc-700 space-y-2 bg-orange-50/50 dark:bg-orange-950/20 p-3 rounded-xl">
+                    <h6 className="font-bold text-stone-800 dark:text-stone-100 text-xs">
+                      Tu calendario de Loomi (pegalo en cada portal):
+                    </h6>
+
+                    <div className="space-y-2">
+                      <div>
+                        <span className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-0.5">Para Airbnb:</span>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="text"
+                            readOnly
+                            value={`https://ical.loomisuite.net/cal/${uid}/${activeProperty.id}.ics?para=airbnb`}
+                            className="flex-1 p-2 text-[10px] font-mono rounded-lg border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-stone-700 dark:text-stone-300"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const link = `https://ical.loomisuite.net/cal/${uid}/${activeProperty.id}.ics?para=airbnb`;
+                              copyToClipboard(link);
+                              setCopiedCalLink('airbnb');
+                              setTimeout(() => setCopiedCalLink(null), 2500);
+                            }}
+                            className="px-2.5 py-1.5 rounded-lg bg-[#E67E22] hover:bg-[#D35400] text-white font-bold text-xs shrink-0 cursor-pointer transition-colors"
+                          >
+                            {copiedCalLink === 'airbnb' ? 'Enlace copiado' : 'Copiar'}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-0.5">Para Booking:</span>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="text"
+                            readOnly
+                            value={`https://ical.loomisuite.net/cal/${uid}/${activeProperty.id}.ics?para=booking`}
+                            className="flex-1 p-2 text-[10px] font-mono rounded-lg border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-stone-700 dark:text-stone-300"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const link = `https://ical.loomisuite.net/cal/${uid}/${activeProperty.id}.ics?para=booking`;
+                              copyToClipboard(link);
+                              setCopiedCalLink('booking');
+                              setTimeout(() => setCopiedCalLink(null), 2500);
+                            }}
+                            className="px-2.5 py-1.5 rounded-lg bg-[#E67E22] hover:bg-[#D35400] text-white font-bold text-xs shrink-0 cursor-pointer transition-colors"
+                          >
+                            {copiedCalLink === 'booking' ? 'Enlace copiado' : 'Copiar'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed pt-1">
+                      Pegalo en Airbnb o Booking en Importar calendario. Así bloquean solas las fechas que se reservan en Loomi.
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-100 dark:border-zinc-800">
@@ -474,7 +602,15 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
               <button
                 onClick={() => {
                   if (activeProperty) {
-                    onSaveProperty?.(activeProperty);
+                    const finalProp: Property = {
+                      ...activeProperty,
+                      syncStatus: {
+                        airbnb: Boolean(activeProperty.icalAirbnbUrl && activeProperty.icalAirbnbUrl.trim() !== ''),
+                        booking: Boolean(activeProperty.icalBookingUrl && activeProperty.icalBookingUrl.trim() !== ''),
+                        vrbo: Boolean(activeProperty.icalOtherUrl && activeProperty.icalOtherUrl.trim() !== ''),
+                      },
+                    };
+                    onSaveProperty?.(finalProp);
                     setModalMode(null);
                   }
                 }}

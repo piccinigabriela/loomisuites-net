@@ -84,6 +84,7 @@ import {
   deleteCashMovementDoc,
   saveTenantData,
   savePublicGuide,
+  savePublicCalendar,
   TenantDoc,
 } from './lib/tenantStore';
 
@@ -596,6 +597,53 @@ export default function App() {
 
     return () => clearTimeout(timer);
   }, [isApp, currentUser, tenantLoading, demoState.welcomeGuide, guideTemplate, demoState.properties]);
+
+  // Debounced savePublicCalendar (3 seconds)
+  const lastSavedPublicCalendarsRef = React.useRef<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!isApp || !currentUser || tenantLoading) return;
+
+    const uid = currentUser.uid;
+    const cutoffDate = getRelativeDate(-7);
+    const reservations = demoState.reservations || [];
+    const properties = demoState.properties || [];
+
+    const timer = setTimeout(() => {
+      properties.forEach((unidad) => {
+        const busy = reservations
+          .filter(
+            (r) =>
+              r.propertyId === unidad.id &&
+              r.status !== 'cancelled' &&
+              r.checkOut >= cutoffDate
+          )
+          .map((r) => ({
+            start: r.checkIn,
+            end: r.checkOut,
+            ref: r.id,
+            platform: r.platform || 'direct',
+          }))
+          .sort((a, b) => a.start.localeCompare(b.start));
+
+        const payload = {
+          unitName: unidad.name,
+          busy,
+        };
+        const payloadJson = JSON.stringify(payload);
+
+        if (lastSavedPublicCalendarsRef.current[unidad.id] !== payloadJson) {
+          savePublicCalendar(uid, unidad.id, payload)
+            .then(() => {
+              lastSavedPublicCalendarsRef.current[unidad.id] = payloadJson;
+            })
+            .catch((err) => console.warn('Error saving public calendar for unit:', unidad.id, err));
+        }
+      });
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [isApp, currentUser, tenantLoading, demoState.reservations, demoState.properties]);
 
   // Onboarding Checklist Handlers in App Mode
   const handleUpdateChecklist = async (update: { calendarios?: boolean; guia?: boolean; diaADia?: boolean }) => {

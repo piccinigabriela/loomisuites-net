@@ -30,6 +30,9 @@ export interface Property {
   };
   wifiNetwork: string;
   wifiPassword: string;
+  icalAirbnbUrl?: string;
+  icalBookingUrl?: string;
+  icalOtherUrl?: string;
 }
 
 export type AddonCategory = 'frigobar' | 'transfers' | 'spa' | 'desayuno' | 'experiencias' | 'servicios';
