@@ -21,6 +21,7 @@ import { WelcomeGuideData, Property } from '../../types';
 import { GuestWelcomePortal } from './GuestWelcomePortal';
 import { AdminGuideEditor } from './AdminGuideEditor';
 import { DirectBookingLanding, LandingTemplate } from '../booking/DirectBookingLanding';
+import { isAppMode } from '../../lib/appMode';
 
 interface WelcomeGuideHubProps {
   guideData: WelcomeGuideData;
@@ -31,6 +32,7 @@ interface WelcomeGuideHubProps {
   onSelectSubTab?: (subTab: 'landing-booking' | 'guest-view' | 'admin-view') => void;
   onSelectTemplate?: (template: LandingTemplate) => void;
   onBackToPanel?: () => void;
+  uid?: string;
 }
 
 export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
@@ -42,6 +44,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
   onSelectSubTab,
   onSelectTemplate,
   onBackToPanel,
+  uid,
 }) => {
   const [internalSubTab, setInternalSubTab] = useState<'landing-booking' | 'guest-view' | 'admin-view'>('guest-view');
   const [internalTemplate, setInternalTemplate] = useState<LandingTemplate>('dos-aguas');
@@ -73,7 +76,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.net';
 
   const directLinks = {
-    guide: `${baseUrl}/guia/${slug}`,
+    guide: isAppMode() && uid ? `${baseUrl}/guia/${uid}` : `${baseUrl}/guia/${slug}`,
     booking: `${baseUrl}/reservas/${slug}`,
     app: `${baseUrl}/app/${slug}`,
     housekeeping: `${baseUrl}/limpieza/${slug}`,

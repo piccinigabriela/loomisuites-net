@@ -61,6 +61,7 @@ import { DemoPlanFunctionalBar } from './components/demo/DemoPlanFunctionalBar';
 import { ReceptionView } from './components/roles/ReceptionView';
 import { HousekeepingMobileView } from './components/roles/HousekeepingMobileView';
 import { GuestWelcomePortal } from './components/guide/GuestWelcomePortal';
+import { PublicGuideView } from './components/guide/PublicGuideView';
 import { INITIAL_WELCOME_GUIDE, getEmptyAppState } from './data/initialData';
 import { isAppMode } from './lib/appMode';
 import { auth, onAuthStateChanged, signOut, User } from './lib/firebase';
@@ -79,10 +80,16 @@ import {
   saveCashMovementDoc,
   deleteCashMovementDoc,
   saveTenantData,
+  savePublicGuide,
 } from './lib/tenantStore';
 
 export default function App() {
   const isApp = isAppMode();
+
+  // Mode app public guide view: if path starts with /guia
+  if (isApp && typeof window !== 'undefined' && window.location.pathname.toLowerCase().startsWith('/guia')) {
+    return <PublicGuideView />;
+  }
 
   // Firebase Auth State in App Mode
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -146,6 +153,9 @@ export default function App() {
           setDemoState(getEmptyAppState());
           setIsOnboardingModalOpen(true);
         } else {
+          if (data.tenant?.guideTemplate) {
+            setGuideTemplate(data.tenant.guideTemplate);
+          }
           setDemoState({
             properties: data.properties,
             reservations: data.reservations,
@@ -162,8 +172,6 @@ export default function App() {
     });
     return () => unsubscribe();
   }, [isApp, currentUser]);
-
-  // App view: 'landing' (clean landing site), 'demo' (active PMS panel), 'guide' (public guest portal), or 'superadmin'
   const [currentView, setCurrentView] = useState<'landing' | 'demo' | 'superadmin' | 'guide'>(() => {
     if (isAppMode()) return 'demo';
     try {
@@ -473,6 +481,40 @@ export default function App() {
   // Persistent Demo State:
   // En modo App: NUNCA se cargan datos de ejemplo (initialData) ni se lee/escribe la clave de localStorage de la demo
   const [demoState, setDemoState] = useState<DemoState>(() => (isApp ? getEmptyAppState() : getDemoState()));
+
+  // Requirement L.3: Debounced savePublicGuide (3 seconds)
+  const isInitialPublicGuideSaveRef = React.useRef(true);
+
+  useEffect(() => {
+    if (!isApp || !currentUser || tenantLoading) return;
+
+    const uid = currentUser.uid;
+    const complexName = demoState.welcomeGuide?.propertyName || '';
+    const welcomeGuide = demoState.welcomeGuide;
+    const properties = demoState.properties;
+
+    if (isInitialPublicGuideSaveRef.current) {
+      isInitialPublicGuideSaveRef.current = false;
+      savePublicGuide(uid, {
+        complexName,
+        welcomeGuide,
+        guideTemplate,
+        properties,
+      }).catch((err) => console.warn('Error initial savePublicGuide:', err));
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      savePublicGuide(uid, {
+        complexName,
+        welcomeGuide,
+        guideTemplate,
+        properties,
+      }).catch((err) => console.warn('Error debounced savePublicGuide:', err));
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [isApp, currentUser, tenantLoading, demoState.welcomeGuide, guideTemplate, demoState.properties]);
 
   // Active logged-in user profile
   const [loggedUser, setLoggedUser] = useState<{ name: string; email: string; complexId: string; complexName: string } | null>(() => {
@@ -1675,7 +1717,7 @@ export default function App() {
               )}
 
               {demoTab === 'messages' && (
-                <DemoMessages demoState={demoState} />
+                <DemoMessages demoState={demoState} uid={currentUser?.uid} />
               )}
 
               {demoTab === 'finances' && userRole === 'admin' && (
@@ -1698,8 +1740,14 @@ export default function App() {
                   initialSubTab={guideSubTab}
                   initialTemplate={guideTemplate}
                   onSelectSubTab={setGuideSubTab}
-                  onSelectTemplate={setGuideTemplate}
+                  onSelectTemplate={(tmpl) => {
+                    setGuideTemplate(tmpl);
+                    if (isApp && currentUser) {
+                      saveTenantData(currentUser.uid, { guideTemplate: tmpl });
+                    }
+                  }}
                   onBackToPanel={() => setDemoTab('overview')}
+                  uid={currentUser?.uid}
                   onUpdateGuideData={async (updated) => {
                     if (isApp && currentUser) {
                       await saveTenantData(currentUser.uid, { welcomeGuide: updated });

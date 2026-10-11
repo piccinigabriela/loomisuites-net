@@ -17,15 +17,17 @@ import { formatDisplayDate, INITIAL_TEMPLATES, getGuestInitials } from '../../da
 import { copyToClipboard } from '../../utils/clipboard';
 import { WebTemplatesManager } from '../WebTemplatesManager';
 import { GuestWelcomeCard } from '../GuestWelcomeCard';
+import { isAppMode } from '../../lib/appMode';
 
 interface DemoMessagesProps {
   demoState: DemoState;
+  uid?: string;
 }
 
 type FilterScope = 'upcoming' | 'today' | 'next7' | 'all';
 type MessagesSubTab = 'simulator' | 'templates' | 'card';
 
-export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
+export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid }) => {
   const [subTab, setSubTab] = useState<MessagesSubTab>('simulator');
   const [phoneViewMode, setPhoneViewMode] = useState<'chat' | 'card'>('chat');
   // Ensure we always have full list of master templates
@@ -136,7 +138,9 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
 
     const guestFirstName = selectedReservation.guestName.split(' ')[0];
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.com';
-    const personalizedGuideUrl = `${baseUrl}/guia/${selectedProperty.id}?huesped=${encodeURIComponent(guestFirstName)}&unidad=${encodeURIComponent(selectedProperty.name)}&pin=${encodeURIComponent(selectedReservation.pinCode || '')}`;
+    const personalizedGuideUrl = isAppMode() && uid
+      ? `${baseUrl}/guia/${uid}/${selectedProperty.id}?huesped=${encodeURIComponent(guestFirstName)}&unidad=${encodeURIComponent(selectedProperty.name)}&pin=${encodeURIComponent(selectedReservation.pinCode || '')}`
+      : `${baseUrl}/guia/${selectedProperty.id}?huesped=${encodeURIComponent(guestFirstName)}&unidad=${encodeURIComponent(selectedProperty.name)}&pin=${encodeURIComponent(selectedReservation.pinCode || '')}`;
 
     let content = selectedTemplate.content;
     const complexName = demoState.welcomeGuide?.propertyName || 'Mi Complejo';
@@ -367,7 +371,11 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
             wifiNetwork={selectedProperty?.wifiNetwork || '(a confirmar)'}
             wifiPassword={selectedProperty?.wifiPassword || '(a confirmar)'}
             address={selectedProperty?.address ? `${selectedProperty.address}` : '(a confirmar)'}
-            guideUrl={`${typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.com'}/guia/${selectedProperty?.id || 'cab-lapacho'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
+            guideUrl={
+              isAppMode() && uid
+                ? `${typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.com'}/guia/${uid}/${selectedProperty?.id || 'cab-lapacho'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`
+                : `${typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.com'}/guia/${selectedProperty?.id || 'cab-lapacho'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`
+            }
             hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5493757550100'}
           />
         </div>
@@ -659,7 +667,11 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState }) => {
                     wifiNetwork={selectedProperty?.wifiNetwork || '(a confirmar)'}
                     wifiPassword={selectedProperty?.wifiPassword || '(a confirmar)'}
                     address={selectedProperty?.address ? `${selectedProperty.address}` : '(a confirmar)'}
-                    guideUrl={`${typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.com'}/guia/${selectedProperty?.id || 'cab-lapacho'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`}
+                    guideUrl={
+                      isAppMode() && uid
+                        ? `${typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.com'}/guia/${uid}/${selectedProperty?.id || 'cab-lapacho'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`
+                        : `${typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.com'}/guia/${selectedProperty?.id || 'cab-lapacho'}?huesped=${encodeURIComponent(selectedReservation?.guestName || 'Huesped')}`
+                    }
                     hostPhone={selectedReservation?.guestPhone?.replace(/[^0-9]/g, '') || '5493757550100'}
                   />
                 </div>

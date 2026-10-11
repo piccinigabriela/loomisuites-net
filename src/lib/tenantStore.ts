@@ -15,6 +15,7 @@ export interface TenantDoc {
   address?: string;
   city?: string;
   welcomeGuide?: WelcomeGuideData;
+  guideTemplate?: string;
   templates?: MessageTemplate[];
   availableAddons?: AddonService[];
   createdAt?: any;
@@ -304,4 +305,36 @@ export async function deleteCashMovementDoc(uid: string, movementId: string): Pr
   if (!uid || !db) return;
   const moveRef = doc(db, 'tenants', uid, 'cashMovements', movementId);
   await deleteDoc(moveRef);
+}
+
+export async function savePublicGuide(
+  uid: string,
+  data: {
+    complexName?: string;
+    welcomeGuide?: WelcomeGuideData;
+    guideTemplate?: string;
+    properties?: Property[];
+  }
+): Promise<void> {
+  if (!uid || !db) return;
+  const publicRef = doc(db, 'publicGuides', uid);
+  const units = (data.properties || []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    address: p.address || '',
+    wifiNetwork: p.wifiNetwork || '',
+    wifiPassword: p.wifiPassword || '',
+  }));
+
+  await setDoc(
+    publicRef,
+    {
+      complexName: data.complexName || '',
+      guide: data.welcomeGuide || null,
+      template: data.guideTemplate || 'dos-aguas',
+      units,
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
 }
