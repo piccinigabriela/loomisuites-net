@@ -138,7 +138,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
 
               {/* Subtitle */}
               <p className="text-sm sm:text-base text-slate-800 dark:text-zinc-300 font-normal">
-                Web propia + Bienvenida en misma estética
+                Web propia + Bienvenida al huésped
               </p>
 
               {/* Sutil Category Badges */}

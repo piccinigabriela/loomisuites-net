@@ -1878,8 +1878,8 @@ export default function App() {
         </div>
     )}
 
-      {/* Persistent Floating Xenia AI Assistant (activo en el panel de Demo y App en escritorio) */}
-      {currentView === 'demo' && userRole !== 'frontdesk' && !(mobileMode === 'light' || isEmployeeMode || demoTab === 'direct-booking') && (
+      {/* Persistent Floating Xenia AI Assistant (activo en el panel de Demo y App en escritorio; oculto cuando se está en la vista Asistente Xenia) */}
+      {currentView === 'demo' && demoTab !== 'xenia' && userRole !== 'frontdesk' && !(mobileMode === 'light' || isEmployeeMode || demoTab === 'direct-booking') && (
         <XeniaFloatingWidget
           demoState={demoState}
           onOpenFullView={() => {

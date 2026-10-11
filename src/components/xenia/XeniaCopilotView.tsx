@@ -373,7 +373,9 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
 
           <div className="flex items-center gap-3 text-xs">
             <div className="bg-white dark:bg-[#18181B] px-3.5 py-2 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
-              <span className="text-[#71717A] dark:text-[#8E8E93] block text-[9px] font-black uppercase tracking-wider">Facturación Muestra</span>
+              <span className="text-[#71717A] dark:text-[#8E8E93] block text-[9px] font-black uppercase tracking-wider">
+                {isApp ? 'Facturación total' : 'Facturación Muestra'}
+              </span>
               <span className="font-black text-[#18181B] dark:text-white text-sm">USD ${totalGross.toLocaleString()}</span>
             </div>
             <div className="bg-white dark:bg-[#18181B] px-3.5 py-2 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
@@ -667,7 +669,7 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
                         key={pIdx}
                         onClick={() => handleSendMessage(prompt)}
                         disabled={isLoading}
-                        className="w-full text-left text-[11px] px-2.5 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] hover:border-[#E1500A] hover:text-[#E1500A] text-[#18181B] dark:text-[#EFECE5] transition-all cursor-pointer font-medium leading-snug truncate shadow-2xs"
+                        className="w-full text-left text-[11px] px-2.5 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] hover:border-[#E1500A] hover:text-[#E1500A] text-[#18181B] dark:text-[#EFECE5] transition-all cursor-pointer font-medium leading-snug line-clamp-2 shadow-2xs"
                         title={prompt}
                       >
                         {prompt}
@@ -715,7 +717,7 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
                           key={pIdx}
                           onClick={() => handleSendMessage(prompt)}
                           disabled={isLoading}
-                          className="w-full text-left text-[11px] px-2.5 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] hover:border-[#E1500A] hover:text-[#E1500A] text-[#18181B] dark:text-[#EFECE5] transition-all cursor-pointer font-medium leading-snug truncate shadow-2xs"
+                          className="w-full text-left text-[11px] px-2.5 py-1.5 rounded-none border border-[#C8C4B7] dark:border-[#222328] bg-white dark:bg-[#18181B] hover:border-[#E1500A] hover:text-[#E1500A] text-[#18181B] dark:text-[#EFECE5] transition-all cursor-pointer font-medium leading-snug line-clamp-2 shadow-2xs"
                           title={prompt}
                         >
                           {prompt}

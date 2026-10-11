@@ -52,9 +52,12 @@ export function getClientXeniaReply(message: string, demoState?: DemoState | any
   if (
     q.includes('cargo mis unidades') ||
     q.includes('cargar mis unidades') ||
+    q.includes('cargar unidades') ||
+    q.includes('cargo una unidad') ||
+    q.includes('agregar una unidad') ||
+    q.includes('agregar cabaña') ||
+    q.includes('cargar cabañas') ||
     q.includes('editar mis unidades') ||
-    q.includes('como cargo') ||
-    q.includes('cómo cargo') ||
     q.includes('configurar unidades')
   ) {
     return 'Para cargar o editar tus unidades andá a Administración → Configurar Unidades. Ahí ponés nombre, capacidad, wifi y fotos de cada una.';

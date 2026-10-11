@@ -189,7 +189,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
       rating: 5.0,
       reviewsCount: 12,
       status: 'active',
-      syncStatus: { airbnb: true, booking: true, vrbo: false },
+      syncStatus: { airbnb: false, booking: false, vrbo: false },
       smartLock: {
         enabled: u.hasSmartLock,
         brand: u.hasSmartLock ? u.smartLockBrand : 'Llave física tradicional (Sin cerradura digital)',
