@@ -752,6 +752,18 @@ Loomi conecta tus calendarios mediante sincronización bidireccional (iCal ofici
 ✅ **¡Listo!** Cuando entra una reserva en Airbnb, las fechas se bloquean automáticamente en Booking y en Loomi en tiempo real.`;
   }
 
+  // 7.5 CARGAR RESERVA NUEVA / TELEFÓNICA
+  if (
+    q.includes('reserva telefónica') ||
+    q.includes('reserva telefonica') ||
+    q.includes('cargo una reserva') ||
+    q.includes('cargar una reserva') ||
+    q.includes('nueva reserva') ||
+    q.includes('agendar una reserva')
+  ) {
+    return 'Para cargar una reserva tocá Nueva Reserva en el menú (o tocá un día libre en el calendario). Elegí la unidad y las fechas, completá el nombre y el teléfono del huésped, y si dejó seña marcala como pagada. La reserva aparece al instante en el calendario y se genera sola la limpieza del día de salida.';
+  }
+
   // 8. OCUPACIÓN, QUIÉN LLEGA HOY, PRÓXIMO CHECK-IN, SALIDAS
   if (
     q.includes('proximo') ||
@@ -778,8 +790,12 @@ Loomi conecta tus calendarios mediante sincronización bidireccional (iCal ofici
     q.includes('reserva') ||
     q.includes('reservas')
   ) {
+    const totalProps = properties.length;
+    if (totalProps === 0) {
+      return 'Todavía no cargaste unidades. Empezá por Administración → Configurar Unidades y después te muestro la ocupación.';
+    }
+
     const todayStr = new Date().toISOString().split('T')[0];
-    const totalProps = properties.length || 6;
     const activeRes = reservations.filter((r: any) => r.status !== 'cancelled');
 
     const occupiedCount = Math.min(

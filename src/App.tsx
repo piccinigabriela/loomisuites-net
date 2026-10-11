@@ -152,7 +152,7 @@ export default function App() {
       showToast('Te reenviamos el mail de confirmación. Revisá también Spam.');
     } catch (err: any) {
       console.warn('Error al reenviar email de verificación:', err);
-      showToast('Te reenviamos el mail de confirmación. Revisá también Spam.');
+      showToast('No pudimos reenviarlo ahora. Esperá unos minutos y probá de nuevo.');
     }
   };
 
