@@ -1271,7 +1271,9 @@ export default function App() {
           <Navbar
             theme={theme}
             onToggleTheme={toggleTheme}
-            onOpenLogin={() => setIsAuthModalOpen(true)}
+            onOpenLogin={() => {
+              window.location.href = 'https://app.loomisuite.net';
+            }}
             onOpenDemo={() => handleOpenDemo()}
             onOpenContact={() => {
               setSelectedPlanForLead(undefined);
@@ -1286,7 +1288,9 @@ export default function App() {
               setSelectedPlanForLead(planOrTopic || 'Consulta General');
               setIsLeadModalOpen(true);
             }}
-            onOpenLogin={() => setIsAuthModalOpen(true)}
+            onOpenLogin={() => {
+              window.location.href = 'https://app.loomisuite.net';
+            }}
           />
 
           <Footer
