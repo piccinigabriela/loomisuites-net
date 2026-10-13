@@ -106,6 +106,10 @@ export function getAuthErrorMessage(code: string): string {
       return 'Demasiados intentos fallidos. Por seguridad, esperá unos minutos antes de volver a intentar.';
     case 'auth/user-disabled':
       return 'Esta cuenta fue desactivada por un administrador.';
+    case 'auth/operation-not-allowed':
+      return 'El ingreso con Google todavía no está habilitado. Mientras tanto, ingresá con tu correo y contraseña.';
+    case 'auth/account-exists-with-different-credential':
+      return 'Ya tenés una cuenta con este correo. Ingresá con tu correo y contraseña.';
     case 'auth/unauthorized-domain':
       return 'Este dominio no está autorizado para autenticación en Firebase. Agregalo en la consola de Firebase Authentication (Authentication > Configuración > Dominios autorizados).';
     default:

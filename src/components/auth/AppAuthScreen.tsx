@@ -22,7 +22,7 @@ import {
   signInWithGooglePopup,
   getAuthErrorMessage,
 } from '../../lib/firebase';
-import { sendEmailVerification } from 'firebase/auth';
+import { sendEmailVerification, getAdditionalUserInfo } from 'firebase/auth';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface AppAuthScreenProps {
@@ -31,7 +31,49 @@ interface AppAuthScreenProps {
 
 type AuthMode = 'login' | 'register' | 'forgot_password';
 
-const SHOW_GOOGLE_LOGIN = false;
+const SHOW_GOOGLE_LOGIN = true;
+
+/**
+ * Avisos de un registro nuevo (mismo flujo para correo y Google):
+ * aviso a Loomi por Web3Forms, mail de bienvenida por EmailJS y documento en "leads".
+ */
+function notifyNewSignup(registeredEmail: string, userUid: string, method: 'email' | 'google') {
+  const nowEsAr = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+  const viaText = method === 'google' ? ' (con Google)' : '';
+
+  fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      access_key: '4451c78e-3861-41c1-8c94-f977bbd0c979',
+      subject: 'Nuevo registro en Loomi Suite',
+      from_name: 'Loomi Suite',
+      email: registeredEmail,
+      message: 'Se registró ' + registeredEmail + viaText + ' el ' + nowEsAr + '. Prueba de 7 días iniciada.',
+    }),
+  }).catch((err) => console.warn('Error al enviar aviso de registro a Web3Forms:', err));
+
+  fetch('https://api.emailjs.com/api/v1.0/email/send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      service_id: 'service_z8apzek',
+      template_id: 'template_ecutysm',
+      user_id: 'htm2fLHklqyTWMn0U',
+      template_params: { email: registeredEmail },
+    }),
+  }).catch((err) => console.warn('Error al enviar mail de bienvenida con EmailJS:', err));
+
+  if (db) {
+    addDoc(collection(db, 'leads'), {
+      type: 'signup',
+      method,
+      email: registeredEmail,
+      uid: userUid,
+      createdAt: serverTimestamp(),
+    }).catch((err) => console.warn('Error al guardar documento de lead en Firestore:', err));
+  }
+}
 
 export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
   const [mode, setMode] = useState<AuthMode>('login');
@@ -110,56 +152,8 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
         }
       }
 
-      // Fondo: aviso por mail y registro de lead en Firestore
-      const nowEsAr = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
-
-      // 1) Enviar aviso por mail con fetch POST a Web3Forms
-      fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          access_key: '4451c78e-3861-41c1-8c94-f977bbd0c979',
-          subject: 'Nuevo registro en Loomi Suite',
-          from_name: 'Loomi Suite',
-          email: registeredEmail,
-          message: 'Se registró ' + registeredEmail + ' el ' + nowEsAr + '. Prueba de 7 días iniciada.',
-        }),
-      }).catch((err) => {
-        console.warn('Error al enviar aviso de registro a Web3Forms:', err);
-      });
-
-      // 2) Enviar mail de bienvenida al cliente con EmailJS
-      fetch('https://api.emailjs.com/api/v1.0/email/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          service_id: 'service_z8apzek',
-          template_id: 'template_ecutysm',
-          user_id: 'htm2fLHklqyTWMn0U',
-          template_params: {
-            email: registeredEmail,
-          },
-        }),
-      }).catch((err) => {
-        console.warn('Error al enviar mail de bienvenida con EmailJS:', err);
-      });
-
-      // 2) Guardar documento en la colección "leads"
-      if (db) {
-        addDoc(collection(db, 'leads'), {
-          type: 'signup',
-          email: registeredEmail,
-          uid: userUid,
-          createdAt: serverTimestamp(),
-        }).catch((err) => {
-          console.warn('Error al guardar documento de lead en Firestore:', err);
-        });
-      }
+      // Fondo: aviso a Loomi, mail de bienvenida y registro del lead
+      notifyNewSignup(registeredEmail, userUid, 'email');
 
       if (onSuccess) onSuccess();
     } catch (err: any) {
@@ -199,7 +193,12 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
     setErrorMessage(null);
 
     try {
-      await signInWithGooglePopup();
+      const result = await signInWithGooglePopup();
+      // Si es la primera vez que entra con Google, es un registro nuevo: mismos avisos que con correo
+      const info = getAdditionalUserInfo(result);
+      if (info?.isNewUser && result.user?.email) {
+        notifyNewSignup(result.user.email, result.user.uid, 'google');
+      }
       if (onSuccess) onSuccess();
     } catch (err: any) {
       if (err?.code !== 'auth/popup-closed-by-user') {
