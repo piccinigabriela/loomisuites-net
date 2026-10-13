@@ -107,6 +107,8 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
     availableVoices,
     selectedVoiceURI,
     selectVoice,
+    voiceIssue,
+    clearVoiceIssue,
   } = useXeniaVoice((finalText) => {
     handleSendMessage(finalText);
   });
@@ -533,13 +535,13 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
                 </span>
               </div>
               <p className="text-[11px] text-[#71717A] dark:text-[#8E8E93] leading-relaxed">
-                Priorizamos automáticamente las voces de mujer en <strong>Español Latinoamericano (Argentina, México, etc.)</strong>.
+                Priorizamos automáticamente las voces <strong>argentinas</strong> (en Microsoft Edge: Elena o Tomás). Si tu navegador no tiene, usamos otra voz latinoamericana.
               </p>
               <div className="pt-1">
                 <button
                   onClick={() =>
                     speakMessage(
-                      '¡Hola! Soy Xenia, tu copiloto en Loomi Suite. Estoy lista para responder consultas sobre tus alojamientos, reservas y números del mes con acento latino.'
+                      '¡Hola! Soy Xenia, tu copiloto en Loomi Suite. Estoy lista para responder consultas sobre tus alojamientos, reservas y números del mes con acento rioplatense.'
                     )
                   }
                   className="flex items-center gap-1.5 bg-[#EAE8E3] dark:bg-[#0C0D0F] hover:border-[#E1500A] border border-[#C8C4B7] dark:border-[#222328] text-[#18181B] dark:text-white text-xs font-black uppercase tracking-wider px-3 py-1.5 rounded-none transition-colors cursor-pointer"
@@ -942,6 +944,19 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
 
           {/* Input Box */}
           <div className="p-3 sm:p-4 border-t border-[#C8C4B7] dark:border-[#222328] bg-[#EAE8E3] dark:bg-[#0C0D0F] space-y-2">
+            {voiceIssue && (
+              <div className="flex items-start justify-between gap-3 p-2.5 border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 text-[11px] font-semibold leading-relaxed">
+                <span>🔇 {voiceIssue}</span>
+                <button
+                  type="button"
+                  onClick={clearVoiceIssue}
+                  className="shrink-0 opacity-70 hover:opacity-100 cursor-pointer"
+                  title="Cerrar aviso"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
             <form
               onSubmit={(e) => {
                 e.preventDefault();

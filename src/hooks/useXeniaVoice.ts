@@ -20,6 +20,21 @@ declare global {
   }
 }
 
+const isBraveBrowser = (): boolean =>
+  typeof navigator !== 'undefined' && Boolean((navigator as any).brave);
+
+/** Mensaje claro cuando el navegador no deja hablar o escuchar a Xenia (pasa sobre todo en Brave). */
+const voiceHelpMessage = (kind: 'speak' | 'listen'): string => {
+  if (isBraveBrowser()) {
+    return kind === 'speak'
+      ? 'Brave bloquea las voces del sistema, por eso Xenia no habla acá. Para escucharla usá Microsoft Edge (tiene voces argentinas) o Chrome. Podés seguir escribiéndole normalmente.'
+      : 'Brave no permite el dictado por voz. Para hablarle a Xenia usá Microsoft Edge o Chrome. Podés seguir escribiéndole normalmente.';
+  }
+  return kind === 'speak'
+    ? 'Este navegador no tiene voces disponibles, por eso Xenia no puede hablar. Probá con Microsoft Edge (tiene voces argentinas) o Chrome.'
+    : 'Este navegador no permite el dictado por voz o no tiene permiso para usar el micrófono. Probá con Microsoft Edge o Chrome.';
+};
+
 export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => void) {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -31,6 +46,8 @@ export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => voi
   const [detectedVoiceName, setDetectedVoiceName] = useState<string>('');
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoiceURI, setSelectedVoiceURI] = useState<string>(() => getStoredSelectedVoiceURI());
+  const [voiceIssue, setVoiceIssue] = useState<string | null>(null);
+  const clearVoiceIssue = useCallback(() => setVoiceIssue(null), []);
 
   const recognitionRef = useRef<any>(null);
   const onTranscriptRef = useRef(onTranscriptReceived);
@@ -104,6 +121,9 @@ export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => voi
         recognition.onerror = (event: any) => {
           console.warn('Error en reconocimiento de voz:', event.error);
           setIsListening(false);
+          if (['network', 'not-allowed', 'service-not-allowed', 'audio-capture'].includes(event?.error)) {
+            setVoiceIssue(voiceHelpMessage('listen'));
+          }
         };
 
         recognition.onend = () => {
@@ -182,6 +202,15 @@ export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => voi
         return;
       }
 
+      // Sin voces instaladas/permitidas (Brave, algunos Linux): avisar en lugar de quedar en silencio
+      const voicesNow = typeof window !== 'undefined' && 'speechSynthesis' in window ? window.speechSynthesis.getVoices() : [];
+      if (typeof window === 'undefined' || !('speechSynthesis' in window) || voicesNow.length === 0) {
+        setVoiceIssue(voiceHelpMessage('speak'));
+        setIsSpeaking(false);
+        setSpeakingMessageId(null);
+        return;
+      }
+
       setIsSpeaking(true);
       setSpeakingMessageId(messageId || null);
 
@@ -194,9 +223,14 @@ export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => voi
           setIsSpeaking(false);
           setSpeakingMessageId(null);
         },
-        onError: () => {
+        onError: (err: any) => {
           setIsSpeaking(false);
           setSpeakingMessageId(null);
+          // 'interrupted'/'canceled' ocurren al cortar la voz a propósito: no son fallas
+          const code = err?.error;
+          if (code && code !== 'interrupted' && code !== 'canceled') {
+            setVoiceIssue(voiceHelpMessage('speak'));
+          }
         },
       });
     },
@@ -240,5 +274,7 @@ export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => voi
     selectedVoiceURI,
     selectVoice,
     hasLoadedVoices,
+    voiceIssue,
+    clearVoiceIssue,
   };
 }
