@@ -25,6 +25,7 @@ import {
   getRelativeDate,
   toLocalDateStr,
   setActiveCurrency,
+  formatCurrency,
 } from './data/initialData';
 
 // Landing Page Components
@@ -846,6 +847,10 @@ export default function App() {
   const [initialPropertyForRes, setInitialPropertyForRes] = useState<string | undefined>();
   const [initialDateForRes, setInitialDateForRes] = useState<string | undefined>();
   const [selectedReservationForDetail, setSelectedReservationForDetail] = useState<Reservation | null>(null);
+  // La ficha abierta siempre muestra la versión más reciente de la reserva (evita pisar cambios con datos viejos)
+  const liveSelectedReservation = selectedReservationForDetail
+    ? demoState.reservations.find((r) => r.id === selectedReservationForDetail.id) || selectedReservationForDetail
+    : null;
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState<boolean>(() => {
     try {
@@ -1278,7 +1283,7 @@ export default function App() {
         }));
       }
     }
-    showToast(`Tarifa de la reserva actualizada a $${newTotal} USD.`);
+    showToast(`Tarifa de la reserva actualizada a ${formatCurrency(newTotal)}.`);
   };
 
   // Delete reservation
@@ -1365,7 +1370,7 @@ export default function App() {
         }));
       }
     }
-    showToast(`Tarifa por noche actualizada a $${newPrice} USD`);
+    showToast(`Tarifa por noche actualizada a ${formatCurrency(newPrice)}`);
   };
 
   const handleSaveProperty = async (property: Property) => {
@@ -2192,9 +2197,9 @@ export default function App() {
       />
 
       <ReservationDetailModal
-        reservation={selectedReservationForDetail}
+        reservation={liveSelectedReservation}
         property={demoState.properties.find(
-          (p) => p.id === selectedReservationForDetail?.propertyId
+          (p) => p.id === liveSelectedReservation?.propertyId
         )}
         properties={demoState.properties}
         allReservations={demoState.reservations}
