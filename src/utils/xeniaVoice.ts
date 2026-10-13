@@ -398,7 +398,19 @@ export function getBestLatinFemaleVoice(): SpeechSynthesisVoice | null {
   // Filter out any Spain voices (es-ES)
   const latinVoices = voices.filter(isLatinSpanishVoice);
 
-  // 1. Priority 1: Latin American Spanish Female Voice (es-419, es-MX, es-US, es-AR, es-CO, es-CL)
+  // 0. Prioridad rioplatense: voces de Argentina y después Uruguay (ej. "Microsoft Elena/Tomás - Spanish (Argentina)" en Edge)
+  const langOf = (v: SpeechSynthesisVoice) => (v.lang || '').toLowerCase().replace('_', '-');
+  const isRioplatense = (v: SpeechSynthesisVoice) =>
+    langOf(v).startsWith('es-ar') || /argentin/i.test(v.name || '');
+  const isUruguay = (v: SpeechSynthesisVoice) => langOf(v).startsWith('es-uy') || /urugua/i.test(v.name || '');
+  const argentineVoices = voices.filter(isRioplatense);
+  const argentineFemale = argentineVoices.find(isFemaleVoice);
+  if (argentineFemale) return argentineFemale;
+  if (argentineVoices.length > 0) return argentineVoices[0];
+  const uruguayVoice = voices.find(isUruguay);
+  if (uruguayVoice) return uruguayVoice;
+
+  // 1. Priority 1: Latin American Spanish Female Voice (es-419, es-MX, es-US, es-CO, es-CL)
   const latinFemale = latinVoices.find(isFemaleVoice);
   if (latinFemale) return latinFemale;
 
