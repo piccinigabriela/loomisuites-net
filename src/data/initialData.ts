@@ -605,6 +605,68 @@ export const INITIAL_TEMPLATES: MessageTemplate[] = [
   },
 ];
 
+/**
+ * Plantillas para clientes reales (modo app): sin referencias a la demo de Iguazú.
+ * Usan {{nombre_complejo}} y sirven para departamentos, cabañas u hostales en cualquier ciudad.
+ */
+export const APP_TEMPLATES: MessageTemplate[] = [
+  {
+    id: 'tpl-1',
+    title: 'Confirmación & Bienvenida Anticipada',
+    triggerEvent: 'Al confirmarse la reserva',
+    channel: 'whatsapp',
+    content: '¡Hola, {{nombre_huésped}}! 😊 Te confirmamos tu reserva en {{unidad_alojamiento}} de {{nombre_complejo}}, desde el {{fecha_checkin}} hasta el {{fecha_checkout}}.\nPara que tu llegada sea simple, te compartimos la guía digital de tu estadía: ahí tenés cómo llegar, la clave del Wi-Fi, los horarios y recomendaciones de la zona.\n🔗 {{link_guia_digital}}\n¡Te esperamos! Cualquier duda, escribinos por acá.',
+    variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{nombre_complejo}}', '{{fecha_checkin}}', '{{fecha_checkout}}', '{{link_guia_digital}}'],
+  },
+  {
+    id: 'tpl-2',
+    title: 'Coordinación del Día de Llegada',
+    triggerEvent: 'La mañana del Check-In',
+    channel: 'whatsapp',
+    content: '¡Buen día, {{nombre_huésped}}! Hoy llegás a {{nombre_complejo}} 🙌\nEn tu guía digital tenés la dirección, cómo llegar y todo lo necesario para ingresar a {{unidad_alojamiento}}:\n🔗 {{link_guia_digital}}\nAvisanos cuando estés por llegar así te esperamos con todo listo. ¡Buen viaje!',
+    variables: ['{{nombre_huésped}}', '{{nombre_complejo}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}'],
+  },
+  {
+    id: 'tpl-3',
+    title: 'Control de Confort y Blindaje Anti-Quejas',
+    triggerEvent: '2 Horas Post Check-In',
+    channel: 'whatsapp',
+    content: '¡Hola, {{nombre_huésped}}! Esperamos que ya te hayas acomodado en {{unidad_alojamiento}}. ✨\nTe escribimos para confirmar que hayas encontrado todo en orden: ¿funciona bien el Wi-Fi y la temperatura está agradable?\nSi necesitás toallas extra, alguna recomendación o cualquier otra cosa, escribinos por acá. ¡Que disfrutes tu estadía!',
+    variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}'],
+  },
+  {
+    id: 'tpl-4',
+    title: 'Recordatorio de Check-out Amable',
+    triggerEvent: 'Noche anterior al Check-out (20:00 hs)',
+    channel: 'whatsapp',
+    content: 'Hola, {{nombre_huésped}}, esperamos que estés disfrutando de {{unidad_alojamiento}}. ✨\nTe recordamos que el check-out es mañana {{hora_checkout}}, así podemos preparar el lugar para los próximos huéspedes.\nAntes de salir, te pedimos apagar luces y aire acondicionado y avisarnos por acá. ¡Buen viaje de regreso!',
+    variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{hora_checkout}}'],
+  },
+  {
+    id: 'tpl-5',
+    title: 'Solicitud de Reseña y Descuento Directo',
+    triggerEvent: '2 horas después del Check-out',
+    channel: 'whatsapp',
+    content: '¡Muchas gracias por elegir {{nombre_complejo}}, {{nombre_huésped}}! 🌟\nSi disfrutaste tu estadía en {{unidad_alojamiento}}, nos ayudarías un montón dejándonos una reseña.\nY para tu próxima visita, podés reservar directo con nosotros con tarifa preferencial: 🔗 {{link_guia_digital}}\n¡Hasta la próxima!',
+    variables: ['{{nombre_complejo}}', '{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}'],
+  },
+];
+
+/** Nombres que pone el sistema cuando la reserva no trae el nombre real del huésped (ej. iCal de Airbnb). */
+export function isGenericGuestName(name: string | undefined | null): boolean {
+  const n = (name || '').trim().toLowerCase();
+  if (!n) return true;
+  return (
+    n.startsWith('reserva ') ||
+    n === 'reserva' ||
+    n.startsWith('bloqueado') ||
+    n === 'huésped invitado' ||
+    n === 'huesped invitado' ||
+    n === 'not available' ||
+    n === 'reserved'
+  );
+}
+
 const LOCAL_STORAGE_KEY = 'loomisuite_demo_state_v6';
 
 export const INITIAL_WELCOME_GUIDE: WelcomeGuideData = {

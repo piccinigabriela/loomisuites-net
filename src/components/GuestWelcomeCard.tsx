@@ -71,7 +71,13 @@ export const GuestWelcomeCard: React.FC<GuestWelcomeCardProps> = ({
             </div>
 
             <h2 className="text-xl sm:text-2xl font-light tracking-tight text-stone-900 pt-1">
-              Bienvenida, <span className="font-normal text-stone-950">{guestName}</span>
+              {guestName ? (
+                <>
+                  Bienvenida, <span className="font-normal text-stone-950">{guestName}</span>
+                </>
+              ) : (
+                'Te damos la bienvenida'
+              )}
             </h2>
             <p className="text-xs text-stone-500 font-light leading-relaxed">
               Tu estadía en <span className="text-stone-800 font-normal">{propertyName}</span> está lista para que ingreses de manera autónoma y descanses desde el primer minuto.

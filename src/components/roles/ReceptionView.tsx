@@ -27,7 +27,8 @@ import {
   Send,
 } from 'lucide-react';
 import { DemoState, Reservation, ReservationStatus, PaymentStatus, CashMovement } from '../../types';
-import { formatDisplayDate, getRelativeDate, formatCurrency, getGuestInitials } from '../../data/initialData';
+import { formatDisplayDate, getRelativeDate, formatCurrency, getGuestInitials, isGenericGuestName } from '../../data/initialData';
+import { auth } from '../../lib/firebase';
 import { isAppMode } from '../../lib/appMode';
 import { GuestWelcomeCard } from '../GuestWelcomeCard';
 
@@ -677,16 +678,20 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
             {/* Embedded Live GuestWelcomeCard Component */}
             <div className="py-2">
               <GuestWelcomeCard
-                guestName={selectedResForCard.guestName}
+                guestName={isAppMode() && isGenericGuestName(selectedResForCard.guestName) ? '' : selectedResForCard.guestName}
                 propertyName={getProp(selectedResForCard.propertyId)?.name || 'Tu Alojamiento'}
                 checkInDate={formatDisplayDate(selectedResForCard.checkIn)}
                 checkOutDate={formatDisplayDate(selectedResForCard.checkOut)}
                 checkInTime="14:00 hs"
-                accessCode={selectedResForCard.pinCode || '1024'}
+                accessCode={selectedResForCard.pinCode || (isAppMode() ? '(a confirmar)' : '1024')}
                 wifiNetwork={getProp(selectedResForCard.propertyId)?.wifiNetwork || '(a confirmar)'}
                 wifiPassword={getProp(selectedResForCard.propertyId)?.wifiPassword || '(a confirmar)'}
                 address={getProp(selectedResForCard.propertyId)?.address || '(a confirmar)'}
-                guideUrl={`https://loomisuite.net/guia/${selectedResForCard.propertyId}`}
+                guideUrl={
+                  isAppMode() && auth?.currentUser?.uid
+                    ? `${window.location.origin}/guia/${auth.currentUser.uid}/${selectedResForCard.propertyId}`
+                    : `https://loomisuite.net/guia/${selectedResForCard.propertyId}`
+                }
                 hostPhone={demoState.welcomeGuide?.hostPhone || ''}
               />
             </div>

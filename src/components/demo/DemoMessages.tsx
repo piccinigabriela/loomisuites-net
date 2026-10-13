@@ -13,7 +13,7 @@ import {
   Info,
 } from 'lucide-react';
 import { DemoState, Reservation, MessageTemplate } from '../../types';
-import { formatDisplayDate, INITIAL_TEMPLATES, getGuestInitials, toLocalDateStr, getRelativeDate } from '../../data/initialData';
+import { formatDisplayDate, INITIAL_TEMPLATES, APP_TEMPLATES, isGenericGuestName, getGuestInitials, toLocalDateStr, getRelativeDate } from '../../data/initialData';
 import { copyToClipboard } from '../../utils/clipboard';
 import { WebTemplatesManager } from '../WebTemplatesManager';
 import { GuestWelcomeCard } from '../GuestWelcomeCard';
@@ -32,6 +32,10 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid }) =>
   const [phoneViewMode, setPhoneViewMode] = useState<'chat' | 'card'>('chat');
   // Ensure we always have full list of master templates
   const templatesList = useMemo(() => {
+    // En la app real nunca usar las plantillas de la demo (mencionan Iguazú, la selva, etc.)
+    if (isAppMode()) {
+      return APP_TEMPLATES;
+    }
     if (!demoState.templates || demoState.templates.length < INITIAL_TEMPLATES.length || !demoState.templates.some((t) => t.title?.includes('Blindaje Anti-Quejas'))) {
       return INITIAL_TEMPLATES;
     }
@@ -132,7 +136,10 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid }) =>
 
   const buildGuideUrl = () => {
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://loomisuite.com';
-    const guestNameParam = selectedReservation?.guestName ? encodeURIComponent(selectedReservation.guestName) : '';
+    const guestNameParam =
+      selectedReservation?.guestName && !isGenericGuestName(selectedReservation.guestName)
+        ? encodeURIComponent(selectedReservation.guestName)
+        : '';
     const unitNameParam = selectedProperty?.name ? encodeURIComponent(selectedProperty.name) : '';
     const pinParam = selectedReservation?.pinCode ? encodeURIComponent(selectedReservation.pinCode) : '';
 
@@ -150,7 +157,9 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid }) =>
   const getInterpolatedMessage = () => {
     if (!selectedTemplate || !selectedReservation || !selectedProperty) return '';
 
-    const guestFirstName = selectedReservation.guestName.split(' ')[0];
+    const hasRealGuestName = !isGenericGuestName(selectedReservation.guestName);
+    const guestFirstName = hasRealGuestName ? selectedReservation.guestName.trim().split(' ')[0] : '';
+    const checkoutHour = demoState.welcomeGuide?.checkoutHour?.trim();
     const personalizedGuideUrl = buildGuideUrl();
 
     let content = selectedTemplate.content;
@@ -159,6 +168,16 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid }) =>
     // Complex name
     content = content.replace(/\{\{nombre_complejo\}\}/gi, complexName);
     content = content.replace(/\{nombre_complejo\}/gi, complexName);
+
+    // Sin nombre real (ej. reservas importadas de Airbnb): "¡Hola, {{nombre_huésped}}!" queda "¡Hola!"
+    if (!guestFirstName) {
+      content = content.replace(/[,\s]*\{\{nombre_hu[eé]sped\}\}/gi, '');
+      content = content.replace(/[,\s]*\{nombre_hu[eé]sped\}/gi, '');
+    }
+    content = content.replace(
+      /\{\{hora_checkout\}\}/gi,
+      checkoutHour ? `a las ${checkoutHour.replace(/\s*hs\.?$/i, '')} hs` : 'en el horario acordado'
+    );
 
     // Double curly braces {{...}}
     content = content.replace(/\{\{nombre_huésped\}\}/gi, guestFirstName);
@@ -199,9 +218,10 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid }) =>
 
   // WhatsApp Web / App direct launch URL
   const getWhatsAppLaunchUrl = () => {
-    if (!selectedReservation?.guestPhone) return '#';
-    const cleanPhone = selectedReservation.guestPhone.replace(/[^0-9]/g, '');
     const msg = encodeURIComponent(getInterpolatedMessage());
+    const cleanPhone = (selectedReservation?.guestPhone || '').replace(/[^0-9]/g, '');
+    // Sin teléfono cargado: WhatsApp abre el mensaje listo y te deja elegir el contacto
+    if (cleanPhone.length < 8) return `https://wa.me/?text=${msg}`;
     return `https://wa.me/${cleanPhone}?text=${msg}`;
   };
 
@@ -373,7 +393,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid }) =>
 
           {/* Render del componente GuestWelcomeCard */}
           <GuestWelcomeCard
-            guestName={selectedReservation?.guestName || 'Huésped'}
+            guestName={selectedReservation && !isGenericGuestName(selectedReservation.guestName) ? selectedReservation.guestName : isAppMode() ? '' : 'Huésped'}
             propertyName={selectedProperty?.name || 'Cabaña Lapacho'}
             checkInDate={selectedReservation ? formatDisplayDate(selectedReservation.checkIn) : '10 de Octubre'}
             checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '13 de Octubre'}
@@ -665,7 +685,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid }) =>
               {phoneViewMode === 'card' ? (
                 <div className="flex-1 p-2 overflow-y-auto bg-[#FAF8F5]">
                   <GuestWelcomeCard
-                    guestName={selectedReservation?.guestName || 'Huésped'}
+                    guestName={selectedReservation && !isGenericGuestName(selectedReservation.guestName) ? selectedReservation.guestName : isAppMode() ? '' : 'Huésped'}
                     propertyName={selectedProperty?.name || 'Cabaña Lapacho'}
                     checkInDate={selectedReservation ? formatDisplayDate(selectedReservation.checkIn) : '10 de Octubre'}
                     checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '13 de Octubre'}
