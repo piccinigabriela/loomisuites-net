@@ -1,5 +1,7 @@
 import { DemoState } from '../../types';
 import { toLocalDateStr, formatCurrency } from '../../data/initialData';
+import { isAppMode } from '../../lib/appMode';
+import { auth } from '../../lib/firebase';
 
 function formatFriendlyDates(checkIn: string, checkOut: string): string {
   if (!checkIn || !checkOut) return `${checkIn || ''} al ${checkOut || ''}`;
@@ -39,6 +41,11 @@ function formatFriendlyDates(checkIn: string, checkOut: string): string {
   return `${checkIn} al ${checkOut}`;
 }
 
+function platformLabel(platform: string): string {
+  const map: Record<string, string> = { direct: 'Directa', airbnb: 'Airbnb', booking: 'Booking', vrbo: 'VRBO' };
+  return map[platform] || platform;
+}
+
 export function getClientXeniaReply(message: string, demoState?: DemoState | any): string {
   const q = (message || '').toLowerCase().trim();
   const safeState = demoState || {};
@@ -46,6 +53,13 @@ export function getClientXeniaReply(message: string, demoState?: DemoState | any
   const reservations = safeState.reservations || [];
   const cleaningTasks = safeState.cleaningTasks || [];
   const p0 = properties[0];
+  // En la app real Xenia es el copiloto del anfitrión: nunca responde como si hablara con un huésped
+  const isApp = isAppMode();
+  // Preguntas operativas del anfitrión sobre reservas ("¿cuándo es el próximo check-in?", "¿quién llega hoy?")
+  const isHostOpsQuery =
+    /pr[oó]xim|siguiente|qui[eé]n (llega|sale|entra|se va|ingresa)|cu[aá]ndo (llega|es el|entra|ingresa|sale)|llegadas|salidas|ocupaci|ocupad|cu[aá]nt[oa]s (reservas|huéspedes|huespedes)|reservas (de|para) (hoy|mañana|esta semana)|check.?ins? de hoy|check.?outs? de hoy/.test(
+      q
+    );
 
   // =========================================================================
   // RESPUESTAS RÁPIDAS DE PRIMEROS PASOS EN MODO APP
@@ -125,6 +139,11 @@ export function getClientXeniaReply(message: string, demoState?: DemoState | any
     q.includes('mancha') ||
     q.includes('olor')
   ) {
+    if (isApp) {
+      return `Si un huésped te reporta un problema en la unidad, lo mejor es responderle rápido por WhatsApp y coordinar quién se acerca. Podés abrir su reserva desde el calendario y tocar **Enviar Plantilla por WhatsApp** para escribirle.
+
+Si lo que no funciona es algo de Loomi Suite (calendarios, pagos, la guía), contame qué pasa o escribinos por WhatsApp al +54 9 11 4092-5939 y lo revisamos.`;
+    }
     return `Lamento sinceramente este inconveniente durante tu estadía.
 
 Ya mismo le di aviso prioritario a nuestro anfitrión y equipo del complejo para que se acerque y se comunique con vos de forma inmediata para resolverlo juntos.
@@ -136,7 +155,8 @@ Quedamos a tu completa disposición para asistirte en lo que precises.`;
   // DIRECTIVAS OMOTENASHI: 2. AUTONOMÍA (CHECK-IN/OUT, WI-FI, CERRADURA, MAPA)
   // =========================================================================
   if (
-    q.includes('horario') ||
+    !isHostOpsQuery &&
+    (q.includes('horario') ||
     q.includes('a que hora') ||
     q.includes('a qué hora') ||
     q.includes('check in') ||
@@ -158,8 +178,32 @@ Quedamos a tu completa disposición para asistirte en lo que precises.`;
     q.includes('ubicacion') ||
     q.includes('ubicación') ||
     q.includes('direccion') ||
-    q.includes('dirección')
+    q.includes('dirección'))
   ) {
+    if (isApp) {
+      const guide = safeState.welcomeGuide || {};
+      const uid = auth?.currentUser?.uid;
+      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://app.loomisuite.net';
+      const unitsInfo = properties
+        .slice(0, 6)
+        .map(
+          (p: any) =>
+            `• **${p.name}:** Wi-Fi ${p.wifiNetwork ? `**${p.wifiNetwork}**` : '_sin cargar_'}${
+              p.wifiPassword ? ` (clave **${p.wifiPassword}**)` : ''
+            } · Dirección: ${p.address || '_sin cargar_'}`
+        )
+        .join('\n');
+      return `Estos son los datos que ven tus huéspedes en su guía:
+
+• **Check-out:** ${guide.checkoutHour ? `hasta las ${String(guide.checkoutHour).replace(/\s*hs\.?$/i, '')} hs` : '_sin cargar_ (se carga en Tu Web & Guía)'}
+${unitsInfo || '• Todavía no cargaste unidades.'}
+
+Para cambiarlos: Wi-Fi y dirección en **Administración → Configurar Unidades**; horarios y normas en **Tu Web & Guía → Ajustes & Edición de Datos**.${
+        uid ? `\n\nLink de tu guía: ${origin}/guia/${uid}` : ''
+      }
+
+Si querías saber cuándo llega tu próximo huésped, preguntame *"¿cuándo es el próximo check-in?"*.`;
+    }
     const wifiNet = p0?.wifiNetwork || '(a confirmar)';
     const wifiPass = p0?.wifiPassword || '(a confirmar)';
     const rawPin = demoState?.reservations?.[0]?.pinCode;
@@ -197,6 +241,19 @@ Podés consultar el mapa interactivo y todos los detalles en tu **Portal del Hu�
     q.includes('spa') ||
     q.includes('masaje')
   ) {
+    if (isApp) {
+      const addons: any[] = safeState.availableAddons || safeState.addons || [];
+      if (addons.length === 0) {
+        return 'Todavía no cargaste servicios opcionales (cochera, late check-out, traslados, desayuno…). Los agregás en **Opcionales & Extras**, con el precio que vos definas.';
+      }
+      return `Tus servicios opcionales cargados:
+
+${addons
+  .map((a: any) => `• **${a.name}:** ${a.price > 0 ? formatCurrency(a.price) : '_sin precio_'}`)
+  .join('\n')}
+
+Los editás en **Opcionales & Extras**. Para sumar uno a una reserva, abrila desde el calendario y agregalo en la ficha.`;
+    }
     return `¡Por supuesto! Contamos con los siguientes servicios adicionales en el complejo:
 
 • **Estacionamiento privado techado:** Incluido sin cargo en cada cabaña.
@@ -525,8 +582,8 @@ En Loomi lo hacés en segundos, sin complicaciones técnicas ni términos difíc
         .reduce((sum: number, r: any) => sum + (r.totalAmount || 0) * 0.18, 0);
 
       const snippet = monthReservations.slice(0, 6).map((r: any) => {
-        const pName = properties.find((p: any) => p.id === r.propertyId)?.name || 'Cabaña';
-        return `• **${r.guestName}** en *${pName}* (${r.platform.toUpperCase()}): ${formatFriendlyDates(r.checkIn, r.checkOut)} — **${formatCurrency(r.totalAmount)}** (Neto: ${formatCurrency(r.netRevenue)})`;
+        const pName = properties.find((p: any) => p.id === r.propertyId)?.name || (isApp ? 'Unidad' : 'Cabaña');
+        return `• **${r.guestName}** en *${pName}* (${platformLabel(r.platform)}): ${formatFriendlyDates(r.checkIn, r.checkOut)} — **${formatCurrency(r.totalAmount)}** (Neto: ${formatCurrency(r.netRevenue)})`;
       }).join('\n');
 
       return `### 📊 Ganancias y Facturación de ${targetMonth.name} (Loomi Suite)
@@ -826,44 +883,42 @@ Loomi conecta tus calendarios mediante sincronización bidireccional (iCal ofici
     ) {
       if (checkInsToday.length > 0) {
         const first = checkInsToday[0];
-        const pName = properties.find((p: any) => p.id === first.propertyId)?.name || 'Cabaña';
+        const pName = properties.find((p: any) => p.id === first.propertyId)?.name || (isApp ? 'Unidad' : 'Cabaña');
         return `### 🛏️ Próximo Check-In: ¡Ingresa Hoy!
 
-Hoy ingresa **${first.guestName}** en *${pName}* (${first.platform.toUpperCase()}):
+Hoy ingresa **${first.guestName}** en *${pName}* (${platformLabel(first.platform)}):
 - 📅 **Fechas:** ${formatFriendlyDates(first.checkIn, first.checkOut)} (${first.nights} noches).
 - 💰 **Total:** ${formatCurrency(first.totalAmount)} (Estado de cobro: ${first.paymentStatus === 'paid' ? '100% Abonado' : 'Saldo pendiente'}).
 - 📞 **Contacto:** ${first.guestPhone || 'Sin teléfono'}.
 
 ${upcomingCheckIns.length > 1 ? `📋 **Siguientes ingresos programados:**\n` + upcomingCheckIns.slice(1, 4).map((r: any) => {
-  const p = properties.find((prop: any) => prop.id === r.propertyId)?.name || 'Cabaña';
+  const p = properties.find((prop: any) => prop.id === r.propertyId)?.name || (isApp ? 'Unidad' : 'Cabaña');
   return `• **${r.guestName}** en *${p}*: ${formatFriendlyDates(r.checkIn, r.checkOut)} (${formatCurrency(r.totalAmount)})`;
 }).join('\n') : ''}`;
       }
 
       if (nextCheckIn) {
-        const pName = properties.find((p: any) => p.id === nextCheckIn.propertyId)?.name || 'Cabaña';
+        const pName = properties.find((p: any) => p.id === nextCheckIn.propertyId)?.name || (isApp ? 'Unidad' : 'Cabaña');
+        const following = upcomingCheckIns.slice(1, 4);
         return `### 🛏️ Próximo Check-In Programado
-
-El próximo ingreso es **${nextCheckIn.guestName}** en *${pName}* (${nextCheckIn.platform.toUpperCase()}):
+${q.includes('hoy') ? '\nHoy no hay ingresos.\n' : ''}
+El próximo ingreso es **${nextCheckIn.guestName}** en *${pName}* (${platformLabel(nextCheckIn.platform)}):
 - 📅 **Fechas de estadía:** ${formatFriendlyDates(nextCheckIn.checkIn, nextCheckIn.checkOut)} (${nextCheckIn.nights} noches).
 - 💰 **Importe:** ${formatCurrency(nextCheckIn.totalAmount)} (Neto: ${formatCurrency(nextCheckIn.netRevenue)}).
 - 📞 **Contacto:** ${nextCheckIn.guestPhone || 'Sin teléfono'}.
 
-📋 **Siguientes ingresos confirmados:**
-${upcomingCheckIns.slice(1, 4).map((r: any) => {
-  const p = properties.find((prop: any) => prop.id === r.propertyId)?.name || 'Cabaña';
+${following.length > 0 ? `📋 **Siguientes ingresos confirmados:**\n${following.map((r: any) => {
+  const p = properties.find((prop: any) => prop.id === r.propertyId)?.name || (isApp ? 'Unidad' : 'Cabaña');
   return `• **${r.guestName}** en *${p}*: ${formatFriendlyDates(r.checkIn, r.checkOut)} (${formatCurrency(r.totalAmount)})`;
-}).join('\n')}
-
-💡 *Podés ver y modificar reservas directamente en el **Rack Calendario**.*`;
+}).join('\n')}\n\n` : ''}💡 *Podés ver y modificar reservas directamente en el **Rack Calendario**.*`;
       }
     }
 
     const listSnippet = upcomingCheckIns
       .slice(0, 4)
       .map((r: any) => {
-        const pName = properties.find((p: any) => p.id === r.propertyId)?.name || 'Cabaña';
-        return `• **${r.guestName}** en *${pName}* (${r.platform.toUpperCase()}): ${formatFriendlyDates(r.checkIn, r.checkOut)} (${formatCurrency(r.totalAmount)})`;
+        const pName = properties.find((p: any) => p.id === r.propertyId)?.name || (isApp ? 'Unidad' : 'Cabaña');
+        return `• **${r.guestName}** en *${pName}* (${platformLabel(r.platform)}): ${formatFriendlyDates(r.checkIn, r.checkOut)} (${formatCurrency(r.totalAmount)})`;
       })
       .join('\n');
 
