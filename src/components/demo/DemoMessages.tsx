@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   MessageSquare,
   Send,
@@ -22,12 +22,14 @@ import { isAppMode } from '../../lib/appMode';
 interface DemoMessagesProps {
   demoState: DemoState;
   uid?: string;
+  /** Reserva a preseleccionar cuando se llega desde la ficha de una reserva */
+  target?: { resId: string; nonce: number } | null;
 }
 
 type FilterScope = 'upcoming' | 'today' | 'next7' | 'all';
 type MessagesSubTab = 'simulator' | 'templates' | 'card';
 
-export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid }) => {
+export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, target }) => {
   const [subTab, setSubTab] = useState<MessagesSubTab>('simulator');
   const [phoneViewMode, setPhoneViewMode] = useState<'chat' | 'card'>('chat');
   // Ensure we always have full list of master templates
@@ -118,6 +120,17 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid }) =>
   const [selectedResId, setSelectedResId] = useState<string>(() => {
     return filteredReservations[0]?.id || demoState.reservations[0]?.id || '';
   });
+
+  // Al llegar desde la ficha de una reserva: mostrar todas y dejar esa seleccionada
+  useEffect(() => {
+    if (!target?.resId) return;
+    if (!demoState.reservations.some((r) => r.id === target.resId)) return;
+    setFilterScope('all');
+    setSearchTerm('');
+    setSubTab('simulator');
+    setSelectedResId(target.resId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target?.nonce]);
 
   // Ensure selectedResId is valid if filtered list changes
   const activeSelectedResId = filteredReservations.some((r) => r.id === selectedResId)

@@ -1451,7 +1451,10 @@ export default function App() {
   };
 
   // Handle open messages directly for guest
+  // Reserva elegida desde una ficha para abrir Avisos & WhatsApp con ese huésped ya seleccionado
+  const [messagesTarget, setMessagesTarget] = useState<{ resId: string; nonce: number } | null>(null);
   const handleOpenMessagesWithGuest = (resId: string) => {
+    setMessagesTarget({ resId, nonce: Date.now() });
     setDemoTab('messages');
   };
 
@@ -2065,7 +2068,7 @@ export default function App() {
               )}
 
               {demoTab === 'messages' && (
-                <DemoMessages demoState={demoState} uid={currentUser?.uid} />
+                <DemoMessages demoState={demoState} uid={currentUser?.uid} target={messagesTarget} />
               )}
 
               {demoTab === 'finances' && userRole === 'admin' && (

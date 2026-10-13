@@ -565,7 +565,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                   )}
                 </div>
                 <div className="text-base sm:text-lg font-black mt-1">
-                  ¡Hola {effectiveGuestName || 'Huésped'}! Te damos la bienvenida a tu estadía
+                  {effectiveGuestName ? `¡Hola ${effectiveGuestName}!` : '¡Hola!'} Te damos la bienvenida a tu estadía
                 </div>
                 {(effectiveCheckIn || effectivePinCode) && (
                   <div className={`flex flex-wrap items-center gap-3 mt-2 pt-2 border-t text-xs ${
@@ -733,6 +733,9 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
             <span>Paseos & Restaurantes</span>
           </button>
 
+          {/* En la app real, Tienda y Manuales quedan ocultos: su contenido es de ejemplo (Iguazú, precios en USD) y todavía no se puede editar */}
+          {!isAppMode() && (
+          <>
           <button
             onClick={() => setActiveTab('tienda')}
             className={`px-3 py-2 rounded-xl whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 text-xs ${
@@ -757,6 +760,8 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
             <HelpCircle className="w-3.5 h-3.5" />
             <span>Manuales de Uso</span>
           </button>
+          </>
+          )}
         </div>
 
         {/* Tab Content Area */}
@@ -1003,7 +1008,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
           )}
 
           {/* TAB 4: TIENDA & EXTRAS DURANTE LA ESTADÍA */}
-          {activeTab === 'tienda' && (
+          {activeTab === 'tienda' && !isAppMode() && (
             <div className="space-y-4 animate-in fade-in duration-200">
               <div className="flex items-center justify-between">
                 <div>
@@ -1086,7 +1091,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
           )}
 
           {/* TAB 5: MANUALES DE USO */}
-          {activeTab === 'manuales' && (
+          {activeTab === 'manuales' && !isAppMode() && (
             <div className="space-y-4 animate-in fade-in duration-200">
               <div>
                 <h3 className="font-bold text-sm flex items-center gap-2">
