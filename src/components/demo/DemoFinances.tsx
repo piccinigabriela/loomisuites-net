@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { DemoState, Reservation, CurrencyCode } from '../../types';
 import { formatCurrency, formatDisplayDate, toLocalDateStr } from '../../data/initialData';
+import { isAppMode } from '../../lib/appMode';
 
 interface DemoFinancesProps {
   demoState: DemoState;
@@ -31,7 +32,68 @@ interface DemoFinancesProps {
   }) => void;
 }
 
-const MONTHLY_DATA = [
+type MonthPoint = { month: string; occupancy: number; revenue: number; nights: number; directPct?: number; isCurrent?: boolean };
+
+const MONTH_SHORT = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+const MONTH_LONG = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+const parseLocalDate = (s: string): Date | null => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || '');
+  if (!m) return null;
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+};
+
+/**
+ * Últimos `count` meses (incluido el actual) calculados con las reservas reales.
+ * Cada estadía se reparte por noche: si cruza de un mes a otro, cada mes se lleva sus noches
+ * y la parte proporcional del total. Ocupación = noches vendidas / (unidades × días del mes).
+ */
+export function buildMonthlyFromReservations(
+  reservations: Reservation[],
+  unitsCount: number,
+  today: Date = new Date(),
+  count = 6
+): MonthPoint[] {
+  const months: { y: number; m: number }[] = [];
+  for (let i = count - 1; i >= 0; i--) {
+    const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    months.push({ y: d.getFullYear(), m: d.getMonth() });
+  }
+  const acc = months.map(() => ({ nights: 0, revenue: 0 }));
+  const indexOf = (y: number, m: number) => months.findIndex((x) => x.y === y && x.m === m);
+
+  for (const r of reservations) {
+    const start = parseLocalDate(r.checkIn);
+    const end = parseLocalDate(r.checkOut);
+    if (!start || !end || end <= start) continue;
+    const totalNights = Math.round((end.getTime() - start.getTime()) / 86400000);
+    if (totalNights <= 0) continue;
+    const perNight = (r.totalAmount || 0) / totalNights;
+    const cursor = new Date(start);
+    for (let n = 0; n < totalNights; n++) {
+      const idx = indexOf(cursor.getFullYear(), cursor.getMonth());
+      if (idx >= 0) {
+        acc[idx].nights += 1;
+        acc[idx].revenue += perNight;
+      }
+      cursor.setDate(cursor.getDate() + 1);
+    }
+  }
+
+  return months.map((mo, i) => {
+    const daysInMonth = new Date(mo.y, mo.m + 1, 0).getDate();
+    const capacity = Math.max(1, unitsCount) * daysInMonth;
+    return {
+      month: MONTH_SHORT[mo.m],
+      revenue: Math.round(acc[i].revenue),
+      nights: acc[i].nights,
+      occupancy: Math.min(100, Math.round((acc[i].nights / capacity) * 100)),
+      isCurrent: i === months.length - 1,
+    };
+  });
+}
+
+const MONTHLY_DATA: MonthPoint[] = [
   { month: 'May', occupancy: 72, revenue: 3840, directPct: 35, nights: 58 },
   { month: 'Jun', occupancy: 68, revenue: 3420, directPct: 40, nights: 51 },
   { month: 'Jul', occupancy: 88, revenue: 5120, directPct: 48, nights: 74 },
@@ -173,6 +235,38 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
       ? null
       : demoState.properties.find((p) => p.id === selectedPropertyId);
 
+  // Datos del gráfico: en la app, calculados con las reservas reales; en la demo, la serie de ejemplo.
+  const isApp = isAppMode();
+  const today = new Date();
+  const unitsCount = selectedPropertyId === 'all' ? demoState.properties.length : 1;
+  const chartData: MonthPoint[] = isApp
+    ? buildMonthlyFromReservations(displayedReservations, unitsCount, today)
+    : MONTHLY_DATA;
+  const firstMonthDate = new Date(today.getFullYear(), today.getMonth() - 5, 1);
+  const chartRangeLabel = isApp
+    ? `${MONTH_LONG[firstMonthDate.getMonth()]}${firstMonthDate.getFullYear() !== today.getFullYear() ? ` ${firstMonthDate.getFullYear()}` : ''} - ${MONTH_LONG[today.getMonth()]} ${today.getFullYear()}`
+    : 'Mayo - Octubre 2026';
+  const hasChartData = chartData.some((d) => d.nights > 0);
+
+  // Comparación real del mes actual contra el anterior (solo en la app)
+  const currentMonthRevenue = chartData[chartData.length - 1]?.revenue || 0;
+  const previousMonthRevenue = chartData[chartData.length - 2]?.revenue || 0;
+  const monthDeltaPct =
+    previousMonthRevenue > 0 ? Math.round(((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100) : null;
+
+  // Cobrado real según los pagos registrados (las reservas viejas marcadas "pagado" sin pagos cuentan completas)
+  const collectedFor = (r: Reservation) => {
+    if (r.payments && r.payments.length > 0) {
+      return r.payments.reduce((sum, p) => sum + (p.amountSettlement || 0), 0);
+    }
+    return r.paymentStatus === 'paid' ? r.totalAmount || 0 : 0;
+  };
+  const totalCollected = displayedReservations.reduce((sum, r) => sum + collectedFor(r), 0);
+  const totalPending = displayedReservations.reduce(
+    (sum, r) => sum + Math.max(0, (r.totalAmount || 0) - collectedFor(r)),
+    0
+  );
+
   // SVG Chart Math
   const chartW = 600;
   const chartH = 150;
@@ -181,21 +275,22 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
   const innerW = chartW - padX * 2;
   const innerH = chartH - padY * 2;
 
-  const maxRev = 6500;
-  const minRev = 2500;
+  const maxChartRevenue = Math.max(...chartData.map((d) => d.revenue), 0);
+  const maxRev = isApp ? Math.max(1, Math.ceil(maxChartRevenue * 1.15)) : 6500;
+  const minRev = isApp ? 0 : 2500;
   const maxOcc = 100;
-  const minOcc = 50;
+  const minOcc = isApp ? 0 : 50;
 
   // Coordinates calculation
-  const revPoints = MONTHLY_DATA.map((d, i) => {
-    const x = padX + (i / (MONTHLY_DATA.length - 1)) * innerW;
+  const revPoints = chartData.map((d, i) => {
+    const x = padX + (i / (chartData.length - 1)) * innerW;
     const norm = (d.revenue - minRev) / (maxRev - minRev);
     const y = padY + innerH - norm * innerH;
     return { x, y, val: d.revenue, label: d.month };
   });
 
-  const occPoints = MONTHLY_DATA.map((d, i) => {
-    const x = padX + (i / (MONTHLY_DATA.length - 1)) * innerW;
+  const occPoints = chartData.map((d, i) => {
+    const x = padX + (i / (chartData.length - 1)) * innerW;
     const norm = (d.occupancy - minOcc) / (maxOcc - minOcc);
     const y = padY + innerH - norm * innerH;
     return { x, y, val: d.occupancy, label: d.month };
@@ -368,9 +463,25 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
             {formatCurrency(grossRevenue)}
           </div>
           <div className="mt-2 flex items-center gap-2 text-[11px] text-gray-600 dark:text-gray-400 font-medium">
-            <span className="text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded text-[10px] font-bold">
-              +14% vs mes ant.
-            </span>
+            {!isApp ? (
+              <span className="text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded text-[10px] font-bold">
+                +14% vs mes ant.
+              </span>
+            ) : (
+              monthDeltaPct !== null && (
+                <span
+                  className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                    monthDeltaPct >= 0
+                      ? 'text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40'
+                      : 'text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40'
+                  }`}
+                  title="Facturación de este mes comparada con el mes anterior"
+                >
+                  {monthDeltaPct >= 0 ? '+' : ''}
+                  {monthDeltaPct}% vs mes ant.
+                </span>
+              )
+            )}
             <span>{displayedReservations.length} reservas</span>
           </div>
         </div>
@@ -409,16 +520,20 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
         {/* Ingreso Neto */}
         <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 border border-gray-100 dark:border-zinc-800 shadow-[0_4px_16px_rgba(0,0,0,0.005)] transition-all">
           <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">
-            <span>Ingreso Neto Cobrado</span>
+            <span>{isApp ? 'Cobrado' : 'Ingreso Neto Cobrado'}</span>
             <span className="text-[10px] text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded font-bold">
-              Disponible
+              {isApp ? 'Pagos registrados' : 'Disponible'}
             </span>
           </div>
           <div className="text-2xl font-bold text-emerald-800 dark:text-emerald-400 tracking-tight mt-1">
-            {formatCurrency(netRevenue)}
+            {formatCurrency(isApp ? totalCollected : netRevenue)}
           </div>
           <p className="mt-2 text-[11px] text-gray-600 dark:text-gray-400 font-medium">
-            Limpio acreditado en cuentas
+            {isApp
+              ? totalPending > 0
+                ? `Falta cobrar ${formatCurrency(totalPending)} · Neto de comisiones ${formatCurrency(netRevenue)}`
+                : `Sin saldos pendientes · Neto de comisiones ${formatCurrency(netRevenue)}`
+              : 'Limpio acreditado en cuentas'}
           </p>
         </div>
       </div>
@@ -432,7 +547,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
                 Tendencia Semestral
               </span>
               <span className="text-gray-300 dark:text-zinc-600">·</span>
-              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Mayo - Octubre 2026</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{chartRangeLabel}</span>
             </div>
             <h3 className="text-base font-bold text-gray-800 dark:text-gray-100 tracking-tight mt-0.5">
               Curvas de Ocupación & Facturación Flotantes
@@ -487,7 +602,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
               {(metricView === 'both' || metricView === 'revenue') && (
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-[2px] bg-emerald-600 inline-block"></span>
-                  <span className="text-gray-700 dark:text-gray-300">Facturación ($ {currentCurrency})</span>
+                  <span className="text-gray-700 dark:text-gray-300">Facturación ({currentCurrency})</span>
                 </div>
               )}
               {(metricView === 'both' || metricView === 'occupancy') && (
@@ -501,20 +616,22 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
             {hoveredMonthIndex !== null ? (
               <div className="text-xs text-gray-700 dark:text-gray-300 font-medium bg-gray-50 dark:bg-zinc-800 px-3 py-1 rounded-xl border border-gray-200 dark:border-zinc-700 animate-in fade-in">
                 <span className="font-bold text-gray-900 dark:text-gray-100">
-                  {MONTHLY_DATA[hoveredMonthIndex].month}:
+                  {chartData[hoveredMonthIndex].month}:
                 </span>{' '}
                 <span className="text-emerald-700 dark:text-emerald-400 font-bold">
-                  {formatCurrency(MONTHLY_DATA[hoveredMonthIndex].revenue)}
+                  {formatCurrency(chartData[hoveredMonthIndex].revenue)}
                 </span>{' '}
                 ·{' '}
                 <span className="text-[#E67E22] font-bold">
-                  {MONTHLY_DATA[hoveredMonthIndex].occupancy}% Ocupación
+                  {chartData[hoveredMonthIndex].occupancy}% Ocupación
                 </span>{' '}
-                ({MONTHLY_DATA[hoveredMonthIndex].nights} noches)
+                ({chartData[hoveredMonthIndex].nights} noches)
               </div>
             ) : (
               <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium hidden sm:inline">
-                Pasá el mouse sobre los puntos para ver el detalle mensual
+                {isApp && !hasChartData
+                  ? 'Todavía no hay estadías en estos meses: el gráfico se completa solo con tus reservas.'
+                  : 'Pasá el mouse sobre los puntos para ver el detalle mensual'}
               </span>
             )}
           </div>
@@ -708,7 +825,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
                           </span>
                         ) : (
                           <span className="text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded text-[11px] font-semibold">
-                            $0
+                            {formatCurrency(0)}
                           </span>
                         )}
                       </td>
