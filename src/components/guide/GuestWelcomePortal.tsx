@@ -41,6 +41,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { WelcomeGuideData, AttractionItem, DiningItem } from '../../types';
+import { isAppMode } from '../../lib/appMode';
 
 export type PortalTheme =
   | 'clara'
@@ -521,11 +522,13 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
         <div className={`relative ${theme.headerBg} p-5 sm:p-6 overflow-hidden`}>
           {/* Background Ambient Image */}
           <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
-            <img
-              src={theme.heroPhoto}
-              alt={guideData.propertyName}
-              className="w-full h-full object-cover scale-105"
-            />
+            {!isAppMode() && (
+              <img
+                src={theme.heroPhoto}
+                alt={guideData.propertyName}
+                className="w-full h-full object-cover scale-105"
+              />
+            )}
             <div className={`absolute inset-0 bg-gradient-to-t ${
               isDosAguas
                 ? 'from-[#121413] via-[#121413]/80 to-black/60'

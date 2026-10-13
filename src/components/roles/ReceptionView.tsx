@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { DemoState, Reservation, ReservationStatus, PaymentStatus, CashMovement } from '../../types';
 import { formatDisplayDate, getRelativeDate, formatCurrency, getGuestInitials } from '../../data/initialData';
+import { isAppMode } from '../../lib/appMode';
 import { GuestWelcomeCard } from '../GuestWelcomeCard';
 
 interface ReceptionViewProps {
@@ -426,7 +427,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
 
                       <div className="flex items-center gap-3 text-[11px] text-stone-400 font-light flex-wrap">
                         <span>Del <strong>{formatDisplayDate(res.checkIn)}</strong> al <strong>{formatDisplayDate(res.checkOut)}</strong></span>
-                        <span>• Total: <strong>{formatCurrency(res.totalAmount, 'USD')}</strong></span>
+                        <span>• Total: <strong>{formatCurrency(res.totalAmount)}</strong></span>
                         <span className={res.paymentStatus === 'paid' ? 'text-emerald-600 font-medium' : 'text-amber-600 font-medium'}>
                           • {res.paymentStatus === 'paid' ? 'Pagado 100%' : 'Saldo pendiente'}
                         </span>
@@ -543,54 +544,80 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <button
                   onClick={() => {
+                    const cocheraAddon = demoState.availableAddons?.find((a) => a.name.toLowerCase().includes('cochera'));
+                    const price = cocheraAddon?.price && cocheraAddon.price > 0 ? cocheraAddon.price : (isAppMode() ? null : 15);
                     setCashConcept('Estacionamiento Cochera Privada');
-                    setCashAmount('15');
+                    setCashAmount(price !== null ? String(price) : '');
                     setCashCategory('servicios');
                     setIsCashModalOpen(true);
                   }}
                   className="p-2.5 rounded-xl border border-stone-200/80 dark:border-zinc-800 hover:border-orange-200 text-left bg-stone-50/50 dark:bg-zinc-800/40 transition-colors cursor-pointer"
                 >
                   <span className="font-semibold block text-stone-800 dark:text-stone-200">🚗 Cochera</span>
-                  <span className="text-[10px] text-stone-400">$15 USD / día</span>
+                  <span className="text-[10px] text-stone-400">
+                    {(() => {
+                      const cocheraAddon = demoState.availableAddons?.find((a) => a.name.toLowerCase().includes('cochera'));
+                      const price = cocheraAddon?.price && cocheraAddon.price > 0 ? cocheraAddon.price : (isAppMode() ? null : 15);
+                      return price !== null ? `${formatCurrency(price)} / día` : 'Monto manual';
+                    })()}
+                  </span>
                 </button>
 
                 <button
                   onClick={() => {
+                    const lateAddon = demoState.availableAddons?.find((a) => a.name.toLowerCase().includes('late') || a.name.toLowerCase().includes('salida'));
+                    const price = lateAddon?.price && lateAddon.price > 0 ? lateAddon.price : (isAppMode() ? null : 20);
                     setCashConcept('Late Check-out (Salida Extendida 16hs)');
-                    setCashAmount('20');
+                    setCashAmount(price !== null ? String(price) : '');
                     setCashCategory('servicios');
                     setIsCashModalOpen(true);
                   }}
                   className="p-2.5 rounded-xl border border-stone-200/80 dark:border-zinc-800 hover:border-orange-200 text-left bg-stone-50/50 dark:bg-zinc-800/40 transition-colors cursor-pointer"
                 >
                   <span className="font-semibold block text-stone-800 dark:text-stone-200">⏰ Late Check-out</span>
-                  <span className="text-[10px] text-stone-400">$20 USD</span>
+                  <span className="text-[10px] text-stone-400">
+                    {(() => {
+                      const lateAddon = demoState.availableAddons?.find((a) => a.name.toLowerCase().includes('late') || a.name.toLowerCase().includes('salida'));
+                      const price = lateAddon?.price && lateAddon.price > 0 ? lateAddon.price : (isAppMode() ? null : 20);
+                      return price !== null ? formatCurrency(price) : 'Monto manual';
+                    })()}
+                  </span>
                 </button>
 
                 <button
                   onClick={() => {
+                    const frigobarAddon = demoState.availableAddons?.find((a) => a.name.toLowerCase().includes('vino') || a.name.toLowerCase().includes('frigobar'));
+                    const price = frigobarAddon?.price && frigobarAddon.price > 0 ? frigobarAddon.price : (isAppMode() ? null : 18);
                     setCashConcept('Consumo Frigobar / Vino Reserva');
-                    setCashAmount('18');
+                    setCashAmount(price !== null ? String(price) : '');
                     setCashCategory('servicios');
                     setIsCashModalOpen(true);
                   }}
                   className="p-2.5 rounded-xl border border-stone-200/80 dark:border-zinc-800 hover:border-orange-200 text-left bg-stone-50/50 dark:bg-zinc-800/40 transition-colors cursor-pointer"
                 >
                   <span className="font-semibold block text-stone-800 dark:text-stone-200">🍷 Vino Frigobar</span>
-                  <span className="text-[10px] text-stone-400">$18 USD</span>
+                  <span className="text-[10px] text-stone-400">
+                    {(() => {
+                      const frigobarAddon = demoState.availableAddons?.find((a) => a.name.toLowerCase().includes('vino') || a.name.toLowerCase().includes('frigobar'));
+                      const price = frigobarAddon?.price && frigobarAddon.price > 0 ? frigobarAddon.price : (isAppMode() ? null : 18);
+                      return price !== null ? formatCurrency(price) : 'Monto manual';
+                    })()}
+                  </span>
                 </button>
 
                 <button
                   onClick={() => {
                     setCashConcept('Gasto de Limpieza / Insumos Menores');
-                    setCashAmount('10');
+                    setCashAmount(isAppMode() ? '' : '10');
                     setCashCategory('insumos');
                     setIsCashModalOpen(true);
                   }}
                   className="p-2.5 rounded-xl border border-stone-200/80 dark:border-zinc-800 hover:border-orange-200 text-left bg-stone-50/50 dark:bg-zinc-800/40 transition-colors cursor-pointer"
                 >
                   <span className="font-semibold block text-stone-800 dark:text-stone-200">🧾 Compra Insumos</span>
-                  <span className="text-[10px] text-stone-400">Gasto mostrador</span>
+                  <span className="text-[10px] text-stone-400">
+                    {isAppMode() ? 'Monto manual' : 'Gasto mostrador'}
+                  </span>
                 </button>
               </div>
             </div>

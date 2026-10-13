@@ -1,13 +1,14 @@
 import {
   doc,
   setDoc,
+  updateDoc,
   deleteDoc,
   collection,
   onSnapshot,
   serverTimestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { Property, Reservation, CleaningTask, MessageTemplate, AddonService, WelcomeGuideData, CashMovement } from '../types';
+import { Property, Reservation, CleaningTask, MessageTemplate, AddonService, WelcomeGuideData, CashMovement, CurrencyCode } from '../types';
 
 export interface TenantDoc {
   ownerEmail: string;
@@ -18,6 +19,11 @@ export interface TenantDoc {
   guideTemplate?: string;
   templates?: MessageTemplate[];
   availableAddons?: AddonService[];
+  currencySettings?: {
+    settlementCurrency: CurrencyCode;
+    rates: Partial<Record<CurrencyCode, number>>;
+    ratesUpdatedAt?: string;
+  };
   welcomeSeen?: boolean;
   onboardingChecklist?: {
     calendarios?: boolean;
@@ -155,7 +161,8 @@ export async function initializeTenantOnboarding(
   initialProperties: Property[],
   initialReservations: Reservation[] = [],
   initialCleaningTasks: CleaningTask[] = [],
-  initialAddons: AddonService[] = []
+  initialAddons: AddonService[] = [],
+  currencySettings?: { settlementCurrency: CurrencyCode; rates: Partial<Record<CurrencyCode, number>>; ratesUpdatedAt?: string }
 ): Promise<void> {
   if (!uid || !db) return;
   const tenantRef = doc(db, 'tenants', uid);
@@ -234,6 +241,7 @@ export async function initializeTenantOnboarding(
     welcomeGuide: initialGuide,
     templates: defaultTemplates,
     availableAddons: initialAddons,
+    currencySettings: currencySettings || { settlementCurrency: 'ARS', rates: {} },
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   }, { merge: true });
@@ -264,6 +272,22 @@ export async function saveTenantData(uid: string, data: Partial<TenantDoc>): Pro
     ...data,
     updatedAt: serverTimestamp(),
   }, { merge: true });
+}
+
+export async function saveCurrencySettingsDoc(
+  uid: string,
+  settings: {
+    settlementCurrency: CurrencyCode;
+    rates: Partial<Record<CurrencyCode, number>>;
+    ratesUpdatedAt?: string;
+  }
+): Promise<void> {
+  if (!uid || !db) return;
+  const tenantRef = doc(db, 'tenants', uid);
+  await updateDoc(tenantRef, {
+    currencySettings: settings,
+    updatedAt: serverTimestamp(),
+  });
 }
 
 export async function savePropertyDoc(uid: string, property: Property): Promise<void> {

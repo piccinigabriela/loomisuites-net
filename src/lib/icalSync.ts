@@ -90,20 +90,18 @@ export function parseIcal(text: string): Array<{ uid: string; summary: string; s
         let end = parseIcalDate(dtEndStr);
 
         if (start) {
-          if (!end) {
+          if (!end || end <= start) {
             const sDate = new Date(start + 'T00:00:00Z');
             sDate.setUTCDate(sDate.getUTCDate() + 1);
             end = sDate.toISOString().split('T')[0];
           }
 
-          if (end > start) {
-            events.push({
-              uid: uid || `no-uid-${start}-${end}`,
-              summary: summary || 'Reserva iCal',
-              start,
-              end,
-            });
-          }
+          events.push({
+            uid: uid || `no-uid-${start}-${end}`,
+            summary: summary,
+            start,
+            end,
+          });
         }
       }
     } else if (inEvent) {
@@ -141,10 +139,11 @@ export async function syncCalendars(
   let workingReservations = [...reservations];
 
   for (const property of properties) {
-    const portalConfigs: Array<{ portal: 'airbnb' | 'booking' | 'vrbo'; url?: string }> = [
+    const portalConfigs: Array<{ portal: 'airbnb' | 'booking' | 'vrbo' | 'google'; url?: string }> = [
       { portal: 'airbnb', url: property.icalAirbnbUrl },
       { portal: 'booking', url: property.icalBookingUrl },
       { portal: 'vrbo', url: property.icalOtherUrl },
+      { portal: 'google', url: property.icalGoogleUrl },
     ];
 
     for (const { portal, url } of portalConfigs) {
@@ -170,6 +169,14 @@ export async function syncCalendars(
       const fetchedResIds = new Set<string>();
 
       for (const event of activeEvents) {
+        const sumUpper = (event.summary || '').toUpperCase();
+        const isBlocked = sumUpper.includes('NOT AVAILABLE') || sumUpper.includes('BLOCKED');
+
+        // Para Airbnb: si la unidad NO tiene importAirbnbBlocks en true, ignorar fechas bloqueadas de Airbnb
+        if (portal === 'airbnb' && isBlocked && !property.importAirbnbBlocks) {
+          continue;
+        }
+
         const resId = `ical-${portal}-${property.id}-${shortHash(event.uid)}`;
         fetchedResIds.add(resId);
 
@@ -186,10 +193,17 @@ export async function syncCalendars(
           );
 
           if (!manualDuplicate) {
-            const sumUpper = (event.summary || '').toUpperCase();
-            const isBlocked = sumUpper.includes('NOT AVAILABLE') || sumUpper.includes('BLOCKED');
-            const portalName = portal === 'airbnb' ? 'Airbnb' : portal === 'booking' ? 'Booking' : 'otro portal';
-            const guestName = isBlocked ? `Bloqueado en ${portalName}` : `Reserva ${portalName}`;
+            const portalName = portal === 'airbnb' ? 'Airbnb' : portal === 'booking' ? 'Booking' : portal === 'google' ? 'Google Calendar' : 'otro portal';
+            
+            let guestName = '';
+            if (portal === 'google') {
+              guestName = (event.summary && event.summary.trim() !== '') ? event.summary.trim() : 'Reserva Google Calendar';
+            } else {
+              guestName = isBlocked ? `Bloqueado en ${portalName}` : `Reserva ${portalName}`;
+            }
+
+            const platform = portal === 'google' ? 'direct' : portal;
+            const specialNotes = portal === 'google' ? 'Importada desde Google Calendar' : `Importada automáticamente desde ${portalName}`;
 
             const startMs = new Date(event.start).getTime();
             const endMs = new Date(event.end).getTime();
@@ -205,7 +219,7 @@ export async function syncCalendars(
               checkOut: event.end,
               nights,
               guestsCount: 1,
-              platform: portal,
+              platform,
               totalAmount: 0,
               cleaningFee: 0,
               commissionPaid: 0,
@@ -214,7 +228,7 @@ export async function syncCalendars(
               paymentStatus: 'paid',
               pinCode: '',
               createdAt: new Date().toISOString(),
-              specialNotes: `Importada automáticamente desde ${portalName}`,
+              specialNotes,
               source: 'ical',
               icalUid: event.uid,
               icalSource: portal,

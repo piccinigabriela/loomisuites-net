@@ -16,7 +16,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { DemoState, CashMovement, Property } from '../../types';
-import { formatDisplayDate } from '../../data/initialData';
+import { formatDisplayDate, formatCurrency, getActiveCurrency } from '../../data/initialData';
 
 interface DemoCashDrawerProps {
   demoState: DemoState;
@@ -122,11 +122,7 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
   };
 
   const formatMoney = (val: number) => {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      maximumFractionDigits: 0,
-    }).format(val);
+    return formatCurrency(val);
   };
 
   return (
@@ -307,7 +303,7 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label htmlFor="amount" className="text-[11px] text-gray-600 dark:text-gray-400 font-semibold block mb-1">
-                  Monto ($ ARS)
+                  Monto ({getActiveCurrency()})
                 </label>
                 <input
                   id="amount"

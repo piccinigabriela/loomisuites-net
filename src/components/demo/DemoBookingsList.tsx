@@ -24,7 +24,7 @@ import {
   Table,
 } from 'lucide-react';
 import { DemoState, Reservation, ReservationStatus, PaymentStatus, BookingPlatform } from '../../types';
-import { formatCurrency, formatDisplayDate } from '../../data/initialData';
+import { formatCurrency, formatDisplayDate, getActiveCurrency } from '../../data/initialData';
 
 interface DemoBookingsListProps {
   demoState: DemoState;
@@ -152,7 +152,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
         r.nights,
         r.platform,
         r.totalAmount,
-        'USD',
+        getActiveCurrency(),
         r.paymentStatus,
         r.status,
         r.guestPhone,

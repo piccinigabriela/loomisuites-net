@@ -29,9 +29,29 @@ import {
   Package,
   AlertTriangle,
   MessageCircle,
+  Receipt,
+  Copy,
 } from 'lucide-react';
-import { Reservation, Property, ReservationStatus, BookingPlatform, AddonService, ReservationAddon } from '../../types';
-import { formatCurrency, formatDisplayDate, getGuestInitials } from '../../data/initialData';
+import {
+  Reservation,
+  Property,
+  ReservationStatus,
+  BookingPlatform,
+  AddonService,
+  ReservationAddon,
+  ReservationPayment,
+  CurrencyCode,
+  DemoState,
+  PaymentStatus,
+} from '../../types';
+import {
+  formatCurrency,
+  formatDisplayDate,
+  getGuestInitials,
+  getActiveCurrency,
+  toLocalDateStr,
+} from '../../data/initialData';
+import { isAppMode } from '../../lib/appMode';
 
 interface ReservationDetailModalProps {
   reservation: Reservation | null;
@@ -46,6 +66,8 @@ interface ReservationDetailModalProps {
   onDeleteReservation: (resId: string) => void;
   onOpenMessagesWithGuest: (resId: string) => void;
   isEmployeeMode?: boolean;
+  userRole?: 'admin' | 'frontdesk' | 'housekeeping';
+  currencySettings?: DemoState['currencySettings'];
 }
 
 export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
@@ -61,6 +83,8 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
   onDeleteReservation,
   onOpenMessagesWithGuest,
   isEmployeeMode = false,
+  userRole = 'admin',
+  currencySettings,
 }) => {
   // Mode toggle
   const [isEditing, setIsEditing] = useState(false);
@@ -114,12 +138,162 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
       setEditEarlyLateFee(reservation.earlyLateFee || 0);
       setEditCustomDiscountPercent(reservation.customDiscountPercent || 0);
       setEditAirbnbFeeMode(reservation.airbnbFeeMode || 'traditional_3');
+      setEditAirbnbFeeMode(reservation.airbnbFeeMode || 'traditional_3');
       setEditAddons(reservation.addons || []);
       setSelectedAddonToAdd('');
     }
   }, [reservation]);
 
+  // Payments & Settlement Currency State
+  const settlementCurrency: CurrencyCode = currencySettings?.settlementCurrency || getActiveCurrency() || 'USD';
+  const isAdmin = userRole === 'admin' || (!userRole && !isEmployeeMode);
+  const isFrontdesk = userRole === 'frontdesk';
+
+  const [payAmount, setPayAmount] = useState<string>('');
+  const [payCurrency, setPayCurrency] = useState<CurrencyCode>(settlementCurrency);
+  const [payRate, setPayRate] = useState<string>('');
+  const [payMethod, setPayMethod] = useState<ReservationPayment['method']>('efectivo');
+  const [payDate, setPayDate] = useState<string>(toLocalDateStr(new Date()));
+  const [payNote, setPayNote] = useState<string>('');
+  const [paymentToast, setPaymentToast] = useState<string | null>(null);
+
+  // Sync default payCurrency when settlementCurrency changes
+  useEffect(() => {
+    setPayCurrency(settlementCurrency);
+  }, [settlementCurrency]);
+
+  // Sync default payRate when payCurrency or currencySettings changes
+  useEffect(() => {
+    if (payCurrency === settlementCurrency) {
+      setPayRate('1');
+    } else {
+      const defaultRate = currencySettings?.rates?.[payCurrency];
+      setPayRate(defaultRate !== undefined && defaultRate > 0 ? String(defaultRate) : '');
+    }
+  }, [payCurrency, settlementCurrency, currencySettings?.rates]);
+
   if (!reservation) return null;
+
+  // Derived payment figures
+  const payments = reservation.payments || [];
+  const totalPaidSettlement = payments.reduce((sum, p) => sum + (p.amountSettlement || 0), 0);
+  const saldo = reservation.totalAmount - totalPaidSettlement;
+
+  // Amount settlement preview for form
+  const rawPayAmount = parseFloat(payAmount) || 0;
+  const computedPayRate = payCurrency === settlementCurrency ? 1 : (parseFloat(payRate) || 0);
+  const amountSettlement = Math.round(rawPayAmount * computedPayRate);
+
+  const METHOD_LABELS: Record<ReservationPayment['method'], string> = {
+    efectivo: 'Efectivo',
+    transferencia: 'Transferencia',
+    tarjeta: 'Tarjeta',
+    mercadopago: 'Mercado Pago',
+    plataforma: 'Plataforma',
+    otro: 'Otro',
+  };
+
+  const handleAddPayment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reservation) return;
+    if (rawPayAmount <= 0) return;
+    if (computedPayRate <= 0) return;
+
+    const newPayment: ReservationPayment = {
+      id: `pay-${Date.now()}`,
+      date: payDate || toLocalDateStr(new Date()),
+      amount: rawPayAmount,
+      currency: payCurrency,
+      rate: computedPayRate,
+      amountSettlement,
+      method: payMethod,
+      note: payNote.trim() || undefined,
+    };
+
+    const nextPayments = [...payments, newPayment];
+    const nextPaid = nextPayments.reduce((sum, p) => sum + (p.amountSettlement || 0), 0);
+    const nextSaldo = reservation.totalAmount - nextPaid;
+    const nextPaymentStatus: PaymentStatus =
+      nextPayments.length === 0 ? 'pending' : (nextPaid > 0 && nextSaldo > 0 ? 'deposit_only' : 'paid');
+
+    const updatedRes: Reservation = {
+      ...reservation,
+      payments: nextPayments,
+      paymentStatus: nextPaymentStatus,
+    };
+
+    onUpdateReservation?.(updatedRes);
+
+    setPayAmount('');
+    setPayNote('');
+    setPayDate(toLocalDateStr(new Date()));
+    setPaymentToast('✅ Pago registrado con éxito.');
+    setTimeout(() => setPaymentToast(null), 3000);
+  };
+
+  const handleDeletePayment = (paymentId: string) => {
+    if (!reservation) return;
+    if (!confirm('¿Deseás eliminar este pago registrado?')) return;
+
+    const nextPayments = payments.filter((p) => p.id !== paymentId);
+    const nextPaid = nextPayments.reduce((sum, p) => sum + (p.amountSettlement || 0), 0);
+    const nextSaldo = reservation.totalAmount - nextPaid;
+    const nextPaymentStatus: PaymentStatus =
+      nextPayments.length === 0 ? 'pending' : (nextPaid > 0 && nextSaldo > 0 ? 'deposit_only' : 'paid');
+
+    const updatedRes: Reservation = {
+      ...reservation,
+      payments: nextPayments,
+      paymentStatus: nextPaymentStatus,
+    };
+
+    onUpdateReservation?.(updatedRes);
+    setPaymentToast('🗑️ Pago eliminado.');
+    setTimeout(() => setPaymentToast(null), 3000);
+  };
+
+  const handleSendStatement = () => {
+    if (!reservation) return;
+
+    const complexNameStr = property?.name || 'Alojamiento';
+
+    const paymentsListStr =
+      payments.length === 0
+        ? '• Sin pagos registrados aún'
+        : payments
+            .map((p) => {
+              const methodStr = METHOD_LABELS[p.method] || p.method;
+              const rateDiffStr =
+                p.currency !== settlementCurrency
+                  ? ` (Equivale a ${formatCurrency(p.amountSettlement, settlementCurrency)})`
+                  : '';
+              const noteStr = p.note ? ` - ${p.note}` : '';
+              return `• ${p.date}: ${formatCurrency(p.amount, p.currency)} (${methodStr})${rateDiffStr}${noteStr}`;
+            })
+            .join('\n');
+
+    const statementText = `*Estado de Cuenta — ${complexNameStr}*
+Huésped: ${reservation.guestName}
+Unidad: ${property?.name || 'Alojamiento'}
+Estadía: ${formatDisplayDate(reservation.checkIn)} al ${formatDisplayDate(reservation.checkOut)}
+
+*Total de la Reserva:* ${formatCurrency(reservation.totalAmount, settlementCurrency)}
+
+*Pagos Registrados:*
+${paymentsListStr}
+
+*Saldo Pendiente:* ${saldo <= 0 ? 'PAGADO ✓' : formatCurrency(saldo, settlementCurrency)}`;
+
+    const phoneDigits = (reservation.guestPhone || '').replace(/\D/g, '');
+    if (phoneDigits && phoneDigits.length >= 8) {
+      const url = `https://wa.me/${phoneDigits}?text=${encodeURIComponent(statementText)}`;
+      window.open(url, '_blank');
+    } else {
+      navigator.clipboard.writeText(statementText);
+      setPaymentToast('📋 Estado de cuenta copiado al portapapeles.');
+      setTimeout(() => setPaymentToast(null), 3000);
+    }
+  };
 
   // Calculate turnovers with other reservations in the same property
   const incomingTurnover = allReservations.find(
@@ -389,11 +563,19 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                   {(!editPropertyId || !properties.some((p) => p.id === editPropertyId)) && (
                     <option value="">-- Asignar unidad --</option>
                   )}
-                  {properties.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} · {p.neighborhood} (${p.basePrice} USD/noche)
-                    </option>
-                  ))}
+                  {properties.map((p) => {
+                    const isApp = isAppMode();
+                    let neighborhoodStr = p.neighborhood ? p.neighborhood.trim() : '';
+                    if (isApp && neighborhoodStr === 'Centro / Zona Residencial') {
+                      neighborhoodStr = '';
+                    }
+                    const neighborhoodPart = neighborhoodStr ? ` · ${neighborhoodStr}` : '';
+                    return (
+                      <option key={p.id} value={p.id}>
+                        {p.name}{neighborhoodPart} (${p.basePrice}/noche)
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 
@@ -634,14 +816,14 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                               {item.name}
                             </span>
                             <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
-                              {item.quantity} x {formatCurrency(item.unitPrice, 'USD')}
+                              {item.quantity} x {formatCurrency(item.unitPrice)}
                             </span>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-purple-700 dark:text-purple-300">
-                            +{formatCurrency(item.total, 'USD')}
+                            +{formatCurrency(item.total)}
                           </span>
                           <button
                             type="button"
@@ -672,7 +854,7 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                       <option value="">+ Seleccionar servicio para agregar...</option>
                       {availableAddons.map((addon) => (
                         <option key={addon.id} value={addon.id}>
-                          [{addon.category.toUpperCase()}] {addon.name} (+${addon.price} USD)
+                          [{addon.category.toUpperCase()}] {addon.name} (+{formatCurrency(addon.price)})
                         </option>
                       ))}
                     </select>
@@ -703,7 +885,7 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                       onChange={(e) => setEditTotalAmount(Math.max(0, Number(e.target.value)))}
                       className="w-24 p-1.5 border border-rose-300 dark:border-rose-700 rounded-lg bg-white dark:bg-zinc-900 text-right font-extrabold text-sm text-zinc-900 dark:text-zinc-100"
                     />
-                    <span className="text-zinc-500 font-bold text-xs">USD</span>
+                    <span className="text-zinc-500 font-bold text-xs">{getActiveCurrency()}</span>
                   </div>
                 </div>
 
@@ -711,13 +893,13 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                   <div>
                     <span>Comisión Plataforma:</span>
                     <strong className="block text-red-600 dark:text-red-400">
-                      -{formatCurrency(getCalculatedFinancials().commissionPaid, 'USD')}
+                      -{formatCurrency(getCalculatedFinancials().commissionPaid)}
                     </strong>
                   </div>
                   <div>
                     <span>Ingreso Neto Anfitrión:</span>
                     <strong className="block text-emerald-600 dark:text-emerald-400">
-                      {formatCurrency(getCalculatedFinancials().netRevenue, 'USD')}
+                      {formatCurrency(getCalculatedFinancials().netRevenue)}
                     </strong>
                   </div>
                 </div>
@@ -768,7 +950,10 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                 </h4>
                 {property ? (
                   <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">
-                    {property.address}, {property.neighborhood}
+                    {property.address}
+                    {property.neighborhood && (!isAppMode() || property.neighborhood !== 'Centro / Zona Residencial')
+                      ? `, ${property.neighborhood}`
+                      : ''}
                   </p>
                 ) : (
                   <button
@@ -904,21 +1089,260 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                       Total de la Estadía:
                     </span>
                     <span className="font-bold text-sm text-gray-900 dark:text-gray-100">
-                      {formatCurrency(reservation.totalAmount, 'USD')}
+                      {formatCurrency(reservation.totalAmount)}
                     </span>
                   </div>
 
                   <div className="flex justify-between text-gray-400 text-[11px]">
                     <span>Comisión Plataforma ({reservation.platform.toUpperCase()}):</span>
-                    <span>-{formatCurrency(reservation.commissionPaid, 'USD')}</span>
+                    <span>-{formatCurrency(reservation.commissionPaid)}</span>
                   </div>
 
                   <div className="flex justify-between text-[#2EA44F] font-bold pt-2 border-t border-gray-50 dark:border-zinc-800">
                     <span>Ingreso Neto Limpio en Mano:</span>
-                    <span className="text-sm font-sans">{formatCurrency(reservation.netRevenue, 'USD')}</span>
+                    <span className="text-sm font-sans">{formatCurrency(reservation.netRevenue)}</span>
                   </div>
                 </div>
               ) : null}
+
+              {/* Seccion Pagos y Saldo */}
+              {userRole !== 'housekeeping' && !isEmployeeMode && (
+                <div className="bg-white dark:bg-[#1A1B20] p-4 rounded-2xl border border-stone-200/80 dark:border-zinc-800 shadow-[0_2px_8px_rgba(0,0,0,0.01)] text-xs space-y-4">
+                  {/* Header & WhatsApp Button */}
+                  <div className="flex items-center justify-between border-b border-stone-100 dark:border-zinc-800 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <Receipt className="w-4 h-4 text-[#D86F35]" />
+                      <h4 className="font-bold text-stone-800 dark:text-stone-100 text-xs">
+                        Pagos y Saldo
+                      </h4>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleSendStatement}
+                      className="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 font-bold text-[11px] border border-emerald-200 dark:border-emerald-800 transition-colors flex items-center gap-1.5 cursor-pointer"
+                      title="Enviar resumen de pagos y saldo por WhatsApp"
+                    >
+                      <Send className="w-3 h-3 text-emerald-600" />
+                      <span>Enviar estado de cuenta</span>
+                    </button>
+                  </div>
+
+                  {/* Summary Bar */}
+                  <div className="grid grid-cols-3 gap-2 bg-stone-50 dark:bg-zinc-800/60 p-3 rounded-xl border border-stone-200/60 dark:border-zinc-700 text-center">
+                    <div>
+                      <span className="block text-[10px] font-bold text-stone-400 uppercase">Total Reserva</span>
+                      <span className="font-extrabold text-stone-800 dark:text-stone-100 text-xs">
+                        {formatCurrency(reservation.totalAmount, settlementCurrency)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-[10px] font-bold text-stone-400 uppercase">Pagado</span>
+                      <span className="font-extrabold text-emerald-600 dark:text-emerald-400 text-xs">
+                        {formatCurrency(totalPaidSettlement, settlementCurrency)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-[10px] font-bold text-stone-400 uppercase">Saldo</span>
+                      <span className={`font-extrabold text-xs ${saldo <= 0 ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-amber-600 dark:text-amber-400'}`}>
+                        {saldo <= 0 ? 'Pagada ✓' : formatCurrency(saldo, settlementCurrency)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Payments List */}
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
+                      Historial de Pagos ({payments.length})
+                    </span>
+
+                    {payments.length === 0 ? (
+                      <p className="text-[11px] text-stone-400 italic">
+                        No hay pagos registrados aún para esta reserva.
+                      </p>
+                    ) : (
+                      <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                        {payments.map((p) => (
+                          <div
+                            key={p.id}
+                            className="flex items-center justify-between bg-stone-50/80 dark:bg-zinc-800/50 p-2.5 rounded-xl border border-stone-100 dark:border-zinc-800 text-[11px]"
+                          >
+                            <div className="space-y-0.5 flex-1 pr-2">
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-stone-800 dark:text-stone-100">
+                                  {formatCurrency(p.amount, p.currency)}
+                                </span>
+                                {p.currency !== settlementCurrency && (
+                                  <span className="text-[10px] text-stone-400 font-medium">
+                                    × {p.rate} = {formatCurrency(p.amountSettlement, settlementCurrency)}
+                                  </span>
+                                )}
+                                <span className="px-1.5 py-0.5 rounded bg-stone-200/60 dark:bg-zinc-700 text-[10px] font-bold text-stone-600 dark:text-stone-300 capitalize">
+                                  {METHOD_LABELS[p.method] || p.method}
+                                </span>
+                              </div>
+                              <div className="text-[10px] text-stone-400 flex items-center gap-2">
+                                <span>{p.date}</span>
+                                {p.note && <span className="italic truncate max-w-[180px]">• {p.note}</span>}
+                              </div>
+                            </div>
+
+                            {/* Delete button only for Admin */}
+                            {isAdmin && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeletePayment(p.id)}
+                                className="p-1 text-stone-400 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
+                                title="Eliminar pago"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Register Payment Form */}
+                  <form onSubmit={handleAddPayment} className="pt-3 border-t border-stone-100 dark:border-zinc-800 space-y-3">
+                    <span className="text-[11px] font-bold text-stone-700 dark:text-stone-200 block">
+                      ➕ Registrar Pago
+                    </span>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[10px] font-semibold text-stone-500 mb-1">
+                          Monto*:
+                        </label>
+                        <input
+                          type="number"
+                          min="0.01"
+                          step="any"
+                          required
+                          placeholder="Ej: 5000"
+                          value={payAmount}
+                          onChange={(e) => setPayAmount(e.target.value)}
+                          className="w-full text-xs font-bold p-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-stone-800 dark:text-stone-100"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-semibold text-stone-500 mb-1">
+                          Moneda:
+                        </label>
+                        <select
+                          value={payCurrency}
+                          onChange={(e) => setPayCurrency(e.target.value as CurrencyCode)}
+                          className="w-full text-xs font-bold p-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-stone-800 dark:text-stone-100 cursor-pointer"
+                        >
+                          <option value="ARS">ARS</option>
+                          <option value="USD">USD</option>
+                          <option value="BRL">BRL</option>
+                          <option value="EUR">EUR</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Rate Input (only if currency !== settlementCurrency) */}
+                    {payCurrency !== settlementCurrency && (
+                      <div>
+                        <label className="block text-[10px] font-semibold text-stone-500 mb-1">
+                          Cotización (1 {payCurrency} = [____] {settlementCurrency}):
+                        </label>
+                        <input
+                          type="number"
+                          min="0.0001"
+                          step="any"
+                          required
+                          placeholder="Ej: 1250"
+                          value={payRate}
+                          disabled={!isAdmin}
+                          onChange={(e) => setPayRate(e.target.value)}
+                          className={`w-full text-xs font-bold p-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-stone-800 dark:text-stone-100 ${!isAdmin ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        />
+                        {isFrontdesk && (!payRate || parseFloat(payRate) <= 0) && (
+                          <p className="text-[10px] font-semibold text-rose-600 dark:text-rose-400 mt-1">
+                            ⚠️ Falta la cotización de {payCurrency}. Pedile al administrador que la cargue en Finanzas.
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[10px] font-semibold text-stone-500 mb-1">
+                          Método:
+                        </label>
+                        <select
+                          value={payMethod}
+                          onChange={(e) => setPayMethod(e.target.value as any)}
+                          className="w-full text-xs font-semibold p-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-stone-800 dark:text-stone-100 cursor-pointer"
+                        >
+                          <option value="efectivo">Efectivo</option>
+                          <option value="transferencia">Transferencia</option>
+                          <option value="tarjeta">Tarjeta</option>
+                          <option value="mercadopago">Mercado Pago</option>
+                          <option value="plataforma">Pagado en la plataforma</option>
+                          <option value="otro">Otro</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-semibold text-stone-500 mb-1">
+                          Fecha:
+                        </label>
+                        <input
+                          type="date"
+                          value={payDate}
+                          onChange={(e) => setPayDate(e.target.value)}
+                          className="w-full text-xs font-semibold p-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-stone-800 dark:text-stone-100"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-semibold text-stone-500 mb-1">
+                        Nota / Comprobante (opcional):
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Ej: Seña por transferencia CBU"
+                        value={payNote}
+                        onChange={(e) => setPayNote(e.target.value)}
+                        className="w-full text-xs font-medium p-2 rounded-xl border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-stone-800 dark:text-stone-100"
+                      />
+                    </div>
+
+                    {/* Live Preview & Submit */}
+                    {rawPayAmount > 0 && (
+                      <div className="p-2 bg-stone-50 dark:bg-zinc-800 rounded-lg text-[11px] font-semibold text-stone-600 dark:text-stone-300 flex items-center justify-between">
+                        <span>Equivale a:</span>
+                        <span className="font-extrabold text-stone-900 dark:text-white">
+                          {formatCurrency(amountSettlement, settlementCurrency)}
+                        </span>
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={
+                        rawPayAmount <= 0 ||
+                        computedPayRate <= 0 ||
+                        (isFrontdesk && payCurrency !== settlementCurrency && (!payRate || parseFloat(payRate) <= 0))
+                      }
+                      className="w-full py-2.5 px-4 bg-[#D86F35] hover:bg-[#c5612a] disabled:opacity-40 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-xs"
+                    >
+                      Guardar Pago
+                    </button>
+                  </form>
+
+                  {paymentToast && (
+                    <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-700 dark:text-emerald-300 text-xs font-semibold text-center animate-in fade-in">
+                      {paymentToast}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Action triggers */}
               <div className="pt-2 flex flex-col gap-2.5">

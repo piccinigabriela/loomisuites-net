@@ -34,9 +34,39 @@ import {
   Wine,
   Mountain,
   Layers,
+  Camera,
 } from 'lucide-react';
 import { WelcomeGuideData, Property } from '../../types';
 import { DateRangeCalendarPicker } from './DateRangeCalendarPicker';
+import { isAppMode } from '../../lib/appMode';
+
+const PhotoOrPlaceholder: React.FC<{
+  src?: string;
+  alt?: string;
+  className?: string;
+  isDark?: boolean;
+}> = ({ src, alt, className = '', isDark = false }) => {
+  const isApp = isAppMode();
+  const isPlaceholderNeeded =
+    isApp && (!src || src.startsWith('/cabanas/') || src === '/entrada.jpeg' || src.includes('/cabanas/'));
+
+  if (isPlaceholderNeeded) {
+    return (
+      <div
+        className={`flex flex-col items-center justify-center p-3 text-center gap-1.5 transition-all select-none ${
+          isDark
+            ? 'bg-stone-800/80 text-stone-400 border border-stone-700/50'
+            : 'bg-stone-200/80 text-stone-500 border border-stone-300/60'
+        } ${className}`}
+      >
+        <Camera className="w-5 h-5 opacity-60" />
+        <span className="text-xs font-medium opacity-80">Foto pendiente</span>
+      </div>
+    );
+  }
+
+  return <img src={src || ''} alt={alt || ''} className={className} />;
+};
 
 interface DirectBookingLandingProps {
   guideData: WelcomeGuideData;
@@ -273,6 +303,13 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
         ? 'bg-[#0c0e0d] text-[#EFECE6]'
         : 'bg-[#FAF8F5] text-stone-900'
     }`}>
+      {/* FRANJA DE VISTA PREVIA (MODO APP) */}
+      {isAppMode() && (
+        <div className="fixed top-0 left-0 right-0 z-[100] bg-amber-100/95 border-b border-amber-300/80 text-amber-950 text-xs py-1.5 px-4 text-center font-medium shadow-xs backdrop-blur-xs">
+          Vista previa — tu web de reservas directas está en preparación. Todavía no es pública.
+        </div>
+      )}
+
       {/* ========================================================================= */}
       {/* BOTÓN FLOTANTE FIJO DE SALIDA: VOLVER AL PANEL (SIEMPRE VISIBLE)          */}
       {/* ========================================================================= */}
@@ -398,10 +435,11 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
             </button>
 
             <div className="w-full max-h-[75vh] rounded-2xl overflow-hidden border border-[#c5a880]/40 shadow-2xl bg-black">
-              <img
+              <PhotoOrPlaceholder
                 src={lightboxImage.src}
                 alt={lightboxImage.title}
                 className="w-full h-full max-h-[75vh] object-contain mx-auto"
+                isDark={true}
               />
             </div>
 
@@ -544,9 +582,11 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
             {/* Subtle Winery Wall Texture Overlay */}
             <div
               className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-multiply transition-opacity duration-700"
-              style={{
-                backgroundImage: `url(${cortePhotos.facade || '/entrada.jpeg'})`,
-              }}
+              style={
+                isAppMode() && (!cortePhotos.facade || cortePhotos.facade.startsWith('/cabanas/') || cortePhotos.facade === '/entrada.jpeg')
+                  ? undefined
+                  : { backgroundImage: `url(${cortePhotos.facade || '/entrada.jpeg'})` }
+              }
             />
 
             {/* Subtle Fine Grain / Architectural Grid */}
@@ -704,10 +744,11 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                   className="relative rounded-lg sm:rounded-xl overflow-hidden shadow-[0_15px_35px_rgba(0,0,0,0.15)] hover:shadow-[0_25px_50px_rgba(0,0,0,0.25)] border border-[#2C2720]/10 group cursor-pointer transition-all duration-500 bg-stone-200"
                 >
                   <div className={`relative w-full ${frame.aspectRatio} overflow-hidden`}>
-                    <img
+                    <PhotoOrPlaceholder
                       src={frame.img}
                       alt={frame.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 select-none"
+                      isDark={true}
                     />
 
                     {/* Subtle Edit Photo trigger on hover for owner */}
@@ -789,10 +830,11 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
         <div className="space-y-0 animate-in fade-in duration-300 font-serif">
           <section className="relative min-h-[640px] lg:min-h-[720px] flex flex-col justify-between overflow-hidden bg-stone-950 text-white">
             <div className="absolute inset-0 z-0">
-              <img
-                src={selectedCabin?.imageUrl || '/cabanas/cabana-hamaca.jpg'}
+              <PhotoOrPlaceholder
+                src={isAppMode() ? selectedCabin?.imageUrl : (selectedCabin?.imageUrl || '/cabanas/cabana-hamaca.jpg')}
                 alt={guideData.propertyName}
                 className="w-full h-full object-cover opacity-60 scale-105 transition-transform duration-1000"
+                isDark={true}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent" />
             </div>
@@ -853,10 +895,11 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
         <div className="space-y-0 font-sans animate-in fade-in duration-300">
           <section className="relative min-h-[660px] lg:min-h-[740px] flex flex-col justify-between overflow-hidden bg-[#0c0e0d] text-[#EDE8DF]">
             <div className="absolute inset-0 z-0">
-              <img
-                src={selectedCabin?.imageUrl || '/cabanas/deck-hamaca.jpg'}
+              <PhotoOrPlaceholder
+                src={isAppMode() ? selectedCabin?.imageUrl : (selectedCabin?.imageUrl || '/cabanas/deck-hamaca.jpg')}
                 alt={guideData.propertyName}
                 className="w-full h-full object-cover opacity-45 scale-100"
+                isDark={true}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0c0e0d] via-[#0c0e0d]/50 to-transparent" />
             </div>
@@ -930,10 +973,11 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                 >
                   <div className="space-y-4">
                     <div className="h-48 rounded-2xl overflow-hidden relative">
-                      <img
-                        src={property.imageUrl || '/cabanas/cabana-terraza.jpg'}
+                      <PhotoOrPlaceholder
+                        src={isAppMode() ? property.imageUrl : (property.imageUrl || '/cabanas/cabana-terraza.jpg')}
                         alt={property.name}
                         className="w-full h-full object-cover"
+                        isDark={isSelected || isCorteVette || isDosAguas || isSombra}
                       />
                       <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/70 backdrop-blur-xs text-[10px] font-mono text-white font-bold">
                         {property.maxGuests} Huéspedes

@@ -17,6 +17,7 @@ import {
   Search,
 } from 'lucide-react';
 import { DemoState, AddonService, AddonCategory } from '../../types';
+import { formatCurrency, getActiveCurrency } from '../../data/initialData';
 
 interface DemoAddonsProps {
   demoState: DemoState;
@@ -207,7 +208,7 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
             <DollarSign className="w-4 h-4 text-[#E67E22]" />
           </div>
           <div className="my-2.5 text-2xl sm:text-3xl font-bold text-stone-800 dark:text-stone-100 tracking-tight">
-            USD ${totalAddonIncome}
+            {formatCurrency(totalAddonIncome)}
           </div>
           <p className="text-[11px] font-medium text-stone-400 dark:text-stone-500 truncate">
             {totalItemsOrdered} pedidos en reservas
@@ -284,7 +285,7 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1.5">
-                  Precio (USD):
+                  Precio ({getActiveCurrency()}):
                 </label>
                 <input
                   type="number"
@@ -388,7 +389,7 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
 
                   <div className="text-right">
                     <span className="text-base font-bold text-stone-800 dark:text-stone-100 block">
-                      USD ${addon.price}
+                      {formatCurrency(addon.price)}
                     </span>
                     <span className="text-[11px] font-medium text-stone-400 dark:text-stone-500">
                       {addon.unitLabel}

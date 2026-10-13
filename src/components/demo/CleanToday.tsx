@@ -337,7 +337,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
           </div>
           <div className="my-2 text-2xl sm:text-3xl font-light text-stone-900 dark:text-stone-100 tracking-tight flex items-baseline gap-1.5">
             <span className="font-bold text-stone-800 dark:text-stone-100">
-              {formatCurrency(pendingPaymentAmount, 'USD')}
+              {formatCurrency(pendingPaymentAmount)}
             </span>
           </div>
           <div className="text-[11px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md inline-block w-max">
@@ -416,7 +416,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
                             <KeyRound className="w-3.5 h-3.5 text-[#E67E22]" />
                             PIN: <strong>{res.pinCode || '4001'}</strong>
                           </span>
-                          <span>• Total: <strong>{formatCurrency(res.totalAmount, 'USD')}</strong></span>
+                          <span>• Total: <strong>{formatCurrency(res.totalAmount)}</strong></span>
                           <span className={isPaid ? 'text-emerald-600 font-semibold' : 'text-amber-600 font-semibold'}>
                             • {isPaid ? 'Pagado 100%' : 'Saldo pendiente'}
                           </span>
@@ -530,7 +530,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
                         </div>
 
                         <div className="text-xs text-stone-500 font-light">
-                          Total estadía: <strong>{formatCurrency(res.totalAmount, 'USD')}</strong>
+                          Total estadía: <strong>{formatCurrency(res.totalAmount)}</strong>
                         </div>
                       </div>
 
@@ -674,7 +674,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
               </h2>
             </div>
             <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono">
-              Total: {formatCurrency(pendingPaymentAmount, 'USD')}
+              Total: {formatCurrency(pendingPaymentAmount)}
             </span>
           </div>
 
@@ -713,7 +713,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
                       </div>
 
                       <div className="text-xs text-amber-700 dark:text-amber-400 font-semibold">
-                        Saldo a cobrar: {formatCurrency(res.totalAmount, 'USD')} ({res.platform.toUpperCase()})
+                        Saldo a cobrar: {formatCurrency(res.totalAmount)} ({res.platform.toUpperCase()})
                       </div>
                     </div>
 
@@ -746,7 +746,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
               Rendimiento del Mes
             </span>
             <span className="text-xs font-bold text-emerald-600">
-              {formatCurrency(monthlyRevenue, 'USD')}
+              {formatCurrency(monthlyRevenue)}
             </span>
           </div>
           <p className="text-xs text-stone-500 font-light">
@@ -755,7 +755,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
           <div className="flex items-center justify-between text-xs text-stone-400 pt-1">
             <span>Caja Chica Mostrador:</span>
             <strong className="text-stone-800 dark:text-stone-200 font-mono">
-              {formatCurrency(currentCashBalance, 'ARS')}
+              {formatCurrency(currentCashBalance)}
             </strong>
           </div>
         </div>

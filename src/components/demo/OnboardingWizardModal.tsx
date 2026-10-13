@@ -21,8 +21,9 @@ import {
   X,
   Compass,
 } from 'lucide-react';
-import { DemoState, Property, AddonService, WelcomeGuideData } from '../../types';
+import { DemoState, Property, AddonService, WelcomeGuideData, CurrencyCode } from '../../types';
 import { isAppMode } from '../../lib/appMode';
+import { getActiveCurrency } from '../../data/initialData';
 
 interface OnboardingWizardModalProps {
   isOpen: boolean;
@@ -35,6 +36,7 @@ interface OnboardingWizardModalProps {
     wifiPassword: string;
     properties: Property[];
     addons: AddonService[];
+    settlementCurrency: CurrencyCode;
   }) => void;
 }
 
@@ -45,8 +47,8 @@ interface TempProperty {
   maxGuests: number;
   bedrooms: number;
   bathrooms: number;
-  basePrice: number;
-  cleaningFee: number;
+  basePrice: number | string;
+  cleaningFee: number | string;
   hasSmartLock: boolean;
   smartLockBrand: string;
 }
@@ -57,6 +59,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
   onComplete,
 }) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const [unitError, setUnitError] = useState<string | null>(null);
 
   // Helper to load registered complex data
   const getInitialComplexInfo = () => {
@@ -94,6 +97,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
   const [wifiPassword, setWifiPassword] = useState('');
   const [hostName, setHostName] = useState(initialInfo.hostName);
   const [hostPhone, setHostPhone] = useState(initialInfo.hostPhone);
+  const [settlementCurrency, setSettlementCurrency] = useState<CurrencyCode>('ARS');
 
   // Sync state whenever modal opens
   React.useEffect(() => {
@@ -106,6 +110,8 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
       setWifiPassword('');
       setHostPhone(info.hostPhone);
       setHostName(info.hostName);
+      setSettlementCurrency('ARS');
+      setUnitError(null);
     }
   }, [isOpen]);
 
@@ -118,8 +124,8 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
       maxGuests: 2,
       bedrooms: 1,
       bathrooms: 1,
-      basePrice: 50,
-      cleaningFee: 15,
+      basePrice: '',
+      cleaningFee: 0,
       hasSmartLock: false,
       smartLockBrand: '',
     },
@@ -151,24 +157,41 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
       maxGuests: 4,
       bedrooms: 1,
       bathrooms: 1,
-      basePrice: 50,
-      cleaningFee: 15,
+      basePrice: '',
+      cleaningFee: 0,
       hasSmartLock: true,
       smartLockBrand: 'Cerradura Digital Teclado',
     };
     setUnits([...units, newUnit]);
+    setUnitError(null);
   };
 
   const handleRemoveUnit = (id: string) => {
     if (units.length <= 1) {
-      alert('Debes tener al menos 1 unidad para configurar tu complejo.');
+      setUnitError('Debes tener al menos 1 unidad para configurar tu complejo.');
       return;
     }
     setUnits(units.filter((u) => u.id !== id));
+    setUnitError(null);
   };
 
   const handleUpdateUnit = (id: string, updates: Partial<TempProperty>) => {
     setUnits(units.map((u) => (u.id === id ? { ...u, ...updates } : u)));
+    setUnitError(null);
+  };
+
+  const handleNextStep = () => {
+    if (currentStep === 2) {
+      const hasInvalidPrice = units.some(
+        (u) => u.basePrice === '' || u.basePrice === null || u.basePrice === undefined || Number(u.basePrice) <= 0
+      );
+      if (hasInvalidPrice) {
+        setUnitError('Ingresá la tarifa por noche');
+        return;
+      }
+    }
+    setUnitError(null);
+    setCurrentStep((prev) => Math.min(3, prev + 1));
   };
 
   const handleFinishOnboarding = () => {
@@ -178,16 +201,16 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
       name: u.name,
       type: u.type,
       address,
-      neighborhood: 'Centro / Zona Residencial',
+      neighborhood: '',
       city,
       bedrooms: Number(u.bedrooms) || 1,
       bathrooms: Number(u.bathrooms) || 1,
       maxGuests: Number(u.maxGuests) || 2,
-      basePrice: Number(u.basePrice) || 50,
-      cleaningFee: Number(u.cleaningFee) || 15,
-      imageUrl: idx % 2 === 0 ? '/cabanas/cabana-terraza.jpg' : '/cabanas/deck-hamaca.jpg',
-      rating: 5.0,
-      reviewsCount: 12,
+      basePrice: Number(u.basePrice) || 0,
+      cleaningFee: Number(u.cleaningFee) || 0,
+      imageUrl: '',
+      rating: 0,
+      reviewsCount: 0,
       status: 'active',
       syncStatus: { airbnb: false, booking: false, vrbo: false },
       smartLock: {
@@ -199,13 +222,14 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
     }));
 
     // Build Addons
+    const isApp = isAppMode();
     const finalAddons: AddonService[] = [];
     if (selectedAddonPresets.transfers) {
       finalAddons.push({
         id: 'addon-transfers-custom',
         name: 'Transfer Aeropuerto / Terminal',
         category: 'transfers',
-        price: 25,
+        price: isApp ? 0 : 25,
         unitLabel: 'por viaje',
         description: 'Traslado privado directo coordinado con la llegada o salida del huésped.',
       });
@@ -215,7 +239,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
         id: 'addon-frigobar-custom',
         name: 'Vino de Bienvenida + Bebidas Frías',
         category: 'frigobar',
-        price: 15,
+        price: isApp ? 0 : 15,
         unitLabel: 'por pack',
         description: 'Bebidas frescas y snacks listos en el refrigerador al momento del check-in.',
       });
@@ -225,7 +249,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
         id: 'addon-cochera-custom',
         name: 'Cochera / Estacionamiento Techado',
         category: 'experiencias',
-        price: 10,
+        price: isApp ? 0 : 10,
         unitLabel: 'por noche',
         description: 'Lugar exclusivo techado y con portón automatizado.',
       });
@@ -235,7 +259,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
         id: 'addon-desayuno-custom',
         name: 'Canasta de Desayuno Seco / Fresco',
         category: 'desayuno',
-        price: 12,
+        price: isApp ? 0 : 12,
         unitLabel: 'por persona / día',
         description: 'Panificados caseros, mermeladas, café y jugo fresco entregado por la mañana.',
       });
@@ -249,6 +273,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
       wifiPassword,
       properties: finalProperties,
       addons: finalAddons,
+      settlementCurrency,
     });
   };
 
@@ -409,6 +434,22 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                   </div>
                 </div>
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                  ¿En qué moneda liquidás tus cuentas?
+                </label>
+                <select
+                  value={settlementCurrency}
+                  onChange={(e) => setSettlementCurrency(e.target.value as CurrencyCode)}
+                  className="w-full text-xs font-semibold p-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 cursor-pointer"
+                >
+                  <option value="ARS">Pesos Argentinos (ARS)</option>
+                  <option value="USD">Dólares Estadounidenses (USD)</option>
+                  <option value="BRL">Reales Brasileños (BRL)</option>
+                  <option value="EUR">Euros (EUR)</option>
+                </select>
+              </div>
             </div>
           )}
 
@@ -433,6 +474,12 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                   <span>+ Agregar Otra Unidad</span>
                 </button>
               </div>
+
+              {unitError && (
+                <div className="p-3 bg-red-950/60 border border-red-800/80 rounded-xl text-xs font-bold text-red-300 flex items-center gap-2">
+                  <span>⚠️ {unitError}</span>
+                </div>
+              )}
 
               <div className="space-y-3">
                 {units.map((unit, idx) => (
@@ -484,18 +531,23 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
 
                       <div>
                         <label className="block text-[10px] font-semibold text-[#8e8c87] mb-0.5">
-                          Tarifa Base / Noche:
+                          Tarifa Base / Noche*:
                         </label>
                         <div className="flex items-center gap-1 bg-[#181818] px-2 py-1.5 rounded-lg border border-[#333]">
                           <DollarSign className="w-3.5 h-3.5 text-[#78b37e]" />
                           <input
                             type="number"
                             min="0"
+                            placeholder="Obligatorio"
                             value={unit.basePrice}
-                            onChange={(e) => handleUpdateUnit(unit.id, { basePrice: Number(e.target.value) })}
+                            onChange={(e) =>
+                              handleUpdateUnit(unit.id, {
+                                basePrice: e.target.value === '' ? '' : Number(e.target.value),
+                              })
+                            }
                             className="w-full text-xs font-bold bg-transparent focus:outline-none text-[#a4cca8]"
                           />
-                          <span className="text-[10px] text-[#777]">USD</span>
+                          <span className="text-[10px] text-[#777]">{settlementCurrency}</span>
                         </div>
                       </div>
 
@@ -509,10 +561,14 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                             type="number"
                             min="0"
                             value={unit.cleaningFee}
-                            onChange={(e) => handleUpdateUnit(unit.id, { cleaningFee: Number(e.target.value) })}
+                            onChange={(e) =>
+                              handleUpdateUnit(unit.id, {
+                                cleaningFee: e.target.value === '' ? 0 : Number(e.target.value),
+                              })
+                            }
                             className="w-full text-xs font-bold bg-transparent focus:outline-none text-[#e0deda]"
                           />
-                          <span className="text-[10px] text-[#777]">USD</span>
+                          <span className="text-[10px] text-[#777]">{settlementCurrency}</span>
                         </div>
                       </div>
 
@@ -567,7 +623,9 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                       🚗 Cochera / Estacionamiento
                     </span>
                     <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                      Alquiler diario de cochera techada o privada ($10 USD / noche)
+                      {isAppMode()
+                        ? 'Alquiler diario de cochera techada o privada — definís el precio después en Opcionales'
+                        : `Alquiler diario de cochera techada o privada ($10 ${settlementCurrency} / noche)`}
                     </span>
                   </div>
                 </label>
@@ -586,7 +644,9 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                       ✈️ Traslados & Transfers
                     </span>
                     <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                      Búsqueda en aeropuerto o terminal coordinada ($25 USD)
+                      {isAppMode()
+                        ? 'Búsqueda en aeropuerto o terminal coordinada — definís el precio después en Opcionales'
+                        : `Búsqueda en aeropuerto o terminal coordinada ($25 ${settlementCurrency})`}
                     </span>
                   </div>
                 </label>
@@ -605,7 +665,9 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                       🍷 Frigobar & Bebidas de Bienvenida
                     </span>
                     <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                      Vinos, cervezas o aguas listas en la heladera ($15 USD)
+                      {isAppMode()
+                        ? 'Vinos, cervezas o aguas listas en la heladera — definís el precio después en Opcionales'
+                        : `Vinos, cervezas o aguas listas en la heladera ($15 ${settlementCurrency})`}
                     </span>
                   </div>
                 </label>
@@ -624,7 +686,9 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                       ☕ Canasta de Desayuno
                     </span>
                     <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                      Panificados, mermeladas y café para la mañana ($12 USD)
+                      {isAppMode()
+                        ? 'Panificados, mermeladas y café para la mañana — definís el precio después en Opcionales'
+                        : `Panificados, mermeladas y café para la mañana ($12 ${settlementCurrency})`}
                     </span>
                   </div>
                 </label>
@@ -661,7 +725,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
           {currentStep < 3 ? (
             <button
               type="button"
-              onClick={() => setCurrentStep(currentStep + 1)}
+              onClick={handleNextStep}
               className="flex items-center gap-1.5 text-xs font-bold bg-[#c46d45] hover:bg-[#b55e37] text-white px-5 py-2.5 rounded-xl shadow-2xs transition-all cursor-pointer"
             >
               <span>Siguiente: {currentStep === 1 ? 'Cargar Unidades' : 'Servicios Opcionales'}</span>

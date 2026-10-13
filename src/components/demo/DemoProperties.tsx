@@ -20,9 +20,11 @@ import {
   Plus,
   Trash2,
   X,
+  Camera,
 } from 'lucide-react';
 import { DemoState, Property } from '../../types';
 import { copyToClipboard } from '../../utils/clipboard';
+import { toLocalDateStr, formatCurrency, getActiveCurrency } from '../../data/initialData';
 import { OnboardingGuideView } from './OnboardingGuideView';
 import { isAppMode } from '../../lib/appMode';
 import { auth } from '../../lib/firebase';
@@ -52,12 +54,105 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
   // Modal State for Create/Edit Property
   const [modalMode, setModalMode] = useState<'create' | 'edit' | null>(null);
   const [activeProperty, setActiveProperty] = useState<Property | null>(null);
+  const [isCompressingPhoto, setIsCompressingPhoto] = useState<boolean>(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [formValidationError, setFormValidationError] = useState<string | null>(null);
 
   // Custom Domain state
   const [customDomain, setCustomDomain] = useState<string>('reservas.misalojamientos.com');
   const [isDomainSaved, setIsDomainSaved] = useState<boolean>(true);
   const [showDomainConfig, setShowDomainConfig] = useState<boolean>(false);
   const [showOnboardingGuide, setShowOnboardingGuide] = useState<boolean>(false);
+
+  const compressImageFile = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (!file.type.startsWith('image/')) {
+        reject(new Error('El archivo seleccionado no es una imagen.'));
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Error al leer el archivo de imagen.'));
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('Error al procesar la imagen.'));
+        img.onload = () => {
+          const processCanvas = (maxSide: number, quality: number): string => {
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxSide || height > maxSide) {
+              if (width > height) {
+                height = Math.round((height * maxSide) / width);
+                width = maxSide;
+              } else {
+                width = Math.round((width * maxSide) / height);
+                height = maxSide;
+              }
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              throw new Error('Error al crear lienzo de imagen.');
+            }
+            ctx.drawImage(img, 0, 0, width, height);
+            return canvas.toDataURL('image/jpeg', quality);
+          };
+
+          try {
+            // Lado mayor máximo 1200px, JPEG calidad 0.7
+            let dataUrl = processCanvas(1200, 0.7);
+
+            // Si el resultado pasa de 300 KB, reintentar con 1000px y calidad 0.6
+            const base64Part = dataUrl.split(',')[1] || '';
+            const sizeInBytes = (base64Part.length * 3) / 4;
+
+            if (sizeInBytes > 307200) {
+              dataUrl = processCanvas(1000, 0.6);
+            }
+
+            resolve(dataUrl);
+          } catch (err: any) {
+            reject(err);
+          }
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setPhotoError('El archivo seleccionado no es una imagen.');
+      e.target.value = '';
+      return;
+    }
+
+    setPhotoError(null);
+    setIsCompressingPhoto(true);
+
+    try {
+      const compressedDataUrl = await compressImageFile(file);
+      if (activeProperty) {
+        setActiveProperty({
+          ...activeProperty,
+          imageUrl: compressedDataUrl,
+        });
+      }
+    } catch (err: any) {
+      setPhotoError(err?.message || 'No se pudo procesar la imagen.');
+    } finally {
+      setIsCompressingPhoto(false);
+      e.target.value = '';
+    }
+  };
 
   const handleCopyDirectLink = (propertyId: string) => {
     const link = isDomainSaved && customDomain
@@ -76,37 +171,65 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
   };
 
   const handleOpenCreate = () => {
-    setActiveProperty({
-      id: `prop-${Date.now()}`,
-      name: 'Nueva Cabaña',
-      type: 'Cabaña',
-      address: demoState.welcomeGuide?.locationAddress || 'Dirección del Complejo',
-      city: 'Complejo',
-      neighborhood: 'Centro',
-      bedrooms: 1,
-      bathrooms: 1,
-      maxGuests: 2,
-      basePrice: 50,
-      cleaningFee: 15,
-      imageUrl: 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=800&q=80',
-      rating: 5.0,
-      reviewsCount: 0,
-      status: 'active',
-      syncStatus: { airbnb: false, booking: false, vrbo: false },
-      smartLock: { enabled: true, brand: 'Yale Smart' },
-      wifiNetwork: '(a confirmar)',
-      wifiPassword: '(a confirmar)',
-    });
+    setPhotoError(null);
+    setFormValidationError(null);
+    if (isApp) {
+      setActiveProperty({
+        id: `prop-${Date.now()}`,
+        name: '',
+        type: 'Departamento',
+        address: demoState.welcomeGuide?.locationAddress || '',
+        city: '',
+        neighborhood: '',
+        bedrooms: 1,
+        bathrooms: 1,
+        maxGuests: 2,
+        basePrice: 0,
+        cleaningFee: 0,
+        imageUrl: '',
+        rating: 0,
+        reviewsCount: 0,
+        status: 'active',
+        syncStatus: { airbnb: false, booking: false, vrbo: false },
+        smartLock: { enabled: false, brand: '' },
+        wifiNetwork: demoState.welcomeGuide?.wifiNetwork || '',
+        wifiPassword: demoState.welcomeGuide?.wifiPassword || '',
+      });
+    } else {
+      setActiveProperty({
+        id: `prop-${Date.now()}`,
+        name: 'Nueva Cabaña',
+        type: 'Cabaña',
+        address: demoState.welcomeGuide?.locationAddress || 'Dirección del Complejo',
+        city: 'Complejo',
+        neighborhood: 'Centro',
+        bedrooms: 1,
+        bathrooms: 1,
+        maxGuests: 2,
+        basePrice: 50,
+        cleaningFee: 15,
+        imageUrl: 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=800&q=80',
+        rating: 5.0,
+        reviewsCount: 0,
+        status: 'active',
+        syncStatus: { airbnb: false, booking: false, vrbo: false },
+        smartLock: { enabled: true, brand: 'Yale Smart' },
+        wifiNetwork: '(a confirmar)',
+        wifiPassword: '(a confirmar)',
+      });
+    }
     setModalMode('create');
   };
 
   const handleOpenEdit = (prop: Property) => {
+    setPhotoError(null);
+    setFormValidationError(null);
     setActiveProperty({ ...prop });
     setModalMode('edit');
   };
 
   const handleDelete = (propId: string) => {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = toLocalDateStr(new Date());
     const hasFuture = (demoState.reservations || []).some(
       (r) => r.propertyId === propId && r.checkOut >= todayStr
     );
@@ -164,28 +287,61 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        {demoState.properties.map((prop) => (
-          <div
-            key={prop.id}
-            className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.02)] hover:border-orange-300 transition-all flex flex-col justify-between"
-          >
-            <div>
-              {/* Image & Badges */}
-              <div className="relative h-48 w-full overflow-hidden bg-stone-100 dark:bg-zinc-800">
-                <img
-                  src={prop.imageUrl}
-                  alt={prop.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-3 left-3 bg-stone-900/80 backdrop-blur-xs text-white px-2.5 py-1 rounded-lg text-xs font-medium">
-                  {prop.neighborhood}, {prop.city}
-                </div>
+        {demoState.properties.map((prop) => {
+          const isDemoPhotoInApp = isApp && prop.imageUrl && prop.imageUrl.startsWith('/cabanas/');
+          const hasNoImage = !prop.imageUrl || prop.imageUrl.trim() === '' || isDemoPhotoInApp;
 
-                <div className="absolute top-3 right-3 bg-stone-900/80 backdrop-blur-xs text-white px-2 py-0.5 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-xs border border-white/10">
-                  <Star className="w-3.5 h-3.5 fill-[#E67E22] text-[#E67E22]" />
-                  <span>{prop.rating} ({prop.reviewsCount})</span>
+          let neighborhoodStr = prop.neighborhood ? prop.neighborhood.trim() : '';
+          if (isApp && neighborhoodStr === 'Centro / Zona Residencial') {
+            neighborhoodStr = '';
+          }
+          const cityStr = prop.city ? prop.city.trim() : '';
+          let locationTag = '';
+          if (neighborhoodStr && cityStr) {
+            locationTag = `${neighborhoodStr}, ${cityStr}`;
+          } else if (neighborhoodStr) {
+            locationTag = neighborhoodStr;
+          } else if (cityStr) {
+            locationTag = cityStr;
+          }
+
+          return (
+            <div
+              key={prop.id}
+              className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.02)] hover:border-orange-300 transition-all flex flex-col justify-between"
+            >
+              <div>
+                {/* Image & Badges */}
+                <div className="relative h-48 w-full overflow-hidden bg-stone-100 dark:bg-zinc-800">
+                  {hasNoImage ? (
+                    <button
+                      onClick={() => handleOpenEdit(prop)}
+                      className="w-full h-full bg-stone-100 dark:bg-zinc-800 flex flex-col items-center justify-center gap-2 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 hover:bg-stone-200/50 dark:hover:bg-zinc-700/50 transition-colors cursor-pointer group"
+                    >
+                      <Camera className="w-8 h-8 text-stone-400 dark:text-stone-500 group-hover:scale-110 transition-transform" />
+                      <span className="text-xs font-semibold">Agregá una foto de esta unidad</span>
+                    </button>
+                  ) : (
+                    <img
+                      src={prop.imageUrl}
+                      alt={prop.name}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+
+                  {locationTag && (
+                    <div className="absolute top-3 left-3 bg-stone-900/80 backdrop-blur-xs text-white px-2.5 py-1 rounded-lg text-xs font-medium">
+                      {locationTag}
+                    </div>
+                  )}
+
+                  {!isApp && prop.reviewsCount > 0 && (
+                    <div className="absolute top-3 right-3 bg-stone-900/80 backdrop-blur-xs text-white px-2 py-0.5 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-xs border border-white/10">
+                      <Star className="w-3.5 h-3.5 fill-[#E67E22] text-[#E67E22]" />
+                      <span>{prop.rating} ({prop.reviewsCount})</span>
+                    </div>
+                  )}
                 </div>
-              </div>
 
               {/* Body */}
               <div className="p-4 sm:p-5">
@@ -252,7 +408,7 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
                         </div>
                       ) : (
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-base font-bold text-stone-800 dark:text-stone-100">USD ${prop.basePrice}</span>
+                          <span className="text-base font-bold text-stone-800 dark:text-stone-100">{formatCurrency(prop.basePrice)}</span>
                           <button
                             onClick={() => {
                               setEditingPriceId(prop.id);
@@ -269,7 +425,7 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
 
                     <div className="text-right">
                       <span className="text-[10px] text-stone-400 dark:text-stone-500 font-semibold uppercase tracking-wider block">Tarifa Limpieza</span>
-                      <span className="text-sm font-bold text-stone-800 dark:text-stone-100">USD ${prop.cleaningFee}</span>
+                      <span className="text-sm font-bold text-stone-800 dark:text-stone-100">{formatCurrency(prop.cleaningFee)}</span>
                     </div>
                   </div>
                 ) : (
@@ -286,13 +442,17 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
 
                 {/* Smart lock & Wi-Fi details with Zen copy button */}
                 <div className="space-y-2 text-xs text-stone-500 dark:text-stone-400">
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 font-medium">
-                      <KeyRound className="w-3.5 h-3.5 text-stone-400" />
-                      Acceso / Cerradura:
-                    </span>
-                    <span className="font-medium text-stone-800 dark:text-stone-200">{prop.smartLock.brand}</span>
-                  </div>
+                  {!(isApp && !prop.smartLock?.enabled) && (
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 font-medium">
+                        <KeyRound className="w-3.5 h-3.5 text-stone-400" />
+                        Acceso / Cerradura:
+                      </span>
+                      <span className="font-medium text-stone-800 dark:text-stone-200">
+                        {prop.smartLock?.brand || 'Habilitada'}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between pt-1">
                     <span className="flex items-center gap-1.5 font-medium">
                       <Wifi className="w-3.5 h-3.5 text-stone-400" />
@@ -333,32 +493,35 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
             </div>
 
             {/* Direct Booking Footer */}
-            <div className="p-3.5 bg-stone-50/60 dark:bg-zinc-800/40 border-t border-stone-100 dark:border-zinc-800 flex items-center justify-between gap-3">
-              <div className="text-xs text-stone-500 dark:text-stone-400 truncate">
-                <span className="block text-[10px] font-semibold text-stone-400 dark:text-stone-500">Motor directo (0% comisiones)</span>
-                <span className="font-mono text-stone-700 dark:text-stone-300 text-[11px]">
-                  {window.location.host}/{prop.id}
-                </span>
+            {!isApp && (
+              <div className="p-3.5 bg-stone-50/60 dark:bg-zinc-800/40 border-t border-stone-100 dark:border-zinc-800 flex items-center justify-between gap-3">
+                <div className="text-xs text-stone-500 dark:text-stone-400 truncate">
+                  <span className="block text-[10px] font-semibold text-stone-400 dark:text-stone-500">Motor directo (0% comisiones)</span>
+                  <span className="font-mono text-stone-700 dark:text-stone-300 text-[11px]">
+                    {window.location.host}/{prop.id}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleCopyDirectLink(prop.id)}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 dark:text-stone-200 bg-white dark:bg-zinc-800 hover:text-[#E67E22] hover:border-orange-200 border border-stone-200/80 dark:border-zinc-700 px-3 py-1.5 rounded-xl transition-all cursor-pointer shrink-0 shadow-2xs"
+                >
+                  {copiedId === prop.id ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>¡Copiado!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copiar Enlace</span>
+                    </>
+                  )}
+                </button>
               </div>
-              <button
-                onClick={() => handleCopyDirectLink(prop.id)}
-                className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 dark:text-stone-200 bg-white dark:bg-zinc-800 hover:text-[#E67E22] hover:border-orange-200 border border-stone-200/80 dark:border-zinc-700 px-3 py-1.5 rounded-xl transition-all cursor-pointer shrink-0 shadow-2xs"
-              >
-                {copiedId === prop.id ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>¡Copiado!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Copiar Enlace</span>
-                  </>
-                )}
-              </button>
-            </div>
+            )}
           </div>
-        ))}
+        );
+      })}
       </div>
 
       {/* Property Create/Edit Modal */}
@@ -413,7 +576,7 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Precio base por noche (USD):</label>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Precio base por noche ({getActiveCurrency()}):</label>
                   <input
                     type="number"
                     min={0}
@@ -423,7 +586,7 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Tarifa de limpieza (USD):</label>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Tarifa de limpieza ({getActiveCurrency()}):</label>
                   <input
                     type="number"
                     min={0}
@@ -455,24 +618,103 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
                 </div>
               </div>
 
-              <div>
-                <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Marca / Cerradura inteligente:</label>
-                <input
-                  type="text"
-                  value={activeProperty.smartLock.brand}
-                  onChange={(e) => setActiveProperty({
-                    ...activeProperty,
-                    smartLock: { ...activeProperty.smartLock, brand: e.target.value }
-                  })}
-                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
-                />
+              {/* Foto de la unidad */}
+              <div className="space-y-2 pt-2 border-t border-stone-100 dark:border-zinc-800">
+                <label className="block font-semibold text-stone-700 dark:text-stone-300">Foto de la unidad:</label>
+                
+                <div className="relative w-full h-40 rounded-xl overflow-hidden bg-stone-100 dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 flex flex-col items-center justify-center">
+                  {activeProperty.imageUrl ? (
+                    <img
+                      src={activeProperty.imageUrl}
+                      alt="Vista previa de la unidad"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 gap-2 p-4 text-center">
+                      <Camera className="w-8 h-8 text-stone-400" />
+                      <span className="text-xs font-medium">Sin foto de la unidad</span>
+                    </div>
+                  )}
+
+                  {isCompressingPhoto && (
+                    <div className="absolute inset-0 bg-stone-900/70 backdrop-blur-xs flex flex-col items-center justify-center text-white gap-2">
+                      <RefreshCw className="w-6 h-6 animate-spin text-[#E67E22]" />
+                      <span className="text-xs font-semibold">Procesando foto…</span>
+                    </div>
+                  )}
+                </div>
+
+                {photoError && (
+                  <p className="text-xs font-semibold text-rose-500">{photoError}</p>
+                )}
+
+                <div className="flex items-center gap-2">
+                  <label className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-stone-100 dark:bg-zinc-800 hover:bg-stone-200 dark:hover:bg-zinc-700 text-stone-700 dark:text-stone-200 font-semibold text-xs transition-colors cursor-pointer border border-stone-200 dark:border-zinc-700">
+                    <Camera className="w-4 h-4 text-[#E67E22]" />
+                    <span>{activeProperty.imageUrl ? 'Cambiar foto' : 'Subir foto'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageFileChange}
+                      className="hidden"
+                      disabled={isCompressingPhoto}
+                    />
+                  </label>
+
+                  {activeProperty.imageUrl && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveProperty({ ...activeProperty, imageUrl: '' });
+                        setPhotoError(null);
+                      }}
+                      className="px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 font-semibold text-xs transition-colors cursor-pointer border border-rose-200 dark:border-rose-900/50 flex items-center gap-1.5"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Quitar foto</span>
+                    </button>
+                  )}
+                </div>
               </div>
 
-              {/* Nueva Sección: Calendarios de Airbnb y Booking */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="checkbox"
+                    id="smartLockEnabled"
+                    checked={activeProperty.smartLock.enabled}
+                    onChange={(e) => setActiveProperty({
+                      ...activeProperty,
+                      smartLock: { ...activeProperty.smartLock, enabled: e.target.checked }
+                    })}
+                    className="rounded text-[#E67E22] focus:ring-[#E67E22] cursor-pointer"
+                  />
+                  <label htmlFor="smartLockEnabled" className="font-semibold text-stone-700 dark:text-stone-300 cursor-pointer select-none">
+                    Tiene cerradura inteligente / acceso digital
+                  </label>
+                </div>
+                {activeProperty.smartLock.enabled && (
+                  <div>
+                    <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Marca / Cerradura inteligente:</label>
+                    <input
+                      type="text"
+                      placeholder="ej. Yale Smart, Nuki, Código digital"
+                      value={activeProperty.smartLock.brand}
+                      onChange={(e) => setActiveProperty({
+                        ...activeProperty,
+                        smartLock: { ...activeProperty.smartLock, brand: e.target.value }
+                      })}
+                      className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Nueva Sección: Calendarios conectados */}
               <div className="pt-3 border-t border-stone-100 dark:border-zinc-800 space-y-3">
                 <h5 className="font-bold text-stone-800 dark:text-stone-100 text-xs flex items-center gap-1.5">
                   <Globe className="w-4 h-4 text-[#E67E22]" />
-                  <span>Calendarios de Airbnb y Booking</span>
+                  <span>Calendarios conectados</span>
                 </h5>
 
                 <div>
@@ -489,6 +731,23 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
                       Pegá el enlace completo, empieza con https://
                     </span>
                   )}
+                  <div className="flex items-start gap-2 pt-2">
+                    <input
+                      type="checkbox"
+                      id={`importAirbnbBlocks-${activeProperty.id}`}
+                      checked={Boolean(activeProperty.importAirbnbBlocks)}
+                      onChange={(e) => setActiveProperty({ ...activeProperty, importAirbnbBlocks: e.target.checked })}
+                      className="mt-0.5 rounded text-[#E67E22] focus:ring-[#E67E22] cursor-pointer"
+                    />
+                    <label htmlFor={`importAirbnbBlocks-${activeProperty.id}`} className="cursor-pointer space-y-0.5 select-none">
+                      <span className="block font-medium text-stone-700 dark:text-stone-300">
+                        Importar también las fechas bloqueadas de Airbnb
+                      </span>
+                      <span className="block text-[11px] text-stone-500 dark:text-stone-400">
+                        Dejala desmarcada si conectaste otros calendarios a Airbnb, para evitar bloqueos duplicados.
+                      </span>
+                    </label>
+                  </div>
                 </div>
 
                 <div>
@@ -518,9 +777,30 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
                   />
                   {activeProperty.icalOtherUrl && activeProperty.icalOtherUrl.trim() !== '' && !activeProperty.icalOtherUrl.trim().startsWith('https://') && (
                     <span className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold block mt-1">
+                      Pegá el enlace completo, empieza with https://
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Google Calendar (dirección secreta en formato iCal):
+                  </label>
+                  <input
+                    type="url"
+                    value={activeProperty.icalGoogleUrl || ''}
+                    onChange={(e) => setActiveProperty({ ...activeProperty, icalGoogleUrl: e.target.value })}
+                    placeholder="https://calendar.google.com/calendar/ical/..."
+                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
+                  />
+                  {activeProperty.icalGoogleUrl && activeProperty.icalGoogleUrl.trim() !== '' && !activeProperty.icalGoogleUrl.trim().startsWith('https://') && (
+                    <span className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold block mt-1">
                       Pegá el enlace completo, empieza con https://
                     </span>
                   )}
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
+                    En Google Calendar: Configuración → elegí el calendario → Integrar el calendario → Dirección secreta en formato iCal. Usá un calendario solo para esta unidad: cada evento se toma como fecha ocupada.
+                  </p>
                 </div>
 
                 <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
@@ -592,6 +872,12 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
               </div>
             </div>
 
+            {formValidationError && (
+              <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-semibold">
+                ⚠️ {formValidationError}
+              </div>
+            )}
+
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-100 dark:border-zinc-800">
               <button
                 onClick={() => setModalMode(null)}
@@ -602,6 +888,18 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
               <button
                 onClick={() => {
                   if (activeProperty) {
+                    if (!activeProperty.name || activeProperty.name.trim() === '') {
+                      setFormValidationError('Ingresá un nombre para la unidad');
+                      alert('Ingresá un nombre para la unidad');
+                      return;
+                    }
+                    if (!activeProperty.basePrice || activeProperty.basePrice <= 0) {
+                      setFormValidationError('Ingresá la tarifa por noche');
+                      alert('Ingresá la tarifa por noche');
+                      return;
+                    }
+
+                    setFormValidationError(null);
                     const finalProp: Property = {
                       ...activeProperty,
                       syncStatus: {

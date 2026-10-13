@@ -1,10 +1,27 @@
-import { DemoState, Property, Reservation, CleaningTask, MessageTemplate, WelcomeGuideData, AddonService, CashMovement } from '../types';
+import { DemoState, Property, Reservation, CleaningTask, MessageTemplate, WelcomeGuideData, AddonService, CashMovement, CurrencyCode } from '../types';
+
+let activeCurrency: CurrencyCode = 'USD';
+
+export function setActiveCurrency(code: CurrencyCode): void {
+  activeCurrency = code || 'USD';
+}
+
+export function getActiveCurrency(): CurrencyCode {
+  return activeCurrency;
+}
+
+export function toLocalDateStr(d: Date): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 // Helper to format date offset from today
 export function getRelativeDate(offsetDays: number): string {
   const d = new Date();
   d.setDate(d.getDate() + offsetDays);
-  return d.toISOString().split('T')[0];
+  return toLocalDateStr(d);
 }
 
 export function formatDisplayDate(dateStr: string): string {
@@ -14,12 +31,23 @@ export function formatDisplayDate(dateStr: string): string {
   return `${parseInt(day, 10)} ${months[parseInt(month, 10) - 1]}`;
 }
 
-export function formatCurrency(amount: number, currency: 'USD' | 'ARS' = 'USD'): string {
+export function formatCurrency(amount: number, currency?: CurrencyCode): string {
+  const code = currency || activeCurrency || 'USD';
   const rounded = Math.round(amount || 0);
-  if (currency === 'ARS') {
-    return `$${rounded.toLocaleString('es-AR')}`;
+  const numStr = rounded.toLocaleString('es-AR');
+
+  switch (code) {
+    case 'ARS':
+      return `$ ${numStr}`;
+    case 'USD':
+      return `US$ ${numStr}`;
+    case 'BRL':
+      return `R$ ${numStr}`;
+    case 'EUR':
+      return `€ ${numStr}`;
+    default:
+      return `$ ${numStr}`;
   }
-  return `USD ${rounded.toLocaleString('es-AR')}`;
 }
 
 export function getGuestInitials(name: string): string {
@@ -883,6 +911,7 @@ export function getDemoState(): DemoState {
     availableAddons: INITIAL_ADDONS,
     addons: INITIAL_ADDONS,
     cashMovements: INITIAL_CASH_MOVEMENTS,
+    currencySettings: { settlementCurrency: 'USD', rates: {} },
     lastUpdated: new Date().toISOString(),
   };
 
@@ -911,6 +940,7 @@ export function resetDemoState(): DemoState {
     availableAddons: INITIAL_ADDONS,
     addons: INITIAL_ADDONS,
     cashMovements: INITIAL_CASH_MOVEMENTS,
+    currencySettings: { settlementCurrency: 'USD', rates: {} },
     lastUpdated: new Date().toISOString(),
   };
   saveDemoState(freshState);
@@ -929,6 +959,7 @@ export function getEmptyAppState(): DemoState {
     availableAddons: [],
     addons: [],
     cashMovements: [],
+    currencySettings: { settlementCurrency: 'USD', rates: {} },
     welcomeGuide: {
       propertyName: 'Mi Complejo',
       tagline: 'Cabañas & Alojamiento',

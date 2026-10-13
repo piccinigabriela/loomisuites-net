@@ -1,4 +1,5 @@
 import { DemoState } from '../../types';
+import { toLocalDateStr, formatCurrency } from '../../data/initialData';
 
 function formatFriendlyDates(checkIn: string, checkOut: string): string {
   if (!checkIn || !checkOut) return `${checkIn || ''} al ${checkOut || ''}`;
@@ -525,17 +526,17 @@ En Loomi lo hacés en segundos, sin complicaciones técnicas ni términos difíc
 
       const snippet = monthReservations.slice(0, 6).map((r: any) => {
         const pName = properties.find((p: any) => p.id === r.propertyId)?.name || 'Cabaña';
-        return `• **${r.guestName}** en *${pName}* (${r.platform.toUpperCase()}): ${formatFriendlyDates(r.checkIn, r.checkOut)} — **${r.totalAmount} USD** (Neto: ${r.netRevenue} USD)`;
+        return `• **${r.guestName}** en *${pName}* (${r.platform.toUpperCase()}): ${formatFriendlyDates(r.checkIn, r.checkOut)} — **${formatCurrency(r.totalAmount)}** (Neto: ${formatCurrency(r.netRevenue)})`;
       }).join('\n');
 
       return `### 📊 Ganancias y Facturación de ${targetMonth.name} (Loomi Suite)
 
 Aquí tenés el desglose exacto de tu negocio para **${targetMonth.name}**:
 
-- 💰 **Ganancia Neta Real en Mano:** **${Math.round(monthNet)} USD** *(lo que te queda limpio en el bolsillo después de descontar comisiones)*.
-- 💵 **Facturación Bruta Total:** **${Math.round(monthGross)} USD** sobre **${monthReservations.length} reservas registradas** (${monthNights} noches vendidas).
-- 🏷️ **Comisiones Deducidas por OTAs (Airbnb/Booking):** **-${Math.round(monthCommissions)} USD**.
-- 🌟 **Ahorro por Reservas Directas:** **+${Math.round(monthDirectSaved)} USD** ahorrados sin intermediarios.
+- 💰 **Ganancia Neta Real en Mano:** **${formatCurrency(monthNet)}** *(lo que te queda limpio en el bolsillo después de descontar comisiones)*.
+- 💵 **Facturación Bruta Total:** **${formatCurrency(monthGross)}** sobre **${monthReservations.length} reservas registradas** (${monthNights} noches vendidas).
+- 🏷️ **Comisiones Deducidas por OTAs (Airbnb/Booking):** **-${formatCurrency(monthCommissions)}**.
+- 🌟 **Ahorro por Reservas Directas:** **+${formatCurrency(monthDirectSaved)}** ahorrados sin intermediarios.
 
 ${monthReservations.length > 0 ? `📋 **Estadías del mes de ${targetMonth.name}:**\n${snippet}\n${monthReservations.length > 6 ? `*(y ${monthReservations.length - 6} reservas más en el sistema)*` : ''}` : `ℹ️ *Aún no hay reservas registradas específicamente para ${targetMonth.name}.*`}
 
@@ -559,10 +560,10 @@ ${monthReservations.length > 0 ? `📋 **Estadías del mes de ${targetMonth.name
 
 Aquí tenés el balance económico actualizado en tiempo real:
 
-- 💰 **Ganancia Neta Real en Mano:** **${Math.round(totalNet)} USD** *(después de tasas y comisiones de canales)*.
-- 💵 **Facturación Bruta Total:** **${Math.round(totalGross)} USD** sobre **${reservations.length} reservas registradas** (${totalNights} noches).
-- 🏷️ **Comisiones Deducidas por Plataformas (OTAs):** **-${Math.round(totalCommissions)} USD** (Booking, Airbnb).
-- 🌟 **Ahorro por Reservas Directas:** **+${Math.round(directSaved)} USD** ahorrados gracias a reservas directas sin comisiones.
+- 💰 **Ganancia Neta Real en Mano:** **${formatCurrency(totalNet)}** *(después de tasas y comisiones de canales)*.
+- 💵 **Facturación Bruta Total:** **${formatCurrency(totalGross)}** sobre **${reservations.length} reservas registradas** (${totalNights} noches).
+- 🏷️ **Comisiones Deducidas por Plataformas (OTAs):** **-${formatCurrency(totalCommissions)}** (Booking, Airbnb).
+- 🌟 **Ahorro por Reservas Directas:** **+${formatCurrency(directSaved)}** ahorrados gracias a reservas directas sin comisiones.
 
 ${pendingPayments.length > 0 ? `⚠️ **Cobros y Saldos Pendientes:** Tenés ${pendingPayments.length} reservas con saldo pendiente de cobro en mostrador.` : '✅ *Todos los cobros de reservas confirmadas están al día.*'}
 
@@ -795,7 +796,7 @@ Loomi conecta tus calendarios mediante sincronización bidireccional (iCal ofici
       return 'Todavía no cargaste unidades. Empezá por Administración → Configurar Unidades y después te muestro la ocupación.';
     }
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = toLocalDateStr(new Date());
     const activeRes = reservations.filter((r: any) => r.status !== 'cancelled');
 
     const occupiedCount = Math.min(
@@ -830,12 +831,12 @@ Loomi conecta tus calendarios mediante sincronización bidireccional (iCal ofici
 
 Hoy ingresa **${first.guestName}** en *${pName}* (${first.platform.toUpperCase()}):
 - 📅 **Fechas:** ${formatFriendlyDates(first.checkIn, first.checkOut)} (${first.nights} noches).
-- 💰 **Total:** ${first.totalAmount} USD (Estado de cobro: ${first.paymentStatus === 'paid' ? '100% Abonado' : 'Saldo pendiente'}).
+- 💰 **Total:** ${formatCurrency(first.totalAmount)} (Estado de cobro: ${first.paymentStatus === 'paid' ? '100% Abonado' : 'Saldo pendiente'}).
 - 📞 **Contacto:** ${first.guestPhone || 'Sin teléfono'}.
 
 ${upcomingCheckIns.length > 1 ? `📋 **Siguientes ingresos programados:**\n` + upcomingCheckIns.slice(1, 4).map((r: any) => {
   const p = properties.find((prop: any) => prop.id === r.propertyId)?.name || 'Cabaña';
-  return `• **${r.guestName}** en *${p}*: ${formatFriendlyDates(r.checkIn, r.checkOut)} (${r.totalAmount} USD)`;
+  return `• **${r.guestName}** en *${p}*: ${formatFriendlyDates(r.checkIn, r.checkOut)} (${formatCurrency(r.totalAmount)})`;
 }).join('\n') : ''}`;
       }
 
@@ -845,13 +846,13 @@ ${upcomingCheckIns.length > 1 ? `📋 **Siguientes ingresos programados:**\n` + 
 
 El próximo ingreso es **${nextCheckIn.guestName}** en *${pName}* (${nextCheckIn.platform.toUpperCase()}):
 - 📅 **Fechas de estadía:** ${formatFriendlyDates(nextCheckIn.checkIn, nextCheckIn.checkOut)} (${nextCheckIn.nights} noches).
-- 💰 **Importe:** ${nextCheckIn.totalAmount} USD (Neto: ${nextCheckIn.netRevenue} USD).
+- 💰 **Importe:** ${formatCurrency(nextCheckIn.totalAmount)} (Neto: ${formatCurrency(nextCheckIn.netRevenue)}).
 - 📞 **Contacto:** ${nextCheckIn.guestPhone || 'Sin teléfono'}.
 
 📋 **Siguientes ingresos confirmados:**
 ${upcomingCheckIns.slice(1, 4).map((r: any) => {
   const p = properties.find((prop: any) => prop.id === r.propertyId)?.name || 'Cabaña';
-  return `• **${r.guestName}** en *${p}*: ${formatFriendlyDates(r.checkIn, r.checkOut)} (${r.totalAmount} USD)`;
+  return `• **${r.guestName}** en *${p}*: ${formatFriendlyDates(r.checkIn, r.checkOut)} (${formatCurrency(r.totalAmount)})`;
 }).join('\n')}
 
 💡 *Podés ver y modificar reservas directamente en el **Rack Calendario**.*`;
@@ -862,7 +863,7 @@ ${upcomingCheckIns.slice(1, 4).map((r: any) => {
       .slice(0, 4)
       .map((r: any) => {
         const pName = properties.find((p: any) => p.id === r.propertyId)?.name || 'Cabaña';
-        return `• **${r.guestName}** en *${pName}* (${r.platform.toUpperCase()}): ${formatFriendlyDates(r.checkIn, r.checkOut)} (${r.totalAmount} USD)`;
+        return `• **${r.guestName}** en *${pName}* (${r.platform.toUpperCase()}): ${formatFriendlyDates(r.checkIn, r.checkOut)} (${formatCurrency(r.totalAmount)})`;
       })
       .join('\n');
 

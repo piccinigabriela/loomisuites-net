@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { DemoState } from '../../types';
+import { formatCurrency } from '../../data/initialData';
 import { getClientXeniaReply } from './xeniaLocalEngine';
 import {
   XeniaAvatar,
@@ -376,12 +377,12 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
               <span className="text-[#71717A] dark:text-[#8E8E93] block text-[9px] font-black uppercase tracking-wider">
                 {isApp ? 'Facturación total' : 'Facturación Muestra'}
               </span>
-              <span className="font-black text-[#18181B] dark:text-white text-sm">USD ${totalGross.toLocaleString()}</span>
+              <span className="font-black text-[#18181B] dark:text-white text-sm">{formatCurrency(totalGross)}</span>
             </div>
             <div className="bg-white dark:bg-[#18181B] px-3.5 py-2 rounded-none border border-[#C8C4B7] dark:border-[#222328]">
               <span className="text-[#E1500A] block text-[9px] font-black uppercase tracking-wider">Tarifa Promedio</span>
               <span className="font-black text-[#18181B] dark:text-white text-sm">
-                USD ${averageDailyRate} / noche
+                {formatCurrency(averageDailyRate)} / noche
               </span>
             </div>
           </div>

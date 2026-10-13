@@ -17,12 +17,18 @@ import {
   CircleDollarSign,
   Receipt,
   Scale,
+  Coins,
 } from 'lucide-react';
-import { DemoState, Reservation } from '../../types';
-import { formatCurrency, formatDisplayDate } from '../../data/initialData';
+import { DemoState, Reservation, CurrencyCode } from '../../types';
+import { formatCurrency, formatDisplayDate, toLocalDateStr } from '../../data/initialData';
 
 interface DemoFinancesProps {
   demoState: DemoState;
+  onUpdateCurrencySettings?: (settings: {
+    settlementCurrency: CurrencyCode;
+    rates: Partial<Record<CurrencyCode, number>>;
+    ratesUpdatedAt?: string;
+  }) => void;
 }
 
 const MONTHLY_DATA = [
@@ -34,11 +40,94 @@ const MONTHLY_DATA = [
   { month: 'Oct', occupancy: 91, revenue: 5860, directPct: 64, nights: 78, isCurrent: true },
 ];
 
-export const DemoFinances: React.FC<DemoFinancesProps> = ({ demoState }) => {
+export const DemoFinances: React.FC<DemoFinancesProps> = ({
+  demoState,
+  onUpdateCurrencySettings,
+}) => {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>('all');
   const [commissionRate, setCommissionRate] = useState<number>(20);
   const [metricView, setMetricView] = useState<'both' | 'revenue' | 'occupancy'>('both');
   const [hoveredMonthIndex, setHoveredMonthIndex] = useState<number | null>(null);
+
+  // Moneda y cotizaciones
+  const currentCurrency = demoState.currencySettings?.settlementCurrency || 'USD';
+  const currentRates = demoState.currencySettings?.rates || {};
+  const currentRatesUpdatedAt = demoState.currencySettings?.ratesUpdatedAt || '';
+
+  const [settlementCurrency, setSettlementCurrency] = useState<CurrencyCode>(currentCurrency);
+  const [rateInputs, setRateInputs] = useState<Record<string, string>>({
+    ARS: currentRates.ARS !== undefined ? String(currentRates.ARS) : '',
+    USD: currentRates.USD !== undefined ? String(currentRates.USD) : '',
+    BRL: currentRates.BRL !== undefined ? String(currentRates.BRL) : '',
+    EUR: currentRates.EUR !== undefined ? String(currentRates.EUR) : '',
+  });
+  const [savedToast, setSavedToast] = useState<boolean>(false);
+  const [currencyNotice, setCurrencyNotice] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    setSettlementCurrency(currentCurrency);
+    setRateInputs({
+      ARS: currentRates.ARS !== undefined ? String(currentRates.ARS) : '',
+      USD: currentRates.USD !== undefined ? String(currentRates.USD) : '',
+      BRL: currentRates.BRL !== undefined ? String(currentRates.BRL) : '',
+      EUR: currentRates.EUR !== undefined ? String(currentRates.EUR) : '',
+    });
+  }, [currentCurrency, JSON.stringify(currentRates)]);
+
+  const handleSettlementCurrencyChange = (newCurrency: CurrencyCode) => {
+    if (newCurrency === settlementCurrency) return;
+
+    if (demoState.reservations && demoState.reservations.length > 0) {
+      const confirmed = confirm(
+        '⚠️ Todos los totales, tarifas y reportes se muestran en esta moneda. Cambiarla no convierte los montos ya cargados. ¿Deseás cambiar la moneda de liquidación?'
+      );
+      if (!confirmed) return;
+    }
+
+    setSettlementCurrency(newCurrency);
+    setRateInputs({ ARS: '', USD: '', BRL: '', EUR: '' });
+    setCurrencyNotice('Cambiaste la moneda de liquidación: volvé a cargar las cotizaciones.');
+
+    onUpdateCurrencySettings?.({
+      settlementCurrency: newCurrency,
+      rates: {},
+      ratesUpdatedAt: '',
+    });
+  };
+
+  const handleSaveRates = () => {
+    const updatedRates: Partial<Record<CurrencyCode, number>> = {};
+    (['ARS', 'USD', 'BRL', 'EUR'] as CurrencyCode[]).forEach((code) => {
+      if (code !== settlementCurrency && rateInputs[code] !== undefined && rateInputs[code] !== '') {
+        const val = parseFloat(rateInputs[code]);
+        if (!isNaN(val) && val > 0) {
+          updatedRates[code] = val;
+        }
+      }
+    });
+
+    const now = new Date();
+    const formattedDate = `${toLocalDateStr(now)} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    onUpdateCurrencySettings?.({
+      settlementCurrency,
+      rates: updatedRates,
+      ratesUpdatedAt: formattedDate,
+    });
+
+    setCurrencyNotice(null);
+    setSavedToast(true);
+    setTimeout(() => setSavedToast(false), 3000);
+  };
+
+  const ALL_CURRENCIES: { code: CurrencyCode; label: string }[] = [
+    { code: 'ARS', label: 'Pesos argentinos (ARS)' },
+    { code: 'USD', label: 'Dólares (USD)' },
+    { code: 'BRL', label: 'Reales (BRL)' },
+    { code: 'EUR', label: 'Euros (EUR)' },
+  ];
+
+  const otherCurrencies = ALL_CURRENCIES.filter((c) => c.code !== settlementCurrency);
 
   // Filtrado y cálculos
   const activeReservations = demoState.reservations.filter(
@@ -134,6 +223,91 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({ demoState }) => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto font-sans">
+      {/* Moneda y cotización Card */}
+      <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 shadow-[0_4px_16px_rgba(0,0,0,0.02)] space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100 dark:border-zinc-800">
+          <div>
+            <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-bold flex items-center gap-1.5">
+              <Coins className="w-3.5 h-3.5" /> MONEDA PRINCIPAL & COTIZACIONES
+            </span>
+            <h3 className="text-base font-bold text-stone-800 dark:text-stone-100 mt-0.5">
+              Moneda y cotización
+            </h3>
+          </div>
+          {savedToast && (
+            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800 animate-in fade-in">
+              ✓ Cotizaciones guardadas
+            </span>
+          )}
+          {currencyNotice && (
+            <span className="text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-3 py-1 rounded-lg border border-amber-200 dark:border-amber-800 animate-in fade-in">
+              ⚠️ {currencyNotice}
+            </span>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5 items-end">
+          {/* Select Moneda de liquidación */}
+          <div className="lg:col-span-5 space-y-1">
+            <label className="block text-xs font-bold text-stone-700 dark:text-stone-300">
+              Moneda de liquidación:
+            </label>
+            <select
+              value={settlementCurrency}
+              onChange={(e) => handleSettlementCurrencyChange(e.target.value as CurrencyCode)}
+              className="w-full text-xs font-bold p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 cursor-pointer"
+            >
+              <option value="ARS">Pesos argentinos (ARS)</option>
+              <option value="USD">Dólares (USD)</option>
+              <option value="BRL">Reales (BRL)</option>
+              <option value="EUR">Euros (EUR)</option>
+            </select>
+            <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-tight mt-1">
+              Todos los totales, tarifas y reportes se muestran en esta moneda. Cambiarla no convierte los montos ya cargados.
+            </p>
+          </div>
+
+          {/* Rate inputs for other 3 currencies */}
+          <div className="lg:col-span-7 flex flex-col sm:flex-row sm:items-center gap-3">
+            {otherCurrencies.map((curr) => (
+              <div key={curr.code} className="flex-1 space-y-1">
+                <label className="text-xs font-semibold text-stone-700 dark:text-stone-300 block">
+                  1 {curr.code} =
+                </label>
+                <div className="flex items-center gap-1.5 bg-stone-50 dark:bg-zinc-800 p-1.5 rounded-xl border border-stone-200 dark:border-zinc-700">
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    placeholder="Cotización"
+                    value={rateInputs[curr.code] || ''}
+                    onChange={(e) => setRateInputs({ ...rateInputs, [curr.code]: e.target.value })}
+                    className="w-full text-xs font-bold bg-transparent focus:outline-none text-stone-800 dark:text-stone-100 font-mono"
+                  />
+                  <span className="text-[10px] font-bold text-stone-400 dark:text-stone-500 shrink-0 pr-1">
+                    {settlementCurrency}
+                  </span>
+                </div>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={handleSaveRates}
+              className="px-4 py-2.5 bg-[#E67E22] hover:bg-[#D35400] text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-xs shrink-0 self-end sm:self-center"
+            >
+              Guardar cotizaciones
+            </button>
+          </div>
+        </div>
+
+        {currentRatesUpdatedAt && (
+          <p className="text-[11px] text-stone-400 dark:text-stone-500 font-medium pt-1">
+            Actualizada el {currentRatesUpdatedAt}
+          </p>
+        )}
+      </div>
+
       {/* Header Zen */}
       <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-gray-100 dark:border-zinc-800 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)] flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
         <div className="space-y-1">
@@ -313,7 +487,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({ demoState }) => {
               {(metricView === 'both' || metricView === 'revenue') && (
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-[2px] bg-emerald-600 inline-block"></span>
-                  <span className="text-gray-700 dark:text-gray-300">Facturación ($ USD)</span>
+                  <span className="text-gray-700 dark:text-gray-300">Facturación ($ {currentCurrency})</span>
                 </div>
               )}
               {(metricView === 'both' || metricView === 'occupancy') && (
@@ -330,7 +504,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({ demoState }) => {
                   {MONTHLY_DATA[hoveredMonthIndex].month}:
                 </span>{' '}
                 <span className="text-emerald-700 dark:text-emerald-400 font-bold">
-                  USD {MONTHLY_DATA[hoveredMonthIndex].revenue.toLocaleString('es-AR')}
+                  {formatCurrency(MONTHLY_DATA[hoveredMonthIndex].revenue)}
                 </span>{' '}
                 ·{' '}
                 <span className="text-[#E67E22] font-bold">

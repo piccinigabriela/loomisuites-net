@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Copy, Check, Download, Upload, RotateCcw, FileJson, AlertCircle } from 'lucide-react';
 import { DemoState } from '../../types';
 import { copyToClipboard } from '../../utils/clipboard';
+import { toLocalDateStr } from '../../data/initialData';
 
 interface JsonDataModalProps {
   isOpen: boolean;
@@ -38,7 +39,7 @@ export const JsonDataModal: React.FC<JsonDataModalProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `loomisuite_datos_${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `loomisuite_datos_${toLocalDateStr(new Date())}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };

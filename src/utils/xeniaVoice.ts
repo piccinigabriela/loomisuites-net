@@ -27,20 +27,70 @@ const MONTH_NAMES_ES: Record<number, string> = {
   12: 'diciembre',
 };
 
-// Helper to format any integer into natural spoken Spanish words without leading zeros or punctuation
+// ===== Importes de dinero para la voz de Xenia =====
+const MONEY_WORDS: Record<string, string> = {
+  ARS: 'pesos', USD: 'dólares', BRL: 'reales', EUR: 'euros',
+};
+const MONEY_WORD_ONE: Record<string, string> = {
+  ARS: 'peso', USD: 'dólar', BRL: 'real', EUR: 'euro',
+};
 function spokenNumberEs(val: number): string {
   if (isNaN(val)) return '';
-  if (val === 1000) return 'mil';
-  if (val > 1000 && val < 2000) {
-    const rem = val % 1000;
-    return rem === 0 ? 'mil' : `mil ${rem}`;
-  }
-  if (val >= 2000 && val < 1000000) {
-    const thousands = Math.floor(val / 1000);
-    const rem = val % 1000;
-    return rem === 0 ? `${thousands} mil` : `${thousands} mil ${rem}`;
-  }
-  return String(val);
+  const millones = Math.floor(val / 1000000);
+  const miles = Math.floor((val % 1000000) / 1000);
+  const resto = val % 1000;
+  const partes: string[] = [];
+  if (millones > 0) partes.push(millones === 1 ? 'un millón' : `${millones} millones`);
+  if (miles > 0) partes.push(miles === 1 ? 'mil' : `${miles} mil`);
+  if (resto > 0 || partes.length === 0) partes.push(String(resto));
+  return partes.join(' ');
+}
+function parseAmount(numStr: string): number {
+  let s = numStr.trim();
+  s = s.replace(/[.,](\d{1,2})$/, '');
+  return parseInt(s.replace(/[.,]/g, ''), 10);
+}
+const NUM = '(\\d{1,3}(?:[.,]\\d{3})+(?:,\\d{1,2})?|\\d+(?:,\\d{1,2})?)';
+const NIGHT = '(\\s*(?:\\/\\s*noche|por noche))?';
+function spokenMoney(numStr: string, code: string, night?: string): string {
+  const val = parseAmount(numStr);
+  const words = val === 1 ? (MONEY_WORD_ONE[code] || 'peso') : (MONEY_WORDS[code] || 'pesos');
+  const de = val >= 1000000 && val % 1000000 === 0 ? 'de ' : '';
+  const numWords = val === 1 ? 'un' : spokenNumberEs(val);
+  return `${numWords} ${de}${words}${night ? ' por noche' : ''}`;
+}
+function normalizeMoneyForSpeech(text: string): string {
+  let clean = text;
+  const symbolToCode = (sym: string): string => {
+    const s = sym.toUpperCase();
+    if (s === 'US$' || s === 'U$S' || s === 'U$D') return 'USD';
+    if (s === 'R$') return 'BRL';
+    if (s === '€') return 'EUR';
+    return 'ARS';
+  };
+  clean = clean.replace(
+    new RegExp(`(?:US\\$|U\\$S|U\\$D|R\\$|€|\\$)\\s?${NUM}\\s*(USD|ARS|BRL|EUR)\\b${NIGHT}`, 'gi'),
+    (_m, n, code, night) => spokenMoney(n, code.toUpperCase(), night)
+  );
+  clean = clean.replace(
+    new RegExp(`(US\\$|U\\$S|U\\$D|R\\$|€|\\$)\\s?${NUM}${NIGHT}`, 'gi'),
+    (_m, sym, n, night) => spokenMoney(n, symbolToCode(sym), night)
+  );
+  clean = clean.replace(
+    new RegExp(`\\b(USD|ARS|BRL|EUR)\\s?${NUM}${NIGHT}`, 'gi'),
+    (_m, code, n, night) => spokenMoney(n, code.toUpperCase(), night)
+  );
+  clean = clean.replace(
+    new RegExp(`${NUM}\\s?(USD|ARS|BRL|EUR|dólares|dolares|pesos|reales|euros)\\b${NIGHT}`, 'gi'),
+    (_m, n, w, night) => {
+      const map: Record<string, string> = { 'dólares': 'USD', dolares: 'USD', pesos: 'ARS', reales: 'BRL', euros: 'EUR' };
+      const code = map[w.toLowerCase()] || w.toUpperCase();
+      return spokenMoney(n, code, night);
+    }
+  );
+  clean = clean.replace(/\b\d{1,3}(?:[.,]\d{3})+\b/g, (m) => spokenNumberEs(parseAmount(m)));
+  clean = clean.replace(/\b(USD|ARS|BRL|EUR)\b/g, (c) => MONEY_WORDS[c]);
+  return clean;
 }
 
 // Clean markdown, symbols, ISO dates and currency amounts into natural fluent spoken Spanish
@@ -182,58 +232,7 @@ export function cleanTextForSpeech(text: string): string {
   // 2. CURRENCY & AMOUNTS NORMALIZATION (Importes naturales en pesos o dólares)
   // =========================================================================
 
-  // A. FIRST: Clean USD amounts with explicit prefix or suffix
-  // e.g. "USD 1,014", "1,014 USD", "1.014 USD", "$1014 USD", "USD 22.000", "22000 USD", "USD 58/noche", "$49 USD"
-  
-  // 1. Prefix USD / US$
-  clean = clean.replace(/(?:[-+])?(?:USD|US\$)\s*(\d{1,3}(?:[,.]\d{3})+|\d+)(?:[,\.]\d{1,2})?\s*(?:\/noche|por noche)?\b/gi, (_match, numStr, nightSuffix) => {
-    const rawVal = parseInt(numStr.replace(/[,.]/g, ''), 10);
-    const spoken = spokenNumberEs(rawVal);
-    return nightSuffix ? `${spoken} dólares por noche` : `${spoken} dólares`;
-  });
-
-  // 2. Suffix USD / dólares / u$s with or without leading $
-  clean = clean.replace(/[-+]?\$?\s*(\d{1,3}(?:[,.]\d{3})+|\d+)(?:[,\.]\d{1,2})?\s*(?:USD|dólares|dolares|u\$s|u\$d)\s*(?:\/noche|por noche)?\b/gi, (_match, numStr, nightSuffix) => {
-    const rawVal = parseInt(numStr.replace(/[,.]/g, ''), 10);
-    const spoken = spokenNumberEs(rawVal);
-    return nightSuffix ? `${spoken} dólares por noche` : `${spoken} dólares`;
-  });
-
-  // B. SECOND: Process explicit ARS amounts or subscription sums (e.g. "$45.000", "$60.000", "$80.000 ARS")
-  clean = clean.replace(/[-+]?\$?\s*(\d{1,3}(?:[,.]\d{3})+|\d+)\s*ARS\b/gi, (_match, numStr) => {
-    const rawVal = parseInt(numStr.replace(/[,.]/g, ''), 10);
-    return `${spokenNumberEs(rawVal)} pesos`;
-  });
-
-  // Typical subscription sums in pesos
-  clean = clean.replace(/\$45\.?000\b/g, '45 mil pesos');
-  clean = clean.replace(/\$60\.?000\b/g, '60 mil pesos');
-  clean = clean.replace(/\$80\.?000\b/g, '80 mil pesos');
-
-  // General large amounts with $ in pesos (e.g. $15.000 -> 15 mil pesos, $22000 -> 22 mil pesos)
-  clean = clean.replace(/\$(\d{1,3}(?:[,.]\d{3})+|\d{4,9})\b/g, (_match, numStr) => {
-    const rawVal = parseInt(numStr.replace(/[,.]/g, ''), 10);
-    return `${spokenNumberEs(rawVal)} pesos`;
-  });
-
-  // Standalone small dollar amounts with $ (e.g. $49, $58, $80, $150)
-  clean = clean.replace(/\$(\d{1,3})\b/gi, '$1 dólares');
-
-  // C. Normalize any remaining thousand formatted numbers (e.g. "1,014" or "1.014" -> "mil 14") so TTS never says "1 0 1 4"
-  clean = clean.replace(/\b(\d{1,3})[,.](\d{3})\b/g, (_match, t, r) => {
-    const rawVal = parseInt(t + r, 10);
-    return spokenNumberEs(rawVal);
-  });
-
-  // D. General standalone currency markers
-  clean = clean.replace(/\bARS\b/g, 'pesos');
-  clean = clean.replace(/\bUSD\b/g, 'dólares');
-
-  // E. Safeguard: Clean up any accidental mixed currency strings
-  clean = clean.replace(/pesos\s+dólares/gi, 'dólares');
-  clean = clean.replace(/dólares\s+pesos/gi, 'dólares');
-  clean = clean.replace(/pesos\s+usd/gi, 'dólares');
-  clean = clean.replace(/usd\s+pesos/gi, 'dólares');
+  clean = normalizeMoneyForSpeech(clean);
   clean = clean.replace(/\$/g, '');
 
   // =========================================================================

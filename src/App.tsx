@@ -17,12 +17,14 @@ import {
   Menu,
   Smartphone,
 } from 'lucide-react';
-import { DemoState, Reservation, CleaningTask, ReservationStatus, PaymentStatus, CashMovement, CleaningStatus, Property } from './types';
+import { DemoState, Reservation, CleaningTask, ReservationStatus, PaymentStatus, CashMovement, CleaningStatus, Property, CurrencyCode } from './types';
 import {
   getDemoState,
   saveDemoState,
   resetDemoState,
   getRelativeDate,
+  toLocalDateStr,
+  setActiveCurrency,
 } from './data/initialData';
 
 // Landing Page Components
@@ -83,6 +85,7 @@ import {
   saveCashMovementDoc,
   deleteCashMovementDoc,
   saveTenantData,
+  saveCurrencySettingsDoc,
   savePublicGuide,
   savePublicCalendar,
   TenantDoc,
@@ -248,6 +251,7 @@ export default function App() {
             availableAddons: data.tenant?.availableAddons || [],
             addons: data.tenant?.availableAddons || [],
             cashMovements: data.cashMovements,
+            currencySettings: data.tenant?.currencySettings || { settlementCurrency: 'ARS', rates: {} },
             lastUpdated: new Date().toISOString(),
           });
         }
@@ -565,6 +569,11 @@ export default function App() {
   // En modo App: NUNCA se cargan datos de ejemplo (initialData) ni se lee/escribe la clave de localStorage de la demo
   const [demoState, setDemoState] = useState<DemoState>(() => (isApp ? getEmptyAppState() : getDemoState()));
 
+  useEffect(() => {
+    const active = demoState.currencySettings?.settlementCurrency || 'USD';
+    setActiveCurrency(active);
+  }, [demoState.currencySettings?.settlementCurrency]);
+
   // Requirement L.3: Debounced savePublicGuide (3 seconds)
   const isInitialPublicGuideSaveRef = React.useRef(true);
 
@@ -680,7 +689,7 @@ export default function App() {
       const currentTasks = demoStateRef.current.cleaningTasks || [];
 
       const hasIcalUrls = currentProps.some(
-        (p) => Boolean(p.icalAirbnbUrl || p.icalBookingUrl || p.icalOtherUrl)
+        (p) => Boolean(p.icalAirbnbUrl || p.icalBookingUrl || p.icalOtherUrl || p.icalGoogleUrl)
       );
 
       if (!hasIcalUrls) {
@@ -886,6 +895,7 @@ export default function App() {
     wifiPassword: string;
     properties: any[];
     addons: any[];
+    settlementCurrency?: CurrencyCode;
   }) => {
     if (isApp && currentUser) {
       await initializeTenantOnboarding(
@@ -899,7 +909,8 @@ export default function App() {
         data.properties,
         [],
         [],
-        data.addons
+        data.addons,
+        { settlementCurrency: data.settlementCurrency || 'ARS', rates: {} }
       );
     } else {
       const today = getRelativeDate(0);
@@ -980,6 +991,7 @@ export default function App() {
           wifiNetwork: data.wifiNetwork,
           wifiPassword: data.wifiPassword,
         },
+        currencySettings: { settlementCurrency: data.settlementCurrency || 'ARS', rates: {} },
         lastUpdated: new Date().toISOString(),
       };
       updateDemoState(() => newCustomState);
@@ -1035,7 +1047,7 @@ export default function App() {
     if (isApp && currentUser) {
       const existingReservations = demoState.reservations || [];
       const existingIds = new Set(existingReservations.map(r => `${r.propertyId}_${r.checkIn}_${r.checkOut}`));
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = toLocalDateStr(new Date());
 
       let addedCount = 0;
       for (const r of newRes) {
@@ -1080,7 +1092,7 @@ export default function App() {
         }
 
         // Automatically create cleaning tasks for upcoming / active reservations
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = toLocalDateStr(new Date());
         const activeForCleaning = newRes.filter(r => r.checkOut >= todayStr);
 
         const newCleaningTasks = activeForCleaning.map((r) => ({
@@ -1376,7 +1388,7 @@ export default function App() {
   };
 
   const handleDeleteProperty = async (propertyId: string) => {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = toLocalDateStr(new Date());
     const hasFuture = (demoState.reservations || []).some(
       (r) => r.propertyId === propertyId && r.checkOut >= todayStr
     );
@@ -1398,7 +1410,7 @@ export default function App() {
 
   // Add Cash Movement / Gasto
   const handleAddCashMovement = async (newMov: Omit<CashMovement, 'id' | 'date'>) => {
-    const dateStr = new Date().toISOString().split('T')[0];
+    const dateStr = toLocalDateStr(new Date());
     const added: CashMovement = {
       ...newMov,
       id: `mov-${Date.now()}`,
@@ -1818,7 +1830,7 @@ export default function App() {
                     : demoTab === 'direct-booking'
                     ? 'Tu Web Directa'
                     : demoTab === 'properties'
-                    ? 'Cabañas'
+                    ? (isApp ? 'Unidades' : 'Cabañas')
                     : demoTab === 'addons'
                     ? 'Opcionales'
                     : demoTab === 'messages'
@@ -2052,7 +2064,22 @@ export default function App() {
               )}
 
               {demoTab === 'finances' && userRole === 'admin' && (
-                <DemoFinances demoState={demoState} />
+                <DemoFinances
+                  demoState={demoState}
+                  onUpdateCurrencySettings={async (settings) => {
+                    if (isApp && currentUser) {
+                      await saveCurrencySettingsDoc(currentUser.uid, settings);
+                    } else {
+                      updateDemoState((prev) => ({
+                        ...prev,
+                        currencySettings: settings,
+                        lastUpdated: new Date().toISOString(),
+                      }));
+                    }
+                    setActiveCurrency(settings.settlementCurrency);
+                    showToast(`Moneda de liquidación: ${settings.settlementCurrency}`);
+                  }}
+                />
               )}
 
               {demoTab === 'cash-drawer' && (
@@ -2179,6 +2206,8 @@ export default function App() {
         onDeleteReservation={handleDeleteReservation}
         onOpenMessagesWithGuest={handleOpenMessagesWithGuest}
         isEmployeeMode={isEmployeeMode}
+        userRole={userRole}
+        currencySettings={demoState.currencySettings}
       />
 
       <JsonDataModal

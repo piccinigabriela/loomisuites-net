@@ -13,7 +13,7 @@ import {
   Info,
 } from 'lucide-react';
 import { DemoState, Reservation, MessageTemplate } from '../../types';
-import { formatDisplayDate, INITIAL_TEMPLATES, getGuestInitials } from '../../data/initialData';
+import { formatDisplayDate, INITIAL_TEMPLATES, getGuestInitials, toLocalDateStr, getRelativeDate } from '../../data/initialData';
 import { copyToClipboard } from '../../utils/clipboard';
 import { WebTemplatesManager } from '../WebTemplatesManager';
 import { GuestWelcomeCard } from '../GuestWelcomeCard';
@@ -47,7 +47,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid }) =>
   const [simulatedSent, setSimulatedSent] = useState(false);
 
   // Today reference (YYYY-MM-DD)
-  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const todayStr = useMemo(() => toLocalDateStr(new Date()), []);
 
   // Filter and group reservations
   const { filteredReservations, categorizedReservations } = useMemo(() => {
@@ -88,9 +88,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid }) =>
     past.sort((a, b) => b.checkOut.localeCompare(a.checkOut));
 
     // Next 7 days
-    const next7Date = new Date();
-    next7Date.setDate(next7Date.getDate() + 7);
-    const next7Str = next7Date.toISOString().split('T')[0];
+    const next7Str = getRelativeDate(7);
 
     let result: Reservation[] = [];
     if (filterScope === 'today') {

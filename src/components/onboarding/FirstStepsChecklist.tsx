@@ -65,7 +65,7 @@ export const FirstStepsChecklist: React.FC<FirstStepsChecklistProps> = ({
   // 3. Tus calendarios
   const hasSyncConfigured = properties.some(
     (p) =>
-      Boolean(p.syncStatus?.airbnb || p.syncStatus?.booking || p.syncStatus?.vrbo)
+      Boolean(p.syncStatus?.airbnb || p.syncStatus?.booking || p.syncStatus?.vrbo || p.icalGoogleUrl)
   );
   const isCalendarsDone = Boolean(onboardingChecklist.calendarios || hasSyncConfigured);
 

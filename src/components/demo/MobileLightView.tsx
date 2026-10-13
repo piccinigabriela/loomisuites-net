@@ -29,7 +29,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { DemoState, Reservation, Property, ReservationStatus, PaymentStatus } from '../../types';
-import { formatDisplayDate, formatCurrency, getGuestInitials } from '../../data/initialData';
+import { formatDisplayDate, formatCurrency, getGuestInitials, toLocalDateStr } from '../../data/initialData';
 import { XeniaAvatar } from '../xenia/XeniaAvatar';
 import { useXeniaVoice } from '../../hooks/useXeniaVoice';
 import { getClientXeniaReply } from '../xenia/xeniaLocalEngine';
@@ -203,7 +203,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
   };
 
   // Today's date calculations
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = toLocalDateStr(new Date());
   const activeReservations = demoState.reservations.filter((r) => r.status !== 'cancelled');
 
   // Check-ins today
@@ -257,7 +257,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
 
   // Pre-formatted messages for 1-tap mobile sending
   const paymentMessageText = selectedGuestAction
-    ? `¡Hola ${selectedGuestAction.guestName}! Te escribo de ${complexName}. Para confirmar tu reserva en ${selectedActionProperty?.name || 'la cabaña'} del ${formatDisplayDate(selectedGuestAction.checkIn)} al ${formatDisplayDate(selectedGuestAction.checkOut)}, te solicitamos la seña del 50% (${depositAmount} USD o equivalente en pesos).\n\n📌 *Datos de Transferencia Bancaria:*\n• Alias: IGUAZU.CABANAS.DEMO\n• CBU: 0140999803400012345678\n• Titular: ${complexName}\n\nO podés abonar con Mercado Pago / Tarjeta. ¡Avisanos cuando realices el pago para enviarte la confirmación!`
+    ? `¡Hola ${selectedGuestAction.guestName}! Te escribo de ${complexName}. Para confirmar tu reserva en ${selectedActionProperty?.name || 'la cabaña'} del ${formatDisplayDate(selectedGuestAction.checkIn)} al ${formatDisplayDate(selectedGuestAction.checkOut)}, te solicitamos la seña del 50% (${formatCurrency(depositAmount)}).\n\n📌 *Datos de Transferencia Bancaria:*\n• Alias: IGUAZU.CABANAS.DEMO\n• CBU: 0140999803400012345678\n• Titular: ${complexName}\n\nO podés abonar con Mercado Pago / Tarjeta. ¡Avisanos cuando realices el pago para enviarte la confirmación!`
     : '';
 
   const welcomeMessageText = selectedGuestAction
@@ -419,7 +419,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <span className="text-xs font-bold text-gray-900 dark:text-gray-100 font-sans">
-                            {formatCurrency(res.totalAmount, 'USD')}
+                            {formatCurrency(res.totalAmount)}
                           </span>
                           <span
                             className={`text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-md uppercase ${
@@ -960,7 +960,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                   <span className="text-xs font-bold text-gray-900 dark:text-gray-100">1. Solicitar Seña (50%)</span>
                 </div>
                 <p className="text-[11px] text-gray-400 font-medium">
-                  Envía CBU/Alias y sugerencia de seña ({depositAmount} USD)
+                  Envía CBU/Alias y sugerencia de seña ({formatCurrency(depositAmount)})
                 </p>
                 <a
                   href={buildWhatsAppLink(selectedGuestAction.guestPhone, paymentMessageText)}

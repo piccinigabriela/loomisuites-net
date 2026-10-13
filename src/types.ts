@@ -1,3 +1,4 @@
+export type CurrencyCode = 'ARS' | 'USD' | 'BRL' | 'EUR';
 export type BookingPlatform = 'airbnb' | 'booking' | 'vrbo' | 'direct';
 export type ReservationStatus = 'confirmed' | 'checked_in' | 'checked_out' | 'cancelled';
 export type PaymentStatus = 'paid' | 'pending' | 'deposit_only' | 'unpaid';
@@ -33,6 +34,8 @@ export interface Property {
   icalAirbnbUrl?: string;
   icalBookingUrl?: string;
   icalOtherUrl?: string;
+  icalGoogleUrl?: string;
+  importAirbnbBlocks?: boolean;
 }
 
 export type AddonCategory = 'frigobar' | 'transfers' | 'spa' | 'desayuno' | 'experiencias' | 'servicios';
@@ -56,6 +59,17 @@ export interface ReservationAddon {
   total: number;
   status: 'solicitado' | 'entregado' | 'cobrado';
   addedAt?: string;
+}
+
+export interface ReservationPayment {
+  id: string;
+  date: string; // YYYY-MM-DD
+  amount: number;
+  currency: CurrencyCode;
+  rate: number;
+  amountSettlement: number;
+  method: 'efectivo' | 'transferencia' | 'tarjeta' | 'mercadopago' | 'plataforma' | 'otro';
+  note?: string;
 }
 
 export interface Reservation {
@@ -89,10 +103,11 @@ export interface Reservation {
   airbnbFeeMode?: 'traditional_3' | 'simplified_15'; // Soporte para cuentas Airbnb con 3% anfitrión
   // Módulo de Opcionales / Extras / Consumos:
   addons?: ReservationAddon[];
+  payments?: ReservationPayment[];
   // Sincronización iCal:
   source?: 'manual' | 'ical';
   icalUid?: string;
-  icalSource?: 'airbnb' | 'booking' | 'vrbo';
+  icalSource?: 'airbnb' | 'booking' | 'vrbo' | 'google';
 }
 
 export interface CleaningChecklistItem {
@@ -214,5 +229,10 @@ export interface DemoState {
   availableAddons?: AddonService[];
   addons?: AddonService[];
   cashMovements?: CashMovement[];
+  currencySettings?: {
+    settlementCurrency: CurrencyCode;
+    rates: Partial<Record<CurrencyCode, number>>;
+    ratesUpdatedAt?: string;
+  };
   lastUpdated: string;
 }

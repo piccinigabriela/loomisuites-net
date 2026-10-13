@@ -8,7 +8,6 @@ import {
   ChevronsRight,
   ArrowLeftRight,
   Columns,
-  SlidersHorizontal,
   RotateCw,
   Clock,
   Sparkles,
@@ -16,7 +15,7 @@ import {
   Download,
 } from 'lucide-react';
 import { DemoState, Reservation, Property, BookingPlatform } from '../../types';
-import { formatDisplayDate, getRelativeDate } from '../../data/initialData';
+import { formatDisplayDate, getRelativeDate, toLocalDateStr } from '../../data/initialData';
 
 interface DemoCalendarProps {
   demoState: DemoState;
@@ -49,7 +48,6 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
   const [highlightTurnoversOnly, setHighlightTurnoversOnly] = useState<boolean>(false);
   // Column width: compact (48px) - perfect for mobile, medium (105px), full (185px)
   const [columnMode, setColumnMode] = useState<ColumnMode>('compact');
-  const [scrollProgress, setScrollProgress] = useState<number>(0);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [dismissedConflictKeys, setDismissedConflictKeys] = useState<Set<string>>(new Set());
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -74,8 +72,6 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
     }
   };
 
-  const timelineContainerRef = useRef<HTMLDivElement>(null);
-
   const getColumnWidthClass = (mode: ColumnMode) => {
     switch (mode) {
       case 'compact':
@@ -84,35 +80,6 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
         return 'w-[105px] min-w-[105px] max-w-[105px] p-2';
       case 'full':
         return 'w-[185px] min-w-[185px] max-w-[185px] p-3';
-    }
-  };
-
-  const handleScrollTimeline = (direction: 'left' | 'right') => {
-    if (timelineContainerRef.current) {
-      const scrollAmount = 320;
-      timelineContainerRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth',
-      });
-    }
-  };
-
-  const updateScrollProgress = () => {
-    if (timelineContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = timelineContainerRef.current;
-      const maxScroll = scrollWidth - clientWidth;
-      if (maxScroll > 0) {
-        setScrollProgress((scrollLeft / maxScroll) * 100);
-      }
-    }
-  };
-
-  const handleSliderChange = (newPercent: number) => {
-    setScrollProgress(newPercent);
-    if (timelineContainerRef.current) {
-      const { scrollWidth, clientWidth } = timelineContainerRef.current;
-      const maxScroll = scrollWidth - clientWidth;
-      timelineContainerRef.current.scrollLeft = (newPercent / 100) * maxScroll;
     }
   };
 
@@ -148,7 +115,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
   for (let i = 0; i < DAYS_TO_SHOW; i++) {
     const d = new Date();
     d.setDate(d.getDate() + dayOffset + i);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = toLocalDateStr(d);
     dates.push({
       dateStr,
       dayNum: d.getDate().toString(),
@@ -551,57 +518,26 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
       {/* CONTENEDOR DEL RACK GANTT TIMELINE */}
       <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] overflow-hidden transition-colors">
 
-      {/* High-Visibility Timeline Slider & Controller */}
-      <div className="bg-white dark:bg-[#18191E] px-5 py-3 border-b border-stone-200/70 dark:border-zinc-800/70 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2.5">
-          <SlidersHorizontal className="w-4 h-4 text-[#E67E22] shrink-0" />
-          <span className="font-bold text-stone-700 dark:text-stone-300 text-xs whitespace-nowrap">
-            Desplazamiento horizontal:
-          </span>
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => handleScrollTimeline('left')}
-              className="px-3 py-1.5 rounded-xl bg-stone-50 dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 border border-stone-200/80 dark:border-zinc-700 font-medium text-stone-700 dark:text-stone-200 text-xs flex items-center gap-1 transition-colors cursor-pointer"
-              title="Deslizar hacia la izquierda"
-            >
-              <ChevronLeft className="w-3.5 h-3.5 text-[#E67E22]" />
-              <span>‹ Anterior</span>
-            </button>
-            <button
-              onClick={() => handleScrollTimeline('right')}
-              className="px-3 py-1.5 rounded-xl bg-stone-50 dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 border border-stone-200/80 dark:border-zinc-700 font-medium text-stone-700 dark:text-stone-200 text-xs flex items-center gap-1 transition-colors cursor-pointer"
-              title="Deslizar hacia la derecha"
-            >
-              <span>Siguiente ›</span>
-              <ChevronRight className="w-3.5 h-3.5 text-[#E67E22]" />
-            </button>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2.5 flex-1 max-w-full sm:max-w-md">
-          <span className="text-[11px] text-stone-400 font-mono">Día 1</span>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={scrollProgress}
-            onChange={(e) => handleSliderChange(Number(e.target.value))}
-            className="w-full h-1.5 bg-stone-200 dark:bg-zinc-700 rounded-full appearance-none cursor-pointer accent-[#E67E22]"
-            title="Arrastra esta barra para deslizar horizontalmente por todo el calendario"
-          />
-          <span className="text-[11px] text-stone-400 font-mono">Día 14</span>
-          <span className="font-mono text-xs font-bold text-[#E67E22] min-w-[36px] text-right">
-            {Math.round(scrollProgress)}%
-          </span>
-        </div>
+      {/* Controles de desplazamiento de 7 días */}
+      <div className="bg-white dark:bg-[#18191E] px-5 py-3 border-b border-stone-200/70 dark:border-zinc-800/70 flex items-center justify-between gap-3 text-xs">
+        <button
+          onClick={() => setDayOffset(dayOffset - 7)}
+          className="px-3.5 py-1.5 rounded-xl bg-stone-50 dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 border border-stone-200/80 dark:border-zinc-700 font-medium text-stone-700 dark:text-stone-200 text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+        >
+          <ChevronLeft className="w-3.5 h-3.5 text-[#E67E22]" />
+          <span>‹ 7 días antes</span>
+        </button>
+        <button
+          onClick={() => setDayOffset(dayOffset + 7)}
+          className="px-3.5 py-1.5 rounded-xl bg-stone-50 dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 border border-stone-200/80 dark:border-zinc-700 font-medium text-stone-700 dark:text-stone-200 text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+        >
+          <span>7 días después ›</span>
+          <ChevronRight className="w-3.5 h-3.5 text-[#E67E22]" />
+        </button>
       </div>
 
       {/* Gantt Timeline Table */}
-      <div
-        ref={timelineContainerRef}
-        onScroll={updateScrollProgress}
-        className="overflow-x-auto bg-white dark:bg-[#18191E] calendar-scrollbar"
-      >
+      <div className="overflow-x-auto bg-white dark:bg-[#18191E] calendar-scrollbar">
         <div className="min-w-[980px]">
           {/* Header Row of Days */}
           <div className="flex border-b border-stone-200/70 dark:border-zinc-800/70 bg-stone-50/70 dark:bg-[#141518] text-stone-700 dark:text-stone-300">
@@ -840,51 +776,6 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
               </div>
             );
           })}
-        </div>
-      </div>
-
-      {/* Interactive Horizontal Scroll Slider & Pan Bar */}
-      <div className="bg-stone-50/50 dark:bg-[#141518] border-t border-stone-200/70 dark:border-zinc-800/70 px-5 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
-          <button
-            onClick={() => handleScrollTimeline('left')}
-            className="flex items-center gap-1 font-semibold text-xs bg-white dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 text-stone-700 dark:text-stone-200 px-3.5 py-1.5 rounded-xl border border-stone-200/80 dark:border-zinc-700 cursor-pointer transition-colors"
-            title="Deslizar hacia días anteriores"
-          >
-            <ChevronLeft className="w-3.5 h-3.5 text-[#E67E22]" />
-            <span>‹ Días anteriores</span>
-          </button>
-          <span className="text-[11px] text-stone-400 sm:hidden font-mono">
-            Deslizar timeline
-          </span>
-          <button
-            onClick={() => handleScrollTimeline('right')}
-            className="flex items-center gap-1 font-semibold text-xs bg-white dark:bg-zinc-800 hover:bg-stone-100 dark:hover:bg-zinc-700 text-stone-700 dark:text-stone-200 px-3.5 py-1.5 rounded-xl border border-stone-200/80 dark:border-zinc-700 cursor-pointer transition-colors"
-            title="Deslizar hacia días siguientes"
-          >
-            <span>Días siguientes ›</span>
-            <ChevronRight className="w-3.5 h-3.5 text-[#E67E22]" />
-          </button>
-        </div>
-
-        {/* Slider track */}
-        <div className="w-full sm:max-w-md flex items-center gap-3">
-          <SlidersHorizontal className="w-3.5 h-3.5 text-[#E67E22] shrink-0" />
-          <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 whitespace-nowrap hidden md:inline">
-            Barra de desplazamiento:
-          </span>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={scrollProgress}
-            onChange={(e) => handleSliderChange(Number(e.target.value))}
-            className="w-full h-1.5 bg-stone-200 dark:bg-zinc-700 rounded-full appearance-none cursor-pointer accent-[#E67E22]"
-            title="Arrastra para navegar por los 14 días"
-          />
-          <span className="text-xs font-mono text-stone-700 dark:text-stone-300 font-bold min-w-[34px] text-right">
-            {Math.round(scrollProgress)}%
-          </span>
         </div>
       </div>
     </div>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Calendar, User, DollarSign, KeyRound, Check, ShoppingBag, Trash2 } from 'lucide-react';
-import { DemoState, Reservation, BookingPlatform, ReservationAddon, AddonService, PaymentStatus } from '../../types';
-import { getRelativeDate } from '../../data/initialData';
+import { DemoState, Reservation, BookingPlatform, ReservationAddon, AddonService, PaymentStatus, ReservationPayment, CurrencyCode } from '../../types';
+import { getRelativeDate, toLocalDateStr, formatCurrency, getActiveCurrency } from '../../data/initialData';
+import { isAppMode } from '../../lib/appMode';
 
 interface NewReservationModalProps {
   isOpen: boolean;
@@ -32,6 +33,11 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
   const [guestsCount, setGuestsCount] = useState(2);
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('pending');
   const [specialNotes, setSpecialNotes] = useState('');
+  // Seña real (monto, moneda y método que informa el anfitrión)
+  const [depositAmount, setDepositAmount] = useState<string>('');
+  const [depositCurrency, setDepositCurrency] = useState<CurrencyCode>(getActiveCurrency());
+  const [depositMethod, setDepositMethod] = useState<ReservationPayment['method']>('transferencia');
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Nuevas opciones avanzadas solicitadas:
   const [earlyCheckIn, setEarlyCheckIn] = useState(false);
@@ -72,6 +78,10 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
       setGuestsCount(2);
       setPaymentStatus('pending');
       setSpecialNotes('');
+      setDepositAmount('');
+      setDepositCurrency(demoState.currencySettings?.settlementCurrency || getActiveCurrency());
+      setDepositMethod('transferencia');
+      setFormError(null);
       setEarlyCheckIn(false);
       setLateCheckOut(false);
       setEarlyLateFee(0);
@@ -81,7 +91,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
       setSelectedAddons([]);
       setSelectedAddonIdToAdd('');
     }
-  }, [isOpen, initialPropertyId, initialDate, demoState.properties]);
+  }, [isOpen, initialPropertyId, initialDate, demoState.properties, demoState.currencySettings?.settlementCurrency]);
 
   if (!isOpen) return null;
 
@@ -95,12 +105,12 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
   const diffTime = Math.max(1, d2.getTime() - d1.getTime());
   const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 3;
 
-  const defaultNightPrice = selectedProp?.basePrice || 85;
+  const defaultNightPrice = selectedProp?.basePrice ?? 0;
   const effectiveNightPrice = isManualPrice && manualPricePerNight !== null ? manualPricePerNight : defaultNightPrice;
   const rawAccommodation = effectiveNightPrice * nights;
   const discountVal = customDiscountPercent > 0 ? Math.round((rawAccommodation * customDiscountPercent) / 100) : 0;
   const accommodationTotal = rawAccommodation - discountVal;
-  const cleaningFee = selectedProp?.cleaningFee || 35;
+  const cleaningFee = selectedProp?.cleaningFee ?? 0;
   const addonsTotal = selectedAddons.reduce((sum, item) => sum + item.total, 0);
   const totalAmount = accommodationTotal + cleaningFee + earlyLateFee + addonsTotal;
 
@@ -151,11 +161,60 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
   const commissionPaid = Math.round(accommodationTotal * commissionRate);
   const netRevenue = totalAmount - commissionPaid;
 
+  // Seña: conversión a la moneda de liquidación con la cotización cargada por el administrador
+  const settlementCurrency: CurrencyCode = demoState.currencySettings?.settlementCurrency || getActiveCurrency();
+  const depositValue = parseFloat(depositAmount) || 0;
+  const depositRate =
+    depositCurrency === settlementCurrency ? 1 : demoState.currencySettings?.rates?.[depositCurrency] || 0;
+  const depositSettlement = Math.round(depositValue * depositRate);
+  const isDepositMissingRate = paymentStatus === 'deposit_only' && depositCurrency !== settlementCurrency && depositRate <= 0;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isPropertyValid) return;
 
+    if (paymentStatus === 'deposit_only') {
+      if (depositValue <= 0) {
+        setFormError('Ingresá el monto de la seña');
+        return;
+      }
+      if (isDepositMissingRate) {
+        setFormError(`Falta la cotización de ${depositCurrency}: cargala en Finanzas o registrá la seña en ${settlementCurrency}`);
+        return;
+      }
+      if (totalAmount > 0 && depositSettlement >= totalAmount) {
+        setFormError('La seña debe ser menor al total. Si pagó todo, elegí "Pagado".');
+        return;
+      }
+    }
+    setFormError(null);
+
     const randomPin = `${Math.floor(1000 + Math.random() * 9000)}#`;
+
+    const initialPayments: ReservationPayment[] = [];
+    if (paymentStatus === 'paid') {
+      initialPayments.push({
+        id: `pay-${Date.now()}`,
+        date: toLocalDateStr(new Date()),
+        amount: totalAmount,
+        currency: settlementCurrency,
+        rate: 1,
+        amountSettlement: totalAmount,
+        method: platform === 'direct' ? 'efectivo' : 'plataforma',
+        note: 'Pago total al registrar reserva',
+      });
+    } else if (paymentStatus === 'deposit_only') {
+      initialPayments.push({
+        id: `pay-${Date.now()}`,
+        date: toLocalDateStr(new Date()),
+        amount: depositValue,
+        currency: depositCurrency,
+        rate: depositRate,
+        amountSettlement: depositSettlement,
+        method: depositMethod,
+        note: 'Seña al registrar la reserva',
+      });
+    }
 
     const newRes: Reservation = {
       id: `res-${Date.now()}`,
@@ -176,7 +235,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
       paymentStatus,
       pinCode: randomPin,
       specialNotes: specialNotes.trim(),
-      createdAt: new Date().toISOString().split('T')[0],
+      createdAt: toLocalDateStr(new Date()),
       earlyCheckIn,
       lateCheckOut,
       earlyLateFee,
@@ -184,6 +243,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
       isManualPrice,
       airbnbFeeMode: platform === 'airbnb' ? airbnbFeeMode : undefined,
       addons: selectedAddons,
+      payments: initialPayments,
     };
 
     onSaveReservation(newRes);
@@ -225,11 +285,19 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
               className="w-full text-xs font-semibold p-3 rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-[#D86F35]/40 cursor-pointer shadow-xs"
             >
               {!isPropertyValid && <option value="">-- Elegí una unidad --</option>}
-              {demoState.properties.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.neighborhood} - {p.name} (${p.basePrice}/noche)
-                </option>
-              ))}
+              {demoState.properties.map((p) => {
+                const isApp = isAppMode();
+                let neighborhoodStr = p.neighborhood ? p.neighborhood.trim() : '';
+                if (isApp && neighborhoodStr === 'Centro / Zona Residencial') {
+                  neighborhoodStr = '';
+                }
+                const neighborhoodPart = neighborhoodStr ? ` · ${neighborhoodStr}` : '';
+                return (
+                  <option key={p.id} value={p.id}>
+                    {p.name}{neighborhoodPart} ({formatCurrency(p.basePrice)}/noche)
+                  </option>
+                );
+              })}
             </select>
           </div>
 
@@ -299,6 +367,64 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
               <option value="deposit_only">Seña</option>
               <option value="paid">Pagado</option>
             </select>
+
+            {paymentStatus === 'deposit_only' && (
+              <div className="mt-2 p-3 rounded-2xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/60 dark:bg-amber-950/20 space-y-2">
+                <label className="block text-[11px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+                  Monto de la seña*
+                </label>
+                <div className="grid grid-cols-[1fr_auto] gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    placeholder="Ej: 30000"
+                    value={depositAmount}
+                    onChange={(e) => {
+                      setDepositAmount(e.target.value);
+                      setFormError(null);
+                    }}
+                    className="w-full text-xs font-semibold p-3 rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-[#D86F35]/40 shadow-xs"
+                  />
+                  <select
+                    value={depositCurrency}
+                    onChange={(e) => {
+                      setDepositCurrency(e.target.value as CurrencyCode);
+                      setFormError(null);
+                    }}
+                    className="text-xs font-semibold p-3 rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 cursor-pointer shadow-xs"
+                  >
+                    {(['ARS', 'USD', 'BRL', 'EUR'] as CurrencyCode[]).map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+                <select
+                  value={depositMethod}
+                  onChange={(e) => setDepositMethod(e.target.value as ReservationPayment['method'])}
+                  className="w-full text-xs font-semibold p-3 rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 cursor-pointer shadow-xs"
+                >
+                  <option value="transferencia">Transferencia</option>
+                  <option value="efectivo">Efectivo</option>
+                  <option value="tarjeta">Tarjeta</option>
+                  <option value="mercadopago">Mercado Pago</option>
+                  <option value="plataforma">Pagado en la plataforma</option>
+                  <option value="otro">Otro</option>
+                </select>
+                {isDepositMissingRate ? (
+                  <p className="text-[11px] font-semibold text-rose-600 dark:text-rose-400">
+                    Falta la cotización de {depositCurrency}: cargala en Finanzas o registrá la seña en {settlementCurrency}.
+                  </p>
+                ) : (
+                  depositValue > 0 &&
+                  depositCurrency !== settlementCurrency && (
+                    <p className="text-[11px] text-amber-800 dark:text-amber-300">
+                      Equivale a {formatCurrency(depositSettlement, settlementCurrency)} (1 {depositCurrency} = {depositRate} {settlementCurrency})
+                    </p>
+                  )
+                )}
+              </div>
+            )}
           </div>
 
           {/* Modalidad de Comisión Airbnb */}
@@ -366,7 +492,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">
-                  {isManualPrice ? 'Tarifa por Noche Especial (USD)' : `Tarifa Base de Lista: $${defaultNightPrice} USD`}
+                  {isManualPrice ? `Tarifa por Noche Especial (${getActiveCurrency()})` : `Tarifa Base de Lista: ${formatCurrency(defaultNightPrice)}`}
                 </label>
                 <input
                   type="number"
@@ -445,7 +571,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
                     onChange={(e) => setEarlyLateFee(Math.max(0, Number(e.target.value)))}
                     className="w-16 p-1 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-right font-bold"
                   />
-                  <span className="text-zinc-500">USD</span>
+                  <span className="text-zinc-500">{getActiveCurrency()}</span>
                 </div>
               </div>
             )}
@@ -510,7 +636,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
                       {item.name} ({item.quantity}x)
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-purple-700 dark:text-purple-300">+${item.total} USD</span>
+                      <span className="font-bold text-purple-700 dark:text-purple-300">+{formatCurrency(item.total)}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveAddonItem(item.addonId)}
@@ -535,7 +661,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
                 <option value="">+ Agregar servicio opcional (Frigobar, Traslado, Spa, Desayuno)...</option>
                 {addonsCatalog.map((a) => (
                   <option key={a.id} value={a.id}>
-                    {a.name} — ${a.price} USD ({a.unitLabel})
+                    {a.name} — {formatCurrency(a.price)} ({a.unitLabel})
                   </option>
                 ))}
               </select>
@@ -558,45 +684,51 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
           <div className="bg-[#f8f6f2] dark:bg-zinc-800/80 p-3.5 rounded-xl border border-[#ded9cd] dark:border-zinc-700 text-xs space-y-1.5">
             <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
               <span>
-                {nights} noches x ${effectiveNightPrice} USD {isManualPrice && '(tarifa manual)'}:
+                {nights} noches x {formatCurrency(effectiveNightPrice)} {isManualPrice && '(tarifa manual)'}:
               </span>
-              <span>${rawAccommodation} USD</span>
+              <span>{formatCurrency(rawAccommodation)}</span>
             </div>
             {discountVal > 0 && (
               <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-semibold">
                 <span>Descuento Especial (-{customDiscountPercent}%):</span>
-                <span>-${discountVal} USD</span>
+                <span>-{formatCurrency(discountVal)}</span>
               </div>
             )}
             <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
               <span>Tarifa de Limpieza:</span>
-              <span>${cleaningFee} USD</span>
+              <span>{formatCurrency(cleaningFee)}</span>
             </div>
             {earlyLateFee > 0 && (
               <div className="flex justify-between text-[#c46d45] dark:text-[#d88d5e] font-semibold">
                 <span>Recargo Early / Late Check:</span>
-                <span>+${earlyLateFee} USD</span>
+                <span>+{formatCurrency(earlyLateFee)}</span>
               </div>
             )}
             {addonsTotal > 0 && (
               <div className="flex justify-between text-[#9c512a] dark:text-[#d88d5e] font-semibold">
                 <span>Servicios Opcionales ({selectedAddons.length} agregados):</span>
-                <span>+${addonsTotal} USD</span>
+                <span>+{formatCurrency(addonsTotal)}</span>
               </div>
             )}
             <div className="flex justify-between font-bold text-zinc-900 dark:text-zinc-100 pt-1 border-t border-[#ded9cd] dark:border-zinc-700">
               <span>Total a Cobrar:</span>
-              <span className="text-sm font-extrabold text-[#c46d45] dark:text-[#d88d5e]">${totalAmount} USD</span>
+              <span className="text-sm font-extrabold text-[#c46d45] dark:text-[#d88d5e]">{formatCurrency(totalAmount)}</span>
             </div>
             <div className="flex justify-between text-[11px] text-zinc-500 dark:text-zinc-400 pt-1 border-t border-[#ded9cd] dark:border-zinc-700">
               <span>Comisión ({platform === 'airbnb' ? `Airbnb ${airbnbFeeMode === 'traditional_3' ? '3% tradicional' : '15% simplificada'}` : platform.toUpperCase()}):</span>
-              <span>-${commissionPaid} USD</span>
+              <span>-{formatCurrency(commissionPaid)}</span>
             </div>
             <div className="flex justify-between text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
               <span>Ingreso Neto Real en Mano:</span>
-              <span className="font-mono">${netRevenue} USD</span>
+              <span className="font-mono">{formatCurrency(netRevenue)}</span>
             </div>
           </div>
+
+          {formError && (
+            <div className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-xs font-semibold">
+              ⚠️ {formError}
+            </div>
+          )}
 
           {/* Submit */}
           <div className="pt-2 flex items-center justify-end gap-3">
