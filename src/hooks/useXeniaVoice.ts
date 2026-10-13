@@ -10,6 +10,7 @@ import {
   setStoredSelectedVoiceURI,
   isFemaleVoice,
   isSpainVoice,
+  hasSpanishVoice,
 } from '../utils/xeniaVoice';
 
 // Declare Web Speech Recognition types for browser
@@ -24,7 +25,15 @@ const isBraveBrowser = (): boolean =>
   typeof navigator !== 'undefined' && Boolean((navigator as any).brave);
 
 /** Mensaje claro cuando el navegador no deja hablar o escuchar a Xenia (pasa sobre todo en Brave). */
+const isFirefoxBrowser = (): boolean =>
+  typeof navigator !== 'undefined' && /firefox/i.test(navigator.userAgent || '');
+
 const voiceHelpMessage = (kind: 'speak' | 'listen'): string => {
+  if (isFirefoxBrowser()) {
+    return kind === 'speak'
+      ? 'Firefox usa las voces básicas de la computadora y suenan robóticas. Para escuchar a Xenia con voz natural argentina usá Microsoft Edge.'
+      : 'Firefox no permite el dictado por voz. Para hablarle a Xenia usá Microsoft Edge o Chrome. Podés seguir escribiéndole normalmente.';
+  }
   if (isBraveBrowser()) {
     return kind === 'speak'
       ? 'Brave bloquea las voces del sistema, por eso Xenia no habla acá. Para escucharla usá Microsoft Edge (tiene voces argentinas) o Chrome. Podés seguir escribiéndole normalmente.'
@@ -189,6 +198,9 @@ export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => voi
           setIsListening(false);
         }
       }
+    } else {
+      // Navegador sin dictado por voz (Firefox, Brave, Safari viejo): avisar en vez de no hacer nada
+      setVoiceIssue(voiceHelpMessage('listen'));
     }
   }, []);
 
@@ -204,11 +216,16 @@ export function useXeniaVoice(onTranscriptReceived?: (transcript: string) => voi
 
       // Sin voces instaladas/permitidas (Brave, algunos Linux): avisar en lugar de quedar en silencio
       const voicesNow = typeof window !== 'undefined' && 'speechSynthesis' in window ? window.speechSynthesis.getVoices() : [];
-      if (typeof window === 'undefined' || !('speechSynthesis' in window) || voicesNow.length === 0) {
+      if (typeof window === 'undefined' || !('speechSynthesis' in window) || voicesNow.length === 0 || !hasSpanishVoice()) {
         setVoiceIssue(voiceHelpMessage('speak'));
         setIsSpeaking(false);
         setSpeakingMessageId(null);
         return;
+      }
+
+      // En Firefox habla, pero con voces de sistema que suenan robóticas: avisar una vez
+      if (isFirefoxBrowser()) {
+        setVoiceIssue(voiceHelpMessage('speak'));
       }
 
       setIsSpeaking(true);

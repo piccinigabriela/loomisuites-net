@@ -429,10 +429,17 @@ export function getBestLatinFemaleVoice(): SpeechSynthesisVoice | null {
   if (latinVoices.length > 0) return latinVoices[0];
 
   // 5. Extreme Fallback: Only if NO Latin voices exist in the OS/Browser, take any Spanish voice
-  const anySpanish = voices.find((v) => (v.lang || '').startsWith('es'));
+  const anySpanish = voices.find((v) => (v.lang || '').toLowerCase().startsWith('es'));
   if (anySpanish) return anySpanish;
 
-  return voices[0] || null;
+  // Nunca usar una voz en otro idioma: leer castellano con voz inglesa suena incomprensible
+  return null;
+}
+
+/** true si el navegador tiene al menos una voz en español */
+export function hasSpanishVoice(): boolean {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return false;
+  return window.speechSynthesis.getVoices().some((v) => (v.lang || '').toLowerCase().startsWith('es'));
 }
 
 // Alias for backward compatibility
@@ -465,9 +472,12 @@ export function speakXenia(
   currentUtterance = utterance;
 
   const voice = getBestLatinFemaleVoice();
-  if (voice) {
-    utterance.voice = voice;
+  if (!voice) {
+    currentUtterance = null;
+    options?.onError?.({ error: 'no-spanish-voice' });
+    return;
   }
+  utterance.voice = voice;
 
   // Force Latin American language tag (es-419) if voice is generic or default
   utterance.lang = voice?.lang && !isSpainVoice(voice) ? voice.lang : 'es-419';
