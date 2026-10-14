@@ -255,6 +255,19 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
 
                 <div>
                   <label className="block text-xs font-bold text-zinc-700 mb-1">
+                    Horario de Check-in (ingreso)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.checkinHour || ''}
+                    placeholder="Ej: 14:00 hs"
+                    onChange={(e) => handleGeneralChange('checkinHour', e.target.value)}
+                    className="w-full text-xs p-2.5 rounded-xl border border-zinc-300 focus:border-rose-500 focus:outline-hidden"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-zinc-700 mb-1">
                     Horario de Check-out
                   </label>
                   <input

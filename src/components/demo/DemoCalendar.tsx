@@ -15,7 +15,7 @@ import {
   Download,
 } from 'lucide-react';
 import { DemoState, Reservation, Property, BookingPlatform } from '../../types';
-import { formatDisplayDate, getRelativeDate, toLocalDateStr, formatCurrency } from '../../data/initialData';
+import { formatDisplayDate, getRelativeDate, toLocalDateStr, formatCurrency, getGuideHours } from '../../data/initialData';
 
 interface DemoCalendarProps {
   demoState: DemoState;
@@ -82,6 +82,8 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
         return 'w-[185px] min-w-[185px] max-w-[185px] p-3';
     }
   };
+
+  const calendarHours = getGuideHours(demoState.welcomeGuide, isAppMode);
 
   // Precio corto para la columna angosta (ej. "$125k" en pesos, "US$40" en dólares)
   const compactMoney = (amount: number) => {
@@ -519,7 +521,11 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           {/* Alerta de Recambio del Mismo Día (Naranja pastel e icono claro) */}
           <div className="flex items-center space-x-1.5 bg-orange-50 dark:bg-orange-950/40 text-[#E67E22] px-3 py-1.5 rounded-xl border border-orange-100/60 dark:border-orange-900/40">
             <Clock className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span>Recambio mismo día: Salida 10:00 & Entrada 14:00</span>
+            <span>
+              {calendarHours.checkin && calendarHours.checkout
+                ? `Recambio mismo día: Salida ${calendarHours.checkout} & Entrada ${calendarHours.checkin}`
+                : 'Cargá tus horarios de check-in y check-out en Tu Web & Guía → Ajustes'}
+            </span>
           </div>
         </div>
       </div>

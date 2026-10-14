@@ -740,6 +740,15 @@ export const APP_TEMPLATES_PT: MessageTemplate[] = [
   },
 ];
 
+/** Horarios cargados en la guía. En la demo, si faltan, se usan 14:00 / 10:00; en la app real quedan vacíos. */
+export function getGuideHours(guide: WelcomeGuideData | undefined, isApp: boolean): { checkin: string; checkout: string } {
+  const clean = (v?: string) => (v || '').trim().replace(/\s*hs\.?$/i, '');
+  return {
+    checkin: clean(guide?.checkinHour) || (isApp ? '' : '14:00'),
+    checkout: clean(guide?.checkoutHour) || (isApp ? '' : '10:00'),
+  };
+}
+
 export type GuestLanguage = 'es' | 'en' | 'pt';
 
 /** Idioma probable según el prefijo del teléfono (+55 Brasil → pt; países de habla inglesa → en). */

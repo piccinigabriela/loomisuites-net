@@ -27,7 +27,7 @@ import {
   Send,
 } from 'lucide-react';
 import { DemoState, Reservation, ReservationStatus, PaymentStatus, CashMovement } from '../../types';
-import { formatDisplayDate, getRelativeDate, formatCurrency, getGuestInitials, isGenericGuestName } from '../../data/initialData';
+import { formatDisplayDate, getRelativeDate, formatCurrency, getGuestInitials, isGenericGuestName, getGuideHours } from '../../data/initialData';
 import { auth } from '../../lib/firebase';
 import { isAppMode } from '../../lib/appMode';
 import { GuestWelcomeCard } from '../GuestWelcomeCard';
@@ -682,7 +682,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                 propertyName={getProp(selectedResForCard.propertyId)?.name || 'Tu Alojamiento'}
                 checkInDate={formatDisplayDate(selectedResForCard.checkIn)}
                 checkOutDate={formatDisplayDate(selectedResForCard.checkOut)}
-                checkInTime="14:00 hs"
+                checkInTime={getGuideHours(demoState.welcomeGuide, isAppMode()).checkin ? `${getGuideHours(demoState.welcomeGuide, isAppMode()).checkin} hs` : ''}
                 accessCode={selectedResForCard.pinCode || (isAppMode() ? '(a confirmar)' : '1024')}
                 wifiNetwork={getProp(selectedResForCard.propertyId)?.wifiNetwork || '(a confirmar)'}
                 wifiPassword={getProp(selectedResForCard.propertyId)?.wifiPassword || '(a confirmar)'}

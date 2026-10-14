@@ -64,10 +64,12 @@ export const GuestWelcomeCard: React.FC<GuestWelcomeCardProps> = ({
                 <Sparkles className="w-3 h-3 text-[#E67E22]" />
                 Loomi Suite • Hospitalidad
               </span>
-              <span className="text-[10px] text-stone-400 font-light flex items-center gap-1">
-                <Clock className="w-3 h-3 text-stone-300" />
-                Ingreso {checkInTime}
-              </span>
+              {checkInTime && (
+                <span className="text-[10px] text-stone-600 font-normal flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-stone-500" />
+                  Ingreso {checkInTime}
+                </span>
+              )}
             </div>
 
             <h2 className="text-xl sm:text-2xl font-light tracking-tight text-stone-900 pt-1">

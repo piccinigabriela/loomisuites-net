@@ -13,7 +13,7 @@ import {
   Info,
 } from 'lucide-react';
 import { DemoState, Reservation, MessageTemplate } from '../../types';
-import { formatDisplayDate, INITIAL_TEMPLATES, APP_TEMPLATES, APP_TEMPLATES_EN, APP_TEMPLATES_PT, guessGuestLanguage, formatGuestDate, GuestLanguage, isGenericGuestName, getGuestInitials, toLocalDateStr, getRelativeDate } from '../../data/initialData';
+import { formatDisplayDate, INITIAL_TEMPLATES, APP_TEMPLATES, APP_TEMPLATES_EN, APP_TEMPLATES_PT, guessGuestLanguage, formatGuestDate, GuestLanguage, getGuideHours, isGenericGuestName, getGuestInitials, toLocalDateStr, getRelativeDate } from '../../data/initialData';
 import { copyToClipboard } from '../../utils/clipboard';
 import { WebTemplatesManager } from '../WebTemplatesManager';
 import { GuestWelcomeCard } from '../GuestWelcomeCard';
@@ -437,7 +437,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
             propertyName={selectedProperty?.name || 'Cabaña Lapacho'}
             checkInDate={selectedReservation ? formatDisplayDate(selectedReservation.checkIn) : '10 de Octubre'}
             checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '13 de Octubre'}
-            checkInTime="14:00 hs"
+            checkInTime={getGuideHours(demoState.welcomeGuide, isAppMode()).checkin ? `${getGuideHours(demoState.welcomeGuide, isAppMode()).checkin} hs` : ''}
             accessCode={selectedReservation?.pinCode || '(a confirmar)'}
             wifiNetwork={selectedProperty?.wifiNetwork || '(a confirmar)'}
             wifiPassword={selectedProperty?.wifiPassword || '(a confirmar)'}
@@ -760,7 +760,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
                     propertyName={selectedProperty?.name || 'Cabaña Lapacho'}
                     checkInDate={selectedReservation ? formatDisplayDate(selectedReservation.checkIn) : '10 de Octubre'}
                     checkOutDate={selectedReservation ? formatDisplayDate(selectedReservation.checkOut) : '13 de Octubre'}
-                    checkInTime="14:00 hs"
+                    checkInTime={getGuideHours(demoState.welcomeGuide, isAppMode()).checkin ? `${getGuideHours(demoState.welcomeGuide, isAppMode()).checkin} hs` : ''}
                     accessCode={selectedReservation?.pinCode || '(a confirmar)'}
                     wifiNetwork={selectedProperty?.wifiNetwork || '(a confirmar)'}
                     wifiPassword={selectedProperty?.wifiPassword || '(a confirmar)'}

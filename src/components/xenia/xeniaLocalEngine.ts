@@ -195,6 +195,7 @@ Quedamos a tu completa disposición para asistirte en lo que precises.`;
         .join('\n');
       return `Estos son los datos que ven tus huéspedes en su guía:
 
+• **Check-in:** ${guide.checkinHour ? `desde las ${String(guide.checkinHour).replace(/\s*hs\.?$/i, '')} hs` : '_sin cargar_ (se carga en Tu Web & Guía)'}
 • **Check-out:** ${guide.checkoutHour ? `hasta las ${String(guide.checkoutHour).replace(/\s*hs\.?$/i, '')} hs` : '_sin cargar_ (se carga en Tu Web & Guía)'}
 ${unitsInfo || '• Todavía no cargaste unidades.'}
 

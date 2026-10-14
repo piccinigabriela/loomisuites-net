@@ -42,6 +42,7 @@ import {
 } from 'lucide-react';
 import { WelcomeGuideData, AttractionItem, DiningItem } from '../../types';
 import { isAppMode } from '../../lib/appMode';
+import { getGuideHours } from '../../data/initialData';
 
 export type PortalTheme =
   | 'clara'
@@ -217,6 +218,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
   const effectiveGuestName = rawGuestName
     ? rawGuestName.trim().split(' ').map(w => w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : '').join(' ')
     : '';
+  const guideHours = getGuideHours(guideData, isAppMode());
   const effectiveUnitName = propUnitName || urlParams?.get('unidad') || urlParams?.get('depto') || urlParams?.get('unit') || '';
   const effectivePinCode = propPinCode || urlParams?.get('pin') || '';
   const effectiveCheckIn = propCheckInDate || urlParams?.get('llegada') || '';
@@ -808,16 +810,22 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                   </a>
                 </div>
 
-                <div className="pt-2 border-t border-stone-200 dark:border-stone-800 text-xs flex flex-wrap items-center gap-4 opacity-80">
+                {(guideHours.checkin || guideHours.checkout) && (
+                <div className="pt-2 border-t border-stone-200 dark:border-stone-800 text-xs flex flex-wrap items-center gap-4">
+                  {guideHours.checkin && (
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" />
-                    <span>Ingreso Check-in: 14:00 hs</span>
+                    <span>Ingreso Check-in: desde las {guideHours.checkin} hs</span>
                   </div>
+                  )}
+                  {guideHours.checkout && (
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" />
-                    <span>Salida Check-out: {guideData.checkoutHour}</span>
+                    <span>Salida Check-out: hasta las {guideHours.checkout} hs</span>
                   </div>
+                  )}
                 </div>
+                )}
               </div>
 
               {/* Transportation Options List */}
@@ -907,6 +915,18 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                     </div>
                     <p className="opacity-80 text-xs">
                       Horario habilitado: <strong>{guideData.poolHours}</strong>. Uso exclusivo para huéspedes alojados.
+                    </p>
+                  </div>
+                )}
+
+                {guideHours.checkin && (
+                  <div className={`p-4 rounded-2xl border space-y-2 ${theme.cardBg}`}>
+                    <div className="flex items-center gap-2 font-bold">
+                      <Clock className={`w-4 h-4 ${theme.accentText}`} />
+                      <span>Horario de Ingreso (Check-in)</span>
+                    </div>
+                    <p className="text-xs">
+                      Podés ingresar a la unidad a partir de las <strong>{guideHours.checkin} hs</strong>.
                     </p>
                   </div>
                 )}

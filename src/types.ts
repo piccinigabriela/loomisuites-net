@@ -182,6 +182,8 @@ export interface WelcomeGuideData {
   wifiNetwork: string;
   wifiPassword: string;
   poolHours: string;
+  /** Horario de ingreso (ej. "14:00 hs") */
+  checkinHour?: string;
   checkoutHour: string;
   woodBagPrice: string;
   specialAnnouncement?: string;

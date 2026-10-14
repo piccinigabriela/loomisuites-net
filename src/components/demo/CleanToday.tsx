@@ -23,7 +23,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import { DemoState, Reservation, CleaningTask } from '../../types';
-import { formatCurrency, formatDisplayDate, getRelativeDate } from '../../data/initialData';
+import { formatCurrency, formatDisplayDate, getRelativeDate, getGuideHours } from '../../data/initialData';
 
 interface CleanTodayProps {
   demoState: DemoState;
@@ -60,6 +60,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
   isAppMode = false,
   icalSyncState,
 }) => {
+  const todayHours = getGuideHours(demoState.welcomeGuide, isAppMode);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [dismissedConflictKeys, setDismissedConflictKeys] = useState<Set<string>>(new Set());
 
@@ -362,7 +363,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
               </h2>
             </div>
             <span className="text-[11px] font-medium text-stone-500 dark:text-zinc-400">
-              Ingresos a partir de 14:00 hs
+              {todayHours.checkin ? `Ingresos a partir de ${todayHours.checkin} hs` : ''}
             </span>
           </div>
 
@@ -478,7 +479,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
               </h2>
             </div>
             <span className="text-[11px] font-medium text-stone-500 dark:text-zinc-400">
-              Límite hasta las 10:00 hs
+              {todayHours.checkout ? `Límite hasta las ${todayHours.checkout} hs` : ''}
             </span>
           </div>
 
