@@ -174,8 +174,9 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
         const q = pairs.filter(([, v]) => v).map(([k, v]) => `${k}=${v}`).join('&');
         return q ? `?${q}` : '';
       };
+      const resParam = selectedReservation?.id ? encodeURIComponent(selectedReservation.id) : '';
       if (selectedProperty?.id) {
-        return `${baseUrl}/guia/${uid}/${selectedProperty.id}${query([['huesped', guestNameParam], ['unidad', unitNameParam], ['pin', pinParam]])}`;
+        return `${baseUrl}/guia/${uid}/${selectedProperty.id}${query([['huesped', guestNameParam], ['unidad', unitNameParam], ['pin', pinParam], ['res', resParam]])}`;
       }
       return `${baseUrl}/guia/${uid}${query([['huesped', guestNameParam], ['pin', pinParam]])}`;
     }

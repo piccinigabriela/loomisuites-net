@@ -268,7 +268,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
   const guideUid = isAppMode ? auth?.currentUser?.uid : undefined;
   const guideLink = selectedGuestAction
     ? guideUid
-      ? `${window.location.origin}/guia/${guideUid}/${selectedGuestAction.propertyId}?huesped=${encodeURIComponent(selectedGuestAction.guestName.split(' ')[0])}`
+      ? `${window.location.origin}/guia/${guideUid}/${selectedGuestAction.propertyId}?huesped=${encodeURIComponent(selectedGuestAction.guestName.split(' ')[0])}&res=${encodeURIComponent(selectedGuestAction.id)}`
       : `${window.location.origin}/guia/${selectedGuestAction.propertyId}?huesped=${encodeURIComponent(selectedGuestAction.guestName.split(' ')[0])}`
     : '';
 

@@ -29,6 +29,8 @@ import {
 import { DemoState, Reservation, ReservationStatus, PaymentStatus, CashMovement } from '../../types';
 import { formatDisplayDate, getRelativeDate, formatCurrency, getGuestInitials, isGenericGuestName, getGuideHours, withHs } from '../../data/initialData';
 import { auth } from '../../lib/firebase';
+import { preCheckinSummary } from '../../lib/precheckin';
+import type { PreCheckin } from '../../types';
 import { isAppMode } from '../../lib/appMode';
 import { GuestWelcomeCard } from '../GuestWelcomeCard';
 
@@ -42,6 +44,7 @@ interface ReceptionViewProps {
   onSwitchRole: (role: 'admin' | 'frontdesk' | 'housekeeping') => void;
   onOpenNewReservation: () => void;
   complexName?: string;
+  precheckins?: Record<string, PreCheckin>;
 }
 
 export const ReceptionView: React.FC<ReceptionViewProps> = ({
@@ -54,6 +57,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
   onSwitchRole,
   onOpenNewReservation,
   complexName = 'Mi complejo',
+  precheckins = {},
 }) => {
   const [activeFilter, setActiveFilter] = useState<'all' | 'checkin' | 'checkout' | 'in_house'>('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -400,6 +404,22 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                         <span className="px-2.5 py-0.5 rounded-md font-mono text-[10px] font-bold uppercase bg-stone-900 text-white dark:bg-white dark:text-stone-900">
                           {prop?.name || 'Unidad'}
                         </span>
+                        {!isPastStay && !isCheckedOut && (
+                          precheckins[res.id] ? (
+                            <span
+                              className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
+                              title={preCheckinSummary(precheckins[res.id])}
+                            >
+                              ✓ Pre check-in
+                            </span>
+                          ) : (
+                            isAppMode() && (
+                              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300">
+                                Pre check-in pendiente
+                              </span>
+                            )
+                          )
+                        )}
                         {isTodayIn && (
                           <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-orange-100 text-[#E67E22] dark:bg-orange-950/50 dark:text-orange-300">
                             Ingreso hoy{receptionHours.checkin ? ` ${withHs(receptionHours.checkin)}` : ''}
@@ -694,7 +714,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                 address={getProp(selectedResForCard.propertyId)?.address || '(a confirmar)'}
                 guideUrl={
                   isAppMode() && auth?.currentUser?.uid
-                    ? `${window.location.origin}/guia/${auth.currentUser.uid}/${selectedResForCard.propertyId}`
+                    ? `${window.location.origin}/guia/${auth.currentUser.uid}/${selectedResForCard.propertyId}?res=${encodeURIComponent(selectedResForCard.id)}`
                     : `https://loomisuite.net/guia/${selectedResForCard.propertyId}`
                 }
                 hostPhone={demoState.welcomeGuide?.hostPhone || ''}

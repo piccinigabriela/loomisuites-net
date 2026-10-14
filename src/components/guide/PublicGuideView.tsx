@@ -1,3 +1,4 @@
+import { PreCheckinCard } from './PreCheckinCard';
 import React, { useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
@@ -91,8 +92,19 @@ export const PublicGuideView: React.FC = () => {
     if (matchedUnit.address) mergedGuide.locationAddress = matchedUnit.address;
   }
 
+  const reservationParam = searchParams.get('res') || '';
+  const guestParam = searchParams.get('huesped') || '';
+
   return (
     <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#0E0F12] py-4 sm:py-8 px-2 sm:px-4">
+      {reservationParam && uid && (
+        <PreCheckinCard
+          hostUid={uid}
+          reservationId={reservationParam}
+          defaultName={guestParam}
+          rules={guide?.rules || []}
+        />
+      )}
       <GuestWelcomePortal
         guideData={mergedGuide}
         template={template || 'dos-aguas'}

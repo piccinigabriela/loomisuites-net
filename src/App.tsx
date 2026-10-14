@@ -17,7 +17,7 @@ import {
   Menu,
   Smartphone,
 } from 'lucide-react';
-import { DemoState, Reservation, CleaningTask, ReservationStatus, PaymentStatus, CashMovement, CleaningStatus, Property, CurrencyCode, TeamContact } from './types';
+import { DemoState, Reservation, CleaningTask, ReservationStatus, PaymentStatus, CashMovement, CleaningStatus, Property, CurrencyCode, TeamContact, PreCheckin } from './types';
 import {
   getDemoState,
   saveDemoState,
@@ -48,6 +48,7 @@ import { DemoAddons } from './components/demo/DemoAddons';
 import { DemoMessages } from './components/demo/DemoMessages';
 import { DemoFinances } from './components/demo/DemoFinances';
 import { TeamNotices } from './components/demo/TeamNotices';
+import { subscribeToPreCheckins } from './lib/precheckin';
 import { DemoCashDrawer } from './components/demo/DemoCashDrawer';
 import { WelcomeGuideHub } from './components/guide/WelcomeGuideHub';
 import { DirectBookingLanding } from './components/booking/DirectBookingLanding';
@@ -231,6 +232,16 @@ export default function App() {
 
   // Tenant doc state in App Mode
   const [tenantDoc, setTenantDoc] = useState<TenantDoc | null>(null);
+
+  // Pre check-ins que completan los huéspedes desde su guía (por id de reserva)
+  const [precheckins, setPrecheckins] = useState<Record<string, PreCheckin>>({});
+  useEffect(() => {
+    if (!isApp || !currentUser) {
+      setPrecheckins({});
+      return;
+    }
+    return subscribeToPreCheckins(currentUser.uid, setPrecheckins);
+  }, [isApp, currentUser]);
 
   // Real-time Firestore subscription in App Mode
   useEffect(() => {
@@ -1916,6 +1927,7 @@ export default function App() {
               setIsNewResModalOpen(true);
             }}
             complexName={demoState.welcomeGuide?.propertyName || 'Mi complejo'}
+            precheckins={precheckins}
           />
           )}
         </div>
@@ -1957,6 +1969,7 @@ export default function App() {
                 isApp={isApp}
                 onSaveContacts={handleSaveTeamContacts}
                 onMarkNotified={handleMarkTeamNotified}
+                precheckins={precheckins}
                 compact
               />
             ) : undefined
@@ -2303,6 +2316,7 @@ export default function App() {
                   isApp={isApp}
                   onSaveContacts={handleSaveTeamContacts}
                   onMarkNotified={handleMarkTeamNotified}
+                  precheckins={precheckins}
                 />
               )}
 
@@ -2466,6 +2480,8 @@ export default function App() {
         isEmployeeMode={isEmployeeMode}
         userRole={userRole}
         currencySettings={demoState.currencySettings}
+        precheckin={liveSelectedReservation ? precheckins[liveSelectedReservation.id] : undefined}
+        complexName={demoState.welcomeGuide?.propertyName || ''}
       />
 
       <JsonDataModal

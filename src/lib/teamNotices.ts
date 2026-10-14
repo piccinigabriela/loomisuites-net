@@ -2,7 +2,8 @@
  * Avisos al equipo (plan Propietario, sin personal fijo): textos listos para mandar por WhatsApp
  * a quien ayuda con limpieza, mantenimiento o la entrega de llaves.
  */
-import { Property, Reservation, TeamContact, WelcomeGuideData } from '../types';
+import { PreCheckin, Property, Reservation, TeamContact, WelcomeGuideData } from '../types';
+import { preCheckinSummary } from './precheckin';
 import { getGuideHours, withHs as hourText } from '../data/initialData';
 
 export type { TeamContact };
@@ -85,7 +86,7 @@ export function upcomingCheckIns(reservations: Reservation[], today: string, day
 
 export function buildCheckInNotice(
   r: Reservation,
-  opts: { complexName: string; unitName: string; guide?: WelcomeGuideData; today: string; isApp: boolean }
+  opts: { complexName: string; unitName: string; guide?: WelcomeGuideData; today: string; isApp: boolean; precheckin?: PreCheckin }
 ): string {
   const hours = getGuideHours(opts.guide, opts.isApp);
   const { nationality, notes } = splitNotes(r.specialNotes);
@@ -102,6 +103,12 @@ export function buildCheckInNotice(
   ];
   if (r.guestsCount && r.guestsCount > 1) lines.push(`*Personas:* ${r.guestsCount}`);
   if (notes) lines.push(`*Notas:* ${notes}`);
+  if (opts.precheckin) {
+    lines.push(`*Pre check-in:* ✓ ${preCheckinSummary(opts.precheckin)}`);
+    if (opts.precheckin.comments) lines.push(`*Comentario del huésped:* ${opts.precheckin.comments}`);
+  } else {
+    lines.push('*Pre check-in:* pendiente (pedir documento al llegar)');
+  }
   lines.push('', 'Confirmar recepción.');
   return lines.join('\n');
 }

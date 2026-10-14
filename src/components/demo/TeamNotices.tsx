@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Bell, Check, ChevronDown, ChevronUp, MessageCircle, Plus, Trash2, Users } from 'lucide-react';
-import { DemoState, Reservation, TeamContact } from '../../types';
+import { DemoState, PreCheckin, Reservation, TeamContact } from '../../types';
+import { preCheckinSummary } from '../../lib/precheckin';
 import { formatCurrency } from '../../data/initialData';
 import {
   addDays,
@@ -26,9 +27,10 @@ interface TeamNoticesProps {
   onMarkNotified: (reservationId: string, contactKey: string) => void;
   /** Vista de celular: sin márgenes grandes */
   compact?: boolean;
+  precheckins?: Record<string, PreCheckin>;
 }
 
-export const TeamNotices: React.FC<TeamNoticesProps> = ({ demoState, isApp, onSaveContacts, onMarkNotified, compact }) => {
+export const TeamNotices: React.FC<TeamNoticesProps> = ({ demoState, isApp, onSaveContacts, onMarkNotified, compact, precheckins = {} }) => {
   const today = toYmd(new Date());
   const contacts = demoState.teamContacts || [];
   const complexName = demoState.welcomeGuide?.propertyName || '';
@@ -74,6 +76,7 @@ export const TeamNotices: React.FC<TeamNoticesProps> = ({ demoState, isApp, onSa
       guide: demoState.welcomeGuide,
       today,
       isApp,
+      precheckin: precheckins[r.id],
     });
     window.open(whatsAppUrl(text, contact?.phone), '_blank');
     onMarkNotified(r.id, contact?.id || OTHER_KEY);
@@ -311,6 +314,17 @@ export const TeamNotices: React.FC<TeamNoticesProps> = ({ demoState, isApp, onSa
                 </div>
               </div>
               <div className="px-5 py-3.5 bg-stone-50 dark:bg-[#1F2026] border-t border-stone-200 dark:border-zinc-800 space-y-2.5">
+                {precheckins[r.id] ? (
+                  <div className="text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-1.5 rounded-lg">
+                    ✓ Pre check-in: {preCheckinSummary(precheckins[r.id])}
+                  </div>
+                ) : (
+                  isApp && (
+                    <div className="text-xs font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1.5 rounded-lg">
+                      Pre check-in pendiente
+                    </div>
+                  )
+                )}
                 {notified.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
                     {notified.map(([key, iso]) => {

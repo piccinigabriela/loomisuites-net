@@ -254,3 +254,20 @@ export interface TeamContact {
   name: string;
   phone: string;
 }
+
+/** Pre check-in que completa el huésped desde su guía (precheckins/{uidAnfitrión}/items/{idReserva}) */
+export interface PreCheckin {
+  reservationId: string;
+  fullName: string;
+  docType: 'dni' | 'pasaporte' | 'otro';
+  docNumber: string;
+  nationality: string;
+  guests: number;
+  arrivalTime: string;
+  phone: string;
+  companions: string;
+  comments: string;
+  acceptedRules: boolean;
+  lang: string;
+  submittedAt?: any;
+}

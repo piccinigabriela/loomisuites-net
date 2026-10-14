@@ -52,6 +52,8 @@ import {
   toLocalDateStr,
 } from '../../data/initialData';
 import { isAppMode } from '../../lib/appMode';
+import { PreCheckinStatus } from './PreCheckinStatus';
+import type { PreCheckin } from '../../types';
 
 interface ReservationDetailModalProps {
   reservation: Reservation | null;
@@ -68,6 +70,8 @@ interface ReservationDetailModalProps {
   isEmployeeMode?: boolean;
   userRole?: 'admin' | 'frontdesk' | 'housekeeping';
   currencySettings?: DemoState['currencySettings'];
+  precheckin?: PreCheckin;
+  complexName?: string;
 }
 
 export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
@@ -85,6 +89,8 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
   isEmployeeMode = false,
   userRole = 'admin',
   currencySettings,
+  precheckin,
+  complexName,
 }) => {
   // Mode toggle
   const [isEditing, setIsEditing] = useState(false);
@@ -1135,6 +1141,16 @@ ${paymentsListStr}
                   </div>
                 ) : null}
               </div>
+
+              {/* Pre check-in del huésped */}
+              {reservation.status !== 'cancelled' && (
+                <PreCheckinStatus
+                  reservation={reservation}
+                  precheckin={precheckin}
+                  unitName={property?.name}
+                  complexName={complexName}
+                />
+              )}
 
               {/* Financials breakdown */}
               {!isEmployeeMode ? (
