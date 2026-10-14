@@ -647,7 +647,7 @@ export const APP_TEMPLATES: MessageTemplate[] = [
     title: 'Solicitud de Reseña y Descuento Directo',
     triggerEvent: '2 horas después del Check-out',
     channel: 'whatsapp',
-    content: '¡Muchas gracias por elegir {{nombre_complejo}}, {{nombre_huésped}}! 🌟\nSi disfrutaste tu estadía en {{unidad_alojamiento}}, nos ayudarías un montón dejándonos una reseña.\nY para tu próxima visita, podés reservar directo con nosotros con tarifa preferencial: 🔗 {{link_guia_digital}}\n¡Hasta la próxima!',
+    content: '¡Muchas gracias por elegir {{nombre_complejo}}, {{nombre_huésped}}! 🌟\nSi disfrutaste tu estadía en {{unidad_alojamiento}}, nos ayudarías un montón dejándonos una reseña.\nY para tu próxima visita, escribinos directo por este WhatsApp: tenés tarifa preferencial reservando con nosotros.\n¡Hasta la próxima!',
     variables: ['{{nombre_complejo}}', '{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}'],
   },
 ];
@@ -691,7 +691,7 @@ export const APP_TEMPLATES_EN: MessageTemplate[] = [
     title: 'Review Request & Direct Booking Discount',
     triggerEvent: '2 hours after check-out',
     channel: 'whatsapp',
-    content: 'Thank you so much for staying at {{nombre_complejo}}, {{nombre_huésped}}! 🌟\nIf you enjoyed your time at {{unidad_alojamiento}}, a review would help us a lot.\nAnd for your next visit, you can book directly with us at a preferential rate: 🔗 {{link_guia_digital}}\nHope to see you again!',
+    content: 'Thank you so much for staying at {{nombre_complejo}}, {{nombre_huésped}}! 🌟\nIf you enjoyed your time at {{unidad_alojamiento}}, a review would help us a lot.\nAnd for your next visit, just message us here on WhatsApp: booking directly with us gets you a preferential rate.\nHope to see you again!',
     variables: ['{{nombre_complejo}}', '{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}'],
   },
 ];
@@ -735,7 +735,7 @@ export const APP_TEMPLATES_PT: MessageTemplate[] = [
     title: 'Pedido de Avaliação e Desconto Direto',
     triggerEvent: '2 horas após o check-out',
     channel: 'whatsapp',
-    content: 'Muito obrigado por escolher {{nombre_complejo}}, {{nombre_huésped}}! 🌟\nSe você gostou da sua estadia em {{unidad_alojamiento}}, uma avaliação nos ajudaria muito.\nE na próxima visita, você pode reservar diretamente conosco com tarifa especial: 🔗 {{link_guia_digital}}\nAté a próxima!',
+    content: 'Muito obrigado por escolher {{nombre_complejo}}, {{nombre_huésped}}! 🌟\nSe você gostou da sua estadia em {{unidad_alojamiento}}, uma avaliação nos ajudaria muito.\nE na próxima visita, é só nos escrever por este WhatsApp: reservando diretamente conosco você tem tarifa especial.\nAté a próxima!',
     variables: ['{{nombre_complejo}}', '{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}'],
   },
 ];
