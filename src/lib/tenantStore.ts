@@ -8,7 +8,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { Property, Reservation, CleaningTask, MessageTemplate, AddonService, WelcomeGuideData, CashMovement, CurrencyCode } from '../types';
+import { Property, Reservation, CleaningTask, MessageTemplate, AddonService, WelcomeGuideData, CashMovement, CurrencyCode, TeamContact } from '../types';
 
 export interface TenantDoc {
   ownerEmail: string;
@@ -25,6 +25,7 @@ export interface TenantDoc {
     ratesUpdatedAt?: string;
   };
   managementSettings?: { enabled: boolean; percent: number };
+  teamContacts?: TeamContact[];
   welcomeSeen?: boolean;
   onboardingChecklist?: {
     calendarios?: boolean;

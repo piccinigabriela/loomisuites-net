@@ -17,7 +17,7 @@ import {
   Menu,
   Smartphone,
 } from 'lucide-react';
-import { DemoState, Reservation, CleaningTask, ReservationStatus, PaymentStatus, CashMovement, CleaningStatus, Property, CurrencyCode } from './types';
+import { DemoState, Reservation, CleaningTask, ReservationStatus, PaymentStatus, CashMovement, CleaningStatus, Property, CurrencyCode, TeamContact } from './types';
 import {
   getDemoState,
   saveDemoState,
@@ -47,6 +47,7 @@ import { DemoProperties } from './components/demo/DemoProperties';
 import { DemoAddons } from './components/demo/DemoAddons';
 import { DemoMessages } from './components/demo/DemoMessages';
 import { DemoFinances } from './components/demo/DemoFinances';
+import { TeamNotices } from './components/demo/TeamNotices';
 import { DemoCashDrawer } from './components/demo/DemoCashDrawer';
 import { WelcomeGuideHub } from './components/guide/WelcomeGuideHub';
 import { DirectBookingLanding } from './components/booking/DirectBookingLanding';
@@ -225,6 +226,8 @@ export default function App() {
   }, [isApp, currentUser]);
 
   const accessStatus = (isApp && currentUser) ? getAccessStatus(currentUser, subscriptionDoc) : null;
+  // "Avisos al equipo" es para el plan Propietario (sin personal fijo); el plan Complejo usa Recepción y Limpieza
+  const showTeamNotices = !(isApp && subscriptionDoc?.plan === 'complejo');
 
   // Tenant doc state in App Mode
   const [tenantDoc, setTenantDoc] = useState<TenantDoc | null>(null);
@@ -256,6 +259,7 @@ export default function App() {
             cashMovements: data.cashMovements,
             currencySettings: data.tenant?.currencySettings || { settlementCurrency: 'ARS', rates: {} },
             managementSettings: data.tenant?.managementSettings,
+            teamContacts: data.tenant?.teamContacts || [],
             lastUpdated: new Date().toISOString(),
           });
         }
@@ -1311,6 +1315,33 @@ export default function App() {
     showToast(`Reserva de ${updatedRes.guestName} guardada y actualizada.`);
   };
 
+  // Avisos al equipo: contactos y marca de "avisado"
+  const handleSaveTeamContacts = async (contacts: TeamContact[]) => {
+    if (isApp && currentUser) {
+      await saveTenantData(currentUser.uid, { teamContacts: contacts });
+    }
+    updateDemoState((prev) => ({ ...prev, teamContacts: contacts, lastUpdated: new Date().toISOString() }));
+    showToast('Contactos guardados');
+  };
+
+  const handleMarkTeamNotified = async (resId: string, contactKey: string) => {
+    const res = demoState.reservations.find((r) => r.id === resId);
+    if (!res) return;
+    const updated: Reservation = {
+      ...res,
+      teamNotified: { ...(res.teamNotified || {}), [contactKey]: new Date().toISOString() },
+    };
+    if (isApp && currentUser) {
+      await saveReservationDoc(currentUser.uid, updated);
+    } else {
+      updateDemoState((prev) => ({
+        ...prev,
+        reservations: prev.reservations.map((r) => (r.id === resId ? updated : r)),
+        lastUpdated: new Date().toISOString(),
+      }));
+    }
+  };
+
   // Update reservation status
   const handleUpdateReservationStatus = async (resId: string, newStatus: ReservationStatus) => {
     const res = demoState.reservations.find((r) => r.id === resId);
@@ -1883,6 +1914,17 @@ export default function App() {
           onBackToLanding={handleBackToLanding}
           userRole={userRole}
           onSwitchRole={handleRoleChange}
+          teamNoticesNode={
+            showTeamNotices && userRole === 'admin' ? (
+              <TeamNotices
+                demoState={demoState}
+                isApp={isApp}
+                onSaveContacts={handleSaveTeamContacts}
+                onMarkNotified={handleMarkTeamNotified}
+                compact
+              />
+            ) : undefined
+          }
         />
       ) : (
         /* DUEÑO / ADMINISTRADOR: CONTROL TOTAL DE ESCRITORIO (/admin) */
@@ -1908,6 +1950,7 @@ export default function App() {
             isMobileOpen={isMobileSidebarOpen}
             onMobileClose={() => setIsMobileSidebarOpen(false)}
             onOpenLogin={() => setIsAuthModalOpen(true)}
+            showTeamNotices={showTeamNotices}
             loggedUser={isApp && currentUser ? { name: currentUser.displayName || currentUser.email?.split('@')[0] || 'Usuario', email: currentUser.email || '', complexId: 'app-user', complexName: demoState.welcomeGuide?.propertyName || 'Mi complejo' } : loggedUser}
             onLogout={handleLogout}
             isAppMode={isApp}
@@ -1961,6 +2004,8 @@ export default function App() {
                     ? 'Opcionales'
                     : demoTab === 'messages'
                     ? 'Avisos & WhatsApp'
+                    : demoTab === 'team-notices'
+                    ? 'Avisos al equipo'
                     : 'Asistente'}
                 </span>
               </div>
@@ -2214,6 +2259,15 @@ export default function App() {
 
               {demoTab === 'messages' && (
                 <DemoMessages demoState={demoState} uid={currentUser?.uid} target={messagesTarget} />
+              )}
+
+              {demoTab === 'team-notices' && showTeamNotices && (
+                <TeamNotices
+                  demoState={demoState}
+                  isApp={isApp}
+                  onSaveContacts={handleSaveTeamContacts}
+                  onMarkNotified={handleMarkTeamNotified}
+                />
               )}
 
               {demoTab === 'finances' && userRole === 'admin' && (

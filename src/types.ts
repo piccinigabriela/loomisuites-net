@@ -100,6 +100,8 @@ export interface Reservation {
   earlyLateFee?: number; // Costo adicional por early/late si aplica
   customDiscountPercent?: number; // Descuento personalizado (%) ej. directo o amigo
   isManualPrice?: boolean; // Indica si se fijó un precio manual diferencial
+  /** Avisos al equipo enviados por WhatsApp: id del contacto → fecha ISO */
+  teamNotified?: Record<string, string>;
   airbnbFeeMode?: 'traditional_3' | 'simplified_15'; // Soporte para cuentas Airbnb con 3% anfitrión
   // Módulo de Opcionales / Extras / Consumos:
   addons?: ReservationAddon[];
@@ -242,5 +244,13 @@ export interface DemoState {
   };
   /** Anfitrión que administra para un propietario: comisión de gestión sobre el neto */
   managementSettings?: { enabled: boolean; percent: number };
+  /** Contactos para avisos por WhatsApp (limpieza, mantenimiento, llaves) */
+  teamContacts?: TeamContact[];
   lastUpdated: string;
+}
+
+export interface TeamContact {
+  id: string;
+  name: string;
+  phone: string;
 }

@@ -27,6 +27,7 @@ import {
   Square,
   UserCheck,
   LogOut,
+  Bell,
 } from 'lucide-react';
 import { DemoState, Reservation, Property, ReservationStatus, PaymentStatus } from '../../types';
 import { formatDisplayDate, formatCurrency, getGuestInitials, toLocalDateStr } from '../../data/initialData';
@@ -52,6 +53,8 @@ interface MobileLightViewProps {
   onBackToLanding?: () => void;
   userRole?: 'admin' | 'frontdesk' | 'housekeeping';
   onSwitchRole?: (role: 'admin' | 'frontdesk' | 'housekeeping') => void;
+  /** Pantalla "Avisos al equipo" (plan Propietario); si viene, se agrega la pestaña */
+  teamNoticesNode?: React.ReactNode;
 }
 
 function formatShortDateRange(checkIn: string, checkOut: string): string {
@@ -89,9 +92,10 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
   onBackToLanding,
   userRole = 'admin',
   onSwitchRole,
+  teamNoticesNode,
 }) => {
   // Mobile Active Tab: 'today' | 'units' | 'guests' | 'xenia' | 'more'
-  const [mobileTab, setMobileTab] = useState<'today' | 'units' | 'guests' | 'xenia' | 'more'>('guests');
+  const [mobileTab, setMobileTab] = useState<'today' | 'units' | 'guests' | 'avisos' | 'xenia' | 'more'>('guests');
   const [guestSearch, setGuestSearch] = useState('');
   const [copiedWifi, setCopiedWifi] = useState<string | null>(null);
 
@@ -839,6 +843,8 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
         {/* ======================================================================= */}
         {/* TAB 5: ⚡ ATAJOS                                                        */}
         {/* ======================================================================= */}
+        {mobileTab === 'avisos' && teamNoticesNode && <div className="space-y-3.5">{teamNoticesNode}</div>}
+
         {mobileTab === 'more' && (
           <div className="space-y-3.5">
             <div className="flex items-center justify-between px-1">
@@ -1108,6 +1114,20 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
           </div>
           <span className="text-[11px] leading-none">Huéspedes</span>
         </button>
+
+        {teamNoticesNode && (
+          <button
+            onClick={() => setMobileTab('avisos')}
+            className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-xl transition-all cursor-pointer ${
+              mobileTab === 'avisos'
+                ? 'text-[#C97B51] font-bold'
+                : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 font-medium'
+            }`}
+          >
+            <Bell className="w-5 h-5 stroke-[1.8]" />
+            <span className="text-[11px] leading-none">Avisos</span>
+          </button>
+        )}
 
         <button
           onClick={() => setMobileTab('xenia')}

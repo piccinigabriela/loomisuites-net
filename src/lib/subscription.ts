@@ -5,6 +5,8 @@ import type { User } from 'firebase/auth';
 export interface SubscriptionDoc {
   status?: string;
   activeUntil?: any;
+  /** 'propietario' (sin personal fijo) o 'complejo' (con recepción y limpieza). Se carga a mano al activar. */
+  plan?: 'propietario' | 'complejo';
   [key: string]: any;
 }
 
