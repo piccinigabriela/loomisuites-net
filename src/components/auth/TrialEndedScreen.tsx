@@ -7,7 +7,7 @@ interface TrialEndedScreenProps {
 }
 
 export const TrialEndedScreen: React.FC<TrialEndedScreenProps> = ({ email, onSignOut }) => {
-  const whatsappUrl = `https://wa.me/5491140925939?text=${encodeURIComponent(
+  const whatsappUrl = `https://api.whatsapp.com/send?phone=5491140925939&text=${encodeURIComponent(
     `Hola, quiero activar mi plan de Loomi Suite. Mi email: ${email}`
   )}`;
 

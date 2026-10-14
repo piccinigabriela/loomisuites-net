@@ -245,7 +245,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
   const buildWhatsAppLink = (phone: string, text: string) => {
     const cleanPhone = phone.replace(/\D/g, '');
     const encoded = encodeURIComponent(text);
-    return `https://wa.me/${cleanPhone}?text=${encoded}`;
+    return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encoded}`;
   };
 
   const selectedActionProperty = selectedGuestAction

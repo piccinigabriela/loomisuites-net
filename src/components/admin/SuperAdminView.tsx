@@ -869,7 +869,7 @@ contacto@loomisuite.net`
                         const isTrial = c.status === 'trial';
                         const cleanPhone = (c.adminPhone || '').replace(/\D/g, '');
                         const waUrl = cleanPhone
-                          ? `https://wa.me/${cleanPhone}?text=${getBillingMessageWhatsApp(c)}`
+                          ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${getBillingMessageWhatsApp(c)}`
                           : undefined;
 
                         return (
@@ -1225,7 +1225,7 @@ contacto@loomisuite.net`
                       const isPaid = billingRecords[c.id]?.status === 'paid';
                       const cleanPhone = (c.adminPhone || '').replace(/\D/g, '');
                       const waUrl = cleanPhone
-                        ? `https://wa.me/${cleanPhone}?text=${getBillingMessageWhatsApp(c)}`
+                        ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${getBillingMessageWhatsApp(c)}`
                         : undefined;
 
                       return (
@@ -1334,7 +1334,7 @@ contacto@loomisuite.net`
                   <tbody className="divide-y divide-[#25201a]">
                     {leads.map((l) => {
                       const cleanPhone = l.phone.replace(/\D/g, '');
-                      const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(
+                      const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(
                         `Hola ${l.fullName}! Te escribimos de Loomi Suite por tu consulta para ${l.complexName}. ¿Cómo estás?`
                       )}`;
 

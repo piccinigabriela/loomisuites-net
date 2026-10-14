@@ -1708,7 +1708,7 @@ export default function App() {
           </span>
           <span>·</span>
           <a
-            href={`https://wa.me/5491140925939?text=${encodeURIComponent(
+            href={`https://api.whatsapp.com/send?phone=5491140925939&text=${encodeURIComponent(
               `Hola, quiero activar mi plan de Loomi Suite. Mi email: ${currentUser?.email || ''}`
             )}`}
             target="_blank"

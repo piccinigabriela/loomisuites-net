@@ -295,7 +295,7 @@ ${paymentsListStr}
 
     const phoneDigits = (reservation.guestPhone || '').replace(/\D/g, '');
     if (phoneDigits && phoneDigits.length >= 8) {
-      const url = `https://wa.me/${phoneDigits}?text=${encodeURIComponent(statementText)}`;
+      const url = `https://api.whatsapp.com/send?phone=${phoneDigits}&text=${encodeURIComponent(statementText)}`;
       window.open(url, '_blank');
     } else {
       navigator.clipboard.writeText(statementText);

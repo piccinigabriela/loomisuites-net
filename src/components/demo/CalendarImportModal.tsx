@@ -1358,7 +1358,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
 
                 <div className="pt-3 border-t border-emerald-900/40 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <a
-                    href={`https://wa.me/5491140925939?text=${encodeURIComponent(
+                    href={`https://api.whatsapp.com/send?phone=5491140925939&text=${encodeURIComponent(
                       `Hola equipo de Loomi Suite! 👋 Les escribo porque quiero que me asistan con la carga de mi archivo de reservas para mi complejo. ¿Cómo se los envío?`
                     )}`}
                     target="_blank"

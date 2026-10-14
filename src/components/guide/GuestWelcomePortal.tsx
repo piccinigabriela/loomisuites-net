@@ -294,7 +294,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
       `\n\nTotal estimado: $${cartTotalUSD} USD\nHuésped: ${effectiveGuestName || 'Huésped'}`
     );
 
-    window.open(`https://wa.me/${guideData.hostPhone.replace(/\D/g, '')}?text=${msg}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?phone=${guideData.hostPhone.replace(/\D/g, '')}&text=${msg}`, '_blank');
     setOrderSent(true);
     setTimeout(() => {
       setCart({});
@@ -615,7 +615,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
               <div className="flex items-center gap-1.5">
                 {guideData.hostPhone?.trim() && (
                   <a
-                    href={`https://wa.me/${guideData.hostPhone.replace(/\D/g, '')}?text=Hola%20${encodeURIComponent(
+                    href={`https://api.whatsapp.com/send?phone=${guideData.hostPhone.replace(/\D/g, '')}&text=Hola%20${encodeURIComponent(
                       effectiveHostName
                     )},%20estoy%20alojado%20en%20${encodeURIComponent(guideData.propertyName)}`}
                     target="_blank"

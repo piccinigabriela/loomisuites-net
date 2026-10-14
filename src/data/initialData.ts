@@ -818,7 +818,7 @@ export const INITIAL_WELCOME_GUIDE: WelcomeGuideData = {
       description: 'Ubicado a 18 km del complejo. Servicio de traslado privado o remís oficial coordinado previamente con chofer de confianza en recepción.',
       estimatedCost: 'Tarifa acordada ~$18.000 ARS',
       contactPhone: '+54 9 3757 55-0100',
-      actionUrl: 'https://wa.me/5493757550100?text=Hola,%20quisiera%20coordinar%20el%20transfer%20desde%20el%20aeropuerto%20de%20Iguazú',
+      actionUrl: 'https://api.whatsapp.com/send?phone=5493757550100&text=Hola,%20quisiera%20coordinar%20el%20transfer%20desde%20el%20aeropuerto%20de%20Iguazú',
       actionLabel: 'Pedir Transfer Aeropuerto',
     },
     {

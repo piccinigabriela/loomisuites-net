@@ -46,7 +46,7 @@ export const OnboardingGuideView: React.FC<OnboardingGuideViewProps> = ({
     });
   };
 
-  const conciergeWhatsAppUrl = `https://wa.me/5491140925939?text=${encodeURIComponent(
+  const conciergeWhatsAppUrl = `https://api.whatsapp.com/send?phone=5491140925939&text=${encodeURIComponent(
     `Hola, quiero que me ayuden con la puesta en marcha de ${complexName || 'mi complejo'} en Loomi Suite.`
   )}`;
 

@@ -60,7 +60,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onOpenXen
     },
   ];
 
-  const waHelpUrl = `https://wa.me/5491140925939?text=${encodeURIComponent(
+  const waHelpUrl = `https://api.whatsapp.com/send?phone=5491140925939&text=${encodeURIComponent(
     'Hola, necesito ayuda con la configuración de mi complejo en Loomi Suite.'
   )}`;
 

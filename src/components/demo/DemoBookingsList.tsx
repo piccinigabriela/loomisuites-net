@@ -249,7 +249,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
     const text = encodeURIComponent(
       `¡Hola ${res.guestName.split(' ')[0]}! Te escribimos desde ${propName} (Loomi Suite) respecto a tu estadía del ${formatDisplayDate(res.checkIn)} al ${formatDisplayDate(res.checkOut)}. ¿En qué podemos ayudarte para tu llegada?`
     );
-    return `https://wa.me/${cleanPhone}?text=${text}`;
+    return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${text}`;
   };
 
   return (

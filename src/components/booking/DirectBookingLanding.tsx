@@ -1083,7 +1083,7 @@ export const DirectBookingLanding: React.FC<DirectBookingLandingProps> = ({
                   Tocá el botón abajo para abrir WhatsApp con todos los datos y recibir el alias bancario:
                 </p>
                 <a
-                  href={`https://wa.me/?text=${whatsappMessage}`}
+                  href={`https://api.whatsapp.com/send?text=${whatsappMessage}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block w-full py-3 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold rounded-xl text-xs transition-colors shadow-md"

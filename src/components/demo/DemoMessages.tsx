@@ -261,8 +261,8 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
     const msg = encodeURIComponent(getInterpolatedMessage());
     const cleanPhone = (selectedReservation?.guestPhone || '').replace(/[^0-9]/g, '');
     // Sin teléfono cargado: WhatsApp abre el mensaje listo y te deja elegir el contacto
-    if (cleanPhone.length < 8) return `https://wa.me/?text=${msg}`;
-    return `https://wa.me/${cleanPhone}?text=${msg}`;
+    if (cleanPhone.length < 8) return `https://api.whatsapp.com/send?text=${msg}`;
+    return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${msg}`;
   };
 
   // Helper to render text with highlighted variables {{...}} and links styled in oxide pastel

@@ -38,7 +38,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
 ✉️ Mi Correo: ${email.trim()}
 ¿Cómo coordinamos la activación y la sincronización de mis calendarios?`;
 
-    const url = `https://wa.me/${SALES_WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
+    const url = `https://api.whatsapp.com/send?phone=${SALES_WHATSAPP_PHONE}&text=${encodeURIComponent(message)}`;
     setWhatsappUrl(url);
     setSubmitted(true);
 

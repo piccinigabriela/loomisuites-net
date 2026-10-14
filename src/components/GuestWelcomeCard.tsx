@@ -210,7 +210,7 @@ export const GuestWelcomeCard: React.FC<GuestWelcomeCardProps> = ({
             {/* Botón secundario: Abrir canal de WhatsApp con el anfitrión */}
             {hostPhone && (
               <a
-                href={`https://wa.me/${hostPhone}?text=${whatsappMessage}`}
+                href={`https://api.whatsapp.com/send?phone=${hostPhone}&text=${whatsappMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-light text-stone-700 bg-[#FCFAF8] hover:bg-[#FDF3E7] border border-stone-200/60 hover:border-orange-200 text-center transition-colors cursor-pointer"
