@@ -176,7 +176,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
               }}
               className="w-full text-xs font-light text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-zinc-800/80 py-1.5 px-2.5 rounded-xl border border-gray-100 dark:border-zinc-700/80 focus:outline-none focus:ring-1 focus:ring-orange-200 cursor-pointer"
             >
-              <option value="admin">👑 Administrador / Dueño</option>
+              <option value="admin">👑 Administración</option>
               <option value="frontdesk">🛎️ Recepción / Front Desk</option>
               <option value="housekeeping">🧹 Equipo de Housekeeping</option>
             </select>

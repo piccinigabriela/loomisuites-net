@@ -1036,12 +1036,12 @@ ${paymentsListStr}
                     </div>
                     {incomingTurnover && (
                       <p className="text-[11px] text-gray-600 dark:text-gray-300">
-                        • Entrada a las 14hs coincide con salida de <strong>{incomingTurnover.guestName}</strong> (10hs).
+                        • Entra el mismo día que sale <strong>{incomingTurnover.guestName}</strong>.
                       </p>
                     )}
                     {outgoingTurnover && (
                       <p className="text-[11px] text-gray-600 dark:text-gray-300">
-                        • Salida a las 10hs coincide con entrada de <strong>{outgoingTurnover.guestName}</strong> (14hs).
+                        • Sale el mismo día que entra <strong>{outgoingTurnover.guestName}</strong>.
                       </p>
                     )}
                   </div>

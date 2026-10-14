@@ -69,7 +69,7 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
    - Entérate de quién llega hoy, quién sale y qué saldos o señas restan cobrar en mostrador.
 
 2. **📘 Instrucciones de Uso de Loomi Suite:**
-   - Aprende a usar cada módulo del sistema al instante. Pregúntame paso a paso cómo sincronizar calendarios iCal, cómo cargar reservas telefónicas, cómo coordinar a la mucama o cómo compartir tu link de reservas directas.
+   - Aprende a usar cada módulo del sistema al instante. Pregúntame paso a paso cómo sincronizar calendarios iCal, cómo cargar reservas telefónicas, cómo coordinar la limpieza o cómo compartir tu link de reservas directas.
 
 *Tocá el micrófono para hablar, elegí una pregunta sugerida o escribí lo que necesites:*`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -282,7 +282,7 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
         '¿Cómo enviar la bienvenida y guía digital con mapa GPS al huésped?',
         '¿Cómo pasar del Modo Light (Móvil) a la Vista Completa (PC)?',
         '¿Cómo sincronizo Booking y Airbnb sin dobles reservas?',
-        '¿Cómo le paso las tareas a la mucama por WhatsApp sin instalar apps?',
+        '¿Cómo le paso las tareas a quien limpia por WhatsApp sin instalar apps?',
         '¿Cómo compartir mi link de reservas directas para cobrar seña?',
         '¿Cómo cargo una reserva telefónica que me pidieron recién?',
       ],

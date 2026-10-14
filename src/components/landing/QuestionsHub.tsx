@@ -82,7 +82,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
         'Precio fijo por complejo entero (sin cobro por habitación)',
       ],
       excludedFeatures: [
-        'Módulo Housekeeping (Mucamas / Mantenimiento)',
+        'Módulo Housekeeping (Limpieza / Mantenimiento)',
         'Modo Recepción Multiusuario',
       ]
     },
@@ -96,7 +96,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
       badge: 'Recomendado',
       includedFeatures: [
         'Todo lo del Plan Loomi e iCal avanzado',
-        'Módulo Housekeeping Completo (Semáforo de Mucamas en vivo)',
+        'Módulo Housekeeping Completo (Semáforo de Limpieza en vivo)',
         'Modo Recepción con Roles de Usuario Separados',
         'Asistente Xenia AI (Voz & Copiloto 24/7)',
         'Web propia con Portal de Bienvenida del Huésped',
@@ -329,7 +329,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                   </div>
                   <div>
                     <h4 className="font-black text-[#18181B] dark:text-[#FFFFFF] text-base">
-                      4. Módulo de limpieza y mucamas en el celular
+                      4. Módulo de limpieza en el celular
                     </h4>
                     <p className="text-sm text-[#666666] dark:text-[#A3A3A3] mt-1 leading-relaxed">
                       Cada vez que un huésped se va, tu personal de limpieza recibe la orden de trabajo con el checklist de control (sábanas, toallas, reposición) para tener todo listo.
@@ -488,11 +488,11 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                       <span>Si gestionás una Posada, Apart Hotel o Bed & Breakfast:</span>
                     </div>
                     <p className="text-sm text-[#444444] dark:text-[#CCCCCC] leading-relaxed">
-                      El personal rota de turno y necesitan que la información no quede en un papel que alguien pierde. Loomi permite que recepción, mucamas y administración vean en tiempo real quién pagó, quién llega tarde y qué habitación necesita toallas nuevas.
+                      El personal rota de turno y necesitan que la información no quede en un papel que alguien pierde. Loomi permite que recepción, limpieza y administración vean en tiempo real quién pagó, quién llega tarde y qué habitación necesita toallas nuevas.
                     </p>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-bold text-[#18181B] dark:text-[#EFECE5]">
                       <li className="flex items-center gap-2">✅ Saldo y estado de cuenta por habitación en vivo</li>
-                      <li className="flex items-center gap-2">✅ Turnos de mucama y notas internas del equipo</li>
+                      <li className="flex items-center gap-2">✅ Turnos de limpieza y notas internas del equipo</li>
                       <li className="flex items-center gap-2">✅ Compatible con llaves físicas o tarjetas de acceso</li>
                       <li className="flex items-center gap-2">✅ Accesible desde cualquier celular o tablet</li>
                     </ul>
@@ -576,7 +576,7 @@ export const QuestionsHub: React.FC<QuestionsHubProps> = ({ onOpenDemo, onOpenCo
                   <div className="pt-3 border-t border-[#DCD8CE] dark:border-[#333333] flex items-start gap-2 text-[#18181B] dark:text-[#FFFFFF] bg-white dark:bg-[#252525] p-3.5 rounded-xl border border-[#DCD8CE] dark:border-[#383838]">
                     <CheckCircle2 className="w-4 h-4 text-[#E1500A] shrink-0 mt-0.5" />
                     <p className="text-xs font-medium">
-                      <strong>Lo que resuelve Loomi:</strong> Cada salida genera automáticamente la tarea en el celular de la mucama con checklist de control.
+                      <strong>Lo que resuelve Loomi:</strong> Cada salida genera automáticamente la tarea en el celular de quien limpia con checklist de control.
                     </p>
                   </div>
                 </div>

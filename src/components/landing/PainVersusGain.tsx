@@ -6,7 +6,7 @@ export const PainVersusGain: React.FC = () => {
   const pains = [
     'Doble reserva (overbooking) de una cabaña en temporada alta: tener que reubicar a una familia y pagar multas.',
     'Llevar las reservas en un cuaderno o Excel que no podés consultar ni actualizar cuando estás recorriendo el predio.',
-    'La mucama no sabe qué cabaña preparar primero ni cuántas camas armar porque los mensajes se pierden en WhatsApp.',
+    'Quien limpia no sabe qué cabaña preparar primero ni cuántas camas armar porque los mensajes se pierden en WhatsApp.',
     'Pagar 18% a 20% de comisión a las plataformas cuando un huésped recurrente quiere volver el próximo fin de semana.',
     'Sistemas hoteleros tradicionales o de inmobiliarias incomprensibles, con 200 botones que jamás vas a necesitar.',
   ];
@@ -14,7 +14,7 @@ export const PainVersusGain: React.FC = () => {
   const gains = [
     'Sincronización automática entre Booking, Airbnb y reservas directas: Prevención inteligente de superposiciones.',
     'Rack visual en tu celular: mirás en 2 segundos qué cabañas o habitaciones están ocupadas, libres o sucias.',
-    'Gestión de limpieza y mucamas con checklist por unidad: sábanas, toallas, leña y control en un clic.',
+    'Gestión de limpieza con checklist por unidad: sábanas, toallas, leña y control en un clic.',
     'Página propia de reservas directas con seña para ahorrar comisiones y ganar hasta 20% más por noche.',
     'Simplicidad total estilo BananaDesk: listo para usar en 15 minutos sin técnicos ni manuales de 100 páginas.',
   ];

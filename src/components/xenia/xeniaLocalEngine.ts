@@ -1,5 +1,5 @@
 import { DemoState } from '../../types';
-import { toLocalDateStr, formatCurrency } from '../../data/initialData';
+import { toLocalDateStr, formatCurrency, withHs } from '../../data/initialData';
 import { isAppMode } from '../../lib/appMode';
 import { auth } from '../../lib/firebase';
 
@@ -195,8 +195,8 @@ Quedamos a tu completa disposición para asistirte en lo que precises.`;
         .join('\n');
       return `Estos son los datos que ven tus huéspedes en su guía:
 
-• **Check-in:** ${guide.checkinHour ? `desde las ${String(guide.checkinHour).replace(/\s*hs\.?$/i, '')} hs` : '_sin cargar_ (se carga en Tu Web & Guía)'}
-• **Check-out:** ${guide.checkoutHour ? `hasta las ${String(guide.checkoutHour).replace(/\s*hs\.?$/i, '')} hs` : '_sin cargar_ (se carga en Tu Web & Guía)'}
+• **Check-in:** ${guide.checkinHour ? `desde las ${withHs(String(guide.checkinHour).replace(/\s*hs\.?$/i, ''))}` : '_sin cargar_ (se carga en Tu Web & Guía)'}
+• **Check-out:** ${guide.checkoutHour ? `hasta las ${withHs(String(guide.checkoutHour).replace(/\s*hs\.?$/i, ''))}` : '_sin cargar_ (se carga en Tu Web & Guía)'}
 ${unitsInfo || '• Todavía no cargaste unidades.'}
 
 Para cambiarlos: Wi-Fi y dirección en **Administración → Configurar Unidades**; horarios y normas en **Tu Web & Guía → Ajustes & Edición de Datos**.${
@@ -491,7 +491,7 @@ En Loomi lo hacés en segundos, sin complicaciones técnicas ni términos difíc
    - **Mover de Cabaña:** Si necesitás cambiarlo de unidad por mantenimiento o preferencia, seleccionás la nueva cabaña desde el menú desplegable.
    - **Modificar la Tarifa o Precio:** Podés cambiar el importe total facturado (si le hiciste descuento o cobraste extras). Loomi recalcula al instante la comisión real y tu ingreso neto limpio.
    - **Anotar Señas y Cobros de Saldo:** Cambiás el estado de *"Seña Pendiente"* a *"Seña 50%"* o *"100% Abonado"* cuando el huésped te transfiera o pague en recepción.
-   - **Early Check-in o Late Check-out:** Marcás si llega antes o sale más tarde para coordinar con la mucama.
+   - **Early Check-in o Late Check-out:** Marcás si llega antes o sale más tarde para coordinar la limpieza.
    - **Cancelar o Dar de Baja:** Si el pasajero cancela, cambiás el estado a *"Cancelada"* y las fechas se liberan al instante.
 
 3. **Guardar:**
@@ -664,7 +664,7 @@ En Loomi tenemos **2 planes fijos por complejo entero** en **pesos argentinos (A
 
 2. **🏢 Plan Loomi Suite:** **$60.000 / mes (Final ARS)**
    - Todo el ecosistema ilimitado para complejos medianos y grandes.
-   - Incluye Módulo Housekeeping en vivo (semáforo y tareas de mucamas), Modo Recepción con roles separados, Asistente Xenia AI (voz y copiloto 24/7) y web propia con Portal de Bienvenida del Huésped.
+   - Incluye Módulo Housekeeping en vivo (semáforo y tareas de limpieza), Modo Recepción con roles separados, Asistente Xenia AI (voz y copiloto 24/7) y web propia con Portal de Bienvenida del Huésped.
 
 **Formas de Pago y Cobro:**
 - 💳 **Tu abono a Loomi:** Se abona mensualmente mediante **Transferencia Bancaria directa** (CBU/CVU o Alias) en Argentina, o por **PayPal** para el exterior. Precio fijo por todo el complejo sin costos sorpresa.
@@ -715,7 +715,7 @@ En resumen: podés empezar hoy mismo con tus llaves de toda la vida y nunca est�
     q.includes('desinfeccion') ||
     q.includes('desinfección')
   ) {
-    return `### 🧹 Módulo de Limpieza y Mucamas en el Celular
+    return `### 🧹 Módulo de Limpieza en el Celular
 
 Así funciona la coordinación diaria sin mensajes perdidos en WhatsApp:
 
@@ -944,7 +944,7 @@ Puedo responderte al instante sobre cualquier tema operativo o comercial:
 
 1. **✏️ Gestión de Reservas:** Pregúntame cómo modificar una reserva, cambiar fechas, mover de cabaña o anotar cobros y señas.
 2. **💰 Ganancias y Finanzas:** Pregúntame *"¿Cuál es mi ganancia en octubre?"*, cuánta plata ingresó o cuánto ahorraste en comisiones de Airbnb y Booking.
-3. **🔑 Llaves y Limpieza:** Pregúntame cómo operar con llaves comunes tradicionales o cómo coordinar con la mucama.
+3. **🔑 Llaves y Limpieza:** Pregúntame cómo operar con llaves comunes tradicionales o cómo coordinar la limpieza.
 4. **🔄 Sincronización:** Pregúntame cómo conectar Booking y Airbnb para evitar dobles reservas.
 5. **🏷️ Planes y Precios:** Pregúntame cuánto cuesta Loomi ($45.000 ARS/mes) o Loomi Suite ($60.000 ARS/mes) y cómo se paga por transferencia o Mercado Pago.
 

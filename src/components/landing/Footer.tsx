@@ -48,7 +48,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
                 <a href="#preguntas-clave" className="hover:text-white transition-colors">Calendario Multicanal Anti-Overbooking</a>
               </li>
               <li>
-                <a href="#preguntas-clave" className="hover:text-white transition-colors">Gestión de Limpieza & Mucamas</a>
+                <a href="#preguntas-clave" className="hover:text-white transition-colors">Gestión de Limpieza</a>
               </li>
               <li>
                 <a href="#preguntas-clave" className="hover:text-white transition-colors">Motor de Reservas Directas</a>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Calendar, User, DollarSign, KeyRound, Check, ShoppingBag, Trash2 } from 'lucide-react';
 import { DemoState, Reservation, BookingPlatform, ReservationAddon, AddonService, PaymentStatus, ReservationPayment, CurrencyCode } from '../../types';
-import { getRelativeDate, toLocalDateStr, formatCurrency, getActiveCurrency } from '../../data/initialData';
+import { getRelativeDate, toLocalDateStr, formatCurrency, getActiveCurrency, getGuideHours, withHs } from '../../data/initialData';
 import { isAppMode } from '../../lib/appMode';
 
 interface NewReservationModalProps {
@@ -542,7 +542,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
                   }}
                   className="rounded text-amber-600"
                 />
-                <span className="text-[11px] font-semibold text-zinc-800 dark:text-zinc-200">Early Check-in (antes de 14hs)</span>
+                <span className="text-[11px] font-semibold text-zinc-800 dark:text-zinc-200">Early Check-in ({getGuideHours(demoState.welcomeGuide, isAppMode()).checkin ? `antes de las ${withHs(getGuideHours(demoState.welcomeGuide, isAppMode()).checkin)}` : 'antes del horario de ingreso'})</span>
               </label>
 
               <label className="flex items-center gap-2 p-2 bg-white dark:bg-zinc-800 rounded-lg border border-amber-200 dark:border-amber-900/60 cursor-pointer">

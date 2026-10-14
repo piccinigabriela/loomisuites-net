@@ -77,10 +77,10 @@ export const FeatureBento: React.FC<FeatureBentoProps> = ({ onOpenDemo }) => {
               </div>
               <span className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Operaciones Diarias</span>
               <h3 className="text-xl font-bold text-zinc-900 dark:text-white mt-1">
-                Limpieza y Mucamas por Unidad
+                Limpieza por Unidad
               </h3>
               <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-3 leading-relaxed">
-                Asigna a cada mucama qué cabaña o habitación preparar al momento del check-out. Con checklists de sábanas, toallas, leña y aviso de cabaña lista.
+                Asigná a cada persona de limpieza qué cabaña o habitación preparar al momento del check-out. Con checklists de sábanas, toallas, leña y aviso de cabaña lista.
               </p>
               <ul className="mt-4 space-y-2 text-xs text-zinc-600 dark:text-zinc-300">
                 <li className="flex items-center gap-2">

@@ -21,7 +21,7 @@ import {
   CheckCheck,
 } from 'lucide-react';
 import { DemoState, CleaningTask, Property } from '../../types';
-import { formatDisplayDate } from '../../data/initialData';
+import { formatDisplayDate, getCleaningsForDay, getRelativeDate } from '../../data/initialData';
 
 interface HousekeepingMobileViewProps {
   demoState: DemoState;
@@ -74,7 +74,8 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
     return demoState.properties.find((p) => p.id === propId);
   };
 
-  const tasks = demoState.cleaningTasks;
+  // Las de hoy y las atrasadas; las de días futuros todavía no se muestran
+  const tasks = getCleaningsForDay(demoState.cleaningTasks, getRelativeDate(0));
 
   // 3-state traffic light helper:
   // 1: 'pending' -> Ocupada / Salida pendiente (Rojo/Ámbar)
@@ -156,7 +157,7 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
             onClick={() => onSwitchRole('admin')}
             className="flex items-center gap-1.5 text-xs font-semibold text-[#E67E22] hover:text-[#d35400] bg-orange-50 dark:bg-orange-950/40 px-3 py-1 rounded-xl border border-orange-200/60 dark:border-orange-800/60 transition-colors cursor-pointer"
           >
-            ← Volver al panel del dueño
+            ← Volver a Administración
           </button>
         </div>
         <div className="max-w-md mx-auto flex items-center justify-between">
@@ -164,7 +165,7 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-[10px] font-mono font-bold tracking-wider text-stone-400 dark:text-stone-500 uppercase">
-                PWA MUCAMAS EN VIVO
+                LIMPIEZA EN VIVO
               </span>
             </div>
             <h1 className="text-base font-semibold text-stone-900 dark:text-white tracking-tight flex items-center gap-1.5">
@@ -180,7 +181,7 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
           <div className="flex items-center gap-1.5 bg-stone-100 dark:bg-zinc-800 px-3 py-1.5 rounded-xl text-xs border border-stone-200/60 dark:border-zinc-700/60">
             <Shield className="w-3.5 h-3.5 text-[#E67E22]" />
             <span className="text-[11px] font-semibold text-stone-600 dark:text-zinc-300">
-              Rol: Mucama
+              Rol: Limpieza
             </span>
           </div>
         </div>
@@ -315,7 +316,7 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
                         </h2>
 
                         <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">
-                          Mucama responsable: <strong>{task.cleanerName}</strong>
+                          Responsable de limpieza: <strong>{task.cleanerName}</strong>
                         </p>
                       </div>
 
@@ -446,7 +447,7 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
                     {task.notes && (
                       <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
                         <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                        <span><strong>Nota de mucama:</strong> {task.notes}</span>
+                        <span><strong>Nota de limpieza:</strong> {task.notes}</span>
                       </div>
                     )}
                   </div>

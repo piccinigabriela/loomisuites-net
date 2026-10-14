@@ -83,7 +83,7 @@ export const FeaturesCarousel: React.FC<FeaturesCarouselProps> = ({ onOpenDemo, 
       id: 'housekeeping',
       category: 'OPERACIONES & EQUIPO DE LIMPIEZA',
       badge: 'Enlace Móvil sin Claves',
-      title: 'Mucamas organizadas: Tu equipo sabe qué preparar hoy',
+      title: 'Limpieza organizada: tu equipo sabe qué preparar hoy',
       subtitle:
         'Tu personal de limpieza tiene su propio enlace en el celular con el listado del día, horarios de recambio urgente y checklist con fotos para que cada cabaña esté impecable a tiempo.',
       highlights: [

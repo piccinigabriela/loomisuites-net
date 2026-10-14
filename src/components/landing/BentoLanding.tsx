@@ -89,7 +89,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
       description: 'La solución definitiva para complejos que operan con personal de recepción y equipos de limpieza. Ecosistema ilimitado.',
       features: [
         'Todo lo del Plan Loomi e iCal avanzado',
-        'Módulo Housekeeping Completo (Semáforo de Mucamas en vivo)',
+        'Módulo Housekeeping Completo (Semáforo de Limpieza en vivo)',
         'Modo Recepción con Roles de Usuario Separados',
         'Asistente Xenia AI (Voz & Copiloto 24/7)',
         'Web propia con Portal de Bienvenida del Huésped',
@@ -261,12 +261,12 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 Limpieza & Equipo
               </h3>
               <p className="text-xs text-slate-800 dark:text-zinc-300 font-normal mt-1 leading-relaxed">
-                Checklist móvil para mucamas y semáforo de estado en vivo.
+                Checklist móvil para limpieza y semáforo de estado en vivo.
               </p>
             </div>
 
             <div className="pt-2.5 border-t border-gray-100 dark:border-white/5 flex items-center justify-between text-xs text-slate-700 dark:text-zinc-400 font-medium">
-              <span>App de Mucamas</span>
+              <span>App de Limpieza</span>
               <span className="text-slate-900 dark:text-gray-200 font-semibold group-hover:text-[#E67E22] transition-colors">
                 Ver +
               </span>
@@ -793,7 +793,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               <div className="space-y-5">
                 <div className="space-y-1">
                   <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#E67E22]">
-                    05 / MUCAMAS & OPERACIONES
+                    05 / LIMPIEZA & OPERACIONES
                   </span>
                   <h3 className="text-2xl font-light text-gray-900 dark:text-white">
                     Operaciones bajo control <span className="font-semibold">sin confusiones</span>

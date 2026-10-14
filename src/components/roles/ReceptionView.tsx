@@ -27,7 +27,7 @@ import {
   Send,
 } from 'lucide-react';
 import { DemoState, Reservation, ReservationStatus, PaymentStatus, CashMovement } from '../../types';
-import { formatDisplayDate, getRelativeDate, formatCurrency, getGuestInitials, isGenericGuestName, getGuideHours } from '../../data/initialData';
+import { formatDisplayDate, getRelativeDate, formatCurrency, getGuestInitials, isGenericGuestName, getGuideHours, withHs } from '../../data/initialData';
 import { auth } from '../../lib/firebase';
 import { isAppMode } from '../../lib/appMode';
 import { GuestWelcomeCard } from '../GuestWelcomeCard';
@@ -125,11 +125,12 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
     });
 
   // Cash movements calculations
-  const openingCash = 50000;
+  const openingCash = isAppMode() ? 0 : 50000;
   const cashMovements = demoState.cashMovements || [];
   const cashMovementsOnly = cashMovements.filter((m) => m.paymentMethod === 'efectivo');
   const cashIn = cashMovementsOnly.filter((m) => m.type === 'ingreso').reduce((sum, m) => sum + m.amount, 0);
-  const currentCashBalance = openingCash + cashIn;
+  const cashOut = cashMovementsOnly.filter((m) => m.type === 'egreso').reduce((sum, m) => sum + m.amount, 0);
+  const currentCashBalance = openingCash + cashIn - cashOut;
 
   // Handlers
   const handleQuickCheckOut = (resId: string) => {
@@ -163,6 +164,8 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
   const handleOpenWelcomeCard = (res: Reservation) => {
     setSelectedResForCard(res);
   };
+
+  const receptionHours = getGuideHours(demoState.welcomeGuide, isAppMode());
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 font-['Inter',sans-serif] text-stone-800 dark:text-stone-100">
@@ -222,14 +225,14 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                 className="px-2.5 py-1 rounded-lg text-stone-600 dark:text-stone-300 hover:text-stone-900 hover:bg-white dark:hover:bg-zinc-700 font-medium transition-all cursor-pointer"
                 title="Ir a control total de Dueño / Administrador"
               >
-                👑 Dueño
+                👑 Administración
               </button>
               <button
                 onClick={() => onSwitchRole('housekeeping')}
                 className="px-2.5 py-1 rounded-lg text-stone-600 dark:text-stone-300 hover:text-stone-900 hover:bg-white dark:hover:bg-zinc-700 font-medium transition-all cursor-pointer"
-                title="Ir a modo Mucamas / Limpieza PWA"
+                title="Ir a modo Limpieza"
               >
-                🧹 Mucamas
+                🧹 Limpieza
               </button>
             </div>
           </div>
@@ -239,7 +242,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
           {/* Llegadas Hoy */}
           <div
-            onClick={() => setActiveFilter('checkin')}
+            onClick={() => setActiveFilter(activeFilter === 'checkin' ? 'all' : 'checkin')}
             className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
               activeFilter === 'checkin'
                 ? 'bg-orange-50/70 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800 shadow-xs'
@@ -247,18 +250,18 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
             }`}
           >
             <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400">
-              <span>Llegadas Hoy</span>
+              <span>Ingresos hoy</span>
               <DoorOpen className="w-3.5 h-3.5 text-[#E67E22]" />
             </div>
             <div className="mt-1 text-2xl font-light text-stone-900 dark:text-white">
               <span className="font-semibold text-[#E67E22]">{todayCheckIns.length}</span>
             </div>
-            <span className="text-[10px] text-stone-400 font-light">Ingreso desde 14:00</span>
+            <span className="text-[10px] text-stone-700 dark:text-stone-300 font-medium">{receptionHours.checkin ? `Ingreso desde ${withHs(receptionHours.checkin)}` : 'Horario en la Guía'}</span>
           </div>
 
           {/* Salidas Hoy */}
           <div
-            onClick={() => setActiveFilter('checkout')}
+            onClick={() => setActiveFilter(activeFilter === 'checkout' ? 'all' : 'checkout')}
             className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
               activeFilter === 'checkout'
                 ? 'bg-blue-50/70 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 shadow-xs'
@@ -266,18 +269,18 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
             }`}
           >
             <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400">
-              <span>Salidas Hoy</span>
+              <span>Salidas hoy</span>
               <LogOut className="w-3.5 h-3.5 text-blue-500" />
             </div>
             <div className="mt-1 text-2xl font-light text-stone-900 dark:text-white">
               <span className="font-semibold text-blue-600 dark:text-blue-400">{todayCheckOuts.length}</span>
             </div>
-            <span className="text-[10px] text-stone-400 font-light">Salida hasta 10:00</span>
+            <span className="text-[10px] text-stone-700 dark:text-stone-300 font-medium">{receptionHours.checkout ? `Salida hasta ${withHs(receptionHours.checkout)}` : 'Horario en la Guía'}</span>
           </div>
 
           {/* En Estancia */}
           <div
-            onClick={() => setActiveFilter('in_house')}
+            onClick={() => setActiveFilter(activeFilter === 'in_house' ? 'all' : 'in_house')}
             className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
               activeFilter === 'in_house'
                 ? 'bg-purple-50/70 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800 shadow-xs'
@@ -336,13 +339,13 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                 />
               </div>
 
-              <div className="flex items-center gap-1 bg-stone-100 dark:bg-zinc-800 p-0.5 rounded-xl text-[11px]">
+              <div className="flex items-center gap-1 bg-stone-100 dark:bg-zinc-800 p-1 rounded-xl text-xs">
                 <button
                   onClick={() => setActiveFilter('all')}
                   className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
                     activeFilter === 'all'
                       ? 'bg-white dark:bg-zinc-700 text-stone-900 dark:text-white shadow-2xs font-semibold'
-                      : 'text-stone-500 dark:text-stone-400'
+                      : 'text-stone-800 dark:text-stone-200'
                   }`}
                 >
                   Todos ({allReservations.length})
@@ -352,17 +355,17 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                   className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
                     activeFilter === 'checkin'
                       ? 'bg-white dark:bg-zinc-700 text-[#E67E22] shadow-2xs font-semibold'
-                      : 'text-stone-500 dark:text-stone-400'
+                      : 'text-stone-800 dark:text-stone-200'
                   }`}
                 >
-                  Llegadas ({todayCheckIns.length})
+                  Ingresos ({todayCheckIns.length})
                 </button>
                 <button
                   onClick={() => setActiveFilter('checkout')}
                   className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
                     activeFilter === 'checkout'
                       ? 'bg-white dark:bg-zinc-700 text-blue-600 shadow-2xs font-semibold'
-                      : 'text-stone-500 dark:text-stone-400'
+                      : 'text-stone-800 dark:text-stone-200'
                   }`}
                 >
                   Salidas ({todayCheckOuts.length})
@@ -399,12 +402,12 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                         </span>
                         {isTodayIn && (
                           <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-orange-100 text-[#E67E22] dark:bg-orange-950/50 dark:text-orange-300">
-                            Ingreso Hoy 14:00
+                            Ingreso hoy{receptionHours.checkin ? ` ${withHs(receptionHours.checkin)}` : ''}
                           </span>
                         )}
                         {isTodayOut && (
                           <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
-                            Salida Hoy 10:00
+                            Sale hoy{receptionHours.checkout ? ` ${withHs(receptionHours.checkout)}` : ''}
                           </span>
                         )}
                         <span className="text-[10px] text-stone-400 font-mono uppercase">
@@ -524,10 +527,12 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
 
             <div className="p-4 rounded-2xl bg-[#FCFAF8] dark:bg-zinc-900 border border-emerald-100/60 dark:border-emerald-950/40 space-y-2">
               <div className="flex items-center justify-between text-xs text-stone-500">
-                <span>Saldo en Efectivo (Fondo + Cobros)</span>
-                <span className="font-mono text-[10px] bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded">
-                  Fondo $50k ARS
-                </span>
+                <span>{isAppMode() ? 'Saldo en efectivo (cobros − gastos)' : 'Saldo en Efectivo (Fondo + Cobros)'}</span>
+                {!isAppMode() && (
+                  <span className="font-mono text-[10px] bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded">
+                    Fondo $50k ARS
+                  </span>
+                )}
               </div>
               <div className="text-2xl font-light text-stone-900 dark:text-white">
                 $<span className="font-semibold text-emerald-600">{currentCashBalance.toLocaleString('es-AR')}</span>
@@ -682,7 +687,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                 propertyName={getProp(selectedResForCard.propertyId)?.name || 'Tu Alojamiento'}
                 checkInDate={formatDisplayDate(selectedResForCard.checkIn)}
                 checkOutDate={formatDisplayDate(selectedResForCard.checkOut)}
-                checkInTime={getGuideHours(demoState.welcomeGuide, isAppMode()).checkin ? `${getGuideHours(demoState.welcomeGuide, isAppMode()).checkin} hs` : ''}
+                checkInTime={getGuideHours(demoState.welcomeGuide, isAppMode()).checkin ? `${withHs(getGuideHours(demoState.welcomeGuide, isAppMode()).checkin)}` : ''}
                 accessCode={selectedResForCard.pinCode || (isAppMode() ? '(a confirmar)' : '1024')}
                 wifiNetwork={getProp(selectedResForCard.propertyId)?.wifiNetwork || '(a confirmar)'}
                 wifiPassword={getProp(selectedResForCard.propertyId)?.wifiPassword || '(a confirmar)'}

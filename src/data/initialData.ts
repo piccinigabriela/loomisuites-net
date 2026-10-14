@@ -979,7 +979,7 @@ export const INITIAL_ADDONS: AddonService[] = [
   },
   {
     id: 'addon-cleaning',
-    name: 'Servicio de Mucama Extra & Recambio de Blancos',
+    name: 'Servicio de Limpieza Extra & Recambio de Blancos',
     category: 'servicios',
     price: 18,
     unitLabel: 'por servicio',
@@ -1171,4 +1171,23 @@ export function getEmptyAppState(): DemoState {
     },
     lastUpdated: new Date().toISOString(),
   };
+}
+
+/**
+ * Limpiezas que corresponden a un día: las programadas para ese día más las atrasadas
+ * (salidas de los últimos 5 días que nadie marcó como limpias). Las futuras no cuentan.
+ */
+export function getCleaningsForDay(tasks: CleaningTask[], day: string = getRelativeDate(0)): CleaningTask[] {
+  const [y, m, d] = day.split('-').map(Number);
+  const from = toLocalDateStr(new Date(y, m - 1, d - 5));
+  const isDone = (t: CleaningTask) => t.status === 'completed' || t.status === 'inspected';
+  return tasks
+    .filter((t) => t.date === day || (t.date < day && t.date >= from && !isDone(t)))
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.scheduledTime || '').localeCompare(b.scheduledTime || ''));
+}
+
+/** "15" o "15:00" → "15:00 hs"; si el anfitrión escribió una frase ("10 hs, late check-out a consultar"), va tal cual. */
+export function withHs(v: string): string {
+  const t = (v || '').trim();
+  return /^\d{1,2}([:.]\d{2})?$/.test(t) ? `${t} hs` : t;
 }

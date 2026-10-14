@@ -42,7 +42,7 @@ import {
 } from 'lucide-react';
 import { WelcomeGuideData, AttractionItem, DiningItem } from '../../types';
 import { isAppMode } from '../../lib/appMode';
-import { getGuideHours } from '../../data/initialData';
+import { getGuideHours, withHs } from '../../data/initialData';
 
 export type PortalTheme =
   | 'clara'
@@ -171,7 +171,7 @@ const IN_STAY_SERVICES: InStayService[] = [
   },
   {
     id: 'limpieza_extra',
-    name: 'Servicio de Mucama & Cambio de Blancos',
+    name: 'Servicio de Limpieza & Cambio de Blancos',
     priceUSD: 18,
     description: 'Limpieza profunda de la cabaña, cambio completo de sábanas, toallones y reposición de amenities.',
     category: 'confort',
@@ -815,13 +815,13 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                   {guideHours.checkin && (
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" />
-                    <span>Ingreso Check-in: desde las {guideHours.checkin} hs</span>
+                    <span>Ingreso Check-in: desde las {withHs(guideHours.checkin)}</span>
                   </div>
                   )}
                   {guideHours.checkout && (
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" />
-                    <span>Salida Check-out: hasta las {guideHours.checkout} hs</span>
+                    <span>Salida Check-out: hasta las {withHs(guideHours.checkout)}</span>
                   </div>
                   )}
                 </div>
@@ -926,7 +926,7 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                       <span>Horario de Ingreso (Check-in)</span>
                     </div>
                     <p className="text-xs">
-                      Podés ingresar a la unidad a partir de las <strong>{guideHours.checkin} hs</strong>.
+                      Podés ingresar a la unidad a partir de las <strong>{withHs(guideHours.checkin)}</strong>.
                     </p>
                   </div>
                 )}

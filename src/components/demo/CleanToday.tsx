@@ -23,7 +23,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import { DemoState, Reservation, CleaningTask } from '../../types';
-import { formatCurrency, formatDisplayDate, getRelativeDate, getGuideHours } from '../../data/initialData';
+import { formatCurrency, formatDisplayDate, getRelativeDate, getGuideHours, getCleaningsForDay, withHs } from '../../data/initialData';
 
 interface CleanTodayProps {
   demoState: DemoState;
@@ -93,8 +93,8 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
     (r) => r.checkOut === today && r.status !== 'cancelled'
   );
 
-  // Cleaning tasks for today
-  const cleaningTasks = demoState.cleaningTasks;
+  // Limpiezas de hoy (más las atrasadas sin terminar); las futuras no cuentan
+  const cleaningTasks = getCleaningsForDay(demoState.cleaningTasks, getRelativeDate(0));
   const pendingCleanings = cleaningTasks.filter(
     (c) => c.status !== 'completed' && c.status !== 'inspected'
   );
@@ -130,7 +130,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
     : 0;
 
   // Cash movements for frontdesk preview
-  const openingCash = totalUnits > 0 ? 50000 : 0;
+  const openingCash = totalUnits > 0 && !isAppMode ? 50000 : 0;
   const cashMovements = demoState.cashMovements || [];
   const cashMovementsOnly = cashMovements.filter((m) => m.paymentMethod === 'efectivo');
   const cashIn = cashMovementsOnly
@@ -303,7 +303,9 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
             <span className="text-xs font-normal text-stone-500">salidas</span>
           </div>
           <div className="text-[11px] font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-md inline-block w-max">
-            Check-in 14hs • Out 10hs
+            {todayHours.checkin || todayHours.checkout
+              ? `Check-in ${withHs(todayHours.checkin || '—')} • Out ${withHs(todayHours.checkout || '—')}`
+              : 'Cargá los horarios en la Guía'}
           </div>
         </div>
 
@@ -363,7 +365,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
               </h2>
             </div>
             <span className="text-[11px] font-medium text-stone-500 dark:text-zinc-400">
-              {todayHours.checkin ? `Ingresos a partir de ${todayHours.checkin} hs` : ''}
+              {todayHours.checkin ? `Ingresos a partir de ${withHs(todayHours.checkin)}` : ''}
             </span>
           </div>
 
@@ -479,7 +481,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
               </h2>
             </div>
             <span className="text-[11px] font-medium text-stone-500 dark:text-zinc-400">
-              {todayHours.checkout ? `Límite hasta las ${todayHours.checkout} hs` : ''}
+              {todayHours.checkout ? `Límite hasta las ${withHs(todayHours.checkout)}` : ''}
             </span>
           </div>
 
@@ -590,7 +592,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
               onClick={() => onNavigateTab('housekeeping')}
               className="text-xs font-semibold text-[#E67E22] hover:underline cursor-pointer"
             >
-              Abrir App Mucamas →
+              Abrir Limpieza →
             </button>
           </div>
 
@@ -627,7 +629,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
                       </div>
 
                       <div className="flex items-center gap-2 text-xs text-stone-600 dark:text-zinc-300">
-                        <span>Mucama asignada: <strong>{task.cleanerName}</strong></span>
+                        <span>Limpieza a cargo de: <strong>{task.cleanerName}</strong></span>
                       </div>
 
                       {task.notes && (

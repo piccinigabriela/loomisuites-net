@@ -11,7 +11,7 @@ export const Faq: React.FC = () => {
     },
     {
       q: '¿Por qué no está pensado para grandes inmobiliarias de 300 departamentos?',
-      a: 'Porque las inmobiliarias requieren sistemas de facturación corporativa, cobro de alquileres tradicionales y 50 módulos burocráticos. Loomi Suite fue diseñado con la filosofía ágil (estilo BananaDesk) para complejos de cabañas, bed & breakfasts, pequeños hostales y posadas de 2 a 25 unidades: una interfaz visual, rápida, enfocada en no tener sobreventas, coordinar mucamas y vender directo por WhatsApp.',
+      a: 'Porque las inmobiliarias requieren sistemas de facturación corporativa, cobro de alquileres tradicionales y 50 módulos burocráticos. Loomi Suite fue diseñado con la filosofía ágil (estilo BananaDesk) para complejos de cabañas, bed & breakfasts, pequeños hostales y posadas de 2 a 25 unidades: una interfaz visual, rápida, enfocada en no tener sobreventas, coordinar la limpieza y vender directo por WhatsApp.',
     },
     {
       q: '¿Loomi Suite reemplaza mis cuentas de Airbnb o Booking.com?',
@@ -22,7 +22,7 @@ export const Faq: React.FC = () => {
       a: 'La demo funciona al 100% en tu navegador utilizando almacenamiento local con datos ficticios realistas de cabañas y habitaciones de B&B. Podés crear reservas, cambiar el estado de las limpiezas, simular el envío de mensajes por WhatsApp y ver cómo se actualizan las finanzas sin ingresar tarjeta ni registrarte.',
     },
     {
-      q: '¿Cómo se comunican las tareas con el personal de limpieza y mucamas?',
+      q: '¿Cómo se comunican las tareas con el personal de limpieza?',
       a: 'No exigimos que tu personal descargue aplicaciones pesadas ni recuerde contraseñas. Loomi Suite genera una vista web móvil simple que podés enviarles automáticamente por WhatsApp con el cronograma del día, qué cabaña o habitación toca y checklist de ropa blanca y reposición.',
     },
     {

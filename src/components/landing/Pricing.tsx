@@ -67,7 +67,7 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
                   <span className="text-emerald-500 font-bold">✓</span> Reportes de Rendimiento Básicos
                 </li>
                 <li className="flex items-center gap-2 text-slate-400 dark:text-zinc-500 line-through font-light">
-                  <span className="text-slate-300 dark:text-zinc-600">✕</span> Módulo Housekeeping (Mucamas/Mantenimiento)
+                  <span className="text-slate-300 dark:text-zinc-600">✕</span> Módulo Housekeeping (Limpieza/Mantenimiento)
                 </li>
                 <li className="flex items-center gap-2 text-slate-400 dark:text-zinc-500 line-through font-light">
                   <span className="text-slate-300 dark:text-zinc-600">✕</span> Modo Recepción Multiusuario
@@ -133,7 +133,7 @@ export const Pricing: React.FC<PricingProps> = ({ onOpenDemo, onOpenContact }) =
                   <span className="text-emerald-500 font-bold">✓</span> Todo lo del Plan Loomi e iCal avanzado
                 </li>
                 <li className="flex items-center gap-2 text-slate-800 dark:text-zinc-200">
-                  <span className="text-emerald-500 font-bold">✓</span> Módulo Housekeeping Completo (Semáforo de Mucamas en vivo)
+                  <span className="text-emerald-500 font-bold">✓</span> Módulo Housekeeping Completo (Semáforo de Limpieza en vivo)
                 </li>
                 <li className="flex items-center gap-2 text-slate-800 dark:text-zinc-200">
                   <span className="text-emerald-500 font-bold">✓</span> Modo Recepción con Roles de Usuario Separados

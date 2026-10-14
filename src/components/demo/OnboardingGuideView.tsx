@@ -84,10 +84,10 @@ export const OnboardingGuideView: React.FC<OnboardingGuideViewProps> = ({
     },
     {
       step: '3',
-      title: 'Configurar tu Equipo de Trabajo (Mucamas)',
+      title: 'Configurar tu Equipo de Trabajo (Limpieza)',
       subtitle: 'Notificaciones automáticas en 1 clic',
       icon: <Users className="w-5 h-5 text-[#c46d45]" />,
-      desc: 'Cargá los nombres de tus mucamas o personal de mantenimiento y sus números de WhatsApp. Ya no necesitás llamarlas para avisar que hay una unidad para limpiar.',
+      desc: 'Cargá los nombres de quienes limpian o hacen mantenimiento y sus números de WhatsApp. Ya no necesitás llamar para avisar que hay una unidad para limpiar.',
       checklist: [
         'Revisar el checklist de limpieza de cada recambio (sábanas, toallas, baño, cocina).',
         'Establecer el horario límite de limpieza para el próximo Check-in.',

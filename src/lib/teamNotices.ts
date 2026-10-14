@@ -3,7 +3,7 @@
  * a quien ayuda con limpieza, mantenimiento o la entrega de llaves.
  */
 import { Property, Reservation, TeamContact, WelcomeGuideData } from '../types';
-import { getGuideHours } from '../data/initialData';
+import { getGuideHours, withHs as hourText } from '../data/initialData';
 
 export type { TeamContact };
 
@@ -23,8 +23,6 @@ export const daysBetween = (fromYmd: string, toYmdStr: string) => {
   return Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 86400000);
 };
 
-/** "15" o "15:00" → "15:00 hs"; si el anfitrión escribió una frase, se respeta tal cual. */
-const hourText = (v: string) => (/^\d{1,2}([:.]\d{2})?$/.test(v.trim()) ? `${v.trim()} hs` : v.trim());
 
 export const fmtDmy = (ymd: string) => (ymd || '').split('-').reverse().join('/');
 

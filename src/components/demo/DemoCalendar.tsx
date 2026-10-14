@@ -15,7 +15,7 @@ import {
   Download,
 } from 'lucide-react';
 import { DemoState, Reservation, Property, BookingPlatform } from '../../types';
-import { formatDisplayDate, getRelativeDate, toLocalDateStr, formatCurrency, getGuideHours } from '../../data/initialData';
+import { formatDisplayDate, getRelativeDate, toLocalDateStr, formatCurrency, getGuideHours, withHs } from '../../data/initialData';
 
 interface DemoCalendarProps {
   demoState: DemoState;
@@ -648,7 +648,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                         {isTurnoverDayHere && (
                           <div
                             className="absolute inset-y-0 left-1/2 w-0.5 border-l border-dashed border-[#E67E22]/40 z-0 pointer-events-none"
-                            title={`Día de recambio: Salida a la mañana (10hs) y Entrada a la tarde (14hs)`}
+                            title={`Día de recambio: sale un huésped${calendarHours.checkout ? ` (hasta ${withHs(calendarHours.checkout)})` : ''} y entra otro${calendarHours.checkin ? ` (desde ${withHs(calendarHours.checkin)})` : ''}`}
                           />
                         )}
 

@@ -30,7 +30,7 @@ import {
   Bell,
 } from 'lucide-react';
 import { DemoState, Reservation, Property, ReservationStatus, PaymentStatus } from '../../types';
-import { formatDisplayDate, formatCurrency, getGuestInitials, toLocalDateStr } from '../../data/initialData';
+import { formatDisplayDate, formatCurrency, getGuestInitials, toLocalDateStr, getCleaningsForDay, getGuideHours, withHs } from '../../data/initialData';
 import { XeniaAvatar } from '../xenia/XeniaAvatar';
 import { useXeniaVoice } from '../../hooks/useXeniaVoice';
 import { getClientXeniaReply } from '../xenia/xeniaLocalEngine';
@@ -228,7 +228,9 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
   const occupancyPercent = Math.round((occupiedCount / totalUnits) * 100);
 
   // Pending cleaning tasks
-  const pendingCleanings = demoState.cleaningTasks.filter((c) => c.status !== 'completed');
+  const calendarHours = getGuideHours(demoState.welcomeGuide, isAppMode);
+  const todayCleanings = getCleaningsForDay(demoState.cleaningTasks, toLocalDateStr(new Date()));
+  const pendingCleanings = todayCleanings.filter((c) => c.status !== 'completed' && c.status !== 'inspected');
 
   // Formatted today in Spanish
   const todayFormatted = new Intl.DateTimeFormat('es-AR', {
@@ -312,9 +314,9 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
               className="px-2 py-1.5 rounded-xl bg-[#DDD7CD]/70 dark:bg-zinc-800 text-gray-800 dark:text-gray-200 text-xs font-semibold border-0 focus:ring-1 focus:ring-orange-500 cursor-pointer"
               title="Cambiar Rol"
             >
-              <option value="admin">👑 Dueño</option>
+              <option value="admin">👑 Administración</option>
               <option value="frontdesk">🛎️ Recepción</option>
-              <option value="housekeeping">🧹 Mucamas</option>
+              <option value="housekeeping">🧹 Limpieza</option>
             </select>
           )}
 
@@ -547,11 +549,11 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
               <div className="flex items-center justify-between px-1">
                 <h2 className="text-xs font-bold tracking-wider text-gray-400 uppercase flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#D86F35]" />
-                  LIMPIEZAS DEL DÍA ({demoState.cleaningTasks.length})
+                  LIMPIEZAS DEL DÍA ({todayCleanings.length})
                 </h2>
               </div>
 
-              {demoState.cleaningTasks.map((task) => {
+              {todayCleanings.map((task) => {
                 const prop = demoState.properties.find((p) => p.id === task.propertyId);
                 const isCompleted =
                   task.status === 'completed' ||
@@ -632,7 +634,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                         </span>
                       </div>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase bg-[#FDF3E7] text-[#D86F35] shrink-0">
-                        Check-in 14hs
+                        {calendarHours.checkin ? `Check-in ${withHs(calendarHours.checkin)}` : 'Check-in'}
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-2">

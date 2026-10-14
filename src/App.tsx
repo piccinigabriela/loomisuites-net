@@ -67,7 +67,7 @@ import { ReceptionView } from './components/roles/ReceptionView';
 import { HousekeepingMobileView } from './components/roles/HousekeepingMobileView';
 import { GuestWelcomePortal } from './components/guide/GuestWelcomePortal';
 import { PublicGuideView } from './components/guide/PublicGuideView';
-import { INITIAL_WELCOME_GUIDE, getEmptyAppState } from './data/initialData';
+import { INITIAL_WELCOME_GUIDE, getEmptyAppState, getCleaningsForDay } from './data/initialData';
 import { isAppMode } from './lib/appMode';
 import { auth, onAuthStateChanged, signOut, User } from './lib/firebase';
 import { sendEmailVerification } from 'firebase/auth';
@@ -443,6 +443,7 @@ export default function App() {
   });
 
   const isEmployeeMode = userRole === 'housekeeping';
+  const [receptionTab, setReceptionTab] = useState<'mostrador' | 'calendario'>('mostrador');
 
   // Navigation Helpers: Open Demo / Back to Landing with PushState & Default Admin Role
   const handleOpenDemo = (tab?: string) => {
@@ -566,9 +567,9 @@ export default function App() {
     } catch {}
 
     const roleNames = {
-      admin: '👑 Dueño / Administrador (/admin)',
+      admin: '👑 Administración (/admin)',
       frontdesk: '🛎️ Recepción Mostrador (/recepcion)',
-      housekeeping: '🧹 Housekeeping Mucamas PWA (/limpieza)',
+      housekeeping: '🧹 Limpieza PWA (/limpieza)',
     };
     showToast(`Rol activo: ${roleNames[newRole]}`);
   };
@@ -1601,7 +1602,7 @@ export default function App() {
     setIsNewResModalOpen(true);
   };
 
-  const pendingCleaningsCount = demoState.cleaningTasks.filter(
+  const pendingCleaningsCount = getCleaningsForDay(demoState.cleaningTasks).filter(
     (c) => c.status !== 'completed' && c.status !== 'inspected'
   ).length;
 
@@ -1867,6 +1868,40 @@ export default function App() {
       ) : userRole === 'frontdesk' ? (
         /* VISTA RECEPCIÓN / MOSTRADOR: OPTIMIZADA PARA PC / TABLET (/recepcion) */
         <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#0E0F12] text-stone-800 dark:text-stone-100 font-sans transition-colors">
+          {/* Pestañas de recepción: Mostrador / Calendario */}
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5">
+            <div className="inline-flex gap-1 bg-white dark:bg-[#18191E] border border-stone-200 dark:border-zinc-800 p-1 rounded-2xl">
+              {([
+                ['mostrador', '🛎️ Mostrador'],
+                ['calendario', '📅 Calendario'],
+              ] as const).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setReceptionTab(key)}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold cursor-pointer transition-colors ${
+                    receptionTab === key
+                      ? 'bg-[#E67E22] text-white'
+                      : 'text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-zinc-800'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          {receptionTab === 'calendario' ? (
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+              <DemoCalendar
+                demoState={demoState}
+                onSelectReservation={setSelectedReservationForDetail}
+                onOpenNewReservationWithProperty={handleOpenNewReservationWithProperty}
+                isAppMode={isApp}
+                icalSyncState={icalSyncState}
+                onRunSyncNow={runSyncNow}
+              />
+            </div>
+          ) : (
           <ReceptionView
             demoState={demoState}
             onSelectReservation={setSelectedReservationForDetail}
@@ -1882,6 +1917,7 @@ export default function App() {
             }}
             complexName={demoState.welcomeGuide?.propertyName || 'Mi complejo'}
           />
+          )}
         </div>
       ) : mobileMode === 'light' ? (
         /* ULTRA-CLEAN MOBILE LIGHT / POCKET VIEW FOR SMARTPHONES */
@@ -2018,7 +2054,7 @@ export default function App() {
                     className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white dark:bg-zinc-700 text-[#E67E22] shadow-2xs cursor-pointer"
                     title="Dueño / Administrador (/admin): Control total"
                   >
-                    👑 Dueño
+                    👑 Administración
                   </button>
                   <button
                     onClick={() => handleRoleChange('frontdesk')}
@@ -2032,7 +2068,7 @@ export default function App() {
                     className="px-2.5 py-1 rounded-lg text-xs font-medium text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white transition-colors cursor-pointer"
                     title="Housekeeping (/limpieza): PWA Smartphone"
                   >
-                    🧹 Mucamas
+                    🧹 Limpieza
                   </button>
                 </div>
 
@@ -2385,7 +2421,7 @@ export default function App() {
     )}
 
       {/* Persistent Floating Xenia AI Assistant (activo en el panel de Demo y App en escritorio; oculto cuando se está en la vista Asistente Xenia) */}
-      {currentView === 'demo' && demoTab !== 'xenia' && userRole !== 'frontdesk' && !(mobileMode === 'light' || isEmployeeMode || demoTab === 'direct-booking') && (
+      {currentView === 'demo' && !isEmployeeMode && (userRole === 'frontdesk' || mobileMode === 'light' || (demoTab !== 'xenia' && demoTab !== 'direct-booking')) && (
         <XeniaFloatingWidget
           demoState={demoState}
           onOpenFullView={() => {

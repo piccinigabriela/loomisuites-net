@@ -87,7 +87,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
               <span>Panel Operativo del Sistema (PMS)</span>
             </h2>
             <p className="text-xs leading-relaxed text-stone-600 dark:text-stone-300 font-normal">
-              <strong>Estás en tu centro de trabajo diario:</strong> esta interfaz es el software real donde administrás el calendario iCal, asignás limpiezas a mucamas y registrás cobros.
+              <strong>Estás en tu centro de trabajo diario:</strong> esta interfaz es el software real donde administrás el calendario iCal, asignás limpiezas a tu equipo y registrás cobros.
             </p>
           </div>
 
@@ -111,7 +111,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
             <div className="border rounded-xl p-2.5 flex items-start gap-2 transition-colors bg-[#FAF9F6] dark:bg-[#15161A] border-stone-200/70 dark:border-zinc-800">
               <Smartphone className="w-3.5 h-3.5 shrink-0 mt-0.5 text-purple-600 dark:text-purple-400" />
               <div>
-                <p className="font-semibold text-stone-800 dark:text-stone-200">App Mucamas & QR</p>
+                <p className="font-semibold text-stone-800 dark:text-stone-200">App de Limpieza & QR</p>
                 <p className="text-[10px] text-stone-600 dark:text-stone-400">Guía y sábanas</p>
               </div>
             </div>
@@ -334,7 +334,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                     </span>
                   </div>
                   <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 max-w-2xl leading-relaxed font-medium">
-                    <strong>Ecosistema ilimitado para todo el complejo:</strong> Módulo Housekeeping en vivo para mucamas, modo recepción multisuario, asistente Xenia AI 24/7 y Portal de Bienvenida del Huésped.
+                    <strong>Ecosistema ilimitado para todo el complejo:</strong> Módulo Housekeeping en vivo para limpieza, modo recepción multisuario, asistente Xenia AI 24/7 y Portal de Bienvenida del Huésped.
                   </p>
                 </div>
 
@@ -347,7 +347,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                     className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>1. Probar App Móvil de Mucamas</span>
+                    <span>1. Probar App Móvil de Limpieza</span>
                   </button>
 
                   <button
