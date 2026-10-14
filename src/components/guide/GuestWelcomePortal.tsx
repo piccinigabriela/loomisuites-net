@@ -770,6 +770,24 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
           {/* TAB 1: CÓMO LLEGAR & UBICACIÓN */}
           {activeTab === 'llegar' && (
             <div className="space-y-5 animate-in fade-in duration-200">
+              {/* Instrucciones de ingreso (cargadas por el anfitrión) */}
+              {(guideData.arrivalInstructions?.trim() || guideData.arrivalInstructionsEn?.trim()) && (
+                <div className="p-4 rounded-2xl border-2 border-amber-500 bg-amber-50 text-stone-900 space-y-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-800 block">🔑 Cómo ingresar</span>
+                  {guideData.arrivalInstructions?.trim() && (
+                    <p className="text-sm font-semibold leading-relaxed whitespace-pre-line">{guideData.arrivalInstructions}</p>
+                  )}
+                  {guideData.arrivalInstructionsEn?.trim() && (
+                    <div className="pt-2 border-t border-amber-300">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-amber-800 block">How to check in</span>
+                      <p className="text-sm font-semibold leading-relaxed whitespace-pre-line" lang="en">
+                        {guideData.arrivalInstructionsEn}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Address Card */}
               <div className={`p-4 rounded-2xl border space-y-3 ${theme.cardBg}`}>
                 <div className="flex items-start justify-between gap-2">

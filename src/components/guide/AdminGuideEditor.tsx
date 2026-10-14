@@ -18,6 +18,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { WelcomeGuideData } from '../../types';
+import { isAppMode } from '../../lib/appMode';
 
 interface AdminGuideEditorProps {
   guideData: WelcomeGuideData;
@@ -264,6 +265,8 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
                   />
                 </div>
 
+                {!isAppMode() && (
+                <>
                 <div>
                   <label className="block text-xs font-bold text-zinc-700 mb-1">
                     Horario de Piscina
@@ -287,6 +290,8 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
                     className="w-full text-xs p-2.5 rounded-xl border border-zinc-300 focus:border-rose-500 focus:outline-hidden"
                   />
                 </div>
+                </>
+                )}
 
                 <div>
                   <label className="block text-xs font-bold text-zinc-700 mb-1">
@@ -299,6 +304,30 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
                     className="w-full text-xs p-2.5 rounded-xl border border-zinc-300 focus:border-rose-500 focus:outline-hidden"
                   />
                 </div>
+              </div>
+
+              <div className="mt-4 p-3 rounded-xl border-2 border-amber-400 bg-amber-50 space-y-2">
+                <label className="block text-xs font-bold text-zinc-900">
+                  🔑 ¿Cómo es el ingreso? (instrucciones de llegada)
+                </label>
+                <p className="text-[11px] text-zinc-800">
+                  Se muestra destacado en la guía del huésped y se agrega a los mensajes de confirmación y del día de llegada.
+                </p>
+                <textarea
+                  rows={3}
+                  value={formData.arrivalInstructions || ''}
+                  onChange={(e) => handleGeneralChange('arrivalInstructions', e.target.value)}
+                  placeholder="Ej: Al llegar, anunciate en Tres Sargentos 431 (la casa de al lado). Ahí te entregan las llaves y te acompañan al departamento."
+                  className="w-full text-xs p-2.5 rounded-xl border border-zinc-300 focus:border-rose-500 focus:outline-hidden bg-white text-zinc-900"
+                />
+                <label className="block text-xs font-bold text-zinc-900">In English (opcional, para huéspedes que no hablan español)</label>
+                <textarea
+                  rows={3}
+                  value={formData.arrivalInstructionsEn || ''}
+                  onChange={(e) => handleGeneralChange('arrivalInstructionsEn', e.target.value)}
+                  placeholder="E.g.: When you arrive, please check in at Tres Sargentos 431 (the house next door). They will give you the keys and take you to the apartment."
+                  className="w-full text-xs p-2.5 rounded-xl border border-zinc-300 focus:border-rose-500 focus:outline-hidden bg-white text-zinc-900"
+                />
               </div>
 
               <div className="mt-4">

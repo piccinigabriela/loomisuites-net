@@ -615,7 +615,7 @@ export const APP_TEMPLATES: MessageTemplate[] = [
     title: 'Confirmación & Bienvenida Anticipada',
     triggerEvent: 'Al confirmarse la reserva',
     channel: 'whatsapp',
-    content: '¡Hola, {{nombre_huésped}}! 😊 Te confirmamos tu reserva en {{unidad_alojamiento}} de {{nombre_complejo}}, desde el {{fecha_checkin}} hasta el {{fecha_checkout}}.\nPara que tu llegada sea simple, te compartimos la guía digital de tu estadía: ahí tenés cómo llegar, la clave del Wi-Fi, los horarios y recomendaciones de la zona.\n🔗 {{link_guia_digital}}\n¡Te esperamos! Cualquier duda, escribinos por acá.',
+    content: '¡Hola, {{nombre_huésped}}! 😊 Te confirmamos tu reserva en {{unidad_alojamiento}} de {{nombre_complejo}}, desde el {{fecha_checkin}} hasta el {{fecha_checkout}}.\nPara que tu llegada sea simple, te compartimos la guía digital de tu estadía: ahí tenés cómo llegar, la clave del Wi-Fi, los horarios y recomendaciones de la zona.\n🔗 {{link_guia_digital}}\n🔑 Para ingresar: {{instrucciones_ingreso}}\n¡Te esperamos! Cualquier duda, escribinos por acá.',
     variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{nombre_complejo}}', '{{fecha_checkin}}', '{{fecha_checkout}}', '{{link_guia_digital}}'],
   },
   {
@@ -623,7 +623,7 @@ export const APP_TEMPLATES: MessageTemplate[] = [
     title: 'Coordinación del Día de Llegada',
     triggerEvent: 'La mañana del Check-In',
     channel: 'whatsapp',
-    content: '¡Buen día, {{nombre_huésped}}! Hoy llegás a {{nombre_complejo}} 🙌\nEn tu guía digital tenés la dirección, cómo llegar y todo lo necesario para ingresar a {{unidad_alojamiento}}:\n🔗 {{link_guia_digital}}\nAvisanos cuando estés por llegar así te esperamos con todo listo. ¡Buen viaje!',
+    content: '¡Buen día, {{nombre_huésped}}! Hoy llegás a {{nombre_complejo}} 🙌\nEn tu guía digital tenés la dirección, cómo llegar y todo lo necesario para ingresar a {{unidad_alojamiento}}:\n🔗 {{link_guia_digital}}\n🔑 Para ingresar: {{instrucciones_ingreso}}\nAvisanos cuando estés por llegar así te esperamos con todo listo. ¡Buen viaje!',
     variables: ['{{nombre_huésped}}', '{{nombre_complejo}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}'],
   },
   {
@@ -659,7 +659,7 @@ export const APP_TEMPLATES_EN: MessageTemplate[] = [
     title: 'Booking Confirmation & Early Welcome',
     triggerEvent: 'When the booking is confirmed',
     channel: 'whatsapp',
-    content: 'Hi {{nombre_huésped}}! 😊 Your stay at {{unidad_alojamiento}} – {{nombre_complejo}} is confirmed, from {{fecha_checkin}} to {{fecha_checkout}}.\nTo make your arrival easy, here is your digital guest guide: directions, Wi-Fi password, check-in/check-out times and local tips.\n🔗 {{link_guia_digital}}\n(Tip: if the guide opens in Spanish, tap "Translate" in your browser.)\nLooking forward to hosting you! Feel free to message us here with any questions.',
+    content: 'Hi {{nombre_huésped}}! 😊 Your stay at {{unidad_alojamiento}} – {{nombre_complejo}} is confirmed, from {{fecha_checkin}} to {{fecha_checkout}}.\nTo make your arrival easy, here is your digital guest guide: directions, Wi-Fi password, check-in/check-out times and local tips.\n🔗 {{link_guia_digital}}\n(Tip: if the guide opens in Spanish, tap "Translate" in your browser.)\n🔑 How to check in: {{instrucciones_ingreso}}\nLooking forward to hosting you! Feel free to message us here with any questions.',
     variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{nombre_complejo}}', '{{fecha_checkin}}', '{{fecha_checkout}}', '{{link_guia_digital}}'],
   },
   {
@@ -667,7 +667,7 @@ export const APP_TEMPLATES_EN: MessageTemplate[] = [
     title: 'Arrival Day Coordination',
     triggerEvent: 'Morning of check-in',
     channel: 'whatsapp',
-    content: 'Good morning {{nombre_huésped}}! Today you arrive at {{nombre_complejo}} 🙌\nYour digital guide has the address, directions and everything you need to get into {{unidad_alojamiento}}:\n🔗 {{link_guia_digital}}\nPlease let us know when you are close so we can have everything ready. Safe travels!',
+    content: 'Good morning {{nombre_huésped}}! Today you arrive at {{nombre_complejo}} 🙌\nYour digital guide has the address, directions and everything you need to get into {{unidad_alojamiento}}:\n🔗 {{link_guia_digital}}\n🔑 How to check in: {{instrucciones_ingreso}}\nPlease let us know when you are close so we can have everything ready. Safe travels!',
     variables: ['{{nombre_huésped}}', '{{nombre_complejo}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}'],
   },
   {
@@ -703,7 +703,7 @@ export const APP_TEMPLATES_PT: MessageTemplate[] = [
     title: 'Confirmação & Boas-vindas',
     triggerEvent: 'Ao confirmar a reserva',
     channel: 'whatsapp',
-    content: 'Olá, {{nombre_huésped}}! 😊 Sua reserva em {{unidad_alojamiento}} – {{nombre_complejo}} está confirmada, de {{fecha_checkin}} a {{fecha_checkout}}.\nPara facilitar sua chegada, aqui está o guia digital da sua estadia: como chegar, senha do Wi-Fi, horários e dicas da região.\n🔗 {{link_guia_digital}}\n(Dica: se o guia abrir em espanhol, toque em "Traduzir" no seu navegador.)\nEstamos esperando por você! Qualquer dúvida, é só escrever aqui.',
+    content: 'Olá, {{nombre_huésped}}! 😊 Sua reserva em {{unidad_alojamiento}} – {{nombre_complejo}} está confirmada, de {{fecha_checkin}} a {{fecha_checkout}}.\nPara facilitar sua chegada, aqui está o guia digital da sua estadia: como chegar, senha do Wi-Fi, horários e dicas da região.\n🔗 {{link_guia_digital}}\n(Dica: se o guia abrir em espanhol, toque em "Traduzir" no seu navegador.)\n🔑 Como fazer o check-in: {{instrucciones_ingreso}}\nEstamos esperando por você! Qualquer dúvida, é só escrever aqui.',
     variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{nombre_complejo}}', '{{fecha_checkin}}', '{{fecha_checkout}}', '{{link_guia_digital}}'],
   },
   {
@@ -711,7 +711,7 @@ export const APP_TEMPLATES_PT: MessageTemplate[] = [
     title: 'Coordenação do Dia de Chegada',
     triggerEvent: 'Manhã do check-in',
     channel: 'whatsapp',
-    content: 'Bom dia, {{nombre_huésped}}! Hoje você chega em {{nombre_complejo}} 🙌\nNo seu guia digital você encontra o endereço, como chegar e tudo o que precisa para entrar em {{unidad_alojamiento}}:\n🔗 {{link_guia_digital}}\nAvise quando estiver chegando para deixarmos tudo pronto. Boa viagem!',
+    content: 'Bom dia, {{nombre_huésped}}! Hoje você chega em {{nombre_complejo}} 🙌\nNo seu guia digital você encontra o endereço, como chegar e tudo o que precisa para entrar em {{unidad_alojamiento}}:\n🔗 {{link_guia_digital}}\n🔑 Como fazer o check-in: {{instrucciones_ingreso}}\nAvise quando estiver chegando para deixarmos tudo pronto. Boa viagem!',
     variables: ['{{nombre_huésped}}', '{{nombre_complejo}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}'],
   },
   {

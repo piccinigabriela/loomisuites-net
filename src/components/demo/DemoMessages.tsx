@@ -209,6 +209,16 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
       })()
     );
 
+    // Instrucciones de ingreso cargadas en la guía (si no hay, se quita esa línea del mensaje)
+    const arrivalEs = demoState.welcomeGuide?.arrivalInstructions?.trim() || '';
+    const arrivalEn = demoState.welcomeGuide?.arrivalInstructionsEn?.trim() || '';
+    const arrivalText = msgLang === 'es' ? arrivalEs : arrivalEn || arrivalEs;
+    if (arrivalText) {
+      content = content.replace(/\{\{instrucciones_ingreso\}\}/gi, arrivalText);
+    } else {
+      content = content.replace(/^.*\{\{instrucciones_ingreso\}\}.*(\n|$)/gim, '');
+    }
+
     // Double curly braces {{...}}
     content = content.replace(/\{\{nombre_huésped\}\}/gi, guestFirstName);
     content = content.replace(/\{\{nombre_huesped\}\}/gi, guestFirstName);

@@ -52,6 +52,18 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
   const activeSubTab = initialSubTab || internalSubTab;
   const selectedTemplate = initialTemplate || internalTemplate;
 
+  // Vista previa como la ve el huésped de una unidad (con su wifi y dirección)
+  const [previewUnitId, setPreviewUnitId] = useState<string>('');
+  const previewUnit = properties.find((p) => p.id === previewUnitId);
+  const previewGuideData: WelcomeGuideData = previewUnit
+    ? {
+        ...guideData,
+        wifiNetwork: previewUnit.wifiNetwork || guideData.wifiNetwork,
+        wifiPassword: previewUnit.wifiPassword || guideData.wifiPassword,
+        locationAddress: previewUnit.address || guideData.locationAddress,
+      }
+    : guideData;
+
   const handleSetSubTab = (tab: 'landing-booking' | 'guest-view' | 'admin-view') => {
     setInternalSubTab(tab);
     if (onSelectSubTab) onSelectSubTab(tab);
@@ -399,8 +411,31 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
                   Experiencia interactiva que ve el huésped de {guideData.propertyName} al abrir el enlace o escanear el QR en la unidad.
                 </span>
               </div>
+              {properties.length > 0 && (
+                <div className="mb-4 flex flex-wrap items-center justify-center gap-2 text-xs">
+                  <span className="font-semibold text-stone-800 dark:text-stone-200">Ver como la ve el huésped de:</span>
+                  <select
+                    value={previewUnitId}
+                    onChange={(e) => setPreviewUnitId(e.target.value)}
+                    className="text-xs font-semibold p-2 rounded-xl border border-stone-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-stone-900 dark:text-stone-100 cursor-pointer"
+                  >
+                    <option value="">Guía general (sin unidad)</option>
+                    {properties.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                  {!previewUnit && !guideData.wifiNetwork?.trim() && (
+                    <span className="w-full text-center text-stone-800 dark:text-stone-200">
+                      El wifi de cada unidad aparece cuando el huésped abre su link personal (o elegí una unidad acá).
+                    </span>
+                  )}
+                </div>
+              )}
               <GuestWelcomePortal
-                guideData={guideData}
+                guideData={previewGuideData}
+                unitName={previewUnit?.name}
                 isMobilePreview={isMobileFrame}
                 template={selectedTemplate}
                 onSelectTemplate={handleSetTemplate}

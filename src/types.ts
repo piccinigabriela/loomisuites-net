@@ -185,6 +185,10 @@ export interface WelcomeGuideData {
   checkoutHour: string;
   woodBagPrice: string;
   specialAnnouncement?: string;
+  /** Cómo se ingresa (ej. "Anunciarse en Tres Sargentos 431, ahí les dan las llaves") */
+  arrivalInstructions?: string;
+  /** Las mismas instrucciones en inglés, para huéspedes extranjeros */
+  arrivalInstructionsEn?: string;
   transportation: TransportationItem[];
   attractions: AttractionItem[];
   dining: DiningItem[];
