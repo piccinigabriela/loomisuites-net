@@ -24,6 +24,7 @@ export interface TenantDoc {
     rates: Partial<Record<CurrencyCode, number>>;
     ratesUpdatedAt?: string;
   };
+  managementSettings?: { enabled: boolean; percent: number };
   welcomeSeen?: boolean;
   onboardingChecklist?: {
     calendarios?: boolean;
@@ -272,6 +273,17 @@ export async function saveTenantData(uid: string, data: Partial<TenantDoc>): Pro
     ...data,
     updatedAt: serverTimestamp(),
   }, { merge: true });
+}
+
+export async function saveManagementSettingsDoc(
+  uid: string,
+  settings: { enabled: boolean; percent: number }
+): Promise<void> {
+  if (!uid || !db) return;
+  await updateDoc(doc(db, 'tenants', uid), {
+    managementSettings: settings,
+    updatedAt: serverTimestamp(),
+  });
 }
 
 export async function saveCurrencySettingsDoc(

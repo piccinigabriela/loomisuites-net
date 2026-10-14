@@ -240,5 +240,7 @@ export interface DemoState {
     rates: Partial<Record<CurrencyCode, number>>;
     ratesUpdatedAt?: string;
   };
+  /** Anfitrión que administra para un propietario: comisión de gestión sobre el neto */
+  managementSettings?: { enabled: boolean; percent: number };
   lastUpdated: string;
 }

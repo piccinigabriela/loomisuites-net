@@ -22,6 +22,8 @@ import {
 import { DemoState, Reservation, CurrencyCode } from '../../types';
 import { formatCurrency, formatDisplayDate, toLocalDateStr } from '../../data/initialData';
 import { isAppMode } from '../../lib/appMode';
+import { OwnerReport } from './OwnerReport';
+import { countsForReport, isInPeriod, ReportPeriod } from '../../lib/ownerReport';
 
 interface DemoFinancesProps {
   demoState: DemoState;
@@ -30,6 +32,7 @@ interface DemoFinancesProps {
     rates: Partial<Record<CurrencyCode, number>>;
     ratesUpdatedAt?: string;
   }) => void;
+  onUpdateManagementSettings?: (settings: { enabled: boolean; percent: number }) => void;
 }
 
 type MonthPoint = { month: string; occupancy: number; revenue: number; nights: number; directPct?: number; isCurrent?: boolean };
@@ -105,7 +108,12 @@ const MONTHLY_DATA: MonthPoint[] = [
 export const DemoFinances: React.FC<DemoFinancesProps> = ({
   demoState,
   onUpdateCurrencySettings,
+  onUpdateManagementSettings,
 }) => {
+  const [reportPeriod, setReportPeriod] = useState<ReportPeriod>(() => {
+    const now = new Date();
+    return { month: now.getMonth(), year: now.getFullYear() };
+  });
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>('all');
   const [commissionRate, setCommissionRate] = useState<number>(20);
   const [metricView, setMetricView] = useState<'both' | 'revenue' | 'occupancy'>('both');
@@ -200,6 +208,10 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
     selectedPropertyId === 'all'
       ? activeReservations
       : activeReservations.filter((r) => r.propertyId === selectedPropertyId);
+  // En la app, la tabla de estadías sigue al período elegido en Rendimiento
+  const periodReservations = activeReservations
+    .filter((r) => countsForReport(r) && isInPeriod(r.checkIn, reportPeriod))
+    .sort((a, b) => a.checkIn.localeCompare(b.checkIn));
 
   const grossRevenue = displayedReservations.reduce(
     (sum, r) => sum + (r.totalAmount || 0),
@@ -318,6 +330,15 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto font-sans">
+      {isApp && (
+        <OwnerReport
+          demoState={demoState}
+          period={reportPeriod}
+          onPeriodChange={setReportPeriod}
+          onUpdateManagementSettings={onUpdateManagementSettings}
+        />
+      )}
+
       {/* Moneda y cotización Card */}
       <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 shadow-[0_4px_16px_rgba(0,0,0,0.02)] space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100 dark:border-zinc-800">
@@ -404,6 +425,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
       </div>
 
       {/* Header Zen */}
+      {!isApp && (<>
       <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-gray-100 dark:border-zinc-800 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)] flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -537,6 +559,8 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
           </p>
         </div>
       </div>
+
+      </>)}
 
       {/* Gráfico Semestral */}
       <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-gray-100 dark:border-zinc-800 p-6 sm:p-7 shadow-[0_4px_16px_rgba(0,0,0,0.005)] transition-colors">
@@ -749,7 +773,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
       {/* Grid: Balances de Cobros por Reserva + Liquidación Propietario */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Tabla de Balances */}
-        <div className="lg:col-span-7 bg-white dark:bg-[#18191E] rounded-2xl border border-gray-100 dark:border-zinc-800 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)]">
+        <div className={`${isApp ? 'lg:col-span-12' : 'lg:col-span-7'} bg-white dark:bg-[#18191E] rounded-2xl border border-gray-100 dark:border-zinc-800 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)]`}>
           <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-zinc-800 mb-2">
             <div>
               <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-bold">
@@ -762,8 +786,8 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
                 Revisión clara de cada liquidación realizada.
               </p>
             </div>
-            <span className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
-              {displayedReservations.length} estadías
+            <span className="text-xs text-gray-700 dark:text-gray-300 font-semibold">
+              {(isApp ? periodReservations : displayedReservations).length} estadías
             </span>
           </div>
 
@@ -779,7 +803,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-zinc-800/80">
-                {displayedReservations.map((res) => {
+                {(isApp ? periodReservations : displayedReservations).map((res) => {
                   const prop = demoState.properties.find(
                     (p) => p.id === res.propertyId
                   );
@@ -844,6 +868,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
         </div>
 
         {/* Generador de Liquidación Propietario */}
+        {!isApp && (
         <div className="lg:col-span-5 bg-white dark:bg-[#18191E] rounded-2xl border border-gray-100 dark:border-zinc-800 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)] flex flex-col justify-between">
           <div>
             <div className="pb-4 border-b border-gray-100 dark:border-zinc-800 mb-5">
@@ -944,6 +969,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
             </button>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

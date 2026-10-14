@@ -88,6 +88,7 @@ import {
   deleteCashMovementDoc,
   saveTenantData,
   saveCurrencySettingsDoc,
+  saveManagementSettingsDoc,
   savePublicGuide,
   savePublicCalendar,
   TenantDoc,
@@ -254,6 +255,7 @@ export default function App() {
             addons: data.tenant?.availableAddons || [],
             cashMovements: data.cashMovements,
             currencySettings: data.tenant?.currencySettings || { settlementCurrency: 'ARS', rates: {} },
+            managementSettings: data.tenant?.managementSettings,
             lastUpdated: new Date().toISOString(),
           });
         }
@@ -2229,6 +2231,21 @@ export default function App() {
                     }
                     setActiveCurrency(settings.settlementCurrency);
                     showToast(`Moneda de liquidación: ${settings.settlementCurrency}`);
+                  }}
+                  onUpdateManagementSettings={async (settings) => {
+                    if (isApp && currentUser) {
+                      await saveManagementSettingsDoc(currentUser.uid, settings);
+                    }
+                    updateDemoState((prev) => ({
+                      ...prev,
+                      managementSettings: settings,
+                      lastUpdated: new Date().toISOString(),
+                    }));
+                    showToast(
+                      settings.enabled
+                        ? `Comisión de gestión: ${settings.percent}% sobre el neto`
+                        : 'Comisión de gestión desactivada'
+                    );
                   }}
                 />
               )}
