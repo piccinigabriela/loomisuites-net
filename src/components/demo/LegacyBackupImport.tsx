@@ -13,6 +13,10 @@ export interface LegacyImportPayload {
   newProperties: Property[];
   updatedProperties: Property[];
   reservations: Reservation[];
+  /** reservas a borrar antes de guardar: la importación anterior y los duplicados que trajo el iCal */
+  removeReservationIds: string[];
+  /** unidades creadas por una importación anterior que ya no se usan */
+  removePropertyIds: string[];
 }
 
 interface LegacyBackupImportProps {
@@ -45,6 +49,10 @@ export const LegacyBackupImport: React.FC<LegacyBackupImportProps> = ({
   const previousImported = (demoState.reservations || []).filter((r) => r.id.startsWith('legacy-')).length;
   const previousUnits = (demoState.properties || []).filter((p) => p.id.startsWith('prop-import-')).length;
   const [isUndoing, setIsUndoing] = useState(false);
+  const [justUndone, setJustUndone] = useState(false);
+  // Por defecto, una nueva importación reemplaza la anterior (evita mezclar asignaciones viejas y nuevas)
+  const [replacePrevious, setReplacePrevious] = useState(true);
+  const waitingUndoSync = justUndone && previousImported > 0;
   const properties = demoState.properties || [];
   const settlementCurrency: CurrencyCode = demoState.currencySettings?.settlementCurrency || 'USD';
   const units = useMemo(() => summarizeLegacyUnits(data), [data]);
@@ -95,14 +103,25 @@ export const LegacyBackupImport: React.FC<LegacyBackupImportProps> = ({
     [data, unitMap, fileCurrency, settlementCurrency, rate, includeCancelled, today]
   );
 
-  const existingKeys = useMemo(
-    () => new Set((demoState.reservations || []).map((r) => `${r.propertyId}_${r.checkIn}_${r.checkOut}`)),
-    [demoState.reservations]
+  // Reservas que ya están en Loomi. Si se reemplaza la importación anterior, esas no cuentan.
+  const keptReservations = useMemo(
+    () =>
+      (demoState.reservations || []).filter(
+        (r) => r.status !== 'cancelled' && !(replacePrevious && r.id.startsWith('legacy-'))
+      ),
+    [demoState.reservations, replacePrevious]
   );
-  const existingIds = useMemo(() => new Set((demoState.reservations || []).map((r) => r.id)), [demoState.reservations]);
-  const toImport = preview.reservations.filter(
-    (r) => !existingIds.has(r.id) && !existingKeys.has(`${r.propertyId}_${r.checkIn}_${r.checkOut}`)
+  const keyOf = (r: Reservation) => `${r.propertyId}_${r.checkIn}_${r.checkOut}`;
+  // Cargadas a mano (no iCal): si coinciden unidad y fechas, no se duplica
+  const manualKeys = useMemo(
+    () => new Set(keptReservations.filter((r) => r.source !== 'ical').map(keyOf)),
+    [keptReservations]
   );
+  const keptIds = useMemo(() => new Set(keptReservations.map((r) => r.id)), [keptReservations]);
+  const toImport = preview.reservations.filter((r) => !keptIds.has(r.id) && !manualKeys.has(keyOf(r)));
+  // Las que trajo la sincronización de Airbnb/Booking sin datos ("Reserva Airbnb") se reemplazan por las del backup
+  const importKeys = new Set(toImport.filter((r) => r.status !== 'cancelled').map(keyOf));
+  const icalDuplicates = keptReservations.filter((r) => r.source === 'ical' && importKeys.has(keyOf(r)));
   const alreadyThere = preview.reservations.length - toImport.length;
   const upcoming = toImport.filter((r) => r.status !== 'cancelled' && r.checkOut >= today).length;
   const grossTotal = toImport.filter((r) => r.status !== 'cancelled').reduce((s, r) => s + r.totalAmount, 0);
@@ -155,14 +174,15 @@ export const LegacyBackupImport: React.FC<LegacyBackupImportProps> = ({
       } else if (airbnbUrl || bookingUrl) {
         const prop = properties.find((p) => p.id === target);
         if (prop) {
+          // Los links del archivo mandan: corrigen una asignación anterior equivocada
           updatedProperties.push({
             ...prop,
-            icalAirbnbUrl: prop.icalAirbnbUrl || airbnbUrl,
-            icalBookingUrl: prop.icalBookingUrl || bookingUrl,
+            icalAirbnbUrl: airbnbUrl || prop.icalAirbnbUrl,
+            icalBookingUrl: bookingUrl || prop.icalBookingUrl,
             syncStatus: {
               ...prop.syncStatus,
-              airbnb: Boolean(prop.icalAirbnbUrl || airbnbUrl),
-              booking: Boolean(prop.icalBookingUrl || bookingUrl),
+              airbnb: Boolean(airbnbUrl || prop.icalAirbnbUrl),
+              booking: Boolean(bookingUrl || prop.icalBookingUrl),
             },
           });
         }
@@ -171,7 +191,17 @@ export const LegacyBackupImport: React.FC<LegacyBackupImportProps> = ({
 
     setIsImporting(true);
     try {
-      await onImport({ newProperties, updatedProperties, reservations: toImport });
+      const usedTargets = new Set(Object.values(unitMap));
+      const removeReservationIds = [
+        ...(replacePrevious
+          ? (demoState.reservations || []).filter((r) => r.id.startsWith('legacy-')).map((r) => r.id)
+          : []),
+        ...icalDuplicates.map((r) => r.id),
+      ];
+      const removePropertyIds = replacePrevious
+        ? properties.filter((p) => p.id.startsWith('prop-import-') && !usedTargets.has(p.id)).map((p) => p.id)
+        : [];
+      await onImport({ newProperties, updatedProperties, reservations: toImport, removeReservationIds, removePropertyIds });
     } catch (err: any) {
       setError(`No se pudo completar la importación: ${err?.message || 'error desconocido'}`);
       setIsImporting(false);
@@ -219,14 +249,27 @@ export const LegacyBackupImport: React.FC<LegacyBackupImportProps> = ({
               setIsUndoing(true);
               try {
                 await onUndoPrevious();
+                setJustUndone(true);
               } finally {
                 setIsUndoing(false);
               }
             }}
             className="text-xs font-bold px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white cursor-pointer disabled:opacity-50"
           >
-            {isUndoing ? 'Deshaciendo…' : 'Deshacer la importación anterior'}
+            {isUndoing ? 'Deshaciendo…' : 'Solo deshacer la importación anterior'}
           </button>
+          <label className="flex items-start gap-2 pt-1 cursor-pointer text-amber-900 dark:text-amber-100">
+            <input
+              type="checkbox"
+              checked={replacePrevious}
+              onChange={(e) => setReplacePrevious(e.target.checked)}
+              className="mt-0.5 cursor-pointer"
+            />
+            <span>
+              <strong>Reemplazar la importación anterior al importar</strong> (recomendado): borra lo importado antes y lo
+              vuelve a cargar con las unidades que elijas ahora.
+            </span>
+          </label>
         </div>
       )}
 
@@ -383,6 +426,12 @@ export const LegacyBackupImport: React.FC<LegacyBackupImportProps> = ({
           {includeCancelled && <li>• {preview.cancelledCount} canceladas o no-show.</li>}
           <li>• Facturación total: {formatCurrency(grossTotal, settlementCurrency)}.</li>
           {alreadyThere > 0 && <li>• {alreadyThere} ya estaban en Loomi y se omiten.</li>}
+          {icalDuplicates.length > 0 && (
+            <li>
+              • {icalDuplicates.length} reservas sin datos que trajo la sincronización (“Reserva Airbnb”) se reemplazan por las
+              del backup, con nombre y precio.
+            </li>
+          )}
           {preview.skipped > 0 && <li>• {preview.skipped} se omiten (unidad no importada o fechas inválidas).</li>}
         </ul>
         <p className="text-stone-700 dark:text-stone-300 pt-1">
@@ -390,6 +439,10 @@ export const LegacyBackupImport: React.FC<LegacyBackupImportProps> = ({
           acceso de tu app anterior no se copian.
         </p>
       </div>
+
+      {waitingUndoSync && (
+        <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">Terminando de borrar la importación anterior…</p>
+      )}
 
       {error && (
         <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs font-semibold">
@@ -409,7 +462,7 @@ export const LegacyBackupImport: React.FC<LegacyBackupImportProps> = ({
         <button
           type="button"
           onClick={handleImport}
-          disabled={isImporting || toImport.length === 0}
+          disabled={isImporting || toImport.length === 0 || waitingUndoSync}
           className="flex items-center gap-1.5 text-xs font-bold px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isImporting ? (

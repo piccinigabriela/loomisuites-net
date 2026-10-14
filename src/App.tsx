@@ -1051,7 +1051,11 @@ export default function App() {
   // Handle import from Google Calendar / CSV
   // Importar el backup .json de la app anterior: unidades nuevas/actualizadas + reservas (sin duplicar)
   const handleImportLegacyBackup = async (payload: LegacyImportPayload) => {
-    const { newProperties, updatedProperties, reservations } = payload;
+    const { newProperties, updatedProperties, reservations, removeReservationIds, removePropertyIds } = payload;
+    const removeSet = new Set(removeReservationIds);
+    const removeTaskIds = demoState.cleaningTasks
+      .filter((t) => (t.reservationId && removeSet.has(t.reservationId)) || t.id.startsWith('clean-legacy-'))
+      .map((t) => t.id);
     const todayStr = toLocalDateStr(new Date());
     const makeCleaningTask = (r: Reservation): CleaningTask => ({
       id: `clean-legacy-${r.id}`,
@@ -1073,6 +1077,13 @@ export default function App() {
 
     if (isApp && currentUser) {
       const uid = currentUser.uid;
+      const inChunks = async <T,>(items: T[], fn: (item: T) => Promise<void>) => {
+        for (let i = 0; i < items.length; i += 20) await Promise.all(items.slice(i, i + 20).map(fn));
+      };
+      // Primero se borra lo anterior (mismos ids se vuelven a escribir después)
+      await inChunks(removeTaskIds, (id) => deleteCleaningTaskDoc(uid, id));
+      await inChunks(removeReservationIds, (id) => deleteReservationDoc(uid, id));
+      await inChunks(removePropertyIds, (id) => deletePropertyDoc(uid, id));
       for (const p of [...newProperties, ...updatedProperties]) {
         await savePropertyDoc(uid, p);
       }
@@ -1089,11 +1100,18 @@ export default function App() {
     } else {
       updateDemoState((prev) => {
         const updatedById = new Map(updatedProperties.map((p) => [p.id, p]));
+        const removeTaskSet = new Set(removeTaskIds);
         return {
           ...prev,
-          properties: [...prev.properties.map((p) => updatedById.get(p.id) || p), ...newProperties],
-          reservations: [...reservations, ...(prev.reservations || [])],
-          cleaningTasks: [...reservations.filter(needsCleaning).map(makeCleaningTask), ...(prev.cleaningTasks || [])],
+          properties: [
+            ...prev.properties.filter((p) => !removePropertyIds.includes(p.id)).map((p) => updatedById.get(p.id) || p),
+            ...newProperties,
+          ],
+          reservations: [...reservations, ...(prev.reservations || []).filter((r) => !removeSet.has(r.id))],
+          cleaningTasks: [
+            ...reservations.filter(needsCleaning).map(makeCleaningTask),
+            ...(prev.cleaningTasks || []).filter((t) => !removeTaskSet.has(t.id)),
+          ],
           lastUpdated: new Date().toISOString(),
         };
       });
