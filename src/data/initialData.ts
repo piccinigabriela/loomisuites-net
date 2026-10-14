@@ -652,6 +652,117 @@ export const APP_TEMPLATES: MessageTemplate[] = [
   },
 ];
 
+/** Mismas plantillas en inglés (mismos ids, así la plantilla elegida se mantiene al cambiar de idioma). */
+export const APP_TEMPLATES_EN: MessageTemplate[] = [
+  {
+    id: 'tpl-1',
+    title: 'Booking Confirmation & Early Welcome',
+    triggerEvent: 'When the booking is confirmed',
+    channel: 'whatsapp',
+    content: 'Hi {{nombre_huésped}}! 😊 Your stay at {{unidad_alojamiento}} – {{nombre_complejo}} is confirmed, from {{fecha_checkin}} to {{fecha_checkout}}.\nTo make your arrival easy, here is your digital guest guide: directions, Wi-Fi password, check-in/check-out times and local tips.\n🔗 {{link_guia_digital}}\n(Tip: if the guide opens in Spanish, tap "Translate" in your browser.)\nLooking forward to hosting you! Feel free to message us here with any questions.',
+    variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{nombre_complejo}}', '{{fecha_checkin}}', '{{fecha_checkout}}', '{{link_guia_digital}}'],
+  },
+  {
+    id: 'tpl-2',
+    title: 'Arrival Day Coordination',
+    triggerEvent: 'Morning of check-in',
+    channel: 'whatsapp',
+    content: 'Good morning {{nombre_huésped}}! Today you arrive at {{nombre_complejo}} 🙌\nYour digital guide has the address, directions and everything you need to get into {{unidad_alojamiento}}:\n🔗 {{link_guia_digital}}\nPlease let us know when you are close so we can have everything ready. Safe travels!',
+    variables: ['{{nombre_huésped}}', '{{nombre_complejo}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}'],
+  },
+  {
+    id: 'tpl-3',
+    title: 'Comfort Check',
+    triggerEvent: '2 hours after check-in',
+    channel: 'whatsapp',
+    content: 'Hi {{nombre_huésped}}! We hope you have settled in nicely at {{unidad_alojamiento}}. ✨\nJust checking that everything is in order: is the Wi-Fi working well and is the temperature comfortable?\nIf you need extra towels, a recommendation or anything else, just message us here. Enjoy your stay!',
+    variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}'],
+  },
+  {
+    id: 'tpl-4',
+    title: 'Friendly Check-out Reminder',
+    triggerEvent: 'Evening before check-out (8 pm)',
+    channel: 'whatsapp',
+    content: 'Hi {{nombre_huésped}}, we hope you are enjoying {{unidad_alojamiento}}. ✨\nJust a reminder that check-out is tomorrow {{hora_checkout}}, so we can get the place ready for the next guests.\nBefore leaving, please switch off the lights and the air conditioning and let us know here. Have a safe trip home!',
+    variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{hora_checkout}}'],
+  },
+  {
+    id: 'tpl-5',
+    title: 'Review Request & Direct Booking Discount',
+    triggerEvent: '2 hours after check-out',
+    channel: 'whatsapp',
+    content: 'Thank you so much for staying at {{nombre_complejo}}, {{nombre_huésped}}! 🌟\nIf you enjoyed your time at {{unidad_alojamiento}}, a review would help us a lot.\nAnd for your next visit, you can book directly with us at a preferential rate: 🔗 {{link_guia_digital}}\nHope to see you again!',
+    variables: ['{{nombre_complejo}}', '{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}'],
+  },
+];
+
+/** Mismas plantillas en portugués (huéspedes de Brasil). */
+export const APP_TEMPLATES_PT: MessageTemplate[] = [
+  {
+    id: 'tpl-1',
+    title: 'Confirmação & Boas-vindas',
+    triggerEvent: 'Ao confirmar a reserva',
+    channel: 'whatsapp',
+    content: 'Olá, {{nombre_huésped}}! 😊 Sua reserva em {{unidad_alojamiento}} – {{nombre_complejo}} está confirmada, de {{fecha_checkin}} a {{fecha_checkout}}.\nPara facilitar sua chegada, aqui está o guia digital da sua estadia: como chegar, senha do Wi-Fi, horários e dicas da região.\n🔗 {{link_guia_digital}}\n(Dica: se o guia abrir em espanhol, toque em "Traduzir" no seu navegador.)\nEstamos esperando por você! Qualquer dúvida, é só escrever aqui.',
+    variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{nombre_complejo}}', '{{fecha_checkin}}', '{{fecha_checkout}}', '{{link_guia_digital}}'],
+  },
+  {
+    id: 'tpl-2',
+    title: 'Coordenação do Dia de Chegada',
+    triggerEvent: 'Manhã do check-in',
+    channel: 'whatsapp',
+    content: 'Bom dia, {{nombre_huésped}}! Hoje você chega em {{nombre_complejo}} 🙌\nNo seu guia digital você encontra o endereço, como chegar e tudo o que precisa para entrar em {{unidad_alojamiento}}:\n🔗 {{link_guia_digital}}\nAvise quando estiver chegando para deixarmos tudo pronto. Boa viagem!',
+    variables: ['{{nombre_huésped}}', '{{nombre_complejo}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}'],
+  },
+  {
+    id: 'tpl-3',
+    title: 'Verificação de Conforto',
+    triggerEvent: '2 horas após o check-in',
+    channel: 'whatsapp',
+    content: 'Olá, {{nombre_huésped}}! Esperamos que você já esteja bem acomodado em {{unidad_alojamiento}}. ✨\nSó para confirmar que está tudo em ordem: o Wi-Fi está funcionando bem e a temperatura está agradável?\nSe precisar de toalhas extras, alguma recomendação ou qualquer outra coisa, é só escrever aqui. Aproveite a estadia!',
+    variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}'],
+  },
+  {
+    id: 'tpl-4',
+    title: 'Lembrete de Check-out',
+    triggerEvent: 'Noite anterior ao check-out (20h)',
+    channel: 'whatsapp',
+    content: 'Olá, {{nombre_huésped}}, esperamos que você esteja aproveitando {{unidad_alojamiento}}. ✨\nLembramos que o check-out é amanhã {{hora_checkout}}, para prepararmos o lugar para os próximos hóspedes.\nAntes de sair, por favor desligue as luzes e o ar-condicionado e nos avise por aqui. Boa viagem de volta!',
+    variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{hora_checkout}}'],
+  },
+  {
+    id: 'tpl-5',
+    title: 'Pedido de Avaliação e Desconto Direto',
+    triggerEvent: '2 horas após o check-out',
+    channel: 'whatsapp',
+    content: 'Muito obrigado por escolher {{nombre_complejo}}, {{nombre_huésped}}! 🌟\nSe você gostou da sua estadia em {{unidad_alojamiento}}, uma avaliação nos ajudaria muito.\nE na próxima visita, você pode reservar diretamente conosco com tarifa especial: 🔗 {{link_guia_digital}}\nAté a próxima!',
+    variables: ['{{nombre_complejo}}', '{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}'],
+  },
+];
+
+export type GuestLanguage = 'es' | 'en' | 'pt';
+
+/** Idioma probable según el prefijo del teléfono (+55 Brasil → pt; países de habla inglesa → en). */
+export function guessGuestLanguage(phone: string | undefined | null): GuestLanguage {
+  const digits = (phone || '').replace(/[^\d+]/g, '');
+  const p = digits.startsWith('+') ? digits.slice(1) : digits.startsWith('00') ? digits.slice(2) : '';
+  if (!p) return 'es';
+  if (p.startsWith('55')) return 'pt';
+  if (p.startsWith('351')) return 'pt';
+  if (/^(1|44|353|61|64|27)/.test(p)) return 'en';
+  return 'es';
+}
+
+/** Fecha corta en el idioma del huésped (ej. "15 Oct" / "Oct 15" / "15 out"). */
+export function formatGuestDate(dateStr: string, lang: GuestLanguage): string {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const date = new Date(y, (m || 1) - 1, d || 1);
+  if (lang === 'en') return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  if (lang === 'pt') return date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }).replace('.', '');
+  return formatDisplayDate(dateStr);
+}
+
 /** Nombres que pone el sistema cuando la reserva no trae el nombre real del huésped (ej. iCal de Airbnb). */
 export function isGenericGuestName(name: string | undefined | null): boolean {
   const n = (name || '').trim().toLowerCase();

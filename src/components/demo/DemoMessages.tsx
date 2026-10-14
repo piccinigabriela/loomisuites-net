@@ -13,7 +13,7 @@ import {
   Info,
 } from 'lucide-react';
 import { DemoState, Reservation, MessageTemplate } from '../../types';
-import { formatDisplayDate, INITIAL_TEMPLATES, APP_TEMPLATES, isGenericGuestName, getGuestInitials, toLocalDateStr, getRelativeDate } from '../../data/initialData';
+import { formatDisplayDate, INITIAL_TEMPLATES, APP_TEMPLATES, APP_TEMPLATES_EN, APP_TEMPLATES_PT, guessGuestLanguage, formatGuestDate, GuestLanguage, isGenericGuestName, getGuestInitials, toLocalDateStr, getRelativeDate } from '../../data/initialData';
 import { copyToClipboard } from '../../utils/clipboard';
 import { WebTemplatesManager } from '../WebTemplatesManager';
 import { GuestWelcomeCard } from '../GuestWelcomeCard';
@@ -33,7 +33,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
   const [subTab, setSubTab] = useState<MessagesSubTab>('simulator');
   const [phoneViewMode, setPhoneViewMode] = useState<'chat' | 'card'>('chat');
   // Ensure we always have full list of master templates
-  const templatesList = useMemo(() => {
+  const templatesListEs = useMemo(() => {
     // En la app real nunca usar las plantillas de la demo (mencionan Iguazú, la selva, etc.)
     if (isAppMode()) {
       return APP_TEMPLATES;
@@ -47,8 +47,10 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
   const [filterScope, setFilterScope] = useState<FilterScope>('upcoming');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(
-    templatesList[0]?.id || 'tpl-1'
+    templatesListEs[0]?.id || 'tpl-1'
   );
+  // Idioma del mensaje: 'auto' lo deduce del teléfono del huésped (+353, +1 → inglés; +55 → portugués)
+  const [langChoice, setLangChoice] = useState<'auto' | GuestLanguage>('auto');
   const [copied, setCopied] = useState(false);
   const [simulatedSent, setSimulatedSent] = useState(false);
 
@@ -121,6 +123,11 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
     return filteredReservations[0]?.id || demoState.reservations[0]?.id || '';
   });
 
+  // Cada reserva arranca con el idioma deducido de su teléfono
+  useEffect(() => {
+    setLangChoice('auto');
+  }, [selectedResId]);
+
   // Al llegar desde la ficha de una reserva: mostrar todas y dejar esa seleccionada
   useEffect(() => {
     if (!target?.resId) return;
@@ -143,6 +150,11 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
   const selectedProperty = demoState.properties.find(
     (p) => p.id === selectedReservation?.propertyId
   );
+  const autoLang: GuestLanguage = guessGuestLanguage(selectedReservation?.guestPhone);
+  const msgLang: GuestLanguage = langChoice === 'auto' ? autoLang : langChoice;
+  const templatesList = msgLang === 'en' ? APP_TEMPLATES_EN : msgLang === 'pt' ? APP_TEMPLATES_PT : templatesListEs;
+  const LANG_LABEL: Record<GuestLanguage, string> = { es: 'Español', en: 'Inglés', pt: 'Portugués' };
+
   const selectedTemplate = templatesList.find(
     (t) => t.id === selectedTemplateId
   );
@@ -189,15 +201,20 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
     }
     content = content.replace(
       /\{\{hora_checkout\}\}/gi,
-      checkoutHour ? `a las ${checkoutHour.replace(/\s*hs\.?$/i, '')} hs` : 'en el horario acordado'
+      (() => {
+        const h = checkoutHour ? checkoutHour.replace(/\s*hs\.?$/i, '') : '';
+        if (msgLang === 'en') return h ? `at ${h}` : 'at the agreed time';
+        if (msgLang === 'pt') return h ? `às ${h}` : 'no horário combinado';
+        return h ? `a las ${h} hs` : 'en el horario acordado';
+      })()
     );
 
     // Double curly braces {{...}}
     content = content.replace(/\{\{nombre_huésped\}\}/gi, guestFirstName);
     content = content.replace(/\{\{nombre_huesped\}\}/gi, guestFirstName);
     content = content.replace(/\{\{unidad_alojamiento\}\}/gi, selectedProperty.name);
-    content = content.replace(/\{\{fecha_checkin\}\}/gi, formatDisplayDate(selectedReservation.checkIn));
-    content = content.replace(/\{\{fecha_checkout\}\}/gi, formatDisplayDate(selectedReservation.checkOut));
+    content = content.replace(/\{\{fecha_checkin\}\}/gi, formatGuestDate(selectedReservation.checkIn, msgLang));
+    content = content.replace(/\{\{fecha_checkout\}\}/gi, formatGuestDate(selectedReservation.checkOut, msgLang));
     content = content.replace(/\{\{link_guia_digital\}\}/gi, personalizedGuideUrl);
     content = content.replace(/\{\{link_guia\}\}/gi, personalizedGuideUrl);
 
@@ -595,6 +612,37 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
                 {templatesList.length} Plantillas
               </span>
             </div>
+
+            {/* Idioma del mensaje */}
+            <div className="flex flex-wrap items-center gap-1.5 text-xs">
+              <span className="font-semibold text-stone-800 dark:text-stone-200 mr-1">Idioma del mensaje:</span>
+              {(
+                [
+                  ['auto', `Automático (${LANG_LABEL[autoLang]})`],
+                  ['es', 'Español'],
+                  ['en', 'English'],
+                  ['pt', 'Português'],
+                ] as Array<['auto' | GuestLanguage, string]>
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setLangChoice(value)}
+                  className={`px-2.5 py-1 rounded-lg border font-semibold cursor-pointer transition-colors ${
+                    langChoice === value
+                      ? 'bg-[#E67E22] border-[#E67E22] text-white'
+                      : 'bg-white dark:bg-zinc-800 border-stone-300 dark:border-zinc-600 text-stone-800 dark:text-stone-100 hover:border-[#E67E22]'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            {langChoice === 'auto' && autoLang !== 'es' && (
+              <p className="text-[11px] text-stone-800 dark:text-stone-200">
+                Elegimos {LANG_LABEL[autoLang].toLowerCase()} por el prefijo del teléfono del huésped. Podés cambiarlo arriba.
+              </p>
+            )}
 
             {/* Template Blocks Accordion / Selection */}
             <div className="space-y-3">
