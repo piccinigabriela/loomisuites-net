@@ -16,9 +16,11 @@ import {
 
 interface WelcomeScreenProps {
   onStart: () => void;
+  /** Cierra la bienvenida y abre directamente a Xenia */
+  onOpenXenia?: () => void;
 }
 
-export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
+export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onOpenXenia }) => {
   const steps = [
     {
       num: '1',
@@ -135,7 +137,19 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
             <li className="flex items-start gap-2.5">
               <Bot className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
               <span>
-                Preguntale a <strong>Xenia, tu asistente</strong>. La encontrás abajo a la derecha (el círculo con su foto) o en el menú, en "Asistente Xenia". Para hablar con Xenia por voz argentina, usá Microsoft Edge.
+                Preguntale a{' '}
+                {onOpenXenia ? (
+                  <button
+                    type="button"
+                    onClick={onOpenXenia}
+                    className="font-bold text-emerald-600 dark:text-emerald-400 underline underline-offset-2 hover:text-emerald-700 dark:hover:text-emerald-300 cursor-pointer"
+                  >
+                    Xenia, tu asistente
+                  </button>
+                ) : (
+                  <strong>Xenia, tu asistente</strong>
+                )}
+                . Tocá su nombre para hablarle ahora; después la encontrás abajo a la derecha (el círculo con su foto) o en el menú, en "Asistente Xenia". Para hablar con Xenia por voz argentina, usá Microsoft Edge.
               </span>
             </li>
             <li className="flex items-start gap-2.5">

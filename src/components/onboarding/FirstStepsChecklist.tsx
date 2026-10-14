@@ -32,23 +32,18 @@ interface FirstStepsChecklistProps {
   onDismissChecklist: () => void;
 }
 
-export const FirstStepsChecklist: React.FC<FirstStepsChecklistProps> = ({
+/** Estado de cada paso de "Primeros pasos" (lo usa también el atajo para volver a la lista). */
+export function getFirstStepsStatus({
   welcomeGuide,
   properties = [],
   reservations = [],
   onboardingChecklist = {},
-  checklistDismissed = false,
-  onOpenOnboarding,
-  onNavigateToProperties,
-  onNavigateToCalendar,
-  onNavigateToGuide,
-  onUpdateChecklist,
-  onDismissChecklist,
-}) => {
-  if (checklistDismissed) {
-    return null;
-  }
-
+}: {
+  welcomeGuide?: WelcomeGuideData;
+  properties?: Property[];
+  reservations?: Reservation[];
+  onboardingChecklist?: { calendarios?: boolean; guia?: boolean; diaADia?: boolean };
+}) {
   // 1. Tu complejo
   const isComplexDone = Boolean(
     welcomeGuide?.propertyName &&
@@ -83,6 +78,45 @@ export const FirstStepsChecklist: React.FC<FirstStepsChecklistProps> = ({
 
   // 6. Tu día a día
   const isDailyDone = Boolean(onboardingChecklist.diaADia);
+
+  const flags = [isComplexDone, isUnitsDone, isCalendarsDone, isReservationsDone, isGuideDone, isDailyDone];
+  return {
+    isComplexDone,
+    isUnitsDone,
+    isCalendarsDone,
+    isReservationsDone,
+    isGuideDone,
+    isDailyDone,
+    completedCount: flags.filter(Boolean).length,
+    total: flags.length,
+  };
+}
+
+export const FirstStepsChecklist: React.FC<FirstStepsChecklistProps> = ({
+  welcomeGuide,
+  properties = [],
+  reservations = [],
+  onboardingChecklist = {},
+  checklistDismissed = false,
+  onOpenOnboarding,
+  onNavigateToProperties,
+  onNavigateToCalendar,
+  onNavigateToGuide,
+  onUpdateChecklist,
+  onDismissChecklist,
+}) => {
+  if (checklistDismissed) {
+    return null;
+  }
+
+  const {
+    isComplexDone,
+    isUnitsDone,
+    isCalendarsDone,
+    isReservationsDone,
+    isGuideDone,
+    isDailyDone,
+  } = getFirstStepsStatus({ welcomeGuide, properties, reservations, onboardingChecklist });
 
   const steps = [
     {

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   FileSpreadsheet,
   Download,
@@ -24,6 +24,31 @@ export const OnboardingGuideView: React.FC<OnboardingGuideViewProps> = ({
   complexName = 'Mi complejo',
 }) => {
   const printAreaRef = useRef<HTMLDivElement>(null);
+
+  // Tildes de la guía: se recuerdan en este navegador (si el almacenamiento falla, igual funcionan en pantalla)
+  const CHECKS_KEY = 'loomi_onboarding_guide_checks';
+  const [doneChecks, setDoneChecks] = useState<Record<string, boolean>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(CHECKS_KEY) || '{}') || {};
+    } catch {
+      return {};
+    }
+  });
+  const toggleCheck = (key: string) => {
+    setDoneChecks((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      try {
+        localStorage.setItem(CHECKS_KEY, JSON.stringify(next));
+      } catch {
+        /* sin almacenamiento: solo en pantalla */
+      }
+      return next;
+    });
+  };
+
+  const conciergeWhatsAppUrl = `https://wa.me/5491140925939?text=${encodeURIComponent(
+    `Hola, quiero que me ayuden con la puesta en marcha de ${complexName || 'mi complejo'} en Loomi Suite.`
+  )}`;
 
   const handlePrint = () => {
     const originalTitle = document.title;
@@ -64,7 +89,7 @@ export const OnboardingGuideView: React.FC<OnboardingGuideViewProps> = ({
       icon: <Users className="w-5 h-5 text-[#c46d45]" />,
       desc: 'Cargá los nombres de tus mucamas o personal de mantenimiento y sus números de WhatsApp. Ya no necesitás llamarlas para avisar que hay una unidad para limpiar.',
       checklist: [
-        'Configurar el checklist obligatorio por unidad (Blanco, Sábanas, Toallas, Leña).',
+        'Revisar el checklist de limpieza de cada recambio (sábanas, toallas, baño, cocina).',
         'Establecer el horario límite de limpieza para el próximo Check-in.',
         'Probar el envío de avisos de limpieza automáticos con el botón verde de WhatsApp.',
       ],
@@ -74,10 +99,10 @@ export const OnboardingGuideView: React.FC<OnboardingGuideViewProps> = ({
       title: 'Activar tu Guía del Huésped',
       subtitle: 'Tu conserje digital 24/7 en un enlace web',
       icon: <Smartphone className="w-5 h-5 text-[#c46d45]" />,
-      desc: 'Creá tu guía interactiva digital para que los huéspedes tengan toda la información de forma autónoma. Podés adjuntar el mapa de ubicación, clave de Wi-Fi, reglamentos y ofrecer opcionales (frigobar, traslados, etc.).',
+      desc: 'Creá tu guía interactiva digital para que los huéspedes tengan toda la información de forma autónoma. Podés adjuntar el mapa de ubicación, clave de Wi-Fi, reglamentos y tus recomendaciones de la zona.',
       checklist: [
-        'Cargar fotos de alta calidad y recomendaciones locales (Restaurantes, Paseos).',
-        'Agregar los productos del Frigobar y servicios extra con sus respectivos precios.',
+        'Cargar tus recomendaciones locales (restaurantes, paseos) y las normas de la casa.',
+        'Cargar tus servicios opcionales (cochera, late check-out, traslados) en Opcionales & Extras.',
         'Compartir el link directo del depto en el mensaje de bienvenida de WhatsApp.',
       ],
     },
@@ -145,7 +170,7 @@ export const OnboardingGuideView: React.FC<OnboardingGuideViewProps> = ({
         <div className="bg-[#f8f6f2] dark:bg-[#222] p-5 rounded-2xl border border-[#ded9cd] dark:border-[#2a2a2a] print:border-zinc-300 transition-colors">
           <h3 className="text-sm font-bold text-[#c46d45] dark:text-[#e2835c] flex items-center gap-2">
             <Sparkles className="w-4 h-4" />
-            <span>¡Bienvenido a la gestión inteligente de alquileres!</span>
+            <span>¡Te damos la bienvenida a la gestión inteligente de alquileres!</span>
           </h3>
           <p className="text-xs text-[#5c5850] dark:text-[#b8b5af] mt-2 leading-relaxed">
             Esta guía contiene los pasos específicos para cargar tu complejo de alojamiento desde cero. Siguiendo estos pasos, en menos de una hora tu sistema estará listo para recibir reservas y coordinar a tu equipo de limpieza automáticamente.
@@ -179,11 +204,24 @@ export const OnboardingGuideView: React.FC<OnboardingGuideViewProps> = ({
                     <span className="text-[10px] font-bold text-[#78746c] dark:text-[#8e8c87] uppercase tracking-wider block mb-2">Checklist de tareas:</span>
                     <ul className="space-y-1.5">
                       {item.checklist.map((check, cIdx) => (
-                        <li key={cIdx} className="flex items-start gap-2 text-xs text-[#3c3933] dark:text-[#c8c5c0]">
-                          <div className="w-3.5 h-3.5 rounded border border-[#ded9cd] dark:border-[#444] bg-[#fbf9f5] dark:bg-[#222] shrink-0 mt-0.5 flex items-center justify-center">
-                            <span className="text-[8px] text-emerald-600 font-bold hidden print:inline">✓</span>
-                          </div>
-                          <span>{check}</span>
+                        <li key={cIdx}>
+                          <button
+                            type="button"
+                            onClick={() => toggleCheck(`${item.step}-${cIdx}`)}
+                            className="w-full flex items-start gap-2 text-left text-xs text-[#3c3933] dark:text-[#d6d3ce] cursor-pointer group"
+                            aria-pressed={Boolean(doneChecks[`${item.step}-${cIdx}`])}
+                          >
+                            <span
+                              className={`w-4 h-4 rounded border shrink-0 mt-0.5 flex items-center justify-center transition-colors ${
+                                doneChecks[`${item.step}-${cIdx}`]
+                                  ? 'bg-emerald-600 border-emerald-600 text-white'
+                                  : 'border-[#bdb7aa] dark:border-[#666] bg-[#fbf9f5] dark:bg-[#222] group-hover:border-emerald-600'
+                              }`}
+                            >
+                              {doneChecks[`${item.step}-${cIdx}`] && <span className="text-[10px] font-bold">✓</span>}
+                            </span>
+                            <span className={doneChecks[`${item.step}-${cIdx}`] ? 'line-through opacity-70' : ''}>{check}</span>
+                          </button>
                         </li>
                       ))}
                     </ul>
@@ -206,12 +244,17 @@ export const OnboardingGuideView: React.FC<OnboardingGuideViewProps> = ({
                 <p className="text-xs text-[#78746c] dark:text-[#a8a5a0]">Nosotros configuramos todo tu complejo por vos con una tarifa a medida.</p>
               </div>
             </div>
-            <button className="text-xs font-bold text-white bg-[#c46d45] hover:bg-[#b55e37] px-4 py-2 rounded-xl border border-[#c46d45]/20 shrink-0 shadow-2xs">
+            <a
+              href={conciergeWhatsAppUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-bold text-white bg-[#c46d45] hover:bg-[#b55e37] px-4 py-2 rounded-xl border border-[#c46d45]/20 shrink-0 shadow-2xs cursor-pointer"
+            >
               Solicitar Puesta en Marcha
-            </button>
+            </a>
           </div>
           <p className="text-xs text-[#6e6a62] dark:text-[#9c9994] leading-relaxed pt-2 border-t border-[#ded9cd]/60 dark:border-[#2e2621]">
-            Si no querés encargarte de copiar enlaces, configurar las cerraduras inteligentes, o cargar tus fotos, nuestro equipo de onboarding se encarga del setup completo en 72hs. Solo nos proveés tus enlaces de Booking/Airbnb y nosotros te entregamos el sistema listo para operar con un soporte premium inicial de cortesía.
+            Si no querés encargarte de copiar enlaces, cargar tus unidades o tus fotos, nuestro equipo se encarga de la puesta en marcha completa en 72 hs hábiles. Solo nos pasás tus enlaces de Airbnb / Booking y los datos de tu complejo, y te entregamos el sistema listo para operar. Tocá el botón y escribinos por WhatsApp.
           </p>
         </div>
 

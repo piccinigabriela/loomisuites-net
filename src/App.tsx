@@ -73,7 +73,7 @@ import { AppAuthScreen } from './components/auth/AppAuthScreen';
 import { TrialEndedScreen } from './components/auth/TrialEndedScreen';
 import { subscribeToSubscription, getAccessStatus, SubscriptionDoc } from './lib/subscription';
 import { WelcomeScreen } from './components/onboarding/WelcomeScreen';
-import { FirstStepsChecklist } from './components/onboarding/FirstStepsChecklist';
+import { FirstStepsChecklist, getFirstStepsStatus } from './components/onboarding/FirstStepsChecklist';
 import {
   subscribeToTenant,
   initializeTenantOnboarding,
@@ -1561,6 +1561,19 @@ export default function App() {
   if (isApp && currentUser && !tenantDoc?.welcomeSeen) {
     return (
       <WelcomeScreen
+        onOpenXenia={async () => {
+          try {
+            await saveTenantData(currentUser.uid, { welcomeSeen: true });
+          } catch (err) {
+            console.warn('Error saving welcomeSeen:', err);
+          }
+          setTenantDoc((prev) => ({
+            ownerEmail: currentUser.email || '',
+            ...(prev || {}),
+            welcomeSeen: true,
+          }));
+          setDemoTab('xenia');
+        }}
         onStart={async () => {
           try {
             await saveTenantData(currentUser.uid, { welcomeSeen: true });
@@ -1963,6 +1976,33 @@ export default function App() {
                 </button>
               </div>
             </div>
+
+            {/* Atajo para volver a "Primeros pasos" mientras la carga inicial no está terminada */}
+            {isApp &&
+              demoTab !== 'overview' &&
+              !tenantDoc?.checklistDismissed &&
+              (() => {
+                const progress = getFirstStepsStatus({
+                  welcomeGuide: demoState.welcomeGuide,
+                  properties: demoState.properties,
+                  reservations: demoState.reservations,
+                  onboardingChecklist: tenantDoc?.onboardingChecklist,
+                });
+                if (progress.completedCount >= progress.total) return null;
+                return (
+                  <button
+                    type="button"
+                    onClick={() => setDemoTab('overview')}
+                    className="fixed bottom-5 left-4 sm:left-6 z-40 flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-stone-950 text-xs font-bold px-4 py-2.5 rounded-full shadow-lg border border-amber-600/40 cursor-pointer transition-colors"
+                    title="Volver a la lista de Primeros pasos"
+                  >
+                    <span aria-hidden>←</span>
+                    <span>
+                      Primeros pasos · {progress.completedCount} de {progress.total}
+                    </span>
+                  </button>
+                );
+              })()}
 
             {/* Main Content Body: Real System Dashboard Exactly as on PC */}
             <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-3.5 sm:py-5">
