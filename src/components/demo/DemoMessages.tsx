@@ -169,10 +169,15 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
     const pinParam = selectedReservation?.pinCode ? encodeURIComponent(selectedReservation.pinCode) : '';
 
     if (isAppMode() && uid) {
+      // Solo los parámetros con dato: el link queda más corto y sin "pin=" vacío
+      const query = (pairs: Array<[string, string]>) => {
+        const q = pairs.filter(([, v]) => v).map(([k, v]) => `${k}=${v}`).join('&');
+        return q ? `?${q}` : '';
+      };
       if (selectedProperty?.id) {
-        return `${baseUrl}/guia/${uid}/${selectedProperty.id}?huesped=${guestNameParam}&unidad=${unitNameParam}&pin=${pinParam}`;
+        return `${baseUrl}/guia/${uid}/${selectedProperty.id}${query([['huesped', guestNameParam], ['unidad', unitNameParam], ['pin', pinParam]])}`;
       }
-      return `${baseUrl}/guia/${uid}${guestNameParam ? `?huesped=${guestNameParam}&pin=${pinParam}` : ''}`;
+      return `${baseUrl}/guia/${uid}${query([['huesped', guestNameParam], ['pin', pinParam]])}`;
     }
 
     return `${baseUrl}/guia/${selectedProperty?.id || 'cab-lapacho'}?huesped=${guestNameParam || 'Huesped'}`;
