@@ -15,7 +15,7 @@ import {
   Download,
 } from 'lucide-react';
 import { DemoState, Reservation, Property, BookingPlatform } from '../../types';
-import { formatDisplayDate, getRelativeDate, toLocalDateStr } from '../../data/initialData';
+import { formatDisplayDate, getRelativeDate, toLocalDateStr, formatCurrency } from '../../data/initialData';
 
 interface DemoCalendarProps {
   demoState: DemoState;
@@ -81,6 +81,15 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
       case 'full':
         return 'w-[185px] min-w-[185px] max-w-[185px] p-3';
     }
+  };
+
+  // Precio corto para la columna angosta (ej. "$125k" en pesos, "US$40" en dólares)
+  const compactMoney = (amount: number) => {
+    const full = formatCurrency(amount);
+    const symbol = full.replace(/[\d.,\s-]+$/, '').trim();
+    const value = Math.round(amount || 0);
+    if (value >= 10000) return `${symbol}${Math.round(value / 1000)}k`;
+    return `${symbol}${value}`;
   };
 
   // Helper to extract a short label for units (e.g. "Departamento A" -> "A", "Depto 1" -> "D1")
@@ -589,7 +598,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                         {getShortName(prop.name, propIndex)}
                       </span>
                       <span className="text-[10px] font-semibold text-[#E67E22] mt-0.5 block font-mono">
-                        ${prop.basePrice}
+                        {compactMoney(prop.basePrice)}
                       </span>
                     </div>
                   ) : columnMode === 'medium' ? (
@@ -598,7 +607,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                         {prop.name}
                       </div>
                       <div className="text-[10px] font-semibold text-[#E67E22] mt-0.5 font-mono">
-                        ${prop.basePrice}/n
+                        {formatCurrency(prop.basePrice)}/n
                       </div>
                     </div>
                   ) : (
@@ -608,7 +617,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                       </div>
                       <div className="flex items-center justify-between text-[10px] text-stone-400 dark:text-stone-500 mt-0.5 font-mono">
                         <span className="truncate pr-1">{prop.neighborhood}</span>
-                        <span className="font-semibold text-[#E67E22] shrink-0">${prop.basePrice}/n</span>
+                        <span className="font-semibold text-[#E67E22] shrink-0">{formatCurrency(prop.basePrice)}/n</span>
                       </div>
                     </div>
                   )}
@@ -727,7 +736,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                           )}`}
                           title={`${res.guestName} (${res.platform.toUpperCase()}) · Entrada: ${formatDisplayDate(
                             res.checkIn
-                          )} · Salida (Check-out): ${formatDisplayDate(res.checkOut)} · $${res.totalAmount}`}
+                          )} · Salida (Check-out): ${formatDisplayDate(res.checkOut)} · ${formatCurrency(res.totalAmount)}`}
                         >
                           <div className="flex items-center gap-1.5 truncate min-w-0 pr-1 z-10">
                             {res.platform === 'airbnb' && res.airbnbFeeMode === 'traditional_3' && (
@@ -755,7 +764,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
 
                           <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-mono opacity-90 shrink-0 font-medium z-10 mr-2 text-white">
                             {res.totalAmount !== undefined && (
-                              <span>${res.totalAmount}</span>
+                              <span>{formatCurrency(res.totalAmount)}</span>
                             )}
                           </div>
 

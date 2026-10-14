@@ -18,12 +18,16 @@ import * as XLSX from 'xlsx';
 import { DemoState, Reservation, Property, BookingPlatform } from '../../types';
 import { INITIAL_PROPERTIES } from '../../data/initialData';
 import { isAppMode } from '../../lib/appMode';
+import { isLegacyBackup, LegacyBackup } from '../../lib/legacyBackupImport';
+import { LegacyBackupImport, LegacyImportPayload } from './LegacyBackupImport';
 
 interface CalendarImportModalProps {
   isOpen: boolean;
   onClose: () => void;
   demoState: DemoState;
   onImport: (importedReservations: Reservation[], mode: 'add' | 'replace') => void;
+  /** Importa un backup .json de la app anterior (unidades + reservas + calendarios) */
+  onImportLegacy?: (payload: LegacyImportPayload) => Promise<void>;
 }
 
 interface ParsedEvent {
@@ -267,6 +271,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
   onClose,
   demoState,
   onImport,
+  onImportLegacy,
 }) => {
   const [activeTab, setActiveTab] = useState<'upload' | 'paste' | 'concierge'>('upload');
   const [dragActive, setDragActive] = useState(false);
@@ -275,6 +280,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
   const [parsedEvents, setParsedEvents] = useState<ParsedEvent[]>([]);
   const [importMode, setImportMode] = useState<'add' | 'replace'>('add');
   const [step, setStep] = useState<'upload' | 'preview'>('upload');
+  const [legacyBackup, setLegacyBackup] = useState<{ data: LegacyBackup; fileName: string } | null>(null);
   const [parseErrorNotice, setParseErrorNotice] = useState<string | null>(null);
   const [rawFileSnippet, setRawFileSnippet] = useState<string | null>(null);
   const [conciergeSent, setConciergeSent] = useState(false);
@@ -496,6 +502,16 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
 
       if (fileName.endsWith('.json')) {
         const text = await selectedFile.text();
+        // Backup de la app anterior (reservas con depto/huesped/checkin…): importador dedicado
+        try {
+          const parsedJson = JSON.parse(text);
+          if (isLegacyBackup(parsedJson) && onImportLegacy) {
+            setLegacyBackup({ data: parsedJson, fileName: selectedFile.name });
+            return;
+          }
+        } catch {
+          /* no es JSON válido: sigue el flujo normal, que muestra el error */
+        }
         const events = parseJSON(text);
         if (events.length === 0) {
           setParseErrorNotice('No se encontraron reservas en el archivo JSON.');
@@ -1107,7 +1123,25 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
           </button>
         </div>
 
-        {step === 'upload' ? (
+        {legacyBackup && onImportLegacy ? (
+          <div className="dark p-5 max-h-[80vh] overflow-y-auto">
+            <LegacyBackupImport
+              data={legacyBackup.data}
+              fileName={legacyBackup.fileName}
+              demoState={demoState}
+              onBack={() => {
+                setLegacyBackup(null);
+                setFile(null);
+              }}
+              onImport={async (payload) => {
+                await onImportLegacy(payload);
+                setLegacyBackup(null);
+                setFile(null);
+                onClose();
+              }}
+            />
+          </div>
+        ) : step === 'upload' ? (
           <div className="p-5 space-y-4">
             {/* Tabs: Upload vs Paste vs Concierge */}
             <div className="flex bg-[#1c1c1c] p-1 rounded-xl border border-[#2c2c2c] gap-1">

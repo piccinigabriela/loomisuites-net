@@ -56,6 +56,7 @@ import { NewReservationModal } from './components/demo/NewReservationModal';
 import { ReservationDetailModal } from './components/demo/ReservationDetailModal';
 import { DemoBookingsList } from './components/demo/DemoBookingsList';
 import { JsonDataModal } from './components/demo/JsonDataModal';
+import type { LegacyImportPayload } from './components/demo/LegacyBackupImport';
 import { OnboardingWizardModal } from './components/demo/OnboardingWizardModal';
 import { CalendarImportModal } from './components/demo/CalendarImportModal';
 import { ClientAuthModal } from './components/auth/ClientAuthModal';
@@ -1048,6 +1049,60 @@ export default function App() {
   };
 
   // Handle import from Google Calendar / CSV
+  // Importar el backup .json de la app anterior: unidades nuevas/actualizadas + reservas (sin duplicar)
+  const handleImportLegacyBackup = async (payload: LegacyImportPayload) => {
+    const { newProperties, updatedProperties, reservations } = payload;
+    const todayStr = toLocalDateStr(new Date());
+    const makeCleaningTask = (r: Reservation): CleaningTask => ({
+      id: `clean-legacy-${r.id}`,
+      propertyId: r.propertyId,
+      reservationId: r.id,
+      date: r.checkOut,
+      scheduledTime: '11:00 - 13:30',
+      cleanerName: 'Sin asignar',
+      cleanerPhone: '',
+      status: 'pending',
+      checklist: [
+        { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
+        { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
+        { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
+      ],
+      notes: `Generado por importación de ${r.guestName}`,
+    });
+    const needsCleaning = (r: Reservation) => r.status !== 'cancelled' && r.checkOut >= todayStr;
+
+    if (isApp && currentUser) {
+      const uid = currentUser.uid;
+      for (const p of [...newProperties, ...updatedProperties]) {
+        await savePropertyDoc(uid, p);
+      }
+      // De a tandas para no saturar la conexión
+      for (let i = 0; i < reservations.length; i += 20) {
+        const chunk = reservations.slice(i, i + 20);
+        await Promise.all(
+          chunk.map(async (r) => {
+            await saveReservationDoc(uid, r);
+            if (needsCleaning(r)) await saveCleaningTaskDoc(uid, makeCleaningTask(r));
+          })
+        );
+      }
+    } else {
+      updateDemoState((prev) => {
+        const updatedById = new Map(updatedProperties.map((p) => [p.id, p]));
+        return {
+          ...prev,
+          properties: [...prev.properties.map((p) => updatedById.get(p.id) || p), ...newProperties],
+          reservations: [...reservations, ...(prev.reservations || [])],
+          cleaningTasks: [...reservations.filter(needsCleaning).map(makeCleaningTask), ...(prev.cleaningTasks || [])],
+          lastUpdated: new Date().toISOString(),
+        };
+      });
+    }
+    showToast(
+      `✅ Importadas ${reservations.length} reservas${newProperties.length ? ` y ${newProperties.length} unidades nuevas` : ''}.`
+    );
+  };
+
   const handleImportCalendarReservations = async (newRes: Reservation[], mode: 'add' | 'replace') => {
     if (isApp && currentUser) {
       const existingReservations = demoState.reservations || [];
@@ -1062,7 +1117,7 @@ export default function App() {
         await saveReservationDoc(currentUser.uid, r);
         addedCount++;
 
-        if (r.checkOut >= todayStr) {
+        if (r.checkOut >= todayStr && r.status !== 'cancelled') {
           const newCleaningTask: CleaningTask = {
             id: `clean-import-${Date.now()}-${Math.random()}`,
             propertyId: r.propertyId,
@@ -2277,6 +2332,7 @@ export default function App() {
         onClose={() => setIsImportModalOpen(false)}
         demoState={demoState}
         onImport={handleImportCalendarReservations}
+        onImportLegacy={handleImportLegacyBackup}
       />
 
       <ClientAuthModal
