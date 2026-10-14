@@ -112,6 +112,8 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
   const [editCustomDiscountPercent, setEditCustomDiscountPercent] = useState<number>(0);
   const [editAirbnbFeeMode, setEditAirbnbFeeMode] = useState<'traditional_3' | 'simplified_15'>('traditional_3');
   const [editAddons, setEditAddons] = useState<ReservationAddon[]>([]);
+  // Tarifa por noche: si se completa, el total se calcula solo (noches × tarifa + limpieza + opcionales)
+  const [editNightRate, setEditNightRate] = useState<string>('');
   const [selectedAddonToAdd, setSelectedAddonToAdd] = useState<string>('');
 
   // Reset or populate state whenever reservation changes
@@ -132,6 +134,13 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
       setEditStatus(reservation.status);
       setEditPinCode(reservation.pinCode);
       setEditTotalAmount(reservation.totalAmount);
+      {
+        const addonsSum = (reservation.addons || []).reduce((sum, a) => sum + (a.total || 0), 0);
+        const base = (reservation.totalAmount || 0) - (reservation.cleaningFee || 0) - addonsSum - (reservation.earlyLateFee || 0);
+        setEditNightRate(
+          reservation.nights > 0 && base > 0 ? String(Math.round((base / reservation.nights) * 100) / 100) : ''
+        );
+      }
       setEditSpecialNotes(reservation.specialNotes || '');
       setEditEarlyCheckIn(reservation.earlyCheckIn || false);
       setEditLateCheckOut(reservation.lateCheckOut || false);
@@ -314,6 +323,15 @@ ${paymentsListStr}
 
   const hasTurnover = !!incomingTurnover || !!outgoingTurnover;
 
+  const nightsFor = (checkIn: string, checkOut: string) =>
+    Math.max(1, Math.round((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 3600 * 24)) || 1);
+  const totalFromNightRate = (rateStr: string, nights: number) => {
+    const rate = parseFloat(rateStr);
+    if (!(rate > 0)) return null;
+    const addonsSum = editAddons.reduce((sum, a) => sum + (a.total || 0), 0);
+    return Math.round((rate * nights + (reservation.cleaningFee || 0) + addonsSum + (Number(editEarlyLateFee) || 0)) * 100) / 100;
+  };
+
   // Calculate dynamic nights when editing
   const calculatedNights = Math.max(
     1,
@@ -332,7 +350,7 @@ ${paymentsListStr}
     } else if (editPlatform === 'booking' || editPlatform === 'vrbo') {
       rate = 0.15;
     }
-    const accommodation = Math.max(0, editTotalAmount - (reservation.cleaningFee || 35));
+    const accommodation = Math.max(0, editTotalAmount - (reservation.cleaningFee ?? 0));
     const commissionPaid = Math.round(accommodation * rate * 10) / 10;
     const netRevenue = Math.round((editTotalAmount - commissionPaid) * 10) / 10;
     return { commissionPaid, netRevenue };
@@ -572,7 +590,7 @@ ${paymentsListStr}
                     const neighborhoodPart = neighborhoodStr ? ` · ${neighborhoodStr}` : '';
                     return (
                       <option key={p.id} value={p.id}>
-                        {p.name}{neighborhoodPart} (${p.basePrice}/noche)
+                        {p.name}{neighborhoodPart} ({formatCurrency(p.basePrice)}/noche)
                       </option>
                     );
                   })}
@@ -590,7 +608,11 @@ ${paymentsListStr}
                     type="date"
                     required
                     value={editCheckIn}
-                    onChange={(e) => setEditCheckIn(e.target.value)}
+                    onChange={(e) => {
+                      setEditCheckIn(e.target.value);
+                      const t = totalFromNightRate(editNightRate, nightsFor(e.target.value, editCheckOut || reservation.checkOut));
+                      if (t !== null) setEditTotalAmount(t);
+                    }}
                     className="w-full text-xs font-semibold p-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
                   />
                 </div>
@@ -603,7 +625,11 @@ ${paymentsListStr}
                     type="date"
                     required
                     value={editCheckOut}
-                    onChange={(e) => setEditCheckOut(e.target.value)}
+                    onChange={(e) => {
+                      setEditCheckOut(e.target.value);
+                      const t = totalFromNightRate(editNightRate, nightsFor(editCheckIn || reservation.checkIn, e.target.value));
+                      if (t !== null) setEditTotalAmount(t);
+                    }}
                     className="w-full text-xs font-semibold p-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
                   />
                 </div>
@@ -874,15 +900,44 @@ ${paymentsListStr}
               {/* Financials & Price Edit */}
               <div className="p-3.5 bg-zinc-50 dark:bg-zinc-800/80 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs space-y-2.5">
                 <div className="flex items-center justify-between">
+                  <span className="font-bold text-zinc-800 dark:text-zinc-200">Tarifa por noche</span>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      step="any"
+                      placeholder="Ej: 40"
+                      value={editNightRate}
+                      onChange={(e) => {
+                        setEditNightRate(e.target.value);
+                        const t = totalFromNightRate(e.target.value, calculatedNights);
+                        if (t !== null) setEditTotalAmount(t);
+                      }}
+                      className="w-24 p-1.5 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-900 text-right font-bold text-sm text-zinc-900 dark:text-zinc-100"
+                    />
+                    <span className="text-zinc-700 dark:text-zinc-300 font-bold text-xs">{getActiveCurrency()}</span>
+                  </div>
+                </div>
+                {parseFloat(editNightRate) > 0 && (
+                  <p className="text-[11px] text-zinc-700 dark:text-zinc-300 text-right">
+                    {calculatedNights} {calculatedNights === 1 ? 'noche' : 'noches'} × {formatCurrency(parseFloat(editNightRate))}
+                    {(reservation.cleaningFee || 0) > 0 && ` + limpieza ${formatCurrency(reservation.cleaningFee)}`}
+                    {editAddons.length > 0 && ' + opcionales'} = {formatCurrency(editTotalAmount)}
+                  </p>
+                )}
+                <div className="flex items-center justify-between">
                   <span className="font-bold text-zinc-800 dark:text-zinc-200">Tarifa Total Cobrada</span>
                   <div className="flex items-center gap-1">
-                    <span className="text-zinc-500 font-bold">$</span>
                     <input
                       type="number"
                       min="0"
                       required
                       value={editTotalAmount}
-                      onChange={(e) => setEditTotalAmount(Math.max(0, Number(e.target.value)))}
+                      onChange={(e) => {
+                        // Si se escribe el total a mano, deja de calcularse por noche
+                        setEditTotalAmount(Math.max(0, Number(e.target.value)));
+                        setEditNightRate('');
+                      }}
                       className="w-24 p-1.5 border border-rose-300 dark:border-rose-700 rounded-lg bg-white dark:bg-zinc-900 text-right font-extrabold text-sm text-zinc-900 dark:text-zinc-100"
                     />
                     <span className="text-zinc-500 font-bold text-xs">{getActiveCurrency()}</span>

@@ -1060,7 +1060,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
     const newReservations: Reservation[] = parsedEvents.map((ev, idx) => {
       const matchedProperty = safeProperties.find(p => p.id === ev.propertyId) || safeProperties[0];
       const basePrice = matchedProperty?.basePrice || 65;
-      const cleaningFee = matchedProperty?.cleaningFee || 15;
+      const cleaningFee = matchedProperty?.cleaningFee ?? 0;
       const totalAmount = ev.totalAmount && ev.totalAmount > 0 ? ev.totalAmount : basePrice * ev.nights + cleaningFee;
       const commissionPaid = ev.platform === 'airbnb' ? Math.round(totalAmount * 0.03 * 10) / 10 : 0;
 
