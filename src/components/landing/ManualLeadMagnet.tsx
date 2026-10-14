@@ -54,6 +54,7 @@ export const ManualLeadMagnet: React.FC = () => {
           email: cleanEmail,
           phone: phone.trim(),
           planOrTopic: 'Manual de hospitalidad (descarga)',
+          source: window.location.pathname === '/' ? 'landing' : window.location.pathname,
           createdAt: serverTimestamp(),
         }).catch((err) => console.warn('No se guardó el lead del manual:', err))
       );
