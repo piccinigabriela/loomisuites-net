@@ -21,7 +21,14 @@ interface LegacyBackupImportProps {
   demoState: DemoState;
   onBack: () => void;
   onImport: (payload: LegacyImportPayload) => Promise<void> | void;
+  /** Borra lo que se haya importado antes desde un backup (reservas, limpiezas y unidades creadas) */
+  onUndoPrevious?: () => Promise<void>;
 }
+
+const shortDate = (iso: string) => {
+  const [, m, d] = iso.split('-');
+  return `${Number(d)}/${Number(m)}`;
+};
 
 const NEW_UNIT = '__new__';
 const SKIP_UNIT = '__skip__';
@@ -33,7 +40,11 @@ export const LegacyBackupImport: React.FC<LegacyBackupImportProps> = ({
   demoState,
   onBack,
   onImport,
+  onUndoPrevious,
 }) => {
+  const previousImported = (demoState.reservations || []).filter((r) => r.id.startsWith('legacy-')).length;
+  const previousUnits = (demoState.properties || []).filter((p) => p.id.startsWith('prop-import-')).length;
+  const [isUndoing, setIsUndoing] = useState(false);
   const properties = demoState.properties || [];
   const settlementCurrency: CurrencyCode = demoState.currencySettings?.settlementCurrency || 'USD';
   const units = useMemo(() => summarizeLegacyUnits(data), [data]);
@@ -183,9 +194,49 @@ export const LegacyBackupImport: React.FC<LegacyBackupImportProps> = ({
         </p>
       </div>
 
+      {previousImported > 0 && onUndoPrevious && (
+        <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 text-xs space-y-2">
+          <p className="font-bold text-amber-900 dark:text-amber-100">
+            Ya importaste antes {previousImported} reservas desde un backup
+            {previousUnits > 0 ? ` (y se crearon ${previousUnits} unidades)` : ''}.
+          </p>
+          <p className="text-amber-900 dark:text-amber-100">
+            Si quedaron en unidades equivocadas, deshacé esa importación y volvé a hacerla eligiendo bien cada unidad. No
+            toca las reservas que cargaste a mano ni las que vienen de Airbnb.
+          </p>
+          <button
+            type="button"
+            disabled={isUndoing}
+            onClick={async () => {
+              if (
+                !confirm(
+                  `Se van a borrar las ${previousImported} reservas importadas${
+                    previousUnits ? ` y las ${previousUnits} unidades que creó la importación` : ''
+                  }. ¿Seguimos?`
+                )
+              )
+                return;
+              setIsUndoing(true);
+              try {
+                await onUndoPrevious();
+              } finally {
+                setIsUndoing(false);
+              }
+            }}
+            className="text-xs font-bold px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white cursor-pointer disabled:opacity-50"
+          >
+            {isUndoing ? 'Deshaciendo…' : 'Deshacer la importación anterior'}
+          </button>
+        </div>
+      )}
+
       {/* 1. Unidades */}
       <div className="space-y-2">
         <h4 className="text-sm font-bold">1. ¿A qué unidad de Loomi corresponde cada una?</h4>
+        <p className="text-xs text-stone-800 dark:text-stone-200">
+          Tu app anterior exporta las unidades con códigos internos (D02, D07…) que pueden no coincidir con los nombres que ves.
+          Para reconocerlas, fijate en los huéspedes de ejemplo o abrí el anuncio de Airbnb de cada una.
+        </p>
         <div className="space-y-2">
           {units.map((u) => (
             <div
@@ -203,6 +254,21 @@ export const LegacyBackupImport: React.FC<LegacyBackupImportProps> = ({
                   <span className="flex items-center gap-1 mt-0.5 text-emerald-800 dark:text-emerald-300 font-semibold">
                     <Link2 className="w-3 h-3" />
                     {[u.airbnbUrl && 'Airbnb', u.bookingUrl && 'Booking'].filter(Boolean).join(' + ')}
+                    {u.airbnbListingId && (
+                      <a
+                        href={`https://www.airbnb.com.ar/rooms/${u.airbnbListingId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-1 underline hover:text-emerald-600"
+                      >
+                        · ver anuncio
+                      </a>
+                    )}
+                  </span>
+                )}
+                {u.samples.length > 0 && (
+                  <span className="block mt-0.5 text-stone-800 dark:text-stone-200">
+                    Ej.: {u.samples.map((sm) => `${sm.guest} (${shortDate(sm.checkin)}–${shortDate(sm.checkout)})`).join(', ')}
                   </span>
                 )}
               </div>

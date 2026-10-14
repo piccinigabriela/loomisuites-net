@@ -55,6 +55,10 @@ export interface LegacyUnitSummary {
   medianNightPrice: number;
   airbnbUrl?: string;
   bookingUrl?: string;
+  /** id del anuncio de Airbnb (sale del link iCal), para abrir el anuncio y reconocer la unidad */
+  airbnbListingId?: string;
+  /** reservas de ejemplo (próximas o las últimas) para reconocer a qué unidad corresponde el código */
+  samples: Array<{ guest: string; checkin: string; checkout: string }>;
 }
 
 const isValidDate = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s || '');
@@ -83,7 +87,20 @@ export function summarizeLegacyUnits(data: LegacyBackup): LegacyUnitSummary[] {
         .map((r) => Number(r.precio))
         .sort((a, b) => a - b);
       const median = prices.length ? prices[Math.floor(prices.length / 2)] : 0;
+      const today = new Date().toISOString().slice(0, 10);
+      const valid = list.filter((r) => !isCancelledState(r.estado) && isValidDate(r.checkin));
+      const upcoming = valid.filter((r) => r.checkout >= today).sort((a, b) => a.checkin.localeCompare(b.checkin));
+      const recent = valid.filter((r) => r.checkout < today).sort((a, b) => b.checkin.localeCompare(a.checkin));
+      const samples = [...upcoming, ...recent].slice(0, 3).map((r) => ({
+        guest: (r.huesped || 'Sin nombre').trim(),
+        checkin: r.checkin,
+        checkout: r.checkout,
+      }));
+      const airbnbUrl = data.ical?.[code] || undefined;
+      const airbnbListingId = airbnbUrl ? (airbnbUrl.match(/ical\/(\d+)\.ics/) || [])[1] : undefined;
       return {
+        samples,
+        airbnbListingId,
         code,
         count: list.length,
         activeCount: list.filter((r) => !isCancelledState(r.estado)).length,

@@ -28,6 +28,7 @@ interface CalendarImportModalProps {
   onImport: (importedReservations: Reservation[], mode: 'add' | 'replace') => void;
   /** Importa un backup .json de la app anterior (unidades + reservas + calendarios) */
   onImportLegacy?: (payload: LegacyImportPayload) => Promise<void>;
+  onUndoLegacyImport?: () => Promise<void>;
 }
 
 interface ParsedEvent {
@@ -272,6 +273,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
   demoState,
   onImport,
   onImportLegacy,
+  onUndoLegacyImport,
 }) => {
   const [activeTab, setActiveTab] = useState<'upload' | 'paste' | 'concierge'>('upload');
   const [dragActive, setDragActive] = useState(false);
@@ -1133,6 +1135,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
                 setLegacyBackup(null);
                 setFile(null);
               }}
+              onUndoPrevious={onUndoLegacyImport}
               onImport={async (payload) => {
                 await onImportLegacy(payload);
                 setLegacyBackup(null);

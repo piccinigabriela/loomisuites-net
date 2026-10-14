@@ -1103,6 +1103,36 @@ export default function App() {
     );
   };
 
+  // Deshacer una importación de backup: borra reservas 'legacy-', sus limpiezas y las unidades creadas por el importador
+  const handleUndoLegacyImport = async () => {
+    const resIds = demoState.reservations.filter((r) => r.id.startsWith('legacy-')).map((r) => r.id);
+    const taskIds = demoState.cleaningTasks
+      .filter((t) => t.id.startsWith('clean-legacy-') || (t.reservationId && t.reservationId.startsWith('legacy-')))
+      .map((t) => t.id);
+    const propIds = demoState.properties.filter((p) => p.id.startsWith('prop-import-')).map((p) => p.id);
+
+    if (isApp && currentUser) {
+      const uid = currentUser.uid;
+      const runInChunks = async (ids: string[], fn: (id: string) => Promise<void>) => {
+        for (let i = 0; i < ids.length; i += 20) {
+          await Promise.all(ids.slice(i, i + 20).map(fn));
+        }
+      };
+      await runInChunks(taskIds, (id) => deleteCleaningTaskDoc(uid, id));
+      await runInChunks(resIds, (id) => deleteReservationDoc(uid, id));
+      await runInChunks(propIds, (id) => deletePropertyDoc(uid, id));
+    } else {
+      updateDemoState((prev) => ({
+        ...prev,
+        reservations: prev.reservations.filter((r) => !resIds.includes(r.id)),
+        cleaningTasks: prev.cleaningTasks.filter((t) => !taskIds.includes(t.id)),
+        properties: prev.properties.filter((p) => !propIds.includes(p.id)),
+        lastUpdated: new Date().toISOString(),
+      }));
+    }
+    showToast(`Importación deshecha: se borraron ${resIds.length} reservas${propIds.length ? ` y ${propIds.length} unidades` : ''}.`);
+  };
+
   const handleImportCalendarReservations = async (newRes: Reservation[], mode: 'add' | 'replace') => {
     if (isApp && currentUser) {
       const existingReservations = demoState.reservations || [];
@@ -2333,6 +2363,7 @@ export default function App() {
         demoState={demoState}
         onImport={handleImportCalendarReservations}
         onImportLegacy={handleImportLegacyBackup}
+        onUndoLegacyImport={handleUndoLegacyImport}
       />
 
       <ClientAuthModal
