@@ -161,7 +161,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
               </div>
               <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Datos del Huésped</h3>
               <p className="text-[11px] text-gray-400 dark:text-zinc-400 font-medium leading-relaxed">
-                Formulario de registro digital, DNI/Pasaporte y firma de términos de convivencia.
+                Próximamente: pre check-in digital (documento, cantidad de personas y hora de llegada).
               </p>
             </div>
             <span className="text-[10px] font-bold text-[#E67E22] mt-4 block opacity-0 group-hover:opacity-100 transition-opacity">

@@ -32,6 +32,7 @@ import {
 import { DemoState, Reservation, Property, ReservationStatus, PaymentStatus } from '../../types';
 import { formatDisplayDate, formatCurrency, getGuestInitials, toLocalDateStr, getCleaningsForDay, getGuideHours, withHs } from '../../data/initialData';
 import { XeniaAvatar } from '../xenia/XeniaAvatar';
+import { auth } from '../../lib/firebase';
 import { useXeniaVoice } from '../../hooks/useXeniaVoice';
 import { getClientXeniaReply } from '../xenia/xeniaLocalEngine';
 import { getApiUrl } from '../../utils/apiConfig';
@@ -258,16 +259,26 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
     ? demoState.properties.find((p) => p.id === selectedGuestAction.propertyId)
     : undefined;
 
-  // Deposit amount (50%)
-  const depositAmount = selectedGuestAction ? Math.round(selectedGuestAction.totalAmount * 0.5) : 0;
+  // Saldo real: total menos los pagos registrados (sin porcentajes ni datos bancarios inventados)
+  const paidSoFar = selectedGuestAction
+    ? (selectedGuestAction.payments || []).reduce((s, p) => s + (p.amountSettlement || 0), 0) ||
+      (selectedGuestAction.paymentStatus === 'paid' ? selectedGuestAction.totalAmount : 0)
+    : 0;
+  const depositAmount = selectedGuestAction ? Math.max(0, (selectedGuestAction.totalAmount || 0) - paidSoFar) : 0;
+  const guideUid = isAppMode ? auth?.currentUser?.uid : undefined;
+  const guideLink = selectedGuestAction
+    ? guideUid
+      ? `${window.location.origin}/guia/${guideUid}/${selectedGuestAction.propertyId}?huesped=${encodeURIComponent(selectedGuestAction.guestName.split(' ')[0])}`
+      : `${window.location.origin}/guia/${selectedGuestAction.propertyId}?huesped=${encodeURIComponent(selectedGuestAction.guestName.split(' ')[0])}`
+    : '';
 
   // Pre-formatted messages for 1-tap mobile sending
   const paymentMessageText = selectedGuestAction
-    ? `¡Hola ${selectedGuestAction.guestName}! Te escribo de ${complexName}. Para confirmar tu reserva en ${selectedActionProperty?.name || 'la cabaña'} del ${formatDisplayDate(selectedGuestAction.checkIn)} al ${formatDisplayDate(selectedGuestAction.checkOut)}, te solicitamos la seña del 50% (${formatCurrency(depositAmount)}).\n\n📌 *Datos de Transferencia Bancaria:*\n• Alias: IGUAZU.CABANAS.DEMO\n• CBU: 0140999803400012345678\n• Titular: ${complexName}\n\nO podés abonar con Mercado Pago / Tarjeta. ¡Avisanos cuando realices el pago para enviarte la confirmación!`
+    ? `¡Hola ${selectedGuestAction.guestName.split(' ')[0]}! Te escribo de ${complexName}. Por tu reserva en ${selectedActionProperty?.name || 'la unidad'} del ${formatDisplayDate(selectedGuestAction.checkIn)} al ${formatDisplayDate(selectedGuestAction.checkOut)}, ${depositAmount > 0 ? `queda un saldo de ${formatCurrency(depositAmount)}` : 'te escribo por el pago'}. ¿Te paso los datos para la transferencia?`
     : '';
 
   const welcomeMessageText = selectedGuestAction
-    ? `¡Hola, ${selectedGuestAction.guestName.split(' ')[0]}! 🌲 Te confirmamos que tu reserva para la unidad ${selectedActionProperty?.name || 'tu cabaña'} está registrada con éxito desde el ${formatDisplayDate(selectedGuestAction.checkIn)} hasta el ${formatDisplayDate(selectedGuestAction.checkOut)}.\nPara que tu llegada sea perfecta y sin demoras, te compartimos tu Guía Digital de Bienvenida exclusiva. Desde allí vas a poder ver el mapa interactivo con la ruta de acceso desde el aeropuerto o terminal, las claves de Wi-Fi y completar tu registro de pasajeros digital:\n🔗 https://loomisuite.com/guia/${selectedGuestAction.propertyId}?huesped=${encodeURIComponent(selectedGuestAction.guestName.split(' ')[0])}\n¡Estamos felices de recibirte! Cualquier duda, estamos a un toque de distancia por acá.`
+    ? `¡Hola, ${selectedGuestAction.guestName.split(' ')[0]}! 🌲 Te confirmamos que tu reserva para la unidad ${selectedActionProperty?.name || 'tu cabaña'} está registrada con éxito desde el ${formatDisplayDate(selectedGuestAction.checkIn)} hasta el ${formatDisplayDate(selectedGuestAction.checkOut)}.\nPara que tu llegada sea fácil, te compartimos tu guía digital: cómo llegar, Wi-Fi, horarios y contacto.\n🔗 ${guideLink}\n¡Estamos felices de recibirte! Cualquier duda, estamos a un toque de distancia por acá.`
     : '';
 
   const wifiMessageText = selectedGuestAction
@@ -965,10 +976,10 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
               <div className="p-4 rounded-2xl bg-[#FDF3E7]/60 dark:bg-[#251D17] border border-orange-100/60 dark:border-orange-900/30 space-y-2">
                 <div className="flex items-center gap-2">
                   <CreditCard className="w-4 h-4 text-[#D86F35]" />
-                  <span className="text-xs font-bold text-gray-900 dark:text-gray-100">1. Solicitar Seña (50%)</span>
+                  <span className="text-xs font-bold text-gray-900 dark:text-gray-100">1. Pedir pago / saldo</span>
                 </div>
                 <p className="text-[11px] text-gray-400 font-medium">
-                  Envía CBU/Alias y sugerencia de seña ({formatCurrency(depositAmount)})
+                  Avisa el saldo pendiente ({formatCurrency(depositAmount)}) y ofrece los datos para transferir
                 </p>
                 <a
                   href={buildWhatsAppLink(selectedGuestAction.guestPhone, paymentMessageText)}
@@ -977,7 +988,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                   className="w-full py-2.5 px-3 rounded-xl bg-[#F6D8C3] hover:bg-[#F0C9B0] text-[#D86F35] text-xs font-bold flex items-center justify-center gap-2 transition-colors"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>Enviar Seña por WhatsApp</span>
+                  <span>Pedir pago por WhatsApp</span>
                 </a>
               </div>
 

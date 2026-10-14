@@ -26,7 +26,7 @@ const DEFAULT_TEMPLATES: MessageTemplateItem[] = [
     category: 'checkin',
     channel: 'whatsapp',
     content: `¡Hola, {{nombre_huésped}}! 🌲 Te confirmamos que tu reserva para la unidad {{unidad_alojamiento}} está registrada con éxito desde el {{fecha_checkin}} hasta el {{fecha_checkout}}.
-Para que tu llegada sea perfecta y sin demoras, te compartimos tu Guía Digital de Bienvenida exclusiva. Desde allí vas a poder ver el mapa interactivo con la ruta de acceso, las claves de Wi-Fi y completar tu registro de pasajeros digital:
+Para que tu llegada sea fácil, te compartimos tu guía digital: cómo llegar, Wi-Fi, horarios y contacto:
 🔗 {{link_guia_digital}}
 ¡Estamos felices de recibirte! Cualquier duda, estamos a un toque de distancia por acá.`
   },
