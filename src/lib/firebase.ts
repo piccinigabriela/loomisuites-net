@@ -34,7 +34,12 @@ import firebaseConfigJson from '../../firebase-applet-config.json';
 
 const firebaseConfig = {
   apiKey: firebaseConfigJson.apiKey,
-  authDomain: firebaseConfigJson.authDomain,
+  // En app.loomisuite.net el login de Google pasa por nuestro propio dominio (proxy en functions/__/),
+  // así la pantalla de Google muestra app.loomisuite.net. En otros hosts (localhost, previews) se usa el de Firebase.
+  authDomain:
+    typeof window !== 'undefined' && window.location.hostname === 'app.loomisuite.net'
+      ? 'app.loomisuite.net'
+      : firebaseConfigJson.authDomain,
   projectId: firebaseConfigJson.projectId,
   storageBucket: firebaseConfigJson.storageBucket,
   messagingSenderId: firebaseConfigJson.messagingSenderId,
