@@ -341,7 +341,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 dark:border-white/5">
               <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-700 dark:text-zinc-400 flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-[#AD5410] dark:text-[#E67E22]" />
-                RACK MULTICANAL EN TIEMPO REAL
+                RACK MULTICANAL
               </span>
               <span className="w-2 h-2 rounded-full bg-[#E67E22] shrink-0" />
             </div>
@@ -351,7 +351,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 Anti-<span className="font-semibold text-gray-800 dark:text-gray-100">Overbooking</span>
               </h2>
               <p className="text-xs text-slate-800 dark:text-zinc-300 font-normal leading-relaxed">
-                Airbnb, Booking.com y tu web oficial sincronizados automáticamente con prevención inteligente de superposiciones.
+                Airbnb, Booking.com y tus reservas directas en un solo calendario, con aviso si dos reservas se superponen.
               </p>
             </div>
 
@@ -408,7 +408,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             </div>
           </div>
 
-          {/* Tile H: Canales Oficiales (2 Cols) */}
+          {/* Tile H: Canales (2 Cols) */}
           <div
             onClick={() => setActiveModule('channels')}
             className={`w-full sm:col-span-1 lg:col-span-2 rounded-3xl p-5 sm:p-6 flex flex-col justify-between cursor-pointer transition-all duration-300 group min-h-[200px] active:scale-[0.99] ${cardBaseStyle}`}
@@ -711,15 +711,15 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               <div className="space-y-5">
                 <div className="space-y-1">
                   <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22]">
-                    03 / SINCRONIZACIÓN AUTOMÁTICA
+                    03 / SINCRONIZACIÓN POR iCAL
                   </span>
                   <h2 className="text-2xl font-light text-gray-900 dark:text-white">
-                    Rack Multicanal: <span className="font-semibold">0 Dobles Reservas</span>
+                    Rack Multicanal: <span className="font-semibold">un solo calendario</span>
                   </h2>
                 </div>
 
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-300 leading-relaxed font-light">
-                  Sincronizá Airbnb, Booking.com y tus reservas directas. Cuando entra una reserva en cualquier portal, las fechas se bloquean automáticamente en todos los demás sin demoras.
+                  Sincronizá Airbnb, Booking.com y tus reservas directas por iCal. Loomi trae las reservas de los portales y les comparte tu calendario para que bloqueen las fechas ocupadas. Como en todo sistema iCal, cada portal se actualiza cada algunas horas: por eso Loomi te avisa si dos reservas se superponen.
                 </p>
 
                 <div className="p-3.5 rounded-2xl border border-gray-100 dark:border-white/5 bg-gray-50/70 dark:bg-zinc-800/50 space-y-2 text-xs font-mono">
@@ -756,7 +756,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               <div className="space-y-5">
                 <div className="space-y-1">
                   <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22]">
-                    04 / WHATSAPP AUTOMÁTICO
+                    04 / WHATSAPP EN 1 TOQUE
                   </span>
                   <h2 className="text-2xl font-light text-gray-900 dark:text-white">
                     Desactivá reclamos <span className="font-semibold">antes de que nazcan</span>
@@ -764,7 +764,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 </div>
 
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-300 leading-relaxed font-light">
-                  Envía la coordinación de ruta, clave Wi-Fi al llegar y control de confort a las 2 horas para solucionar cualquier detalle en privado antes de que se transforme en una mala reseña.
+                  Loomi te deja listos los mensajes de coordinación de ruta, clave Wi-Fi al llegar y control de confort a las 2 horas. Los enviás con un toque y resolvés cualquier detalle en privado, antes de que se transforme en una mala reseña.
                 </p>
 
                 <div className="space-y-2.5">
@@ -889,7 +889,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               <div className="space-y-5">
                 <div className="space-y-1">
                   <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22]">
-                    07 / CANALES OFICIALES
+                    07 / CANALES
                   </span>
                   <h2 className="text-2xl font-light text-gray-900 dark:text-white">
                     Conexión bidireccional <span className="font-semibold">y centralizada</span>
@@ -897,7 +897,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 </div>
 
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-300 leading-relaxed font-light">
-                  Conectamos mediante enlaces iCal y sincronización oficial para que tu inventario esté coordinado segundo a segundo con Airbnb, Booking.com y tu propia web sin riesgo de doble cobro.
+                  Conectamos Airbnb, Booking.com y tu propia web mediante enlaces iCal, el método estándar que aceptan todos los portales. Loomi importa sus reservas y les comparte tu calendario, así ves todo en un solo lugar.
                 </p>
 
                 <div className="pt-3 border-t border-gray-100 dark:border-white/5 flex justify-end">
