@@ -1,0 +1,20 @@
+# Loomi Suite
+
+> Loomi Suite es un sistema de gestión (PMS) para alojamientos chicos de Argentina y Latinoamérica: complejos de cabañas, departamentos temporarios, glampings y domos, de 2 a 10 unidades. Está en español.
+
+Loomi Suite reúne en una sola pantalla el calendario de reservas sincronizado con Airbnb y Booking (iCal), los pagos y saldos de cada estadía, la guía digital del huésped con pre check-in online, los mensajes por WhatsApp, la coordinación de limpieza y el rendimiento mensual, incluida la liquidación al propietario para quien administra departamentos de terceros. Se usa desde el navegador, en computadora o celular. Tiene una prueba gratis de 7 días.
+
+## Producto
+
+- [Loomi Suite](https://loomisuite.net/): presentación del sistema, funciones y planes.
+- [Demo interactiva](https://loomisuite.net/demo): la app completa con datos de ejemplo, sin registrarse.
+- [Ingresar o crear cuenta](https://app.loomisuite.net/): acceso a la app para clientes; la prueba gratis empieza al crear la cuenta.
+
+## Recursos
+
+- [Manual de hospitalidad](https://loomisuite.net/manual): "Hospitalidad integral: las 6 normas de oro del anfitrión", manual gratuito en PDF inspirado en la Xenía griega y el Omotenashi japonés.
+
+## Contacto
+
+- [WhatsApp de Loomi Suite](https://api.whatsapp.com/send?phone=5491140925939): consultas comerciales y soporte.
+- [Email](mailto:contacto@loomisuite.net): contacto@loomisuite.net
