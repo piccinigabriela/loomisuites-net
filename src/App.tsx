@@ -1926,7 +1926,7 @@ export default function App() {
         /* VISTA RECEPCIÓN / MOSTRADOR: OPTIMIZADA PARA PC / TABLET (/recepcion) */
         <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#0E0F12] text-stone-800 dark:text-stone-100 font-sans transition-colors">
           {/* Pestañas de recepción: Mostrador / Calendario */}
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 flex items-center justify-between gap-2">
             <div className="inline-flex gap-1 bg-white dark:bg-[#18191E] border border-stone-200 dark:border-zinc-800 p-1 rounded-2xl">
               {([
                 ['mostrador', '🛎️ Mostrador'],
@@ -1946,6 +1946,15 @@ export default function App() {
                 </button>
               ))}
             </div>
+            <button
+              type="button"
+              onClick={() => handleRoleChange('admin')}
+              className="px-3.5 py-2 rounded-xl text-sm font-bold cursor-pointer bg-white dark:bg-[#18191E] border border-stone-200 dark:border-zinc-800 text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-zinc-800 transition-colors"
+              title="Volver a Administración"
+              aria-label="Volver a Administración"
+            >
+              👑<span className="hidden sm:inline"> Administración</span>
+            </button>
           </div>
           {receptionTab === 'calendario' ? (
             <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
