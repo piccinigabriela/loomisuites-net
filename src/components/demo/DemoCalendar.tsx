@@ -85,15 +85,6 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
 
   const calendarHours = getGuideHours(demoState.welcomeGuide, isAppMode);
 
-  // Precio corto para la columna angosta (ej. "$125k" en pesos, "US$40" en dólares)
-  const compactMoney = (amount: number) => {
-    const full = formatCurrency(amount);
-    const symbol = full.replace(/[\d.,\s-]+$/, '').trim();
-    const value = Math.round(amount || 0);
-    if (value >= 10000) return `${symbol}${Math.round(value / 1000)}k`;
-    return `${symbol}${value}`;
-  };
-
   // Helper to extract a short label for units (e.g. "Departamento A" -> "A", "Depto 1" -> "D1")
   const getShortName = (name: string, index: number) => {
     // Check for single letter department: Departamento A, Depto B, etc.
@@ -603,17 +594,11 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                       >
                         {getShortName(prop.name, propIndex)}
                       </span>
-                      <span className="text-[10px] font-semibold text-[#E67E22] mt-0.5 block font-mono">
-                        {compactMoney(prop.basePrice)}
-                      </span>
                     </div>
                   ) : columnMode === 'medium' ? (
                     <div>
                       <div className="font-bold text-xs text-stone-800 dark:text-stone-200 truncate" title={prop.name}>
                         {prop.name}
-                      </div>
-                      <div className="text-[10px] font-semibold text-[#E67E22] mt-0.5 font-mono">
-                        {formatCurrency(prop.basePrice)}/n
                       </div>
                     </div>
                   ) : (
@@ -621,10 +606,9 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                       <div className="font-bold text-xs text-stone-800 dark:text-stone-200 truncate" title={prop.name}>
                         {prop.name}
                       </div>
-                      <div className="flex items-center justify-between text-[10px] text-stone-400 dark:text-stone-500 mt-0.5 font-mono">
-                        <span className="truncate pr-1">{prop.neighborhood}</span>
-                        <span className="font-semibold text-[#E67E22] shrink-0">{formatCurrency(prop.basePrice)}/n</span>
-                      </div>
+                      {prop.neighborhood && (
+                        <div className="text-[10px] text-stone-600 dark:text-stone-300 mt-0.5 font-mono truncate">{prop.neighborhood}</div>
+                      )}
                     </div>
                   )}
                 </div>
