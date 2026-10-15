@@ -877,6 +877,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                     ['¿El precio es en pesos o en dólares?', 'Se cobra en pesos. La referencia en dólares es solo orientativa. El precio se actualiza según el IPC.'],
                     ['¿Loomi emite facturas de AFIP / ARCA?', 'No. Loomi organiza reservas, cobros y equipo. Si facturás, seguís usando tu facturador de siempre.'],
                     ['¿Cuántos usuarios incluye?', 'El plan Loomi incluye 2 usuarios. Loomi Suite incluye los que necesite tu equipo: recepción, limpieza y administración.'],
+                    ['¿Cómo es el soporte?', 'Por WhatsApp, de 8 a 22 hs (hora de Argentina), con una persona real que conoce el sistema.'],
                   ].map(([q, a]) => (
                     <div key={q} className="space-y-0.5">
                       <h3 className="font-semibold text-gray-900 dark:text-white">{q}</h3>
