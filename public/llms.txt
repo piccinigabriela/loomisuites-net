@@ -12,7 +12,7 @@ Loomi Suite reúne en una sola pantalla el calendario de reservas sincronizado c
 
 ## Recursos
 
-- [Manual de hospitalidad](https://loomisuite.net/manual): "Hospitalidad integral: las 6 normas de oro del anfitrión", manual gratuito en PDF inspirado en la Xenía griega y el Omotenashi japonés.
+- [Manual de hospitalidad](https://loomisuite.net/manual): "Hospitalidad plena: las 6 normas de oro del anfitrión", manual gratuito en PDF inspirado en la Xenía griega y el Omotenashi japonés.
 
 ## Contacto
 

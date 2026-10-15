@@ -2,7 +2,7 @@
  * Cloudflare Pages Function: vista previa del link loomisuite.net/manual
  * (WhatsApp, Facebook, LinkedIn leen estas etiquetas; la página la arma la SPA).
  */
-const TITLE = 'Hospitalidad integral: las 6 normas de oro del anfitrión — Manual gratis';
+const TITLE = 'Hospitalidad plena: las 6 normas de oro del anfitrión — Manual gratis';
 const DESC = 'Manual de Loomi Suite inspirado en la Xenía griega y el Omotenashi japonés. Descargalo gratis.';
 
 export async function onRequest({ request, env }) {

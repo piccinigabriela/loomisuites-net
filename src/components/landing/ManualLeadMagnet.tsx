@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Check, Download, Loader2 } from 'lucide-react';
 
 const PDF_URL = '/manual-hospitalidad-loomi-suite.pdf';
-const PDF_NAME = 'Hospitalidad-integral-Loomi-Suite.pdf';
+const PDF_NAME = 'Hospitalidad-plena-Loomi-Suite.pdf';
 
 /**
  * Gancho de la landing: el manual de hospitalidad gratis a cambio de nombre y email.
@@ -87,7 +87,7 @@ export const ManualLeadMagnet: React.FC = () => {
         <div className="lg:col-span-4 bg-[#121214] flex items-center justify-center p-6 sm:p-8">
           <img
             src="/manual-portada.jpg"
-            alt="Portada del manual Hospitalidad integral de Loomi Suite"
+            alt="Portada del manual Hospitalidad plena de Loomi Suite"
             width={636}
             height={900}
             className="w-48 sm:w-56 lg:w-full max-w-[260px] rounded-lg shadow-2xl shadow-black/60 rotate-[-2deg]"
@@ -99,7 +99,7 @@ export const ManualLeadMagnet: React.FC = () => {
         <div className="lg:col-span-8 p-6 sm:p-10 space-y-5">
           <span className="inline-block text-xs font-bold tracking-widest uppercase text-[#E1500A]">Regalo · PDF gratis</span>
           <h2 className="text-2xl sm:text-3xl font-semibold text-[#EFECE5] tracking-tight font-['Outfit',sans-serif]">
-            Hospitalidad integral: las 6 normas de oro del anfitrión
+            Hospitalidad plena: las 6 normas de oro del anfitrión
           </h2>
           <p className="text-base text-[#EFECE5] leading-relaxed max-w-2xl">
             Un manual inspirado en la Xenía griega y el Omotenashi japonés, con una aplicación concreta para cada norma:
