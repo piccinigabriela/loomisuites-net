@@ -461,7 +461,7 @@ export default function App() {
   });
 
   const isEmployeeMode = userRole === 'housekeeping';
-  const [receptionTab, setReceptionTab] = useState<'mostrador' | 'calendario'>('mostrador');
+  const [receptionTab, setReceptionTab] = useState<'mostrador' | 'calendario'>('calendario');
 
   // Navigation Helpers: Open Demo / Back to Landing with PushState & Default Admin Role
   const handleOpenDemo = (tab?: string) => {
