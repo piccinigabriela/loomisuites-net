@@ -76,6 +76,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
         'Gestión de Reservas Directas & iCal',
         'Reportes de Rendimiento Básicos',
         'Sin costos por habitación (precio por todo el complejo)',
+        '2 usuarios',
       ],
     },
     {
@@ -93,6 +94,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
         'Modo Recepción con Roles de Usuario Separados',
         'Asistente Xenia AI (Voz & Copiloto 24/7)',
         'Web propia con Portal de Bienvenida del Huésped',
+        'Usuarios para todo tu equipo: recepción, limpieza y administración',
       ],
     },
   ];
@@ -866,6 +868,19 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                           </div>
                         ))}
                       </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  {[
+                    ['¿El precio es en pesos o en dólares?', 'Se cobra en pesos. La referencia en dólares es solo orientativa. El precio se actualiza según el IPC.'],
+                    ['¿Loomi emite facturas de AFIP / ARCA?', 'No. Loomi organiza reservas, cobros y equipo. Si facturás, seguís usando tu facturador de siempre.'],
+                    ['¿Cuántos usuarios incluye?', 'El plan Loomi incluye 2 usuarios. Loomi Suite incluye los que necesite tu equipo: recepción, limpieza y administración.'],
+                  ].map(([q, a]) => (
+                    <div key={q} className="space-y-0.5">
+                      <h3 className="font-semibold text-gray-900 dark:text-white">{q}</h3>
+                      <p className="text-slate-700 dark:text-zinc-300 font-medium leading-relaxed">{a}</p>
                     </div>
                   ))}
                 </div>
