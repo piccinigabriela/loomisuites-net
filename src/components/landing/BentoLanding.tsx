@@ -93,7 +93,8 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
         'Módulo Housekeeping Completo (Semáforo de Limpieza en vivo)',
         'Modo Recepción con Roles de Usuario Separados',
         'Asistente Xenia AI (Voz & Copiloto 24/7)',
-        'Web propia con Portal de Bienvenida del Huésped',
+        'Portal de Bienvenida del Huésped',
+        'Web propia de reservas (próximamente)',
         'Usuarios para todo tu equipo: recepción, limpieza y administración',
       ],
     },
@@ -383,7 +384,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 TU WEB + PORTAL DEL HUÉSPED
               </span>
               <span className="px-2 py-0.5 rounded-md bg-[#FDF3E7] dark:bg-orange-950/40 text-[#AD5410] dark:text-[#E67E22] text-[10px] font-semibold">
-                3 Plantillas Base ("Clara", "Tierra", "Sombra")
+                Web: próximamente
               </span>
             </div>
 
@@ -543,7 +544,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 <div className="space-y-1">
                   <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22] flex items-center gap-1.5">
                     <Globe className="w-3.5 h-3.5 text-[#AD5410] dark:text-[#E67E22]" />
-                    3 MODELOS WEB OFICIALES & PORTAL DEL HUÉSPED
+                    PORTAL DEL HUÉSPED · WEB PRÓXIMAMENTE
                   </span>
                   <h2 className="text-2xl font-light text-gray-900 dark:text-white">
                     Tu Web Directa y Portal de Bienvenida <span className="font-semibold">Unificados</span>
