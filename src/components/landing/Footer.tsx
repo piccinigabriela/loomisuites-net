@@ -40,9 +40,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
 
           {/* Col 2: Soluciones */}
           <div>
-            <h4 className="text-xs font-black text-white uppercase tracking-widest mb-3">
+            <h2 className="text-xs font-black text-white uppercase tracking-widest mb-3">
               Solución
-            </h4>
+            </h2>
             <ul className="space-y-2 text-xs">
               <li>
                 <a href="#preguntas-clave" className="hover:text-white transition-colors">Calendario Multicanal Anti-Overbooking</a>
@@ -64,9 +64,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
 
           {/* Col 3: Integraciones */}
           <div>
-            <h4 className="text-xs font-black text-white uppercase tracking-widest mb-3">
+            <h2 className="text-xs font-black text-white uppercase tracking-widest mb-3">
               Canales Conectados
-            </h4>
+            </h2>
             <ul className="space-y-2 text-xs text-[#A3A3A3]">
               <li>Sincronización bidireccional iCal</li>
               <li>Airbnb (enlace de sincronización de calendarios)</li>
@@ -81,9 +81,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
 
           {/* Col 4: Demo y Contacto */}
           <div>
-            <h4 className="text-xs font-black text-white uppercase tracking-widest mb-3">
+            <h2 className="text-xs font-black text-white uppercase tracking-widest mb-3">
               Probar el Sistema
-            </h4>
+            </h2>
             <p className="text-xs text-[#A3A3A3] mb-3">
               Comprobá el funcionamiento en vivo con datos interactivos de muestra:
             </p>

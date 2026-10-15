@@ -25,7 +25,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Brand */}
         <div className="flex items-center space-x-2">
           <span className="text-xl font-light tracking-widest text-gray-800 dark:text-gray-100">
-            loomi<span className="font-semibold text-[#E67E22]">suite</span>
+            loomi<span className="font-semibold text-[#AD5410] dark:text-[#E67E22]">suite</span>
           </span>
         </div>
 
@@ -39,7 +39,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               {isDark ? (
                 <>
-                  <Sun className="w-3.5 h-3.5 text-[#E67E22]" />
+                  <Sun className="w-3.5 h-3.5 text-[#AD5410] dark:text-[#E67E22]" />
                   <span className="hidden md:inline text-xs">Modo Claro</span>
                 </>
               ) : (
@@ -72,7 +72,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="btn-nav-open-demo"
             onClick={onOpenDemo}
-            className="bg-[#E67E22]/10 text-[#E67E22] px-4 py-2 rounded-xl font-semibold hover:bg-[#E67E22]/20 transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
+            className="bg-[#E67E22]/10 text-[#AD5410] dark:text-[#E67E22] px-4 py-2 rounded-xl font-semibold hover:bg-[#E67E22]/20 transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
           >
             Probar Demo
           </button>

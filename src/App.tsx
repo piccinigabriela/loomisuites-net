@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import {
   Building2,
   Play,
@@ -36,47 +36,13 @@ import { Footer } from './components/landing/Footer';
 import { LeadModal } from './components/landing/LeadModal';
 
 // Demo Application Components
-import { CleanSidebar } from './components/demo/CleanSidebar';
-import { CleanToday } from './components/demo/CleanToday';
-import { MobileLightView } from './components/demo/MobileLightView';
-import { DemoHeader } from './components/demo/DemoHeader';
-import { DemoNavTabs } from './components/demo/DemoNavTabs';
-import { DemoOverview } from './components/demo/DemoOverview';
-import { DemoCalendar } from './components/demo/DemoCalendar';
-import { DemoHousekeeping } from './components/demo/DemoHousekeeping';
-import { DemoProperties } from './components/demo/DemoProperties';
-import { DemoAddons } from './components/demo/DemoAddons';
-import { DemoMessages } from './components/demo/DemoMessages';
-import { DemoFinances } from './components/demo/DemoFinances';
-import { TeamNotices } from './components/demo/TeamNotices';
 import { subscribeToPreCheckins } from './lib/precheckin';
-import { DemoCashDrawer } from './components/demo/DemoCashDrawer';
-import { WelcomeGuideHub } from './components/guide/WelcomeGuideHub';
-import { DirectBookingLanding } from './components/booking/DirectBookingLanding';
-import { XeniaCopilotView } from './components/xenia/XeniaCopilotView';
-import { XeniaFloatingWidget } from './components/xenia/XeniaFloatingWidget';
-import { NewReservationModal } from './components/demo/NewReservationModal';
-import { ReservationDetailModal } from './components/demo/ReservationDetailModal';
-import { DemoBookingsList } from './components/demo/DemoBookingsList';
-import { JsonDataModal } from './components/demo/JsonDataModal';
 import type { LegacyImportPayload } from './components/demo/LegacyBackupImport';
-import { OnboardingWizardModal } from './components/demo/OnboardingWizardModal';
-import { CalendarImportModal } from './components/demo/CalendarImportModal';
-import { ClientAuthModal } from './components/auth/ClientAuthModal';
-import { SuperAdminView } from './components/admin/SuperAdminView';
-import { DemoPlanFunctionalBar } from './components/demo/DemoPlanFunctionalBar';
-import { ReceptionView } from './components/roles/ReceptionView';
-import { HousekeepingMobileView } from './components/roles/HousekeepingMobileView';
-import { GuestWelcomePortal } from './components/guide/GuestWelcomePortal';
-import { PublicGuideView } from './components/guide/PublicGuideView';
 import { INITIAL_WELCOME_GUIDE, getEmptyAppState, getCleaningsForDay } from './data/initialData';
 import { isAppMode } from './lib/appMode';
 import { auth, onAuthStateChanged, signOut, User } from './lib/firebase';
 import { sendEmailVerification } from 'firebase/auth';
-import { AppAuthScreen } from './components/auth/AppAuthScreen';
-import { TrialEndedScreen } from './components/auth/TrialEndedScreen';
 import { subscribeToSubscription, getAccessStatus, SubscriptionDoc } from './lib/subscription';
-import { WelcomeScreen } from './components/onboarding/WelcomeScreen';
 import { FirstStepsChecklist, getFirstStepsStatus } from './components/onboarding/FirstStepsChecklist';
 import {
   subscribeToTenant,
@@ -97,6 +63,46 @@ import {
   TenantDoc,
 } from './lib/tenantStore';
 import { syncCalendars } from './lib/icalSync';
+
+
+// Carga diferida: la landing no descarga la demo, el panel ni los modales hasta que hacen falta
+function lazyNamed<T extends Record<string, any>, K extends keyof T>(loader: () => Promise<T>, name: K): React.LazyExoticComponent<T[K]> {
+  return React.lazy(() => loader().then((m) => ({ default: m[name] }))) as any;
+}
+const CleanSidebar = lazyNamed(() => import('./components/demo/CleanSidebar'), 'CleanSidebar');
+const CleanToday = lazyNamed(() => import('./components/demo/CleanToday'), 'CleanToday');
+const MobileLightView = lazyNamed(() => import('./components/demo/MobileLightView'), 'MobileLightView');
+const DemoHeader = lazyNamed(() => import('./components/demo/DemoHeader'), 'DemoHeader');
+const DemoNavTabs = lazyNamed(() => import('./components/demo/DemoNavTabs'), 'DemoNavTabs');
+const DemoOverview = lazyNamed(() => import('./components/demo/DemoOverview'), 'DemoOverview');
+const DemoCalendar = lazyNamed(() => import('./components/demo/DemoCalendar'), 'DemoCalendar');
+const DemoHousekeeping = lazyNamed(() => import('./components/demo/DemoHousekeeping'), 'DemoHousekeeping');
+const DemoProperties = lazyNamed(() => import('./components/demo/DemoProperties'), 'DemoProperties');
+const DemoAddons = lazyNamed(() => import('./components/demo/DemoAddons'), 'DemoAddons');
+const DemoMessages = lazyNamed(() => import('./components/demo/DemoMessages'), 'DemoMessages');
+const DemoFinances = lazyNamed(() => import('./components/demo/DemoFinances'), 'DemoFinances');
+const TeamNotices = lazyNamed(() => import('./components/demo/TeamNotices'), 'TeamNotices');
+const DemoCashDrawer = lazyNamed(() => import('./components/demo/DemoCashDrawer'), 'DemoCashDrawer');
+const WelcomeGuideHub = lazyNamed(() => import('./components/guide/WelcomeGuideHub'), 'WelcomeGuideHub');
+const DirectBookingLanding = lazyNamed(() => import('./components/booking/DirectBookingLanding'), 'DirectBookingLanding');
+const XeniaCopilotView = lazyNamed(() => import('./components/xenia/XeniaCopilotView'), 'XeniaCopilotView');
+const XeniaFloatingWidget = lazyNamed(() => import('./components/xenia/XeniaFloatingWidget'), 'XeniaFloatingWidget');
+const NewReservationModal = lazyNamed(() => import('./components/demo/NewReservationModal'), 'NewReservationModal');
+const ReservationDetailModal = lazyNamed(() => import('./components/demo/ReservationDetailModal'), 'ReservationDetailModal');
+const DemoBookingsList = lazyNamed(() => import('./components/demo/DemoBookingsList'), 'DemoBookingsList');
+const JsonDataModal = lazyNamed(() => import('./components/demo/JsonDataModal'), 'JsonDataModal');
+const OnboardingWizardModal = lazyNamed(() => import('./components/demo/OnboardingWizardModal'), 'OnboardingWizardModal');
+const CalendarImportModal = lazyNamed(() => import('./components/demo/CalendarImportModal'), 'CalendarImportModal');
+const ClientAuthModal = lazyNamed(() => import('./components/auth/ClientAuthModal'), 'ClientAuthModal');
+const SuperAdminView = lazyNamed(() => import('./components/admin/SuperAdminView'), 'SuperAdminView');
+const DemoPlanFunctionalBar = lazyNamed(() => import('./components/demo/DemoPlanFunctionalBar'), 'DemoPlanFunctionalBar');
+const ReceptionView = lazyNamed(() => import('./components/roles/ReceptionView'), 'ReceptionView');
+const HousekeepingMobileView = lazyNamed(() => import('./components/roles/HousekeepingMobileView'), 'HousekeepingMobileView');
+const GuestWelcomePortal = lazyNamed(() => import('./components/guide/GuestWelcomePortal'), 'GuestWelcomePortal');
+const PublicGuideView = lazyNamed(() => import('./components/guide/PublicGuideView'), 'PublicGuideView');
+const AppAuthScreen = lazyNamed(() => import('./components/auth/AppAuthScreen'), 'AppAuthScreen');
+const TrialEndedScreen = lazyNamed(() => import('./components/auth/TrialEndedScreen'), 'TrialEndedScreen');
+const WelcomeScreen = lazyNamed(() => import('./components/onboarding/WelcomeScreen'), 'WelcomeScreen');
 
 export default function App() {
   const isApp = isAppMode();
@@ -1672,6 +1678,43 @@ export default function App() {
     showToast('Sesión cerrada. Volviendo a la demo.');
   };
 
+  // Los modales se montan recién la primera vez que se abren (y quedan montados para no perder su estado)
+  const [everOpened, setEverOpened] = useState({ newRes: false, detail: false, json: false, onboarding: false, importCal: false, auth: false });
+  useEffect(() => {
+    setEverOpened((prev) => {
+      const next = {
+        newRes: prev.newRes || isNewResModalOpen,
+        detail: prev.detail || !!selectedReservationForDetail,
+        json: prev.json || isJsonModalOpen,
+        onboarding: prev.onboarding || isOnboardingModalOpen,
+        importCal: prev.importCal || isImportModalOpen,
+        auth: prev.auth || isAuthModalOpen,
+      };
+      return JSON.stringify(next) === JSON.stringify(prev) ? prev : next;
+    });
+  }, [isNewResModalOpen, selectedReservationForDetail, isJsonModalOpen, isOnboardingModalOpen, isImportModalOpen, isAuthModalOpen]);
+
+  // Fuera de la landing, precargar en segundo plano las pantallas diferidas para que cambiar de pestaña sea instantáneo
+  useEffect(() => {
+    if (!isApp && currentView === 'landing') return;
+    const t = setTimeout(() => {
+      [
+        () => import('./components/demo/DemoCalendar'),
+        () => import('./components/demo/ReservationDetailModal'),
+        () => import('./components/demo/NewReservationModal'),
+        () => import('./components/demo/DemoMessages'),
+        () => import('./components/demo/DemoFinances'),
+        () => import('./components/demo/DemoBookingsList'),
+        () => import('./components/demo/TeamNotices'),
+        () => import('./components/guide/WelcomeGuideHub'),
+        () => import('./components/xenia/XeniaCopilotView'),
+        () => import('./components/roles/ReceptionView'),
+        () => import('./components/demo/CalendarImportModal'),
+      ].forEach((load) => load().catch(() => {}));
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [isApp, currentView]);
+
   // Loading simple en modo App mientras se verifica la sesión o se cargan los datos del complejo / suscripción
   if (isApp && (authLoading || (currentUser && (tenantLoading || subscriptionLoading)))) {
     return (
@@ -2208,6 +2251,13 @@ export default function App() {
 
             {/* Main Content Body: Real System Dashboard Exactly as on PC */}
             <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-3.5 sm:py-5">
+              <Suspense
+                fallback={
+                  <div className="py-24 flex justify-center">
+                    <div className="w-7 h-7 rounded-full border-2 border-[#E67E22] border-t-transparent animate-spin" />
+                  </div>
+                }
+              >
               {demoTab === 'overview' && (
                 <>
                   {isApp && (
@@ -2409,6 +2459,7 @@ export default function App() {
               {demoTab === 'xenia' && (
                 <XeniaCopilotView demoState={demoState} />
               )}
+              </Suspense>
             </div>
 
             {/* Selector de Planes & Escenarios Comerciales (Plano de menor prioridad visual, al pie del panel) */}
@@ -2457,6 +2508,8 @@ export default function App() {
         onOpenDemo={() => handleOpenDemo()}
       />
 
+      <Suspense fallback={null}>
+      {everOpened.newRes && (
       <NewReservationModal
         isOpen={isNewResModalOpen}
         demoState={demoState}
@@ -2465,7 +2518,9 @@ export default function App() {
         onClose={() => setIsNewResModalOpen(false)}
         onSaveReservation={handleSaveReservation}
       />
+      )}
 
+      {everOpened.detail && (
       <ReservationDetailModal
         reservation={liveSelectedReservation}
         property={demoState.properties.find(
@@ -2486,7 +2541,9 @@ export default function App() {
         precheckin={liveSelectedReservation ? precheckins[liveSelectedReservation.id] : undefined}
         complexName={demoState.welcomeGuide?.propertyName || ''}
       />
+      )}
 
+      {everOpened.json && (
       <JsonDataModal
         isOpen={isJsonModalOpen}
         demoState={demoState}
@@ -2494,13 +2551,17 @@ export default function App() {
         onImportData={handleImportData}
         onResetData={handleResetData}
       />
+      )}
 
+      {everOpened.onboarding && (
       <OnboardingWizardModal
         isOpen={isOnboardingModalOpen}
         onClose={() => setIsOnboardingModalOpen(false)}
         onComplete={handleCompleteOnboarding}
       />
+      )}
 
+      {everOpened.importCal && (
       <CalendarImportModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
@@ -2509,7 +2570,9 @@ export default function App() {
         onImportLegacy={handleImportLegacyBackup}
         onUndoLegacyImport={handleUndoLegacyImport}
       />
+      )}
 
+      {everOpened.auth && (
       <ClientAuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
@@ -2517,6 +2580,8 @@ export default function App() {
         onOpenDemo={() => handleOpenDemo()}
         currentComplexId={activeComplex}
       />
+      )}
+      </Suspense>
     </div>
   );
 }

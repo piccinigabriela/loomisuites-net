@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { Check, Download, Loader2 } from 'lucide-react';
-import { db } from '../../lib/firebase';
 
 const PDF_URL = '/manual-hospitalidad-loomi-suite.pdf';
 const PDF_NAME = 'Hospitalidad-integral-Loomi-Suite.pdf';
@@ -46,9 +44,10 @@ export const ManualLeadMagnet: React.FC = () => {
     const nowEsAr = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
     // Guardar y avisar sin frenar la descarga si algo falla
     const tasks: Promise<unknown>[] = [];
-    if (db) {
-      tasks.push(
-        addDoc(collection(db, 'leads'), {
+    tasks.push(
+      Promise.all([import('../../lib/firebase'), import('firebase/firestore')]).then(([{ db }, { addDoc, collection, serverTimestamp }]) => {
+        if (!db) return;
+        return addDoc(collection(db, 'leads'), {
           type: 'manual',
           fullName: name.trim(),
           email: cleanEmail,
@@ -56,9 +55,9 @@ export const ManualLeadMagnet: React.FC = () => {
           planOrTopic: 'Manual de hospitalidad (descarga)',
           source: window.location.pathname === '/' ? 'landing' : window.location.pathname,
           createdAt: serverTimestamp(),
-        }).catch((err) => console.warn('No se guardó el lead del manual:', err))
-      );
-    }
+        });
+      }).catch((err) => console.warn('No se guardó el lead del manual:', err))
+    );
     tasks.push(
       fetch('https://api.web3forms.com/submit', {
         method: 'POST',
@@ -89,6 +88,8 @@ export const ManualLeadMagnet: React.FC = () => {
           <img
             src="/manual-portada.jpg"
             alt="Portada del manual Hospitalidad integral de Loomi Suite"
+            width={636}
+            height={900}
             className="w-48 sm:w-56 lg:w-full max-w-[260px] rounded-lg shadow-2xl shadow-black/60 rotate-[-2deg]"
             loading="lazy"
           />
@@ -140,7 +141,7 @@ export const ManualLeadMagnet: React.FC = () => {
               <button
                 type="submit"
                 disabled={sending}
-                className="sm:col-span-2 flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#E1500A] hover:bg-[#C44608] disabled:opacity-60 text-white text-base font-bold cursor-pointer transition-colors"
+                className="sm:col-span-2 flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#C2410C] hover:bg-[#A8380A] disabled:opacity-60 text-white text-base font-bold cursor-pointer transition-colors"
               >
                 {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
                 {sending ? 'Preparando…' : 'Descargar gratis'}

@@ -119,12 +119,12 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             {/* Top Badge & Sutil Indicator */}
             <div className="flex items-center justify-between pb-3.5 border-b border-gray-50 dark:border-white/5">
               <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-700 dark:text-zinc-400 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#E67E22]" />
+                <Sparkles className="w-3.5 h-3.5 text-[#AD5410] dark:text-[#E67E22]" />
                 PMS & CANALES • LOOMI SUITE
               </span>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#E67E22] animate-pulse shrink-0" />
-                <span className="text-xs font-semibold text-[#E67E22] group-hover:underline transition-colors">
+                <span className="text-xs font-semibold text-[#AD5410] dark:text-[#E67E22] group-hover:underline transition-colors">
                   Descubrir +
                 </span>
               </div>
@@ -168,7 +168,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                   e.stopPropagation();
                   onOpenDemo();
                 }}
-                className="px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95 shrink-0"
+                className="px-5 py-2.5 rounded-xl bg-[#B8520D] dark:bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95 shrink-0"
               >
                 <Play className="w-3.5 h-3.5 fill-white" />
                 <span>Probar Demo en Vivo</span>
@@ -192,9 +192,9 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               <div className="text-3xl sm:text-4xl lg:text-5xl font-extralight text-gray-900 dark:text-white tracking-tight">
                 100% Control
               </div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100">
+              <h2 className="text-base font-bold text-slate-900 dark:text-zinc-100">
                 Gestión centralizada y sin sorpresas
-              </h3>
+              </h2>
               <p className="text-xs text-slate-800 dark:text-zinc-300 leading-relaxed font-normal">
                 Tus calendarios sincronizados, tus cobros al día y el control total de tu complejo en una sola pantalla.
               </p>
@@ -228,9 +228,9 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             </div>
 
             <div className="my-auto py-2">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
                 WhatsApp
-              </h3>
+              </h2>
               <p className="text-xs text-slate-800 dark:text-zinc-300 font-normal mt-1 leading-relaxed">
                 Ruta, bienvenida y cobro en 1 clic sin escribir a mano.
               </p>
@@ -257,9 +257,9 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             </div>
 
             <div className="my-auto py-2">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
                 Limpieza & Equipo
-              </h3>
+              </h2>
               <p className="text-xs text-slate-800 dark:text-zinc-300 font-normal mt-1 leading-relaxed">
                 Checklist móvil para limpieza y semáforo de estado en vivo.
               </p>
@@ -284,7 +284,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               </span>
               <div className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#E67E22] animate-pulse shrink-0" />
-                <span className="text-xs font-semibold text-[#E67E22]">Activo 24/7</span>
+                <span className="text-xs font-semibold text-[#AD5410] dark:text-[#E67E22]">Activo 24/7</span>
               </div>
             </div>
 
@@ -294,6 +294,8 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                   <img
                     src={xeniaAvatarUrl || '/xenia.jpg'}
                     alt="Xenia"
+                    width={80}
+                    height={80}
                     className="w-full h-full object-cover object-top"
                     referrerPolicy="no-referrer"
                     onError={(e) => {
@@ -338,16 +340,16 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
           >
             <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 dark:border-white/5">
               <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-700 dark:text-zinc-400 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-[#E67E22]" />
+                <Calendar className="w-3.5 h-3.5 text-[#AD5410] dark:text-[#E67E22]" />
                 RACK MULTICANAL EN TIEMPO REAL
               </span>
               <span className="w-2 h-2 rounded-full bg-[#E67E22] shrink-0" />
             </div>
 
             <div className="my-2 space-y-1">
-              <h3 className="text-xl sm:text-2xl font-light text-gray-900 dark:text-white tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-light text-gray-900 dark:text-white tracking-tight">
                 Anti-<span className="font-semibold text-gray-800 dark:text-gray-100">Overbooking</span>
-              </h3>
+              </h2>
               <p className="text-xs text-slate-800 dark:text-zinc-300 font-normal leading-relaxed">
                 Airbnb, Booking.com y tu web oficial sincronizados automáticamente con prevención inteligente de superposiciones.
               </p>
@@ -374,26 +376,26 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             className={`w-full sm:col-span-2 lg:col-span-5 rounded-3xl p-6 flex flex-col justify-between cursor-pointer transition-all duration-300 group min-h-[200px] active:scale-[0.99] border-2 border-orange-100/70 dark:border-orange-950/40 ${cardBaseStyle}`}
           >
             <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 dark:border-white/5">
-              <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#E67E22] flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-[#E67E22]" />
+              <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22] flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5 text-[#AD5410] dark:text-[#E67E22]" />
                 TU WEB + PORTAL DEL HUÉSPED
               </span>
-              <span className="px-2 py-0.5 rounded-md bg-[#FDF3E7] dark:bg-orange-950/40 text-[#E67E22] text-[10px] font-semibold">
+              <span className="px-2 py-0.5 rounded-md bg-[#FDF3E7] dark:bg-orange-950/40 text-[#AD5410] dark:text-[#E67E22] text-[10px] font-semibold">
                 3 Plantillas Base ("Clara", "Tierra", "Sombra")
               </span>
             </div>
 
             <div className="my-auto py-2.5 space-y-1.5">
-              <h3 className="text-xl font-light text-gray-900 dark:text-white tracking-tight">
+              <h2 className="text-xl font-light text-gray-900 dark:text-white tracking-tight">
                 El huésped habita el espacio <span className="font-semibold text-slate-900 dark:text-gray-100">antes de llegar</span>
-              </h3>
+              </h2>
               <p className="text-xs text-slate-800 dark:text-zinc-300 leading-relaxed font-normal">
                 3 plantillas de diseño local incluidas (Clara, Tierra y Sombra) con clave Wi-Fi y guía interactiva continua.
               </p>
             </div>
 
             <div className="pt-2.5 border-t border-gray-100 dark:border-white/5 flex items-center justify-between text-xs text-slate-700 dark:text-zinc-400 font-medium">
-              <span className="text-[#E67E22] font-semibold">0% Comisión Directa</span>
+              <span className="text-[#AD5410] dark:text-[#E67E22] font-semibold">0% Comisión Directa</span>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -463,9 +465,9 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                   /mes (~USD 30)
                 </span>
               </div>
-              <h4 className="text-xs font-semibold text-slate-900 dark:text-zinc-200">
+              <h3 className="text-xs font-semibold text-slate-900 dark:text-zinc-200">
                 Loomi • Loomi Suite
-              </h4>
+              </h3>
               <p className="text-[11px] text-slate-800 dark:text-zinc-300 font-normal leading-relaxed">
                 Sin comisiones por reserva ni cobro por habitación.
               </p>
@@ -492,9 +494,9 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             </div>
 
             <div className="my-auto py-2 space-y-1">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
+              <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
                 Te mudamos nosotros
-              </h3>
+              </h2>
               <p className="text-xs text-slate-800 dark:text-zinc-300 leading-relaxed font-normal">
                 Mandanos tu Excel, tu sistema anterior o fotos del cuaderno. Cargamos tus reservas por vos.
               </p>
@@ -537,13 +539,13 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             {activeModule === 'website_models' && (
               <div className="space-y-5">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#E67E22] flex items-center gap-1.5">
-                    <Globe className="w-3.5 h-3.5 text-[#E67E22]" />
+                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22] flex items-center gap-1.5">
+                    <Globe className="w-3.5 h-3.5 text-[#AD5410] dark:text-[#E67E22]" />
                     3 MODELOS WEB OFICIALES & PORTAL DEL HUÉSPED
                   </span>
-                  <h3 className="text-2xl font-light text-gray-900 dark:text-white">
+                  <h2 className="text-2xl font-light text-gray-900 dark:text-white">
                     Tu Web Directa y Portal de Bienvenida <span className="font-semibold">Unificados</span>
-                  </h3>
+                  </h2>
                   <p className="text-xs text-slate-700 dark:text-zinc-300 font-medium">
                     «El huésped empieza a habitar el espacio antes de llegar.»
                   </p>
@@ -581,13 +583,13 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                   </div>
 
                   <div className="p-4 rounded-2xl border border-orange-100/60 dark:border-orange-900/30 bg-[#FDF3E7]/40 dark:bg-orange-950/20 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#F6D8C3] text-[#E67E22] flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#F6D8C3] text-[#AD5410] dark:text-[#E67E22] flex items-center justify-center shrink-0">
                       <Smartphone className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-gray-900 dark:text-white">
+                      <h3 className="text-xs font-semibold text-gray-900 dark:text-white">
                         Portal Digital del Huésped
-                      </h4>
+                      </h3>
                       <p className="text-[11px] text-slate-700 dark:text-zinc-300 font-medium mt-0.5">
                         Incluye mapa interactivo GPS, Wi-Fi en 1 toque y recomendaciones gastronómicas.
                       </p>
@@ -601,7 +603,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                       setActiveModule(null);
                       onOpenDemo('welcome-guide');
                     }}
-                    className="px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-[#B8520D] dark:bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
                   >
                     Ver Diseños en la Demo
                   </button>
@@ -613,12 +615,12 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             {activeModule === 'hero' && (
               <div className="space-y-5">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#E67E22]">
+                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22]">
                     01 / FILOSOFÍA DEL SISTEMA
                   </span>
-                  <h3 className="text-2xl font-light text-gray-900 dark:text-white">
+                  <h2 className="text-2xl font-light text-gray-900 dark:text-white">
                     Loomi Suite: <span className="font-semibold">Gestión Simple & Sin Vueltas</span>
-                  </h3>
+                  </h2>
                 </div>
 
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-300 leading-relaxed font-light">
@@ -638,7 +640,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                       setActiveModule(null);
                       onOpenDemo();
                     }}
-                    className="px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer flex items-center gap-2"
+                    className="px-5 py-2.5 rounded-xl bg-[#B8520D] dark:bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer flex items-center gap-2"
                   >
                     <Play className="w-3.5 h-3.5 fill-white" />
                     <span>Abrir Demo Interactiva</span>
@@ -655,17 +657,19 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                     <img
                       src={xeniaAvatarUrl || '/xenia.jpg'}
                       alt="Xenia"
+                      width={56}
+                      height={56}
                       className="w-full h-full object-cover object-top"
                       referrerPolicy="no-referrer"
                     />
                   </div>
                   <div>
-                    <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#E67E22]">
+                    <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22]">
                       02 / COPILOTO INTELIGENTE
                     </span>
-                    <h3 className="text-xl font-light text-gray-900 dark:text-white">
+                    <h2 className="text-xl font-light text-gray-900 dark:text-white">
                       Xenia: <span className="font-semibold">Copiloto Integrado</span>
-                    </h3>
+                    </h2>
                   </div>
                 </div>
 
@@ -694,7 +698,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                       setActiveModule(null);
                       onOpenDemo();
                     }}
-                    className="px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-[#B8520D] dark:bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
                   >
                     Probar Copiloto en la Demo
                   </button>
@@ -706,12 +710,12 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             {activeModule === 'calendar' && (
               <div className="space-y-5">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#E67E22]">
+                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22]">
                     03 / SINCRONIZACIÓN AUTOMÁTICA
                   </span>
-                  <h3 className="text-2xl font-light text-gray-900 dark:text-white">
+                  <h2 className="text-2xl font-light text-gray-900 dark:text-white">
                     Rack Multicanal: <span className="font-semibold">0 Dobles Reservas</span>
-                  </h3>
+                  </h2>
                 </div>
 
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-300 leading-relaxed font-light">
@@ -721,7 +725,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 <div className="p-3.5 rounded-2xl border border-gray-100 dark:border-white/5 bg-gray-50/70 dark:bg-zinc-800/50 space-y-2 text-xs font-mono">
                   <div className="flex items-center justify-between">
                     <span className="font-medium">Cabaña del Bosque</span>
-                    <span className="text-[#E67E22] font-semibold">Directo • 3 noches reservadas</span>
+                    <span className="text-[#AD5410] dark:text-[#E67E22] font-semibold">Directo • 3 noches reservadas</span>
                   </div>
                   <div className="flex items-center justify-between text-slate-700 dark:text-zinc-400 font-medium">
                     <span>Domo Glamping</span>
@@ -739,7 +743,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                       setActiveModule(null);
                       onOpenDemo();
                     }}
-                    className="px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-[#B8520D] dark:bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
                   >
                     Abrir Rack en Vivo
                   </button>
@@ -751,12 +755,12 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             {activeModule === 'whatsapp' && (
               <div className="space-y-5">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#E67E22]">
+                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22]">
                     04 / WHATSAPP AUTOMÁTICO
                   </span>
-                  <h3 className="text-2xl font-light text-gray-900 dark:text-white">
+                  <h2 className="text-2xl font-light text-gray-900 dark:text-white">
                     Desactivá reclamos <span className="font-semibold">antes de que nazcan</span>
-                  </h3>
+                  </h2>
                 </div>
 
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-300 leading-relaxed font-light">
@@ -765,7 +769,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
 
                 <div className="space-y-2.5">
                   <div className="p-3.5 rounded-xl border border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-zinc-800/50 text-xs space-y-1">
-                    <strong className="text-[#E67E22] font-medium block">1. Coordinación en Ruta</strong>
+                    <strong className="text-[#AD5410] dark:text-[#E67E22] font-medium block">1. Coordinación en Ruta</strong>
                     <p className="text-slate-700 dark:text-zinc-300 text-xs font-medium">«Avísennos cuando estén a 40 minutos de llegar para esperarlos con el departamento listo.»</p>
                   </div>
                   <div className="p-3.5 rounded-xl border border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-zinc-800/50 text-xs space-y-1">
@@ -780,7 +784,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                       setActiveModule(null);
                       onOpenDemo();
                     }}
-                    className="px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-[#B8520D] dark:bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
                   >
                     Probar WhatsApp en la Demo
                   </button>
@@ -792,12 +796,12 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             {activeModule === 'housekeeping' && (
               <div className="space-y-5">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#E67E22]">
+                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22]">
                     05 / LIMPIEZA & OPERACIONES
                   </span>
-                  <h3 className="text-2xl font-light text-gray-900 dark:text-white">
+                  <h2 className="text-2xl font-light text-gray-900 dark:text-white">
                     Operaciones bajo control <span className="font-semibold">sin confusiones</span>
-                  </h3>
+                  </h2>
                 </div>
 
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-300 leading-relaxed font-light">
@@ -810,7 +814,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                       setActiveModule(null);
                       onOpenDemo();
                     }}
-                    className="px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-[#B8520D] dark:bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
                   >
                     Ver Módulo de Limpieza
                   </button>
@@ -822,12 +826,12 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             {activeModule === 'pricing' && (
               <div className="space-y-5">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#E67E22]">
+                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22]">
                     06 / PLANES FIJOS POR COMPLEJO ENTERO
                   </span>
-                  <h3 className="text-2xl font-light text-gray-900 dark:text-white">
+                  <h2 className="text-2xl font-light text-gray-900 dark:text-white">
                     Tarifas transparentes <span className="font-semibold">sin costo por habitación</span>
-                  </h3>
+                  </h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -842,10 +846,10 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                     >
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-medium text-[#E67E22] uppercase tracking-wider">{p.badge}</span>
+                          <span className="text-[10px] font-medium text-[#AD5410] dark:text-[#E67E22] uppercase tracking-wider">{p.badge}</span>
                           <span className="text-xs font-mono text-slate-700 dark:text-zinc-400 font-semibold">USD {p.usd}</span>
                         </div>
-                        <h4 className="text-base font-semibold text-gray-900 dark:text-white">{p.name}</h4>
+                        <h3 className="text-base font-semibold text-gray-900 dark:text-white">{p.name}</h3>
                         <div className="text-2xl font-light text-gray-900 dark:text-white">
                           ${p.price.toLocaleString('es-AR')} <span className="text-xs font-semibold text-slate-700 dark:text-zinc-400">/mes (Final ARS)</span>
                         </div>
@@ -857,7 +861,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                       <div className="space-y-1.5 pt-2 border-t border-gray-100 dark:border-white/5 text-xs">
                         {p.features?.map((feat, idx) => (
                           <div key={idx} className="flex items-start gap-1.5 text-gray-600 dark:text-zinc-300 text-xs font-light">
-                            <Check className="w-3.5 h-3.5 text-[#E67E22] shrink-0 mt-0.5" />
+                            <Check className="w-3.5 h-3.5 text-[#AD5410] dark:text-[#E67E22] shrink-0 mt-0.5" />
                             <span>{feat}</span>
                           </div>
                         ))}
@@ -872,7 +876,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                       setActiveModule(null);
                       onOpenContact('Planes y Tarifas (Loomi / Loomi Suite)');
                     }}
-                    className="px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-[#B8520D] dark:bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
                   >
                     Hablar con un Asesor
                   </button>
@@ -884,12 +888,12 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             {activeModule === 'channels' && (
               <div className="space-y-5">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#E67E22]">
+                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22]">
                     07 / CANALES OFICIALES
                   </span>
-                  <h3 className="text-2xl font-light text-gray-900 dark:text-white">
+                  <h2 className="text-2xl font-light text-gray-900 dark:text-white">
                     Conexión bidireccional <span className="font-semibold">y centralizada</span>
-                  </h3>
+                  </h2>
                 </div>
 
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-300 leading-relaxed font-light">
@@ -902,7 +906,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                       setActiveModule(null);
                       onOpenDemo();
                     }}
-                    className="px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-[#B8520D] dark:bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
                   >
                     Probar Sincronización
                   </button>
@@ -914,12 +918,12 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             {activeModule === 'onboarding' && (
               <div className="space-y-5">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#E67E22]">
+                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22]">
                     08 / MUDANZA LLAVE EN MANO
                   </span>
-                  <h3 className="text-2xl font-light text-gray-900 dark:text-white">
+                  <h2 className="text-2xl font-light text-gray-900 dark:text-white">
                     Tu mudanza, <span className="font-semibold">sin pelearte con planillas</span>
-                  </h3>
+                  </h2>
                 </div>
 
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-300 leading-relaxed font-light">
@@ -943,7 +947,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                       setActiveModule(null);
                       onOpenContact('Mudanza Llave en Mano');
                     }}
-                    className="px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-[#B8520D] dark:bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
                   >
                     Quiero que me carguen mis reservas
                   </button>
@@ -955,12 +959,12 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             {activeModule === 'metrics' && (
               <div className="space-y-5">
                 <div className="space-y-1">
-                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#E67E22]">
+                  <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22]">
                     09 / IMPACTO & RESULTADOS
                   </span>
-                  <h3 className="text-2xl font-light text-gray-900 dark:text-white">
+                  <h2 className="text-2xl font-light text-gray-900 dark:text-white">
                     Resultados en complejos <span className="font-semibold">activos</span>
-                  </h3>
+                  </h2>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-center">
@@ -969,7 +973,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                     <p className="text-xs text-slate-800 dark:text-zinc-400 mt-0.5 font-medium">Control centralizado</p>
                   </div>
                   <div className="p-4 rounded-2xl border border-gray-100 dark:border-white/5 bg-gray-50/70 dark:bg-zinc-800/40">
-                    <span className="text-3xl font-extralight text-[#E67E22]">0</span>
+                    <span className="text-3xl font-extralight text-[#AD5410] dark:text-[#E67E22]">0</span>
                     <p className="text-xs text-slate-800 dark:text-zinc-400 mt-0.5 font-medium">Dobles reservas</p>
                   </div>
                   <div className="p-4 rounded-2xl border border-gray-100 dark:border-white/5 bg-gray-50/70 dark:bg-zinc-800/40">
@@ -984,7 +988,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                       setActiveModule(null);
                       onOpenDemo();
                     }}
-                    className="px-5 py-2.5 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-[#B8520D] dark:bg-[#E67E22] hover:bg-[#D35400] text-white text-xs font-medium transition-colors cursor-pointer"
                   >
                     Probar el Sistema en Vivo
                   </button>

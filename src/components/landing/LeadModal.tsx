@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X, CheckCircle2, MessageSquare, Building, Sparkles, Send, PhoneCall, Mail } from 'lucide-react';
-import { saveLeadToCloud } from '../../lib/firebase';
 
 interface LeadModalProps {
   isOpen: boolean;
@@ -43,14 +42,18 @@ export const LeadModal: React.FC<LeadModalProps> = ({
     setSubmitted(true);
 
     // Save lead record in Firestore Cloud Database
-    saveLeadToCloud({
+    // Firebase se carga recién acá, para que la landing no lo descargue de entrada
+    const lead = {
       fullName: name.trim(),
       phone: phone.trim(),
       email: email.trim(),
       complexName: `${name.trim()} (${accommodationType})`,
       propertiesCount: parseInt(propertiesCount.replace(/\D/g, ''), 10) || 5,
       planOrTopic: planName,
-    });
+    };
+    import('../../lib/firebase')
+      .then(({ saveLeadToCloud }) => saveLeadToCloud(lead))
+      .catch((err) => console.warn('No se guardó el lead:', err));
 
     // Attempt to open WhatsApp in new window
     window.open(url, '_blank');
