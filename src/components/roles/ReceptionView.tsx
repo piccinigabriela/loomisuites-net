@@ -129,7 +129,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
     });
 
   // Cash movements calculations
-  const openingCash = isAppMode() ? 0 : 50000;
+  const openingCash = isAppMode() ? 0 : 50;
   const cashMovements = demoState.cashMovements || [];
   const cashMovementsOnly = cashMovements.filter((m) => m.paymentMethod === 'efectivo');
   const cashIn = cashMovementsOnly.filter((m) => m.type === 'ingreso').reduce((sum, m) => sum + m.amount, 0);

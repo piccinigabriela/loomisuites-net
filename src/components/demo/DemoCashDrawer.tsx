@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { DemoState, CashMovement, Property } from '../../types';
 import { formatDisplayDate, formatCurrency, getActiveCurrency } from '../../data/initialData';
+import { isAppMode } from '../../lib/appMode';
 
 interface DemoCashDrawerProps {
   demoState: DemoState;
@@ -52,7 +53,8 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
   };
 
   // Cálculos de caja diaria
-  const openingCash = 50000;
+  // En la app real no hay apertura inventada; la demo usa un monto acorde a su moneda (USD)
+  const openingCash = isAppMode() ? 0 : 50;
   const isFrontDesk = userRole === 'frontdesk';
 
   const cashMovementsOnly = movements.filter((m) => m.paymentMethod === 'efectivo');
@@ -310,7 +312,7 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  placeholder="15000"
+                  placeholder="15"
                   className="w-full text-xs p-3 rounded-xl border border-gray-200 dark:border-zinc-700 bg-gray-50/80 dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-zinc-800 focus:border-gray-300 transition-all font-medium"
                 />
               </div>
