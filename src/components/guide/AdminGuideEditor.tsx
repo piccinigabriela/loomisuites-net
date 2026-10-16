@@ -343,6 +343,22 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
                 />
               </div>
 
+              <div className="mt-4 p-3 rounded-xl border-2 border-amber-400 bg-amber-50 space-y-2">
+                <label className="block text-xs font-bold text-zinc-900">
+                  ⭐ Link para reseña en Google
+                </label>
+                <p className="text-[11px] text-zinc-800">
+                  Se agrega al mensaje de despedida. En Google Maps buscá tu complejo, tocá "Compartir" o "Pedir reseñas" y pegá el link acá. Si lo dejás vacío, el mensaje sale sin esa línea.
+                </p>
+                <input
+                  type="url"
+                  value={formData.googleReviewUrl || ''}
+                  onChange={(e) => handleGeneralChange('googleReviewUrl', e.target.value)}
+                  placeholder="https://g.page/r/..."
+                  className="w-full text-xs p-2.5 rounded-xl border border-zinc-300 focus:border-rose-500 focus:outline-hidden bg-white text-zinc-900"
+                />
+              </div>
+
               <div className="mt-4">
                 <label className="block text-xs font-bold text-zinc-700 mb-1">
                   Aviso Especial o Mensaje de Bienvenida del Día

@@ -225,6 +225,14 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
       content = content.replace(/^.*\{\{instrucciones_ingreso\}\}.*(\n|$)/gim, '');
     }
 
+    // Link de reseña en Google (si no está cargado, se quita esa línea del mensaje)
+    const reviewUrl = demoState.welcomeGuide?.googleReviewUrl?.trim() || '';
+    if (reviewUrl) {
+      content = content.replace(/\{\{link_resena_google\}\}/gi, reviewUrl);
+    } else {
+      content = content.replace(/^.*\{\{link_resena_google\}\}.*(\n|$)/gim, '');
+    }
+
     // Double curly braces {{...}}
     content = content.replace(/\{\{nombre_huésped\}\}/gi, guestFirstName);
     content = content.replace(/\{\{nombre_huesped\}\}/gi, guestFirstName);

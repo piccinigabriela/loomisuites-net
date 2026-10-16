@@ -193,6 +193,8 @@ export interface WelcomeGuideData {
   arrivalInstructions?: string;
   /** Las mismas instrucciones en inglés, para huéspedes extranjeros */
   arrivalInstructionsEn?: string;
+  /** Link para dejar reseña en Google (se usa en el mensaje de despedida) */
+  googleReviewUrl?: string;
   transportation: TransportationItem[];
   attractions: AttractionItem[];
   dining: DiningItem[];
