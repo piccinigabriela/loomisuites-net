@@ -214,6 +214,7 @@ export interface WelcomeGuideData {
     accountHolder: string;
     mercadoPagoLink?: string; // Link de cobro o checkout de Mercado Pago del complejo
     paypalLink?: string; // Link de PayPal / PayPal.me del complejo
+    payoneerLink?: string; // Link de pago / solicitud de pago de Payoneer del complejo
     directDiscountPercent: number;
   };
 }

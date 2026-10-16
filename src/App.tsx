@@ -1632,6 +1632,19 @@ export default function App() {
     }
   };
 
+  // Datos de cobro desde el celular: se mezclan con directBookingSettings sin pisar el resto de la guía
+  const handleSavePaymentSettings = async (fields: Partial<NonNullable<DemoState['welcomeGuide']>['directBookingSettings']>) => {
+    const guide = demoState.welcomeGuide;
+    if (!guide) return;
+    const updated = { ...guide, directBookingSettings: { ...guide.directBookingSettings, ...fields } };
+    if (isApp && currentUser) {
+      await saveTenantData(currentUser.uid, { welcomeGuide: updated });
+    } else {
+      updateDemoState((prev) => ({ ...prev, welcomeGuide: updated, lastUpdated: new Date().toISOString() }));
+    }
+    showToast('Datos de cobro guardados');
+  };
+
   // Quick check in
   const handleQuickCheckIn = (resId: string) => {
     handleUpdateReservationStatus(resId, 'checked_in');
@@ -2052,6 +2065,7 @@ export default function App() {
           reminders={demoState.reminders || []}
           onSaveReminder={handleSaveReminder}
           onDeleteReminder={handleDeleteReminder}
+          onSavePaymentSettings={handleSavePaymentSettings}
           onOpenNewReservationWithProperty={handleOpenNewReservationWithProperty}
           onOpenImportModal={() => setIsImportModalOpen(true)}
           icalSyncState={icalSyncState}

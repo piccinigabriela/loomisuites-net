@@ -712,7 +712,7 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
                   Pasarelas de Cobro para tus Huéspedes (Opcional)
                 </span>
                 <p className="text-[11px] text-zinc-500 mt-0.5">
-                  Tus huéspedes te pagan directo a tu cuenta sin intermediarios. Podés pegar tu link de cobro de Mercado Pago o PayPal:
+                  Tus huéspedes te pagan directo a tu cuenta sin intermediarios. Podés pegar tu link de cobro de Mercado Pago, PayPal o Payoneer:
                 </p>
               </div>
 
@@ -740,6 +740,20 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
                   placeholder="https://paypal.me/tucomplejo"
                   value={formData.directBookingSettings.paypalLink || ''}
                   onChange={(e) => handleBookingSettingsChange('paypalLink', e.target.value)}
+                  className="w-full text-xs p-2.5 rounded-xl border border-zinc-300 bg-white placeholder:text-zinc-400 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 mb-1 flex items-center justify-between">
+                  <span>Link de Cobro Payoneer</span>
+                  <span className="text-[10px] text-blue-600 font-normal">Para cobros del exterior</span>
+                </label>
+                <input
+                  type="url"
+                  placeholder="Pegá el link de pago que te genera Payoneer"
+                  value={formData.directBookingSettings.payoneerLink || ''}
+                  onChange={(e) => handleBookingSettingsChange('payoneerLink', e.target.value)}
                   className="w-full text-xs p-2.5 rounded-xl border border-zinc-300 bg-white placeholder:text-zinc-400 font-mono"
                 />
               </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Sun,
   Moon,
@@ -32,6 +32,14 @@ import { DemoCalendar } from './DemoCalendar';
 import { AgendaTab, AgendaView } from './mobile/AgendaTab';
 import { formatShortDateRange } from './mobile/helpers';
 import { isOverdue } from '../../lib/reminders';
+import { PaymentSettingsSheet } from './mobile/PaymentSettingsSheet';
+import {
+  availableMethods,
+  composePaymentMessage,
+  PAY_METHOD_LABEL,
+  type PayMethod,
+  type PaymentSettings,
+} from './mobile/paymentMessage';
 
 type MobileTab = 'agenda' | 'calendar' | 'avisos' | 'xenia' | 'more' | 'units';
 
@@ -56,6 +64,8 @@ interface MobileLightViewProps {
   reminders: Reminder[];
   onSaveReminder: (r: Reminder) => Promise<void> | void;
   onDeleteReminder: (id: string) => Promise<void> | void;
+  /** Datos de cobro (CBU, alias, Mercado Pago, PayPal, Payoneer) que se guardan en la guía del complejo */
+  onSavePaymentSettings: (fields: Partial<PaymentSettings>) => Promise<void> | void;
   /** Calendario: tocar un día libre abre nueva reserva con esa unidad y fecha */
   onOpenNewReservationWithProperty?: (propertyId: string, date: string) => void;
   onOpenImportModal?: () => void;
@@ -85,6 +95,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
   reminders,
   onSaveReminder,
   onDeleteReminder,
+  onSavePaymentSettings,
   onOpenNewReservationWithProperty,
   onOpenImportModal,
   icalSyncState,
@@ -95,6 +106,11 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
   const [mobileTab, setMobileTab] = useState<MobileTab>('agenda');
   const [agendaView, setAgendaView] = useState<AgendaView>('day');
   const [copiedWifi, setCopiedWifi] = useState<string | null>(null);
+  // Cobro: hoja de datos, métodos que se dejan afuera del mensaje y texto editado a mano
+  const [paySheetOpen, setPaySheetOpen] = useState(false);
+  const [payMethodsOff, setPayMethodsOff] = useState<PayMethod[]>([]);
+  const [payTextOverride, setPayTextOverride] = useState<string | null>(null);
+  const [copiedPayText, setCopiedPayText] = useState(false);
 
   // Quick Action Sheet for a selected guest
   const [selectedGuestAction, setSelectedGuestAction] = useState<Reservation | null>(null);
@@ -249,9 +265,28 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
     : '';
 
   // Pre-formatted messages for 1-tap mobile sending
-  const paymentMessageText = selectedGuestAction
-    ? `¡Hola ${selectedGuestAction.guestName.split(' ')[0]}! Te escribo de ${complexName}. Por tu reserva en ${selectedActionProperty?.name || 'la unidad'} del ${formatDisplayDate(selectedGuestAction.checkIn)} al ${formatDisplayDate(selectedGuestAction.checkOut)}, ${depositAmount > 0 ? `queda un saldo de ${formatCurrency(depositAmount)}` : 'te escribo por el pago'}. ¿Te paso los datos para la transferencia?`
+  const paymentSettings = demoState.welcomeGuide?.directBookingSettings;
+  const payMethodsAvailable = availableMethods(paymentSettings);
+  const payMethodsOn = payMethodsAvailable.filter((m) => !payMethodsOff.includes(m));
+  const composedPaymentText = selectedGuestAction
+    ? composePaymentMessage({
+        guestFirstName: selectedGuestAction.guestName.split(' ')[0],
+        complexName,
+        unitName: selectedActionProperty?.name || 'la unidad',
+        dates: `${formatDisplayDate(selectedGuestAction.checkIn)} al ${formatDisplayDate(selectedGuestAction.checkOut)}`,
+        balanceText: depositAmount > 0 ? formatCurrency(depositAmount) : undefined,
+        methods: payMethodsOn,
+        settings: paymentSettings,
+      })
     : '';
+  const paymentMessageText = payTextOverride ?? composedPaymentText;
+
+  // Al abrir otra reserva se vuelve al mensaje armado solo
+  useEffect(() => {
+    setPayMethodsOff([]);
+    setPayTextOverride(null);
+    setCopiedPayText(false);
+  }, [selectedGuestAction?.id]);
 
   const welcomeMessageText = selectedGuestAction
     ? `¡Hola, ${selectedGuestAction.guestName.split(' ')[0]}! 🌲 Te confirmamos que tu reserva para la unidad ${selectedActionProperty?.name || 'tu cabaña'} está registrada con éxito desde el ${formatDisplayDate(selectedGuestAction.checkIn)} hasta el ${formatDisplayDate(selectedGuestAction.checkOut)}.\nPara que tu llegada sea fácil, te compartimos tu guía digital: cómo llegar, Wi-Fi, horarios y contacto.\n🔗 ${guideLink}\n¡Estamos felices de recibirte! Cualquier duda, estamos a un toque de distancia por acá.`
@@ -606,6 +641,14 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                   sub: 'Ver disponibilidad y claves',
                 },
                 {
+                  key: 'pay',
+                  onClick: () => setPaySheetOpen(true),
+                  icon: <CreditCard className="w-5 h-5" />,
+                  tone: 'bg-[#FBE3CB] text-[#7A3306] dark:bg-[#3D2516] dark:text-[#FFB27F]',
+                  title: 'Datos de cobro',
+                  sub: 'CBU, alias, Mercado Pago, PayPal y Payoneer',
+                },
+                {
                   key: 'full',
                   onClick: onSwitchToFullView,
                   icon: <Laptop className="w-5 h-5" />,
@@ -671,24 +714,97 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
             </div>
 
             <div className="space-y-3">
-              {/* ACCIÓN 1: SOLICITAR SEÑA */}
-              <div className="p-4 rounded-2xl bg-[#FDF3E7]/60 dark:bg-[#251D17] border border-orange-100/60 dark:border-orange-900/30 space-y-2">
+              {/* ACCIÓN 1: PEDIR PAGO / SALDO (CBU, Mercado Pago, PayPal, Payoneer) */}
+              <div className="p-4 rounded-2xl bg-[#FDF3E7]/60 dark:bg-[#251D17] border border-orange-200 dark:border-orange-900/40 space-y-2.5">
                 <div className="flex items-center gap-2">
                   <CreditCard className="w-4 h-4 text-[#8F3B08] dark:text-[#FFB27F]" />
                   <span className="text-xs font-bold text-gray-900 dark:text-gray-100">1. Pedir pago / saldo</span>
                 </div>
                 <p className="text-xs text-stone-800 dark:text-gray-200 font-semibold">
-                  Avisa el saldo pendiente ({formatCurrency(depositAmount)}) y ofrece los datos para transferir
+                  {depositAmount > 0 ? `Saldo pendiente: ${formatCurrency(depositAmount)}.` : 'No figura saldo pendiente.'}{' '}
+                  {payMethodsAvailable.length > 0 ? 'Elegí cómo cobrar y revisá el mensaje antes de enviarlo.' : ''}
                 </p>
-                <a
-                  href={buildWhatsAppLink(selectedGuestAction.guestPhone, paymentMessageText)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-2.5 px-3 rounded-xl bg-[#F6D2B8] hover:bg-[#F0C2A0] text-[#7A3306] dark:bg-[#3E281C] dark:hover:bg-[#4E3324] dark:text-[#FFB27F] text-xs font-bold flex items-center justify-center gap-2 transition-colors"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Pedir pago por WhatsApp</span>
-                </a>
+
+                {payMethodsAvailable.length === 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-xs font-bold text-stone-900 dark:text-gray-100">
+                      Todavía no cargaste datos de cobro (CBU, alias, Mercado Pago, PayPal o Payoneer).
+                    </p>
+                    <button
+                      onClick={() => setPaySheetOpen(true)}
+                      className="w-full py-2.5 px-3 rounded-xl bg-[#A8480F] text-white dark:bg-[#FFB27F] dark:text-stone-900 text-xs font-extrabold cursor-pointer"
+                    >
+                      Cargar datos de cobro
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex flex-wrap gap-2" role="group" aria-label="Métodos de pago a incluir">
+                      {payMethodsAvailable.map((m) => {
+                        const on = !payMethodsOff.includes(m);
+                        return (
+                          <button
+                            key={m}
+                            type="button"
+                            aria-pressed={on}
+                            onClick={() => {
+                              setPayTextOverride(null);
+                              setPayMethodsOff((prev) => (on ? [...prev, m] : prev.filter((x) => x !== m)));
+                            }}
+                            className={`px-3 py-2 rounded-xl text-xs font-extrabold border-2 cursor-pointer transition-colors ${
+                              on
+                                ? 'bg-stone-900 text-white border-stone-900 dark:bg-[#FFB27F] dark:text-stone-900 dark:border-[#FFB27F]'
+                                : 'bg-white text-stone-900 border-stone-400 dark:bg-transparent dark:text-gray-100 dark:border-zinc-500'
+                            }`}
+                          >
+                            {on ? '✓ ' : ''}
+                            {PAY_METHOD_LABEL[m]}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <label htmlFor="pay-message" className="block text-xs font-bold text-stone-900 dark:text-gray-100">
+                      Mensaje (podés editarlo)
+                    </label>
+                    <textarea
+                      id="pay-message"
+                      rows={9}
+                      value={paymentMessageText}
+                      onChange={(e) => setPayTextOverride(e.target.value)}
+                      className="w-full text-sm p-3 rounded-xl border-2 border-stone-400 dark:border-zinc-500 bg-white dark:bg-[#111215] text-stone-900 dark:text-gray-100 focus:outline-none focus:border-[#A8480F] dark:focus:border-[#FFB27F]"
+                    />
+
+                    <div className="grid grid-cols-[1fr_auto] gap-2">
+                      <a
+                        href={buildWhatsAppLink(selectedGuestAction.guestPhone, paymentMessageText)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="py-2.5 px-3 rounded-xl bg-[#F6D2B8] hover:bg-[#F0C2A0] text-[#7A3306] dark:bg-[#3E281C] dark:hover:bg-[#4E3324] dark:text-[#FFB27F] text-xs font-extrabold flex items-center justify-center gap-2 transition-colors"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        <span>Pedir pago por WhatsApp</span>
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard?.writeText(paymentMessageText);
+                          setCopiedPayText(true);
+                          setTimeout(() => setCopiedPayText(false), 2000);
+                        }}
+                        className="px-3.5 py-2.5 rounded-xl bg-[#E4DDD1] dark:bg-zinc-700 text-stone-900 dark:text-gray-100 text-xs font-extrabold cursor-pointer"
+                      >
+                        {copiedPayText ? '¡Copiado!' : 'Copiar'}
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => setPaySheetOpen(true)}
+                      className="text-xs font-extrabold text-[#8F3B08] dark:text-[#FFB27F] underline underline-offset-2 cursor-pointer"
+                    >
+                      Cambiar mis datos de cobro
+                    </button>
+                  </>
+                )}
               </div>
 
               {/* ACCIÓN 2: ENVIAR BIENVENIDA Y GUÍA DIGITAL */}
@@ -783,6 +899,14 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {paySheetOpen && (
+        <PaymentSettingsSheet
+          settings={paymentSettings}
+          onSave={onSavePaymentSettings}
+          onClose={() => setPaySheetOpen(false)}
+        />
       )}
 
       {/* ========================================================================= */}
