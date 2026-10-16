@@ -13,7 +13,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
 - Firebase Auth + Firestore (proyecto gen-lang-client-0206771016, base con nombre en `firebase-applet-config.json`).
   Datos por cuenta en `tenants/{uid}` y subcolecciones; también `subscriptions/{uid}`, `publicGuides/{uid}`,
   `publicCalendars/{uid}/units`, `precheckins/{hostUid}/items`, `leads`. Reglas en `firestore.rules`
-  (Gabi las pega a mano en la consola: si las cambiás, avisale).
+  (si las cambiás, avisale). Se prueban con `rules-test/` y se publican desde Cloud Shell con
+  `firebase deploy --only firestore:rules` (la base con nombre está en `firebase.json`).
 - Cloudflare Pages: cada push a `main` de GitHub (piccinigabriela/loomisuites-net) se publica solo.
   Functions en `functions/` (proxy de login en `functions/__/`, OG de `/guia` y `/manual`); rutas en `public/_routes.json`.
 - Sincronización iCal en el servidor: `server-sync/` (Firebase Function programada cada 15 min, codebase `ical`,
