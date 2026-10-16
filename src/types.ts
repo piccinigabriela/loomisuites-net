@@ -251,6 +251,8 @@ export interface DemoState {
   teamContacts?: TeamContact[];
   /** Recordatorios del dueño (tenants/{uid}/reminders) */
   reminders?: Reminder[];
+  /** Planilla de tarifas (ver src/lib/pricing.ts) */
+  pricing?: import('./lib/pricing').PricingSettings;
   lastUpdated: string;
 }
 

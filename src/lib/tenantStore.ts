@@ -8,6 +8,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
+import type { PricingSettings } from './pricing';
 import { Property, Reservation, CleaningTask, MessageTemplate, AddonService, WelcomeGuideData, CashMovement, CurrencyCode, TeamContact, Reminder } from '../types';
 
 export interface TenantDoc {
@@ -33,6 +34,7 @@ export interface TenantDoc {
     diaADia?: boolean;
   };
   checklistDismissed?: boolean;
+  pricing?: PricingSettings;
   createdAt?: any;
   updatedAt?: any;
 }
@@ -307,6 +309,15 @@ export async function saveManagementSettingsDoc(
   if (!uid || !db) return;
   await updateDoc(doc(db, 'tenants', uid), {
     managementSettings: settings,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/** Guarda la planilla de tarifas entera (reemplaza la anterior, para que lo borrado no vuelva) */
+export async function savePricingDoc(uid: string, pricing: PricingSettings): Promise<void> {
+  if (!uid || !db) return;
+  await updateDoc(doc(db, 'tenants', uid), {
+    pricing: JSON.parse(JSON.stringify(pricing)),
     updatedAt: serverTimestamp(),
   });
 }

@@ -28,6 +28,10 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   {tenantId, role: recepcion|limpieza}. `tenantUid` en App.tsx es el complejo cuyos datos se usan (no siempre el usuario).
   Limpieza no lee reservas: ve `tenants/{uid}/staff/llegadas` (sin teléfonos ni importes). Reglas probadas con `rules-test/` (`npm run probar` en Cloud Shell).
 
+- Tarifas: `tenants/{uid}.pricing` (se guarda entero con `savePricingDoc`). Cálculo en `src/lib/pricing.ts` (`quoteStay`):
+  finde largo > temporada > normal; fin de semana = noches marcadas (por defecto vie, sáb, dom). Findes largos de
+  Argentina precargados hasta oct 2027 (faltan los días turísticos 2027, sin decreto todavía). Pantalla: Administración → Tarifas.
+
 ## Verificar antes de subir
 1. `npx tsc --noEmit`
 2. `npx vite build`

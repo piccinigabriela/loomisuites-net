@@ -62,6 +62,7 @@ import {
   saveManagementSettingsDoc,
   savePublicGuide,
   savePublicCalendar,
+  savePricingDoc,
   subscribeToServerIcalSync,
   ServerIcalSyncStatus,
   TenantDoc,
@@ -120,6 +121,7 @@ const WelcomeScreen = lazyNamed(() => import('./components/onboarding/WelcomeScr
 const InviteAcceptScreen = lazyNamed(() => import('./components/team/StaffScreens'), 'InviteAcceptScreen');
 const StaffBlockedScreen = lazyNamed(() => import('./components/team/StaffScreens'), 'StaffBlockedScreen');
 const TeamAccessView = lazyNamed(() => import('./components/team/TeamAccessView'), 'TeamAccessView');
+const PricingView = lazyNamed(() => import('./components/pricing/PricingView'), 'PricingView');
 
 export default function App() {
   const isApp = isAppMode();
@@ -341,6 +343,7 @@ export default function App() {
             currencySettings: data.tenant?.currencySettings || { settlementCurrency: 'ARS', rates: {} },
             managementSettings: data.tenant?.managementSettings,
             teamContacts: data.tenant?.teamContacts || [],
+            pricing: data.tenant?.pricing,
             lastUpdated: new Date().toISOString(),
           });
         }
@@ -2345,6 +2348,8 @@ export default function App() {
                     ? 'Avisos al equipo'
                     : demoTab === 'team'
                     ? 'Equipo y accesos'
+                    : demoTab === 'pricing'
+                    ? 'Tarifas'
                     : 'Asistente'}
                 </span>
               </div>
@@ -2614,6 +2619,26 @@ export default function App() {
                   onSaveContacts={handleSaveTeamContacts}
                   onMarkNotified={handleMarkTeamNotified}
                   precheckins={precheckins}
+                />
+              )}
+
+              {demoTab === 'pricing' && !isStaff && (
+                <PricingView
+                  properties={demoState.properties || []}
+                  pricing={demoState.pricing}
+                  onSave={async (pricing) => {
+                    try {
+                      if (isApp && currentUser) {
+                        await savePricingDoc(tenantUid, pricing);
+                      } else {
+                        updateDemoState((prev) => ({ ...prev, pricing, lastUpdated: new Date().toISOString() }));
+                      }
+                      showToast('Tarifas guardadas');
+                    } catch (err) {
+                      console.warn('Error guardando tarifas:', err);
+                      showToast('No se pudieron guardar las tarifas. Probá de nuevo.');
+                    }
+                  }}
                 />
               )}
 

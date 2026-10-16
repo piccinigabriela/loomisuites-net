@@ -3,6 +3,7 @@ import { X, Plus, Calendar, User, DollarSign, KeyRound, Check, ShoppingBag, Tras
 import { DemoState, Reservation, BookingPlatform, ReservationAddon, AddonService, PaymentStatus, ReservationPayment, CurrencyCode } from '../../types';
 import { getRelativeDate, toLocalDateStr, formatCurrency, getActiveCurrency, getGuideHours, withHs } from '../../data/initialData';
 import { isAppMode } from '../../lib/appMode';
+import { normalizePricing, quoteStay } from '../../lib/pricing';
 
 interface NewReservationModalProps {
   isOpen: boolean;
@@ -105,9 +106,12 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
   const diffTime = Math.max(1, d2.getTime() - d1.getTime());
   const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 3;
 
-  const defaultNightPrice = selectedProp?.basePrice ?? 0;
+  // Planilla de tarifas: cada noche según temporada, fin de semana o finde largo
+  const quote = quoteStay(demoState.pricing, selectedProp, checkIn, checkOut);
+  const useTable = quote.fromTable && quote.nights.length > 0;
+  const defaultNightPrice = useTable ? Math.round(quote.total / quote.nights.length) : selectedProp?.basePrice ?? 0;
   const effectiveNightPrice = isManualPrice && manualPricePerNight !== null ? manualPricePerNight : defaultNightPrice;
-  const rawAccommodation = effectiveNightPrice * nights;
+  const rawAccommodation = isManualPrice || !useTable ? effectiveNightPrice * nights : quote.total;
   const discountVal = customDiscountPercent > 0 ? Math.round((rawAccommodation * customDiscountPercent) / 100) : 0;
   const accommodationTotal = rawAccommodation - discountVal;
   const cleaningFee = selectedProp?.cleaningFee ?? 0;
@@ -292,9 +296,11 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
                   neighborhoodStr = '';
                 }
                 const neighborhoodPart = neighborhoodStr ? ` · ${neighborhoodStr}` : '';
+                const pricingSettings = demoState.pricing ? normalizePricing(demoState.pricing) : null;
+                const typeName = pricingSettings?.types.find((t) => t.id === pricingSettings.assignments[p.id])?.name;
                 return (
                   <option key={p.id} value={p.id}>
-                    {p.name}{neighborhoodPart} ({formatCurrency(p.basePrice)}/noche)
+                    {p.name}{neighborhoodPart} ({typeName || `${formatCurrency(p.basePrice)}/noche`})
                   </option>
                 );
               })}
@@ -492,7 +498,11 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">
-                  {isManualPrice ? `Tarifa por Noche Especial (${getActiveCurrency()})` : `Tarifa Base de Lista: ${formatCurrency(defaultNightPrice)}`}
+                  {isManualPrice
+                    ? `Tarifa por Noche Especial (${getActiveCurrency()})`
+                    : useTable
+                    ? `Según tarifas: promedio ${formatCurrency(defaultNightPrice)}/noche`
+                    : `Tarifa Base de Lista: ${formatCurrency(defaultNightPrice)}`}
                 </label>
                 <input
                   type="number"
@@ -682,12 +692,33 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
 
           {/* Price Summary Preview */}
           <div className="bg-[#f8f6f2] dark:bg-zinc-800/80 p-3.5 rounded-xl border border-[#ded9cd] dark:border-zinc-700 text-xs space-y-1.5">
-            <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
-              <span>
-                {nights} noches x {formatCurrency(effectiveNightPrice)} {isManualPrice && '(tarifa manual)'}:
-              </span>
-              <span>{formatCurrency(rawAccommodation)}</span>
-            </div>
+            {useTable && !isManualPrice ? (
+              quote.groups.map((g) => (
+                <div key={g.label + g.price} className="flex justify-between gap-2 text-zinc-800 dark:text-zinc-200 font-semibold">
+                  <span>
+                    {g.count} {g.count === 1 ? 'noche' : 'noches'} · {g.label} × {formatCurrency(g.price)}
+                  </span>
+                  <span className="whitespace-nowrap shrink-0">{formatCurrency(g.subtotal)}</span>
+                </div>
+              ))
+            ) : (
+              <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
+                <span>
+                  {nights} noches x {formatCurrency(effectiveNightPrice)} {isManualPrice && '(tarifa manual)'}:
+                </span>
+                <span>{formatCurrency(rawAccommodation)}</span>
+              </div>
+            )}
+            {quote.belowMinimum && (
+              <div className="text-amber-800 dark:text-amber-200 font-bold">
+                Ojo: el mínimo es de {quote.minNights} noches ({quote.minNightsPeriod}). Igual podés guardarla.
+              </div>
+            )}
+            {useTable && quote.missingPrices && !isManualPrice && (
+              <div className="text-amber-800 dark:text-amber-200 font-bold">
+                Faltan precios en la planilla para algunas noches: se usó la tarifa normal o el precio base.
+              </div>
+            )}
             {discountVal > 0 && (
               <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-semibold">
                 <span>Descuento Especial (-{customDiscountPercent}%):</span>
