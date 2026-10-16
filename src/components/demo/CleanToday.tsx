@@ -130,7 +130,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
     : 0;
 
   // Cash movements for frontdesk preview
-  const openingCash = totalUnits > 0 && !isAppMode ? 50 : 0;
+  const openingCash = totalUnits > 0 && !isAppMode ? 50000 : 0;
   const cashMovements = demoState.cashMovements || [];
   const cashMovementsOnly = cashMovements.filter((m) => m.paymentMethod === 'efectivo');
   const cashIn = cashMovementsOnly

@@ -40,9 +40,13 @@ export const OwnerReport: React.FC<OwnerReportProps> = ({ demoState, period, onP
     return `${CURRENCY_PREFIX[currency] || '$'} ${v}`;
   };
 
+  // La caja va siempre en pesos: los gastos se pasan a la moneda de liquidación con la cotización cargada
+  const arsRate = demoState.currencySettings?.rates?.ARS;
+  const arsFactor: number | null = currency === 'ARS' ? 1 : arsRate && arsRate > 0 ? arsRate : null;
+
   const report = useMemo(
-    () => computeOwnerReport(demoState.reservations, demoState.properties, demoState.cashMovements, period, saved),
-    [demoState.reservations, demoState.properties, demoState.cashMovements, period.month, period.year, saved.enabled, saved.percent]
+    () => computeOwnerReport(demoState.reservations, demoState.properties, demoState.cashMovements, period, saved, arsFactor),
+    [demoState.reservations, demoState.properties, demoState.cashMovements, period.month, period.year, saved.enabled, saved.percent, arsFactor]
   );
 
   const years = useMemo(() => {
@@ -351,7 +355,11 @@ ${kpi('Gastos del período', money(report.expenses), `${report.expensesCount} re
         <div className={card}>
           <div className={label}>Gastos del período</div>
           <div className="text-xl font-bold text-stone-900 dark:text-white mt-1">{money(report.expenses)}</div>
-          <div className={`${sub} text-rose-700 dark:text-rose-300`}>{report.expensesCount} registros</div>
+          <div className={`${sub} text-rose-700 dark:text-rose-300`}>
+            {report.expensesNeedRate
+              ? `${report.expensesCount} registros en pesos: cargá la cotización del peso en Finanzas para descontarlos`
+              : `${report.expensesCount} registros${currency !== 'ARS' && report.expensesCount > 0 ? ' (pesos convertidos)' : ''}`}
+          </div>
         </div>
         <div className="rounded-2xl p-5 bg-[#2A1E14] border border-[#E67E22]/50">
           <div className="text-[10px] tracking-widest uppercase font-bold text-orange-100">Resultado neto</div>

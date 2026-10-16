@@ -42,6 +42,8 @@ export interface OwnerReport {
   byChannel: Array<{ platform: BookingPlatform; label: string; gross: number }>;
   expenses: number;
   expensesCount: number;
+  /** Hay gastos en pesos pero falta la cotización para pasarlos a la moneda de liquidación */
+  expensesNeedRate: boolean;
   /** líquido (o neto si no hay gestión) − gastos */
   result: number;
   marginPct: number | null;
@@ -90,7 +92,9 @@ export function computeOwnerReport(
   properties: Property[],
   cashMovements: CashMovement[] | undefined,
   period: ReportPeriod,
-  settings: ManagementSettings
+  settings: ManagementSettings,
+  /** Moneda de liquidación por cada 1 peso (la caja va siempre en pesos). 1 si se liquida en pesos; null si falta la cotización. */
+  arsFactor: number | null = 1
 ): OwnerReport {
   const pct = settings.enabled ? Math.max(0, settings.percent || 0) / 100 : 0;
   const included = reservations
@@ -162,7 +166,8 @@ export function computeOwnerReport(
   }));
 
   const expenseList = (cashMovements || []).filter((m) => m.type === 'egreso' && isInPeriod(m.date, period));
-  const expenses = round2(expenseList.reduce((s, m) => s + (m.amount || 0), 0));
+  const expensesNeedRate = expenseList.length > 0 && arsFactor === null;
+  const expenses = round2(expenseList.reduce((s, m) => s + (m.amount || 0), 0) * (arsFactor ?? 0));
   const result = round2(totals.ownerNet - expenses);
 
   const byChannel = [...channels.entries()]
@@ -179,6 +184,7 @@ export function computeOwnerReport(
     byChannel,
     expenses,
     expensesCount: expenseList.length,
+    expensesNeedRate,
     result,
     marginPct: totals.gross > 0 ? Math.round((result / totals.gross) * 100) : null,
     collected: round2(collected),

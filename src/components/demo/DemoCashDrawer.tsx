@@ -16,7 +16,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { DemoState, CashMovement, Property } from '../../types';
-import { formatDisplayDate, formatCurrency, getActiveCurrency } from '../../data/initialData';
+import { formatDisplayDate, formatCurrency } from '../../data/initialData';
 import { isAppMode } from '../../lib/appMode';
 
 interface DemoCashDrawerProps {
@@ -53,8 +53,8 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
   };
 
   // Cálculos de caja diaria
-  // En la app real no hay apertura inventada; la demo usa un monto acorde a su moneda (USD)
-  const openingCash = isAppMode() ? 0 : 50;
+  // La caja siempre va en pesos. En la app real no hay apertura inventada; la demo usa un monto de ejemplo
+  const openingCash = isAppMode() ? 0 : 50000;
   const isFrontDesk = userRole === 'frontdesk';
 
   const cashMovementsOnly = movements.filter((m) => m.paymentMethod === 'efectivo');
@@ -124,7 +124,7 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
   };
 
   const formatMoney = (val: number) => {
-    return formatCurrency(val);
+    return formatCurrency(val, 'ARS');
   };
 
   return (
@@ -305,14 +305,14 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label htmlFor="amount" className="text-[11px] text-gray-600 dark:text-gray-400 font-semibold block mb-1">
-                  Monto ({getActiveCurrency()})
+                  Monto (ARS)
                 </label>
                 <input
                   id="amount"
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  placeholder="15"
+                  placeholder="15000"
                   className="w-full text-xs p-3 rounded-xl border border-gray-200 dark:border-zinc-700 bg-gray-50/80 dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-zinc-800 focus:border-gray-300 transition-all font-medium"
                 />
               </div>
