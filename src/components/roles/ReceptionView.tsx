@@ -42,6 +42,8 @@ interface ReceptionViewProps {
   onAddCashMovement: (movement: Omit<CashMovement, 'id' | 'date'>) => void;
   onQuickCheckIn: (resId: string) => void;
   onSwitchRole: (role: 'admin' | 'frontdesk' | 'housekeeping') => void;
+  /** Recepción con su propia cuenta: sin botones para cambiar de rol */
+  lockedRole?: boolean;
   onOpenNewReservation: () => void;
   complexName?: string;
   precheckins?: Record<string, PreCheckin>;
@@ -55,6 +57,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
   onAddCashMovement,
   onQuickCheckIn,
   onSwitchRole,
+  lockedRole = false,
   onOpenNewReservation,
   complexName = 'Mi complejo',
   precheckins = {},
@@ -221,8 +224,9 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
               <span>+ Cargar Huésped</span>
             </button>
 
-            <div className="h-6 w-px bg-stone-200 dark:bg-zinc-800 hidden sm:block" />
+            {!lockedRole && <div className="h-6 w-px bg-stone-200 dark:bg-zinc-800 hidden sm:block" />}
 
+            {!lockedRole && (
             <div className="flex items-center gap-1 bg-stone-100 dark:bg-zinc-800/80 p-1 rounded-xl text-xs">
               <button
                 onClick={() => onSwitchRole('admin')}
@@ -239,6 +243,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                 🧹 Limpieza
               </button>
             </div>
+            )}
           </div>
         </div>
 

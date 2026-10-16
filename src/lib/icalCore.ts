@@ -262,6 +262,8 @@ export interface SyncResult {
   cambios: IcalChange[];
   /** Calendarios que vinieron vacíos y se ignoraron para no cancelar todo de golpe */
   avisos: string[];
+  /** Reservas como quedaron después de sincronizar (las que se pasaron más los cambios) */
+  reservasResultantes?: Reservation[];
 }
 
 export interface RunIcalSyncInput {
@@ -519,6 +521,7 @@ export async function runIcalSync(input: RunIcalSyncInput): Promise<SyncResult> 
     conflictos: findConflicts(properties, workingReservations, today),
     cambios,
     avisos,
+    reservasResultantes: workingReservations,
   };
 }
 

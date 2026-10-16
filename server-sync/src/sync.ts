@@ -16,6 +16,7 @@ import {
   runIcalSync,
   SyncResult,
 } from '../../src/lib/icalCore';
+import { buildStaffArrivals } from '../../src/lib/staffArrivals';
 
 export const ZONA_HORARIA = 'America/Argentina/Buenos_Aires';
 const CONFIG_DOC = 'sistema/icalSync';
@@ -151,6 +152,15 @@ export function adminWriter(db: Firestore, uid: string): IcalSyncWriter {
   };
 }
 
+/** JSON con las claves ordenadas, para comparar sin importar el orden en que vuelven de Firestore */
+function canon(value: unknown): string {
+  return JSON.stringify(value, (_k, v) =>
+    v && typeof v === 'object' && !Array.isArray(v)
+      ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, (v as Record<string, unknown>)[k]]))
+      : v
+  );
+}
+
 export interface ResultadoCuenta extends SyncResult {
   uid: string;
   modo: Modo;
@@ -207,6 +217,14 @@ export async function sincronizarCuenta(
       avisos: result.avisos,
       conflictos: result.conflictos.length,
     });
+
+    // Próximos ingresos para Limpieza (sin teléfonos ni importes); se escribe solo si cambió
+    const llegadas = buildStaffArrivals(properties, result.reservasResultantes || [], hoy);
+    const llegadasRef = db.doc(`tenants/${uid}/staff/llegadas`);
+    const actual = await llegadasRef.get();
+    if (!actual.exists || canon(actual.get('unidades') || {}) !== canon(llegadas.unidades)) {
+      await llegadasRef.set({ ...llegadas, updatedAt: new Date() });
+    }
   }
 
   return { ...result, uid, modo, hoy };

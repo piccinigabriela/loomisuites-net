@@ -43,7 +43,7 @@ export function subscribeToSubscription(
   );
 }
 
-export function getAccessStatus(user: User | null, sub: SubscriptionDoc | null): AccessStatus {
+export function getAccessStatus(user: User | null, sub: SubscriptionDoc | null, trialStart?: any): AccessStatus {
   const now = Date.now();
 
   // Check active subscription
@@ -67,8 +67,16 @@ export function getAccessStatus(user: User | null, sub: SubscriptionDoc | null):
   }
 
   // Fallback to 7-day free trial based on user creationTime
+  // El personal usa la fecha de alta del complejo; el dueño, la de su cuenta
   const creationTimeStr = user?.metadata?.creationTime;
-  const creationDate = creationTimeStr ? new Date(creationTimeStr) : new Date();
+  const creationDate =
+    trialStart && typeof trialStart.toDate === 'function'
+      ? trialStart.toDate()
+      : trialStart
+      ? new Date(trialStart)
+      : creationTimeStr
+      ? new Date(creationTimeStr)
+      : new Date();
   const startTime = isNaN(creationDate.getTime()) ? now : creationDate.getTime();
 
   const trialDurationMs = 7 * 24 * 60 * 60 * 1000;

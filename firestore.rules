@@ -1,32 +1,132 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+    // Personal del complejo: memberships/{uid del usuario} dice a qué complejo pertenece y con qué rol
+    function staffRole(uid) {
+      let m = get(/databases/$(database)/documents/memberships/$(request.auth.uid));
+      return m != null && m.data.tenantId == uid ? m.data.role : '';
+    }
+    function isStaff(uid, roles) {
+      return signedIn() && staffRole(uid) in roles;
+    }
+    function myEmail() {
+      return request.auth.token.email.lower();
+    }
+
     match /leads/{leadId} {
       allow create: if true;
       allow read, update, delete: if false;
     }
+
     match /tenants/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read: if isOwner(uid) || isStaff(uid, ['recepcion', 'limpieza']);
+      allow write: if isOwner(uid);
+
+      match /properties/{docId} {
+        allow read: if isOwner(uid) || isStaff(uid, ['recepcion', 'limpieza']);
+      }
+      match /reservations/{docId} {
+        allow read, write: if isStaff(uid, ['recepcion']);
+      }
+      match /cashMovements/{docId} {
+        allow read, write: if isStaff(uid, ['recepcion']);
+      }
+      match /reminders/{docId} {
+        allow read, write: if isStaff(uid, ['recepcion']);
+      }
+      match /cleaningTasks/{docId} {
+        allow read: if isStaff(uid, ['recepcion', 'limpieza']);
+        allow create, delete: if isStaff(uid, ['recepcion']);
+        // Limpieza solo marca el checklist y el estado
+        allow update: if isStaff(uid, ['recepcion'])
+          || (isStaff(uid, ['limpieza'])
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['checklist', 'status']));
+      }
+      match /sync/{docId} {
+        allow read: if isStaff(uid, ['recepcion']);
+      }
+      // Próximos ingresos para Limpieza (sin teléfonos ni importes)
+      match /staff/{docId} {
+        allow read: if isStaff(uid, ['recepcion', 'limpieza']);
+        allow write: if isStaff(uid, ['recepcion']);
+      }
+      // El dueño puede todo en sus subcolecciones
       match /{subcollection}/{docId} {
-        allow read, write: if request.auth != null && request.auth.uid == uid;
+        allow read, write: if isOwner(uid);
       }
     }
+
     match /subscriptions/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
+      allow read: if isOwner(uid) || isStaff(uid, ['recepcion', 'limpieza']);
       allow write: if false;
     }
+
+    // Invitaciones: el id es el mail en minúsculas. Las crea el dueño; las lee y acepta (o rechaza) la persona invitada.
+    match /invites/{email} {
+      allow get: if signedIn() && (myEmail() == email || resource.data.tenantId == request.auth.uid);
+      allow list: if signedIn() && resource.data.tenantId == request.auth.uid;
+      allow create: if signedIn()
+        && email == email.lower()
+        && myEmail() != email
+        && request.resource.data.keys().hasOnly(['email', 'tenantId', 'role', 'complexName', 'invitedAt'])
+        && request.resource.data.email == email
+        && request.resource.data.tenantId == request.auth.uid
+        && request.resource.data.role in ['recepcion', 'limpieza']
+        && request.resource.data.complexName is string
+        && request.resource.data.complexName.size() < 120;
+      allow update: if signedIn()
+        && resource.data.tenantId == request.auth.uid
+        && request.resource.data.keys().hasOnly(['email', 'tenantId', 'role', 'complexName', 'invitedAt'])
+        && request.resource.data.email == email
+        && request.resource.data.tenantId == request.auth.uid
+        && request.resource.data.role in ['recepcion', 'limpieza']
+        && request.resource.data.complexName is string
+        && request.resource.data.complexName.size() < 120;
+      allow delete: if signedIn() && (myEmail() == email || resource.data.tenantId == request.auth.uid);
+    }
+
+    // Accesos del personal: se crean solo al aceptar una invitación válida (con el mail confirmado).
+    // El dueño los ve y los borra para quitar el acceso; la persona puede borrar el suyo.
+    match /memberships/{memberUid} {
+      function myInvite() {
+        return get(/databases/$(database)/documents/invites/$(myEmail())).data;
+      }
+      allow get: if signedIn() && (request.auth.uid == memberUid || resource.data.tenantId == request.auth.uid);
+      allow list: if signedIn() && resource.data.tenantId == request.auth.uid;
+      allow create: if signedIn()
+        && request.auth.uid == memberUid
+        && request.auth.token.email_verified == true
+        && request.resource.data.keys().hasOnly(['tenantId', 'role', 'email', 'name', 'complexName', 'joinedAt'])
+        && request.resource.data.email == myEmail()
+        && request.resource.data.tenantId != request.auth.uid
+        && request.resource.data.tenantId == myInvite().tenantId
+        && request.resource.data.role == myInvite().role
+        && request.resource.data.complexName == myInvite().complexName
+        && request.resource.data.name is string
+        && request.resource.data.name.size() < 120;
+      allow update: if false;
+      allow delete: if signedIn() && (request.auth.uid == memberUid || resource.data.tenantId == request.auth.uid);
+    }
+
     match /publicGuides/{uid} {
       allow get: if true;
       allow list: if false;
-      allow write: if request.auth != null && request.auth.uid == uid;
+      allow write: if isOwner(uid);
     }
     match /publicCalendars/{uid}/units/{unitId} {
       allow get: if true;
       allow list: if false;
-      allow write: if request.auth != null && request.auth.uid == uid;
+      allow write: if isOwner(uid) || isStaff(uid, ['recepcion']);
     }
     // Pre check-in del huésped: cualquiera puede crearlo (una sola vez, con datos validados)
-    // si el anfitrión tiene guía publicada; solo el anfitrión lo lee, corrige o borra.
+    // si el anfitrión tiene guía publicada; solo el anfitrión (o su Recepción) lo lee, corrige o borra.
     match /precheckins/{hostUid}/items/{itemId} {
       allow create: if exists(/databases/$(database)/documents/publicGuides/$(hostUid))
         && request.resource.data.keys().hasOnly(['reservationId', 'fullName', 'docType', 'docNumber', 'nationality', 'guests', 'arrivalTime', 'phone', 'companions', 'comments', 'acceptedRules', 'lang', 'submittedAt'])
@@ -43,12 +143,11 @@ service cloud.firestore {
         && request.resource.data.lang is string && request.resource.data.lang.size() < 6
         && request.resource.data.acceptedRules == true
         && request.resource.data.submittedAt == request.time;
-      allow read, update, delete: if request.auth != null && request.auth.uid == hostUid;
+      allow read, update, delete: if isOwner(hostUid) || isStaff(hostUid, ['recepcion']);
     }
+
     match /{document=**} {
       allow read, write: if false;
     }
   }
 }
-
-

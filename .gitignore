@@ -12,3 +12,4 @@ bun.lock
 # Función de sincronización del servidor (se compila al publicar)
 server-sync/lib/
 .firebase/
+rules-test/node_modules/

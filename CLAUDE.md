@@ -22,7 +22,10 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Se publica desde Cloud Shell (`firebase deploy --only functions`), no con el push. Comandos: `npm run prueba|estado|activar|pausar` en `server-sync/`.
 - Xenia (asistente IA) corre en un backend de AI Studio con Gemini. No borrar ese proyecto de AI Studio.
 - `isAppMode()` = hostname `app.` o `?mode=app`. Sin eso, la app muestra la demo con datos de ejemplo.
-- Roles (`/admin`, `/recepcion`, `/limpieza`) hoy son solo vistas de la misma cuenta, no permisos.
+- Roles: el dueño puede ver las tres vistas (`/admin`, `/recepcion`, `/limpieza`). El personal entra con su cuenta:
+  `invites/{mail}` (lo crea el dueño en Administración → Equipo y accesos) → al aceptar se crea `memberships/{uid}`
+  {tenantId, role: recepcion|limpieza}. `tenantUid` en App.tsx es el complejo cuyos datos se usan (no siempre el usuario).
+  Limpieza no lee reservas: ve `tenants/{uid}/staff/llegadas` (sin teléfonos ni importes). Reglas probadas con `rules-test/` (`npm run probar` en Cloud Shell).
 
 ## Verificar antes de subir
 1. `npx tsc --noEmit`

@@ -52,7 +52,9 @@ export function subscribeToTenant(
     reminders: Reminder[];
     exists: boolean;
     loading: boolean;
-  }) => void
+  }) => void,
+  /** Limpieza no puede leer reservas, caja ni recordatorios: esas colecciones se saltean */
+  options: { skip?: Array<'reservations' | 'cashMovements' | 'reminders'> } = {}
 ): () => void {
   if (!uid || !db) {
     onData({ tenant: null, properties: [], reservations: [], cleaningTasks: [], cashMovements: [], reminders: [], exists: false, loading: false });
@@ -111,8 +113,14 @@ export function subscribeToTenant(
     checkReady();
   });
 
+  const skip = new Set(options.skip || []);
+  if (skip.has('reservations')) resLoaded = true;
+  if (skip.has('cashMovements')) cashLoaded = true;
+  if (skip.has('reminders')) reminderLoaded = true;
+  const noop = () => {};
+
   const resRef = collection(db, 'tenants', uid, 'reservations');
-  const unsubRes = onSnapshot(resRef, (snap) => {
+  const unsubRes = skip.has('reservations') ? noop : onSnapshot(resRef, (snap) => {
     reservationsList = snap.docs.map(d => ({ ...(d.data() as Reservation), id: d.id }));
     resLoaded = true;
     checkReady();
@@ -134,7 +142,7 @@ export function subscribeToTenant(
   });
 
   const cashRef = collection(db, 'tenants', uid, 'cashMovements');
-  const unsubCash = onSnapshot(cashRef, (snap) => {
+  const unsubCash = skip.has('cashMovements') ? noop : onSnapshot(cashRef, (snap) => {
     cashList = snap.docs.map(d => ({ ...(d.data() as CashMovement), id: d.id }));
     cashLoaded = true;
     checkReady();
@@ -145,7 +153,7 @@ export function subscribeToTenant(
   });
 
   const reminderRef = collection(db, 'tenants', uid, 'reminders');
-  const unsubReminders = onSnapshot(reminderRef, (snap) => {
+  const unsubReminders = skip.has('reminders') ? noop : onSnapshot(reminderRef, (snap) => {
     reminderList = snap.docs.map(d => ({ ...(d.data() as Reminder), id: d.id }));
     reminderLoaded = true;
     checkReady();

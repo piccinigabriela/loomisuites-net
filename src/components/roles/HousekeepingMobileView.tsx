@@ -21,6 +21,7 @@ import {
   CheckCheck,
 } from 'lucide-react';
 import { DemoState, CleaningTask, Property } from '../../types';
+import { nextArrival, StaffArrivalsDoc } from '../../lib/staffArrivals';
 import { formatDisplayDate, getCleaningsForDay, getRelativeDate } from '../../data/initialData';
 
 interface HousekeepingMobileViewProps {
@@ -29,6 +30,10 @@ interface HousekeepingMobileViewProps {
   onUpdateTaskStatus: (taskId: string, newStatus: CleaningTask['status']) => void;
   onSwitchRole: (role: 'admin' | 'frontdesk' | 'housekeeping') => void;
   complexName?: string;
+  /** Próximos ingresos por unidad (app real). En la demo se calculan de las reservas de ejemplo. */
+  arrivals?: StaffArrivalsDoc | null;
+  /** Limpieza con su propia cuenta: sin volver a Administración, con botón Salir */
+  staffAccess?: { email: string; onLogout: () => void };
 }
 
 // 4 puntos oficiales del checklist rápido
@@ -45,6 +50,8 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
   onUpdateTaskStatus,
   onSwitchRole,
   complexName = 'Mi complejo',
+  arrivals,
+  staffAccess,
 }) => {
   const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'ready'>('all');
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
@@ -72,6 +79,15 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
 
   const getProp = (propId: string): Property | undefined => {
     return demoState.properties.find((p) => p.id === propId);
+  };
+
+  // Próximo ingreso a la unidad desde el día de la limpieza (sin teléfonos ni importes)
+  const getNextArrival = (task: CleaningTask) => {
+    if (arrivals !== undefined) return nextArrival(arrivals, task.propertyId, task.date);
+    const r = demoState.reservations
+      .filter((x) => x.propertyId === task.propertyId && x.status !== 'cancelled' && x.checkIn >= task.date)
+      .sort((a, b) => a.checkIn.localeCompare(b.checkIn))[0];
+    return r ? { checkIn: r.checkIn, checkOut: r.checkOut, guestName: r.guestName, guestsCount: r.guestsCount || 1 } : null;
   };
 
   // Las de hoy y las atrasadas; las de días futuros todavía no se muestran
@@ -152,13 +168,25 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
 
       {/* Header Ultraliviano para Smartphone (PWA) */}
       <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#18191E]/95 backdrop-blur-md border-b border-stone-200/60 dark:border-zinc-800 px-4 py-2.5 transition-colors space-y-2">
-        <div className="max-w-md mx-auto flex items-center justify-between">
-          <button
-            onClick={() => onSwitchRole('admin')}
-            className="flex items-center gap-1.5 text-xs font-semibold text-[#E67E22] hover:text-[#d35400] bg-orange-50 dark:bg-orange-950/40 px-3 py-1 rounded-xl border border-orange-200/60 dark:border-orange-800/60 transition-colors cursor-pointer"
-          >
-            ← Volver a Administración
-          </button>
+        <div className="max-w-md mx-auto flex items-center justify-between gap-2">
+          {staffAccess ? (
+            <>
+              <span className="text-sm font-semibold text-stone-900 dark:text-white truncate">{staffAccess.email}</span>
+              <button
+                onClick={staffAccess.onLogout}
+                className="shrink-0 text-sm font-bold text-stone-900 dark:text-white bg-stone-100 dark:bg-zinc-800 px-3 py-1.5 rounded-xl border border-stone-300 dark:border-zinc-600 cursor-pointer"
+              >
+                Salir
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => onSwitchRole('admin')}
+              className="flex items-center gap-1.5 text-xs font-semibold text-[#E67E22] hover:text-[#d35400] bg-orange-50 dark:bg-orange-950/40 px-3 py-1 rounded-xl border border-orange-200/60 dark:border-orange-800/60 transition-colors cursor-pointer"
+            >
+              ← Volver a Administración
+            </button>
+          )}
         </div>
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="space-y-0.5">
@@ -318,6 +346,22 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
                         <p className="text-xs text-stone-500 dark:text-stone-400 font-medium">
                           Responsable de limpieza: <strong>{task.cleanerName}</strong>
                         </p>
+
+                        {(() => {
+                          const next = getNextArrival(task);
+                          if (!next) return null;
+                          const sameDay = next.checkIn === task.date;
+                          return (
+                            <p
+                              className={`text-sm font-semibold mt-1 ${
+                                sameDay ? 'text-[#B5520B] dark:text-[#F5A35C]' : 'text-stone-900 dark:text-white'
+                              }`}
+                            >
+                              {sameDay ? 'Llega hoy' : `Llega el ${formatDisplayDate(next.checkIn)}`}: {next.guestName} ·{' '}
+                              {next.guestsCount} {next.guestsCount === 1 ? 'persona' : 'personas'}
+                            </p>
+                          );
+                        })()}
                       </div>
 
                       {/* Badge del Semáforo */}

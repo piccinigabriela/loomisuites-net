@@ -68,6 +68,15 @@ import {
 } from './lib/tenantStore';
 import { syncCalendars } from './lib/icalSync';
 import { findConflicts, getLocalDateString, SyncResult } from './lib/icalCore';
+import {
+  AccessInfo,
+  StaffRole,
+  resolveAccess,
+  subscribeToMembership,
+  saveStaffArrivals,
+  subscribeToStaffArrivals,
+} from './lib/team';
+import { buildStaffArrivals, StaffArrivalsDoc } from './lib/staffArrivals';
 
 
 // Carga diferida: la landing no descarga la demo, el panel ni los modales hasta que hacen falta
@@ -108,6 +117,9 @@ const PublicGuideView = lazyNamed(() => import('./components/guide/PublicGuideVi
 const AppAuthScreen = lazyNamed(() => import('./components/auth/AppAuthScreen'), 'AppAuthScreen');
 const TrialEndedScreen = lazyNamed(() => import('./components/auth/TrialEndedScreen'), 'TrialEndedScreen');
 const WelcomeScreen = lazyNamed(() => import('./components/onboarding/WelcomeScreen'), 'WelcomeScreen');
+const InviteAcceptScreen = lazyNamed(() => import('./components/team/StaffScreens'), 'InviteAcceptScreen');
+const StaffBlockedScreen = lazyNamed(() => import('./components/team/StaffScreens'), 'StaffBlockedScreen');
+const TeamAccessView = lazyNamed(() => import('./components/team/TeamAccessView'), 'TeamAccessView');
 
 export default function App() {
   const isApp = isAppMode();
@@ -121,6 +133,45 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState<boolean>(() => isApp);
   const [tenantLoading, setTenantLoading] = useState<boolean>(() => isApp);
+
+  // Acceso: dueño de su complejo, personal (Recepción/Limpieza) de otro complejo, o invitación pendiente
+  const [access, setAccess] = useState<AccessInfo>({ kind: 'loading' });
+  const staffRole: StaffRole | null = access.kind === 'staff' ? access.membership.role : null;
+  const isStaff = staffRole !== null;
+  /** Complejo cuyos datos se leen y escriben: el propio, o el del dueño si es personal */
+  const tenantUid: string = !currentUser
+    ? ''
+    : access.kind === 'staff'
+    ? access.membership.tenantId
+    : access.kind === 'owner'
+    ? currentUser.uid
+    : '';
+
+  useEffect(() => {
+    if (!isApp || !currentUser) {
+      setAccess({ kind: 'loading' });
+      return;
+    }
+    let cancelled = false;
+    setAccess({ kind: 'loading' });
+    resolveAccess(currentUser).then((a) => {
+      if (!cancelled) setAccess(a);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isApp, currentUser]);
+
+  // Si el dueño quita el acceso mientras la app está abierta, se cierra la sesión
+  useEffect(() => {
+    if (!isApp || !currentUser || access.kind !== 'staff') return;
+    return subscribeToMembership(currentUser.uid, (m) => {
+      if (!m) {
+        setAccess({ kind: 'loading' });
+        signOut(auth).catch(() => {});
+      }
+    });
+  }, [isApp, currentUser, access.kind]);
 
   // Email Verification State in App Mode
   const [isEmailVerified, setIsEmailVerified] = useState<boolean>(() => Boolean(currentUser?.emailVerified));
@@ -225,43 +276,49 @@ export default function App() {
 
   // Real-time Subscription doc listener in App Mode
   useEffect(() => {
-    if (!isApp || !currentUser) {
+    if (!isApp || !currentUser || !tenantUid) {
       setSubscriptionDoc(null);
       setSubscriptionLoading(false);
       return;
     }
     setSubscriptionLoading(true);
-    const unsubscribe = subscribeToSubscription(currentUser.uid, (doc) => {
+    const unsubscribe = subscribeToSubscription(tenantUid, (doc) => {
       setSubscriptionDoc(doc);
       setSubscriptionLoading(false);
     });
     return () => unsubscribe();
-  }, [isApp, currentUser]);
+  }, [isApp, currentUser, tenantUid]);
 
-  const accessStatus = (isApp && currentUser) ? getAccessStatus(currentUser, subscriptionDoc) : null;
   // "Avisos al equipo" es para el plan Propietario (sin personal fijo); el plan Complejo usa Recepción y Limpieza
   const showTeamNotices = !(isApp && subscriptionDoc?.plan === 'complejo');
 
   // Tenant doc state in App Mode
   const [tenantDoc, setTenantDoc] = useState<TenantDoc | null>(null);
 
+  // El personal usa la suscripción del complejo (y su fecha de alta para la prueba gratis)
+  const accessStatus =
+    isApp && currentUser
+      ? getAccessStatus(currentUser, subscriptionDoc, isStaff ? tenantDoc?.createdAt : undefined)
+      : null;
+
   // Pre check-ins que completan los huéspedes desde su guía (por id de reserva)
   const [precheckins, setPrecheckins] = useState<Record<string, PreCheckin>>({});
   useEffect(() => {
-    if (!isApp || !currentUser) {
+    if (!isApp || !currentUser || !tenantUid || staffRole === 'limpieza') {
       setPrecheckins({});
       return;
     }
-    return subscribeToPreCheckins(currentUser.uid, setPrecheckins);
-  }, [isApp, currentUser]);
+    return subscribeToPreCheckins(tenantUid, setPrecheckins);
+  }, [isApp, currentUser, tenantUid, staffRole]);
 
   // Real-time Firestore subscription in App Mode
   useEffect(() => {
-    if (!isApp || !currentUser) {
+    if (!isApp || !currentUser || !tenantUid) {
       setTenantDoc(null);
       return;
     }
-    const unsubscribe = subscribeToTenant(currentUser.uid, (data) => {
+    setTenantLoading(true);
+    const unsubscribe = subscribeToTenant(tenantUid, (data) => {
       if (!data.loading) {
         setTenantLoading(false);
         setTenantDoc(data.tenant);
@@ -288,9 +345,9 @@ export default function App() {
           });
         }
       }
-    });
+    }, staffRole === 'limpieza' ? { skip: ['reservations', 'cashMovements', 'reminders'] } : {});
     return () => unsubscribe();
-  }, [isApp, currentUser]);
+  }, [isApp, currentUser, tenantUid, staffRole]);
   const [currentView, setCurrentView] = useState<'landing' | 'demo' | 'superadmin' | 'guide'>(() => {
     if (isAppMode()) return 'demo';
     try {
@@ -467,6 +524,9 @@ export default function App() {
   });
 
   const isEmployeeMode = userRole === 'housekeeping';
+  // El personal ve siempre la vista de su rol, sin importar la dirección
+  const viewRole: 'admin' | 'frontdesk' | 'housekeeping' =
+    staffRole === 'recepcion' ? 'frontdesk' : staffRole === 'limpieza' ? 'housekeeping' : userRole;
   const [receptionTab, setReceptionTab] = useState<'mostrador' | 'calendario'>('calendario');
 
   // Navigation Helpers: Open Demo / Back to Landing with PushState & Default Admin Role
@@ -583,6 +643,8 @@ export default function App() {
   };
 
   const handleRoleChange = (newRole: 'admin' | 'frontdesk' | 'housekeeping') => {
+    // El personal queda fijo en su rol
+    if (isStaff) return;
     setUserRole(newRole);
     try {
       localStorage.setItem('loomi_user_role', newRole);
@@ -611,9 +673,9 @@ export default function App() {
   const isInitialPublicGuideSaveRef = React.useRef(true);
 
   useEffect(() => {
-    if (!isApp || !currentUser || tenantLoading) return;
+    if (!isApp || !currentUser || tenantLoading || isStaff || !tenantUid) return;
 
-    const uid = currentUser.uid;
+    const uid = tenantUid;
     const complexName = demoState.welcomeGuide?.propertyName || '';
     const welcomeGuide = demoState.welcomeGuide;
     const properties = demoState.properties;
@@ -645,9 +707,9 @@ export default function App() {
   const lastSavedPublicCalendarsRef = React.useRef<Record<string, string>>({});
 
   useEffect(() => {
-    if (!isApp || !currentUser || tenantLoading) return;
+    if (!isApp || !currentUser || tenantLoading || staffRole === 'limpieza' || !tenantUid) return;
 
-    const uid = currentUser.uid;
+    const uid = tenantUid;
     const cutoffDate = getRelativeDate(-7);
     const reservations = demoState.reservations || [];
     const properties = demoState.properties || [];
@@ -712,12 +774,35 @@ export default function App() {
   const [serverIcalSync, setServerIcalSync] = useState<ServerIcalSyncStatus | null>(null);
   const serverIcalSyncRef = React.useRef<ServerIcalSyncStatus | null>(null);
   useEffect(() => {
-    if (!isApp || !currentUser) return;
-    return subscribeToServerIcalSync(currentUser.uid, (status) => {
+    if (!isApp || !currentUser || !tenantUid || staffRole === 'limpieza') return;
+    return subscribeToServerIcalSync(tenantUid, (status) => {
       serverIcalSyncRef.current = status;
       setServerIcalSync(status);
     });
-  }, [isApp, currentUser]);
+  }, [isApp, currentUser, tenantUid, staffRole]);
+
+  // Próximos ingresos para Limpieza (sin teléfonos ni importes): los escriben el dueño y Recepción
+  const [staffArrivals, setStaffArrivals] = useState<StaffArrivalsDoc | null>(null);
+  const lastSavedArrivalsRef = React.useRef<string>('');
+  useEffect(() => {
+    if (!isApp || !currentUser || !tenantUid || staffRole !== 'limpieza') return;
+    return subscribeToStaffArrivals(tenantUid, setStaffArrivals);
+  }, [isApp, currentUser, tenantUid, staffRole]);
+  useEffect(() => {
+    if (!isApp || !currentUser || !tenantUid || tenantLoading || staffRole === 'limpieza') return;
+    const timer = setTimeout(() => {
+      const data = buildStaffArrivals(demoState.properties || [], demoState.reservations || [], getLocalDateString());
+      const json = JSON.stringify(data);
+      setStaffArrivals(data);
+      if (json === lastSavedArrivalsRef.current) return;
+      saveStaffArrivals(tenantUid, data)
+        .then(() => {
+          lastSavedArrivalsRef.current = json;
+        })
+        .catch((err) => console.warn('Llegadas para Limpieza no guardadas (¿faltan las reglas nuevas?):', err));
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [isApp, currentUser, tenantUid, tenantLoading, staffRole, demoState.properties, demoState.reservations]);
 
   // Mostrar como "última sincronización" la más reciente entre la app y el servidor
   useEffect(() => {
@@ -752,7 +837,7 @@ export default function App() {
   };
 
   const runSyncNow = async (options: { automatic?: boolean } = {}): Promise<SyncResult> => {
-    if (!isApp || !currentUser) {
+    if (!isApp || !currentUser || !tenantUid || staffRole === 'limpieza') {
       return emptySyncResult;
     }
     if (isSyncingRef.current) {
@@ -794,7 +879,7 @@ export default function App() {
         return { ...emptySyncResult, conflictos };
       }
 
-      const result = await syncCalendars(currentUser.uid, currentProps, currentRes, currentTasks);
+      const result = await syncCalendars(tenantUid, currentProps, currentRes, currentTasks);
 
       setIcalSyncState({
         lastSyncAt: new Date().toISOString(),
@@ -818,7 +903,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (!isApp || !currentUser || tenantLoading) return;
+    if (!isApp || !currentUser || tenantLoading || !tenantUid || staffRole === 'limpieza') return;
 
     // Run 5 seconds after tenant loads
     const initialTimer = setTimeout(() => {
@@ -834,7 +919,7 @@ export default function App() {
       clearTimeout(initialTimer);
       clearInterval(intervalTimer);
     };
-  }, [isApp, currentUser, tenantLoading]);
+  }, [isApp, currentUser, tenantLoading, tenantUid, staffRole]);
 
   // Onboarding Checklist Handlers in App Mode
   const handleUpdateChecklist = async (update: { calendarios?: boolean; guia?: boolean; diaADia?: boolean }) => {
@@ -846,7 +931,7 @@ export default function App() {
     };
     setTenantDoc((prev) => (prev ? { ...prev, onboardingChecklist: nextChecklist } : null));
     try {
-      await saveTenantData(currentUser.uid, { onboardingChecklist: nextChecklist });
+      await saveTenantData(tenantUid, { onboardingChecklist: nextChecklist });
     } catch (err) {
       console.warn('Error saving onboardingChecklist:', err);
     }
@@ -856,7 +941,7 @@ export default function App() {
     if (!currentUser) return;
     setTenantDoc((prev) => (prev ? { ...prev, checklistDismissed: true } : null));
     try {
-      await saveTenantData(currentUser.uid, { checklistDismissed: true });
+      await saveTenantData(tenantUid, { checklistDismissed: true });
     } catch (err) {
       console.warn('Error saving checklistDismissed:', err);
     }
@@ -979,7 +1064,7 @@ export default function App() {
   }) => {
     if (isApp && currentUser) {
       await initializeTenantOnboarding(
-        currentUser.uid,
+        tenantUid,
         currentUser.email || '',
         data.complexName,
         data.address,
@@ -1098,18 +1183,18 @@ export default function App() {
   const handleImportData = async (newState: DemoState) => {
     if (isApp && currentUser) {
       for (const prop of newState.properties) {
-        await savePropertyDoc(currentUser.uid, prop);
+        await savePropertyDoc(tenantUid, prop);
       }
       for (const res of newState.reservations) {
-        await saveReservationDoc(currentUser.uid, res);
+        await saveReservationDoc(tenantUid, res);
       }
       for (const task of newState.cleaningTasks) {
-        await saveCleaningTaskDoc(currentUser.uid, task);
+        await saveCleaningTaskDoc(tenantUid, task);
       }
       for (const mov of newState.cashMovements || []) {
-        await saveCashMovementDoc(currentUser.uid, mov);
+        await saveCashMovementDoc(tenantUid, mov);
       }
-      await saveTenantData(currentUser.uid, {
+      await saveTenantData(tenantUid, {
         welcomeGuide: newState.welcomeGuide,
         templates: newState.templates,
         availableAddons: newState.availableAddons || newState.addons,
@@ -1150,7 +1235,7 @@ export default function App() {
     const needsCleaning = (r: Reservation) => r.status !== 'cancelled' && r.checkOut >= todayStr;
 
     if (isApp && currentUser) {
-      const uid = currentUser.uid;
+      const uid = tenantUid;
       const inChunks = async <T,>(items: T[], fn: (item: T) => Promise<void>) => {
         for (let i = 0; i < items.length; i += 20) await Promise.all(items.slice(i, i + 20).map(fn));
       };
@@ -1204,7 +1289,7 @@ export default function App() {
     const propIds = demoState.properties.filter((p) => p.id.startsWith('prop-import-')).map((p) => p.id);
 
     if (isApp && currentUser) {
-      const uid = currentUser.uid;
+      const uid = tenantUid;
       const runInChunks = async (ids: string[], fn: (id: string) => Promise<void>) => {
         for (let i = 0; i < ids.length; i += 20) {
           await Promise.all(ids.slice(i, i + 20).map(fn));
@@ -1236,7 +1321,7 @@ export default function App() {
         const key = `${r.propertyId}_${r.checkIn}_${r.checkOut}`;
         if (existingIds.has(key)) continue; // omit duplicates
 
-        await saveReservationDoc(currentUser.uid, r);
+        await saveReservationDoc(tenantUid, r);
         addedCount++;
 
         if (r.checkOut >= todayStr && r.status !== 'cancelled') {
@@ -1257,7 +1342,7 @@ export default function App() {
             ],
             notes: `Generado automáticamente por importación de ${r.guestName}`,
           };
-          await saveCleaningTaskDoc(currentUser.uid, newCleaningTask);
+          await saveCleaningTaskDoc(tenantUid, newCleaningTask);
         }
       }
       showToast(`🎉 ¡Éxito! Se importaron ${addedCount} nuevas reservas a Firestore.`);
@@ -1332,8 +1417,8 @@ export default function App() {
     };
 
     if (isApp && currentUser) {
-      await saveReservationDoc(currentUser.uid, newRes);
-      await saveCleaningTaskDoc(currentUser.uid, newCleaningTask);
+      await saveReservationDoc(tenantUid, newRes);
+      await saveCleaningTaskDoc(tenantUid, newCleaningTask);
     } else {
       updateDemoState((prev) => ({
         ...prev,
@@ -1349,10 +1434,10 @@ export default function App() {
   // Update full reservation details
   const handleUpdateReservation = async (updatedRes: Reservation) => {
     if (isApp && currentUser) {
-      await saveReservationDoc(currentUser.uid, updatedRes);
+      await saveReservationDoc(tenantUid, updatedRes);
       const existingTask = demoState.cleaningTasks.find((t) => t.reservationId === updatedRes.id);
       if (existingTask) {
-        await saveCleaningTaskDoc(currentUser.uid, {
+        await saveCleaningTaskDoc(tenantUid, {
           ...existingTask,
           propertyId: updatedRes.propertyId,
           date: updatedRes.checkOut,
@@ -1386,7 +1471,7 @@ export default function App() {
   // Avisos al equipo: contactos y marca de "avisado"
   const handleSaveTeamContacts = async (contacts: TeamContact[]) => {
     if (isApp && currentUser) {
-      await saveTenantData(currentUser.uid, { teamContacts: contacts });
+      await saveTenantData(tenantUid, { teamContacts: contacts });
     }
     updateDemoState((prev) => ({ ...prev, teamContacts: contacts, lastUpdated: new Date().toISOString() }));
     showToast('Contactos guardados');
@@ -1400,7 +1485,7 @@ export default function App() {
       teamNotified: { ...(res.teamNotified || {}), [contactKey]: new Date().toISOString() },
     };
     if (isApp && currentUser) {
-      await saveReservationDoc(currentUser.uid, updated);
+      await saveReservationDoc(tenantUid, updated);
     } else {
       updateDemoState((prev) => ({
         ...prev,
@@ -1416,7 +1501,7 @@ export default function App() {
     if (res) {
       const updated = { ...res, status: newStatus };
       if (isApp && currentUser) {
-        await saveReservationDoc(currentUser.uid, updated);
+        await saveReservationDoc(tenantUid, updated);
       } else {
         updateDemoState((prev) => ({
           ...prev,
@@ -1436,7 +1521,7 @@ export default function App() {
     if (res) {
       const updated = { ...res, paymentStatus: newPaymentStatus };
       if (isApp && currentUser) {
-        await saveReservationDoc(currentUser.uid, updated);
+        await saveReservationDoc(tenantUid, updated);
       } else {
         updateDemoState((prev) => ({
           ...prev,
@@ -1478,7 +1563,7 @@ export default function App() {
         netRevenue,
       };
       if (isApp && currentUser) {
-        await saveReservationDoc(currentUser.uid, updated);
+        await saveReservationDoc(tenantUid, updated);
       } else {
         updateDemoState((prev) => ({
           ...prev,
@@ -1493,7 +1578,7 @@ export default function App() {
   // Delete reservation
   const handleDeleteReservation = async (resId: string) => {
     if (isApp && currentUser) {
-      await deleteReservationDoc(currentUser.uid, resId);
+      await deleteReservationDoc(tenantUid, resId);
     } else {
       updateDemoState((prev) => ({
         ...prev,
@@ -1519,7 +1604,7 @@ export default function App() {
         : task.status;
       const updatedTask: CleaningTask = { ...task, checklist: updatedChecklist, status: newStatus };
       if (isApp && currentUser) {
-        await saveCleaningTaskDoc(currentUser.uid, updatedTask);
+        await saveCleaningTaskDoc(tenantUid, updatedTask);
       } else {
         updateDemoState((prev) => ({
           ...prev,
@@ -1543,7 +1628,7 @@ export default function App() {
         : task.checklist;
       const updatedTask = { ...task, status: newStatus, checklist: updatedChecklist };
       if (isApp && currentUser) {
-        await saveCleaningTaskDoc(currentUser.uid, updatedTask);
+        await saveCleaningTaskDoc(tenantUid, updatedTask);
       } else {
         updateDemoState((prev) => ({
           ...prev,
@@ -1565,7 +1650,7 @@ export default function App() {
     if (prop) {
       const updated = { ...prop, basePrice: newPrice };
       if (isApp && currentUser) {
-        await savePropertyDoc(currentUser.uid, updated);
+        await savePropertyDoc(tenantUid, updated);
       } else {
         updateDemoState((prev) => ({
           ...prev,
@@ -1579,7 +1664,7 @@ export default function App() {
 
   const handleSaveProperty = async (property: Property) => {
     if (isApp && currentUser) {
-      await savePropertyDoc(currentUser.uid, property);
+      await savePropertyDoc(tenantUid, property);
     } else {
       updateDemoState((prev) => {
         const exists = prev.properties.some((p) => p.id === property.id);
@@ -1606,7 +1691,7 @@ export default function App() {
       return;
     }
     if (isApp && currentUser) {
-      await deletePropertyDoc(currentUser.uid, propertyId);
+      await deletePropertyDoc(tenantUid, propertyId);
     } else {
       updateDemoState((prev) => ({
         ...prev,
@@ -1626,7 +1711,7 @@ export default function App() {
       date: dateStr,
     };
     if (isApp && currentUser) {
-      await saveCashMovementDoc(currentUser.uid, added);
+      await saveCashMovementDoc(tenantUid, added);
     } else {
       updateDemoState((prev) => ({
         ...prev,
@@ -1639,7 +1724,7 @@ export default function App() {
   // Delete Cash Movement / Gasto
   const handleDeleteCashMovement = async (id: string) => {
     if (isApp && currentUser) {
-      await deleteCashMovementDoc(currentUser.uid, id);
+      await deleteCashMovementDoc(tenantUid, id);
     } else {
       updateDemoState((prev) => ({
         ...prev,
@@ -1652,7 +1737,7 @@ export default function App() {
   // Recordatorios de la Agenda (celular): app real → tenants/{uid}/reminders; demo → estado local
   const handleSaveReminder = async (reminder: Reminder) => {
     if (isApp && currentUser) {
-      await saveReminderDoc(currentUser.uid, reminder);
+      await saveReminderDoc(tenantUid, reminder);
     } else {
       updateDemoState((prev) => {
         const list = prev.reminders || [];
@@ -1668,7 +1753,7 @@ export default function App() {
 
   const handleDeleteReminder = async (id: string) => {
     if (isApp && currentUser) {
-      await deleteReminderDoc(currentUser.uid, id);
+      await deleteReminderDoc(tenantUid, id);
     } else {
       updateDemoState((prev) => ({
         ...prev,
@@ -1684,7 +1769,7 @@ export default function App() {
     if (!guide) return;
     const updated = { ...guide, directBookingSettings: { ...guide.directBookingSettings, ...fields } };
     if (isApp && currentUser) {
-      await saveTenantData(currentUser.uid, { welcomeGuide: updated });
+      await saveTenantData(tenantUid, { welcomeGuide: updated });
     } else {
       updateDemoState((prev) => ({ ...prev, welcomeGuide: updated, lastUpdated: new Date().toISOString() }));
     }
@@ -1807,7 +1892,12 @@ export default function App() {
   }, [isApp, currentView]);
 
   // Loading simple en modo App mientras se verifica la sesión o se cargan los datos del complejo / suscripción
-  if (isApp && (authLoading || (currentUser && (tenantLoading || subscriptionLoading)))) {
+  if (
+    isApp &&
+    (authLoading ||
+      (currentUser && access.kind === 'loading') ||
+      (currentUser && access.kind !== 'invited' && (tenantLoading || subscriptionLoading)))
+  ) {
     return (
       <div className="min-h-screen w-full bg-[#0B0F17] text-white flex flex-col items-center justify-center p-4 selection:bg-[#E67E22]">
         <div className="flex flex-col items-center gap-4 animate-in fade-in duration-300">
@@ -1830,6 +1920,32 @@ export default function App() {
     return <AppAuthScreen onSuccess={() => {}} />;
   }
 
+  // Invitación pendiente: la persona acepta y queda fija en su rol
+  if (isApp && currentUser && access.kind === 'invited') {
+    return (
+      <InviteAcceptScreen
+        user={currentUser}
+        invite={access.invite}
+        emailVerified={isEmailVerified}
+        onAccepted={(membership) => setAccess({ kind: 'staff', uid: currentUser.uid, membership })}
+        onDeclined={() => setAccess({ kind: 'owner' })}
+        onSignOut={handleLogout}
+        onResendVerification={handleResendVerificationEmail}
+        onCheckVerified={handleCheckEmailVerified}
+      />
+    );
+  }
+
+  // Personal de un complejo sin plan activo
+  if (isApp && currentUser && isStaff && accessStatus?.state === 'expired') {
+    return (
+      <StaffBlockedScreen
+        complexName={access.kind === 'staff' ? access.membership.complexName : ''}
+        onSignOut={handleLogout}
+      />
+    );
+  }
+
   // Pantalla de prueba finalizada si la prueba de 7 días expiró
   if (isApp && currentUser && accessStatus?.state === 'expired') {
     return (
@@ -1841,12 +1957,12 @@ export default function App() {
   }
 
   // Pantalla de bienvenida y primeros pasos en modo App la primera vez que entra
-  if (isApp && currentUser && !tenantDoc?.welcomeSeen) {
+  if (isApp && currentUser && !isStaff && !tenantDoc?.welcomeSeen) {
     return (
       <WelcomeScreen
         onOpenXenia={async () => {
           try {
-            await saveTenantData(currentUser.uid, { welcomeSeen: true });
+            await saveTenantData(tenantUid, { welcomeSeen: true });
           } catch (err) {
             console.warn('Error saving welcomeSeen:', err);
           }
@@ -1859,7 +1975,7 @@ export default function App() {
         }}
         onStart={async () => {
           try {
-            await saveTenantData(currentUser.uid, { welcomeSeen: true });
+            await saveTenantData(tenantUid, { welcomeSeen: true });
             setTenantDoc((prev) => ({
               ownerEmail: currentUser.email || '',
               ...(prev || {}),
@@ -1879,7 +1995,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans antialiased selection:bg-rose-500 selection:text-white transition-colors">
       {/* Barra superior fina para prueba gratis */}
-      {isApp && accessStatus?.state === 'trial' && (
+      {isApp && !isStaff && accessStatus?.state === 'trial' && (
         <div className="bg-amber-50 border-b border-amber-200 text-amber-900 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-300 py-1.5 px-4 text-center text-xs font-medium flex items-center justify-center gap-2 relative z-50">
           <span>
             {accessStatus.daysLeft === 1
@@ -2004,16 +2120,18 @@ export default function App() {
           currentComplexId={activeComplex}
           theme={theme}
         />
-      ) : userRole === 'housekeeping' ? (
+      ) : viewRole === 'housekeeping' ? (
         /* VISTA HOUSEKEEPING / MUCAMAS: ULTRALIVIANA PWA PARA SMARTPHONE (/limpieza) */
         <HousekeepingMobileView
           demoState={demoState}
           onToggleChecklistItem={handleToggleChecklistItem}
           onUpdateTaskStatus={handleUpdateTaskStatus}
           onSwitchRole={handleRoleChange}
-          complexName={demoState.welcomeGuide?.propertyName || 'Mi complejo'}
+          complexName={demoState.welcomeGuide?.propertyName || (access.kind === 'staff' ? access.membership.complexName : '') || 'Mi complejo'}
+          arrivals={isApp ? staffArrivals : undefined}
+          staffAccess={isStaff ? { email: currentUser?.email || '', onLogout: handleLogout } : undefined}
         />
-      ) : userRole === 'frontdesk' ? (
+      ) : viewRole === 'frontdesk' ? (
         /* VISTA RECEPCIÓN / MOSTRADOR: OPTIMIZADA PARA PC / TABLET (/recepcion) */
         <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#0E0F12] text-stone-800 dark:text-stone-100 font-sans transition-colors">
           {/* Pestañas de recepción: Mostrador / Calendario */}
@@ -2037,15 +2155,30 @@ export default function App() {
                 </button>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={() => handleRoleChange('admin')}
-              className="px-3.5 py-2 rounded-xl text-sm font-bold cursor-pointer bg-white dark:bg-[#18191E] border border-stone-200 dark:border-zinc-800 text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-zinc-800 transition-colors"
-              title="Volver a Administración"
-              aria-label="Volver a Administración"
-            >
-              👑<span className="hidden sm:inline"> Administración</span>
-            </button>
+            {isStaff ? (
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline text-sm font-semibold text-stone-900 dark:text-white">
+                  Recepción · {currentUser?.email}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="px-3.5 py-2 rounded-xl text-sm font-bold cursor-pointer bg-white dark:bg-[#18191E] border border-stone-200 dark:border-zinc-800 text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  Salir
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleRoleChange('admin')}
+                className="px-3.5 py-2 rounded-xl text-sm font-bold cursor-pointer bg-white dark:bg-[#18191E] border border-stone-200 dark:border-zinc-800 text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-zinc-800 transition-colors"
+                title="Volver a Administración"
+                aria-label="Volver a Administración"
+              >
+                👑<span className="hidden sm:inline"> Administración</span>
+              </button>
+            )}
           </div>
           {receptionTab === 'calendario' ? (
             <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
@@ -2074,6 +2207,7 @@ export default function App() {
             }}
             complexName={demoState.welcomeGuide?.propertyName || 'Mi complejo'}
             precheckins={precheckins}
+            lockedRole={isStaff}
           />
           )}
         </div>
@@ -2209,6 +2343,8 @@ export default function App() {
                     ? 'Avisos & WhatsApp'
                     : demoTab === 'team-notices'
                     ? 'Avisos al equipo'
+                    : demoTab === 'team'
+                    ? 'Equipo y accesos'
                     : 'Asistente'}
                 </span>
               </div>
@@ -2453,7 +2589,7 @@ export default function App() {
                   demoState={demoState}
                   onUpdateAddons={async (updatedAddons) => {
                     if (isApp && currentUser) {
-                      await saveTenantData(currentUser.uid, { availableAddons: updatedAddons });
+                      await saveTenantData(tenantUid, { availableAddons: updatedAddons });
                     } else {
                       updateDemoState((prev) => ({
                         ...prev,
@@ -2468,7 +2604,7 @@ export default function App() {
               )}
 
               {demoTab === 'messages' && (
-                <DemoMessages demoState={demoState} uid={currentUser?.uid} target={messagesTarget} />
+                <DemoMessages demoState={demoState} uid={tenantUid} target={messagesTarget} />
               )}
 
               {demoTab === 'team-notices' && showTeamNotices && (
@@ -2481,12 +2617,21 @@ export default function App() {
                 />
               )}
 
+              {demoTab === 'team' && isApp && !isStaff && (
+                <TeamAccessView
+                  ownerUid={tenantUid}
+                  ownerEmail={currentUser?.email || ''}
+                  complexName={demoState.welcomeGuide?.propertyName || ''}
+                  showToast={showToast}
+                />
+              )}
+
               {demoTab === 'finances' && userRole === 'admin' && (
                 <DemoFinances
                   demoState={demoState}
                   onUpdateCurrencySettings={async (settings) => {
                     if (isApp && currentUser) {
-                      await saveCurrencySettingsDoc(currentUser.uid, settings);
+                      await saveCurrencySettingsDoc(tenantUid, settings);
                     } else {
                       updateDemoState((prev) => ({
                         ...prev,
@@ -2499,7 +2644,7 @@ export default function App() {
                   }}
                   onUpdateManagementSettings={async (settings) => {
                     if (isApp && currentUser) {
-                      await saveManagementSettingsDoc(currentUser.uid, settings);
+                      await saveManagementSettingsDoc(tenantUid, settings);
                     }
                     updateDemoState((prev) => ({
                       ...prev,
@@ -2534,14 +2679,14 @@ export default function App() {
                   onSelectTemplate={(tmpl) => {
                     setGuideTemplate(tmpl);
                     if (isApp && currentUser) {
-                      saveTenantData(currentUser.uid, { guideTemplate: tmpl });
+                      saveTenantData(tenantUid, { guideTemplate: tmpl });
                     }
                   }}
                   onBackToPanel={() => setDemoTab('overview')}
-                  uid={currentUser?.uid}
+                  uid={tenantUid}
                   onUpdateGuideData={async (updated) => {
                     if (isApp && currentUser) {
-                      await saveTenantData(currentUser.uid, { welcomeGuide: updated });
+                      await saveTenantData(tenantUid, { welcomeGuide: updated });
                     } else {
                       updateDemoState((prev) => ({
                         ...prev,

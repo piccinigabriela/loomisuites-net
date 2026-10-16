@@ -1,0 +1,14 @@
+{
+  "name": "loomi-rules-test",
+  "private": true,
+  "description": "Prueba de las reglas de Firestore con el emulador (se corre en Cloud Shell antes de publicarlas)",
+  "type": "module",
+  "scripts": {
+    "probar": "firebase emulators:exec --only firestore --project demo-loomi \"node test.mjs\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "firebase": "^13.0.0",
+    "firebase-tools": "13.35.1"
+  }
+}
