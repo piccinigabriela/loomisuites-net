@@ -165,7 +165,7 @@ export const FirstStepsChecklist: React.FC<FirstStepsChecklistProps> = ({
       id: 'guide',
       num: '5',
       title: 'La guía de tus huéspedes',
-      subtitle: 'Personalizá el teléfono de WhatsApp y datos de Wi-Fi',
+      subtitle: 'Personalizá el WhatsApp, el Wi-Fi y el link para que te dejen reseñas en Google',
       icon: BookOpen,
       isDone: isGuideDone,
       actionText: 'Tu Web & Guía',
