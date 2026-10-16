@@ -17,7 +17,7 @@ import {
   Menu,
   Smartphone,
 } from 'lucide-react';
-import { DemoState, Reservation, CleaningTask, ReservationStatus, PaymentStatus, CashMovement, CleaningStatus, Property, CurrencyCode, TeamContact, PreCheckin } from './types';
+import { DemoState, Reservation, CleaningTask, ReservationStatus, PaymentStatus, CashMovement, CleaningStatus, Property, CurrencyCode, TeamContact, PreCheckin, Reminder } from './types';
 import {
   getDemoState,
   saveDemoState,
@@ -55,6 +55,8 @@ import {
   deleteCleaningTaskDoc,
   saveCashMovementDoc,
   deleteCashMovementDoc,
+  saveReminderDoc,
+  deleteReminderDoc,
   saveTenantData,
   saveCurrencySettingsDoc,
   saveManagementSettingsDoc,
@@ -275,6 +277,7 @@ export default function App() {
             availableAddons: data.tenant?.availableAddons || [],
             addons: data.tenant?.availableAddons || [],
             cashMovements: data.cashMovements,
+            reminders: data.reminders,
             currencySettings: data.tenant?.currencySettings || { settlementCurrency: 'ARS', rates: {} },
             managementSettings: data.tenant?.managementSettings,
             teamContacts: data.tenant?.teamContacts || [],
@@ -1600,6 +1603,35 @@ export default function App() {
     }
   };
 
+  // Recordatorios de la Agenda (celular): app real → tenants/{uid}/reminders; demo → estado local
+  const handleSaveReminder = async (reminder: Reminder) => {
+    if (isApp && currentUser) {
+      await saveReminderDoc(currentUser.uid, reminder);
+    } else {
+      updateDemoState((prev) => {
+        const list = prev.reminders || [];
+        const exists = list.some((r) => r.id === reminder.id);
+        return {
+          ...prev,
+          reminders: exists ? list.map((r) => (r.id === reminder.id ? reminder : r)) : [...list, reminder],
+          lastUpdated: new Date().toISOString(),
+        };
+      });
+    }
+  };
+
+  const handleDeleteReminder = async (id: string) => {
+    if (isApp && currentUser) {
+      await deleteReminderDoc(currentUser.uid, id);
+    } else {
+      updateDemoState((prev) => ({
+        ...prev,
+        reminders: (prev.reminders || []).filter((r) => r.id !== id),
+        lastUpdated: new Date().toISOString(),
+      }));
+    }
+  };
+
   // Quick check in
   const handleQuickCheckIn = (resId: string) => {
     handleUpdateReservationStatus(resId, 'checked_in');
@@ -2017,6 +2049,13 @@ export default function App() {
           onBackToLanding={handleBackToLanding}
           userRole={userRole}
           onSwitchRole={handleRoleChange}
+          reminders={demoState.reminders || []}
+          onSaveReminder={handleSaveReminder}
+          onDeleteReminder={handleDeleteReminder}
+          onOpenNewReservationWithProperty={handleOpenNewReservationWithProperty}
+          onOpenImportModal={() => setIsImportModalOpen(true)}
+          icalSyncState={icalSyncState}
+          onRunSyncNow={runSyncNow}
           teamNoticesNode={
             showTeamNotices && userRole === 'admin' ? (
               <TeamNotices

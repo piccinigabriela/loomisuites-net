@@ -4,19 +4,13 @@ import {
   Moon,
   Users,
   Home,
-  CheckCircle2,
-  Phone,
   MessageCircle,
   Plus,
   ArrowRight,
-  Zap,
   Mic,
   MicOff,
   Volume2,
   VolumeX,
-  Copy,
-  Check,
-  Search,
   Wifi,
   Laptop,
   X,
@@ -25,17 +19,21 @@ import {
   Send,
   Navigation,
   Square,
-  UserCheck,
   LogOut,
-  Bell,
 } from 'lucide-react';
-import { DemoState, Reservation, Property, ReservationStatus, PaymentStatus } from '../../types';
-import { formatDisplayDate, formatCurrency, getGuestInitials, toLocalDateStr, getCleaningsForDay, getGuideHours, withHs } from '../../data/initialData';
+import { DemoState, Reservation, ReservationStatus, PaymentStatus, Reminder } from '../../types';
+import { formatDisplayDate, formatCurrency, toLocalDateStr } from '../../data/initialData';
 import { XeniaAvatar } from '../xenia/XeniaAvatar';
 import { auth } from '../../lib/firebase';
 import { useXeniaVoice } from '../../hooks/useXeniaVoice';
 import { getClientXeniaReply } from '../xenia/xeniaLocalEngine';
 import { getApiUrl } from '../../utils/apiConfig';
+import { DemoCalendar } from './DemoCalendar';
+import { AgendaTab, AgendaView } from './mobile/AgendaTab';
+import { formatShortDateRange } from './mobile/helpers';
+import { isOverdue } from '../../lib/reminders';
+
+type MobileTab = 'agenda' | 'calendar' | 'avisos' | 'xenia' | 'more' | 'units';
 
 interface MobileLightViewProps {
   demoState: DemoState;
@@ -54,26 +52,17 @@ interface MobileLightViewProps {
   onBackToLanding?: () => void;
   userRole?: 'admin' | 'frontdesk' | 'housekeeping';
   onSwitchRole?: (role: 'admin' | 'frontdesk' | 'housekeeping') => void;
-  /** Pantalla "Avisos al equipo" (plan Propietario); si viene, se agrega la pestaña */
+  /** Recordatorios de la Agenda y cómo guardarlos / borrarlos */
+  reminders: Reminder[];
+  onSaveReminder: (r: Reminder) => Promise<void> | void;
+  onDeleteReminder: (id: string) => Promise<void> | void;
+  /** Calendario: tocar un día libre abre nueva reserva con esa unidad y fecha */
+  onOpenNewReservationWithProperty?: (propertyId: string, date: string) => void;
+  onOpenImportModal?: () => void;
+  icalSyncState?: React.ComponentProps<typeof DemoCalendar>['icalSyncState'];
+  onRunSyncNow?: () => Promise<any>;
+  /** Pantalla "Avisos al equipo" (plan Propietario); si no viene, la pestaña lo explica */
   teamNoticesNode?: React.ReactNode;
-}
-
-function formatShortDateRange(checkIn: string, checkOut: string): string {
-  if (!checkIn || !checkOut) return '';
-  const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-  const pIn = checkIn.split('-');
-  const pOut = checkOut.split('-');
-  if (pIn.length === 3 && pOut.length === 3) {
-    const dIn = parseInt(pIn[2], 10);
-    const mIn = parseInt(pIn[1], 10) - 1;
-    const dOut = parseInt(pOut[2], 10);
-    const mOut = parseInt(pOut[1], 10) - 1;
-    if (mIn === mOut) {
-      return `${dIn} al ${dOut} ${months[mIn] || ''}`;
-    }
-    return `${dIn} ${months[mIn] || ''} al ${dOut} ${months[mOut] || ''}`;
-  }
-  return `${checkIn} al ${checkOut}`;
 }
 
 export const MobileLightView: React.FC<MobileLightViewProps> = ({
@@ -93,11 +82,18 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
   onBackToLanding,
   userRole = 'admin',
   onSwitchRole,
+  reminders,
+  onSaveReminder,
+  onDeleteReminder,
+  onOpenNewReservationWithProperty,
+  onOpenImportModal,
+  icalSyncState,
+  onRunSyncNow,
   teamNoticesNode,
 }) => {
-  // Mobile Active Tab: 'today' | 'units' | 'guests' | 'xenia' | 'more'
-  const [mobileTab, setMobileTab] = useState<'today' | 'units' | 'guests' | 'avisos' | 'xenia' | 'more'>('guests');
-  const [guestSearch, setGuestSearch] = useState('');
+  // Pestañas: Agenda · Calendario · Avisos · Xenia · Más ("units" se abre desde Más)
+  const [mobileTab, setMobileTab] = useState<MobileTab>('agenda');
+  const [agendaView, setAgendaView] = useState<AgendaView>('day');
   const [copiedWifi, setCopiedWifi] = useState<string | null>(null);
 
   // Quick Action Sheet for a selected guest
@@ -207,31 +203,11 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
     }
   };
 
-  // Today's date calculations
+  // Fechas de hoy
   const todayStr = toLocalDateStr(new Date());
   const activeReservations = demoState.reservations.filter((r) => r.status !== 'cancelled');
-
-  // Check-ins today
-  const checkInsToday = activeReservations.filter((r) => r.checkIn === todayStr);
-
-  // Check-outs today
-  const checkOutsToday = activeReservations.filter((r) => r.checkOut === todayStr);
-
-  // Currently staying (in-house)
-  const currentlyStaying = activeReservations.filter(
-    (r) => r.checkIn <= todayStr && r.checkOut > todayStr
-  );
-
-  // Occupied properties count
-  const occupiedPropertyIds = new Set(currentlyStaying.map((r) => r.propertyId));
-  const totalUnits = demoState.properties.length || 1;
-  const occupiedCount = Math.min(totalUnits, occupiedPropertyIds.size);
-  const occupancyPercent = Math.round((occupiedCount / totalUnits) * 100);
-
-  // Pending cleaning tasks
-  const calendarHours = getGuideHours(demoState.welcomeGuide, isAppMode);
-  const todayCleanings = getCleaningsForDay(demoState.cleaningTasks, toLocalDateStr(new Date()));
-  const pendingCleanings = todayCleanings.filter((c) => c.status !== 'completed' && c.status !== 'inspected');
+  const currentlyStaying = activeReservations.filter((r) => r.checkIn <= todayStr && r.checkOut > todayStr);
+  const overdueRemindersCount = reminders.filter((r) => isOverdue(r, todayStr)).length;
 
   // Formatted today in Spanish
   const todayFormatted = new Intl.DateTimeFormat('es-AR', {
@@ -299,7 +275,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
             <h1 className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate tracking-tight">
               {complexName}
             </h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium truncate">
+            <p className="text-xs text-stone-800 dark:text-gray-200 font-semibold truncate">
               {capitalizedDate}
             </p>
           </div>
@@ -347,7 +323,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
             title="Cambiar tema"
           >
             {theme === 'dark' ? (
-              <Sun className="w-4 h-4 text-[#D86F35]" />
+              <Sun className="w-4 h-4 text-[#FFB27F]" />
             ) : (
               <Moon className="w-4 h-4 text-gray-700" />
             )}
@@ -371,322 +347,50 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
       {/* ========================================================================= */}
       <main className="p-4 max-w-md mx-auto space-y-4">
         {/* ======================================================================= */}
-        {/* TAB 3: 👥 HUÉSPEDES (PANTALLA EXACTA COMO LA IMAGEN ENVIADA POR EL USUARIO)*/}
+        {/* 📅 AGENDA: buscador, Por día / Lista, alojados ahora y recordatorios     */}
         {/* ======================================================================= */}
-        {mobileTab === 'guests' && (
-          <div className="space-y-3.5">
-            {/* Search Input Box */}
-            <div className="relative">
-              <Search className="w-4 h-4 text-gray-400 absolute left-4 top-4" />
-              <input
-                type="text"
-                placeholder="Buscar por cabaña, huésped o teléfono..."
-                value={guestSearch}
-                onChange={(e) => setGuestSearch(e.target.value)}
-                className="w-full text-xs font-medium bg-white dark:bg-[#1A1B20] border-0 rounded-2xl pl-11 pr-4 py-3.5 text-gray-800 dark:text-gray-100 placeholder-gray-400 shadow-[0_2px_10px_rgba(0,0,0,0.02)] focus:outline-none focus:ring-1 focus:ring-[#D86F35]/40"
-              />
-            </div>
-
-            {/* Guest Cards */}
-            <div className="space-y-3">
-              {activeReservations
-                .filter((r) => {
-                  if (!guestSearch) return true;
-                  const q = guestSearch.toLowerCase();
-                  const prop = demoState.properties.find((p) => p.id === r.propertyId);
-                  return (
-                    r.guestName.toLowerCase().includes(q) ||
-                    r.guestPhone.includes(q) ||
-                    (prop && prop.name.toLowerCase().includes(q))
-                  );
-                })
-                .sort((a, b) => {
-                  // Orden estrictamente cronológico desde hoy hacia adelante:
-                  const aIsUpcoming = a.checkIn >= todayStr || (a.checkIn <= todayStr && a.checkOut >= todayStr);
-                  const bIsUpcoming = b.checkIn >= todayStr || (b.checkIn <= todayStr && b.checkOut >= todayStr);
-
-                  if (aIsUpcoming && !bIsUpcoming) return -1;
-                  if (!aIsUpcoming && bIsUpcoming) return 1;
-
-                  if (aIsUpcoming && bIsUpcoming) {
-                    return a.checkIn.localeCompare(b.checkIn);
-                  }
-
-                  return b.checkOut.localeCompare(a.checkOut);
-                })
-                .slice(0, 20)
-                .map((res) => {
-                  const prop = demoState.properties.find((p) => p.id === res.propertyId);
-                  const isPaid = res.paymentStatus === 'paid';
-
-                  return (
-                    <div
-                      key={res.id}
-                      className="bg-white dark:bg-[#1A1B20] rounded-[22px] p-4 shadow-[0_4px_16px_rgba(0,0,0,0.025)] border border-black/[0.02] dark:border-white/[0.04] space-y-2.5 transition-all"
-                    >
-                      {/* Top Row: Departamento y Fechas RESALTADOS on Left, Precio + Estado on Right */}
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-baseline gap-2 min-w-0">
-                          <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight truncate">
-                            {prop?.name || 'Cabaña'}
-                          </h3>
-                          <span className="text-xs font-bold text-[#E67E22] dark:text-[#F39A68] whitespace-nowrap">
-                            {formatShortDateRange(res.checkIn, res.checkOut)}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-xs font-bold text-gray-900 dark:text-gray-100 font-sans">
-                            {formatCurrency(res.totalAmount)}
-                          </span>
-                          <span
-                            className={`text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-md uppercase ${
-                              isPaid
-                                ? 'bg-[#E2F7E7] text-[#2EA44F] dark:bg-[#193A24] dark:text-[#52C474]'
-                                : 'bg-[#FDF3E7] text-[#D86F35] dark:bg-[#3D2516] dark:text-[#F39A68]'
-                            }`}
-                          >
-                            {isPaid ? 'PAGADO' : 'SEÑA PEND'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Bottom Row: Nombre completo del Huésped on Left, 3 Botones de Acción on Right */}
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="min-w-0 flex items-center gap-2 text-xs text-gray-700 dark:text-gray-200 font-semibold truncate">
-                          <div className="w-7 h-7 rounded-full bg-stone-200 dark:bg-zinc-800 text-stone-700 dark:text-stone-200 flex items-center justify-center font-bold text-[10px] shrink-0 border border-stone-300/60 dark:border-zinc-700 select-none">
-                            {getGuestInitials(res.guestName)}
-                          </div>
-                          <span className="truncate">
-                            {res.guestName}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-2 shrink-0">
-                          {/* Button 1: WhatsApp (Soft Pastel Green Square) */}
-                          <button
-                            onClick={() => setSelectedGuestAction(res)}
-                            className="w-9 h-9 rounded-xl bg-[#E6F8EA] hover:bg-[#D4F5DC] dark:bg-[#1C3B24] dark:hover:bg-[#254C2E] text-[#25D366] flex items-center justify-center transition-colors cursor-pointer"
-                            title="Enviar WhatsApp & Guía"
-                          >
-                            <MessageCircle className="w-4 h-4 fill-current/10 stroke-[2]" />
-                          </button>
-
-                          {/* Button 2: Call Phone (Soft Warm Beige/Gray Square) */}
-                          <a
-                            href={`tel:${res.guestPhone}`}
-                            className="w-9 h-9 rounded-xl bg-[#EDE8E1] hover:bg-[#E3DDD4] dark:bg-[#2A2B32] dark:hover:bg-[#34353E] text-[#7A7369] dark:text-gray-300 flex items-center justify-center transition-colors cursor-pointer"
-                            title="Llamar al pasajero"
-                          >
-                            <Phone className="w-4 h-4 stroke-[2]" />
-                          </a>
-
-                          {/* Button 3: Ficha / Detalle (Soft Pastel Terracotta/Peach Square with Arrow) */}
-                          <button
-                            onClick={() => onOpenReservationDetail(res)}
-                            className="w-9 h-9 rounded-xl bg-[#F6D8C3] hover:bg-[#F0C9B0] dark:bg-[#3E281C] dark:hover:bg-[#4E3324] text-[#D86F35] flex items-center justify-center transition-colors cursor-pointer"
-                            title="Ver Ficha Completa"
-                          >
-                            <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-          </div>
+        {mobileTab === 'agenda' && (
+          <AgendaTab
+            demoState={demoState}
+            reminders={reminders}
+            todayStr={todayStr}
+            view={agendaView}
+            onChangeView={setAgendaView}
+            onOpenWhatsApp={setSelectedGuestAction}
+            onOpenReservationDetail={onOpenReservationDetail}
+            onToggleCleaningStatus={onToggleCleaningStatus}
+            onSaveReminder={onSaveReminder}
+            onDeleteReminder={onDeleteReminder}
+          />
         )}
 
         {/* ======================================================================= */}
-        {/* TAB 1: ☀️ HOY (VISTA EN VIVO ADAPTADA A LA MISMA ESTÉTICA)              */}
+        {/* 🗓️ CALENDARIO: el mismo calendario de la app, ya compactado para celular */}
         {/* ======================================================================= */}
-        {mobileTab === 'today' && (
-          <div className="space-y-4">
-            {/* 3 ATAJOS SUPERIORES */}
-            <div className="grid grid-cols-3 gap-3">
-              <button
-                onClick={onOpenNewReservation}
-                className="bg-white dark:bg-[#1A1B20] p-4 rounded-[22px] shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-black/[0.02] flex flex-col items-center justify-center space-y-2 active:scale-95 transition-all cursor-pointer"
-              >
-                <div className="p-2.5 bg-[#F6D8C3] text-[#D86F35] rounded-xl">
-                  <Plus className="w-5 h-5" />
-                </div>
-                <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Reserva</span>
-              </button>
-
-              <button
-                onClick={() => setMobileTab('guests')}
-                className="bg-white dark:bg-[#1A1B20] p-4 rounded-[22px] shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-black/[0.02] flex flex-col items-center justify-center space-y-2 active:scale-95 transition-all cursor-pointer"
-              >
-                <div className="p-2.5 bg-[#E6F8EA] text-[#25D366] rounded-xl">
-                  <MessageCircle className="w-5 h-5" />
-                </div>
-                <span className="text-xs font-bold text-gray-800 dark:text-gray-200">WhatsApp</span>
-              </button>
-
-              <button
-                onClick={() => setMobileTab('more')}
-                className="bg-white dark:bg-[#1A1B20] p-4 rounded-[22px] shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-black/[0.02] flex flex-col items-center justify-center space-y-2 active:scale-95 transition-all cursor-pointer"
-              >
-                <div className="p-2.5 bg-[#EDE8E1] text-[#7A7369] rounded-xl">
-                  <Zap className="w-5 h-5" />
-                </div>
-                <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Más Atajos</span>
-              </button>
-            </div>
-
-            {/* OCUPACIÓN ACTUAL */}
-            <div className="bg-white dark:bg-[#1A1B20] rounded-[22px] p-4 shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-black/[0.02] flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
-                  Ocupación Actual
-                </span>
-                <div className="flex items-baseline gap-2 mt-0.5">
-                  <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {occupancyPercent}%
-                  </span>
-                  <span className="text-xs text-gray-400 font-medium">
-                    ({occupiedCount} de {totalUnits} unidades ocupadas)
-                  </span>
-                </div>
-              </div>
-              <span className="bg-[#FDF3E7] text-[#D86F35] text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-md uppercase">
-                En vivo
-              </span>
-            </div>
-
-            {/* LIMPIEZAS DEL DÍA */}
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between px-1">
-                <h2 className="text-xs font-bold tracking-wider text-gray-400 uppercase flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#D86F35]" />
-                  LIMPIEZAS DEL DÍA ({todayCleanings.length})
-                </h2>
-              </div>
-
-              {todayCleanings.map((task) => {
-                const prop = demoState.properties.find((p) => p.id === task.propertyId);
-                const isCompleted =
-                  task.status === 'completed' ||
-                  task.status === 'inspected' ||
-                  (task.checklist.length > 0 && task.checklist.every((c) => c.completed));
-
-                return (
-                  <div
-                    key={task.id}
-                    className={`rounded-[22px] p-4 border transition-all duration-500 ease-in-out flex items-center justify-between ${
-                      isCompleted
-                        ? 'bg-green-50/30 dark:bg-emerald-950/20 border-green-200/50 dark:border-emerald-800/40 shadow-[0_4px_16px_rgba(16,185,129,0.03)]'
-                        : 'bg-white dark:bg-[#1A1B20] border-black/[0.02] shadow-[0_4px_16px_rgba(0,0,0,0.02)]'
-                    }`}
-                  >
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <h3
-                          className={`text-sm font-bold tracking-tight transition-all duration-500 ${
-                            isCompleted
-                              ? 'text-stone-400 dark:text-stone-500 line-through decoration-emerald-400/50 opacity-75'
-                              : 'text-gray-900 dark:text-gray-100'
-                          }`}
-                        >
-                          {prop?.name || 'Cabaña'}
-                        </h3>
-                        {isCompleted && (
-                          <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/70 dark:border-emerald-800/50 px-2 py-0.5 rounded-full transition-all animate-in fade-in duration-300">
-                            Tarea Completada
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-gray-400 font-medium">
-                        {isCompleted ? `Lista por ${task.cleanerName}` : `Asignada a: ${task.cleanerName} • ${task.scheduledTime}`}
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={() => onToggleCleaningStatus(task.id, task.status)}
-                      title={isCompleted ? 'Desmarcar tarea' : 'Marcar como Tarea Completada'}
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer border ${
-                        isCompleted
-                          ? 'bg-emerald-50 hover:bg-emerald-100/70 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/50 shadow-xs'
-                          : 'bg-stone-50 hover:bg-emerald-50/60 text-stone-400 hover:text-emerald-600 border-stone-200/60'
-                      }`}
-                    >
-                      <Check className="w-5 h-5 stroke-[2.5]" />
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* LLEGAN HOY */}
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between px-1">
-                <h2 className="text-xs font-bold tracking-wider text-gray-400 uppercase flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#D86F35]" />
-                  LLEGAN HOY ({checkInsToday.length})
-                </h2>
-              </div>
-
-              {checkInsToday.map((res) => {
-                const prop = demoState.properties.find((p) => p.id === res.propertyId);
-
-                return (
-                  <div
-                    key={res.id}
-                    className="bg-white dark:bg-[#1A1B20] rounded-[22px] p-4 shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-black/[0.02] space-y-2.5"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-baseline gap-2 min-w-0">
-                        <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight truncate">
-                          {prop?.name || 'Cabaña'}
-                        </h3>
-                        <span className="text-xs font-bold text-[#E67E22] dark:text-[#F39A68] whitespace-nowrap">
-                          {res.nights} {res.nights === 1 ? 'noche' : 'noches'}
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase bg-[#FDF3E7] text-[#D86F35] shrink-0">
-                        {calendarHours.checkin ? `Check-in ${withHs(calendarHours.checkin)}` : 'Check-in'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="min-w-0 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 font-medium truncate">
-                        <div className="w-6 h-6 rounded-full bg-stone-200 dark:bg-zinc-800 text-stone-700 dark:text-stone-200 flex items-center justify-center font-bold text-[9px] shrink-0 border border-stone-300/60 dark:border-zinc-700 select-none">
-                          {getGuestInitials(res.guestName)}
-                        </div>
-                        <span className="font-semibold text-gray-700 dark:text-gray-300 truncate">
-                          {res.guestName}
-                        </span>
-                        <span className="text-gray-300 dark:text-zinc-600">•</span>
-                        <span className="text-[11px] font-mono text-gray-400 dark:text-gray-500 truncate">
-                          {res.guestPhone}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => setSelectedGuestAction(res)}
-                        className="flex items-center gap-1.5 text-xs font-bold text-[#D86F35] bg-[#F6D8C3] hover:bg-[#F0C9B0] px-3 py-1.5 rounded-xl cursor-pointer shrink-0 transition-colors"
-                      >
-                        <MessageCircle className="w-3.5 h-3.5" />
-                        <span>Bienvenida</span>
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+        {mobileTab === 'calendar' && (
+          <DemoCalendar
+            demoState={demoState}
+            onSelectReservation={onOpenReservationDetail}
+            onOpenNewReservationWithProperty={onOpenNewReservationWithProperty}
+            onOpenImportModal={onOpenImportModal}
+            isAppMode={isAppMode}
+            icalSyncState={icalSyncState}
+            onRunSyncNow={onRunSyncNow}
+          />
         )}
 
         {/* ======================================================================= */}
-        {/* TAB 2: 🏡 CABAÑAS / UNIDADES (ADAPTADA A LA MISMA ESTÉTICA)             */}
+        {/* 🏡 ESTADO DE CABAÑAS & WI-FI (se abre desde "Más")                      */}
         {/* ======================================================================= */}
         {mobileTab === 'units' && (
           <div className="space-y-3.5">
-            <div className="flex items-center justify-between px-1 mb-1">
-              <h2 className="text-xs font-bold tracking-wider text-gray-400 uppercase flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D86F35]" />
-                UNIDADES ({demoState.properties.length})
-              </h2>
-            </div>
+            <button
+              onClick={() => setMobileTab('more')}
+              className="px-3.5 py-2.5 rounded-xl bg-[#DDD7CD] dark:bg-zinc-800 text-stone-900 dark:text-gray-100 text-sm font-extrabold cursor-pointer"
+            >
+              ← Volver a Más
+            </button>
+            <h2 className="px-1 text-base font-extrabold text-stone-900 dark:text-white">Unidades ({demoState.properties.length})</h2>
 
             {demoState.properties.map((prop) => {
               const currentRes = currentlyStaying.find((r) => r.propertyId === prop.id);
@@ -695,59 +399,56 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
               return (
                 <div
                   key={prop.id}
-                  className="bg-white dark:bg-[#1A1B20] rounded-[22px] p-4 shadow-[0_4px_16px_rgba(0,0,0,0.025)] border border-black/[0.02] space-y-3"
+                  className="bg-white dark:bg-[#1A1B20] border border-stone-300/80 dark:border-white/10 rounded-[22px] p-4 space-y-3"
                 >
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between gap-2">
                     <div>
-                      <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight">
-                        {prop.name}
-                      </h3>
-                      <p className="text-xs text-gray-400 font-medium">
+                      <h3 className="text-base font-extrabold text-stone-900 dark:text-gray-100 tracking-tight">{prop.name}</h3>
+                      <p className="text-xs font-semibold text-stone-800 dark:text-gray-200">
                         {prop.type} • Hasta {prop.maxGuests} pax
                       </p>
                     </div>
                     <span
-                      className={`text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-md uppercase ${
+                      className={`text-[10px] font-extrabold tracking-wider px-2 py-1 rounded-md uppercase ${
                         isOccupied
-                          ? 'bg-[#FDF3E7] text-[#D86F35]'
-                          : 'bg-[#EDE8E1] text-[#7A7369]'
+                          ? 'bg-[#FBE3CB] text-[#7A3306] dark:bg-[#3D2516] dark:text-[#FFB27F]'
+                          : 'bg-[#D3F1DB] text-[#0F5C2F] dark:bg-[#193A24] dark:text-[#7BE59A]'
                       }`}
                     >
-                      {isOccupied ? 'OCUPADA' : 'DISPONIBLE'}
+                      {isOccupied ? 'Ocupada' : 'Disponible'}
                     </span>
                   </div>
 
                   {isOccupied && currentRes && (
-                    <div className="p-3 bg-[#FBF9F6] dark:bg-[#16171B] rounded-xl flex items-center justify-between border border-black/[0.02]">
+                    <div className="p-3 bg-[#F4EFE8] dark:bg-[#16171B] rounded-xl flex items-center justify-between border border-stone-300/70 dark:border-white/10">
                       <div className="space-y-0.5">
-                        <span className="text-[10px] text-gray-400 font-medium">Huésped actual</span>
-                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">
-                          {currentRes.guestName}
-                        </p>
-                        <p className="text-[10px] text-gray-400 font-mono">
+                        <span className="text-xs text-stone-800 dark:text-gray-200 font-bold">Huésped actual</span>
+                        <p className="text-sm font-extrabold text-stone-900 dark:text-gray-100">{currentRes.guestName}</p>
+                        <p className="text-xs text-stone-800 dark:text-gray-200 font-semibold">
                           Salida: {formatDisplayDate(currentRes.checkOut)}
                         </p>
                       </div>
                       <button
                         onClick={() => setSelectedGuestAction(currentRes)}
-                        className="w-9 h-9 rounded-xl bg-[#E6F8EA] text-[#25D366] flex items-center justify-center cursor-pointer"
+                        aria-label={`Contactar a ${currentRes.guestName}`}
+                        className="w-10 h-10 rounded-xl bg-[#D4F2DC] dark:bg-[#1C3B24] text-[#136B36] dark:text-[#6EE08F] flex items-center justify-center cursor-pointer"
                         title="Contactar"
                       >
-                        <MessageCircle className="w-4 h-4" />
+                        <MessageCircle className="w-5 h-5" />
                       </button>
                     </div>
                   )}
 
-                  <div className="pt-2 border-t border-gray-100 dark:border-zinc-800/60 flex items-center justify-between text-xs text-gray-400">
-                    <div className="flex items-center gap-2">
-                      <Wifi className="w-4 h-4 text-gray-300" />
-                      <span className="font-mono text-gray-500">{prop.wifiNetwork}</span>
+                  <div className="pt-2 border-t border-stone-300/70 dark:border-zinc-700 flex items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Wifi className="w-4 h-4 text-stone-800 dark:text-gray-200 shrink-0" />
+                      <span className="font-mono font-semibold text-stone-900 dark:text-gray-100 truncate">{prop.wifiNetwork}</span>
                     </div>
                     <button
                       onClick={() => handleCopyWifi(prop.wifiPassword, prop.id)}
-                      className="px-2.5 py-1 rounded-lg bg-[#EDE8E1] text-[#7A7369] font-medium text-[11px] hover:text-[#D86F35] transition-colors cursor-pointer"
+                      className="px-3 py-2 rounded-lg bg-[#E4DDD1] dark:bg-zinc-700 text-stone-900 dark:text-gray-100 font-bold text-xs cursor-pointer shrink-0"
                     >
-                      {copiedWifi === prop.id ? '¡Copiada!' : 'Copiar Clave'}
+                      {copiedWifi === prop.id ? '¡Copiada!' : 'Copiar clave'}
                     </button>
                   </div>
                 </div>
@@ -780,8 +481,8 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                   onClick={toggleAutoVoice}
                   className={`px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 border transition-all cursor-pointer ${
                     autoVoice
-                      ? 'bg-[#FDF3E7] border-orange-200 text-[#D86F35]'
-                      : 'bg-[#EDE8E1] border-gray-200 text-gray-500'
+                      ? 'bg-[#FBE3CB] border-orange-400 text-[#7A3306] dark:bg-[#3D2516] dark:border-[#FFB27F]/60 dark:text-[#FFB27F]'
+                      : 'bg-[#E4DDD1] border-stone-400 text-stone-900 dark:bg-zinc-700 dark:border-zinc-500 dark:text-gray-100'
                   }`}
                 >
                   {autoVoice ? <Volume2 className="w-3 h-3" /> : <VolumeX className="w-3 h-3" />}
@@ -797,7 +498,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                 <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">
                   Xenia Copiloto por Voz
                 </h3>
-                <p className="text-xs text-gray-400 font-medium">
+                <p className="text-xs text-stone-800 dark:text-gray-200 font-semibold">
                   Consultas sobre reservas, números y tareas
                 </p>
               </div>
@@ -829,7 +530,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
 
             {/* Quick Prompts */}
             <div className="space-y-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block px-1">
+              <span className="text-xs font-extrabold uppercase tracking-wider text-stone-900 dark:text-gray-100 block px-1">
                 Preguntas Sugeridas:
               </span>
               <div className="grid grid-cols-1 gap-2">
@@ -845,7 +546,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                     className="p-3 rounded-2xl bg-white dark:bg-[#1A1B20] text-xs font-semibold text-left text-gray-800 dark:text-gray-200 shadow-2xs hover:text-[#D86F35] flex items-center justify-between cursor-pointer"
                   >
                     <span>{q}</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-gray-300 shrink-0 ml-2" />
+                    <ArrowRight className="w-4 h-4 text-stone-800 dark:text-gray-300 shrink-0 ml-2" />
                   </button>
                 ))}
               </div>
@@ -854,83 +555,80 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
         )}
 
         {/* ======================================================================= */}
-        {/* TAB 5: ⚡ ATAJOS                                                        */}
+        {/* 🔔 AVISOS AL EQUIPO                                                     */}
         {/* ======================================================================= */}
-        {mobileTab === 'avisos' && teamNoticesNode && <div className="space-y-3.5">{teamNoticesNode}</div>}
+        {mobileTab === 'avisos' &&
+          (teamNoticesNode ? (
+            <div className="space-y-3.5">{teamNoticesNode}</div>
+          ) : (
+            <div className="bg-white dark:bg-[#1A1B20] border border-stone-300/80 dark:border-white/10 rounded-[22px] p-5 space-y-2">
+              <h2 className="text-base font-extrabold text-stone-900 dark:text-gray-100">🔔 Avisos al equipo</h2>
+              <p className="text-sm font-semibold text-stone-900 dark:text-gray-100">
+                Esta pantalla no está disponible en tu plan.
+              </p>
+            </div>
+          ))}
 
+        {/* ======================================================================= */}
+        {/* ⋯ MÁS                                                                    */}
+        {/* ======================================================================= */}
         {mobileTab === 'more' && (
           <div className="space-y-3.5">
-            <div className="flex items-center justify-between px-1">
-              <h2 className="text-xs font-bold tracking-wider text-gray-400 uppercase flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D86F35]" />
-                ATAJOS OPERATIVOS
-              </h2>
-            </div>
+            <h2 className="px-1 text-base font-extrabold text-stone-900 dark:text-white">Más</h2>
 
             <div className="grid grid-cols-1 gap-2.5">
-              <button
-                onClick={onOpenNewReservation}
-                className="w-full p-4 rounded-[22px] bg-white dark:bg-[#1A1B20] flex items-center justify-between shadow-[0_4px_16px_rgba(0,0,0,0.02)] active:scale-98 transition-all cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#F6D8C3] text-[#D86F35] flex items-center justify-center shrink-0">
-                    <Plus className="w-5 h-5" />
+              {[
+                {
+                  key: 'new',
+                  onClick: onOpenNewReservation,
+                  icon: <Plus className="w-5 h-5" />,
+                  tone: 'bg-[#F6D2B8] text-[#8F3B08] dark:bg-[#3E281C] dark:text-[#FFB27F]',
+                  title: 'Cargar nueva reserva',
+                  sub: 'Reserva manual, telefónica o directa',
+                },
+                {
+                  key: 'guests',
+                  onClick: () => {
+                    setAgendaView('list');
+                    setMobileTab('agenda');
+                  },
+                  icon: <Users className="w-5 h-5" />,
+                  tone: 'bg-[#D4F2DC] text-[#136B36] dark:bg-[#1C3B24] dark:text-[#6EE08F]',
+                  title: 'Directorio de huéspedes',
+                  sub: 'WhatsApp, bienvenida y cobros',
+                },
+                {
+                  key: 'units',
+                  onClick: () => setMobileTab('units'),
+                  icon: <Home className="w-5 h-5" />,
+                  tone: 'bg-[#E4DDD1] text-[#3A352D] dark:bg-zinc-700 dark:text-gray-100',
+                  title: 'Estado de cabañas & Wi-Fi',
+                  sub: 'Ver disponibilidad y claves',
+                },
+                {
+                  key: 'full',
+                  onClick: onSwitchToFullView,
+                  icon: <Laptop className="w-5 h-5" />,
+                  tone: 'bg-[#F6D2B8] text-[#8F3B08] dark:bg-[#3E281C] dark:text-[#FFB27F]',
+                  title: 'Cambiar a vista completa (PC)',
+                  sub: 'Calendario Rack y finanzas',
+                },
+              ].map((item) => (
+                <button
+                  key={item.key}
+                  onClick={item.onClick}
+                  className="w-full p-4 rounded-[22px] bg-white dark:bg-[#1A1B20] border border-stone-300/80 dark:border-white/10 flex items-center justify-between active:scale-98 transition-all cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${item.tone}`}>{item.icon}</div>
+                    <div className="text-left min-w-0">
+                      <p className="font-extrabold text-sm text-stone-900 dark:text-gray-100">{item.title}</p>
+                      <p className="text-xs font-semibold text-stone-800 dark:text-gray-200">{item.sub}</p>
+                    </div>
                   </div>
-                  <div className="text-left">
-                    <p className="font-bold text-sm text-gray-900 dark:text-gray-100">Cargar Nueva Reserva</p>
-                    <p className="text-xs text-gray-400 font-medium">Reserva manual, telefónica o directa</p>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-gray-300" />
-              </button>
-
-              <button
-                onClick={() => setMobileTab('guests')}
-                className="w-full p-4 rounded-[22px] bg-white dark:bg-[#1A1B20] flex items-center justify-between shadow-[0_4px_16px_rgba(0,0,0,0.02)] active:scale-98 transition-all cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#E6F8EA] text-[#25D366] flex items-center justify-center shrink-0">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-bold text-sm text-gray-900 dark:text-gray-100">Directorio de Huéspedes</p>
-                    <p className="text-xs text-gray-400 font-medium">WhatsApp, bienvenida y cobros</p>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-gray-300" />
-              </button>
-
-              <button
-                onClick={() => setMobileTab('units')}
-                className="w-full p-4 rounded-[22px] bg-white dark:bg-[#1A1B20] flex items-center justify-between shadow-[0_4px_16px_rgba(0,0,0,0.02)] active:scale-98 transition-all cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#EDE8E1] text-[#7A7369] flex items-center justify-center shrink-0">
-                    <Home className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-bold text-sm text-gray-900 dark:text-gray-100">Estado de Cabañas & Wi-Fi</p>
-                    <p className="text-xs text-gray-400 font-medium">Ver disponibilidad y claves</p>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-gray-300" />
-              </button>
-
-              <button
-                onClick={onSwitchToFullView}
-                className="w-full p-4 rounded-[22px] bg-white dark:bg-[#1A1B20] flex items-center justify-between shadow-[0_4px_16px_rgba(0,0,0,0.02)] active:scale-98 transition-all cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#F6D8C3] text-[#D86F35] flex items-center justify-center shrink-0">
-                    <Laptop className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-bold text-sm text-gray-900 dark:text-gray-100">Cambiar a Vista Completa (PC)</p>
-                    <p className="text-xs text-gray-400 font-medium">Calendario Rack y finanzas</p>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-[#D86F35]" />
-              </button>
+                  <ArrowRight className="w-5 h-5 text-stone-900 dark:text-gray-100 shrink-0" />
+                </button>
+              ))}
             </div>
           </div>
         )}
@@ -947,25 +645,26 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
           >
             <div className="flex items-start justify-between pb-3 border-b border-gray-100 dark:border-zinc-800">
               <div className="min-w-0 pr-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#D86F35] block">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-[#8F3B08] dark:text-[#FFB27F] block">
                   Acciones Rápidas
                 </span>
                 <div className="flex items-baseline gap-2">
                   <h3 className="font-bold text-base text-gray-900 dark:text-gray-100 truncate">
                     {selectedActionProperty?.name || 'Cabaña'}
                   </h3>
-                  <span className="text-xs font-bold text-[#E67E22] dark:text-[#F39A68] whitespace-nowrap">
+                  <span className="text-xs font-bold text-[#8F3B08] dark:text-[#FFB27F] whitespace-nowrap">
                     {formatShortDateRange(selectedGuestAction.checkIn, selectedGuestAction.checkOut)}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">
+                <p className="text-xs text-stone-800 dark:text-gray-200 font-semibold mt-0.5">
                   Huésped: <span className="font-semibold text-gray-700 dark:text-gray-200">{selectedGuestAction.guestName}</span> ({selectedGuestAction.guestPhone})
                 </p>
               </div>
 
               <button
                 onClick={() => setSelectedGuestAction(null)}
-                className="p-2 rounded-full bg-[#EDE8E1] text-[#7A7369] cursor-pointer"
+                aria-label="Cerrar"
+                className="p-2.5 rounded-full bg-[#E4DDD1] dark:bg-zinc-700 text-stone-900 dark:text-gray-100 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -975,17 +674,17 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
               {/* ACCIÓN 1: SOLICITAR SEÑA */}
               <div className="p-4 rounded-2xl bg-[#FDF3E7]/60 dark:bg-[#251D17] border border-orange-100/60 dark:border-orange-900/30 space-y-2">
                 <div className="flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-[#D86F35]" />
+                  <CreditCard className="w-4 h-4 text-[#8F3B08] dark:text-[#FFB27F]" />
                   <span className="text-xs font-bold text-gray-900 dark:text-gray-100">1. Pedir pago / saldo</span>
                 </div>
-                <p className="text-[11px] text-gray-400 font-medium">
+                <p className="text-xs text-stone-800 dark:text-gray-200 font-semibold">
                   Avisa el saldo pendiente ({formatCurrency(depositAmount)}) y ofrece los datos para transferir
                 </p>
                 <a
                   href={buildWhatsAppLink(selectedGuestAction.guestPhone, paymentMessageText)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-2.5 px-3 rounded-xl bg-[#F6D8C3] hover:bg-[#F0C9B0] text-[#D86F35] text-xs font-bold flex items-center justify-center gap-2 transition-colors"
+                  className="w-full py-2.5 px-3 rounded-xl bg-[#F6D2B8] hover:bg-[#F0C2A0] text-[#7A3306] dark:bg-[#3E281C] dark:hover:bg-[#4E3324] dark:text-[#FFB27F] text-xs font-bold flex items-center justify-center gap-2 transition-colors"
                 >
                   <MessageCircle className="w-4 h-4" />
                   <span>Pedir pago por WhatsApp</span>
@@ -995,17 +694,17 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
               {/* ACCIÓN 2: ENVIAR BIENVENIDA Y GUÍA DIGITAL */}
               <div className="p-4 rounded-2xl bg-[#E6F8EA]/60 dark:bg-[#16291C] border border-green-100/60 dark:border-green-900/30 space-y-2">
                 <div className="flex items-center gap-2">
-                  <Navigation className="w-4 h-4 text-[#25D366]" />
+                  <Navigation className="w-4 h-4 text-[#136B36] dark:text-[#6EE08F]" />
                   <span className="text-xs font-bold text-gray-900 dark:text-gray-100">2. Enviar Bienvenida & Guía Digital</span>
                 </div>
-                <p className="text-[11px] text-gray-400 font-medium">
+                <p className="text-xs text-stone-800 dark:text-gray-200 font-semibold">
                   Incluye mapa GPS interactivo, fotos de acceso y Wi-Fi
                 </p>
                 <a
                   href={buildWhatsAppLink(selectedGuestAction.guestPhone, welcomeMessageText)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-2.5 px-3 rounded-xl bg-[#E6F8EA] hover:bg-[#D4F5DC] text-[#2EA44F] text-xs font-bold flex items-center justify-center gap-2 transition-colors"
+                  className="w-full py-2.5 px-3 rounded-xl bg-[#D4F2DC] hover:bg-[#C2ECCD] text-[#0F5C2F] dark:bg-[#1C3B24] dark:hover:bg-[#254C2E] dark:text-[#6EE08F] text-xs font-bold flex items-center justify-center gap-2 transition-colors"
                 >
                   <Send className="w-4 h-4" />
                   <span>Enviar Guía por WhatsApp</span>
@@ -1013,19 +712,19 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
               </div>
 
               {/* ACCIÓN 3: ENVIAR WI-FI */}
-              <div className="p-4 rounded-2xl bg-[#EDE8E1]/60 dark:bg-[#202128] border border-gray-200/60 space-y-2">
+              <div className="p-4 rounded-2xl bg-[#EDE8E1]/60 dark:bg-[#202128] border border-stone-300/70 dark:border-white/10 space-y-2">
                 <div className="flex items-center gap-2">
-                  <Wifi className="w-4 h-4 text-[#7A7369]" />
+                  <Wifi className="w-4 h-4 text-stone-800 dark:text-gray-200" />
                   <span className="text-xs font-bold text-gray-900 dark:text-gray-100">3. Enviar Clave Wi-Fi</span>
                 </div>
-                <p className="text-[11px] text-gray-400 font-medium">
+                <p className="text-xs text-stone-800 dark:text-gray-200 font-semibold">
                   Red: {selectedActionProperty?.wifiNetwork}
                 </p>
                 <a
                   href={buildWhatsAppLink(selectedGuestAction.guestPhone, wifiMessageText)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-2.5 px-3 rounded-xl bg-[#EDE8E1] hover:bg-[#E3DDD4] text-[#7A7369] text-xs font-bold flex items-center justify-center gap-2 transition-colors"
+                  className="w-full py-2.5 px-3 rounded-xl bg-[#E4DDD1] hover:bg-[#D9D0C1] text-[#3A352D] dark:bg-zinc-700 dark:hover:bg-zinc-600 dark:text-gray-100 text-xs font-bold flex items-center justify-center gap-2 transition-colors"
                 >
                   <ExternalLink className="w-4 h-4" />
                   <span>Enviar Wi-Fi por WhatsApp</span>
@@ -1034,7 +733,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
 
               {/* ACCIÓN 4: ESTADO DE PAGO */}
               <div className="p-4 rounded-2xl bg-white dark:bg-[#1A1B20] border border-gray-100 dark:border-zinc-800 space-y-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-stone-900 dark:text-gray-100 block">
                   Registrar Cobro:
                 </span>
                 <div className="grid grid-cols-3 gap-2">
@@ -1045,8 +744,8 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                     }}
                     className={`py-2 px-1 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                       selectedGuestAction.paymentStatus === 'deposit_only'
-                        ? 'bg-[#FDF3E7] border-orange-200 text-[#D86F35]'
-                        : 'bg-[#EDE8E1] border-transparent text-[#7A7369]'
+                        ? 'bg-[#FBE3CB] border-[#8F3B08] text-[#7A3306] dark:bg-[#3D2516] dark:border-[#FFB27F] dark:text-[#FFB27F]'
+                        : 'bg-[#E4DDD1] border-transparent text-stone-900 dark:bg-zinc-700 dark:text-gray-100'
                     }`}
                   >
                     Seña 50%
@@ -1059,8 +758,8 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                     }}
                     className={`py-2 px-1 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                       selectedGuestAction.paymentStatus === 'paid'
-                        ? 'bg-[#E2F7E7] border-green-200 text-[#2EA44F]'
-                        : 'bg-[#EDE8E1] border-transparent text-[#7A7369]'
+                        ? 'bg-[#D3F1DB] border-[#0F5C2F] text-[#0F5C2F] dark:bg-[#193A24] dark:border-[#7BE59A] dark:text-[#7BE59A]'
+                        : 'bg-[#E4DDD1] border-transparent text-stone-900 dark:bg-zinc-700 dark:text-gray-100'
                     }`}
                   >
                     100% Pago
@@ -1073,8 +772,8 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                     }}
                     className={`py-2 px-1 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                       selectedGuestAction.paymentStatus === 'pending'
-                        ? 'bg-[#FDF3E7] border-orange-200 text-[#D86F35]'
-                        : 'bg-[#EDE8E1] border-transparent text-[#7A7369]'
+                        ? 'bg-[#FBE3CB] border-[#8F3B08] text-[#7A3306] dark:bg-[#3D2516] dark:border-[#FFB27F] dark:text-[#FFB27F]'
+                        : 'bg-[#E4DDD1] border-transparent text-stone-900 dark:bg-zinc-700 dark:text-gray-100'
                     }`}
                   >
                     Pendiente
@@ -1087,84 +786,48 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* 4. FIXED BOTTOM TAB BAR (COPIA EXACTA DE LA IMAGEN)                        */}
+      {/* 4. BARRA INFERIOR: Agenda · Calendario · Avisos · Xenia · Más              */}
       {/* ========================================================================= */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-[#15161A] border-t border-black/[0.04] dark:border-white/[0.06] py-2 px-3 flex items-center justify-around shadow-[0_-4px_20px_rgba(0,0,0,0.03)] select-none">
-        <button
-          onClick={() => setMobileTab('today')}
-          className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-xl transition-all cursor-pointer ${
-            mobileTab === 'today'
-              ? 'text-[#C97B51] font-bold'
-              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 font-medium'
-          }`}
-        >
-          <Sun className="w-5 h-5 stroke-[1.8]" />
-          <span className="text-[11px] leading-none">Hoy</span>
-        </button>
-
-        <button
-          onClick={() => setMobileTab('units')}
-          className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-xl transition-all cursor-pointer ${
-            mobileTab === 'units'
-              ? 'text-[#C97B51] font-bold'
-              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 font-medium'
-          }`}
-        >
-          <Home className="w-5 h-5 stroke-[1.8]" />
-          <span className="text-[11px] leading-none">Cabañas</span>
-        </button>
-
-        <button
-          onClick={() => setMobileTab('guests')}
-          className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-xl transition-all cursor-pointer ${
-            mobileTab === 'guests'
-              ? 'text-[#C97B51] font-bold'
-              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 font-medium'
-          }`}
-        >
-          <div className="w-5 h-5 rounded-full border-[1.8px] border-current flex items-center justify-center">
-            <span className="w-2.5 h-2.5 rounded-full border-[1.8px] border-current -mb-0.5" />
-          </div>
-          <span className="text-[11px] leading-none">Huéspedes</span>
-        </button>
-
-        {teamNoticesNode && (
-          <button
-            onClick={() => setMobileTab('avisos')}
-            className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-xl transition-all cursor-pointer ${
-              mobileTab === 'avisos'
-                ? 'text-[#C97B51] font-bold'
-                : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 font-medium'
-            }`}
-          >
-            <Bell className="w-5 h-5 stroke-[1.8]" />
-            <span className="text-[11px] leading-none">Avisos</span>
-          </button>
-        )}
-
-        <button
-          onClick={() => setMobileTab('xenia')}
-          className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-xl transition-all cursor-pointer ${
-            mobileTab === 'xenia'
-              ? 'text-[#C97B51] font-bold'
-              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 font-medium'
-          }`}
-        >
-          <Mic className="w-5 h-5 stroke-[1.8]" />
-          <span className="text-[11px] leading-none">Xenia Voz</span>
-        </button>
-
-        <button
-          onClick={() => setMobileTab('more')}
-          className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-xl transition-all cursor-pointer ${
-            mobileTab === 'more'
-              ? 'text-[#C97B51] font-bold'
-              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 font-medium'
-          }`}
-        >
-          <Zap className="w-5 h-5 stroke-[1.8]" />
-          <span className="text-[11px] leading-none">Atajos</span>
-        </button>
+      <nav
+        aria-label="Secciones"
+        className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-[#15161A] border-t-2 border-stone-300 dark:border-white/15 py-1.5 px-2 flex items-stretch justify-around shadow-[0_-4px_20px_rgba(0,0,0,0.06)] select-none"
+      >
+        {(
+          [
+            { id: 'agenda', emoji: '📅', label: 'Agenda' },
+            { id: 'calendar', emoji: '🗓️', label: 'Calendario' },
+            { id: 'avisos', emoji: '🔔', label: 'Avisos' },
+            { id: 'xenia', emoji: '✨', label: 'Xenia' },
+            { id: 'more', emoji: '⋯', label: 'Más' },
+          ] as Array<{ id: MobileTab; emoji: string; label: string }>
+        ).map((item) => {
+          const isActive = mobileTab === item.id || (item.id === 'more' && mobileTab === 'units');
+          return (
+            <button
+              key={item.id}
+              onClick={() => setMobileTab(item.id)}
+              aria-current={isActive ? 'page' : undefined}
+              className={`relative flex-1 min-h-[54px] flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl transition-colors cursor-pointer ${
+                isActive
+                  ? 'bg-[#F6D2B8] text-[#7A3306] dark:bg-white/10 dark:text-[#FFB27F] font-extrabold'
+                  : 'text-stone-900 dark:text-gray-200 font-bold'
+              }`}
+            >
+              <span className={`leading-none ${item.id === 'more' ? 'text-2xl font-black -mt-1' : 'text-xl'}`} aria-hidden>
+                {item.emoji}
+              </span>
+              <span className="text-[11px] leading-none">{item.label}</span>
+              {item.id === 'agenda' && overdueRemindersCount > 0 && (
+                <span
+                  aria-label={`${overdueRemindersCount} recordatorios atrasados`}
+                  className="absolute top-0.5 right-[18%] min-w-[18px] h-[18px] px-1 rounded-full bg-red-700 text-white text-[10px] font-extrabold flex items-center justify-center"
+                >
+                  {overdueRemindersCount}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </nav>
     </div>
   );

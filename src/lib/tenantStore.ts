@@ -8,7 +8,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { Property, Reservation, CleaningTask, MessageTemplate, AddonService, WelcomeGuideData, CashMovement, CurrencyCode, TeamContact } from '../types';
+import { Property, Reservation, CleaningTask, MessageTemplate, AddonService, WelcomeGuideData, CashMovement, CurrencyCode, TeamContact, Reminder } from '../types';
 
 export interface TenantDoc {
   ownerEmail: string;
@@ -38,7 +38,7 @@ export interface TenantDoc {
 }
 
 /**
- * Subscribe in real-time to tenants/{uid} and all subcollections: properties, reservations, cleaningTasks, cashMovements.
+ * Subscribe in real-time to tenants/{uid} and all subcollections: properties, reservations, cleaningTasks, cashMovements, reminders.
  * Returns an unsubscribe function.
  */
 export function subscribeToTenant(
@@ -49,12 +49,13 @@ export function subscribeToTenant(
     reservations: Reservation[];
     cleaningTasks: CleaningTask[];
     cashMovements: CashMovement[];
+    reminders: Reminder[];
     exists: boolean;
     loading: boolean;
   }) => void
 ): () => void {
   if (!uid || !db) {
-    onData({ tenant: null, properties: [], reservations: [], cleaningTasks: [], cashMovements: [], exists: false, loading: false });
+    onData({ tenant: null, properties: [], reservations: [], cleaningTasks: [], cashMovements: [], reminders: [], exists: false, loading: false });
     return () => {};
   }
 
@@ -64,20 +65,23 @@ export function subscribeToTenant(
   let reservationsList: Reservation[] = [];
   let cleaningList: CleaningTask[] = [];
   let cashList: CashMovement[] = [];
+  let reminderList: Reminder[] = [];
   let tenantLoaded = false;
   let propLoaded = false;
   let resLoaded = false;
   let cleanLoaded = false;
   let cashLoaded = false;
+  let reminderLoaded = false;
 
   const checkReady = () => {
-    if (tenantLoaded && propLoaded && resLoaded && cleanLoaded && cashLoaded) {
+    if (tenantLoaded && propLoaded && resLoaded && cleanLoaded && cashLoaded && reminderLoaded) {
       onData({
         tenant: tenantData,
         properties: propertiesList,
         reservations: reservationsList,
         cleaningTasks: cleaningList,
         cashMovements: cashList,
+        reminders: reminderList,
         exists: tenantExists,
         loading: false,
       });
@@ -140,12 +144,24 @@ export function subscribeToTenant(
     checkReady();
   });
 
+  const reminderRef = collection(db, 'tenants', uid, 'reminders');
+  const unsubReminders = onSnapshot(reminderRef, (snap) => {
+    reminderList = snap.docs.map(d => ({ ...(d.data() as Reminder), id: d.id }));
+    reminderLoaded = true;
+    checkReady();
+  }, (err) => {
+    console.error('Error listening to reminders:', err);
+    reminderLoaded = true;
+    checkReady();
+  });
+
   return () => {
     unsubTenant();
     unsubProp();
     unsubRes();
     unsubClean();
     unsubCash();
+    unsubReminders();
   };
 }
 
@@ -349,6 +365,18 @@ export async function deleteCashMovementDoc(uid: string, movementId: string): Pr
   if (!uid || !db) return;
   const moveRef = doc(db, 'tenants', uid, 'cashMovements', movementId);
   await deleteDoc(moveRef);
+}
+
+export async function saveReminderDoc(uid: string, reminder: Reminder): Promise<void> {
+  if (!uid || !db) return;
+  const remRef = doc(db, 'tenants', uid, 'reminders', reminder.id);
+  await setDoc(remRef, reminder, { merge: true });
+}
+
+export async function deleteReminderDoc(uid: string, reminderId: string): Promise<void> {
+  if (!uid || !db) return;
+  const remRef = doc(db, 'tenants', uid, 'reminders', reminderId);
+  await deleteDoc(remRef);
 }
 
 export async function savePublicGuide(

@@ -322,7 +322,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             <h2 className="text-xl font-light text-gray-900 dark:text-gray-100 tracking-tight">
               Ocupación & <span className="font-semibold text-gray-800 dark:text-white">Disponibilidad</span>
             </h2>
-            <p className="text-[11px] text-gray-400 dark:text-zinc-400 font-medium leading-normal max-w-xl">
+            <p className="text-[11px] text-stone-700 dark:text-zinc-300 font-medium leading-normal max-w-xl">
               {isAppMode
                 ? 'Sincronizado con Airbnb y Booking cada 15 minutos mientras Loomi está abierto.'
                 : 'Rack sincronizado con Google Calendars, Airbnb y canales directos. Check-in: 14:00 / Check-out: 10:00.'}
@@ -342,7 +342,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                   <RotateCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
                   <span>{isSyncing ? 'Sincronizando…' : '🔄 Sincronizar ahora'}</span>
                 </button>
-                <span className="text-[10px] text-gray-400 font-medium">
+                <span className="text-[10px] text-stone-700 dark:text-zinc-300 font-medium">
                   {icalSyncState?.lastSyncAt
                     ? (() => {
                         const diffMins = Math.floor((Date.now() - new Date(icalSyncState.lastSyncAt).getTime()) / 60000);
@@ -356,10 +356,10 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             {onOpenImportModal && (
               <button
                 onClick={onOpenImportModal}
-                className="flex items-center space-x-1.5 text-gray-500 dark:text-zinc-300 font-semibold hover:text-gray-800 dark:hover:text-white text-xs px-3.5 py-2.5 bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl border border-gray-100 dark:border-zinc-700 transition-colors cursor-pointer"
+                className="flex items-center space-x-1.5 text-gray-700 dark:text-zinc-300 font-semibold hover:text-gray-800 dark:hover:text-white text-xs px-3.5 py-2.5 bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-xl border border-gray-100 dark:border-zinc-700 transition-colors cursor-pointer"
                 title="Importar reservas desde Google Calendar (.ics) o CSV"
               >
-                <Download className="w-4 h-4 text-gray-400" />
+                <Download className="w-4 h-4 text-gray-700 dark:text-zinc-300" />
                 <span>Importar iCal / CSV</span>
               </button>
             )}
@@ -399,7 +399,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
 
             {/* Selector Unidades */}
             <div className="flex items-center bg-gray-50 dark:bg-zinc-800/70 border border-gray-100 dark:border-zinc-700/80 rounded-xl px-3 py-1.5 space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700/80 transition-colors">
-              <span className="text-gray-400 font-normal">Unidades:</span>
+              <span className="text-stone-700 dark:text-zinc-300 font-semibold">Unidades:</span>
               <select
                 value={selectedPropertyId}
                 onChange={(e) => setSelectedPropertyId(e.target.value)}
@@ -418,7 +418,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
 
             {/* Selector Canales */}
             <div className="hidden sm:flex items-center bg-gray-50 dark:bg-zinc-800/70 border border-gray-100 dark:border-zinc-700/80 rounded-xl px-3 py-1.5 space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700/80 transition-colors">
-              <span className="text-gray-400 font-normal">Canales:</span>
+              <span className="text-stone-700 dark:text-zinc-300 font-semibold">Canales:</span>
               <select
                 value={platformFilter}
                 onChange={(e) => setPlatformFilter(e.target.value)}
@@ -553,7 +553,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                 {columnMode === 'compact' ? 'Depto' : columnMode === 'medium' ? 'Depto' : 'Departamento'}
               </span>
               {columnMode === 'full' && (
-                <span className="text-[10px] text-stone-400 dark:text-stone-500 font-mono">Tarifa/N</span>
+                <span className="text-[10px] text-stone-600 dark:text-stone-300 font-mono">Tarifa/N</span>
               )}
             </div>
             <div className="flex-1 grid grid-cols-[repeat(14,minmax(0,1fr))] min-w-[840px]">
@@ -562,12 +562,12 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                   key={d.dateStr}
                   className={`p-2.5 text-center border-r border-stone-100 dark:border-zinc-800/50 last:border-r-0 ${
                     d.isToday
-                      ? 'bg-orange-50/70 dark:bg-orange-950/20 text-[#E67E22]'
+                      ? 'bg-orange-50/70 dark:bg-orange-950/20 text-[#A8480F] dark:text-[#FFB27F]'
                       : ''
                   }`}
                 >
-                  <div className="text-[10px] uppercase font-bold text-stone-400 dark:text-stone-500">{d.dayName}</div>
-                  <div className={`text-sm mt-0.5 ${d.isToday ? 'text-[#E67E22] font-extrabold' : 'text-stone-800 dark:text-stone-200 font-medium'}`}>
+                  <div className="text-[10px] uppercase font-bold text-stone-700 dark:text-stone-300">{d.dayName}</div>
+                  <div className={`text-sm mt-0.5 ${d.isToday ? 'text-[#A8480F] dark:text-[#FFB27F] font-extrabold' : 'text-stone-800 dark:text-stone-200 font-medium'}`}>
                     {d.dayNum}
                   </div>
                 </div>

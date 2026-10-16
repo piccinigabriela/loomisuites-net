@@ -248,7 +248,26 @@ export interface DemoState {
   managementSettings?: { enabled: boolean; percent: number };
   /** Contactos para avisos por WhatsApp (limpieza, mantenimiento, llaves) */
   teamContacts?: TeamContact[];
+  /** Recordatorios del dueño (tenants/{uid}/reminders) */
+  reminders?: Reminder[];
   lastUpdated: string;
+}
+
+export type ReminderRepeat = 'none' | 'monthly' | 'yearly';
+
+/** Recordatorio de la Agenda del celular. Los que se repiten tienen un solo documento: al tildarlo, `date` pasa a la próxima vez. */
+export interface Reminder {
+  id: string;
+  /** Próxima fecha en que vence (YYYY-MM-DD) */
+  date: string;
+  text: string;
+  repeat: ReminderRepeat;
+  /** Fecha original, para repetir sin correrse (el 31 no se vuelve 28 para siempre) */
+  anchor: string;
+  /** Solo para los que no se repiten */
+  done?: boolean;
+  /** Última vez que se tildó (ISO) */
+  doneAt?: string;
 }
 
 export interface TeamContact {
