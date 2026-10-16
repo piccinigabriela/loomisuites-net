@@ -62,9 +62,12 @@ import {
   saveManagementSettingsDoc,
   savePublicGuide,
   savePublicCalendar,
+  subscribeToServerIcalSync,
+  ServerIcalSyncStatus,
   TenantDoc,
 } from './lib/tenantStore';
 import { syncCalendars } from './lib/icalSync';
+import { findConflicts, getLocalDateString, SyncResult } from './lib/icalCore';
 
 
 // Carga diferida: la landing no descarga la demo, el panel ni los modales hasta que hacen falta
@@ -705,12 +708,55 @@ export default function App() {
   const isSyncingRef = React.useRef(false);
   const previousConflictKeysRef = React.useRef<Set<string>>(new Set());
 
-  const runSyncNow = async () => {
+  // Sincronización del servidor (cada 15 min aunque nadie tenga la app abierta). La de la app queda de respaldo.
+  const [serverIcalSync, setServerIcalSync] = useState<ServerIcalSyncStatus | null>(null);
+  const serverIcalSyncRef = React.useRef<ServerIcalSyncStatus | null>(null);
+  useEffect(() => {
+    if (!isApp || !currentUser) return;
+    return subscribeToServerIcalSync(currentUser.uid, (status) => {
+      serverIcalSyncRef.current = status;
+      setServerIcalSync(status);
+    });
+  }, [isApp, currentUser]);
+
+  // Mostrar como "última sincronización" la más reciente entre la app y el servidor
+  useEffect(() => {
+    const serverAt = serverIcalSync?.ultimaCorrida;
+    if (!serverAt) return;
+    setIcalSyncState((prev) =>
+      !prev.lastSyncAt || prev.lastSyncAt < serverAt ? { ...prev, lastSyncAt: serverAt } : prev
+    );
+  }, [serverIcalSync?.ultimaCorrida]);
+
+  const SERVER_SYNC_FRESH_MS = 14 * 60 * 1000;
+  const emptySyncResult: SyncResult = { agregadas: 0, actualizadas: 0, canceladas: 0, errores: [], conflictos: [], cambios: [], avisos: [] };
+
+  const notifyNewConflicts = (conflictos: SyncResult['conflictos']) => {
+    // Toast de doble reserva solo para conflictos NUEVOS
+    const newConflictKeys = new Set(conflictos.map((c) => `${c.propertyId}_${c.resA.id}_${c.resB.id}`));
+
+    let hasBrandNewConflict = false;
+    for (const key of newConflictKeys) {
+      if (!previousConflictKeysRef.current.has(key)) {
+        hasBrandNewConflict = true;
+        break;
+      }
+    }
+
+    if (hasBrandNewConflict && conflictos.length > 0) {
+      const firstUnit = conflictos[0].unitName;
+      showToast(`⚠️ Posible doble reserva en ${firstUnit}. Revisá el calendario.`);
+    }
+
+    previousConflictKeysRef.current = newConflictKeys;
+  };
+
+  const runSyncNow = async (options: { automatic?: boolean } = {}): Promise<SyncResult> => {
     if (!isApp || !currentUser) {
-      return { agregadas: 0, actualizadas: 0, canceladas: 0, errores: [], conflictos: [] };
+      return emptySyncResult;
     }
     if (isSyncingRef.current) {
-      return { agregadas: 0, actualizadas: 0, canceladas: 0, errores: [], conflictos: [] };
+      return emptySyncResult;
     }
     isSyncingRef.current = true;
     try {
@@ -727,7 +773,25 @@ export default function App() {
           ...prev,
           lastSyncAt: new Date().toISOString(),
         }));
-        return { agregadas: 0, actualizadas: 0, canceladas: 0, errores: [], conflictos: [] };
+        return emptySyncResult;
+      }
+
+      // Respaldo: si el servidor sincronizó hace menos de 14 minutos, la app no vuelve a bajar los calendarios
+      // (el botón "Sincronizar ahora" siempre sincroniza). Igual revisa dobles reservas con los datos actuales.
+      const server = serverIcalSyncRef.current;
+      if (
+        options.automatic &&
+        server?.ultimaCorrida &&
+        Date.now() - new Date(server.ultimaCorrida).getTime() < SERVER_SYNC_FRESH_MS
+      ) {
+        const conflictos = findConflicts(currentProps, currentRes, getLocalDateString());
+        setIcalSyncState({
+          lastSyncAt: server.ultimaCorrida,
+          errores: server.errores || [],
+          conflictos,
+        });
+        notifyNewConflicts(conflictos);
+        return { ...emptySyncResult, conflictos };
       }
 
       const result = await syncCalendars(currentUser.uid, currentProps, currentRes, currentTasks);
@@ -742,30 +806,12 @@ export default function App() {
         showToast(`Calendarios sincronizados: ${result.agregadas} nuevas, ${result.canceladas} canceladas`);
       }
 
-      // Toast de doble reserva solo para conflictos NUEVOS
-      const newConflictKeys = new Set(
-        result.conflictos.map((c) => `${c.propertyId}_${c.resA.id}_${c.resB.id}`)
-      );
-
-      let hasBrandNewConflict = false;
-      for (const key of newConflictKeys) {
-        if (!previousConflictKeysRef.current.has(key)) {
-          hasBrandNewConflict = true;
-          break;
-        }
-      }
-
-      if (hasBrandNewConflict && result.conflictos.length > 0) {
-        const firstUnit = result.conflictos[0].unitName;
-        showToast(`⚠️ Posible doble reserva en ${firstUnit}. Revisá el calendario.`);
-      }
-
-      previousConflictKeysRef.current = newConflictKeys;
+      notifyNewConflicts(result.conflictos);
 
       return result;
     } catch (err) {
       console.warn('Error en la sincronización de iCal:', err);
-      return { agregadas: 0, actualizadas: 0, canceladas: 0, errores: [], conflictos: [] };
+      return emptySyncResult;
     } finally {
       isSyncingRef.current = false;
     }
@@ -776,12 +822,12 @@ export default function App() {
 
     // Run 5 seconds after tenant loads
     const initialTimer = setTimeout(() => {
-      runSyncNow();
+      runSyncNow({ automatic: true });
     }, 5000);
 
     // Run every 15 minutes while app is open
     const intervalTimer = setInterval(() => {
-      runSyncNow();
+      runSyncNow({ automatic: true });
     }, 15 * 60 * 1000);
 
     return () => {
@@ -2009,7 +2055,7 @@ export default function App() {
                 onOpenNewReservationWithProperty={handleOpenNewReservationWithProperty}
                 isAppMode={isApp}
                 icalSyncState={icalSyncState}
-                onRunSyncNow={runSyncNow}
+                onRunSyncNow={() => runSyncNow()}
               />
             </div>
           ) : (
@@ -2069,7 +2115,7 @@ export default function App() {
           onOpenNewReservationWithProperty={handleOpenNewReservationWithProperty}
           onOpenImportModal={() => setIsImportModalOpen(true)}
           icalSyncState={icalSyncState}
-          onRunSyncNow={runSyncNow}
+          onRunSyncNow={() => runSyncNow()}
           teamNoticesNode={
             showTeamNotices && userRole === 'admin' ? (
               <TeamNotices
@@ -2370,7 +2416,7 @@ export default function App() {
                   onOpenImportModal={() => setIsImportModalOpen(true)}
                   isAppMode={isApp}
                   icalSyncState={icalSyncState}
-                  onRunSyncNow={runSyncNow}
+                  onRunSyncNow={() => runSyncNow()}
                 />
               )}
 

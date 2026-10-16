@@ -16,6 +16,10 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   (Gabi las pega a mano en la consola: si las cambiás, avisale).
 - Cloudflare Pages: cada push a `main` de GitHub (piccinigabriela/loomisuites-net) se publica solo.
   Functions en `functions/` (proxy de login en `functions/__/`, OG de `/guia` y `/manual`); rutas en `public/_routes.json`.
+- Sincronización iCal en el servidor: `server-sync/` (Firebase Function programada cada 15 min, codebase `ical`,
+  config en `firebase.json`). La lógica está en `src/lib/icalCore.ts` y la comparten la app y el servidor: no duplicarla.
+  Modo en Firestore `sistema/icalSync.modo` ("prueba" no escribe; "real" escribe). Estado por cuenta en `tenants/{uid}/sync/ical`.
+  Se publica desde Cloud Shell (`firebase deploy --only functions`), no con el push. Comandos: `npm run prueba|estado|activar|pausar` en `server-sync/`.
 - Xenia (asistente IA) corre en un backend de AI Studio con Gemini. No borrar ese proyecto de AI Studio.
 - `isAppMode()` = hostname `app.` o `?mode=app`. Sin eso, la app muestra la demo con datos de ejemplo.
 - Roles (`/admin`, `/recepcion`, `/limpieza`) hoy son solo vistas de la misma cuenta, no permisos.

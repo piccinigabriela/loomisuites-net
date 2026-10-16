@@ -1,0 +1,11 @@
+{
+  "functions": [
+    {
+      "source": "server-sync",
+      "codebase": "ical",
+      "runtime": "nodejs22",
+      "ignore": ["node_modules", "src", "tsconfig.json", "*.log"],
+      "predeploy": ["npm --prefix \"$RESOURCE_DIR\" run build"]
+    }
+  ]
+}

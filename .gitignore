@@ -8,3 +8,7 @@ coverage/
 bun.lock
 .env*
 !.env.example
+
+# Función de sincronización del servidor (se compila al publicar)
+server-sync/lib/
+.firebase/

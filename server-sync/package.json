@@ -1,0 +1,26 @@
+{
+  "name": "loomi-server-sync",
+  "private": true,
+  "description": "Sincronización iCal de Loomi Suite en el servidor (Firebase Functions, cada 15 minutos)",
+  "main": "lib/index.js",
+  "engines": {
+    "node": "22"
+  },
+  "scripts": {
+    "build": "esbuild src/index.ts src/cli.ts --bundle --platform=node --target=node20 --format=cjs --packages=external --outdir=lib --log-level=warning",
+    "typecheck": "tsc --noEmit",
+    "prueba": "npm run build --silent && node lib/cli.js prueba",
+    "estado": "npm run build --silent && node lib/cli.js estado",
+    "activar": "npm run build --silent && node lib/cli.js activar",
+    "pausar": "npm run build --silent && node lib/cli.js pausar"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.10.0",
+    "firebase-functions": "^7.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "esbuild": "^0.28.0",
+    "typescript": "^5.9.3"
+  }
+}

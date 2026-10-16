@@ -431,3 +431,27 @@ export async function savePublicCalendar(
     { merge: true }
   );
 }
+
+/** Estado de la sincronización iCal que corre en el servidor (lo escribe server-sync en tenants/{uid}/sync/ical). */
+export interface ServerIcalSyncStatus {
+  ultimaCorrida: string; // ISO
+  agregadas: number;
+  actualizadas: number;
+  canceladas: number;
+  errores: Array<{ propertyId: string; propertyName: string; portal: string; error: string }>;
+}
+
+export function subscribeToServerIcalSync(
+  uid: string,
+  onData: (status: ServerIcalSyncStatus | null) => void
+): () => void {
+  if (!uid || !db) return () => {};
+  return onSnapshot(
+    doc(db, 'tenants', uid, 'sync', 'ical'),
+    (snap) => onData(snap.exists() ? (snap.data() as ServerIcalSyncStatus) : null),
+    (err) => {
+      console.warn('Estado de sincronización del servidor no disponible:', err);
+      onData(null);
+    }
+  );
+}
