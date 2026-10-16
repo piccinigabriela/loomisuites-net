@@ -52,6 +52,15 @@ function webWriter(uid: string): IcalSyncWriter {
         if (!isNotFound(err)) throw err; // si la borraron a mano, no la revivimos
       }
     },
+    async moveCleaningTasks(taskIds, date) {
+      for (const taskId of taskIds) {
+        try {
+          await updateDoc(doc(db, 'tenants', uid, 'cleaningTasks', taskId), { date });
+        } catch (err) {
+          if (!isNotFound(err)) throw err;
+        }
+      }
+    },
     async cancel(reservationId, pendingCleaningTaskIds) {
       try {
         await updateDoc(doc(db, 'tenants', uid, 'reservations', reservationId), { status: 'cancelled' });

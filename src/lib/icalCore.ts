@@ -211,6 +211,8 @@ export interface IcalSyncWriter {
   createIfAbsent(reservation: Reservation, cleaningTask: CleaningTask): Promise<boolean>;
   /** Cambia solo las fechas y noches de una reserva existente. */
   updateDates(reservationId: string, data: { checkIn: string; checkOut: string; nights: number }): Promise<void>;
+  /** Pasa las limpiezas pendientes indicadas a otra fecha (nuevo día de salida). */
+  moveCleaningTasks(taskIds: string[], date: string): Promise<void>;
   /** Marca la reserva como cancelada y borra sus limpiezas pendientes. */
   cancel(reservationId: string, pendingCleaningTaskIds: string[]): Promise<void>;
 }
@@ -235,6 +237,8 @@ export type IcalChange =
       guestName: string;
       antes: { checkIn: string; checkOut: string };
       despues: { checkIn: string; checkOut: string; nights: number };
+      /** Limpiezas pendientes que se pasan al nuevo día de salida */
+      cleaningTaskIds: string[];
     }
   | {
       tipo: 'cancelada';
@@ -423,8 +427,20 @@ export async function runIcalSync(input: RunIcalSyncInput): Promise<SyncResult> 
           // Si cambiaron las fechas: actualizar SOLO checkIn, checkOut y nights
           if (existingRes.checkIn !== event.start || existingRes.checkOut !== event.end) {
             const nights = nightsBetween(event.start, event.end);
+            // Si cambió el día de salida, la limpieza pendiente se mueve con él.
+            // Solo las que seguían en la salida anterior: si alguien la cambió a mano, se respeta.
+            const tasksToMove =
+              existingRes.checkOut !== event.end
+                ? cleaningTasks
+                    .filter(
+                      (t) =>
+                        t.reservationId === resId && t.status === 'pending' && t.date === existingRes.checkOut
+                    )
+                    .map((t) => t.id)
+                : [];
             if (writer) {
               await writer.updateDates(resId, { checkIn: event.start, checkOut: event.end, nights });
+              if (tasksToMove.length) await writer.moveCleaningTasks(tasksToMove, event.end);
             }
             cambios.push({
               tipo: 'fechas',
@@ -435,6 +451,7 @@ export async function runIcalSync(input: RunIcalSyncInput): Promise<SyncResult> 
               guestName: existingRes.guestName,
               antes: { checkIn: existingRes.checkIn, checkOut: existingRes.checkOut },
               despues: { checkIn: event.start, checkOut: event.end, nights },
+              cleaningTaskIds: tasksToMove,
             });
             const updatedRes: Reservation = { ...existingRes, checkIn: event.start, checkOut: event.end, nights };
             workingReservations = workingReservations.map((r) => (r.id === resId ? updatedRes : r));
@@ -548,7 +565,8 @@ export function describeChange(c: IcalChange): string {
     return `NUEVA     · ${c.unitName} · ${portal} · ${r.checkIn} → ${r.checkOut} (${r.nights} noches) · "${r.guestName}" + limpieza el ${c.cleaningTask.date}${extra}`;
   }
   if (c.tipo === 'fechas') {
-    return `FECHAS    · ${c.unitName} · ${portal} · "${c.guestName}" ${c.antes.checkIn} → ${c.antes.checkOut} pasa a ${c.despues.checkIn} → ${c.despues.checkOut}`;
+    const limpieza = c.cleaningTaskIds.length ? ` (la limpieza pasa al ${c.despues.checkOut})` : '';
+    return `FECHAS    · ${c.unitName} · ${portal} · "${c.guestName}" ${c.antes.checkIn} → ${c.antes.checkOut} pasa a ${c.despues.checkIn} → ${c.despues.checkOut}${limpieza}`;
   }
   const limpieza = c.cleaningTaskIds.length ? ` y se borra${c.cleaningTaskIds.length > 1 ? 'n' : ''} ${c.cleaningTaskIds.length} limpieza(s) pendiente(s)` : '';
   return `CANCELADA · ${c.unitName} · ${portal} · "${c.guestName}" ${c.checkIn} → ${c.checkOut}${limpieza}`;

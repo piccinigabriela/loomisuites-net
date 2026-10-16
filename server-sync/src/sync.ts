@@ -129,6 +129,15 @@ export function adminWriter(db: Firestore, uid: string): IcalSyncWriter {
         if (!isNotFound(err)) throw err; // si la borraron a mano, no la revivimos
       }
     },
+    async moveCleaningTasks(taskIds, date) {
+      for (const id of taskIds) {
+        try {
+          await taskCol.doc(id).update({ date });
+        } catch (err) {
+          if (!isNotFound(err)) throw err;
+        }
+      }
+    },
     async cancel(reservationId, pendingCleaningTaskIds) {
       try {
         await resCol.doc(reservationId).update({ status: 'cancelled' });
