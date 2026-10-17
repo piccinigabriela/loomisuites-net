@@ -171,3 +171,17 @@ html:not(.dark) :where(
 .airy .fixed.inset-0 select,
 .airy .fixed.inset-0 textarea { font-size: 15px; min-height: 44px; }
 .airy .fixed.inset-0 button { min-height: 40px; }
+
+/* Barra de abajo del menú: botones parejos y más grandes */
+.airy .air-bar button { min-height: 40px; font-size: 14.5px; }
+
+/* Grises en hexadecimal y naranja chico: más oscuros en claro, más claros en oscuro */
+.airy [class^="text-[#71717A]"], .airy [class*=" text-[#71717A]"],
+.airy [class^="text-[#8e8c87]"], .airy [class*=" text-[#8e8c87]"],
+.airy [class^="text-[#78746c]"], .airy [class*=" text-[#78746c]"],
+.airy [class^="text-[#8e8a84]"], .airy [class*=" text-[#8e8a84]"] { color: #44403c; }
+.dark .airy [class^="text-[#8e8c87"], .dark .airy [class*=" text-[#8e8c87"],
+.dark .airy [class*=" text-[#78746c"], .dark .airy [class*=" text-[#8e8a84"],
+.dark .airy [class*="dark:text-[#8E8E93]"], .dark .airy [class*=" text-[#71717A]"] { color: #e0dcd5; }
+.airy [class^="text-[#E67E22]"], .airy [class*=" text-[#E67E22]"] { color: #A94F12; }
+.dark .airy [class^="text-[#E67E22]"], .dark .airy [class*=" text-[#E67E22]"] { color: #F0A46F; }

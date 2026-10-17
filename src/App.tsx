@@ -2347,7 +2347,7 @@ export default function App() {
           {/* Main Content Area */}
           <div className="flex-1 flex flex-col min-w-0 bg-[#F8F9FA] dark:bg-[#0E0F12] overflow-y-auto transition-colors">
             {/* Minimalist Architectural Top Sub-bar with fast actions & status */}
-            <div className={`${useTopNav ? "min-h-14 py-1.5 flex-wrap gap-y-2" : "h-14"} border-b border-stone-200/80 dark:border-zinc-800/80 px-4 sm:px-6 flex items-center justify-between bg-white/90 dark:bg-[#0E0F12]/90 sticky top-0 z-40 backdrop-blur-md transition-colors`}>
+            <div className={`${useTopNav ? "air-bar min-h-14 py-1.5 flex-wrap gap-y-2" : "h-14"} border-b border-stone-200/80 dark:border-zinc-800/80 px-4 sm:px-6 flex items-center justify-between bg-white/90 dark:bg-[#0E0F12]/90 sticky top-0 z-40 backdrop-blur-md transition-colors`}>
               <div className="flex items-center gap-2 sm:gap-3">
                 {!isApp && (
                   <button

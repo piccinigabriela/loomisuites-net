@@ -119,13 +119,13 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
         {/* 1. CABECERA PRINCIPAL (Líneas delgadas, adiós al bloque verde invasivo) */}
         <div className="bg-white dark:bg-[#18191E] rounded-2xl p-5 sm:p-6 shadow-[0_4px_12px_rgba(0,0,0,0.01)] border border-gray-100 dark:border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
           <div className="space-y-1">
-            <span className="inline-block bg-orange-50 dark:bg-orange-950/40 text-[#E67E22] text-[10px] font-bold tracking-widest px-2.5 py-1 rounded-md uppercase">
+            <span className="air-hide inline-block bg-orange-50 dark:bg-orange-950/40 text-[#E67E22] text-[10px] font-bold tracking-widest px-2.5 py-1 rounded-md uppercase">
               Módulo de Cara al Cliente
             </span>
             <h2 className="text-xl font-light text-gray-900 dark:text-gray-100 tracking-tight">
               Tu Web con Motor de Reservas & <span className="font-semibold text-gray-800 dark:text-gray-100">Portal del Huésped</span>
             </h2>
-            <p className="text-xs text-gray-400 dark:text-zinc-400 font-medium">
+            <p className="air-hide text-xs text-gray-400 dark:text-zinc-400 font-medium">
               Sitio web oficial al 0% comisión y guía interactiva QR para {guideData.propertyName}
             </p>
           </div>
@@ -405,7 +405,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
         <div className="transition-all">
           {activeSubTab === 'guest-view' && (
             <div className="py-2">
-              <div className="mb-4 text-center">
+              <div className="air-hide mb-4 text-center">
                 <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-zinc-400 bg-white dark:bg-[#18191E] px-4 py-2 rounded-xl border border-gray-100 dark:border-zinc-800 shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
                   <Info className="w-3.5 h-3.5 text-[#E67E22]" />
                   Experiencia interactiva que ve el huésped de {guideData.propertyName} al abrir el enlace o escanear el QR en la unidad.

@@ -428,7 +428,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
       {!isApp && (<>
       <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-gray-100 dark:border-zinc-800 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)] flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
+          <div className="air-hide flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]"></span>
             <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-bold">
               Finanzas & Reportes de Rendimiento
@@ -567,10 +567,10 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100 dark:border-zinc-800">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-bold">
+              <span className="air-hide text-[10px] tracking-widest text-[#E67E22] uppercase font-bold">
                 Tendencia Semestral
               </span>
-              <span className="text-gray-300 dark:text-zinc-600">·</span>
+              <span className="air-hide text-gray-300 dark:text-zinc-600">·</span>
               <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{chartRangeLabel}</span>
             </div>
             <h3 className="text-base font-bold text-gray-800 dark:text-gray-100 tracking-tight mt-0.5">
@@ -652,7 +652,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
                 ({chartData[hoveredMonthIndex].nights} noches)
               </div>
             ) : (
-              <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium hidden sm:inline">
+              <span className="air-hide text-[11px] text-gray-500 dark:text-gray-400 font-medium hidden sm:inline">
                 {isApp && !hasChartData
                   ? 'Todavía no hay estadías en estos meses: el gráfico se completa solo con tus reservas.'
                   : 'Pasá el mouse sobre los puntos para ver el detalle mensual'}
