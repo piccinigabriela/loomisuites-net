@@ -103,6 +103,7 @@ function lazyNamed<T extends Record<string, any>, K extends keyof T>(loader: () 
 }
 const CleanSidebar = lazyNamed(() => import('./components/demo/CleanSidebar'), 'CleanSidebar');
 const CleanToday = lazyNamed(() => import('./components/demo/CleanToday'), 'CleanToday');
+const DemoWelcome = lazyNamed(() => import('./components/demo/DemoWelcome'), 'DemoWelcome');
 const DesktopHome = lazyNamed(() => import('./components/demo/DesktopHome'), 'DesktopHome');
 const MobileLightView = lazyNamed(() => import('./components/demo/MobileLightView'), 'MobileLightView');
 const DemoHeader = lazyNamed(() => import('./components/demo/DemoHeader'), 'DemoHeader');
@@ -993,6 +994,25 @@ export default function App() {
       return false;
     }
   });
+
+  // Bienvenida del demo (computadora): sola la primera vez; "no mostrar de nuevo" la guarda en este navegador
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
+  useEffect(() => {
+    if (isApp || currentView !== 'demo' || typeof window === 'undefined' || window.innerWidth < 768) return;
+    try {
+      if (localStorage.getItem('loomi_demo_welcome_off') === 'true') return;
+      if (sessionStorage.getItem('loomi_demo_welcome_seen') === 'true') return;
+    } catch {}
+    setWelcomeOpen(true);
+  }, [isApp, currentView]);
+  const closeWelcome = (dontShowAgain: boolean) => {
+    setWelcomeOpen(false);
+    try {
+      sessionStorage.setItem('loomi_demo_welcome_seen', 'true');
+      if (dontShowAgain) localStorage.setItem('loomi_demo_welcome_off', 'true');
+      else localStorage.removeItem('loomi_demo_welcome_off');
+    } catch {}
+  };
 
   // Con el menú de arriba, la guía de planes del demo arranca oculta y se abre con el botón "Cómo funciona"
   const [showPlanPanelAiry, setShowPlanPanelAiry] = useState(false);
@@ -2555,6 +2575,7 @@ export default function App() {
                       { label: 'Modo Celular Ágil', onClick: () => handleSetMobileMode('light') },
                       ...(!isApp
                         ? [
+                            { label: 'Ver la bienvenida', onClick: () => setWelcomeOpen(true) },
                             { label: 'Quiero un plan', onClick: () => { setSelectedPlanForLead('Plan Loomi ($45.000/mes)'); setIsLeadModalOpen(true); } },
                             { label: 'Restablecer demo', onClick: handleResetData },
                           ]
@@ -2878,6 +2899,12 @@ export default function App() {
           </div>
         </div>
     )}
+
+      {welcomeOpen && !isApp && (
+        <Suspense fallback={null}>
+          <DemoWelcome onClose={closeWelcome} />
+        </Suspense>
+      )}
 
       {/* Persistent Floating Xenia AI Assistant (activo en el panel de Demo y App en escritorio; oculto cuando se está en la vista Asistente Xenia) */}
       {currentView === 'demo' && !isEmployeeMode && (userRole === 'frontdesk' || mobileMode === 'light' || (demoTab !== 'xenia' && demoTab !== 'direct-booking')) && (
