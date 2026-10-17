@@ -994,6 +994,24 @@ export default function App() {
     }
   });
 
+  // Con el menú de arriba, la guía de planes del demo arranca oculta y se abre con el botón "Cómo funciona"
+  const [showPlanPanelAiry, setShowPlanPanelAiry] = useState(false);
+  const openPlanPanelAiry = () => {
+    setShowPlanPanelAiry(true);
+    // El panel se carga recién cuando se abre: se espera a que aparezca para bajar hasta él
+    let tries = 0;
+    const timer = setInterval(() => {
+      const el = document.getElementById('demo-plan-panel');
+      tries += 1;
+      if (el) {
+        clearInterval(timer);
+        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' });
+      } else if (tries > 30) {
+        clearInterval(timer);
+      }
+    }, 100);
+  };
+
   const handleDismissDemoPlanBar = () => {
     setIsDemoPlanBarDismissed(true);
     try {
@@ -2513,6 +2531,16 @@ export default function App() {
                   </>
                 )}
                 </>)}
+                {useTopNav && !isApp && !loggedUser && (
+                  <button
+                    type="button"
+                    onClick={() => (showPlanPanelAiry ? setShowPlanPanelAiry(false) : openPlanPanelAiry())}
+                    aria-expanded={showPlanPanelAiry}
+                    className="px-3 rounded-xl border-2 border-[#A94F12] dark:border-[#F0A46F] text-[#A94F12] dark:text-[#F0A46F] font-bold bg-transparent cursor-pointer hover:bg-orange-50 dark:hover:bg-zinc-800"
+                  >
+                    Cómo funciona
+                  </button>
+                )}
                 {useTopNav && (
                   <DesktopMoreMenu
                     items={[
@@ -2527,7 +2555,6 @@ export default function App() {
                       { label: 'Modo Celular Ágil', onClick: () => handleSetMobileMode('light') },
                       ...(!isApp
                         ? [
-                            ...(isDemoPlanBarDismissed ? [{ label: 'Guía de planes', onClick: handleShowDemoPlanBar }] : []),
                             { label: 'Quiero un plan', onClick: () => { setSelectedPlanForLead('Plan Loomi ($45.000/mes)'); setIsLeadModalOpen(true); } },
                             { label: 'Restablecer demo', onClick: handleResetData },
                           ]
@@ -2827,8 +2854,8 @@ export default function App() {
             </div>
 
             {/* Selector de Planes & Escenarios Comerciales (Plano de menor prioridad visual, al pie del panel) */}
-            {!isApp && !loggedUser && !isDemoPlanBarDismissed && (
-              <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 pb-6 pt-2">
+            {!isApp && !loggedUser && (useTopNav ? showPlanPanelAiry : !isDemoPlanBarDismissed) && (
+              <div id="demo-plan-panel" className="max-w-7xl w-full mx-auto px-3 sm:px-6 pb-6 pt-2">
                 <DemoPlanFunctionalBar
                   onSelectTab={setDemoTab}
                   currentTab={demoTab}
@@ -2844,7 +2871,7 @@ export default function App() {
                     setSelectedPlanForLead('Plan Loomi Suite ($60.000/mes)');
                     setIsLeadModalOpen(true);
                   }}
-                  onDismiss={handleDismissDemoPlanBar}
+                  onDismiss={useTopNav ? () => setShowPlanPanelAiry(false) : handleDismissDemoPlanBar}
                 />
               </div>
             )}
