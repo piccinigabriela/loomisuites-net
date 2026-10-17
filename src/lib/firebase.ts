@@ -1,4 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 import {
   getAuth,
   GoogleAuthProvider,
@@ -50,6 +51,20 @@ const databaseId = firebaseConfigJson.firestoreDatabaseId || '(default)';
 
 // Initialize Firebase App
 export const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+
+// App Check: demuestra a Firebase que las consultas vienen de la app de Loomi y no de un script ajeno.
+// Se activa solo cuando hay clave de reCAPTCHA en firebase-applet-config.json (recaptchaSiteKey); sin clave, no hace nada.
+// Tiene que iniciarse antes de usar Firestore.
+if (typeof window !== 'undefined' && firebaseConfigJson.recaptchaSiteKey) {
+  try {
+    initializeAppCheck(firebaseApp, {
+      provider: new ReCaptchaV3Provider(firebaseConfigJson.recaptchaSiteKey),
+      isTokenAutoRefreshEnabled: true,
+    });
+  } catch (err) {
+    console.warn('App Check no pudo iniciarse:', err);
+  }
+}
 
 // Initialize Firebase Auth
 export const auth = getAuth(firebaseApp);
