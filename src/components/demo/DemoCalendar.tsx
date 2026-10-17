@@ -49,6 +49,8 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
   const [highlightTurnoversOnly, setHighlightTurnoversOnly] = useState<boolean>(false);
   // Column width: compact (48px) - perfect for mobile, medium (105px), full (185px)
   // En computadora (modo aireado) las columnas van fijas en 150px; en el celular, compactas
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [collapsedCats, setCollapsedCats] = useState<Record<string, boolean>>({});
   const [columnMode, setColumnMode] = useState<ColumnMode>(() =>
     useTopNavEnabled(isAppMode) && typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'full' : 'compact'
   );
@@ -189,10 +191,47 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
     }
   };
 
-  const filteredProperties =
+  // ---- Categorías de alojamiento (modo aireado) ----
+  // Salen de los tipos de Tarifas. En el demo, que no tiene tarifas cargadas, se arman con la primera palabra del tipo ("Cabaña", "Suite").
+  const airy = useTopNavEnabled(isAppMode);
+  const pricingTypes = demoState.pricing?.types || [];
+  const pricingAssign = demoState.pricing?.assignments || {};
+  const PLURALS: Record<string, string> = { Cabaña: 'Cabañas', Suite: 'Suites', Habitación: 'Habitaciones', Loft: 'Lofts', Depto: 'Deptos', Departamento: 'Departamentos', Casa: 'Casas', Bungalow: 'Bungalows' };
+  const catOf = (p: (typeof demoState.properties)[number]): { id: string; name: string } => {
+    const t = pricingTypes.find((x) => x.id === pricingAssign[p.id]);
+    if (t) return { id: t.id, name: t.name || 'Sin nombre' };
+    if (!isAppMode && pricingTypes.length === 0) {
+      const w = (p.type || p.name || '').split(' ')[0];
+      return w ? { id: `w-${w}`, name: PLURALS[w] || w } : { id: '_none', name: 'Sin categoría' };
+    }
+    return { id: '_none', name: 'Sin categoría' };
+  };
+  const catIds: string[] = [];
+  demoState.properties.forEach((p) => {
+    const id = catOf(p).id;
+    if (!catIds.includes(id)) catIds.push(id);
+  });
+  const groupingOn = airy && catIds.length >= 2;
+  const catOrder = [...pricingTypes.map((t) => t.id), ...catIds.filter((id) => !pricingTypes.some((t) => t.id === id) && id !== '_none'), '_none'];
+  const CAT_COLORS = ['#E67E22', '#2F7A5C', '#3B6FA3', '#8A5BB5', '#B5483A', '#7A6A2E'];
+  const catColor = (id: string) => CAT_COLORS[Math.max(0, catOrder.indexOf(id)) % CAT_COLORS.length];
+  const catLabels = catOrder
+    .filter((id) => catIds.includes(id))
+    .map((id) => ({ id, name: catOf(demoState.properties.find((p) => catOf(p).id === id)!).name }));
+
+  const baseProperties =
     selectedPropertyId === 'all'
       ? demoState.properties
       : demoState.properties.filter((p) => p.id === selectedPropertyId);
+  const filteredProperties = groupingOn
+    ? baseProperties
+        .filter((p) => categoryFilter === 'all' || catOf(p).id === categoryFilter)
+        .slice()
+        .sort((a, b) => catOrder.indexOf(catOf(a).id) - catOrder.indexOf(catOf(b).id))
+    : baseProperties;
+  const todayKey = toLocalDateStr(new Date());
+  const occupiedToday = (propId: string) =>
+    demoState.reservations.some((r) => r.propertyId === propId && r.status !== 'cancelled' && r.checkIn <= todayKey && r.checkOut > todayKey);
 
   // Helper to get all reservations for a property that overlap with current visible dates
   const getVisibleReservationsForProperty = (propertyId: string) => {
@@ -546,11 +585,35 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
         </button>
       </div>
 
+      {groupingOn && (
+        <div className="bg-white dark:bg-[#18191E] px-5 py-3 border-b border-stone-200/70 dark:border-zinc-800/70 flex flex-wrap items-center gap-2" role="tablist" aria-label="Categorías de alojamiento">
+          {[{ id: 'all', name: 'Todas' }, ...catLabels].map((c) => {
+            const on = categoryFilter === c.id;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                role="tab"
+                aria-selected={on}
+                onClick={() => setCategoryFilter(c.id)}
+                className={`min-h-[40px] px-4 rounded-xl text-[15px] cursor-pointer transition-colors ${
+                  on
+                    ? 'font-bold bg-[#A94F12] text-white dark:bg-[#F0A46F] dark:text-[#1A1206]'
+                    : 'font-semibold text-stone-900 dark:text-stone-50 border border-stone-300 dark:border-zinc-600 hover:bg-stone-100 dark:hover:bg-zinc-800'
+                }`}
+              >
+                {c.name}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Gantt Timeline Table */}
-      <div className="overflow-x-auto bg-white dark:bg-[#18191E] calendar-scrollbar">
+      <div className={`overflow-x-auto bg-white dark:bg-[#18191E] calendar-scrollbar ${groupingOn ? 'max-h-[72vh] overflow-y-auto' : ''}`}>
         <div className="min-w-[980px]">
           {/* Header Row of Days */}
-          <div className="flex border-b border-stone-200/70 dark:border-zinc-800/70 bg-stone-50/70 dark:bg-[#141518] text-stone-700 dark:text-stone-300">
+          <div className={`flex border-b border-stone-200/70 dark:border-zinc-800/70 bg-stone-50 dark:bg-[#141518] text-stone-700 dark:text-stone-300 ${groupingOn ? "sticky top-0 z-30" : ""}`}>
             {/* Responsive Sticky Property Header Column */}
             <div className={`${getColumnWidthClass(columnMode)} font-bold text-xs uppercase tracking-wider border-r border-stone-200/70 dark:border-zinc-800/70 flex items-center justify-between sticky left-0 bg-stone-100/80 dark:bg-[#141518] z-30 shadow-[3px_0_8px_rgba(0,0,0,0.03)] shrink-0`}>
               <span className="truncate">
@@ -582,11 +645,36 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           {/* Properties Rows */}
           {filteredProperties.map((prop, propIndex) => {
             const propertyReservations = getVisibleReservationsForProperty(prop.id);
+            const cat = catOf(prop);
+            const isFirstOfGroup = groupingOn && (propIndex === 0 || catOf(filteredProperties[propIndex - 1]).id !== cat.id);
+            const groupProps = groupingOn ? filteredProperties.filter((x) => catOf(x).id === cat.id) : [];
+            const isCollapsed = groupingOn && !!collapsedCats[cat.id];
+            const groupHeader = isFirstOfGroup ? (
+              <button
+                key={`cat-${cat.id}`}
+                type="button"
+                onClick={() => setCollapsedCats((c) => ({ ...c, [cat.id]: !c[cat.id] }))}
+                aria-expanded={!isCollapsed}
+                className="w-full flex items-center min-h-[48px] bg-stone-100 dark:bg-zinc-800/80 border-b border-stone-200/70 dark:border-zinc-700 text-left cursor-pointer"
+                style={{ borderLeft: `5px solid ${catColor(cat.id)}` }}
+              >
+                <span className={`${getColumnWidthClass(columnMode)} sticky left-0 z-20 bg-stone-100 dark:bg-zinc-800 flex items-center gap-2 px-3 min-h-[48px] text-[15px] font-bold text-stone-900 dark:text-stone-50`}>
+                  <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${isCollapsed ? '' : 'rotate-90'}`} aria-hidden />
+                  <span className="truncate">{cat.name} · {groupProps.length}</span>
+                </span>
+                <span className="pl-4 text-[14px] font-semibold text-stone-800 dark:text-stone-100 whitespace-nowrap">
+                  {groupProps.filter((x) => occupiedToday(x.id)).length} de {groupProps.length} ocupadas hoy
+                </span>
+              </button>
+            ) : null;
+            if (isCollapsed) return <React.Fragment key={prop.id}>{groupHeader}</React.Fragment>;
 
             return (
+              <React.Fragment key={prop.id}>
+              {groupHeader}
               <div
-                key={prop.id}
                 className="flex border-b border-stone-100 dark:border-zinc-800/50 min-h-[68px] hover:bg-stone-50/40 dark:hover:bg-zinc-800/30 transition-colors"
+                style={groupingOn ? { borderLeft: `5px solid ${catColor(cat.id)}` } : undefined}
               >
                 {/* Property Label Column */}
                 <div className={`${getColumnWidthClass(columnMode)} border-r border-stone-200/70 dark:border-zinc-800/70 bg-[#FAF9F6] dark:bg-[#15161A] flex flex-col justify-center sticky left-0 z-20 shadow-[3px_0_8px_rgba(0,0,0,0.03)] shrink-0`}>
@@ -777,6 +865,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
                   })}
                 </div>
               </div>
+              </React.Fragment>
             );
           })}
         </div>
