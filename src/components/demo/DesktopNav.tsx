@@ -126,7 +126,7 @@ export const DesktopAreasBar: React.FC<AreasBarProps> = ({ groups, activeTab, on
       ref={barRef}
       className="relative z-50 bg-white dark:bg-[#0E0F12] border-b border-stone-300 dark:border-zinc-700 px-4 sm:px-8 flex flex-wrap items-center gap-x-6 gap-y-1"
     >
-      <div className="flex items-center gap-3 py-3 min-w-0">
+      <div className="flex items-center gap-3 py-3 min-w-0 flex-1 basis-0 min-w-[220px]">
         <div className="w-9 h-9 rounded-[10px] bg-[#A94F12] dark:bg-[#F0A46F] text-white dark:text-[#1A1206] flex items-center justify-center font-bold text-lg shrink-0" aria-hidden>
           L
         </div>
@@ -135,7 +135,7 @@ export const DesktopAreasBar: React.FC<AreasBarProps> = ({ groups, activeTab, on
           <div className="text-[13px] font-medium text-stone-700 dark:text-stone-200">{dateLabel}</div>
         </div>
       </div>
-      <nav aria-label="Áreas" className="flex flex-wrap items-stretch gap-x-1 self-stretch">
+      <nav aria-label="Áreas" className="flex flex-wrap items-stretch justify-center gap-x-2 self-stretch">
         {groups.map((g) => {
           const isActive = g.key === active.key;
           const isOpen = openKey === g.key;
@@ -196,6 +196,8 @@ export const DesktopAreasBar: React.FC<AreasBarProps> = ({ groups, activeTab, on
           );
         })}
       </nav>
+      {/* Espejo del bloque de la izquierda, para que el menú quede justo en el centro */}
+      <div className="hidden lg:block flex-1 basis-0 min-w-[220px]" aria-hidden />
     </header>
   );
 };
