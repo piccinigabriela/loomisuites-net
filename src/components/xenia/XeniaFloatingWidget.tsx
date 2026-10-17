@@ -211,15 +211,11 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="relative group p-1.5 bg-[#EAE8E3]/95 dark:bg-[#0C0D0F]/95 backdrop-blur-md border border-[#C8C4B7] dark:border-[#222328] shadow-2xl hover:border-[#E1500A] dark:hover:border-[#E1500A] transition-all duration-200 cursor-pointer focus:outline-none flex items-center gap-2 rounded-2xl"
+          className="relative group p-1.5 bg-[#EAE8E3]/95 dark:bg-[#0C0D0F]/95 backdrop-blur-md border border-[#C8C4B7] dark:border-[#222328] shadow-2xl hover:border-[#E1500A] dark:hover:border-[#E1500A] transition-all duration-200 cursor-pointer focus:outline-none flex items-center justify-center rounded-full"
           aria-label="Abrir Asistente Xenia"
         >
           <div className="relative">
             <XeniaAvatar size="md" showStatus={true} />
-          </div>
-          <div className="hidden sm:flex flex-col text-left pr-2">
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#18181B] dark:text-white">Xenia Copilot</span>
-            <span className="text-[9px] font-bold text-[#71717A] dark:text-[#8E8E93]">Online 24/7</span>
           </div>
         </button>
       )}

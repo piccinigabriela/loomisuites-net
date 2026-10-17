@@ -68,6 +68,7 @@ import {
   TenantDoc,
 } from './lib/tenantStore';
 import { syncCalendars } from './lib/icalSync';
+import { DesktopMoreMenu } from './components/demo/DesktopMoreMenu';
 import { DesktopAreasBar, DesktopCrumb, buildNavGroups, useTopNavEnabled } from './components/demo/DesktopNav';
 import { findConflicts, getLocalDateString, SyncResult } from './lib/icalCore';
 import {
@@ -446,6 +447,13 @@ export default function App() {
     } catch {}
     return 'landing';
   });
+
+  // La clase "airy" en el body hace que también las ventanas emergentes (nueva reserva, ficha, etc.) se vean grandes y claras
+  useEffect(() => {
+    const on = useTopNavEnabled(isApp) && currentView === 'demo';
+    document.body.classList.toggle('airy', on);
+    return () => document.body.classList.remove('airy');
+  }, [isApp, currentView]);
 
   // Demo active tab: default to overview or deep linked tab
   const [demoTab, setDemoTab] = useState<string>(() => {
@@ -2398,6 +2406,7 @@ export default function App() {
               </div>
 
               <div className={`flex items-center gap-2 sm:gap-2.5 ${useTopNav ? "ml-auto" : ""}`}>
+                {!useTopNav && (<>
                 {/* Accesos Rápidos por Rol (Dueño / Recepción / Mucamas) */}
                 <div className="hidden lg:flex items-center gap-1 bg-stone-100 dark:bg-zinc-800/80 p-1 rounded-xl text-xs border border-stone-200/70 dark:border-zinc-700/60">
                   <button
@@ -2434,6 +2443,7 @@ export default function App() {
                   <span className="sm:hidden">Light</span>
                 </button>
 
+                </>)}
                 {/* Visible Light / Dark Switcher in top sub-bar */}
                 <button
                   onClick={toggleTheme}
@@ -2453,6 +2463,7 @@ export default function App() {
                   )}
                 </button>
 
+                {!useTopNav && (<>
                 {isApp ? (
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-stone-500 dark:text-zinc-400 font-medium hidden sm:inline truncate max-w-[200px]">
@@ -2500,6 +2511,29 @@ export default function App() {
                       <span>🚀 Plan</span>
                     </button>
                   </>
+                )}
+                </>)}
+                {useTopNav && (
+                  <DesktopMoreMenu
+                    items={[
+                      ...(isApp
+                        ? [
+                            { label: currentUser?.email || 'Mi cuenta', onClick: () => {}, note: true },
+                            { label: 'Cerrar sesión', onClick: handleLogout, danger: true },
+                          ]
+                        : []),
+                      { label: 'Ver como Recepción', onClick: () => handleRoleChange('frontdesk') },
+                      { label: 'Ver como Limpieza', onClick: () => handleRoleChange('housekeeping') },
+                      { label: 'Modo Celular Ágil', onClick: () => handleSetMobileMode('light') },
+                      ...(!isApp
+                        ? [
+                            ...(isDemoPlanBarDismissed ? [{ label: 'Guía de planes', onClick: handleShowDemoPlanBar }] : []),
+                            { label: 'Quiero un plan', onClick: () => { setSelectedPlanForLead('Plan Loomi ($45.000/mes)'); setIsLeadModalOpen(true); } },
+                            { label: 'Restablecer demo', onClick: handleResetData },
+                          ]
+                        : []),
+                    ]}
+                  />
                 )}
                 <button
                   onClick={() => {

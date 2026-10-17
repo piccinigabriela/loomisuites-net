@@ -159,3 +159,15 @@ html:not(.dark) :where(
 .dark .airy [class*="dark:text-stone-3"], .dark .airy [class*="dark:text-stone-4"], .dark .airy [class*="dark:text-stone-5"], .dark .airy [class*="dark:text-stone-6"],
 .dark .airy [class*="dark:text-zinc-3"], .dark .airy [class*="dark:text-zinc-4"], .dark .airy [class*="dark:text-zinc-5"], .dark .airy [class*="dark:text-zinc-6"],
 .dark .airy [class*="dark:text-slate-4"], .dark .airy [class*="dark:text-slate-5"] { color: #e0dcd5; }
+
+/* Ventanas emergentes (nueva reserva, ficha, etc.) en el modo aireado: más anchas y con letra más grande */
+.airy .fixed.inset-0 > div[class*="max-w-lg"] { max-width: 46rem; }
+.airy .fixed.inset-0 > div[class*="max-w-md"] { max-width: 38rem; }
+.airy .fixed.inset-0 .text-xs { font-size: 14px; line-height: 1.45; }
+.airy .fixed.inset-0 .text-sm { font-size: 15.5px; line-height: 1.5; }
+.airy .fixed.inset-0 [class*="text-[10px]"] { font-size: 13px; }
+.airy .fixed.inset-0 [class*="text-[11px]"] { font-size: 13.5px; }
+.airy .fixed.inset-0 input,
+.airy .fixed.inset-0 select,
+.airy .fixed.inset-0 textarea { font-size: 15px; min-height: 44px; }
+.airy .fixed.inset-0 button { min-height: 40px; }
