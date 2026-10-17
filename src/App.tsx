@@ -68,7 +68,7 @@ import {
   TenantDoc,
 } from './lib/tenantStore';
 import { syncCalendars } from './lib/icalSync';
-import { DesktopAreasBar, DesktopSubTabs, buildNavGroups, useTopNavEnabled } from './components/demo/DesktopNav';
+import { DesktopAreasBar, DesktopCrumb, buildNavGroups, useTopNavEnabled } from './components/demo/DesktopNav';
 import { findConflicts, getLocalDateString, SyncResult } from './lib/icalCore';
 import {
   AccessInfo,
@@ -2013,7 +2013,7 @@ export default function App() {
   }
 
   const useTopNav = useTopNavEnabled(isApp);
-  const navGroups = buildNavGroups({ isApp, userRole, showTeamNotices, pendingCleaningsCount });
+  const navGroups = buildNavGroups({ isApp, userRole, showTeamNotices, pendingCleaningsCount, hasOnboarding: true });
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans antialiased selection:bg-rose-500 selection:text-white transition-colors">
@@ -2295,6 +2295,15 @@ export default function App() {
               groups={navGroups}
               activeTab={demoTab}
               onSelectTab={setDemoTab}
+              onAction={(a) => {
+                if (a === 'new-reservation') {
+                  setInitialPropertyForRes(undefined);
+                  setInitialDateForRes(undefined);
+                  setIsNewResModalOpen(true);
+                } else {
+                  setIsOnboardingModalOpen(true);
+                }
+              }}
               complexName={demoState.welcomeGuide?.propertyName || 'Mi complejo'}
             />
           )}
@@ -2385,7 +2394,7 @@ export default function App() {
                     : 'Asistente'}
                 </span>
                 </>)}
-                {useTopNav && <DesktopSubTabs groups={navGroups} activeTab={demoTab} onSelectTab={setDemoTab} />}
+                {useTopNav && <DesktopCrumb groups={navGroups} activeTab={demoTab} />}
               </div>
 
               <div className={`flex items-center gap-2 sm:gap-2.5 ${useTopNav ? "ml-auto" : ""}`}>
