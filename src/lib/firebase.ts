@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 import {
   getAuth,
   GoogleAuthProvider,
@@ -58,7 +58,7 @@ export const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : g
 if (typeof window !== 'undefined' && firebaseConfigJson.recaptchaSiteKey) {
   try {
     initializeAppCheck(firebaseApp, {
-      provider: new ReCaptchaV3Provider(firebaseConfigJson.recaptchaSiteKey),
+      provider: new ReCaptchaEnterpriseProvider(firebaseConfigJson.recaptchaSiteKey),
       isTokenAutoRefreshEnabled: true,
     });
   } catch (err) {
