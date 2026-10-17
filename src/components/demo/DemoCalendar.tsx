@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTopNavEnabled } from './DesktopNav';
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -47,7 +48,10 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
   const [platformFilter, setPlatformFilter] = useState<string>('all');
   const [highlightTurnoversOnly, setHighlightTurnoversOnly] = useState<boolean>(false);
   // Column width: compact (48px) - perfect for mobile, medium (105px), full (185px)
-  const [columnMode, setColumnMode] = useState<ColumnMode>('compact');
+  // En computadora (modo aireado) las columnas van fijas en 150px; en el celular, compactas
+  const [columnMode, setColumnMode] = useState<ColumnMode>(() =>
+    useTopNavEnabled(isAppMode) && typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'full' : 'compact'
+  );
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [dismissedConflictKeys, setDismissedConflictKeys] = useState<Set<string>>(new Set());
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -456,7 +460,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
           </div>
 
           {/* Control de Zoom de Pixeles (Contenedor tipo pestaña limpia) */}
-          <div className="hidden sm:flex items-center bg-gray-50 dark:bg-zinc-800/70 border border-gray-100 dark:border-zinc-700/80 rounded-xl p-1 text-[11px] font-bold text-gray-400">
+          <div className="air-hide hidden sm:flex items-center bg-gray-50 dark:bg-zinc-800/70 border border-gray-100 dark:border-zinc-700/80 rounded-xl p-1 text-[11px] font-bold text-gray-400">
             <button
               onClick={() => setColumnMode('compact')}
               className={`px-2.5 py-1.5 rounded-lg transition-all cursor-pointer ${
