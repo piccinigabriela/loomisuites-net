@@ -2551,7 +2551,7 @@ export default function App() {
                   </>
                 )}
                 </>)}
-                {useTopNav && !isApp && !loggedUser && (
+                {useTopNav && !isApp && (
                   <button
                     type="button"
                     onClick={() => (showPlanPanelAiry ? setShowPlanPanelAiry(false) : openPlanPanelAiry())}
@@ -2875,7 +2875,7 @@ export default function App() {
             </div>
 
             {/* Selector de Planes & Escenarios Comerciales (Plano de menor prioridad visual, al pie del panel) */}
-            {!isApp && !loggedUser && (useTopNav ? showPlanPanelAiry : !isDemoPlanBarDismissed) && (
+            {!isApp && (useTopNav || !loggedUser) && (useTopNav ? showPlanPanelAiry : !isDemoPlanBarDismissed) && (
               <div id="demo-plan-panel" className="max-w-7xl w-full mx-auto px-3 sm:px-6 pb-6 pt-2">
                 <DemoPlanFunctionalBar
                   onSelectTab={setDemoTab}
