@@ -128,6 +128,23 @@ await caso('un extraño NO puede quitar accesos', false, () => deleteDoc(doc(int
 await caso('el dueño le quita el acceso a Recepción', true, () => deleteDoc(doc(dueno, 'memberships/juan')));
 await caso('sin acceso, ya NO ve reservas', false, () => getDoc(doc(juan, 'tenants/dueno/reservations/r1')));
 
+console.log('\nAdministración de la plataforma (panel de clientes)');
+const admin = as('admin', 'piccini.gabriela@gmail.com');
+const adminSinConfirmar = as('admin', 'piccini.gabriela@gmail.com', false);
+await caso('la administración lee todos los complejos', true, () => getDocs(collection(admin, 'tenants')));
+await caso('la administración lee todas las suscripciones', true, () => getDocs(collection(admin, 'subscriptions')));
+await caso('la administración activa un cliente', true, () => setDoc(doc(admin, 'subscriptions/otro'), { status: 'active', plan: 'complejo', updatedAt: serverTimestamp() }, { merge: true }));
+await caso('la administración suspende un cliente', true, () => setDoc(doc(admin, 'subscriptions/dueno'), { status: 'suspended', updatedAt: serverTimestamp() }, { merge: true }));
+await caso('la administración NO inventa estados', false, () => setDoc(doc(admin, 'subscriptions/dueno'), { status: 'gratis' }, { merge: true }));
+await caso('la administración NO escribe otros campos', false, () => setDoc(doc(admin, 'subscriptions/dueno'), { status: 'active', extra: 1 }, { merge: true }));
+await caso('la administración NO lee reservas de los clientes', false, () => getDoc(doc(admin, 'tenants/dueno/reservations/r1')));
+await caso('la administración NO edita datos de un complejo', false, () => setDoc(doc(admin, 'tenants/dueno'), { complexName: 'X' }, { merge: true }));
+await caso('sin mail confirmado NO es administración (lectura)', false, () => getDocs(collection(adminSinConfirmar, 'subscriptions')));
+await caso('sin mail confirmado NO es administración (escritura)', false, () => setDoc(doc(adminSinConfirmar, 'subscriptions/otro'), { status: 'active' }, { merge: true }));
+await caso('un dueño NO lee la lista de clientes', false, () => getDocs(collection(dueno, 'subscriptions')));
+await caso('un dueño NO se activa a sí mismo', false, () => setDoc(doc(dueno, 'subscriptions/dueno'), { status: 'active' }, { merge: true }));
+await caso('un extraño NO suspende a nadie', false, () => setDoc(doc(intruso, 'subscriptions/dueno'), { status: 'suspended' }, { merge: true }));
+
 console.log(`\n${fail === 0 ? '✔ TODO BIEN' : '✖ HAY PROBLEMAS'}: ${ok} pruebas pasaron, ${fail} fallaron.\n`);
 await env.cleanup();
 process.exit(fail === 0 ? 0 : 1);

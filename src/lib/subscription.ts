@@ -46,6 +46,9 @@ export function subscribeToSubscription(
 export function getAccessStatus(user: User | null, sub: SubscriptionDoc | null, trialStart?: any): AccessStatus {
   const now = Date.now();
 
+  // Suspendido a mano desde el panel de clientes: sin acceso, aunque la prueba siga corriendo
+  if (sub?.status === 'suspended') return { state: 'expired', daysLeft: 0 };
+
   // Check active subscription
   if (sub?.status === 'active') {
     if (!sub.activeUntil) {

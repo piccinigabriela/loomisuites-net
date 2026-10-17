@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { isPlatformAdmin } from './lib/adminClients';
 import React, { useState, useEffect, Suspense } from 'react';
 import {
   Building2,
@@ -129,6 +130,7 @@ const JsonDataModal = lazyNamed(() => import('./components/demo/JsonDataModal'),
 const OnboardingWizardModal = lazyNamed(() => import('./components/demo/OnboardingWizardModal'), 'OnboardingWizardModal');
 const CalendarImportModal = lazyNamed(() => import('./components/demo/CalendarImportModal'), 'CalendarImportModal');
 const ClientAuthModal = lazyNamed(() => import('./components/auth/ClientAuthModal'), 'ClientAuthModal');
+const ClientsPanel = lazyNamed(() => import('./components/admin/ClientsPanel'), 'ClientsPanel');
 const SuperAdminView = lazyNamed(() => import('./components/admin/SuperAdminView'), 'SuperAdminView');
 const DemoPlanFunctionalBar = lazyNamed(() => import('./components/demo/DemoPlanFunctionalBar'), 'DemoPlanFunctionalBar');
 const ReceptionView = lazyNamed(() => import('./components/roles/ReceptionView'), 'ReceptionView');
@@ -992,6 +994,15 @@ export default function App() {
   const [isDemoPlanBarDismissed, setIsDemoPlanBarDismissed] = useState<boolean>(() => {
     try {
       return localStorage.getItem('loomi_hide_demo_plan_bar') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  // Panel de clientes (solo la cuenta de administración de la plataforma, dentro de la app real)
+  const [clientsPanelOpen, setClientsPanelOpen] = useState<boolean>(() => {
+    try {
+      return new URLSearchParams(window.location.search).get('panel') === 'clientes';
     } catch {
       return false;
     }
@@ -2120,7 +2131,11 @@ export default function App() {
       )}
 
       {/* RENDER VIEW: LANDING, SUPERADMIN OR DEMO PMS */}
-      {currentView === 'landing' ? (
+      {isApp && isPlatformAdmin(currentUser) && clientsPanelOpen ? (
+        <Suspense fallback={null}>
+          <ClientsPanel onClose={() => setClientsPanelOpen(false)} />
+        </Suspense>
+      ) : currentView === 'landing' ? (
         <main className="bg-[#F8F9FA] dark:bg-[#0E0F12] min-h-screen transition-colors text-[#2D3748] dark:text-[#E2E8F0] relative">
           <Navbar
             theme={theme}
@@ -2569,6 +2584,7 @@ export default function App() {
                       ...(isApp
                         ? [
                             { label: currentUser?.email || 'Mi cuenta', onClick: () => {}, note: true },
+                            ...(isPlatformAdmin(currentUser) ? [{ label: 'Clientes de Loomi', onClick: () => setClientsPanelOpen(true) }] : []),
                             { label: 'Cerrar sesión', onClick: handleLogout, danger: true },
                           ]
                         : []),

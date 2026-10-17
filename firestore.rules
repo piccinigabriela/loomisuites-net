@@ -19,6 +19,12 @@ service cloud.firestore {
     function myEmail() {
       return request.auth.token.email.lower();
     }
+    // Administración de la plataforma (panel de clientes): solo esta cuenta, con el mail verificado
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() == 'piccini.gabriela@gmail.com';
+    }
 
     match /leads/{leadId} {
       allow create: if true;
@@ -26,7 +32,7 @@ service cloud.firestore {
     }
 
     match /tenants/{uid} {
-      allow read: if isOwner(uid) || isStaff(uid, ['recepcion', 'limpieza']);
+      allow read: if isOwner(uid) || isStaff(uid, ['recepcion', 'limpieza']) || isAdmin();
       allow write: if isOwner(uid);
 
       match /properties/{docId} {
@@ -64,8 +70,17 @@ service cloud.firestore {
     }
 
     match /subscriptions/{uid} {
-      allow read: if isOwner(uid) || isStaff(uid, ['recepcion', 'limpieza']);
-      allow write: if false;
+      allow read: if isOwner(uid) || isStaff(uid, ['recepcion', 'limpieza']) || isAdmin();
+      // Solo la administración activa, renueva o suspende (y deja una nota); nadie más escribe acá.
+      // En una actualización se mira solo lo que cambia, así un documento cargado a mano con otros campos no la traba.
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly(['status', 'plan', 'activeUntil', 'note', 'updatedAt'])
+        && (!('status' in request.resource.data) || request.resource.data.status in ['active', 'suspended'])
+        && (!('plan' in request.resource.data) || request.resource.data.plan in ['propietario', 'complejo']);
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'plan', 'activeUntil', 'note', 'updatedAt'])
+        && (!('status' in request.resource.data.diff(resource.data).affectedKeys()) || request.resource.data.status in ['active', 'suspended'])
+        && (!('plan' in request.resource.data.diff(resource.data).affectedKeys()) || request.resource.data.plan in ['propietario', 'complejo']);
     }
 
     // Invitaciones: el id es el mail en minúsculas. Las crea el dueño; las lee y acepta (o rechaza) la persona invitada.
