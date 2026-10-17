@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   MessageSquare,
   Send,
@@ -12,7 +12,7 @@ import {
   Sparkles,
   Info,
 } from 'lucide-react';
-import { DemoState, Reservation, MessageTemplate } from '../../types';
+import { DemoState, Reservation, MessageTemplate, TemplateOverrides } from '../../types';
 import { formatDisplayDate, INITIAL_TEMPLATES, APP_TEMPLATES, APP_TEMPLATES_EN, APP_TEMPLATES_PT, guessGuestLanguage, formatGuestDate, GuestLanguage, getGuideHours, isGenericGuestName, getGuestInitials, toLocalDateStr, getRelativeDate, withHs } from '../../data/initialData';
 import { copyToClipboard } from '../../utils/clipboard';
 import { WebTemplatesManager } from '../WebTemplatesManager';
@@ -24,12 +24,28 @@ interface DemoMessagesProps {
   uid?: string;
   /** Reserva a preseleccionar cuando se llega desde la ficha de una reserva */
   target?: { resId: string; nonce: number } | null;
+  /** Solo la dueña o el dueño del complejo puede reescribir los mensajes */
+  canEdit?: boolean;
+  onSaveTemplateOverrides?: (overrides: TemplateOverrides) => void;
 }
+
+/** Datos que se pueden insertar en un mensaje (lo que ve quien edita → lo que se escribe) */
+const TEMPLATE_VARS: Array<[string, string]> = [
+  ['Nombre del huésped', '{{nombre_huésped}}'],
+  ['Unidad', '{{unidad_alojamiento}}'],
+  ['Nombre del complejo', '{{nombre_complejo}}'],
+  ['Fecha de llegada', '{{fecha_checkin}}'],
+  ['Fecha de salida', '{{fecha_checkout}}'],
+  ['Hora de salida', '{{hora_checkout}}'],
+  ['Link a la guía', '{{link_guia_digital}}'],
+  ['Cómo ingresar', '{{instrucciones_ingreso}}'],
+  ['Link de reseña', '{{link_resena_google}}'],
+];
 
 type FilterScope = 'upcoming' | 'today' | 'next7' | 'all';
 type MessagesSubTab = 'simulator' | 'templates' | 'card';
 
-export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, target }) => {
+export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, target, canEdit = false, onSaveTemplateOverrides }) => {
   const [subTab, setSubTab] = useState<MessagesSubTab>('simulator');
   const [phoneViewMode, setPhoneViewMode] = useState<'chat' | 'card'>('chat');
   // Ensure we always have full list of master templates
@@ -152,7 +168,46 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
   );
   const autoLang: GuestLanguage = guessGuestLanguage(selectedReservation?.guestPhone);
   const msgLang: GuestLanguage = langChoice === 'auto' ? autoLang : langChoice;
-  const templatesList = msgLang === 'en' ? APP_TEMPLATES_EN : msgLang === 'pt' ? APP_TEMPLATES_PT : templatesListEs;
+  const baseTemplatesList = msgLang === 'en' ? APP_TEMPLATES_EN : msgLang === 'pt' ? APP_TEMPLATES_PT : templatesListEs;
+  // Los textos que el complejo reescribió pisan al original, por idioma
+  const langOverrides = demoState.templateOverrides?.[msgLang] || {};
+  const templatesList = baseTemplatesList.map((t) => (langOverrides[t.id] ? { ...t, content: langOverrides[t.id] } : t));
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState('');
+  const draftRef = useRef<HTMLTextAreaElement>(null);
+  // Al cambiar de idioma se cierra la edición, para no guardar un texto en el idioma equivocado
+  useEffect(() => {
+    setEditingId(null);
+  }, [msgLang]);
+  const startEdit = (tpl: MessageTemplate) => {
+    setSelectedTemplateId(tpl.id);
+    setDraft(tpl.content);
+    setEditingId(tpl.id);
+  };
+  const saveEdit = (id: string, text: string | null) => {
+    const original = baseTemplatesList.find((t) => t.id === id)?.content || '';
+    const current = demoState.templateOverrides || {};
+    const langMap = { ...(current[msgLang] || {}) };
+    if (text === null || !text.trim() || text.trim() === original.trim()) delete langMap[id];
+    else langMap[id] = text;
+    onSaveTemplateOverrides?.({ ...current, [msgLang]: langMap });
+    setEditingId(null);
+  };
+  const insertVar = (token: string) => {
+    const el = draftRef.current;
+    if (!el) {
+      setDraft((d) => d + token);
+      return;
+    }
+    const start = el.selectionStart ?? draft.length;
+    const end = el.selectionEnd ?? draft.length;
+    const next = draft.slice(0, start) + token + draft.slice(end);
+    setDraft(next);
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(start + token.length, start + token.length);
+    });
+  };
   const LANG_LABEL: Record<GuestLanguage, string> = { es: 'Español', en: 'Inglés', pt: 'Portugués' };
 
   const selectedTemplate = templatesList.find(
@@ -694,21 +749,90 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
                       </span>
                     </div>
 
-                    {/* Preloaded Template Text Block with Highlighted Variables */}
+                    {editingId === tpl.id ? (
+                      <div className="flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
+                        <p className="text-[14px] font-semibold text-stone-900 dark:text-stone-50">
+                          Estás editando la versión en {LANG_LABEL[msgLang].toLowerCase()}. Tocá un dato para sumarlo al texto.
+                        </p>
+                        <textarea
+                          ref={draftRef}
+                          value={draft}
+                          onChange={(e) => setDraft(e.target.value)}
+                          rows={9}
+                          aria-label="Texto del mensaje"
+                          className="w-full rounded-xl border border-stone-400 dark:border-zinc-500 bg-white dark:bg-[#101114] text-stone-900 dark:text-stone-50 text-[15px] leading-relaxed p-3 focus:outline-none focus:border-[#A94F12] dark:focus:border-[#F0A46F]"
+                        />
+                        <div className="flex flex-wrap gap-2">
+                          {TEMPLATE_VARS.map(([label, token]) => (
+                            <button
+                              key={token}
+                              type="button"
+                              onClick={() => insertVar(token)}
+                              className="min-h-[36px] px-3 rounded-lg border border-stone-400 dark:border-zinc-500 bg-white dark:bg-zinc-800 text-[13px] font-semibold text-stone-900 dark:text-stone-50 cursor-pointer hover:border-[#A94F12] dark:hover:border-[#F0A46F]"
+                            >
+                              + {label}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => saveEdit(tpl.id, draft)}
+                            className="min-h-[44px] px-5 rounded-xl bg-[#A94F12] text-white dark:bg-[#F0A46F] dark:text-[#1A1206] text-[15px] font-bold cursor-pointer hover:opacity-90"
+                          >
+                            Guardar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingId(null)}
+                            className="min-h-[44px] px-4 rounded-xl border border-stone-400 dark:border-zinc-500 text-[15px] font-semibold text-stone-900 dark:text-stone-50 cursor-pointer"
+                          >
+                            Cancelar
+                          </button>
+                          {langOverrides[tpl.id] && (
+                            <button
+                              type="button"
+                              onClick={() => saveEdit(tpl.id, null)}
+                              className="min-h-[44px] px-2 text-[14px] font-bold text-[#A94F12] dark:text-[#F0A46F] underline underline-offset-2 cursor-pointer"
+                            >
+                              Volver al original
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
                     <div className="text-xs bg-white dark:bg-zinc-900/40 p-3 rounded-xl border border-gray-100 dark:border-zinc-800/60 text-stone-600 dark:text-stone-300">
                       {renderTemplateBlockContent(tpl.content)}
                     </div>
+                    )}
 
                     <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-50 dark:border-zinc-800/50 text-[11px]">
                       <span className="text-stone-400 font-light flex items-center gap-1">
                         <Info className="w-3 h-3 text-[#D86F35]" />
                         <span>Clic para activar en el simulador</span>
                       </span>
-                      {isSelected && (
-                        <span className="text-[10px] font-normal text-[#D86F35] bg-[#FDF3E7] px-2 py-0.5 rounded-full">
-                          ✓ Activa en Simulador
-                        </span>
-                      )}
+                      <span className="flex items-center gap-2">
+                        {langOverrides[tpl.id] && (
+                          <span className="text-[12px] font-bold text-stone-900 dark:text-stone-50">Editada</span>
+                        )}
+                        {canEdit && editingId !== tpl.id && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startEdit(tpl);
+                            }}
+                            className="min-h-[36px] px-3 rounded-lg border border-[#A94F12] dark:border-[#F0A46F] text-[13px] font-bold text-[#A94F12] dark:text-[#F0A46F] cursor-pointer hover:bg-orange-50 dark:hover:bg-zinc-800"
+                          >
+                            Editar
+                          </button>
+                        )}
+                        {isSelected && (
+                          <span className="text-[10px] font-normal text-[#D86F35] bg-[#FDF3E7] px-2 py-0.5 rounded-full">
+                            ✓ Activa en Simulador
+                          </span>
+                        )}
+                      </span>
                     </div>
                   </div>
                 );

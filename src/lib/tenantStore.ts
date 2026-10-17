@@ -35,6 +35,7 @@ export interface TenantDoc {
   };
   checklistDismissed?: boolean;
   pricing?: PricingSettings;
+  templateOverrides?: import('../types').TemplateOverrides;
   createdAt?: any;
   updatedAt?: any;
 }
@@ -318,6 +319,15 @@ export async function savePricingDoc(uid: string, pricing: PricingSettings): Pro
   if (!uid || !db) return;
   await updateDoc(doc(db, 'tenants', uid), {
     pricing: JSON.parse(JSON.stringify(pricing)),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/** Guarda los mensajes editados enteros (reemplaza los anteriores, para que lo restaurado no vuelva) */
+export async function saveTemplateOverridesDoc(uid: string, overrides: import('../types').TemplateOverrides): Promise<void> {
+  if (!uid || !db) return;
+  await updateDoc(doc(db, 'tenants', uid), {
+    templateOverrides: JSON.parse(JSON.stringify(overrides)),
     updatedAt: serverTimestamp(),
   });
 }

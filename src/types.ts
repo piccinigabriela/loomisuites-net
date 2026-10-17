@@ -231,6 +231,9 @@ export interface CashMovement {
   userRole: 'admin' | 'frontdesk' | 'housekeeping';
 }
 
+/** Textos de mensajes que el complejo reescribió, por idioma y por id de plantilla */
+export type TemplateOverrides = Partial<Record<'es' | 'en' | 'pt', Record<string, string>>>;
+
 export interface DemoState {
   properties: Property[];
   reservations: Reservation[];
@@ -251,6 +254,8 @@ export interface DemoState {
   teamContacts?: TeamContact[];
   /** Recordatorios del dueño (tenants/{uid}/reminders) */
   reminders?: Reminder[];
+  /** Mensajes editados por el complejo (si no hay, se usan los originales) */
+  templateOverrides?: TemplateOverrides;
   /** Planilla de tarifas (ver src/lib/pricing.ts) */
   pricing?: import('./lib/pricing').PricingSettings;
   lastUpdated: string;

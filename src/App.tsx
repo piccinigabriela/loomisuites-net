@@ -63,6 +63,7 @@ import {
   savePublicGuide,
   savePublicCalendar,
   savePricingDoc,
+  saveTemplateOverridesDoc,
   subscribeToServerIcalSync,
   ServerIcalSyncStatus,
   TenantDoc,
@@ -363,6 +364,7 @@ export default function App() {
             managementSettings: data.tenant?.managementSettings,
             teamContacts: data.tenant?.teamContacts || [],
             pricing: data.tenant?.pricing,
+            templateOverrides: data.tenant?.templateOverrides,
             lastUpdated: new Date().toISOString(),
           });
         }
@@ -2743,7 +2745,25 @@ export default function App() {
               )}
 
               {demoTab === 'messages' && (
-                <DemoMessages demoState={demoState} uid={tenantUid} target={messagesTarget} />
+                <DemoMessages
+                  demoState={demoState}
+                  uid={tenantUid}
+                  target={messagesTarget}
+                  canEdit={!isStaff}
+                  onSaveTemplateOverrides={async (templateOverrides) => {
+                    try {
+                      if (isApp && currentUser) {
+                        await saveTemplateOverridesDoc(tenantUid, templateOverrides);
+                      } else {
+                        updateDemoState((prev) => ({ ...prev, templateOverrides, lastUpdated: new Date().toISOString() }));
+                      }
+                      showToast('Mensaje guardado');
+                    } catch (err) {
+                      console.warn('Error guardando mensajes:', err);
+                      showToast('No se pudo guardar el mensaje. Probá de nuevo.');
+                    }
+                  }}
+                />
               )}
 
               {demoTab === 'team-notices' && showTeamNotices && (
