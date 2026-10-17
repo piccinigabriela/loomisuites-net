@@ -32,6 +32,12 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   private handleSoftReload = () => {
+    const msg = this.state.error?.message || '';
+    if (/dynamically imported module|Importing a module script failed|Loading chunk/i.test(msg)) {
+      try { sessionStorage.removeItem('loomi_chunk_reload'); } catch {}
+      window.location.reload();
+      return;
+    }
     this.setState({ hasError: false, error: null, errorInfo: null });
   };
 

@@ -82,7 +82,22 @@ import { buildStaffArrivals, StaffArrivalsDoc } from './lib/staffArrivals';
 
 // Carga diferida: la landing no descarga la demo, el panel ni los modales hasta que hacen falta
 function lazyNamed<T extends Record<string, any>, K extends keyof T>(loader: () => Promise<T>, name: K): React.LazyExoticComponent<T[K]> {
-  return React.lazy(() => loader().then((m) => ({ default: m[name] }))) as any;
+  // Si la pestaña quedó abierta de antes de una actualización, el archivo viejo ya no existe:
+  // recargamos una sola vez para traer la versión nueva.
+  return React.lazy(() =>
+    loader()
+      .then((m) => ({ default: m[name] }))
+      .catch((err) => {
+        const key = 'loomi_chunk_reload';
+        let yaRecargo = false;
+        try { yaRecargo = sessionStorage.getItem(key) === '1'; sessionStorage.setItem(key, '1'); } catch {}
+        if (!yaRecargo) {
+          window.location.reload();
+          return new Promise<never>(() => {});
+        }
+        throw err;
+      })
+  ) as any;
 }
 const CleanSidebar = lazyNamed(() => import('./components/demo/CleanSidebar'), 'CleanSidebar');
 const CleanToday = lazyNamed(() => import('./components/demo/CleanToday'), 'CleanToday');
