@@ -311,10 +311,10 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
         <div className={`${isAppMode ? 'flex' : 'hidden sm:flex'} flex-col lg:flex-row lg:items-center lg:justify-between gap-4`}>
           <div className="space-y-1 hidden sm:block">
             <div className="flex items-center space-x-2">
-              <span className="inline-block bg-orange-50 dark:bg-orange-950/40 text-[#E67E22] text-[9px] font-bold tracking-widest px-2 py-0.5 rounded uppercase">
+              <span className="air-hide inline-block bg-orange-50 dark:bg-orange-950/40 text-[#E67E22] text-[9px] font-bold tracking-widest px-2 py-0.5 rounded uppercase">
                 Rack multicanal
               </span>
-              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded flex items-center gap-1.5 border border-emerald-100/40 dark:border-emerald-900/30">
+              <span className="air-hide text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded flex items-center gap-1.5 border border-emerald-100/40 dark:border-emerald-900/30">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span>Recarga Automática Activa</span>
               </span>
@@ -322,7 +322,7 @@ export const DemoCalendar: React.FC<DemoCalendarProps> = ({
             <h2 className="text-xl font-light text-gray-900 dark:text-gray-100 tracking-tight">
               Ocupación & <span className="font-semibold text-gray-800 dark:text-white">Disponibilidad</span>
             </h2>
-            <p className="text-[11px] text-stone-700 dark:text-zinc-300 font-medium leading-normal max-w-xl">
+            <p className="air-hide text-[11px] text-stone-700 dark:text-zinc-300 font-medium leading-normal max-w-xl">
               {isAppMode
                 ? 'Sincronizado con Airbnb y Booking cada 15 minutos mientras Loomi está abierto.'
                 : 'Rack sincronizado con Google Calendars, Airbnb y canales directos. Check-in: 14:00 / Check-out: 10:00.'}

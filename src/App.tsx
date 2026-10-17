@@ -2542,7 +2542,7 @@ export default function App() {
               })()}
 
             {/* Main Content Body: Real System Dashboard Exactly as on PC */}
-            <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-3.5 sm:py-5">
+            <div className={`flex-1 w-full mx-auto ${useTopNav ? "airy max-w-[1240px] px-4 sm:px-10 py-6 sm:py-8" : "max-w-7xl px-3 sm:px-6 py-3.5 sm:py-5"}`}>
               <Suspense
                 fallback={
                   <div className="py-24 flex justify-center">

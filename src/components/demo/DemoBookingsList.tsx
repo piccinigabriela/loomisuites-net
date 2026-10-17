@@ -259,7 +259,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center space-x-2">
-              <span className="inline-block bg-orange-50 dark:bg-orange-950/40 text-[#E67E22] text-[10px] font-semibold tracking-widest px-2.5 py-0.5 rounded-md uppercase">
+              <span className="air-hide inline-block bg-orange-50 dark:bg-orange-950/40 text-[#E67E22] text-[10px] font-semibold tracking-widest px-2.5 py-0.5 rounded-md uppercase">
                 Rack & Reservas • En Tiempo Real
               </span>
               <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
@@ -270,7 +270,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
               <Calendar className="w-4 h-4 text-[#E67E22]" />
               <span>Lista de Reservas</span>
             </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+            <p className="air-hide text-xs text-gray-500 dark:text-gray-400 font-medium">
               Haz clic en cualquier fila para desplegar su ficha rápida, consumos y WhatsApp con transición suave.
             </p>
           </div>

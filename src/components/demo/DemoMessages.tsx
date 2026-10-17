@@ -355,7 +355,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
     <div className="space-y-5 sm:space-y-6 font-['Inter',sans-serif] font-light">
       {/* Header Banner - Zen Style */}
       <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-gray-100 dark:border-zinc-800/80 p-5 sm:p-6 shadow-[0_4px_12px_rgba(0,0,0,0.005)] transition-colors">
-        <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
+        <div className="air-hide flex items-center justify-between flex-wrap gap-2 mb-1">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]"></span>
             <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">
@@ -370,7 +370,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
           <MessageSquare className="w-4 h-4 text-[#E67E22]" />
           <span>Simulador y Envío Directo de WhatsApp</span>
         </h3>
-        <p className="text-xs text-gray-500 dark:text-stone-400 mt-1 font-light leading-relaxed">
+        <p className="air-hide text-xs text-gray-500 dark:text-stone-400 mt-1 font-light leading-relaxed">
           Plantillas preestablecidas con tono cercano y cálido (Omotenashi). Los datos de la reserva, links y fechas se reemplazan automáticamente en 1 toque.
         </p>
 

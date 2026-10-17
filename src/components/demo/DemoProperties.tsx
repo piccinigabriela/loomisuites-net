@@ -246,14 +246,14 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
     <div className="space-y-5 sm:space-y-6 font-sans">
       <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors">
         <div>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500 flex items-center gap-1.5">
+          <span className="air-hide text-[10px] font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" /> INVENTARIO • DEPARTAMENTOS & SUITES
           </span>
           <h3 className="text-xl font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2 mt-0.5">
             <Building2 className="w-5 h-5 text-[#E67E22]" />
             <span>Unidades Activas ({demoState.properties.length})</span>
           </h3>
-          <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5 font-medium">
+          <p className="air-hide text-xs text-stone-500 dark:text-stone-400 mt-0.5 font-medium">
             Tarifas base por noche, credenciales de Wi-Fi y enlaces de reserva directa sin comisiones.
           </p>
         </div>

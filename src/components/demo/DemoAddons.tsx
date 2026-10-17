@@ -152,14 +152,14 @@ export const DemoAddons: React.FC<DemoAddonsProps> = ({
       {/* Header */}
       <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 sm:p-6 shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors">
         <div>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500 flex items-center gap-1.5 mb-0.5">
+          <span className="air-hide text-[10px] font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500 flex items-center gap-1.5 mb-0.5">
             <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" /> SERVICIOS ADICIONALES • UPSELLING
           </span>
           <h3 className="text-base sm:text-lg font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2 tracking-tight">
             <ShoppingBag className="w-5 h-5 text-[#E67E22]" />
             <span>Catálogo de Servicios Opcionales & Extras</span>
           </h3>
-          <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5 font-normal">
+          <p className="air-hide text-xs text-stone-500 dark:text-stone-400 mt-0.5 font-normal">
             Configura productos y extras (Frigobar, Transfers, Spa, Desayunos) para sumar a cualquier reserva o vender desde la Guía Digital.
           </p>
         </div>

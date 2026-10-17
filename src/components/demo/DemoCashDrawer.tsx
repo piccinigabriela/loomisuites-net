@@ -140,7 +140,7 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
       {/* Header Zen */}
       <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-gray-100 dark:border-zinc-800 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)] flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
+          <div className="air-hide flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]"></span>
             <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-bold">
               Caja Diaria & Movimientos
@@ -151,7 +151,7 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 tracking-tight">
             Flujo de Caja Diaria & <span className="font-extrabold text-gray-900 dark:text-white">Arqueo de Turno</span>
           </h2>
-          <p className="text-xs text-gray-600 dark:text-gray-400 font-medium max-w-xl">
+          <p className="air-hide text-xs text-gray-600 dark:text-gray-400 font-medium max-w-xl">
             Control de efectivo en recepción, cobros de extras y registro sereno de gastos operativos diarios.
           </p>
         </div>
@@ -240,13 +240,13 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
         {/* Formulario (5 cols) */}
         <div className="lg:col-span-5 bg-white dark:bg-[#18191E] rounded-2xl border border-gray-100 dark:border-zinc-800 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)] h-fit">
           <div className="pb-4 border-b border-gray-100 dark:border-zinc-800 mb-5">
-            <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-bold">
+            <span className="air-hide text-[10px] tracking-widest text-[#E67E22] uppercase font-bold">
               Movimiento Rápido
             </span>
             <h4 className="text-base font-bold text-gray-800 dark:text-gray-100 tracking-tight mt-0.5">
               {isFrontDesk ? 'Registrar Cobro / Entrada' : 'Registrar Cobro o Gasto'}
             </h4>
-            <p className="text-xs text-gray-600 dark:text-gray-400 font-medium mt-0.5">
+            <p className="air-hide text-xs text-gray-600 dark:text-gray-400 font-medium mt-0.5">
               Ingresa el movimiento con concepto claro para mantener el balance al día.
             </p>
           </div>
@@ -396,13 +396,13 @@ export const DemoCashDrawer: React.FC<DemoCashDrawerProps> = ({
           <div>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100 dark:border-zinc-800 mb-3">
               <div>
-                <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-bold">
+                <span className="air-hide text-[10px] tracking-widest text-[#E67E22] uppercase font-bold">
                   Registro de Movimientos
                 </span>
                 <h4 className="text-base font-bold text-gray-800 dark:text-gray-100 tracking-tight mt-0.5">
                   Historial de Caja Diaria
                 </h4>
-                <p className="text-xs text-gray-600 dark:text-gray-400 font-medium mt-0.5">
+                <p className="air-hide text-xs text-gray-600 dark:text-gray-400 font-medium mt-0.5">
                   Lectura fluida de cada transacción registrada.
                 </p>
               </div>

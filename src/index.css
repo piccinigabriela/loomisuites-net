@@ -131,3 +131,31 @@ html:not(.dark) :where(
 }
 
 
+
+/* ---------------------------------------------------------------
+   Modo "aireado" (demo, y la app real solo con ?menu=arriba):
+   menos rótulos y frases de relleno, letras más grandes y oscuras.
+   Todo cuelga de la clase .airy, así que no toca la app real.
+   --------------------------------------------------------------- */
+.airy .air-hide { display: none !important; }
+.airy { font-weight: 400; }
+.airy .font-light { font-weight: 400; }
+.airy .uppercase { text-transform: none; letter-spacing: normal; }
+.airy [class*="text-[9px]"] { font-size: 12px; }
+.airy [class*="text-[10px]"] { font-size: 12.5px; }
+.airy [class*="text-[11px]"] { font-size: 13px; }
+/* grises claros a un gris oscuro legible (claro) / un gris claro legible (oscuro) */
+.airy [class^="text-gray-3"], .airy [class*=" text-gray-3"],
+.airy [class^="text-gray-4"], .airy [class*=" text-gray-4"],
+.airy [class^="text-gray-5"], .airy [class*=" text-gray-5"],
+.airy [class^="text-stone-3"], .airy [class*=" text-stone-3"],
+.airy [class^="text-stone-4"], .airy [class*=" text-stone-4"],
+.airy [class^="text-stone-5"], .airy [class*=" text-stone-5"],
+.airy [class^="text-zinc-4"], .airy [class*=" text-zinc-4"],
+.airy [class^="text-zinc-5"], .airy [class*=" text-zinc-5"],
+.airy [class^="text-slate-4"], .airy [class*=" text-slate-4"],
+.airy [class^="text-slate-5"], .airy [class*=" text-slate-5"] { color: #44403c; }
+.dark .airy [class*="dark:text-gray-3"], .dark .airy [class*="dark:text-gray-4"], .dark .airy [class*="dark:text-gray-5"], .dark .airy [class*="dark:text-gray-6"],
+.dark .airy [class*="dark:text-stone-3"], .dark .airy [class*="dark:text-stone-4"], .dark .airy [class*="dark:text-stone-5"], .dark .airy [class*="dark:text-stone-6"],
+.dark .airy [class*="dark:text-zinc-3"], .dark .airy [class*="dark:text-zinc-4"], .dark .airy [class*="dark:text-zinc-5"], .dark .airy [class*="dark:text-zinc-6"],
+.dark .airy [class*="dark:text-slate-4"], .dark .airy [class*="dark:text-slate-5"] { color: #e0dcd5; }

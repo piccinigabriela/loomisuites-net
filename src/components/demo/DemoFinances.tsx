@@ -343,7 +343,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
       <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 shadow-[0_4px_16px_rgba(0,0,0,0.02)] space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100 dark:border-zinc-800">
           <div>
-            <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-bold flex items-center gap-1.5">
+            <span className="air-hide text-[10px] tracking-widest text-[#E67E22] uppercase font-bold flex items-center gap-1.5">
               <Coins className="w-3.5 h-3.5" /> MONEDA PRINCIPAL & COTIZACIONES
             </span>
             <h3 className="text-base font-bold text-stone-800 dark:text-stone-100 mt-0.5">
@@ -439,7 +439,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 tracking-tight">
             Control de Rendimiento & <span className="font-extrabold text-gray-900 dark:text-white">Liquidación</span>
           </h2>
-          <p className="text-xs text-gray-600 dark:text-gray-400 font-medium max-w-xl">
+          <p className="air-hide text-xs text-gray-600 dark:text-gray-400 font-medium max-w-xl">
             Flujo consolidado de facturación, comisiones de canales y liquidación mensual a propietarios.
           </p>
         </div>
@@ -576,7 +576,7 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
             <h3 className="text-base font-bold text-gray-800 dark:text-gray-100 tracking-tight mt-0.5">
               Curvas de Ocupación & Facturación Flotantes
             </h3>
-            <p className="text-xs text-gray-600 dark:text-gray-400 font-medium mt-0.5">
+            <p className="air-hide text-xs text-gray-600 dark:text-gray-400 font-medium mt-0.5">
               Trazo refinado para apreciar la evolución de ingresos y ocupación en tiempo real.
             </p>
           </div>
@@ -776,13 +776,13 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
         <div className={`${isApp ? 'lg:col-span-12' : 'lg:col-span-7'} bg-white dark:bg-[#18191E] rounded-2xl border border-gray-100 dark:border-zinc-800 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)]`}>
           <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-zinc-800 mb-2">
             <div>
-              <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-bold">
+              <span className="air-hide text-[10px] tracking-widest text-[#E67E22] uppercase font-bold">
                 Balance Consolidado
               </span>
               <h4 className="text-base font-bold text-gray-800 dark:text-gray-100 tracking-tight mt-0.5">
                 Flujo de Cobros por Estadía
               </h4>
-              <p className="text-xs text-gray-600 dark:text-gray-400 font-medium mt-0.5">
+              <p className="air-hide text-xs text-gray-600 dark:text-gray-400 font-medium mt-0.5">
                 Revisión clara de cada liquidación realizada.
               </p>
             </div>
@@ -872,13 +872,13 @@ export const DemoFinances: React.FC<DemoFinancesProps> = ({
         <div className="lg:col-span-5 bg-white dark:bg-[#18191E] rounded-2xl border border-gray-100 dark:border-zinc-800 p-6 shadow-[0_4px_16px_rgba(0,0,0,0.005)] flex flex-col justify-between">
           <div>
             <div className="pb-4 border-b border-gray-100 dark:border-zinc-800 mb-5">
-              <span className="text-[10px] tracking-widest text-[#E67E22] uppercase font-bold">
+              <span className="air-hide text-[10px] tracking-widest text-[#E67E22] uppercase font-bold">
                 Rendición de Cuentas
               </span>
               <h4 className="text-base font-bold text-gray-800 dark:text-gray-100 tracking-tight mt-0.5">
                 Liquidación a Propietario
               </h4>
-              <p className="text-xs text-gray-600 dark:text-gray-400 font-medium mt-0.5">
+              <p className="air-hide text-xs text-gray-600 dark:text-gray-400 font-medium mt-0.5">
                 Cálculo transparente para enviar por WhatsApp o correo sin disputas.
               </p>
             </div>
