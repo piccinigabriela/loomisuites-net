@@ -68,6 +68,7 @@ import {
   TenantDoc,
 } from './lib/tenantStore';
 import { syncCalendars } from './lib/icalSync';
+import { DesktopAreasBar, DesktopSubTabs, buildNavGroups, useTopNavEnabled } from './components/demo/DesktopNav';
 import { findConflicts, getLocalDateString, SyncResult } from './lib/icalCore';
 import {
   AccessInfo,
@@ -101,6 +102,7 @@ function lazyNamed<T extends Record<string, any>, K extends keyof T>(loader: () 
 }
 const CleanSidebar = lazyNamed(() => import('./components/demo/CleanSidebar'), 'CleanSidebar');
 const CleanToday = lazyNamed(() => import('./components/demo/CleanToday'), 'CleanToday');
+const DesktopHome = lazyNamed(() => import('./components/demo/DesktopHome'), 'DesktopHome');
 const MobileLightView = lazyNamed(() => import('./components/demo/MobileLightView'), 'MobileLightView');
 const DemoHeader = lazyNamed(() => import('./components/demo/DemoHeader'), 'DemoHeader');
 const DemoNavTabs = lazyNamed(() => import('./components/demo/DemoNavTabs'), 'DemoNavTabs');
@@ -2010,6 +2012,9 @@ export default function App() {
     );
   }
 
+  const useTopNav = useTopNavEnabled(isApp);
+  const navGroups = buildNavGroups({ isApp, userRole, showTeamNotices, pendingCleaningsCount });
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans antialiased selection:bg-rose-500 selection:text-white transition-colors">
       {/* Barra superior fina para prueba gratis */}
@@ -2283,8 +2288,18 @@ export default function App() {
         />
       ) : (
         /* DUEÑO / ADMINISTRADOR: CONTROL TOTAL DE ESCRITORIO (/admin) */
-        <div className="min-h-screen flex bg-[#F8F9FA] dark:bg-[#0E0F12] text-stone-800 dark:text-stone-100 font-sans transition-colors">
+        <div className={`min-h-screen flex ${useTopNav ? 'flex-col' : ''} bg-[#F8F9FA] dark:bg-[#0E0F12] text-stone-800 dark:text-stone-100 font-sans transition-colors`}>
+          {/* Menú de arriba (demo; en la app real solo con ?menu=arriba) */}
+          {useTopNav && (
+            <DesktopAreasBar
+              groups={navGroups}
+              activeTab={demoTab}
+              onSelectTab={setDemoTab}
+              complexName={demoState.welcomeGuide?.propertyName || 'Mi complejo'}
+            />
+          )}
           {/* Minimalist Sidebar */}
+          {!useTopNav && (
           <CleanSidebar
             activeTab={demoTab}
             onSelectTab={setDemoTab}
@@ -2310,11 +2325,12 @@ export default function App() {
             onLogout={handleLogout}
             isAppMode={isApp}
           />
+          )}
 
           {/* Main Content Area */}
           <div className="flex-1 flex flex-col min-w-0 bg-[#F8F9FA] dark:bg-[#0E0F12] overflow-y-auto transition-colors">
             {/* Minimalist Architectural Top Sub-bar with fast actions & status */}
-            <div className="h-14 border-b border-stone-200/80 dark:border-zinc-800/80 px-4 sm:px-6 flex items-center justify-between bg-white/90 dark:bg-[#0E0F12]/90 sticky top-0 z-40 backdrop-blur-md transition-colors">
+            <div className={`${useTopNav ? "min-h-14 py-1.5 flex-wrap gap-y-2" : "h-14"} border-b border-stone-200/80 dark:border-zinc-800/80 px-4 sm:px-6 flex items-center justify-between bg-white/90 dark:bg-[#0E0F12]/90 sticky top-0 z-40 backdrop-blur-md transition-colors`}>
               <div className="flex items-center gap-2 sm:gap-3">
                 {!isApp && (
                   <button
@@ -2325,6 +2341,7 @@ export default function App() {
                     <span>← Inicio</span>
                   </button>
                 )}
+                {!useTopNav && (<>
                 <button
                   onClick={() => setIsMobileSidebarOpen(true)}
                   className="md:hidden px-2.5 py-1.5 rounded-xl text-xs font-semibold text-stone-700 dark:text-stone-200 bg-stone-50 dark:bg-zinc-800 hover:border-orange-300 border border-stone-200/80 dark:border-zinc-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
@@ -2367,9 +2384,11 @@ export default function App() {
                     ? 'Tarifas'
                     : 'Asistente'}
                 </span>
+                </>)}
+                {useTopNav && <DesktopSubTabs groups={navGroups} activeTab={demoTab} onSelectTab={setDemoTab} />}
               </div>
 
-              <div className="flex items-center gap-2 sm:gap-2.5">
+              <div className={`flex items-center gap-2 sm:gap-2.5 ${useTopNav ? "ml-auto" : ""}`}>
                 {/* Accesos Rápidos por Rol (Dueño / Recepción / Mucamas) */}
                 <div className="hidden lg:flex items-center gap-1 bg-stone-100 dark:bg-zinc-800/80 p-1 rounded-xl text-xs border border-stone-200/70 dark:border-zinc-700/60">
                   <button
@@ -2456,7 +2475,7 @@ export default function App() {
                     )}
                     <button
                       onClick={handleResetData}
-                      className="text-xs font-medium text-stone-600 hover:text-stone-900 dark:hover:text-stone-200 transition-colors cursor-pointer hidden md:inline"
+                      className="text-xs font-medium text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer hidden md:inline"
                     >
                       Restablecer
                     </button>
@@ -2539,6 +2558,14 @@ export default function App() {
                       onDismissChecklist={handleDismissChecklist}
                     />
                   )}
+                  {useTopNav && !isApp ? (
+                    <DesktopHome
+                      demoState={demoState}
+                      onSelectReservation={setSelectedReservationForDetail}
+                      onQuickCheckIn={handleQuickCheckIn}
+                      onNavigateTab={setDemoTab}
+                    />
+                  ) : (
                   <CleanToday
                     demoState={demoState}
                     userRole={userRole}
@@ -2561,6 +2588,7 @@ export default function App() {
                     isAppMode={isApp}
                     icalSyncState={icalSyncState}
                   />
+                  )}
                 </>
               )}
 
