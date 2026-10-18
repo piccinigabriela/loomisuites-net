@@ -15,7 +15,7 @@ const BLOCKS: Array<{ title: string; line: string; items: string[] }> = [
   {
     title: 'Limpieza',
     line: 'Que cada unidad esté lista a tiempo.',
-    items: ['Agenda de limpiezas', 'Asistente Xenia'],
+    items: ['Agenda de limpiezas', 'Checklist por unidad'],
   },
   {
     title: 'Administración',

@@ -232,7 +232,7 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-slate-400">
+        <div className="flex items-center gap-2 text-xs text-slate-200">
           <ShieldCheck className="w-4 h-4 text-emerald-400" />
           <span className="hidden sm:inline">Acceso seguro encriptado</span>
         </div>
@@ -246,7 +246,7 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
             
             {/* Header Titles */}
             <div className="text-center space-y-2 mb-7">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white/5 border border-white/10 text-slate-300">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white/5 border border-white/10 text-slate-100">
                 <Sparkles className="w-3 h-3 text-[#E67E22]" />
                 <span>Panel de Gestión y Operaciones</span>
               </div>
@@ -269,7 +269,7 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
                 )}
               </h1>
 
-              <p className="text-xs text-slate-400 font-light leading-relaxed">
+              <p className="text-xs text-slate-200 font-medium leading-relaxed">
                 {mode === 'login' && 'Gestioná tus cabañas, reservas y cobros en un solo lugar'}
                 {mode === 'register' && 'Comenzá a operar tu complejo de forma profesional y autónoma'}
                 {mode === 'forgot_password' && 'Te enviaremos un correo para que puedas crear una nueva contraseña'}
@@ -302,7 +302,7 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
                   className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-white font-medium text-xs sm:text-sm border border-slate-700/80 transition-all shadow-sm hover:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {isGoogleLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-slate-300" />
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-100" />
                   ) : (
                     <svg className="w-4 h-4" viewBox="0 0 24 24">
                       <path
@@ -331,7 +331,7 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-slate-800" />
                   </div>
-                  <span className="relative px-3 bg-[#121622] text-[11px] uppercase tracking-wider text-slate-500 font-mono">
+                  <span className="relative px-3 bg-[#121622] text-[11px] uppercase tracking-wider text-slate-300 font-mono">
                     o con tu correo
                   </span>
                 </div>
@@ -342,11 +342,11 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
             {mode === 'login' && (
               <form onSubmit={handleEmailLogin} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-medium text-slate-300">
+                  <label className="block text-xs font-medium text-slate-100">
                     Correo electrónico
                   </label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                    <Mail className="w-4 h-4 text-slate-300 absolute left-3.5 top-3.5" />
                     <input
                       type="email"
                       required
@@ -360,7 +360,7 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs font-medium text-slate-300">
+                    <label className="block text-xs font-medium text-slate-100">
                       Contraseña
                     </label>
                     <button
@@ -372,7 +372,7 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
                     </button>
                   </div>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                    <Lock className="w-4 h-4 text-slate-300 absolute left-3.5 top-3.5" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
@@ -384,7 +384,7 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-3 text-slate-500 hover:text-slate-300 cursor-pointer"
+                      className="absolute right-3.5 top-3 text-slate-300 hover:text-slate-100 cursor-pointer"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -407,7 +407,7 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
                 </button>
 
                 <div className="pt-3 text-center">
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-slate-200">
                     ¿Todavía no tenés cuenta?{' '}
                   </span>
                   <button
@@ -425,11 +425,11 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
             {mode === 'register' && (
               <form onSubmit={handleEmailRegister} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-medium text-slate-300">
+                  <label className="block text-xs font-medium text-slate-100">
                     Correo electrónico
                   </label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                    <Mail className="w-4 h-4 text-slate-300 absolute left-3.5 top-3.5" />
                     <input
                       type="email"
                       required
@@ -442,11 +442,11 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-medium text-slate-300">
+                  <label className="block text-xs font-medium text-slate-100">
                     Contraseña
                   </label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                    <Lock className="w-4 h-4 text-slate-300 absolute left-3.5 top-3.5" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
@@ -458,7 +458,7 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-3 text-slate-500 hover:text-slate-300 cursor-pointer"
+                      className="absolute right-3.5 top-3 text-slate-300 hover:text-slate-100 cursor-pointer"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -466,11 +466,11 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-medium text-slate-300">
+                  <label className="block text-xs font-medium text-slate-100">
                     Confirmar Contraseña
                   </label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                    <Lock className="w-4 h-4 text-slate-300 absolute left-3.5 top-3.5" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
@@ -498,7 +498,7 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
                 </button>
 
                 <div className="pt-3 text-center">
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-slate-200">
                     ¿Ya tenés una cuenta registrada?{' '}
                   </span>
                   <button
@@ -516,11 +516,11 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
             {mode === 'forgot_password' && (
               <form onSubmit={handleForgotPassword} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-medium text-slate-300">
+                  <label className="block text-xs font-medium text-slate-100">
                     Correo electrónico asociado a tu cuenta
                   </label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                    <Mail className="w-4 h-4 text-slate-300 absolute left-3.5 top-3.5" />
                     <input
                       type="email"
                       required
@@ -548,7 +548,7 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
                   <button
                     type="button"
                     onClick={() => resetFormState('login')}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-200 hover:text-white transition-colors cursor-pointer"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     <span>Volver a Iniciar Sesión</span>
@@ -561,7 +561,7 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 w-full px-6 py-4 max-w-7xl mx-auto text-center text-xs text-slate-600">
+      <footer className="relative z-10 w-full px-6 py-4 max-w-7xl mx-auto text-center text-xs text-slate-300">
         <p>Loomi Suite • Sistema Operativo para Alojamientos Temporarios y Complejos Turísticos</p>
       </footer>
     </div>

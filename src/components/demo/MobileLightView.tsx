@@ -303,9 +303,6 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
       {/* ========================================================================= */}
       <header className="sticky top-0 z-30 bg-[#ECE7E0]/95 dark:bg-[#111215]/95 backdrop-blur-md px-4 pt-3.5 pb-2.5 flex items-center justify-between border-b border-[#DDD7CD]/50 dark:border-zinc-800/60">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-full bg-[#DDD7CD] dark:bg-zinc-800 text-gray-800 dark:text-gray-200 flex items-center justify-center font-bold text-base shrink-0 shadow-2xs">
-            L
-          </div>
           <div className="min-w-0">
             <h1 className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate tracking-tight">
               {complexName}
@@ -323,8 +320,9 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
               onClick={onBackToLanding}
               className="px-2.5 py-1.5 rounded-xl bg-[#DDD7CD]/70 dark:bg-zinc-800 text-gray-800 dark:text-gray-200 text-xs font-semibold hover:bg-[#DDD7CD] transition-colors cursor-pointer flex items-center gap-1"
               title="Volver a la landing"
+              aria-label="Volver a la landing"
             >
-              ← Inicio
+              ←
             </button>
           )}
 
