@@ -1,4 +1,4 @@
-import {StrictMode, Suspense, lazy} from 'react';
+import {StrictMode, Suspense, lazy, useLayoutEffect} from 'react';
 import {createRoot} from 'react-dom/client';
 import { ErrorBoundary } from './components/ErrorBoundary.tsx';
 import './index.css';
@@ -20,8 +20,18 @@ const isLanding =
   !window.location.search &&
   !/app|panel|login|web|limpieza|recepcion|admin|guia|guide/.test(hash);
 
+// index.html esconde la landing prearmada en las páginas que no son la landing (clase no-prerender).
+// En cuanto React pinta lo suyo, la landing prearmada ya no está: se vuelve a mostrar el contenido.
+function ShowRoot() {
+  useLayoutEffect(() => {
+    document.documentElement.classList.remove('no-prerender');
+  }, []);
+  return null;
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <ShowRoot />
     <ErrorBoundary>
       <Suspense
         fallback={
