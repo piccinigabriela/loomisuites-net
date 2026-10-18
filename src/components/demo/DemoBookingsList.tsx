@@ -114,7 +114,10 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
     }
 
     return true;
-  });
+  }).sort(
+    // Por fecha de llegada (la más próxima arriba). La pantalla y el CSV usan este mismo orden.
+    (a, b) => a.checkIn.localeCompare(b.checkIn) || a.checkOut.localeCompare(b.checkOut) || a.guestName.localeCompare(b.guestName)
+  );
 
   const handleClearFilters = () => {
     setSearchTerm('');
@@ -124,52 +127,41 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
     setCheckInEnd('');
   };
 
+  // CSV pensado para Excel en español: separador ";", acentos bien (BOM), textos entre comillas y montos con coma decimal
   const handleExportCSV = () => {
-    const headers = [
-      'ID',
-      'Huésped',
-      'Unidad',
-      'Check-In',
-      'Check-Out',
-      'Noches',
-      'Plataforma',
-      'Monto Total',
-      'Moneda',
-      'Estado Cobro',
-      'Estado Reserva',
-      'Teléfono',
-      'Patente',
-    ];
+    const text = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""').replace(/\r?\n/g, ' ')}"`;
+    const money = (n: number) => String(n ?? 0).replace('.', ',');
+    const headers = ['Check-In', 'Check-Out', 'Noches', 'Huésped', 'Unidad', 'Plataforma', 'Monto Total', 'Moneda', 'Estado Cobro', 'Estado Reserva', 'Teléfono', 'Email', 'Patente', 'ID'];
 
     const rows = filteredReservations.map((r) => {
       const prop = demoState.properties.find((p) => p.id === r.propertyId);
       return [
-        r.id,
-        `"${r.guestName.replace(/"/g, '""')}"`,
-        `"${(prop?.name || 'Sin unidad asignada').replace(/"/g, '""')}"`,
         r.checkIn,
         r.checkOut,
         r.nights,
-        r.platform,
-        r.totalAmount,
-        getActiveCurrency(),
-        r.paymentStatus,
-        r.status,
-        r.guestPhone,
-        r.carPlate || '',
+        text(r.guestName),
+        text(prop?.name || 'Sin unidad asignada'),
+        text(r.platform),
+        money(r.totalAmount),
+        text(getActiveCurrency()),
+        text(getPaymentStatusBadge(r.paymentStatus).label),
+        text(getStatusBadge(r.status).label),
+        text(r.guestPhone),
+        text(r.guestEmail),
+        text(r.carPlate || ''),
+        text(r.id),
       ];
     });
 
-    const csvContent =
-      'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
-
-    const encodedUri = encodeURI(csvContent);
+    const csv = '\uFEFF' + [headers.map(text).join(';'), ...rows.map((e) => e.join(';'))].join('\r\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', 'LoomiSuite_Reservas.csv');
+    link.href = url;
+    link.download = `LoomiSuite_Reservas_${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handlePrint = () => {
