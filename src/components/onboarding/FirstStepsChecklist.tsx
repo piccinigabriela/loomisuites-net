@@ -207,14 +207,16 @@ export const FirstStepsChecklist: React.FC<FirstStepsChecklistProps> = ({
           </p>
         </div>
 
-        <button
-          onClick={onDismissChecklist}
-          className="text-xs text-stone-400 dark:text-zinc-500 hover:text-stone-700 dark:hover:text-zinc-300 font-medium flex items-center gap-1 cursor-pointer transition-colors"
-          title="Ocultar esta lista de primeros pasos"
-        >
-          <EyeOff className="w-3.5 h-3.5" />
-          <span>Ocultar por ahora</span>
-        </button>
+        {!isAllDone && (
+          <button
+            onClick={onDismissChecklist}
+            className="text-xs text-stone-600 dark:text-zinc-300 hover:text-stone-900 dark:hover:text-white font-medium flex items-center gap-1 cursor-pointer transition-colors"
+            title="Ocultar esta lista de primeros pasos"
+          >
+            <EyeOff className="w-3.5 h-3.5" />
+            <span>Ocultar por ahora</span>
+          </button>
+        )}
       </div>
 
       {/* Progress Bar */}
@@ -236,7 +238,7 @@ export const FirstStepsChecklist: React.FC<FirstStepsChecklistProps> = ({
             onClick={onDismissChecklist}
             className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer transition-colors"
           >
-            Ocultar
+            Configuración finalizada
           </button>
         </div>
       )}
