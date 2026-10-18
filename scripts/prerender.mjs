@@ -15,7 +15,7 @@ try {
   const index = readFileSync(indexPath, 'utf8');
   if (!index.includes('<div id="root"></div>')) throw new Error('No encontré <div id="root"></div> en dist/index.html');
   if (html.length < 2000) throw new Error('El HTML generado es demasiado corto');
-  writeFileSync(indexPath, index.replace('<div id="root"></div>', `<div id="root">${html}</div>`));
+  writeFileSync(indexPath, index.replace('<div id="root"></div>', `<div id="root"><div id="prerendered">${html}</div></div>`));
   console.log(`✔ Landing prearmada en dist/index.html (${Math.round(html.length / 1024)} KB de HTML)`);
 } catch (err) {
   console.warn('⚠ No se pudo prearmar la landing; queda la versión normal.', err?.message || err);
