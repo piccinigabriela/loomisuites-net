@@ -55,6 +55,7 @@ export const LandingSeoContent: React.FC = () => (
       <li><a href="https://loomisuite.net/demo">Demo interactiva con datos de ejemplo</a>, sin registrarse.</li>
       <li><a href="https://app.loomisuite.net/">Crear cuenta o ingresar</a>.</li>
       <li><a href="https://loomisuite.net/manual">Manual gratuito de hospitalidad</a>: las 6 normas de oro del anfitrión.</li>
+      <li><a href="https://loomisuite.net/manual?m=fotos">Manual gratuito de fotografía</a>: fotos de alojamientos con el celular o con cámara.</li>
       <li>WhatsApp: +54 9 11 4092-5939. Email: contacto@loomisuite.net.</li>
     </ul>
   </section>
