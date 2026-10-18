@@ -26,7 +26,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
 - Roles: el dueño puede ver las tres vistas (`/admin`, `/recepcion`, `/limpieza`). El personal entra con su cuenta:
   `invites/{mail}` (lo crea el dueño en Administración → Equipo y accesos) → al aceptar se crea `memberships/{uid}`
   {tenantId, role: recepcion|limpieza}. `tenantUid` en App.tsx es el complejo cuyos datos se usan (no siempre el usuario).
-  Limpieza no lee reservas: ve `tenants/{uid}/staff/llegadas` (sin teléfonos ni importes). Reglas probadas con `rules-test/` (`npm run probar` en Cloud Shell).
+  Limpieza no lee reservas ni `tenants/{uid}`: ve `tenants/{uid}/staff/llegadas` (sin teléfonos ni importes; lo reescribe
+  entero también el servidor) y `tenants/{uid}/staff/complejo` (nombre, horarios y fecha de alta; lo escriben el dueño y Recepción desde la app). Reglas probadas con `rules-test/` (`npm run probar` en Cloud Shell).
 
 - Tarifas: `tenants/{uid}.pricing` (se guarda entero con `savePricingDoc`). Cálculo en `src/lib/pricing.ts` (`quoteStay`):
   finde largo > temporada > normal; fin de semana = noches marcadas (por defecto vie, sáb, dom). Findes largos de

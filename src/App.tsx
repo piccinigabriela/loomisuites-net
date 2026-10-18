@@ -80,6 +80,9 @@ import {
   subscribeToMembership,
   saveStaffArrivals,
   subscribeToStaffArrivals,
+  saveStaffComplex,
+  subscribeToStaffComplex,
+  StaffComplexDoc,
 } from './lib/team';
 import { buildStaffArrivals, StaffArrivalsDoc } from './lib/staffArrivals';
 
@@ -318,11 +321,17 @@ export default function App() {
 
   // Tenant doc state in App Mode
   const [tenantDoc, setTenantDoc] = useState<TenantDoc | null>(null);
+  // Limpieza no lee el documento del complejo: nombre, horarios y fecha de alta le llegan por staff/complejo
+  const [staffComplex, setStaffComplex] = useState<StaffComplexDoc | null>(null);
 
   // El personal usa la suscripción del complejo (y su fecha de alta para la prueba gratis)
   const accessStatus =
     isApp && currentUser
-      ? getAccessStatus(currentUser, subscriptionDoc, isStaff ? tenantDoc?.createdAt : undefined)
+      ? getAccessStatus(
+          currentUser,
+          subscriptionDoc,
+          staffRole === 'limpieza' ? staffComplex?.trialStart : isStaff ? tenantDoc?.createdAt : undefined
+        )
       : null;
 
   // Pre check-ins que completan los huéspedes desde su guía (por id de reserva)
@@ -371,7 +380,7 @@ export default function App() {
           });
         }
       }
-    }, staffRole === 'limpieza' ? { skip: ['reservations', 'cashMovements', 'reminders'] } : {});
+    }, staffRole === 'limpieza' ? { skip: ['tenant', 'reservations', 'cashMovements', 'reminders'] } : {});
     return () => unsubscribe();
   }, [isApp, currentUser, tenantUid, staffRole]);
   const [currentView, setCurrentView] = useState<'landing' | 'demo' | 'superadmin' | 'guide'>(() => {
@@ -836,6 +845,33 @@ export default function App() {
     }, 3000);
     return () => clearTimeout(timer);
   }, [isApp, currentUser, tenantUid, tenantLoading, staffRole, demoState.properties, demoState.reservations]);
+
+  // Nombre del complejo y horarios para Limpieza: los escriben el dueño y Recepción, que sí leen el complejo
+  const lastSavedStaffComplexRef = React.useRef<string>('');
+  useEffect(() => {
+    if (!isApp || !currentUser || !tenantUid || staffRole !== 'limpieza') {
+      setStaffComplex(null);
+      return;
+    }
+    return subscribeToStaffComplex(tenantUid, setStaffComplex);
+  }, [isApp, currentUser, tenantUid, staffRole]);
+  useEffect(() => {
+    if (!isApp || !currentUser || !tenantUid || tenantLoading || staffRole === 'limpieza' || !tenantDoc) return;
+    const guide = tenantDoc.welcomeGuide;
+    const data: StaffComplexDoc = {
+      complexName: (guide?.propertyName || tenantDoc.complexName || '').trim(),
+      checkinHour: (guide?.checkinHour || '').trim(),
+      checkoutHour: (guide?.checkoutHour || '').trim(),
+      trialStart: tenantDoc.createdAt,
+    };
+    const key = JSON.stringify({ ...data, trialStart: tenantDoc.createdAt?.seconds ?? null });
+    if (key === lastSavedStaffComplexRef.current) return;
+    saveStaffComplex(tenantUid, data)
+      .then(() => {
+        lastSavedStaffComplexRef.current = key;
+      })
+      .catch((err) => console.warn('Datos del complejo para Limpieza no guardados:', err));
+  }, [isApp, currentUser, tenantUid, tenantLoading, staffRole, tenantDoc]);
 
   // Mostrar como "última sincronización" la más reciente entre la app y el servidor
   useEffect(() => {
@@ -2213,7 +2249,13 @@ export default function App() {
           onToggleChecklistItem={handleToggleChecklistItem}
           onUpdateTaskStatus={handleUpdateTaskStatus}
           onSwitchRole={handleRoleChange}
-          complexName={demoState.welcomeGuide?.propertyName || (access.kind === 'staff' ? access.membership.complexName : '') || 'Mi complejo'}
+          complexName={
+            (staffRole === 'limpieza' ? staffComplex?.complexName : demoState.welcomeGuide?.propertyName) ||
+            (access.kind === 'staff' ? access.membership.complexName : '') ||
+            'Mi complejo'
+          }
+          checkinHour={staffRole === 'limpieza' ? staffComplex?.checkinHour : demoState.welcomeGuide?.checkinHour}
+          checkoutHour={staffRole === 'limpieza' ? staffComplex?.checkoutHour : demoState.welcomeGuide?.checkoutHour}
           arrivals={isApp ? staffArrivals : undefined}
           staffAccess={isStaff ? { email: currentUser?.email || '', onLogout: handleLogout } : undefined}
         />

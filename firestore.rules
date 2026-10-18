@@ -32,7 +32,9 @@ service cloud.firestore {
     }
 
     match /tenants/{uid} {
-      allow read: if isOwner(uid) || isStaff(uid, ['recepcion', 'limpieza']) || isAdmin();
+      // Limpieza no lee este documento (tarifas, comisión, teléfonos del equipo, plantillas):
+      // el nombre del complejo y los horarios le llegan por staff/complejo
+      allow read: if isOwner(uid) || isStaff(uid, ['recepcion']) || isAdmin();
       allow write: if isOwner(uid);
 
       match /properties/{docId} {
@@ -58,7 +60,8 @@ service cloud.firestore {
       match /sync/{docId} {
         allow read: if isStaff(uid, ['recepcion']);
       }
-      // Próximos ingresos para Limpieza (sin teléfonos ni importes)
+      // Para Limpieza, sin datos sensibles: staff/llegadas (próximos ingresos, sin teléfonos ni importes)
+      // y staff/complejo (nombre del complejo, horarios de check-in y check-out, fecha de alta)
       match /staff/{docId} {
         allow read: if isStaff(uid, ['recepcion', 'limpieza']);
         allow write: if isStaff(uid, ['recepcion']);

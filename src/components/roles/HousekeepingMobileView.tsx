@@ -30,6 +30,9 @@ interface HousekeepingMobileViewProps {
   onUpdateTaskStatus: (taskId: string, newStatus: CleaningTask['status']) => void;
   onSwitchRole: (role: 'admin' | 'frontdesk' | 'housekeeping') => void;
   complexName?: string;
+  /** Horarios del complejo, tal como se cargaron en la guía (ej. "14:00 hs") */
+  checkinHour?: string;
+  checkoutHour?: string;
   /** Próximos ingresos por unidad (app real). En la demo se calculan de las reservas de ejemplo. */
   arrivals?: StaffArrivalsDoc | null;
   /** Limpieza con su propia cuenta: sin volver a Administración, con botón Salir */
@@ -50,9 +53,19 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
   onUpdateTaskStatus,
   onSwitchRole,
   complexName = 'Mi complejo',
+  checkinHour,
+  checkoutHour,
   arrivals,
   staffAccess,
 }) => {
+  // "10:00 hs (Late check-out según disponibilidad)" → "10:00"
+  const shortHour = (h?: string) => {
+    const t = (h || '').trim();
+    const m = t.match(/\b(\d{1,2})[:.](\d{2})\b/);
+    return m ? `${m[1].padStart(2, '0')}:${m[2]}` : t.replace(/\s*hs\.?$/i, '').slice(0, 12);
+  };
+  const salida = shortHour(checkoutHour);
+  const ingreso = shortHour(checkinHour);
   const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'ready'>('all');
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -200,9 +213,14 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
               <Sparkles className="w-4 h-4 text-[#E67E22]" />
               <span>Loomi Limpieza</span>
             </h1>
-            <p className="text-[11px] text-stone-500 dark:text-stone-400 font-light truncate max-w-[220px]">
+            <p className="text-xs text-stone-700 dark:text-stone-200 font-medium truncate max-w-[220px]">
               {complexName}
             </p>
+            {(salida || ingreso) && (
+              <p className="text-xs text-stone-800 dark:text-stone-100 font-semibold">
+                {[salida && `Salidas hasta ${salida}`, ingreso && `Ingresos desde ${ingreso}`].filter(Boolean).join(' · ')}
+              </p>
+            )}
           </div>
 
           {/* Indicador de rol exclusivo para mucama (restringido a su flujo operativo) */}

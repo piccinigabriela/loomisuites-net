@@ -56,8 +56,11 @@ export function subscribeToTenant(
     exists: boolean;
     loading: boolean;
   }) => void,
-  /** Limpieza no puede leer reservas, caja ni recordatorios: esas colecciones se saltean */
-  options: { skip?: Array<'reservations' | 'cashMovements' | 'reminders'> } = {}
+  /**
+   * Limpieza no puede leer el documento del complejo, reservas, caja ni recordatorios: se saltean.
+   * Sin 'tenant' se da por hecho que el complejo existe (lo que Limpieza necesita está en staff/complejo).
+   */
+  options: { skip?: Array<'tenant' | 'reservations' | 'cashMovements' | 'reminders'> } = {}
 ): () => void {
   if (!uid || !db) {
     onData({ tenant: null, properties: [], reservations: [], cleaningTasks: [], cashMovements: [], reminders: [], exists: false, loading: false });
@@ -93,8 +96,15 @@ export function subscribeToTenant(
     }
   };
 
+  const skip = new Set(options.skip || []);
+  const noop = () => {};
+
+  if (skip.has('tenant')) {
+    tenantExists = true;
+    tenantLoaded = true;
+  }
   const tenantRef = doc(db, 'tenants', uid);
-  const unsubTenant = onSnapshot(tenantRef, (snap) => {
+  const unsubTenant = skip.has('tenant') ? noop : onSnapshot(tenantRef, (snap) => {
     tenantExists = snap.exists();
     tenantData = tenantExists ? (snap.data() as TenantDoc) : null;
     tenantLoaded = true;
@@ -116,11 +126,9 @@ export function subscribeToTenant(
     checkReady();
   });
 
-  const skip = new Set(options.skip || []);
   if (skip.has('reservations')) resLoaded = true;
   if (skip.has('cashMovements')) cashLoaded = true;
   if (skip.has('reminders')) reminderLoaded = true;
-  const noop = () => {};
 
   const resRef = collection(db, 'tenants', uid, 'reservations');
   const unsubRes = skip.has('reservations') ? noop : onSnapshot(resRef, (snap) => {

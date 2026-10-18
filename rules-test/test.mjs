@@ -24,13 +24,18 @@ async function caso(nombre, debe, fn) {
 // Datos de mentira: complejo "dueno", otro complejo "otro"
 await env.withSecurityRulesDisabled(async (ctx) => {
   const db = ctx.firestore();
-  await setDoc(doc(db, 'tenants/dueno'), { ownerEmail: 'dueno@x.com', complexName: 'Catalinas' });
+  await setDoc(doc(db, 'tenants/dueno'), {
+    ownerEmail: 'dueno@x.com', complexName: 'Catalinas',
+    pricing: { base: 100 }, managementSettings: { enabled: true, percent: 20 },
+    teamContacts: [{ name: 'Fer', phone: '11' }], templates: [],
+  });
   await setDoc(doc(db, 'tenants/dueno/properties/a'), { id: 'a', name: 'Dept A' });
   await setDoc(doc(db, 'tenants/dueno/reservations/r1'), { id: 'r1', propertyId: 'a', guestName: 'Ana', guestPhone: '11', totalAmount: 100 });
   await setDoc(doc(db, 'tenants/dueno/cleaningTasks/t1'), { id: 't1', propertyId: 'a', date: '2026-10-20', status: 'pending', checklist: [] });
   await setDoc(doc(db, 'tenants/dueno/cashMovements/c1'), { id: 'c1', amount: 50 });
   await setDoc(doc(db, 'tenants/dueno/reminders/m1'), { id: 'm1', text: 'x' });
   await setDoc(doc(db, 'tenants/dueno/staff/llegadas'), { unidades: {} });
+  await setDoc(doc(db, 'tenants/dueno/staff/complejo'), { complexName: 'Catalinas', checkinHour: '14:00', checkoutHour: '10:00' });
   await setDoc(doc(db, 'tenants/dueno/sync/ical'), { ultimaCorrida: 'x' });
   await setDoc(doc(db, 'subscriptions/dueno'), { status: 'active' });
   await setDoc(doc(db, 'precheckins/dueno/items/p1'), { reservationId: 'r1', fullName: 'Ana' });
@@ -51,6 +56,8 @@ await caso('lee sus reservas', true, () => getDoc(doc(dueno, 'tenants/dueno/rese
 await caso('escribe sus reservas', true, () => setDoc(doc(dueno, 'tenants/dueno/reservations/r2'), { id: 'r2' }));
 await caso('lee su caja y recordatorios', true, () => getDocs(collection(dueno, 'tenants/dueno/cashMovements')));
 await caso('escribe sus llegadas para Limpieza', true, () => setDoc(doc(dueno, 'tenants/dueno/staff/llegadas'), { unidades: {} }));
+await caso('escribe nombre y horarios para Limpieza', true, () => setDoc(doc(dueno, 'tenants/dueno/staff/complejo'), { complexName: 'Catalinas', checkinHour: '14:00', checkoutHour: '10:00' }));
+await caso('lee su complejo', true, () => getDoc(doc(dueno, 'tenants/dueno')));
 await caso('NO lee otro complejo', false, () => getDoc(doc(dueno, 'tenants/otro/reservations/r9')));
 await caso('ve su propio acceso aunque no exista', true, () => getDoc(doc(dueno, 'memberships/dueno')));
 await caso('ve si tiene invitación aunque no exista', true, () => getDoc(doc(dueno, 'invites/dueno@x.com')));
@@ -91,7 +98,8 @@ await caso('el dueño ve a su equipo', true, () => getDocs(query(collection(duen
 await caso('otro NO ve el equipo del dueño', false, () => getDocs(query(collection(otro, 'memberships'), where('tenantId', '==', 'dueno'))));
 
 console.log('\nLimpieza');
-await caso('ve el complejo', true, () => getDoc(doc(marta, 'tenants/dueno')));
+await caso('NO lee el documento del complejo (tarifas, comisión, teléfonos, plantillas)', false, () => getDoc(doc(marta, 'tenants/dueno')));
+await caso('ve el nombre del complejo y los horarios', true, () => getDoc(doc(marta, 'tenants/dueno/staff/complejo')));
 await caso('ve las unidades', true, () => getDocs(collection(marta, 'tenants/dueno/properties')));
 await caso('ve las limpiezas', true, () => getDocs(collection(marta, 'tenants/dueno/cleaningTasks')));
 await caso('ve quién llega', true, () => getDoc(doc(marta, 'tenants/dueno/staff/llegadas')));
@@ -107,9 +115,13 @@ await caso('NO ve pre check-ins', false, () => getDoc(doc(marta, 'precheckins/du
 await caso('NO edita unidades', false, () => setDoc(doc(marta, 'tenants/dueno/properties/a'), { name: 'X' }));
 await caso('NO edita el complejo', false, () => setDoc(doc(marta, 'tenants/dueno'), { complexName: 'X' }, { merge: true }));
 await caso('NO escribe las llegadas', false, () => setDoc(doc(marta, 'tenants/dueno/staff/llegadas'), { unidades: {} }));
+await caso('NO cambia el nombre ni los horarios', false, () => setDoc(doc(marta, 'tenants/dueno/staff/complejo'), { complexName: 'X' }));
+await caso('NO ve el complejo de otro', false, () => getDoc(doc(marta, 'tenants/otro/staff/complejo')));
 await caso('NO entra a otro complejo', false, () => getDoc(doc(marta, 'tenants/otro')));
 
 console.log('\nRecepción');
+await caso('lee el documento del complejo', true, () => getDoc(doc(juan, 'tenants/dueno')));
+await caso('actualiza nombre y horarios para Limpieza', true, () => setDoc(doc(juan, 'tenants/dueno/staff/complejo'), { complexName: 'Catalinas', checkinHour: '14:00', checkoutHour: '10:00' }));
 await caso('ve y edita reservas', true, () => setDoc(doc(juan, 'tenants/dueno/reservations/r1'), { status: 'checked_in' }, { merge: true }));
 await caso('lista reservas', true, () => getDocs(collection(juan, 'tenants/dueno/reservations')));
 await caso('registra caja', true, () => setDoc(doc(juan, 'tenants/dueno/cashMovements/c2'), { id: 'c2', amount: 10 }));

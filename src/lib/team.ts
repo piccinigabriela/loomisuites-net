@@ -161,6 +161,39 @@ export function subscribeToMembership(uid: string, onChange: (m: Membership | nu
   );
 }
 
+/**
+ * tenants/{uid}/staff/complejo: lo único del complejo que necesita Limpieza
+ * (Limpieza no lee tenants/{uid}: ahí hay tarifas, comisión, teléfonos del equipo y plantillas).
+ * Va en un documento aparte de "llegadas" porque la sincronización del servidor reescribe ese entero.
+ */
+export interface StaffComplexDoc {
+  complexName: string;
+  checkinHour: string;
+  checkoutHour: string;
+  /** Fecha de alta del complejo: el personal usa la prueba gratis del complejo, no la de su cuenta */
+  trialStart?: any;
+}
+
+export async function saveStaffComplex(tenantUid: string, data: StaffComplexDoc): Promise<void> {
+  if (!tenantUid) return;
+  const clean: Record<string, any> = {
+    complexName: data.complexName,
+    checkinHour: data.checkinHour,
+    checkoutHour: data.checkoutHour,
+    updatedAt: serverTimestamp(),
+  };
+  if (data.trialStart) clean.trialStart = data.trialStart;
+  await setDoc(doc(db, 'tenants', tenantUid, 'staff', 'complejo'), clean);
+}
+
+export function subscribeToStaffComplex(tenantUid: string, onData: (d: StaffComplexDoc | null) => void): () => void {
+  return onSnapshot(
+    doc(db, 'tenants', tenantUid, 'staff', 'complejo'),
+    (snap) => onData(snap.exists() ? (snap.data() as StaffComplexDoc) : null),
+    () => onData(null)
+  );
+}
+
 export async function saveStaffArrivals(tenantUid: string, data: StaffArrivalsDoc): Promise<void> {
   if (!tenantUid) return;
   await setDoc(doc(db, 'tenants', tenantUid, 'staff', 'llegadas'), { ...data, updatedAt: serverTimestamp() });
