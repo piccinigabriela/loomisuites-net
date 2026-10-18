@@ -26,6 +26,9 @@ import {
 import { DemoState, Reservation, ReservationStatus, PaymentStatus, BookingPlatform } from '../../types';
 import { formatCurrency, formatDisplayDate, getActiveCurrency } from '../../data/initialData';
 
+// En la lista el año siempre se ve: hay reservas de varias temporadas y sin año se confunden.
+const fechaConAnio = (d: string) => (d ? `${formatDisplayDate(d)} ${d.slice(0, 4)}` : '');
+
 interface DemoBookingsListProps {
   demoState: DemoState;
   onSelectReservation: (res: Reservation) => void;
@@ -464,9 +467,9 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
 
                       {/* Fechas */}
                       <div className="w-1/4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300">
-                        {formatDisplayDate(res.checkIn)}{' '}
+                        {fechaConAnio(res.checkIn)}{' '}
                         <span className="text-gray-400 dark:text-zinc-600 mx-1">→</span>{' '}
-                        {formatDisplayDate(res.checkOut)}
+                        {fechaConAnio(res.checkOut)}
                       </div>
 
                       {/* Estado / Canal */}
@@ -697,10 +700,10 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                         <div className="text-[11px] text-stone-500 dark:text-stone-400 font-mono">{res.guestPhone || 'Sin tel.'}</div>
                       </td>
                       <td className="py-3.5 px-4 font-mono text-stone-700 dark:text-stone-300">
-                        {formatDisplayDate(res.checkIn)}
+                        {fechaConAnio(res.checkIn)}
                       </td>
                       <td className="py-3.5 px-4 font-mono text-stone-700 dark:text-stone-300">
-                        {formatDisplayDate(res.checkOut)}
+                        {fechaConAnio(res.checkOut)}
                       </td>
                       <td className="py-3.5 px-3 text-center text-stone-800 dark:text-stone-200 font-semibold">{res.nights}</td>
                       <td className="py-3.5 px-4 text-right font-mono text-stone-900 dark:text-stone-100 font-bold">
