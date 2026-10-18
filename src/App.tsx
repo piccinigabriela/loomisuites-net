@@ -2352,7 +2352,7 @@ export default function App() {
       ) : (
         /* DUEÑO / ADMINISTRADOR: CONTROL TOTAL DE ESCRITORIO (/admin) */
         <div className={`min-h-screen flex ${useTopNav ? 'flex-col' : ''} bg-[#F8F9FA] dark:bg-[#0E0F12] text-stone-800 dark:text-stone-100 font-sans transition-colors`}>
-          {/* Menú de arriba (demo; en la app real solo con ?menu=arriba) */}
+          {/* Menú de arriba (demo; app real salvo con ?menu=lateral) */}
           {useTopNav && (
             <DesktopAreasBar
               groups={navGroups}

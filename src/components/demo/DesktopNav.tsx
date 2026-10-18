@@ -18,13 +18,13 @@ export interface NavGroup {
   badge?: number;
 }
 
-/** Se usa en el demo; en la app real solo si se abre con ?menu=arriba (para probarlo sin tocar a los clientes). */
+/** Menú de arriba: demo y app real. Salida de emergencia: abrir la app con ?menu=lateral para volver al menú de la izquierda. */
 export function useTopNavEnabled(isApp: boolean): boolean {
   if (!isApp) return true;
   try {
-    return new URLSearchParams(window.location.search).get('menu') === 'arriba';
+    return new URLSearchParams(window.location.search).get('menu') !== 'lateral';
   } catch {
-    return false;
+    return true;
   }
 }
 
