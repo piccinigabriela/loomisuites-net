@@ -53,6 +53,20 @@
         }, true);
       })();
     </script>
+    <style>html.no-prerender #root > * { display: none !important; }</style>
+    <script>
+      /* El index.html trae la landing ya armada (para buscadores e IA). En cualquier otra página (app, demo, guía, manual)
+         se esconde hasta que cargue la app, y en la landing se aplica el modo oscuro antes de pintar para que no parpadee. */
+      (function () {
+        try {
+          var h = document.documentElement;
+          var landing = location.pathname === '/' && !location.search && !/^app\./.test(location.hostname) && !/app|panel|login|web|limpieza|recepcion|admin|guia|guide/.test(location.hash.toLowerCase());
+          if (!landing) { h.classList.add('no-prerender'); return; }
+          var t = localStorage.getItem('loomi_theme');
+          if (t === 'dark' || (t !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)) h.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Loomi Suite - Software Simple para Cabañas, Glampings, Domos y Departamentos</title>
     <meta name="description" content="Software de gestión (PMS) para complejos de cabañas, glampings, domos y departamentos temporarios. Calendario anti-overbooking, WhatsApp automático y pagos directos." />
