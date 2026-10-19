@@ -799,16 +799,16 @@ Sí, en Loomi Suite el sistema de WhatsApp y el **Simulador en Celular** están 
   ) {
     return `### 🔄 Cómo sincronizar Booking y Airbnb para evitar dobles reservas
 
-Loomi conecta tus calendarios mediante sincronización bidireccional (iCal oficial) para que **nunca se pisen dos reservas en la misma cabaña**:
+Loomi conecta tus calendarios mediante sincronización bidireccional (iCal oficial) para evitar que **se pisen dos reservas en la misma cabaña**:
 
 1. **Obtener el enlace iCal en Airbnb/Booking:**
-   - En tu cuenta de anfitrión de Airbnb, vas a tu anuncio ➔ **Precios y disponibilidad** ➔ **Exportar calendario** y copias el enlace.
+   - En Airbnb o Booking buscá la opción **Exportar calendario** (o **Sincronizar calendarios**) y copiá el enlace que termina en .ics.
 2. **Pegarlo en Loomi Suite:**
-   - En Loomi vas a **Cabañas & Habitaciones** ➔ Tocás **"Sincronizar Canales"** en la cabaña y pegás el enlace.
+   - Andá a **Administración** ➔ **Cabañas y calendarios**, tocá el lápiz de la unidad y, en **Calendarios conectados**, pegá el enlace en el campo de Airbnb o Booking.
 3. **Copiar el enlace de Loomi hacia el canal:**
-   - Copiás el link de exportación de Loomi y lo pegás en **Importar calendario** en Airbnb y Booking.
+   - En esa misma ventana copiás el enlace de tu calendario de Loomi y lo pegás en **Importar calendario** en Airbnb y Booking.
 
-✅ **¡Listo!** Cuando entra una reserva en Airbnb, las fechas se bloquean automáticamente en Booking y en Loomi en tiempo real.`;
+✅ **¡Listo!** Las fechas se actualizan solas cada pocos minutos: no es instantáneo, pero evita las dobles reservas.`;
   }
 
   // 7.5 CARGAR RESERVA NUEVA / TELEFÓNICA
