@@ -75,7 +75,7 @@ export function getClientXeniaReply(message: string, demoState?: DemoState | any
     q.includes('editar mis unidades') ||
     q.includes('configurar unidades')
   ) {
-    return 'Para cargar o editar tus unidades andá a Administración → Configurar Unidades. Ahí ponés nombre, capacidad, wifi y fotos de cada una.';
+    return 'Para cargar o editar tus unidades andá a Administración → Unidades y calendarios. Ahí ponés nombre, capacidad, wifi y fotos de cada una.';
   }
 
   if (
@@ -86,7 +86,7 @@ export function getClientXeniaReply(message: string, demoState?: DemoState | any
     q.includes('excel') ||
     q.includes('planilla')
   ) {
-    return 'Podés importarlas desde Ocupación (Calendario) → Importar iCal / CSV. Si preferís, mandanos tu planilla por WhatsApp al +54 9 11 4092-5939 y te la cargamos nosotros en 72 hs hábiles.';
+    return 'Podés importarlas desde Reservas → Ocupación (Calendario) → Importar iCal / CSV. Si preferís, mandanos tu planilla por WhatsApp al +54 9 11 4092-5939 y te la cargamos nosotros en 72 hs hábiles.';
   }
 
   if (
@@ -99,7 +99,7 @@ export function getClientXeniaReply(message: string, demoState?: DemoState | any
     q.includes('guía de mis huespedes') ||
     q.includes('guia de mis huespedes')
   ) {
-    return 'La guía de tus huéspedes se edita en Tu Web & Guía → Ajustes & Edición de Datos. Cargá tu teléfono de anfitrión, el wifi y las normas.';
+    return 'La guía de tus huéspedes se edita en Reservas → Tu Web y Guía → Ajustes & Edición de Datos. Cargá tu teléfono de anfitrión, el wifi y las normas.';
   }
 
   if (
@@ -195,11 +195,11 @@ Quedamos a tu completa disposición para asistirte en lo que precises.`;
         .join('\n');
       return `Estos son los datos que ven tus huéspedes en su guía:
 
-• **Check-in:** ${guide.checkinHour ? `desde las ${withHs(String(guide.checkinHour).replace(/\s*hs\.?$/i, ''))}` : '_sin cargar_ (se carga en Tu Web & Guía)'}
-• **Check-out:** ${guide.checkoutHour ? `hasta las ${withHs(String(guide.checkoutHour).replace(/\s*hs\.?$/i, ''))}` : '_sin cargar_ (se carga en Tu Web & Guía)'}
+• **Check-in:** ${guide.checkinHour ? `desde las ${withHs(String(guide.checkinHour).replace(/\s*hs\.?$/i, ''))}` : '_sin cargar_ (se carga en Reservas → Tu Web y Guía)'}
+• **Check-out:** ${guide.checkoutHour ? `hasta las ${withHs(String(guide.checkoutHour).replace(/\s*hs\.?$/i, ''))}` : '_sin cargar_ (se carga en Reservas → Tu Web y Guía)'}
 ${unitsInfo || '• Todavía no cargaste unidades.'}
 
-Para cambiarlos: Wi-Fi y dirección en **Administración → Configurar Unidades**; horarios y normas en **Tu Web & Guía → Ajustes & Edición de Datos**.${
+Para cambiarlos: Wi-Fi y dirección en **Administración → Unidades y calendarios**; horarios y normas en **Reservas → Tu Web y Guía → Ajustes & Edición de Datos**.${
         uid ? `\n\nLink de tu guía: ${origin}/guia/${uid}` : ''
       }
 
@@ -778,7 +778,7 @@ Sí, en Loomi Suite el sistema de WhatsApp y el **Simulador en Celular** están 
 - **Renderizado en Tiempo Real:** En el teléfono móvil simulado a la derecha ves exactamente cómo le llega el mensaje al huésped, con hipervínculos activos en tono óxido pastel y estética limpia Zen.
 - **Envío en 1 Clic:** Podés **Copiar** el texto formateado, pulsar **Simular** o tocar **"Abrir en WhatsApp Real"** para disparar la conversación directamente al número del pasajero.
 
-💡 *Podés acceder desde el menú lateral en **Avisos & WhatsApp**, desde la lista de reservas en el acordeón de cada fila, o desde la vista móvil en **Acciones Rápidas**.*`;
+💡 *En la computadora, en el menú de arriba: **Reservas → Avisos y WhatsApp**, o desde la lista de reservas. En el celular, con el botón de WhatsApp de cada reserva en la **Agenda**.*`;
   }
 
   // 7. SINCRONIZACIÓN Y OVERBOOKING / DOBLES RESERVAS
@@ -851,7 +851,7 @@ Loomi conecta tus calendarios mediante sincronización bidireccional (iCal ofici
   ) {
     const totalProps = properties.length;
     if (totalProps === 0) {
-      return 'Todavía no cargaste unidades. Empezá por Administración → Configurar Unidades y después te muestro la ocupación.';
+      return 'Todavía no cargaste unidades. Empezá por Administración → Unidades y calendarios y después te muestro la ocupación.';
     }
 
     const todayStr = toLocalDateStr(new Date());
