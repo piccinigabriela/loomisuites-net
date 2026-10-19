@@ -131,7 +131,7 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
-    const timeoutId = setTimeout(() => controller.abort(), 1200);
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // Gemini tarda unos segundos; con 1,2 s siempre contestaba el motor local
 
     try {
       const res = await fetch(getApiUrl('/api/xenia/chat'), {
