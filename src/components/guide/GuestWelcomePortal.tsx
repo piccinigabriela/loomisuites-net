@@ -799,8 +799,19 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                     </span>
                     <h3 className="text-sm font-bold">{guideData.locationAddress}</h3>
                   </div>
+                  {(() => {
+                    // El link a medida es opcional; si no hay, se arma con la dirección (un href vacío recargaba la guía)
+                    const custom = (guideData.googleMapsUrl || '').trim();
+                    const address = (guideData.locationAddress || '').trim();
+                    const mapsHref = /^https?:\/\//i.test(custom)
+                      ? custom
+                      : address
+                        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
+                        : '';
+                    if (!mapsHref) return null;
+                    return (
                   <a
-                    href={guideData.googleMapsUrl}
+                    href={mapsHref}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`px-3 py-1.5 text-xs font-bold rounded-xl flex items-center gap-1 transition-colors cursor-pointer shrink-0 ${theme.btnPrimary}`}
@@ -808,6 +819,8 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                     <Navigation className="w-3.5 h-3.5" />
                     <span>GPS Maps</span>
                   </a>
+                    );
+                  })()}
                 </div>
 
                 {(guideHours.checkin || guideHours.checkout) && (
