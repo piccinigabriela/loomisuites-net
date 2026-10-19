@@ -35,8 +35,10 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
 
 ## Verificar antes de subir
 1. `npx tsc --noEmit`
-2. `npx vite build`
-3. Para ver pantallas: `npx vite preview --port 4173` y Playwright con
+2. `npm run build` (incluye la landing prearmada; `npx vite build` solo no la prueba)
+3. `npm run probar`: abre las pantallas principales en celular y compu y falla si alguna queda vacía o en negro,
+   tiene errores de JavaScript o se desborda. No subir si falla.
+4. Para ver pantallas a mano: `npx vite preview --port 4173` y Playwright con
    `executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome'` (viewport 390×844 para celular).
    Matar el preview con `pkill -f "vite preview"` en una llamada aparte.
 
