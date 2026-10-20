@@ -314,8 +314,17 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
     return content;
   };
 
+  // Cambio de un solo envío: no toca la plantilla y se descarta al cambiar de reserva, plantilla o idioma
+  const [oneOff, setOneOff] = useState<string | null>(null);
+  const [editingOneOff, setEditingOneOff] = useState(false);
+  useEffect(() => {
+    setOneOff(null);
+    setEditingOneOff(false);
+  }, [activeSelectedResId, selectedTemplateId, msgLang]);
+  const finalMessage = () => (oneOff !== null ? oneOff : getInterpolatedMessage());
+
   const handleCopy = () => {
-    copyToClipboard(getInterpolatedMessage());
+    copyToClipboard(finalMessage());
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -327,7 +336,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
 
   // WhatsApp Web / App direct launch URL
   const getWhatsAppLaunchUrl = () => {
-    const msg = encodeURIComponent(getInterpolatedMessage());
+    const msg = encodeURIComponent(finalMessage());
     const cleanPhone = (selectedReservation?.guestPhone || '').replace(/[^0-9]/g, '');
     // Sin teléfono cargado: WhatsApp abre el mensaje listo y te deja elegir el contacto
     if (cleanPhone.length < 8) return `https://api.whatsapp.com/send?text=${msg}`;
@@ -752,7 +761,10 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
                     {editingId === tpl.id ? (
                       <div className="flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
                         <p className="text-[14px] font-semibold text-stone-900 dark:text-stone-50">
-                          Estás editando la versión en {LANG_LABEL[msgLang].toLowerCase()}. Tocá un dato para sumarlo al texto.
+                          Estás editando la plantilla en {LANG_LABEL[msgLang].toLowerCase()}: el cambio vale para todas las reservas. Tocá un dato para sumarlo al texto.
+                        </p>
+                        <p className="text-[14px] text-stone-900 dark:text-stone-50">
+                          Para cambiar el mensaje de un solo huésped, usá "Cambiar solo para este huésped" debajo del celular de muestra.
                         </p>
                         <textarea
                           ref={draftRef}
@@ -824,7 +836,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
                             }}
                             className="min-h-[36px] px-3 rounded-lg border border-[#A94F12] dark:border-[#F0A46F] text-[13px] font-bold text-[#A94F12] dark:text-[#F0A46F] cursor-pointer hover:bg-orange-50 dark:hover:bg-zinc-800"
                           >
-                            Editar
+                            Editar plantilla
                           </button>
                         )}
                         {isSelected && (
@@ -918,9 +930,19 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
 
                   {/* Sent Bubble - Clean Zen Look with Oxide Pastel Links */}
                   <div className="self-end bg-[#DCF8C6] rounded-2xl rounded-tr-xs p-3.5 max-w-[92%] shadow-[0_1px_2px_rgba(0,0,0,0.06)] text-xs text-zinc-800 leading-relaxed relative">
+                    {editingOneOff ? (
+                      <textarea
+                        value={oneOff ?? ''}
+                        onChange={(e) => setOneOff(e.target.value)}
+                        rows={10}
+                        aria-label="Mensaje para este huésped"
+                        className="w-full min-w-[220px] rounded-lg border border-emerald-700 bg-white text-zinc-900 text-[14px] leading-relaxed p-2 focus:outline-none"
+                      />
+                    ) : (
                     <div className="whitespace-pre-line text-xs font-light">
-                      {renderLivePhoneBubbleContent(getInterpolatedMessage())}
+                      {renderLivePhoneBubbleContent(finalMessage())}
                     </div>
+                    )}
                     <div className="text-right mt-1.5 flex items-center justify-end gap-1 text-[10px] text-zinc-500 font-mono font-light">
                       <span>10:14</span>
                       <CheckCheck className="w-3.5 h-3.5 text-blue-600" />
@@ -931,6 +953,42 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
 
               {/* Bottom Actions inside mockup */}
               <div className="p-3 bg-white border-t border-zinc-200 flex flex-col gap-2">
+                {phoneViewMode === 'chat' && selectedReservation && (
+                  <div className="flex items-center gap-2">
+                    {editingOneOff ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setEditingOneOff(false)}
+                          className="flex-1 min-h-[40px] text-[14px] font-bold rounded-xl bg-emerald-700 text-white cursor-pointer"
+                        >
+                          Listo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOneOff(null);
+                            setEditingOneOff(false);
+                          }}
+                          className="min-h-[40px] px-3 text-[14px] font-semibold rounded-xl border border-zinc-400 text-zinc-900 cursor-pointer"
+                        >
+                          Deshacer
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (oneOff === null) setOneOff(getInterpolatedMessage());
+                          setEditingOneOff(true);
+                        }}
+                        className="flex-1 min-h-[40px] text-[14px] font-semibold rounded-xl border border-zinc-400 text-zinc-900 cursor-pointer hover:bg-stone-50"
+                      >
+                        ✏️ {oneOff !== null ? 'Cambiado para este huésped · Editar' : 'Cambiar solo para este huésped'}
+                      </button>
+                    )}
+                  </div>
+                )}
                 <div className="flex items-center justify-between gap-2">
                   <button
                     onClick={handleCopy}
