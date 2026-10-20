@@ -37,7 +37,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onOpenXen
     {
       num: '3',
       title: 'Tus calendarios',
-      desc: 'conectá Airbnb y Booking para que nunca se superpongan reservas.',
+      desc: 'conectá Airbnb y Booking para evitar que se superpongan reservas.',
       icon: Calendar,
     },
     {
