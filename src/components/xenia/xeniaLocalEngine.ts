@@ -299,8 +299,8 @@ Para pasar del **Modo Light** al **Panel Completo de Escritorio (PMS)** tenés 2
    - En la esquina superior derecha de la pantalla, tocá el botón **"💻 Vista Completa"** (con el ícono de la notebook).
    - Inmediatamente se abre el panel completo con el **Rack de Calendario**, las finanzas detalladas, la configuración de canales iCal y la web de reservas.
 
-2. **Desde la pestaña "⚡ Atajos / Más":**
-   - Tocá la pestaña **"Atajos"** en la barra inferior y seleccioná **"Cambiar a Vista Completa de Escritorio"**.
+2. **Desde la pestaña "Más":**
+   - Tocá la pestaña **"Más"** en la barra inferior y seleccioná **"Cambiar a Vista Completa de Escritorio"**.
 
 3. **Para volver al Modo Light cuando estés en la PC:**
    - En la barra superior del panel tocás el botón **"📱 Vista Móvil"** y regresás a la versión simplificada de bolsillo.
@@ -375,7 +375,7 @@ En Loomi Suite enviás la bienvenida personalizada por WhatsApp en **1 solo toqu
 ---
 
 #### 📱 1. Si estás en el Modo Light (Móvil / Bolsillo):
-1. **Andá a la pestaña "Huéspedes"** en la barra inferior (o en la tarjeta del pasajero en la pestaña "Hoy").
+1. **Andá a la pestaña "Agenda"** en la barra inferior y buscá al huésped en su tarjeta.
 2. **Tocá los 3 puntitos (⚡ Acciones Rápidas)** al lado del huésped que querés contactar.
 3. Se abrirá la ventana de acciones. Tocá **"2. Enviar Bienvenida & Guía Digital"**.
 4. Se abrirá directamente **WhatsApp con el mensaje listo**:
@@ -389,7 +389,7 @@ En Loomi Suite enviás la bienvenida personalizada por WhatsApp en **1 solo toqu
 
 #### 💻 2. Si estás en la Vista Completa (PC / Escritorio):
 1. En el **Rack Calendario**, hacé clic sobre la estadía del huésped.
-2. En la ficha de la reserva, tocá el botón verde **"Chatear por WhatsApp"** o andá a la pestaña **"Avisos & WhatsApp"**.
+2. En la ficha de la reserva, tocá el botón verde **"Chatear por WhatsApp"** o andá a **Reservas → Avisos y WhatsApp** en el menú de arriba.
 3. Seleccioná la plantilla **"👋 Bienvenida y Guía Digital (Día 1)"**.
 4. Hacé clic en **"Abrir WhatsApp"** para enviar el mensaje con 1 clic.
 
@@ -483,7 +483,7 @@ En Loomi Suite enviás la bienvenida personalizada por WhatsApp en **1 solo toqu
 En Loomi lo hacés en segundos, sin complicaciones técnicas ni términos difíciles:
 
 1. **Abrir la reserva:**
-   - En el **Rack Calendario**, hacé clic sobre la barra de la estadía que querés modificar (o buscala por nombre en la pestaña **Reservas & Pasajeros**).
+   - En el **Rack Calendario**, hacé clic sobre la barra de la estadía que querés modificar (o buscala por nombre en **Reservas → Lista de reservas**).
    - Se abrirá la ficha completa con todos los datos del huésped.
 
 2. **Tocá el ícono del Lápiz (✏️ Editar):**
@@ -598,7 +598,7 @@ Aquí tenés el desglose exacto de tu negocio para **${targetMonth.name}**:
 
 ${monthReservations.length > 0 ? `📋 **Estadías del mes de ${targetMonth.name}:**\n${snippet}\n${monthReservations.length > 6 ? `*(y ${monthReservations.length - 6} reservas más en el sistema)*` : ''}` : `ℹ️ *Aún no hay reservas registradas específicamente para ${targetMonth.name}.*`}
 
-💡 *Podés ver el informe detallado y liquidaciones en la pestaña **Finanzas**.*`;
+💡 *Podés ver el informe detallado y liquidaciones en **Administración → Rendimiento financiero**.*`;
     }
 
     // General financial overview
