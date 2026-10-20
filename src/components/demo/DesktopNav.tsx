@@ -59,7 +59,6 @@ export function buildNavGroups(opts: {
       badge: pendingCleaningsCount,
       items: [
         { tab: 'housekeeping', label: 'Agenda de limpiezas' },
-        { tab: 'xenia', label: 'Asistente Xenia' },
       ],
     },
     {

@@ -476,26 +476,6 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                   </span>
                 )}
               </button>
-
-              {/* Xenia Copilot - Minimalist Flat Sparkle Icon */}
-              <button
-                onClick={() => handleTabClick('xenia')}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all text-left ${
-                  activeTab === 'xenia'
-                    ? 'bg-orange-50/80 text-[#E67E22] dark:bg-orange-950/40 font-semibold'
-                    : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800/50 font-light'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="p-1 rounded-lg bg-orange-50/90 text-[#E67E22] dark:bg-orange-950/50 border border-orange-100 dark:border-orange-900/40">
-                    <Sparkle className="w-3 h-3 fill-current" />
-                  </div>
-                  <span>Asistente Xenia AI</span>
-                </div>
-                <span className="text-[9px] font-bold tracking-widest text-[#E67E22] uppercase bg-orange-50 dark:bg-orange-950/50 px-1.5 py-0.5 rounded-md">
-                  IA
-                </span>
-              </button>
             </div>
           )}
         </div>
