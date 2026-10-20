@@ -90,7 +90,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onOpenXen
             <span className="font-bold text-stone-900 dark:text-amber-100">
               Te recomendamos hacer esta primera configuración desde una computadora.
             </span>{' '}
-            Es más cómodo para cargar datos y fotos. Después, el día a día lo manejás tranquilo desde el celular.
+            Es más cómodo para cargar datos y fotos. Después, el día a día lo manejás con calma desde el celular.
           </div>
         </div>
 
