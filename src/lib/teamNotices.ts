@@ -68,6 +68,8 @@ export function normalizeWhatsAppPhone(raw: string): string {
   if (d.startsWith('00')) d = d.slice(2);
   if (d.startsWith('0')) d = d.slice(1);
   if (d.length === 10) d = `549${d}`;
+  // +54 sin el 9 del celular (54 11 4092 5939): WhatsApp no lo encuentra y ofrece mandar SMS
+  else if (d.length === 12 && d.startsWith('54') && !d.startsWith('549')) d = `549${d.slice(2)}`;
   return d;
 }
 

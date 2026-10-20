@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { normalizeWhatsAppPhone } from '../../lib/teamNotices';
 import {
   Calendar,
   Clock,
@@ -747,7 +748,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
               </button>
 
               <a
-                href={`https://api.whatsapp.com/send?phone=${(selectedResForCard.guestPhone || '').replace(/[^0-9]/g, '')}&text=${encodeURIComponent(
+                href={`https://api.whatsapp.com/send?phone=${normalizeWhatsAppPhone(selectedResForCard.guestPhone || '')}&text=${encodeURIComponent(
                   `¡Hola ${selectedResForCard.guestName}! Te enviamos tu tarjeta de bienvenida para ingresar a ${getProp(selectedResForCard.propertyId)?.name || 'tu cabaña'}: https://loomisuite.net/guia/${selectedResForCard.propertyId} (Cerradura: ${selectedResForCard.pinCode || '1024'} | Wi-Fi: ${getProp(selectedResForCard.propertyId)?.wifiNetwork || '(a confirmar)'}). ¡Buen descanso!`
                 )}`}
                 target="_blank"

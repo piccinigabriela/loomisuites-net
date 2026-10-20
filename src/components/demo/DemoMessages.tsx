@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { normalizeWhatsAppPhone } from '../../lib/teamNotices';
 import {
   MessageSquare,
   Send,
@@ -337,7 +338,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
   // WhatsApp Web / App direct launch URL
   const getWhatsAppLaunchUrl = () => {
     const msg = encodeURIComponent(finalMessage());
-    const cleanPhone = (selectedReservation?.guestPhone || '').replace(/[^0-9]/g, '');
+    const cleanPhone = normalizeWhatsAppPhone(selectedReservation?.guestPhone || '');
     // Sin teléfono cargado: WhatsApp abre el mensaje listo y te deja elegir el contacto
     if (cleanPhone.length < 8) return `https://api.whatsapp.com/send?text=${msg}`;
     return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${msg}`;

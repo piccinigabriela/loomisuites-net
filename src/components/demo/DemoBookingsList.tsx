@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { normalizeWhatsAppPhone } from '../../lib/teamNotices';
 import {
   Search,
   X,
@@ -238,7 +239,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
   };
 
   const getWhatsAppLink = (res: Reservation) => {
-    const cleanPhone = res.guestPhone.replace(/[^0-9]/g, '');
+    const cleanPhone = normalizeWhatsAppPhone(res.guestPhone || '');
     const prop = demoState.properties.find((p) => p.id === res.propertyId);
     const propName = prop?.name || 'nuestro alojamiento';
     const text = encodeURIComponent(

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { normalizeWhatsAppPhone } from '../../lib/teamNotices';
 import {
   X,
   Calendar,
@@ -299,7 +300,7 @@ ${paymentsListStr}
 
 *Saldo Pendiente:* ${saldo <= 0 ? 'PAGADO ✓' : formatCurrency(saldo, settlementCurrency)}`;
 
-    const phoneDigits = (reservation.guestPhone || '').replace(/\D/g, '');
+    const phoneDigits = normalizeWhatsAppPhone(reservation.guestPhone || '');
     if (phoneDigits && phoneDigits.length >= 8) {
       const url = `https://api.whatsapp.com/send?phone=${phoneDigits}&text=${encodeURIComponent(statementText)}`;
       window.open(url, '_blank');

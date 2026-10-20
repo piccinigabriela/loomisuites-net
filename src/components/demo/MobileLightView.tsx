@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { normalizeWhatsAppPhone } from '../../lib/teamNotices';
 import {
   Sun,
   Moon,
@@ -242,7 +243,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
 
   // Helper to build WhatsApp direct link
   const buildWhatsAppLink = (phone: string, text: string) => {
-    const cleanPhone = phone.replace(/\D/g, '');
+    const cleanPhone = normalizeWhatsAppPhone(phone);
     const encoded = encodeURIComponent(text);
     return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encoded}`;
   };
