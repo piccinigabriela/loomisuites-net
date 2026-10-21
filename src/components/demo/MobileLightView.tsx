@@ -169,7 +169,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
-    const timeoutId = setTimeout(() => controller.abort(), 1200);
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // con 1,2 s siempre contestaba el motor local
 
     try {
       const res = await fetch(getApiUrl('/api/xenia/chat'), {
