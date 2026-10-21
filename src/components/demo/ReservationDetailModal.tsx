@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { normalizeWhatsAppPhone } from '../../lib/teamNotices';
+import { ArrivalNotesCard } from './ArrivalNotesCard';
 import {
   X,
   Calendar,
@@ -1133,15 +1134,14 @@ ${paymentsListStr}
                     {reservation.guestsCount} personas
                   </span>
                 </div>
-                {reservation.specialNotes ? (
-                  <div className="pt-2 text-xs border-t border-gray-50 dark:border-zinc-800">
-                    <span className="text-gray-400 block text-[10px] font-bold uppercase">Notas:</span>
-                    <p className="mt-1 text-xs text-gray-600 dark:text-gray-300 italic bg-[#FAF8F5] dark:bg-zinc-800/40 p-2.5 rounded-xl border border-gray-100">
-                      {reservation.specialNotes}
-                    </p>
-                  </div>
-                ) : null}
               </div>
+
+              {/* Llegada y notas: se edita directo, sin entrar en "Editar" */}
+              <ArrivalNotesCard
+                reservation={reservation}
+                precheckinArrival={precheckin?.arrivalTime?.trim() || undefined}
+                onSave={onUpdateReservation && userRole !== 'housekeeping' ? async (r) => { await onUpdateReservation(r); } : undefined}
+              />
 
               {/* Pre check-in del huésped */}
               {reservation.status !== 'cancelled' && (

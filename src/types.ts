@@ -92,6 +92,10 @@ export interface Reservation {
   paymentStatus: PaymentStatus;
   pinCode: string;
   specialNotes?: string;
+  /** Llegada: vuelo, aeropuerto o terminal y hora estimada al alojamiento (los carga el anfitrión) */
+  arrivalFlight?: string;
+  arrivalAirport?: string;
+  arrivalEta?: string;
   carPlate?: string; // Patente o dominio vehicular del huésped
   createdAt: string;
   // Nuevos campos operativos y de tarifas flexibles:
