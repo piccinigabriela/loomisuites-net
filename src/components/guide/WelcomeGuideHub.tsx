@@ -33,6 +33,10 @@ interface WelcomeGuideHubProps {
   onSelectTemplate?: (template: LandingTemplate) => void;
   onBackToPanel?: () => void;
   uid?: string;
+  /** Contenido de la pestaña Tu Web (configuración en la app, ejemplo en la demo) */
+  tuWebPanel?: React.ReactNode;
+  /** Link y estado reales de Tu Web (en la app) */
+  webStatus?: { url: string; enabled: boolean } | null;
 }
 
 export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
@@ -45,6 +49,8 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
   onSelectTemplate,
   onBackToPanel,
   uid,
+  tuWebPanel,
+  webStatus,
 }) => {
   const [internalSubTab, setInternalSubTab] = useState<'landing-booking' | 'guest-view' | 'admin-view'>('guest-view');
   const [internalTemplate, setInternalTemplate] = useState<LandingTemplate>('dos-aguas');
@@ -114,6 +120,28 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
             </p>
           </div>
 
+          {isAppMode() ? (
+            webStatus && (
+              <div className="flex items-center gap-2.5 shrink-0">
+                <span
+                  className={`text-sm font-bold px-3.5 py-2 rounded-xl ${
+                    webStatus.enabled
+                      ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/50 dark:text-emerald-100'
+                      : 'bg-amber-100 text-amber-900 dark:bg-amber-900/50 dark:text-amber-100'
+                  }`}
+                >
+                  Tu Web: {webStatus.enabled ? 'publicada' : 'en pausa'}
+                </span>
+                <button
+                  onClick={() => handleCopy('direct_web', webStatus.url)}
+                  className="text-sm font-bold px-3 py-2 rounded-xl bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-stone-900 dark:text-white border border-stone-300 dark:border-zinc-600 flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  {copiedKey === 'direct_web' ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                  <span>{copiedKey === 'direct_web' ? 'Copiado' : 'Copiar link'}</span>
+                </button>
+              </div>
+            )
+          ) : (
           <div className="flex items-center gap-2.5 shrink-0">
             {/* Botón de estado de la web */}
             <div className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-2 border border-emerald-100/60 dark:border-emerald-900/40 shadow-xs">
@@ -130,6 +158,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
               <span>{copiedKey === 'direct_web' ? '¡Copiado!' : 'Copiar Link'}</span>
             </button>
           </div>
+          )}
         </div>
 
         {/* 2. GRILLA DE PESTAÑAS DE PRESTACIONES (Tarjetas flotantes suaves con aire) */}
@@ -251,7 +280,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
             </button>
           </div>
 
-          {activeSubTab === 'landing-booking' && (
+          {activeSubTab === 'landing-booking' && !tuWebPanel && (
             <div className="flex flex-wrap items-center gap-1.5 text-xs pr-1 font-mono">
               <span className="text-gray-400 text-[10px] uppercase hidden md:inline">Plantillas Base:</span>
               <div className="flex items-center gap-1 bg-gray-50 dark:bg-zinc-800/60 p-1 rounded-xl border border-gray-200/80 dark:border-zinc-700">
@@ -371,7 +400,8 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
             <AdminGuideEditor guideData={guideData} onSave={onUpdateGuideData} />
           )}
 
-          {activeSubTab === 'landing-booking' && (
+          {activeSubTab === 'landing-booking' && tuWebPanel}
+          {activeSubTab === 'landing-booking' && !tuWebPanel && (
             <DirectBookingLanding
               guideData={guideData}
               properties={properties}

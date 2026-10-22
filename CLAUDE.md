@@ -33,6 +33,15 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   finde largo > temporada > normal; fin de semana = noches marcadas (por defecto vie, sáb, dom). Findes largos de
   Argentina precargados hasta oct 2027 (faltan los días turísticos 2027, sin decreto todavía). Pantalla: Administración → Tarifas.
 
+- Tu Web (reservas directas): `src/lib/publicSite.ts` (modelo y lógica, compartida con el servidor) y `publicSiteStore.ts`.
+  Link `loomisuite.net/web/{slug}` (se arma en `main.tsx`, sin la app). Usa un nombre y NO el uid: con el uid se llega a la guía (wifi).
+  `siteOwners/{slug}` {uid} (privado) · `publicSites/{slug}` (público: textos, unidades, tarifas, `busy` = rangos ocupados sin datos de huéspedes)
+  · `publicSites/{slug}/photos` (data URL JPEG < 950 KB) · `siteDomains/{host}` {slug} (dominio propio, lo carga la administración).
+  Config del dueño en `tenants/{uid}.webSite`. App.tsx publica sola los cambios; `busy` lo escriben la app (dueño o Recepción) y server-sync.
+  Pantalla: Tu Web y Guía → pestaña Tu Web (`TuWebSettings.tsx`). Vista previa del link: `functions/web/`.
+  Dominio propio (a mano): Cloudflare Pages → Custom domains; documento `siteDomains/{dominio sin www}` {slug}; sumar el dominio a la clave de reCAPTCHA (App Check).
+  `DirectBookingLanding.tsx` es la maqueta vieja: ya no se usa en la app ni en la demo.
+
 ## Verificar antes de subir
 1. `npx tsc --noEmit`
 2. `npm run build` (incluye la landing prearmada; `npx vite build` solo no la prueba)
@@ -49,7 +58,8 @@ más las líneas de atribución que indique la sesión. Después `git push origi
 ## Decisiones tomadas
 - Prueba de 7 días; la activación se hace a mano en Firestore (`subscriptions/{uid}`).
 - Una moneda de liquidación por complejo. AFIP no interesa.
-- "Tu Web" todavía no es pública (la landing dice "próximamente").
+- "Tu Web": consulta de disponibilidad + precio + pedido por WhatsApp (sin cobro ni confirmación automática: con iCal cada
+  15 min habría riesgo de doble reserva). La landing sigue diciendo "próximamente" hasta que Gabi la pruebe con Catalinas.
 - Textos de la landing: honestos con iCal (no es instantáneo) y WhatsApp (mensajes listos, se envían con un toque).
 
 ## Pendientes

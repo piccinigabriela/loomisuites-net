@@ -36,6 +36,8 @@ export interface TenantDoc {
   checklistDismissed?: boolean;
   pricing?: PricingSettings;
   templateOverrides?: import('../types').TemplateOverrides;
+  /** Tu Web (ver src/lib/publicSite.ts) */
+  webSite?: import('./publicSite').WebSiteSettings;
   createdAt?: any;
   updatedAt?: any;
 }
@@ -318,6 +320,15 @@ export async function saveManagementSettingsDoc(
   if (!uid || !db) return;
   await updateDoc(doc(db, 'tenants', uid), {
     managementSettings: settings,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/** Guarda la configuración de Tu Web entera (reemplaza la anterior) */
+export async function saveWebSiteSettingsDoc(uid: string, settings: import('./publicSite').WebSiteSettings): Promise<void> {
+  if (!uid || !db) return;
+  await updateDoc(doc(db, 'tenants', uid), {
+    webSite: JSON.parse(JSON.stringify(settings)),
     updatedAt: serverTimestamp(),
   });
 }

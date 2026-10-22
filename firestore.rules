@@ -143,6 +143,54 @@ service cloud.firestore {
       allow list: if false;
       allow write: if isOwner(uid) || isStaff(uid, ['recepcion']);
     }
+    // Tu Web. El link usa un nombre (slug), no el uid: así nadie llega a la guía (wifi, accesos) desde la página pública.
+    // siteOwners/{slug}: de quién es cada nombre (privado). El primero que lo crea, lo tiene.
+    function siteOwner(slug) {
+      return get(/databases/$(database)/documents/siteOwners/$(slug)).data.uid;
+    }
+    function isSiteOwner(slug) {
+      return signedIn() && exists(/databases/$(database)/documents/siteOwners/$(slug)) && siteOwner(slug) == request.auth.uid;
+    }
+    match /siteOwners/{slug} {
+      allow get: if signedIn() && (resource.data.uid == request.auth.uid || isStaff(resource.data.uid, ['recepcion']));
+      allow list: if false;
+      allow create: if signedIn()
+        && slug.matches('^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$')
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid;
+      allow update: if false;
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+    // publicSites/{slug}: la página pública (nombre, fotos, unidades, tarifas y fechas ocupadas, sin datos de huéspedes)
+    match /publicSites/{slug} {
+      allow get: if true;
+      allow list: if false;
+      allow create, delete: if isSiteOwner(slug);
+      // El dueño cambia todo; Recepción solo las fechas ocupadas (cuando carga una reserva)
+      allow update: if isSiteOwner(slug)
+        || (signedIn()
+            && exists(/databases/$(database)/documents/siteOwners/$(slug))
+            && isStaff(siteOwner(slug), ['recepcion'])
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['busy', 'busyUpdatedAt']));
+      match /photos/{photoId} {
+        allow read: if true;
+        allow create, update: if isSiteOwner(slug)
+          && request.resource.data.keys().hasOnly(['data', 'order', 'unitId'])
+          && request.resource.data.data is string
+          && request.resource.data.data.matches('^data:image/(jpeg|png|webp);base64,.*')
+          && request.resource.data.data.size() < 950000
+          && request.resource.data.order is number
+          && request.resource.data.unitId is string && request.resource.data.unitId.size() < 200;
+        allow delete: if isSiteOwner(slug);
+      }
+    }
+    // Dominio propio → nombre del link. Lo carga la administración de Loomi al dar de alta el dominio.
+    match /siteDomains/{host} {
+      allow get: if true;
+      allow list: if false;
+      allow write: if isAdmin();
+    }
+
     // Pre check-in del huésped: cualquiera puede crearlo (una sola vez, con datos validados)
     // si el anfitrión tiene guía publicada; solo el anfitrión (o su Recepción) lo lee, corrige o borra.
     match /precheckins/{hostUid}/items/{itemId} {

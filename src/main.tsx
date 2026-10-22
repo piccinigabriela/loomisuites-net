@@ -8,13 +8,24 @@ import { LandingRoot } from './LandingRoot.tsx';
 // La app completa (demo, panel, guía, Firebase) se descarga solo cuando hace falta
 const App = lazy(() => import('./App.tsx'));
 const ManualPage = lazy(() => import('./components/landing/ManualPage.tsx').then((m) => ({ default: m.ManualPage })));
+// Tu Web de cada complejo: página liviana, sin la app
+const PublicSitePage = lazy(() => import('./components/booking/PublicSitePage.tsx').then((m) => ({ default: m.PublicSitePage })));
 
 const path = window.location.pathname.toLowerCase();
 const hash = window.location.hash.toLowerCase();
+// Tu Web: /web/{nombre} en cualquier host, o la portada de un dominio propio (un host que no es de Loomi)
+const siteSlug = (/^\/web\/([a-z0-9-]+)\/?$/.exec(path) || [])[1] || '';
+const host = window.location.hostname.toLowerCase();
+const isLoomiHost =
+  host === 'loomisuite.net' || host.endsWith('.loomisuite.net') || host.endsWith('.pages.dev') ||
+  host === 'localhost' || host === '127.0.0.1' || host === '';
+const customSiteHost = !isLoomiHost && (path === '/' || path === '' || path === '/index.html') ? host : '';
 // loomisuite.net/manual: página corta del manual (para links en redes)
 const isManualPage = !isAppMode() && /^\/manual\/?$/.test(path);
 // loomisuite.net a secas: landing liviana (las demás rutas y parámetros siguen yendo a la app)
 const isLanding =
+  !siteSlug &&
+  !customSiteHost &&
   !isAppMode() &&
   (path === '/' || path === '' || path === '/index.html') &&
   !window.location.search &&
@@ -40,7 +51,15 @@ createRoot(document.getElementById('root')!).render(
           </div>
         }
       >
-        {isManualPage ? <ManualPage /> : isLanding ? <LandingRoot /> : <App />}
+        {siteSlug || customSiteHost ? (
+          <PublicSitePage slug={siteSlug} customHost={customSiteHost} />
+        ) : isManualPage ? (
+          <ManualPage />
+        ) : isLanding ? (
+          <LandingRoot />
+        ) : (
+          <App />
+        )}
       </Suspense>
     </ErrorBoundary>
   </StrictMode>,

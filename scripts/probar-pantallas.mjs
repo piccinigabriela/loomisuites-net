@@ -10,7 +10,7 @@ import { existsSync } from 'node:fs';
 
 const PORT = 4174;
 const BASE = `http://localhost:${PORT}`;
-const RUTAS = ['/', '/demo', '/recepcion', '/limpieza', '/manual', '/manual?m=fotos', '/?mode=app'];
+const RUTAS = ['/', '/demo', '/recepcion', '/limpieza', '/manual', '/manual?m=fotos', '/?mode=app', '/?tab=direct-booking'];
 const VISTAS = [
   { nombre: 'celular', width: 390, height: 844 },
   { nombre: 'compu', width: 1366, height: 860 },

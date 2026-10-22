@@ -17,6 +17,7 @@ import {
   SyncResult,
 } from '../../src/lib/icalCore';
 import { buildStaffArrivals } from '../../src/lib/staffArrivals';
+import { buildSiteBusy, stableJson, visibleUnits, WebSiteSettings } from '../../src/lib/publicSite';
 
 export const ZONA_HORARIA = 'America/Argentina/Buenos_Aires';
 const CONFIG_DOC = 'sistema/icalSync';
@@ -225,7 +226,23 @@ export async function sincronizarCuenta(
     if (!actual.exists || canon(actual.get('unidades') || {}) !== canon(llegadas.unidades)) {
       await llegadasRef.set({ ...llegadas, updatedAt: new Date() });
     }
+
+    // Tu Web: fechas ocupadas al día aunque nadie tenga la app abierta (misma cuenta que hace la app)
+    await actualizarTuWeb(db, uid, properties, result.reservasResultantes || [], hoy);
   }
 
   return { ...result, uid, modo, hoy };
+}
+
+/** Escribe publicSites/{nombre}.busy si la cuenta tiene Tu Web y las fechas cambiaron. No crea la página. */
+async function actualizarTuWeb(db: Firestore, uid: string, properties: Property[], reservations: Reservation[], hoy: string): Promise<void> {
+  const tenant = await db.doc(`tenants/${uid}`).get();
+  const web = tenant.get('webSite') as WebSiteSettings | undefined;
+  if (!web?.slug) return;
+  const ref = db.doc(`publicSites/${web.slug}`);
+  const site = await ref.get();
+  if (!site.exists) return;
+  const busy = buildSiteBusy(visibleUnits(properties, web).map((p) => p.id), reservations, hoy);
+  if (stableJson(site.get('busy') || {}) === stableJson(busy)) return;
+  await ref.update({ busy, busyUpdatedAt: new Date() });
 }

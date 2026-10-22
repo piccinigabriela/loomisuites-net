@@ -135,6 +135,38 @@ await caso('NO edita la configuración del complejo', false, () => setDoc(doc(ju
 await caso('NO edita la guía pública', false, () => setDoc(doc(juan, 'publicGuides/dueno'), { x: 1 }));
 await caso('NO entra a otro complejo', false, () => getDoc(doc(juan, 'tenants/otro/reservations/r9')));
 
+console.log('\nTu Web');
+const anon = env.unauthenticatedContext().firestore();
+const foto = (data) => ({ data, order: 1, unitId: '' });
+await caso('el dueño reserva el nombre de su link', true, () => setDoc(doc(dueno, 'siteOwners/catalinas'), { uid: 'dueno' }));
+await caso('otro NO le saca el nombre', false, () => setDoc(doc(otro, 'siteOwners/catalinas'), { uid: 'otro' }));
+await caso('NO reserva un nombre a nombre de otro', false, () => setDoc(doc(intruso, 'siteOwners/ajeno'), { uid: 'dueno' }));
+await caso('NO usa nombres con mayúsculas o símbolos', false, () => setDoc(doc(dueno, 'siteOwners/Mal_Nombre'), { uid: 'dueno' }));
+await caso('el dueño publica su página', true, () => setDoc(doc(dueno, 'publicSites/catalinas'), { enabled: true, name: 'Catalinas', units: [] }));
+await caso('cualquiera ve la página (sin cuenta)', true, () => getDoc(doc(anon, 'publicSites/catalinas')));
+await caso('nadie lista todas las páginas', false, () => getDocs(collection(anon, 'publicSites')));
+await caso('nadie ve de quién es un nombre', false, () => getDoc(doc(intruso, 'siteOwners/catalinas')));
+await caso('otro NO edita la página', false, () => setDoc(doc(otro, 'publicSites/catalinas'), { name: 'X' }, { merge: true }));
+await caso('otro NO crea una página con un nombre que no reservó', false, () => setDoc(doc(otro, 'publicSites/libre'), { name: 'X' }));
+await caso('Recepción ve de quién es el nombre', true, () => getDoc(doc(juan, 'siteOwners/catalinas')));
+await caso('Recepción actualiza las fechas ocupadas', true, () => updateDoc(doc(juan, 'publicSites/catalinas'), { busy: { a: [{ s: '2026-11-01', e: '2026-11-03' }] }, busyUpdatedAt: serverTimestamp() }));
+await caso('Recepción NO cambia los textos', false, () => updateDoc(doc(juan, 'publicSites/catalinas'), { name: 'X' }));
+await caso('Limpieza NO toca la página', false, () => updateDoc(doc(marta, 'publicSites/catalinas'), { busy: {} }));
+await caso('el dueño sube una foto', true, () => setDoc(doc(dueno, 'publicSites/catalinas/photos/f1'), foto('data:image/jpeg;base64,AAAA')));
+await caso('NO sube algo que no es una foto', false, () => setDoc(doc(dueno, 'publicSites/catalinas/photos/f2'), foto('<script>alert(1)</script>')));
+await caso('otro NO sube fotos', false, () => setDoc(doc(otro, 'publicSites/catalinas/photos/f3'), foto('data:image/jpeg;base64,AAAA')));
+await caso('cualquiera ve las fotos', true, () => getDocs(collection(anon, 'publicSites/catalinas/photos')));
+await caso('otro NO borra fotos', false, () => deleteDoc(doc(otro, 'publicSites/catalinas/photos/f1')));
+await caso('otro NO borra el nombre', false, () => deleteDoc(doc(otro, 'siteOwners/catalinas')));
+await caso('cualquiera busca un dominio propio', true, () => getDoc(doc(anon, 'siteDomains/catalinas.com.ar')));
+await caso('un dueño NO carga dominios', false, () => setDoc(doc(dueno, 'siteDomains/catalinas.com.ar'), { slug: 'catalinas' }));
+await caso('administración carga un dominio', true, () => setDoc(doc(as('admin', 'piccini.gabriela@gmail.com'), 'siteDomains/catalinas.com.ar'), { slug: 'catalinas' }));
+await caso('el dueño borra su página y libera el nombre', true, async () => {
+  await deleteDoc(doc(dueno, 'publicSites/catalinas/photos/f1'));
+  await deleteDoc(doc(dueno, 'publicSites/catalinas'));
+  return deleteDoc(doc(dueno, 'siteOwners/catalinas'));
+});
+
 console.log('\nQuitar acceso');
 await caso('un extraño NO puede quitar accesos', false, () => deleteDoc(doc(intruso, 'memberships/juan')));
 await caso('el dueño le quita el acceso a Recepción', true, () => deleteDoc(doc(dueno, 'memberships/juan')));

@@ -1,5 +1,5 @@
 {
   "version": 1,
-  "include": ["/__/*", "/guia", "/guia/*", "/manual", "/.well-known/*"],
+  "include": ["/__/*", "/guia", "/guia/*", "/manual", "/web/*", "/.well-known/*"],
   "exclude": []
 }

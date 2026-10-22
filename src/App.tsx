@@ -65,6 +65,7 @@ import {
   savePublicGuide,
   savePublicCalendar,
   savePricingDoc,
+  saveWebSiteSettingsDoc,
   saveTemplateOverridesDoc,
   subscribeToServerIcalSync,
   ServerIcalSyncStatus,
@@ -73,7 +74,9 @@ import {
 import { syncCalendars } from './lib/icalSync';
 import { DesktopMoreMenu } from './components/demo/DesktopMoreMenu';
 import { DesktopAreasBar, DesktopCrumb, buildNavGroups, useTopNavEnabled } from './components/demo/DesktopNav';
-import { findConflicts, getLocalDateString, SyncResult } from './lib/icalCore';
+import { findConflicts, getDateStringInTimeZone, getLocalDateString, SyncResult } from './lib/icalCore';
+import { buildPublicSite, buildSiteBusy, siteUrl, stableJson, visibleUnits } from './lib/publicSite';
+import { publishSite, publishSiteBusy } from './lib/publicSiteStore';
 import {
   AccessInfo,
   StaffRole,
@@ -124,7 +127,8 @@ const DemoFinances = lazyNamed(() => import('./components/demo/DemoFinances'), '
 const TeamNotices = lazyNamed(() => import('./components/demo/TeamNotices'), 'TeamNotices');
 const DemoCashDrawer = lazyNamed(() => import('./components/demo/DemoCashDrawer'), 'DemoCashDrawer');
 const WelcomeGuideHub = lazyNamed(() => import('./components/guide/WelcomeGuideHub'), 'WelcomeGuideHub');
-const DirectBookingLanding = lazyNamed(() => import('./components/booking/DirectBookingLanding'), 'DirectBookingLanding');
+const TuWebSettings = lazyNamed(() => import('./components/booking/TuWebSettings'), 'TuWebSettings');
+const DemoTuWeb = lazyNamed(() => import('./components/booking/DemoTuWeb'), 'DemoTuWeb');
 const XeniaCopilotView = lazyNamed(() => import('./components/xenia/XeniaCopilotView'), 'XeniaCopilotView');
 const XeniaFloatingWidget = lazyNamed(() => import('./components/xenia/XeniaFloatingWidget'), 'XeniaFloatingWidget');
 const NewReservationModal = lazyNamed(() => import('./components/demo/NewReservationModal'), 'NewReservationModal');
@@ -792,6 +796,55 @@ export default function App() {
 
     return () => clearTimeout(timer);
   }, [isApp, currentUser, tenantLoading, demoState.reservations, demoState.properties]);
+
+  // Tu Web: publica la página (textos, unidades, tarifas) cuando cambia algo. Solo el dueño.
+  const webSite = tenantDoc?.webSite;
+  const lastPublishedSiteRef = React.useRef('');
+  const [publishedSiteSlug, setPublishedSiteSlug] = useState('');
+  useEffect(() => {
+    if (!isApp || !currentUser || tenantLoading || isStaff || !tenantUid || !webSite?.slug) return;
+    const slug = webSite.slug;
+    const data = buildPublicSite({
+      settings: webSite,
+      guide: demoState.welcomeGuide,
+      complexName: tenantDoc?.complexName,
+      city: tenantDoc?.city,
+      properties: demoState.properties || [],
+      pricing: demoState.pricing,
+      currency: demoState.currencySettings?.settlementCurrency,
+    });
+    const key = slug + stableJson(data);
+    if (lastPublishedSiteRef.current === key) return;
+    const timer = setTimeout(() => {
+      publishSite(slug, data)
+        .then(() => {
+          lastPublishedSiteRef.current = key;
+          setPublishedSiteSlug(slug);
+        })
+        .catch((err) => console.warn('Tu Web: no se pudo publicar', err));
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [isApp, currentUser, tenantLoading, isStaff, tenantUid, webSite, demoState.welcomeGuide, demoState.properties, demoState.pricing, demoState.currencySettings?.settlementCurrency, tenantDoc?.complexName, tenantDoc?.city]);
+
+  // Tu Web: fechas ocupadas (dueño y Recepción). El servidor también las actualiza cada 15 minutos.
+  const lastSiteBusyRef = React.useRef('');
+  useEffect(() => {
+    if (!isApp || !currentUser || tenantLoading || staffRole === 'limpieza' || !tenantUid || !webSite?.slug) return;
+    const slug = webSite.slug;
+    if (!isStaff && publishedSiteSlug !== slug) return; // el dueño espera a que exista la página
+    const unitIds = visibleUnits(demoState.properties || [], webSite).map((p) => p.id);
+    const busy = buildSiteBusy(unitIds, demoState.reservations || [], getDateStringInTimeZone('America/Argentina/Buenos_Aires'));
+    const key = slug + stableJson(busy);
+    if (lastSiteBusyRef.current === key) return;
+    const timer = setTimeout(() => {
+      publishSiteBusy(slug, busy)
+        .then(() => {
+          lastSiteBusyRef.current = key;
+        })
+        .catch((err) => console.warn('Tu Web: no se pudieron actualizar las fechas ocupadas', err));
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [isApp, currentUser, tenantLoading, staffRole, isStaff, tenantUid, webSite, publishedSiteSlug, demoState.properties, demoState.reservations]);
 
   // Ref for latest demoState so syncCalendars always reads fresh properties and reservations
   const demoStateRef = React.useRef(demoState);
@@ -2914,6 +2967,32 @@ export default function App() {
                   }}
                   onBackToPanel={() => setDemoTab('overview')}
                   uid={tenantUid}
+                  webStatus={isApp && webSite?.slug ? { url: siteUrl(webSite.slug), enabled: !!webSite.enabled } : null}
+                  tuWebPanel={
+                    isApp ? (
+                      isStaff ? (
+                        <p className="max-w-2xl mx-auto text-base font-bold text-stone-900 dark:text-white">Solo Administración configura Tu Web.</p>
+                      ) : (
+                        <TuWebSettings
+                          uid={tenantUid}
+                          settings={webSite}
+                          onSaveSettings={async (settings) => {
+                            await saveWebSiteSettingsDoc(tenantUid, settings);
+                          }}
+                          guide={demoState.welcomeGuide}
+                          complexName={tenantDoc?.complexName}
+                          city={tenantDoc?.city}
+                          properties={demoState.properties || []}
+                          reservations={demoState.reservations || []}
+                          pricing={demoState.pricing}
+                          currency={demoState.currencySettings?.settlementCurrency}
+                          onGoToPricing={() => setDemoTab('pricing')}
+                        />
+                      )
+                    ) : (
+                      <DemoTuWeb demoState={demoState} />
+                    )
+                  }
                   onUpdateGuideData={async (updated) => {
                     if (isApp && currentUser) {
                       await saveTenantData(tenantUid, { welcomeGuide: updated });
@@ -2929,15 +3008,7 @@ export default function App() {
                 />
               )}
 
-              {demoTab === 'direct-booking' && (
-                <DirectBookingLanding
-                  guideData={demoState.welcomeGuide || INITIAL_WELCOME_GUIDE}
-                  properties={demoState.properties}
-                  activeTemplate={guideTemplate}
-                  onSelectTemplate={setGuideTemplate}
-                  onBackToPanel={() => setDemoTab('overview')}
-                />
-              )}
+              {demoTab === 'direct-booking' && <DemoTuWeb demoState={demoState} />}
 
               {demoTab === 'xenia' && (
                 <XeniaCopilotView demoState={demoState} />

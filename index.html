@@ -60,7 +60,8 @@
       (function () {
         try {
           var h = document.documentElement;
-          var landing = location.pathname === '/' && !location.search && !/^app\./.test(location.hostname) && !/app|panel|login|web|limpieza|recepcion|admin|guia|guide/.test(location.hash.toLowerCase());
+          var loomiHost = /(^|\.)loomisuite\.net$|\.pages\.dev$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
+          var landing = loomiHost && location.pathname === '/' && !location.search && !/^app\./.test(location.hostname) && !/app|panel|login|web|limpieza|recepcion|admin|guia|guide/.test(location.hash.toLowerCase());
           if (!landing) { h.classList.add('no-prerender'); return; }
           var t = localStorage.getItem('loomi_theme');
           if (t === 'dark' || (t !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)) h.classList.add('dark');
