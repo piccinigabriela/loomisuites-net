@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { LoomiLoader } from './components/common/LoomiLoader';
 import { isPlatformAdmin } from './lib/adminClients';
 import React, { useState, useEffect, Suspense } from 'react';
 import {
@@ -2015,16 +2016,8 @@ export default function App() {
   ) {
     return (
       <div className="min-h-screen w-full bg-[#0B0F17] text-white flex flex-col items-center justify-center p-4 selection:bg-[#E67E22]">
-        <div className="flex flex-col items-center gap-4 animate-in fade-in duration-300">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#E67E22] to-amber-500 flex items-center justify-center text-white shadow-xl shadow-orange-500/20 animate-pulse">
-            <Building2 className="w-6 h-6" />
-          </div>
-          <div className="text-center space-y-1">
-            <p className="text-sm font-semibold tracking-tight text-white">Loomi Suite</p>
-            <p className="text-xs text-slate-400">
-              {authLoading ? 'Verificando sesión...' : 'Cargando tu complejo…'}
-            </p>
-          </div>
+        <div className="animate-in fade-in duration-300">
+          <LoomiLoader message={authLoading ? 'Verificando sesión…' : 'Cargando tu complejo…'} />
         </div>
       </div>
     );
