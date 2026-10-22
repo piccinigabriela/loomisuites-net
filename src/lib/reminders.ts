@@ -27,6 +27,18 @@ export function nextOccurrence(anchor: string, repeat: ReminderRepeat, after: st
   const a = parse(anchor);
   const t = parse(after);
 
+  if (repeat === 'weekly' || repeat === 'biweekly') {
+    // Cada 7 o 14 días contados desde la fecha original (mismo día de la semana)
+    const step = repeat === 'weekly' ? 7 : 14;
+    const base = Date.UTC(a.y, a.m - 1, a.d);
+    const lim = Date.UTC(t.y, t.m - 1, t.d);
+    const diff = Math.floor((lim - base) / 86400000);
+    const n = diff < 0 ? 0 : Math.floor(diff / step) + 1;
+    const next = new Date(base + n * step * 86400000);
+    const out = `${next.getUTCFullYear()}-${pad(next.getUTCMonth() + 1)}-${pad(next.getUTCDate())}`;
+    return out > after ? out : anchor;
+  }
+
   if (repeat === 'monthly') {
     let y = t.y;
     let m = t.m;
@@ -84,6 +96,8 @@ export function newReminder(date: string, text: string, repeat: ReminderRepeat):
 
 export const REPEAT_LABEL: Record<ReminderRepeat, string> = {
   none: 'Nunca',
+  weekly: 'Todas las semanas',
+  biweekly: 'Cada 15 días',
   monthly: 'Todos los meses',
   yearly: 'Todos los años',
 };

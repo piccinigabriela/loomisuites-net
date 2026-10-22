@@ -77,11 +77,6 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
   const [isMobileFrame, setIsMobileFrame] = useState<boolean>(true);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  // Quick edit state for Wi-Fi in the quick bar
-  const [ssidInput, setSsidInput] = useState(guideData.wifiNetwork || '');
-  const [passwordInput, setPasswordInput] = useState(guideData.wifiPassword || '(a confirmar)');
-  const [isSavedFeedback, setIsSavedFeedback] = useState(false);
-
   // Compute slug for demo property
   const slug = 'iguazu';
 
@@ -98,17 +93,6 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
     navigator.clipboard.writeText(url);
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2000);
-  };
-
-  const handleQuickSaveWifi = () => {
-    const updated = {
-      ...guideData,
-      wifiNetwork: ssidInput.trim(),
-      wifiPassword: passwordInput.trim(),
-    };
-    onUpdateGuideData(updated);
-    setIsSavedFeedback(true);
-    setTimeout(() => setIsSavedFeedback(false), 2500);
   };
 
   return (
@@ -224,67 +208,6 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
             <span className="text-[10px] font-bold text-[#E67E22] mt-4 block opacity-0 group-hover:opacity-100 transition-opacity">
               Gestionar extras →
             </span>
-          </div>
-        </div>
-
-        {/* 3. BARRA DE CONTROL DE WI-FI & ACCIONES (Limpia, unificada en una sola línea horizontal elegante) */}
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl p-4 sm:p-5 shadow-[0_4px_12px_rgba(0,0,0,0.01)] border border-gray-100 dark:border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-4 transition-colors">
-          {/* Datos de Red */}
-          <div className="flex flex-wrap items-center gap-4 text-xs font-medium text-gray-500 dark:text-zinc-400 w-full md:w-auto">
-            <div className="flex items-center space-x-2">
-              <span className="text-[10px] font-bold text-gray-400 dark:text-zinc-400 uppercase tracking-wider">
-                Paso 1: Datos de Red
-              </span>
-              <div className="flex items-center gap-1.5 font-mono text-gray-800 dark:text-gray-100 bg-gray-50 dark:bg-zinc-800 px-2.5 py-1.5 rounded-lg border border-gray-200/80 dark:border-zinc-700">
-                <Wifi className="w-3.5 h-3.5 text-[#E67E22]" />
-                <span className="text-gray-400 text-[10px]">SSID:</span>
-                <input
-                  type="text"
-                  value={ssidInput}
-                  onChange={(e) => setSsidInput(e.target.value)}
-                  className="bg-transparent text-xs font-bold font-mono focus:outline-none w-32 text-gray-800 dark:text-gray-100"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <span className="text-[10px] font-bold text-gray-400 dark:text-zinc-400 uppercase tracking-wider">
-                Password
-              </span>
-              <input
-                type="text"
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                className="font-mono text-xs font-bold text-gray-800 dark:text-gray-100 bg-gray-50 dark:bg-zinc-800 px-2.5 py-1.5 rounded-lg border border-gray-200/80 dark:border-zinc-700 focus:outline-none w-32"
-              />
-            </div>
-          </div>
-
-          {/* Botones de Acción de Configuración */}
-          <div className="flex items-center space-x-3 w-full md:w-auto justify-end">
-            <button
-              onClick={() => handleSetSubTab('guest-view')}
-              className="text-gray-600 dark:text-zinc-300 font-semibold hover:text-gray-900 dark:hover:text-white text-xs px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors cursor-pointer border border-gray-200/60 dark:border-zinc-700"
-            >
-              Asignar a Gestión de Suites
-            </button>
-
-            <button
-              onClick={handleQuickSaveWifi}
-              className="bg-[#E67E22] text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-sm shadow-orange-500/10 hover:bg-[#d35400] transition-all flex items-center space-x-1.5 active:scale-[0.98] cursor-pointer"
-            >
-              {isSavedFeedback ? (
-                <>
-                  <Check className="w-4 h-4 stroke-[2.5]" />
-                  <span>¡Cambios Guardados!</span>
-                </>
-              ) : (
-                <>
-                  <Check className="w-4 h-4 stroke-[2.5]" />
-                  <span>Guardar Cambios</span>
-                </>
-              )}
-            </button>
           </div>
         </div>
 

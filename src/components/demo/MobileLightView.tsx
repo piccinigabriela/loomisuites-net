@@ -672,6 +672,16 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                 </button>
               ))}
             </div>
+
+            {isAppMode && onLogout && (
+              <button
+                type="button"
+                onClick={onLogout}
+                className="w-full mt-2 min-h-[52px] rounded-[22px] border-2 border-rose-600 dark:border-rose-400 text-rose-700 dark:text-rose-300 text-[15px] font-extrabold flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+              >
+                <LogOut className="w-5 h-5" /> Cerrar sesión
+              </button>
+            )}
           </div>
         )}
       </main>

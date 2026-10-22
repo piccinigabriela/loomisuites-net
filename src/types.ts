@@ -265,7 +265,7 @@ export interface DemoState {
   lastUpdated: string;
 }
 
-export type ReminderRepeat = 'none' | 'monthly' | 'yearly';
+export type ReminderRepeat = 'none' | 'weekly' | 'biweekly' | 'monthly' | 'yearly';
 
 /** Recordatorio de la Agenda del celular. Los que se repiten tienen un solo documento: al tildarlo, `date` pasa a la próxima vez. */
 export interface Reminder {

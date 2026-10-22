@@ -12,7 +12,8 @@ interface ReminderSheetProps {
   onClose: () => void;
 }
 
-const REPEATS: ReminderRepeat[] = ['none', 'monthly', 'yearly'];
+const REPEATS: ReminderRepeat[] = ['none', 'weekly', 'biweekly', 'monthly', 'yearly'];
+const REPEAT_SHORT: Record<ReminderRepeat, string> = { none: 'Nunca', weekly: 'Semanal', biweekly: 'Cada 15 días', monthly: 'Mensual', yearly: 'Anual' };
 
 export const ReminderSheet: React.FC<ReminderSheetProps> = ({ reminder, defaultDate, onSave, onDelete, onClose }) => {
   const [date, setDate] = useState(reminder?.date || defaultDate);
@@ -134,7 +135,7 @@ export const ReminderSheet: React.FC<ReminderSheetProps> = ({ reminder, defaultD
                     : 'bg-white text-stone-900 border-stone-400 dark:bg-[#111215] dark:text-gray-100 dark:border-zinc-500'
                 }`}
               >
-                {opt === 'none' ? 'Nunca' : opt === 'monthly' ? 'Mensual' : 'Anual'}
+                {REPEAT_SHORT[opt]}
               </button>
             ))}
           </div>
