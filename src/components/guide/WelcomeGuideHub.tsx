@@ -397,7 +397,12 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
           )}
 
           {activeSubTab === 'admin-view' && (
-            <AdminGuideEditor guideData={guideData} onSave={onUpdateGuideData} />
+            <AdminGuideEditor
+              guideData={guideData}
+              onSave={onUpdateGuideData}
+              guideUrl={directLinks.guide}
+              units={properties.map((p) => ({ id: p.id, name: p.name, wifiNetwork: p.wifiNetwork, wifiPassword: p.wifiPassword }))}
+            />
           )}
 
           {activeSubTab === 'landing-booking' && tuWebPanel}
