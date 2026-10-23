@@ -140,6 +140,7 @@ const THEMES = {
     '--fg-2': '#DDD5C8',
     '--accent': '#E8913A',
     '--accent-ink': '#1A1007',
+    '--accent-fg': '#E8913A',
     colorScheme: 'dark',
   },
   dia: {
@@ -151,7 +152,21 @@ const THEMES = {
     '--fg-2': '#3B362F',
     '--accent': '#A64B0C',
     '--accent-ink': '#FFFFFF',
+    '--accent-fg': '#A64B0C',
     colorScheme: 'light',
+  },
+  // Clara: verde bosque sobre casi negro, letra fina (la plantilla "Clara" de la guía)
+  clara: {
+    '--bg': '#0C0E0D',
+    '--surface': '#141816',
+    '--surface-2': '#1D2420',
+    '--line': '#2C3631',
+    '--fg': '#EFECE6',
+    '--fg-2': '#D6D1C7',
+    '--accent': '#047857',
+    '--accent-ink': '#FFFFFF',
+    '--accent-fg': '#34D399',
+    colorScheme: 'dark',
   },
 } as const;
 
@@ -215,7 +230,9 @@ export const PublicSiteView: React.FC<Props> = ({ site, photos, preview }) => {
   const searchRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const theme = THEMES[site.theme === 'dia' ? 'dia' : 'noche'];
+  const themeKey = site.theme === 'dia' || site.theme === 'clara' ? site.theme : 'noche';
+  const theme = THEMES[themeKey];
+  const isClara = themeKey === 'clara';
   const general = photos.filter((p) => !p.unitId);
   const cover = general[0] || photos[0];
   const unitPhotos = (id: string) => photos.filter((p) => p.unitId === id);
@@ -304,7 +321,9 @@ export const PublicSiteView: React.FC<Props> = ({ site, photos, preview }) => {
     );
   }
 
-  const headingFont = { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" };
+  const headingFont: React.CSSProperties = isClara
+    ? { fontFamily: "'Inter', system-ui, sans-serif", fontWeight: 300, letterSpacing: '-0.02em' }
+    : { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" };
   const btnPrimary =
     'inline-flex items-center justify-center gap-2 min-h-[48px] px-6 rounded-full bg-[var(--accent)] text-[var(--accent-ink)] font-bold text-base hover:brightness-110 transition cursor-pointer';
   const btnGhost =
@@ -336,13 +355,22 @@ export const PublicSiteView: React.FC<Props> = ({ site, photos, preview }) => {
         ) : (
           <div className="absolute inset-0 bg-[var(--surface-2)]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
+        <div
+          className={`absolute inset-0 ${
+            isClara ? 'bg-gradient-to-t from-[#0C0E0D] via-[#0C0E0D]/55 to-black/20' : 'bg-gradient-to-t from-black/85 via-black/35 to-black/10'
+          }`}
+        />
         <div className="relative w-full max-w-5xl mx-auto px-5 sm:px-8 pb-24 sm:pb-28 pt-20 text-white">
-          {site.city && (
-            <p className="flex items-center gap-1.5 text-sm font-semibold tracking-wide mb-3">
-              <MapPin className="w-4 h-4" /> {site.city}
-            </p>
-          )}
+          {site.city &&
+            (isClara ? (
+              <p className="flex items-center gap-2 text-xs sm:text-sm font-mono font-bold uppercase tracking-[0.2em] text-[#34D399] mb-4">
+                <span className="w-2 h-2 rounded-full bg-[#34D399]" /> {site.city}
+              </p>
+            ) : (
+              <p className="flex items-center gap-1.5 text-sm font-semibold tracking-wide mb-3">
+                <MapPin className="w-4 h-4" /> {site.city}
+              </p>
+            ))}
           <h1 style={headingFont} className="text-4xl sm:text-6xl font-semibold leading-[1.05] text-balance">
             {site.name}
           </h1>
@@ -407,7 +435,7 @@ export const PublicSiteView: React.FC<Props> = ({ site, photos, preview }) => {
           <button type="submit" className={`${btnPrimary} col-span-2 sm:col-span-1`}>
             {t.search}
           </button>
-          {error && <p className="col-span-2 sm:col-span-4 text-sm font-bold text-[var(--accent)]">{error}</p>}
+          {error && <p className="col-span-2 sm:col-span-4 text-sm font-bold text-[var(--accent-fg)]">{error}</p>}
         </form>
       </div>
 
@@ -520,7 +548,7 @@ export const PublicSiteView: React.FC<Props> = ({ site, photos, preview }) => {
             <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-6 space-y-3">
               {site.checkinHour && (
                 <p className="flex items-center gap-2 text-base">
-                  <Clock className="w-5 h-5 text-[var(--accent)] shrink-0" />
+                  <Clock className="w-5 h-5 text-[var(--accent-fg)] shrink-0" />
                   <span>
                     <span className="font-bold">{t.checkin}</span> {site.checkinHour}
                   </span>
@@ -528,7 +556,7 @@ export const PublicSiteView: React.FC<Props> = ({ site, photos, preview }) => {
               )}
               {site.checkoutHour && (
                 <p className="flex items-center gap-2 text-base">
-                  <Clock className="w-5 h-5 text-[var(--accent)] shrink-0" />
+                  <Clock className="w-5 h-5 text-[var(--accent-fg)] shrink-0" />
                   <span>
                     <span className="font-bold">{t.checkout}</span> {site.checkoutHour}
                   </span>
@@ -536,7 +564,7 @@ export const PublicSiteView: React.FC<Props> = ({ site, photos, preview }) => {
               )}
               {site.address && (
                 <p className="flex items-start gap-2 text-base">
-                  <MapPin className="w-5 h-5 text-[var(--accent)] shrink-0 mt-0.5" />
+                  <MapPin className="w-5 h-5 text-[var(--accent-fg)] shrink-0 mt-0.5" />
                   <span>
                     {site.address}
                     {site.mapsUrl && (

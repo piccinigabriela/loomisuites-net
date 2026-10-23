@@ -11,7 +11,7 @@
 import type { CurrencyCode, Property, Reservation, WelcomeGuideData } from '../types';
 import { normalizePricing, PricingSettings } from './pricing';
 
-export type SiteTheme = 'noche' | 'dia';
+export type SiteTheme = 'noche' | 'dia' | 'clara';
 
 /** Lo que el dueño configura (tenants/{uid}.webSite) */
 export interface WebSiteSettings {
@@ -153,7 +153,7 @@ export function buildPublicSite(input: {
     checkinHour: (guide?.checkinHour || '').trim(),
     checkoutHour: (guide?.checkoutHour || '').trim(),
     currency: input.currency || 'ARS',
-    theme: settings.theme === 'dia' ? 'dia' : 'noche',
+    theme: settings.theme === 'dia' || settings.theme === 'clara' ? settings.theme : 'noche',
     units,
     pricing,
   };

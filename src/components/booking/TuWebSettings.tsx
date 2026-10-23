@@ -16,6 +16,7 @@ import {
   Moon,
   Sun,
   Trash2,
+  Trees,
   X,
 } from 'lucide-react';
 import type { CurrencyCode, Property, Reservation, WelcomeGuideData } from '../../types';
@@ -454,7 +455,7 @@ const TextsCard: React.FC<{
   const [description, setDescription] = useState(settings.description || '');
   const [whatsapp, setWhatsapp] = useState(settings.whatsapp || '');
   const [saved, setSaved] = useState(false);
-  const theme = settings.theme === 'dia' ? 'dia' : 'noche';
+  const theme = settings.theme === 'dia' || settings.theme === 'clara' ? settings.theme : 'noche';
   const dirty =
     tagline !== (settings.tagline ?? guide?.tagline ?? '') || description !== (settings.description || '') || whatsapp !== (settings.whatsapp || '');
 
@@ -495,9 +496,10 @@ const TextsCard: React.FC<{
         </label>
         <div className="space-y-2">
           <span className={label}>Estilo</span>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {(
               [
+                ['clara', 'Clara', Trees],
                 ['noche', 'Noche', Moon],
                 ['dia', 'Día', Sun],
               ] as const
