@@ -29,6 +29,7 @@ import { auth } from '../../lib/firebase';
 import { useXeniaVoice } from '../../hooks/useXeniaVoice';
 import { getClientXeniaReply } from '../xenia/xeniaLocalEngine';
 import { getApiUrl } from '../../utils/apiConfig';
+import { askXenia } from '../../lib/xeniaClient';
 import { DemoCalendar } from './DemoCalendar';
 import { AgendaTab, AgendaView } from './mobile/AgendaTab';
 import { formatShortDateRange } from './mobile/helpers';
@@ -175,29 +176,13 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
     const timeoutId = setTimeout(() => controller.abort(), 15000); // con 1,2 s siempre contestaba el motor local
 
     try {
-      const res = await fetch(getApiUrl('/api/xenia/chat'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const replyText = await askXenia({
+        message: query,
+        history: xeniaMessages.map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.text })),
+        demoState,
         signal: controller.signal,
-        body: JSON.stringify({
-          message: query,
-          contextData: {
-            properties: demoState.properties,
-            reservations: demoState.reservations,
-            cleaningTasks: demoState.cleaningTasks,
-          },
-        }),
       });
-
       clearTimeout(timeoutId);
-
-      let replyText = '';
-      if (res.ok) {
-        const data = await res.json();
-        replyText = data.reply || getClientXeniaReply(query, demoState);
-      } else {
-        replyText = getClientXeniaReply(query, demoState);
-      }
 
       const asstId = `a-${Date.now()}`;
       setXeniaMessages((prev) => [...prev, { id: asstId, role: 'assistant', text: replyText }]);

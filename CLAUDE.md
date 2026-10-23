@@ -21,7 +21,11 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   config en `firebase.json`). La lógica está en `src/lib/icalCore.ts` y la comparten la app y el servidor: no duplicarla.
   Modo en Firestore `sistema/icalSync.modo` ("prueba" no escribe; "real" escribe). Estado por cuenta en `tenants/{uid}/sync/ical`.
   Se publica desde Cloud Shell (`firebase deploy --only functions`), no con el push. Comandos: `npm run prueba|estado|activar|pausar` en `server-sync/`.
-- Xenia (asistente IA) corre en un backend de AI Studio con Gemini. No borrar ese proyecto de AI Studio.
+- Xenia: `src/lib/xeniaClient.ts` (`askXenia`) prueba en orden 1) Claude, `functions/api/xenia/chat.js` (solo app real y con sesión:
+  verifica el token de Firebase; modelo claude-haiku-5-5; instrucciones con el mapa de pantallas dentro de la función: si cambia un menú,
+  actualizarlas ahí), 2) el backend viejo de AI Studio con Gemini (`server.ts`, sus instrucciones están desactualizadas; no borrar ese
+  proyecto hasta probar Claude), 3) las respuestas fijas de `xeniaLocalEngine.ts`. La función necesita la variable `ANTHROPIC_API_KEY`
+  en Cloudflare Pages; sin ella responde 503 y se sigue con 2 y 3. Contexto que se manda: `src/lib/xeniaContext.ts` (sin teléfonos ni wifi).
 - `isAppMode()` = hostname `app.` o `?mode=app`. Sin eso, la app muestra la demo con datos de ejemplo.
 - Roles: el dueño puede ver las tres vistas (`/admin`, `/recepcion`, `/limpieza`). El personal entra con su cuenta:
   `invites/{mail}` (lo crea el dueño en Administración → Equipo y accesos) → al aceptar se crea `memberships/{uid}`

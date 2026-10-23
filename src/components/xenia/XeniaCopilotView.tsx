@@ -41,6 +41,7 @@ import { isFemaleVoice, isSpainVoice } from '../../utils/xeniaVoice';
 import { isAppMode } from '../../lib/appMode';
 
 import { getApiUrl } from '../../utils/apiConfig';
+import { askXenia } from '../../lib/xeniaClient';
 
 interface XeniaCopilotViewProps {
   demoState: DemoState;
@@ -148,43 +149,18 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
     setIsLoading(true);
 
     try {
-      const response = await fetch(getApiUrl('/api/xenia/chat'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: text,
-          history: messages.map((m) => ({ role: m.role, content: m.content })),
-          contextData: {
-            properties: demoState.properties,
-            reservations: demoState.reservations,
-            cleaningTasks: demoState.cleaningTasks,
-            addons: demoState.addons,
-          },
-          context: {
-            propertiesCount: demoState.properties.length,
-            reservationsCount: demoState.reservations.length,
-            cleaningTasksCount: demoState.cleaningTasks.length,
-            reservations: demoState.reservations,
-            properties: demoState.properties,
-            cleaningTasks: demoState.cleaningTasks,
-            addons: demoState.addons,
-          },
-        }),
+      const replyContent = await askXenia({
+        message: text,
+        history: messages.map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content })),
+        demoState,
       });
-
-      if (!response.ok) {
-        throw new Error('Fallback to client engine');
-      }
-
-      const data = await response.json();
-      const replyContent = data.reply || getClientXeniaReply(text, demoState);
       const assistantMsgId = `assistant-${Date.now()}`;
       const assistantMsg: ChatMessage = {
         id: assistantMsgId,
         role: 'assistant',
         content: replyContent,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        source: data.source || 'xenia_engine',
+        source: 'xenia',
       };
 
       setMessages((prev) => [...prev, assistantMsg]);

@@ -20,6 +20,7 @@ import Markdown from 'react-markdown';
 import { DemoState } from '../../types';
 import { getClientXeniaReply } from './xeniaLocalEngine';
 import { getApiUrl } from '../../utils/apiConfig';
+import { askXenia } from '../../lib/xeniaClient';
 import { XeniaAvatar, setStoredXeniaAvatar } from './XeniaAvatar';
 import { useXeniaVoice } from '../../hooks/useXeniaVoice';
 
@@ -134,29 +135,13 @@ export const XeniaFloatingWidget: React.FC<XeniaFloatingWidgetProps> = ({
     const timeoutId = setTimeout(() => controller.abort(), 15000); // Gemini tarda unos segundos; con 1,2 s siempre contestaba el motor local
 
     try {
-      const res = await fetch(getApiUrl('/api/xenia/chat'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const reply = await askXenia({
+        message: text,
+        history: messages.map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content })),
+        demoState,
         signal: controller.signal,
-        body: JSON.stringify({
-          message: text,
-          history: messages.map((m) => ({ role: m.role, content: m.content })),
-          contextData: {
-            properties: demoState.properties,
-            reservations: demoState.reservations,
-            cleaningTasks: demoState.cleaningTasks,
-          },
-        }),
       });
-
       clearTimeout(timeoutId);
-
-      if (!res.ok) {
-        throw new Error('API response not ok');
-      }
-
-      const data = await res.json();
-      const reply = data.reply || getClientXeniaReply(text, demoState);
       const assistantMsgId = `a-${Date.now()}`;
 
       setMessages((prev) => [
