@@ -88,6 +88,30 @@ service cloud.firestore {
         && (!('webDesigns' in request.resource.data.diff(resource.data).affectedKeys()) || (request.resource.data.webDesigns is list && request.resource.data.webDesigns.size() <= 10));
     }
 
+    // Cobro del abono de Loomi: precios, datos de transferencia y Payoneer, días de gracia.
+    // La leen los usuarios con sesión (en "Mi plan"); la edita solo la administración.
+    match /config/billing {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+    // "Ya pagué": el cliente avisa (solo a su nombre, una vez por aviso); la administración lo ve y lo archiva.
+    match /paymentNotices/{noticeId} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['uid', 'complexName', 'email', 'plan', 'method', 'amount', 'currency', 'rate', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.plan in ['propietario', 'complejo']
+        && request.resource.data.method in ['transferencia', 'payoneer']
+        && request.resource.data.currency in ['ARS', 'USD']
+        && request.resource.data.amount is number && request.resource.data.amount >= 0 && request.resource.data.amount < 100000000
+        && request.resource.data.rate is number
+        && request.resource.data.complexName is string && request.resource.data.complexName.size() < 120
+        && request.resource.data.email is string && request.resource.data.email.size() < 200
+        && request.resource.data.createdAt == request.time;
+      allow get, list: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow update: if isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['handled']);
+      allow delete: if isAdmin();
+    }
+
     // Invitaciones: el id es el mail en minúsculas. Las crea el dueño; las lee y acepta (o rechaza) la persona invitada.
     match /invites/{email} {
       allow get: if signedIn() && (myEmail() == email || resource.data.tenantId == request.auth.uid);

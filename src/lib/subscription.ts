@@ -12,11 +12,15 @@ export interface SubscriptionDoc {
   [key: string]: any;
 }
 
-export type AccessState = 'active' | 'trial' | 'expired';
+/** grace: venció el plan pero todavía está dentro de los días de gracia (sigue usando la app, con aviso) */
+export type AccessState = 'active' | 'trial' | 'grace' | 'expired';
 
 export interface AccessStatus {
   state: AccessState;
+  /** Prueba: días que quedan · Activo con fecha: días hasta el vencimiento · Gracia: días hasta que se pause */
   daysLeft: number;
+  /** Vencimiento del plan, si tiene */
+  until?: Date;
 }
 
 export function subscribeToSubscription(
@@ -45,7 +49,7 @@ export function subscribeToSubscription(
   );
 }
 
-export function getAccessStatus(user: User | null, sub: SubscriptionDoc | null, trialStart?: any): AccessStatus {
+export function getAccessStatus(user: User | null, sub: SubscriptionDoc | null, trialStart?: any, graceDays = 0): AccessStatus {
   const now = Date.now();
 
   // Suspendido a mano desde el panel de clientes: sin acceso, aunque la prueba siga corriendo
@@ -66,9 +70,20 @@ export function getAccessStatus(user: User | null, sub: SubscriptionDoc | null, 
       untilTime = new Date(sub.activeUntil).getTime();
     }
 
-    if (untilTime === null || isNaN(untilTime) || untilTime > now) {
+    if (untilTime === null || isNaN(untilTime)) {
       return { state: 'active', daysLeft: 0 };
     }
+    const DAY = 24 * 60 * 60 * 1000;
+    const until = new Date(untilTime);
+    if (untilTime > now) {
+      return { state: 'active', daysLeft: Math.ceil((untilTime - now) / DAY), until };
+    }
+    // Venció: unos días de gracia con aviso antes de pausar la cuenta
+    const graceEnd = untilTime + graceDays * DAY;
+    if (graceEnd > now) {
+      return { state: 'grace', daysLeft: Math.max(1, Math.ceil((graceEnd - now) / DAY)), until };
+    }
+    return { state: 'expired', daysLeft: 0, until };
   }
 
   // Fallback to 7-day free trial based on user creationTime

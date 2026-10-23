@@ -1,18 +1,20 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ClientRow, ClientState, activateClient, fetchClients, saveClientNote, saveClientWebDesigns, suspendClient } from '../../lib/adminClients';
 import { SPECIAL_THEMES } from '../../lib/publicSite';
+import { BillingConfig, DEFAULT_BILLING, PaymentNotice, fetchPendingNotices, formatArs, markNoticeHandled, saveBillingConfig, subscribeToBilling } from '../../lib/billing';
 
 interface Props {
   onClose: () => void;
-  /** Para pruebas: de dónde salen los clientes (por defecto, Firestore) */
-  loader?: () => Promise<ClientRow[]>;
+  /** Para pruebas: de dónde salen los clientes (por defecto, Firestore). Recibe los días de gracia. */
+  loader?: (graceDays: number) => Promise<ClientRow[]>;
 }
 
-const STATE_LABEL: Record<ClientState, string> = { active: 'Activo', trial: 'En prueba', expired: 'Vencido', suspended: 'Suspendido' };
+const STATE_LABEL: Record<ClientState, string> = { active: 'Activo', trial: 'En prueba', grace: 'En días de gracia', expired: 'Vencido', suspended: 'Suspendido' };
 const FILTERS: Array<['all' | ClientState, string]> = [
   ['all', 'Todos'],
   ['trial', 'En prueba'],
   ['active', 'Activos'],
+  ['grace', 'En gracia'],
   ['expired', 'Vencidos'],
   ['suspended', 'Suspendidos'],
 ];
@@ -22,6 +24,7 @@ const fmt = (d: Date | null) => (d ? d.toLocaleDateString('es-AR', { day: 'numer
 function detail(r: ClientRow): string {
   if (r.state === 'trial') return `Le quedan ${r.daysLeft} ${r.daysLeft === 1 ? 'día' : 'días'} de prueba`;
   if (r.state === 'active') return r.activeUntil ? `Hasta el ${fmt(r.activeUntil)}${r.daysLeft !== null && r.daysLeft <= 7 ? ` (en ${Math.max(r.daysLeft, 0)} días)` : ''}` : 'Sin fecha de vencimiento';
+  if (r.state === 'grace') return `Venció el ${fmt(r.activeUntil)} · le ${r.daysLeft === 1 ? 'queda 1 día' : `quedan ${r.daysLeft} días`} de gracia`;
   if (r.state === 'expired') return 'Se terminó el acceso';
   return 'Sin acceso hasta que lo actives';
 }
@@ -39,23 +42,28 @@ export const ClientsPanel: React.FC<Props> = ({ onClose, loader = fetchClients }
   const [notice, setNotice] = useState('');
   const [confirmSuspend, setConfirmSuspend] = useState(false);
 
+  const [billing, setBilling] = useState<BillingConfig | null>(null);
+  const [notices, setNotices] = useState<PaymentNotice[]>([]);
+  useEffect(() => subscribeToBilling(setBilling), []);
+
   const load = useCallback(async () => {
     setError('');
     try {
-      setRows(await loader());
+      setRows(await loader(billing?.graceDays ?? DEFAULT_BILLING.graceDays));
+      setNotices(await fetchPendingNotices().catch(() => []));
     } catch (e) {
       console.warn('Error cargando clientes:', e);
       setError('No pude leer los clientes. Revisá que las reglas nuevas estén publicadas y que hayas entrado con tu cuenta de administración.');
       setRows([]);
     }
-  }, [loader]);
+  }, [loader, billing?.graceDays]);
 
   useEffect(() => {
     load();
   }, [load]);
 
   const counts = useMemo(() => {
-    const c: Record<string, number> = { all: rows?.length || 0, trial: 0, active: 0, expired: 0, suspended: 0 };
+    const c: Record<string, number> = { all: rows?.length || 0, trial: 0, active: 0, grace: 0, expired: 0, suspended: 0 };
     rows?.forEach((r) => (c[r.state] += 1));
     return c;
   }, [rows]);
@@ -107,6 +115,48 @@ export const ClientsPanel: React.FC<Props> = ({ onClose, loader = fetchClients }
           </button>
         </header>
 
+        {notices.length > 0 && rows && (
+          <section className="rounded-2xl border-2 border-emerald-600 dark:border-emerald-400 bg-white dark:bg-[#18191E] p-5 flex flex-col gap-3">
+            <h2 className="text-[20px] font-bold">Avisos de pago</h2>
+            {notices.map((n) => {
+              const row = rows.find((r) => r.uid === n.uid);
+              const when = n.createdAt?.toDate ? fmt(n.createdAt.toDate()) : '';
+              return (
+                <div key={n.id} className="flex flex-wrap items-center justify-between gap-3 border-t border-stone-200 dark:border-zinc-700 pt-3 first:border-0 first:pt-0">
+                  <div className="text-[16px] font-medium">
+                    <strong>{n.complexName || n.email}</strong> avisó que pagó {n.currency === 'USD' ? `USD ${n.amount} por Payoneer` : `${formatArs(n.amount)} por transferencia`}
+                    {when ? ` el ${when}` : ''} · plan {n.plan === 'complejo' ? 'Loomi Suite' : 'Loomi'}
+                    {n.currency === 'USD' && n.rate ? ` (MEP ${formatArs(n.rate)})` : ''}
+                  </div>
+                  <div className="flex gap-2">
+                    {row && (
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() =>
+                          run(async () => {
+                            await activateClient(row, 1, n.plan);
+                            await markNoticeHandled(n.id);
+                          }, `${row.complexName}: renovado 1 mes.`)
+                        }
+                        className={primary}
+                      >
+                        Renovar 1 mes
+                      </button>
+                    )}
+                    <button type="button" disabled={busy} onClick={() => run(() => markNoticeHandled(n.id), 'Aviso archivado.')} className={outline}>
+                      Archivar
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+            {notice && !openUid && <p role="status" className="text-[15px] font-bold">{notice}</p>}
+          </section>
+        )}
+
+        {billing && <BillingSettings value={billing} />}
+
         <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filtro por estado">
           {FILTERS.map(([id, label]) => (
             <button
@@ -155,6 +205,7 @@ export const ClientsPanel: React.FC<Props> = ({ onClose, loader = fetchClients }
                       {r.plan ? ` · ${r.plan === 'complejo' ? 'Complejo' : 'Propietario'}` : ''}
                     </span>
                     <span className="text-[14px] font-medium text-stone-800 dark:text-stone-100">{detail(r)}</span>
+                    {notices.some((n) => n.uid === r.uid) && <span className="text-[14px] font-bold text-emerald-800 dark:text-emerald-300">Avisó que pagó</span>}
                   </span>
                 </button>
 
@@ -247,5 +298,85 @@ export const ClientsPanel: React.FC<Props> = ({ onClose, loader = fetchClients }
         </ul>
       </div>
     </div>
+  );
+};
+
+/** Cobro y precios: lo que ven los clientes en "Mi plan". Los datos bancarios viven solo en Firestore (el repo es público). */
+const BillingSettings: React.FC<{ value: BillingConfig }> = ({ value }) => {
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState<BillingConfig>(value);
+  const [msg, setMsg] = useState('');
+  const [saving, setSaving] = useState(false);
+  useEffect(() => setForm(value), [value]);
+
+  const field = 'min-h-[44px] w-full rounded-xl border border-stone-400 dark:border-zinc-500 bg-white dark:bg-zinc-800 px-3 text-[16px] font-semibold text-stone-900 dark:text-stone-50';
+  const lbl = 'flex flex-col gap-1.5 text-[15px] font-bold';
+  const set = (patch: Partial<BillingConfig>) => setForm((f) => ({ ...f, ...patch }));
+  const setPlan = (id: 'propietario' | 'complejo', patch: Partial<{ name: string; price: number }>) =>
+    setForm((f) => ({ ...f, plans: { ...f.plans, [id]: { ...f.plans[id], ...patch } } }));
+
+  const save = async () => {
+    setSaving(true);
+    setMsg('');
+    try {
+      await saveBillingConfig(form);
+      setMsg('Guardado. Los clientes ya lo ven en Mi plan.');
+    } catch {
+      setMsg('No se pudo guardar. Revisá que las reglas nuevas estén publicadas.');
+    }
+    setSaving(false);
+  };
+
+  return (
+    <section className="rounded-2xl border border-stone-300 dark:border-zinc-600 bg-white dark:bg-[#18191E]">
+      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} className="w-full text-left p-5 flex items-center justify-between gap-3 cursor-pointer">
+        <span className="flex flex-col">
+          <span className="text-[18px] font-bold">Cobro y precios</span>
+          <span className="text-[15px] font-medium text-stone-800 dark:text-stone-100">
+            {formatArs(value.plans.propietario.price)} y {formatArs(value.plans.complejo.price)} por mes
+            {!value.alias && !value.cbu ? ' · faltan los datos de transferencia' : ''}
+          </span>
+        </span>
+        <span className="text-[22px] font-bold" aria-hidden>{open ? '−' : '+'}</span>
+      </button>
+      {open && (
+        <div className="border-t border-stone-300 dark:border-zinc-600 p-5 flex flex-col gap-5">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {(['propietario', 'complejo'] as const).map((id) => (
+              <div key={id} className="flex flex-col gap-3">
+                <label className={lbl}>
+                  Plan {id === 'propietario' ? '(propietario)' : '(complejo)'}
+                  <input className={field} value={form.plans[id].name} onChange={(e) => setPlan(id, { name: e.target.value })} />
+                </label>
+                <label className={lbl}>
+                  Precio por mes en pesos
+                  <input className={field} type="number" inputMode="numeric" min={0} value={form.plans[id].price || ''} onChange={(e) => setPlan(id, { price: Number(e.target.value) || 0 })} />
+                </label>
+              </div>
+            ))}
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className={lbl}>Titular<input className={field} value={form.holder} onChange={(e) => set({ holder: e.target.value })} /></label>
+            <label className={lbl}>CUIT/CUIL<input className={field} value={form.cuit} onChange={(e) => set({ cuit: e.target.value })} /></label>
+            <label className={lbl}>Alias<input className={field} value={form.alias} onChange={(e) => set({ alias: e.target.value })} /></label>
+            <label className={lbl}>CBU<input className={field} inputMode="numeric" value={form.cbu} onChange={(e) => set({ cbu: e.target.value.replace(/\s/g, '') })} /></label>
+            <label className={lbl}>Banco (opcional)<input className={field} value={form.bank} onChange={(e) => set({ bank: e.target.value })} /></label>
+            <label className={lbl}>Número de cuenta (opcional)<input className={field} value={form.account} onChange={(e) => set({ account: e.target.value })} /></label>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className={lbl}>Mail de Payoneer (vacío = no se ofrece)<input className={field} type="email" value={form.payoneerEmail} onChange={(e) => set({ payoneerEmail: e.target.value.trim() })} /></label>
+            <label className={lbl}>Descuento por Payoneer (%)<input className={field} type="number" min={0} max={50} value={form.payoneerDiscount} onChange={(e) => set({ payoneerDiscount: Number(e.target.value) || 0 })} /></label>
+            <label className={lbl}>Días de gracia después del vencimiento<input className={field} type="number" min={0} max={30} value={form.graceDays} onChange={(e) => set({ graceDays: Number(e.target.value) || 0 })} /></label>
+            <label className={lbl}>Dólar MEP de respaldo (si no carga el del día)<input className={field} type="number" min={0} value={form.mepFallback || ''} onChange={(e) => set({ mepFallback: Number(e.target.value) || 0 })} /></label>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" disabled={saving} onClick={save} className="min-h-[44px] px-5 rounded-xl text-[15px] font-bold cursor-pointer disabled:opacity-60 bg-[#A94F12] text-white dark:bg-[#F0A46F] dark:text-[#1A1206]">
+              Guardar
+            </button>
+            {msg && <p role="status" className="text-[15px] font-bold">{msg}</p>}
+          </div>
+        </div>
+      )}
+    </section>
   );
 };

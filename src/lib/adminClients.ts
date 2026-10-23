@@ -9,7 +9,7 @@ export function isPlatformAdmin(user: { email?: string | null; emailVerified?: b
   return !!user && user.emailVerified === true && (user.email || '').toLowerCase() === ADMIN_EMAIL;
 }
 
-export type ClientState = 'active' | 'trial' | 'expired' | 'suspended';
+export type ClientState = 'active' | 'trial' | 'grace' | 'expired' | 'suspended';
 
 export interface ClientRow {
   uid: string;
@@ -33,7 +33,7 @@ function toDate(v: any): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
-export async function fetchClients(): Promise<ClientRow[]> {
+export async function fetchClients(graceDays = 0): Promise<ClientRow[]> {
   if (!db) return [];
   const [tenants, subs] = await Promise.all([getDocs(collection(db, 'tenants')), getDocs(collection(db, 'subscriptions'))]);
   const subMap = new Map<string, SubscriptionDoc>();
@@ -50,9 +50,9 @@ export async function fetchClients(): Promise<ClientRow[]> {
     if (sub?.status === 'suspended') {
       state = 'suspended';
     } else {
-      const access = getAccessStatus(null, sub, data.createdAt);
+      const access = getAccessStatus(null, sub, data.createdAt, graceDays);
       state = access.state;
-      if (access.state === 'trial') daysLeft = access.daysLeft;
+      if (access.state === 'trial' || access.state === 'grace') daysLeft = access.daysLeft;
       if (access.state === 'active' && activeUntil) daysLeft = Math.ceil((activeUntil.getTime() - now) / 86400000);
     }
     rows.push({
@@ -69,7 +69,7 @@ export async function fetchClients(): Promise<ClientRow[]> {
     });
   });
   // Primero lo que necesita atención: vencidos, pruebas por terminar, activos
-  const order: Record<ClientState, number> = { expired: 0, trial: 1, suspended: 2, active: 3 };
+  const order: Record<ClientState, number> = { expired: 0, grace: 1, trial: 2, suspended: 3, active: 4 };
   rows.sort((a, b) => order[a.state] - order[b.state] || (a.daysLeft ?? 999) - (b.daysLeft ?? 999) || a.complexName.localeCompare(b.complexName));
   return rows;
 }
@@ -85,10 +85,14 @@ export function addMonths(from: Date, months: number): Date {
   return d;
 }
 
-/** Activa o renueva: cuenta los meses desde hoy, o desde el vencimiento si todavía no venció */
+/** Activa o renueva: cuenta los meses desde hoy, o desde el vencimiento si todavía está activo o en gracia */
 export async function activateClient(row: ClientRow, months: number, plan: 'propietario' | 'complejo'): Promise<void> {
   if (!db) return;
-  const base = row.state === 'active' && row.activeUntil && row.activeUntil.getTime() > Date.now() ? row.activeUntil : new Date();
+  // Activo o en días de gracia: se suma desde el vencimiento (así los días de gracia no se regalan)
+  const base =
+    (row.state === 'active' || row.state === 'grace') && row.activeUntil && row.activeUntil.getTime() > Date.now() - 31 * 86400000
+      ? row.activeUntil
+      : new Date();
   await setDoc(
     doc(db, 'subscriptions', row.uid),
     { status: 'active', plan, activeUntil: Timestamp.fromDate(addMonths(base, months)), updatedAt: serverTimestamp() },

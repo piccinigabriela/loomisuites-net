@@ -45,6 +45,7 @@ import { isAppMode } from './lib/appMode';
 import { auth, onAuthStateChanged, signOut, User } from './lib/firebase';
 import { sendEmailVerification } from 'firebase/auth';
 import { subscribeToSubscription, getAccessStatus, SubscriptionDoc } from './lib/subscription';
+import { BillingConfig, DEFAULT_BILLING, subscribeToBilling } from './lib/billing';
 import { FirstStepsChecklist, getFirstStepsStatus } from './components/onboarding/FirstStepsChecklist';
 import {
   subscribeToTenant,
@@ -147,6 +148,7 @@ const GuestWelcomePortal = lazyNamed(() => import('./components/guide/GuestWelco
 const PublicGuideView = lazyNamed(() => import('./components/guide/PublicGuideView'), 'PublicGuideView');
 const AppAuthScreen = lazyNamed(() => import('./components/auth/AppAuthScreen'), 'AppAuthScreen');
 const TrialEndedScreen = lazyNamed(() => import('./components/auth/TrialEndedScreen'), 'TrialEndedScreen');
+const MyPlanView = lazyNamed(() => import('./components/billing/MyPlanView'), 'MyPlanView');
 const WelcomeScreen = lazyNamed(() => import('./components/onboarding/WelcomeScreen'), 'WelcomeScreen');
 const InviteAcceptScreen = lazyNamed(() => import('./components/team/StaffScreens'), 'InviteAcceptScreen');
 const StaffBlockedScreen = lazyNamed(() => import('./components/team/StaffScreens'), 'StaffBlockedScreen');
@@ -329,13 +331,22 @@ export default function App() {
   // Limpieza no lee el documento del complejo: nombre, horarios y fecha de alta le llegan por staff/complejo
   const [staffComplex, setStaffComplex] = useState<StaffComplexDoc | null>(null);
 
+  // Cobro del abono (precios, datos de pago, días de gracia): config/billing, la edita la administración
+  const [billing, setBilling] = useState<BillingConfig>(DEFAULT_BILLING);
+  const [myPlanOpen, setMyPlanOpen] = useState(false);
+  useEffect(() => {
+    if (!isApp || !currentUser) return;
+    return subscribeToBilling(setBilling);
+  }, [isApp, currentUser]);
+
   // El personal usa la suscripción del complejo (y su fecha de alta para la prueba gratis)
   const accessStatus =
     isApp && currentUser
       ? getAccessStatus(
           currentUser,
           subscriptionDoc,
-          staffRole === 'limpieza' ? staffComplex?.trialStart : isStaff ? tenantDoc?.createdAt : undefined
+          staffRole === 'limpieza' ? staffComplex?.trialStart : isStaff ? tenantDoc?.createdAt : undefined,
+          billing.graceDays
         )
       : null;
 
@@ -2114,6 +2125,19 @@ export default function App() {
       <TrialEndedScreen
         email={currentUser.email || ''}
         onSignOut={handleLogout}
+        paused={subscriptionDoc?.status === 'active' || subscriptionDoc?.status === 'suspended'}
+        planSlot={
+          subscriptionDoc?.status === 'suspended' ? undefined : (
+            <MyPlanView
+              uid={currentUser.uid}
+              email={currentUser.email || ''}
+              complexName={tenantDoc?.complexName || demoState.welcomeGuide?.propertyName || ''}
+              subscription={subscriptionDoc}
+              access={accessStatus}
+              billing={billing}
+            />
+          )
+        }
       />
     );
   }
@@ -2159,25 +2183,44 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans antialiased selection:bg-rose-500 selection:text-white transition-colors">
-      {/* Barra superior fina para prueba gratis */}
-      {isApp && !isStaff && accessStatus?.state === 'trial' && (
-        <div className="bg-amber-50 border-b border-amber-200 text-amber-900 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-300 py-1.5 px-4 text-center text-xs font-medium flex items-center justify-center gap-2 relative z-50">
+      {isApp && currentUser && myPlanOpen && (
+        <Suspense fallback={null}>
+          <MyPlanView
+            uid={currentUser.uid}
+            email={currentUser.email || ''}
+            complexName={tenantDoc?.complexName || demoState.welcomeGuide?.propertyName || ''}
+            subscription={subscriptionDoc}
+            access={accessStatus}
+            billing={billing}
+            onClose={() => setMyPlanOpen(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* Avisos del plan: prueba gratis, vence pronto, días de gracia */}
+      {isApp && !isStaff && accessStatus && (accessStatus.state === 'trial' || accessStatus.state === 'grace' || (accessStatus.state === 'active' && accessStatus.until && accessStatus.daysLeft <= 5)) && (
+        <div
+          className={`py-2 px-4 text-center text-sm font-semibold flex flex-wrap items-center justify-center gap-x-2 gap-y-1 relative z-50 border-b ${
+            accessStatus.state === 'grace'
+              ? 'bg-rose-50 border-rose-300 text-rose-950 dark:bg-rose-950/50 dark:border-rose-800 dark:text-rose-100'
+              : 'bg-amber-50 border-amber-200 text-amber-950 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-100'
+          }`}
+        >
           <span>
-            {accessStatus.daysLeft === 1
-              ? 'Último día de prueba gratis'
-              : `Te quedan ${accessStatus.daysLeft} días de prueba gratis`}
+            {accessStatus.state === 'trial'
+              ? accessStatus.daysLeft === 1
+                ? 'Último día de prueba gratis'
+                : `Te quedan ${accessStatus.daysLeft} días de prueba gratis`
+              : accessStatus.state === 'grace'
+              ? `Tu plan venció. Tenés ${accessStatus.daysLeft} ${accessStatus.daysLeft === 1 ? 'día' : 'días'} para pagar antes de que se pause la cuenta`
+              : accessStatus.daysLeft <= 1
+              ? 'Tu plan vence mañana'
+              : `Tu plan vence en ${accessStatus.daysLeft} días`}
           </span>
-          <span>·</span>
-          <a
-            href={`https://api.whatsapp.com/send?phone=5491140925939&text=${encodeURIComponent(
-              `Hola, quiero activar mi plan de Loomi Suite. Mi email: ${currentUser?.email || ''}`
-            )}`}
-            target="_blank"
-            rel="noreferrer"
-            className="font-bold underline text-amber-950 dark:text-amber-300 dark:hover:text-amber-200 transition-colors cursor-pointer"
-          >
-            Activar plan
-          </a>
+          <span aria-hidden>·</span>
+          <button type="button" onClick={() => setMyPlanOpen(true)} className="font-bold underline underline-offset-2 cursor-pointer">
+            {accessStatus.state === 'trial' ? 'Activar plan' : 'Pagar'}
+          </button>
         </div>
       )}
 
@@ -2409,6 +2452,7 @@ export default function App() {
             handleSetMobileMode('full');
           }}
           onSwitchToFullView={() => handleSetMobileMode('full')}
+          onOpenMyPlan={isApp && !isStaff ? () => setMyPlanOpen(true) : undefined}
           theme={theme}
           onToggleTheme={toggleTheme}
           complexName={demoState.welcomeGuide?.propertyName || 'Mi complejo'}
@@ -2673,6 +2717,7 @@ export default function App() {
                       ...(isApp
                         ? [
                             { label: currentUser?.email || 'Mi cuenta', onClick: () => {}, note: true },
+                            ...(!isStaff ? [{ label: 'Mi plan', onClick: () => setMyPlanOpen(true) }] : []),
                             ...(isPlatformAdmin(currentUser) ? [{ label: 'Clientes de Loomi', onClick: () => setClientsPanelOpen(true) }] : []),
                             { label: 'Cerrar sesión', onClick: handleLogout, danger: true },
                           ]

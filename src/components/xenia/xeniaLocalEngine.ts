@@ -653,23 +653,18 @@ ${pendingPayments.length > 0 ? `⚠️ **Cobros y Saldos Pendientes:** Tenés ${
       q.includes('paypal')) &&
     !isEditingAction
   ) {
-    return `### 🏷️ Planes y Precios Transparentes de Loomi Suite (Complejo Entero)
+    return `### 🏷️ Planes de Loomi Suite
 
-En Loomi tenemos **2 planes fijos por complejo entero** en **pesos argentinos (ARS)** (sin cobrar por habitación y sin comisiones por reserva):
+Dos planes con precio fijo por todo el complejo, en pesos (sin cobro por unidad ni comisiones por reserva):
 
-1. **🏡 Plan Loomi:** **$45.000 / mes (Final ARS)**
-   - Enfocado en dueños de 4 a 10 unidades sin personal.
-   - Incluye calendario en modo light (optimizado para celular), gestión de reservas directas, sincronización iCal con portales y reportes de rendimiento básicos.
-   - *No incluye módulo de housekeeping ni modo recepción multiusuario.*
+1. **Loomi:** **$45.000 por mes.** Para dueños de hasta 5 unidades sin personal.
+2. **Loomi Suite:** **$60.000 por mes.** Para complejos con recepción y limpieza: cada persona entra con su cuenta.
 
-2. **🏢 Plan Loomi Suite:** **$60.000 / mes (Final ARS)**
-   - Todo el ecosistema ilimitado para complejos medianos y grandes.
-   - Incluye Módulo Housekeeping en vivo (semáforo y tareas de limpieza), Modo Recepción con roles separados, Asistente Xenia AI (voz y copiloto 24/7) y web propia con Portal de Bienvenida del Huésped.
+Los precios se ajustan por IPC cada 3 meses. La prueba gratis dura **7 días**.
 
-**Formas de Pago y Cobro:**
-- 💳 **Tu abono a Loomi:** Se abona mensualmente mediante **Transferencia Bancaria directa** (CBU/CVU o Alias) en Argentina, o por **PayPal** para el exterior. Precio fijo por todo el complejo sin costos sorpresa.
-- 💰 **Cobros a tus Huéspedes:** Tus pasajeros te pagan directo a tu cuenta: **Mercado Pago**, CBU/Alias bancario o efectivo. Loomi no cobra ningún porcentaje sobre tus ventas (0% comisión).
-- ✅ **Sin tarjeta de crédito para arrancar:** Probás 15 días gratis sin ingresar datos de pago.`;
+**Cómo se paga:** por **transferencia** o en dólares por **Payoneer** (con 10% de descuento, al dólar MEP del día). Los datos están en **Mi plan**, en el menú de tu cuenta; cuando pagás, tocás **"Ya pagué"** y lo confirmamos.
+
+**Cobros a tus huéspedes:** te pagan directo a vos. Loomi no cobra ningún porcentaje sobre tus reservas.`;
   }
 
   // 4. LLAVES FÍSICAS vs CERRADURAS DIGITALES

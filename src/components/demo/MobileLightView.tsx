@@ -53,6 +53,8 @@ interface MobileLightViewProps {
   onToggleCleaningStatus: (taskId: string, currentStatus: string) => void;
   onOpenMessagesWithGuest: (resId: string) => void;
   onSwitchToFullView: () => void;
+  /** Mi plan (abono de Loomi): solo el dueño en la app real */
+  onOpenMyPlan?: () => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
   complexName: string;
@@ -85,6 +87,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
   onToggleCleaningStatus,
   onOpenMessagesWithGuest,
   onSwitchToFullView,
+  onOpenMyPlan,
   theme,
   onToggleTheme,
   complexName,
@@ -639,6 +642,18 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                   title: 'Estado de cabañas & Wi-Fi',
                   sub: 'Ver disponibilidad y claves',
                 },
+                ...(onOpenMyPlan
+                  ? [
+                      {
+                        key: 'myplan',
+                        onClick: onOpenMyPlan,
+                        icon: <CreditCard className="w-5 h-5" />,
+                        tone: 'bg-[#E4DDD1] text-[#3A352D] dark:bg-zinc-700 dark:text-gray-100',
+                        title: 'Mi plan de Loomi',
+                        sub: 'Vencimiento y cómo pagar',
+                      },
+                    ]
+                  : []),
                 {
                   key: 'pay',
                   onClick: () => setPaySheetOpen(true),

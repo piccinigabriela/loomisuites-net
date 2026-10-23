@@ -167,6 +167,23 @@ await caso('el dueño borra su página y libera el nombre', true, async () => {
   return deleteDoc(doc(dueno, 'siteOwners/catalinas'));
 });
 
+console.log('\nCobro del abono');
+const adminCobro = as('admin', 'piccini.gabriela@gmail.com');
+const aviso = (uid, extra = {}) => ({ uid, complexName: 'Catalinas', email: 'dueno@x.com', plan: 'propietario', method: 'transferencia', amount: 45000, currency: 'ARS', rate: 0, createdAt: serverTimestamp(), ...extra });
+await caso('administración guarda precios y datos de cobro', true, () => setDoc(doc(adminCobro, 'config/billing'), { alias: 'loomi.suite', graceDays: 5 }));
+await caso('un cliente con sesión lee los datos de cobro', true, () => getDoc(doc(dueno, 'config/billing')));
+await caso('sin sesión NO se leen los datos de cobro', false, () => getDoc(doc(env.unauthenticatedContext().firestore(), 'config/billing')));
+await caso('un cliente NO cambia los precios', false, () => setDoc(doc(dueno, 'config/billing'), { alias: 'otro' }, { merge: true }));
+await caso('el cliente avisa que pagó', true, () => setDoc(doc(dueno, 'paymentNotices/a1'), aviso('dueno')));
+await caso('NO avisa a nombre de otro', false, () => setDoc(doc(otro, 'paymentNotices/a2'), aviso('dueno')));
+await caso('NO se marca solo como resuelto', false, () => setDoc(doc(dueno, 'paymentNotices/a3'), { ...aviso('dueno'), handled: true }));
+await caso('NO inventa medios de pago', false, () => setDoc(doc(dueno, 'paymentNotices/a4'), aviso('dueno', { method: 'bitcoin' })));
+await caso('el cliente ve sus avisos', true, () => getDocs(query(collection(dueno, 'paymentNotices'), where('uid', '==', 'dueno'))));
+await caso('otro NO ve los avisos del cliente', false, () => getDoc(doc(otro, 'paymentNotices/a1')));
+await caso('el cliente NO edita su aviso', false, () => updateDoc(doc(dueno, 'paymentNotices/a1'), { amount: 1 }));
+await caso('administración ve todos los avisos', true, () => getDocs(collection(adminCobro, 'paymentNotices')));
+await caso('administración archiva un aviso', true, () => updateDoc(doc(adminCobro, 'paymentNotices/a1'), { handled: true }));
+
 console.log('\nQuitar acceso');
 await caso('un extraño NO puede quitar accesos', false, () => deleteDoc(doc(intruso, 'memberships/juan')));
 await caso('el dueño le quita el acceso a Recepción', true, () => deleteDoc(doc(dueno, 'memberships/juan')));

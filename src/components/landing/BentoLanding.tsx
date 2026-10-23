@@ -850,12 +850,14 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] font-medium text-[#AD5410] dark:text-[#E67E22] uppercase tracking-wider">{p.badge}</span>
-                          <span className="text-xs font-mono text-slate-700 dark:text-zinc-400 font-semibold">USD {p.usd}</span>
                         </div>
                         <h3 className="text-base font-semibold text-gray-900 dark:text-white">{p.name}</h3>
                         <div className="text-2xl font-light text-gray-900 dark:text-white">
                           ${p.price.toLocaleString('es-AR')} <span className="text-xs font-semibold text-slate-700 dark:text-zinc-400">/mes (Final ARS)</span>
                         </div>
+                        <p className="text-xs font-semibold text-slate-800 dark:text-zinc-300">
+                          Ajuste por IPC cada 3 meses · o en dólares por Payoneer con 10% de descuento
+                        </p>
                         <p className="text-xs text-slate-700 dark:text-zinc-300 leading-relaxed pt-1.5 border-t border-gray-100 dark:border-white/5 font-medium">
                           {p.description}
                         </p>

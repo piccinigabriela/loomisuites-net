@@ -44,6 +44,14 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   `subscriptions/{uid}.webDesigns` desde el Panel de clientes (solo administración). Sin habilitar, se publica Noche.
   `DirectBookingLanding.tsx` es la maqueta vieja: ya no se usa en la app ni en la demo.
 
+- Cobro del abono: `src/lib/billing.ts`. `config/billing` (precios en pesos por plan, datos de transferencia, mail de Payoneer,
+  descuento, días de gracia, MEP de respaldo) lo edita la administración en Panel de clientes → Cobro y precios; lo leen usuarios con sesión.
+  Los datos bancarios NO van en el código (el repo es público). Pantalla "Mi plan" (`components/billing/MyPlanView.tsx`): menú de la
+  cuenta, Más (celular), avisos de vencimiento y pantalla de cuenta pausada. "Ya pagué" crea `paymentNotices/{id}`; el Panel lo muestra
+  con "Renovar 1 mes". Payoneer en USD = precio ÷ MEP del día (`functions/api/mep.js`, lee dolarapi.com) − descuento.
+  Días de gracia: `getAccessStatus(..., graceDays)` devuelve `grace` (sigue entrando, con aviso) antes de `expired`.
+  Precios de la landing (`BentoLanding.tsx`) están fijos en el código: si cambian por IPC, actualizarlos también ahí.
+
 ## Verificar antes de subir
 1. `npx tsc --noEmit`
 2. `npm run build` (incluye la landing prearmada; `npx vite build` solo no la prueba)
@@ -58,7 +66,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
 más las líneas de atribución que indique la sesión. Después `git push origin main`.
 
 ## Decisiones tomadas
-- Prueba de 7 días; la activación se hace a mano en Firestore (`subscriptions/{uid}`).
+- Prueba de 7 días; la activación se hace desde el Panel de clientes (`subscriptions/{uid}`).
+- Cobro: transferencia (pesos, ajuste por IPC cada 3 meses) o Payoneer (dólares al MEP del día, 10% de descuento). Sin Mercado Pago ni PayPal por ahora.
 - Una moneda de liquidación por complejo. AFIP no interesa.
 - "Tu Web": consulta de disponibilidad + precio + pedido por WhatsApp (sin cobro ni confirmación automática: con iCal cada
   15 min habría riesgo de doble reserva). Probada con Catalinas el 23/10: la landing ya no dice "próximamente".
