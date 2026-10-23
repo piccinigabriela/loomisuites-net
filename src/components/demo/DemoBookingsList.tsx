@@ -175,15 +175,15 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
   const getPlatformLabel = (platform: BookingPlatform) => {
     switch (platform) {
       case 'airbnb':
-        return 'airbnb API';
+        return 'Airbnb';
       case 'booking':
         return 'Booking.com';
       case 'vrbo':
-        return 'VRBO Sync';
+        return 'VRBO';
       case 'direct':
-        return 'Directa Web';
+        return 'Directa';
       default:
-        return 'iCal Sync';
+        return 'Otro portal';
     }
   };
 

@@ -276,6 +276,8 @@ export interface DemoState {
   /** Planilla de tarifas (ver src/lib/pricing.ts) */
   pricing?: import('./lib/pricing').PricingSettings;
   lastUpdated: string;
+  /** Solo demo: día (YYYY-MM-DD) al que corresponden las fechas guardadas; si cambia, se corren hasta hoy */
+  seedDate?: string;
 }
 
 export type ReminderRepeat = 'none' | 'weekly' | 'biweekly' | 'monthly' | 'yearly';

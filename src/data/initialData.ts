@@ -1046,11 +1046,46 @@ export const INITIAL_CASH_MOVEMENTS: CashMovement[] = [
   },
 ];
 
+/** Corre una fecha YYYY-MM-DD (o el día de un ISO) n días */
+function shiftDateStr(v: unknown, days: number): unknown {
+  if (typeof v !== 'string' || !/^\d{4}-\d{2}-\d{2}/.test(v)) return v;
+  const [y, m, d] = v.slice(0, 10).split('-').map(Number);
+  const date = new Date(y, m - 1, d + days);
+  return toLocalDateStr(date) + v.slice(10);
+}
+
+function daysBetween(a: string, b: string): number {
+  const [y1, m1, d1] = a.split('-').map(Number);
+  const [y2, m2, d2] = b.split('-').map(Number);
+  return Math.round((new Date(y2, m2 - 1, d2).getTime() - new Date(y1, m1 - 1, d1).getTime()) / 86400000);
+}
+
+/**
+ * La demo guarda sus datos en el navegador: si se abre otro día, todas las fechas se corren hasta hoy
+ * (así siempre hay ingresos y salidas alrededor de hoy, y se conservan los cambios que hizo la persona).
+ */
+function shiftDemoToToday(state: any): any {
+  const today = getRelativeDate(0);
+  if (!state.seedDate) return null; // datos de antes de este arreglo: se arman de nuevo
+  const days = daysBetween(state.seedDate, today);
+  if (days === 0) return state;
+  const sh = (v: unknown) => shiftDateStr(v, days);
+  return {
+    ...state,
+    reservations: (state.reservations || []).map((r: any) => ({ ...r, checkIn: sh(r.checkIn), checkOut: sh(r.checkOut), createdAt: sh(r.createdAt) })),
+    cleaningTasks: (state.cleaningTasks || []).map((t: any) => ({ ...t, date: sh(t.date) })),
+    cashMovements: (state.cashMovements || []).map((c: any) => ({ ...c, date: sh(c.date) })),
+    reminders: (state.reminders || []).map((r: any) => ({ ...r, date: sh(r.date) })),
+    seedDate: today,
+  };
+}
+
 export function getDemoState(): DemoState {
   try {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
+    const shifted = saved ? shiftDemoToToday(JSON.parse(saved)) : null;
+    if (shifted) {
+      const parsed = shifted;
       // Ensure properties array exists
       if (!parsed.properties || !Array.isArray(parsed.properties) || parsed.properties.length === 0) {
         parsed.properties = INITIAL_PROPERTIES;
@@ -1078,6 +1113,9 @@ export function getDemoState(): DemoState {
       if (!parsed.cashMovements || !Array.isArray(parsed.cashMovements)) {
         parsed.cashMovements = INITIAL_CASH_MOVEMENTS;
       }
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(parsed));
+      } catch {}
       return parsed;
     }
   } catch (e) {
@@ -1095,6 +1133,7 @@ export function getDemoState(): DemoState {
     cashMovements: INITIAL_CASH_MOVEMENTS,
     currencySettings: { settlementCurrency: 'USD', rates: {} },
     lastUpdated: new Date().toISOString(),
+    seedDate: getRelativeDate(0),
   };
 
   try {
@@ -1124,6 +1163,7 @@ export function resetDemoState(): DemoState {
     cashMovements: INITIAL_CASH_MOVEMENTS,
     currencySettings: { settlementCurrency: 'USD', rates: {} },
     lastUpdated: new Date().toISOString(),
+    seedDate: getRelativeDate(0),
   };
   saveDemoState(freshState);
   return freshState;
