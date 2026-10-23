@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ClientRow, ClientState, activateClient, fetchClients, saveClientNote, saveClientWebDesigns, suspendClient } from '../../lib/adminClients';
 import { SPECIAL_THEMES } from '../../lib/publicSite';
-import { BillingConfig, DEFAULT_BILLING, PaymentNotice, fetchPendingNotices, formatArs, markNoticeHandled, saveBillingConfig, subscribeToBilling } from '../../lib/billing';
+import { BillingConfig, DEFAULT_BILLING, PaymentNotice, fetchPendingNotices, formatArs, formatUsd, markNoticeHandled, saveBillingConfig, subscribeToBilling } from '../../lib/billing';
 
 interface Props {
   onClose: () => void;
@@ -124,9 +124,9 @@ export const ClientsPanel: React.FC<Props> = ({ onClose, loader = fetchClients }
               return (
                 <div key={n.id} className="flex flex-wrap items-center justify-between gap-3 border-t border-stone-200 dark:border-zinc-700 pt-3 first:border-0 first:pt-0">
                   <div className="text-[16px] font-medium">
-                    <strong>{n.complexName || n.email}</strong> avisó que pagó {n.currency === 'USD' ? `USD ${n.amount} por Payoneer` : `${formatArs(n.amount)} por transferencia`}
+                    <strong>{n.complexName || n.email}</strong> avisó que pagó {n.currency === 'USD' ? `${formatUsd(n.amount)} por Payoneer` : `${formatArs(n.amount)} por transferencia`}
                     {when ? ` el ${when}` : ''} · plan {n.plan === 'complejo' ? 'Loomi Suite' : 'Loomi'}
-                    {n.currency === 'USD' && n.rate ? ` (MEP ${formatArs(n.rate)})` : ''}
+                    {n.currency === 'ARS' && n.rate ? ` (MEP ${formatArs(n.rate)})` : ''}
                   </div>
                   <div className="flex gap-2">
                     {row && (
@@ -312,7 +312,7 @@ const BillingSettings: React.FC<{ value: BillingConfig }> = ({ value }) => {
   const field = 'min-h-[44px] w-full rounded-xl border border-stone-400 dark:border-zinc-500 bg-white dark:bg-zinc-800 px-3 text-[16px] font-semibold text-stone-900 dark:text-stone-50';
   const lbl = 'flex flex-col gap-1.5 text-[15px] font-bold';
   const set = (patch: Partial<BillingConfig>) => setForm((f) => ({ ...f, ...patch }));
-  const setPlan = (id: 'propietario' | 'complejo', patch: Partial<{ name: string; price: number }>) =>
+  const setPlan = (id: 'propietario' | 'complejo', patch: Partial<{ name: string; usd: number }>) =>
     setForm((f) => ({ ...f, plans: { ...f.plans, [id]: { ...f.plans[id], ...patch } } }));
 
   const save = async () => {
@@ -333,7 +333,7 @@ const BillingSettings: React.FC<{ value: BillingConfig }> = ({ value }) => {
         <span className="flex flex-col">
           <span className="text-[18px] font-bold">Cobro y precios</span>
           <span className="text-[15px] font-medium text-stone-800 dark:text-stone-100">
-            {formatArs(value.plans.propietario.price)} y {formatArs(value.plans.complejo.price)} por mes
+            {formatUsd(value.plans.propietario.usd)} y {formatUsd(value.plans.complejo.usd)} por mes
             {!value.alias && !value.cbu ? ' · faltan los datos de transferencia' : ''}
           </span>
         </span>
@@ -349,8 +349,8 @@ const BillingSettings: React.FC<{ value: BillingConfig }> = ({ value }) => {
                   <input className={field} value={form.plans[id].name} onChange={(e) => setPlan(id, { name: e.target.value })} />
                 </label>
                 <label className={lbl}>
-                  Precio por mes en pesos
-                  <input className={field} type="number" inputMode="numeric" min={0} value={form.plans[id].price || ''} onChange={(e) => setPlan(id, { price: Number(e.target.value) || 0 })} />
+                  Precio por mes en dólares
+                  <input className={field} type="number" inputMode="decimal" min={0} value={form.plans[id].usd || ''} onChange={(e) => setPlan(id, { usd: Number(e.target.value) || 0 })} />
                 </label>
               </div>
             ))}

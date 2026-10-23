@@ -66,7 +66,6 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
       id: 'plan-simple',
       name: 'Loomi',
       tag: 'Hasta 5 unidades • Dueños sin personal',
-      price: 45000,
       usd: 30,
       highlight: false,
       badge: 'PLAN PROPIETARIO • HASTA 5 U.',
@@ -83,8 +82,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
       id: 'plan-suite',
       name: 'Loomi Suite',
       tag: 'Unidades Ilimitadas • Complejo Total',
-      price: 60000,
-      usd: 40,
+      usd: 45,
       highlight: true,
       badge: 'RECOMENDADO • TODO INCLUIDO',
       description: 'La solución definitiva para complejos que operan con personal de recepción y equipos de limpieza. Ecosistema ilimitado.',
@@ -462,10 +460,10 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             <div className="my-auto py-2 space-y-1">
               <div className="flex items-baseline gap-1.5">
                 <span className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
-                  $45.000
+                  USD 30
                 </span>
                 <span className="text-xs text-slate-700 dark:text-zinc-400 font-medium">
-                  /mes (~USD 30)
+                  /mes
                 </span>
               </div>
               <h3 className="text-xs font-semibold text-slate-900 dark:text-zinc-200">
@@ -853,10 +851,10 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                         </div>
                         <h3 className="text-base font-semibold text-gray-900 dark:text-white">{p.name}</h3>
                         <div className="text-2xl font-light text-gray-900 dark:text-white">
-                          ${p.price.toLocaleString('es-AR')} <span className="text-xs font-semibold text-slate-700 dark:text-zinc-400">/mes (Final ARS)</span>
+                          USD {p.usd} <span className="text-xs font-semibold text-slate-700 dark:text-zinc-400">/mes</span>
                         </div>
                         <p className="text-xs font-semibold text-slate-800 dark:text-zinc-300">
-                          Ajuste por IPC cada 3 meses · o en dólares por Payoneer con 10% de descuento
+                          En pesos al dólar MEP del día, o por Payoneer con 10% de descuento
                         </p>
                         <p className="text-xs text-slate-700 dark:text-zinc-300 leading-relaxed pt-1.5 border-t border-gray-100 dark:border-white/5 font-medium">
                           {p.description}
@@ -877,7 +875,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
 
                 <div className="space-y-3 text-xs">
                   {[
-                    ['¿El precio es en pesos o en dólares?', 'Se cobra en pesos. La referencia en dólares es solo orientativa. El precio se actualiza según el IPC.'],
+                    ['¿El precio es en pesos o en dólares?', 'El precio es en dólares. Lo pagás en pesos por transferencia, al dólar MEP del día, o en dólares por Payoneer con 10% de descuento.'],
                     ['¿Loomi emite facturas de AFIP / ARCA?', 'No. Loomi organiza reservas, cobros y equipo. Si facturás, seguís usando tu facturador de siempre.'],
                     ['¿Cuántos usuarios incluye?', 'El plan Loomi incluye 2 usuarios. Loomi Suite incluye los que necesite tu equipo: recepción, limpieza y administración.'],
                     ['¿Cómo es el soporte?', 'Por WhatsApp, de 8 a 22 hs (hora de Argentina), con una persona real que conoce el sistema.'],

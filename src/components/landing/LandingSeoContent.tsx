@@ -42,7 +42,7 @@ export const LandingSeoContent: React.FC = () => (
     </ul>
     <h2>Planes y prueba gratis</h2>
     <p>
-      Hay dos planes mensuales en pesos argentinos, sin comisión por reserva: uno para propietarios que atienden solos y otro para complejos con personal de recepción y limpieza. Los valores vigentes están en la sección Planes de <a href="https://loomisuite.net/">loomisuite.net</a>. La prueba es gratis por 7 días.
+      Hay dos planes mensuales con precio en dólares, sin comisión por reserva: uno para propietarios que atienden solos y otro para complejos con personal de recepción y limpieza. Los valores vigentes están en la sección Planes de <a href="https://loomisuite.net/">loomisuite.net</a>. Se pagan por transferencia en pesos, al dólar MEP del día, o en dólares por Payoneer con 10% de descuento. La prueba es gratis por 7 días.
     </p>
     <h2>Preguntas frecuentes</h2>
     {FAQ.map(([q, a]) => (

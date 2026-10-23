@@ -655,14 +655,14 @@ ${pendingPayments.length > 0 ? `⚠️ **Cobros y Saldos Pendientes:** Tenés ${
   ) {
     return `### 🏷️ Planes de Loomi Suite
 
-Dos planes con precio fijo por todo el complejo, en pesos (sin cobro por unidad ni comisiones por reserva):
+Dos planes con precio fijo por todo el complejo, en dólares (sin cobro por unidad ni comisiones por reserva):
 
-1. **Loomi:** **$45.000 por mes.** Para dueños de hasta 5 unidades sin personal.
-2. **Loomi Suite:** **$60.000 por mes.** Para complejos con recepción y limpieza: cada persona entra con su cuenta.
+1. **Loomi:** **USD 30 por mes.** Para dueños de hasta 5 unidades sin personal.
+2. **Loomi Suite:** **USD 45 por mes.** Para complejos con recepción y limpieza: cada persona entra con su cuenta.
 
-Los precios se ajustan por IPC cada 3 meses. La prueba gratis dura **7 días**.
+La prueba gratis dura **7 días**.
 
-**Cómo se paga:** por **transferencia** o en dólares por **Payoneer** (con 10% de descuento, al dólar MEP del día). Los datos están en **Mi plan**, en el menú de tu cuenta; cuando pagás, tocás **"Ya pagué"** y lo confirmamos.
+**Cómo se paga:** por **transferencia en pesos**, al dólar MEP del día, o en dólares por **Payoneer**, con 10% de descuento. Los datos están en **Mi plan**, en el menú de tu cuenta; cuando pagás, tocás **"Ya pagué"** y lo confirmamos.
 
 **Cobros a tus huéspedes:** te pagan directo a vos. Loomi no cobra ningún porcentaje sobre tus reservas.`;
   }
@@ -941,7 +941,7 @@ Puedo responderte al instante sobre cualquier tema operativo o comercial:
 2. **💰 Ganancias y Finanzas:** Pregúntame *"¿Cuál es mi ganancia en octubre?"*, cuánta plata ingresó o cuánto ahorraste en comisiones de Airbnb y Booking.
 3. **🔑 Llaves y Limpieza:** Pregúntame cómo operar con llaves comunes tradicionales o cómo coordinar la limpieza.
 4. **🔄 Sincronización:** Pregúntame cómo conectar Booking y Airbnb para evitar dobles reservas.
-5. **🏷️ Planes y Precios:** Pregúntame cuánto cuesta Loomi ($45.000 ARS/mes) o Loomi Suite ($60.000 ARS/mes) y cómo se paga por transferencia o Mercado Pago.
+5. **🏷️ Planes y Precios:** Preguntame cuánto cuesta Loomi (USD 30 por mes) o Loomi Suite (USD 45 por mes) y cómo se paga.
 
 *¿Qué te gustaría consultar o resolver?*`;
 }

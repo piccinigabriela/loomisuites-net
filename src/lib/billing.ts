@@ -2,10 +2,11 @@
  * Cobro del abono de Loomi a cada cliente.
  *
  * - config/billing (la edita solo la administración desde el Panel de clientes; la leen los usuarios con sesión):
- *   precios de los planes en pesos (se ajustan por IPC), datos de transferencia, mail de Payoneer, descuento y días de gracia.
+ *   precios de los planes en dólares, datos de transferencia, mail de Payoneer, descuento y días de gracia.
  *   Los datos bancarios NO van en el código: el repo es público.
  * - paymentNotices/{id}: el cliente avisa "Ya pagué" desde Mi plan; la administración lo ve en el Panel y renueva.
- * - Payoneer: el monto en dólares sale del precio en pesos ÷ dólar MEP del día, menos el descuento.
+ * - Transferencia: en pesos, precio en dólares × dólar MEP del día (redondeado a $100).
+ * - Payoneer: en dólares, precio menos el descuento.
  */
 import { addDoc, collection, doc, getDocs, onSnapshot, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore';
 import { db } from './firebase';
@@ -14,7 +15,8 @@ export type PlanId = 'propietario' | 'complejo';
 export type PayMethod = 'transferencia' | 'payoneer';
 
 export interface BillingConfig {
-  plans: Record<PlanId, { name: string; price: number }>;
+  /** Precio por mes en dólares */
+  plans: Record<PlanId, { name: string; usd: number }>;
   holder: string;
   cuit: string;
   alias: string;
@@ -32,8 +34,8 @@ export interface BillingConfig {
 
 export const DEFAULT_BILLING: BillingConfig = {
   plans: {
-    propietario: { name: 'Loomi', price: 45000 },
-    complejo: { name: 'Loomi Suite', price: 60000 },
+    propietario: { name: 'Loomi', usd: 30 },
+    complejo: { name: 'Loomi Suite', usd: 45 },
   },
   holder: '',
   cuit: '',
@@ -52,7 +54,7 @@ export function normalizeBilling(raw: any): BillingConfig {
   const r = raw || {};
   const plan = (id: PlanId) => ({
     name: String(r.plans?.[id]?.name || d.plans[id].name),
-    price: Number(r.plans?.[id]?.price) > 0 ? Number(r.plans[id].price) : d.plans[id].price,
+    usd: Number(r.plans?.[id]?.usd) > 0 ? Number(r.plans[id].usd) : d.plans[id].usd,
   });
   const num = (v: any, def: number) => (Number.isFinite(Number(v)) && v !== '' && v !== null && v !== undefined ? Number(v) : def);
   return {
@@ -123,10 +125,19 @@ export async function fetchMep(fallback: number): Promise<MepQuote | null> {
   return fallback > 0 ? { rate: fallback, source: 'respaldo', date: '' } : null;
 }
 
-/** Monto en dólares por Payoneer: precio en pesos ÷ MEP, menos el descuento, redondeado a dólares enteros */
-export function usdAmount(priceArs: number, mep: number, discountPct: number): number {
-  if (!(priceArs > 0) || !(mep > 0)) return 0;
-  return Math.round((priceArs / mep) * (1 - discountPct / 100));
+/** Monto en pesos por transferencia: precio en dólares × MEP del día, redondeado a $100 */
+export function arsAmount(usd: number, mep: number): number {
+  if (!(usd > 0) || !(mep > 0)) return 0;
+  return Math.round((usd * mep) / 100) * 100;
+}
+
+/** Monto en dólares por Payoneer: precio menos el descuento, con centavos si hacen falta */
+export function payoneerAmount(usd: number, discountPct: number): number {
+  return Math.round(usd * (1 - discountPct / 100) * 100) / 100;
+}
+
+export function formatUsd(n: number): string {
+  return `USD ${Number.isInteger(n) ? n : n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 // ---------------------------------------------------------------------------

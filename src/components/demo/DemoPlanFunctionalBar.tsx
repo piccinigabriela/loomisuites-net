@@ -268,7 +268,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                       Plan Propietario • Loomi
                     </span>
                     <span className="text-xs font-mono font-bold text-[#E67E22]">
-                      $45.000 ARS / mes
+                      USD 30 / mes
                     </span>
                   </div>
                   <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 max-w-2xl leading-relaxed font-medium">
@@ -330,7 +330,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                       Plan Complejo • Loomi Suite
                     </span>
                     <span className="text-xs font-mono font-bold text-[#E67E22]">
-                      $60.000 ARS / mes
+                      USD 45 / mes
                     </span>
                   </div>
                   <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 max-w-2xl leading-relaxed font-medium">

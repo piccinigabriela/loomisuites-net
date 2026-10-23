@@ -1,5 +1,5 @@
 /**
- * Mi plan: estado del abono, cómo pagar (transferencia o Payoneer con el MEP del día) y "Ya pagué".
+ * Mi plan: estado del abono (precio en dólares), cómo pagar (transferencia en pesos al MEP del día, o Payoneer con descuento) y "Ya pagué".
  * Se abre desde el menú de la cuenta, desde el aviso de vencimiento y desde la pantalla de cuenta pausada.
  */
 import React, { useEffect, useState } from 'react';
@@ -15,7 +15,9 @@ import {
   PaymentNotice,
   PlanId,
   sendPaymentNotice,
-  usdAmount,
+  arsAmount,
+  payoneerAmount,
+  formatUsd,
 } from '../../lib/billing';
 
 interface Props {
@@ -75,14 +77,15 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
   const [sent, setSent] = useState<PayMethod | null>(null);
   const [error, setError] = useState('');
 
-  const price = billing.plans[plan].price;
+  const usdPrice = billing.plans[plan].usd;
   const hasTransfer = !!(billing.alias || billing.cbu);
   const hasPayoneer = !!billing.payoneerEmail;
-  const usd = mep ? usdAmount(price, mep.rate, billing.payoneerDiscount) : 0;
+  const ars = mep ? arsAmount(usdPrice, mep.rate) : 0;
+  const payoneer = payoneerAmount(usdPrice, billing.payoneerDiscount);
   const pending = notices.find((n) => !n.handled);
 
   useEffect(() => {
-    if (!hasPayoneer) return;
+    if (!hasTransfer) return;
     let alive = true;
     setMepLoading(true);
     fetchMep(billing.mepFallback)
@@ -91,7 +94,7 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
     return () => {
       alive = false;
     };
-  }, [hasPayoneer, billing.mepFallback]);
+  }, [hasTransfer, billing.mepFallback]);
 
   useEffect(() => {
     let alive = true;
@@ -113,9 +116,9 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
         email: email || '',
         plan,
         method,
-        amount: method === 'payoneer' ? usd : price,
+        amount: method === 'payoneer' ? payoneer : ars,
         currency: method === 'payoneer' ? 'USD' : 'ARS',
-        rate: method === 'payoneer' && mep ? mep.rate : 0,
+        rate: method === 'transferencia' && mep ? mep.rate : 0,
       });
       setSent(method);
     } catch {
@@ -152,9 +155,9 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
         <div className={card}>
           <div className="flex items-baseline justify-between gap-3">
             <span className="text-lg font-bold text-stone-900 dark:text-white">{billing.plans[plan].name}</span>
-            <span className="text-2xl font-bold text-stone-900 dark:text-white tabular-nums">{formatArs(price)}</span>
+            <span className="text-2xl font-bold text-stone-900 dark:text-white tabular-nums">{formatUsd(usdPrice)}</span>
           </div>
-          <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">Por mes. El precio se ajusta por IPC cada 3 meses.</p>
+          <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">Por mes. Se paga en pesos al dólar MEP del día, o en dólares por Payoneer.</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -174,11 +177,11 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
                 <span className="block text-sm font-semibold text-stone-800 dark:text-stone-200">
                   {id === 'propietario' ? 'Hasta 5 unidades, sin personal' : 'Con recepción y limpieza'}
                 </span>
-                <span className="block mt-2 text-xl font-bold text-stone-900 dark:text-white tabular-nums">{formatArs(billing.plans[id].price)} / mes</span>
+                <span className="block mt-2 text-xl font-bold text-stone-900 dark:text-white tabular-nums">{formatUsd(billing.plans[id].usd)} / mes</span>
               </button>
             ))}
           </div>
-          <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">El precio se ajusta por IPC cada 3 meses.</p>
+          <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">Se paga en pesos al dólar MEP del día, o en dólares por Payoneer.</p>
         </div>
       )}
 
@@ -192,10 +195,19 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
       <div className={card}>
         <div className="flex items-baseline justify-between gap-3">
           <span className="text-lg font-bold text-stone-900 dark:text-white">Transferencia</span>
-          <span className="text-xl font-bold text-stone-900 dark:text-white tabular-nums">{formatArs(price)}</span>
+          {ars > 0 && <span className="text-xl font-bold text-stone-900 dark:text-white tabular-nums">{formatArs(ars)}</span>}
         </div>
         {hasTransfer ? (
           <div className="space-y-3">
+            {mepLoading ? (
+              <p className={text}>Buscando el dólar MEP de hoy…</p>
+            ) : ars > 0 ? (
+              <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">
+                {formatUsd(usdPrice)} al dólar MEP {mep?.source === 'hoy' ? 'de hoy' : 'de referencia'}: {formatArs(mep!.rate)}.
+              </p>
+            ) : (
+              <p className={text}>Consultanos el monto en pesos por WhatsApp.</p>
+            )}
             <CopyRow name="Alias" value={billing.alias} />
             <CopyRow name="CBU" value={billing.cbu} mono />
             {billing.holder && <p className={text}>Titular: {billing.holder}{billing.cuit ? ` · CUIT ${billing.cuit}` : ''}</p>}
@@ -206,7 +218,7 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
                 {billing.account ? `Cuenta ${billing.account}` : ''}
               </p>
             )}
-            <button type="button" disabled={!!sending || sent === 'transferencia'} onClick={() => notify('transferencia')} className={`${primary} w-full`}>
+            <button type="button" disabled={!!sending || sent === 'transferencia' || !(ars > 0)} onClick={() => notify('transferencia')} className={`${primary} w-full`}>
               {sending === 'transferencia' && <Loader2 className="w-4 h-4 animate-spin" />}
               {sent === 'transferencia' ? <><Check className="w-5 h-5" /> ¡Gracias! Te avisamos al confirmarlo</> : 'Ya transferí'}
             </button>
@@ -221,19 +233,13 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
         <div className={card}>
           <div className="flex items-baseline justify-between gap-3">
             <span className="text-lg font-bold text-stone-900 dark:text-white">Payoneer</span>
-            {usd > 0 && <span className="text-xl font-bold text-stone-900 dark:text-white tabular-nums">USD {usd}</span>}
+            <span className="text-xl font-bold text-stone-900 dark:text-white tabular-nums">{formatUsd(payoneer)}</span>
           </div>
-          {mepLoading ? (
-            <p className={text}>Buscando el dólar MEP de hoy…</p>
-          ) : usd > 0 ? (
-            <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">
-              Con {billing.payoneerDiscount}% de descuento. Dólar MEP {mep?.source === 'hoy' ? 'de hoy' : 'de referencia'}: {formatArs(mep!.rate)}.
-            </p>
-          ) : (
-            <p className={text}>Consultanos el monto en dólares por WhatsApp.</p>
+          {billing.payoneerDiscount > 0 && (
+            <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">Con {billing.payoneerDiscount}% de descuento.</p>
           )}
           <CopyRow name="Mail de Payoneer" value={billing.payoneerEmail} />
-          <button type="button" disabled={!!sending || sent === 'payoneer' || !(usd > 0)} onClick={() => notify('payoneer')} className={`${ghost} w-full`}>
+          <button type="button" disabled={!!sending || sent === 'payoneer'} onClick={() => notify('payoneer')} className={`${ghost} w-full`}>
             {sending === 'payoneer' && <Loader2 className="w-4 h-4 animate-spin" />}
             {sent === 'payoneer' ? <><Check className="w-5 h-5" /> ¡Gracias! Te avisamos al confirmarlo</> : 'Ya pagué por Payoneer'}
           </button>
