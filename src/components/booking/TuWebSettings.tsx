@@ -17,12 +17,14 @@ import {
   Sun,
   Trash2,
   Trees,
+  Mountain,
   X,
 } from 'lucide-react';
 import type { CurrencyCode, Property, Reservation, WelcomeGuideData } from '../../types';
 import type { PricingSettings } from '../../lib/pricing';
 import {
   allowedTheme,
+  BASIC_THEMES,
   buildPublicSite,
   buildSiteBusy,
   PublicSitePhoto,
@@ -507,8 +509,9 @@ const TextsCard: React.FC<{
                 ['noche', 'Noche', Moon],
                 ['dia', 'Día', Sun],
                 ['clara', 'Clara', Trees],
+                ['tierra', 'Tierra', Mountain],
               ] as const
-            ).filter(([key]) => key !== 'clara' || webDesigns.includes(key)).map(([key, name, Icon]) => (
+            ).filter(([key]) => BASIC_THEMES.includes(key) || webDesigns.includes(key)).map(([key, name, Icon]) => (
               <button
                 key={key}
                 type="button"

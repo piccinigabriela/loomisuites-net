@@ -11,12 +11,12 @@
 import type { CurrencyCode, Property, Reservation, WelcomeGuideData } from '../types';
 import { normalizePricing, PricingSettings } from './pricing';
 
-export type SiteTheme = 'noche' | 'dia' | 'clara';
+export type SiteTheme = 'noche' | 'dia' | 'clara' | 'tierra';
 
 /** Diseños incluidos en todos los planes */
-export const BASIC_THEMES: SiteTheme[] = ['noche', 'dia'];
+export const BASIC_THEMES: SiteTheme[] = ['noche', 'dia', 'clara'];
 /** Diseños especiales (de pago): los habilita la administración de Loomi en subscriptions/{uid}.webDesigns */
-export const SPECIAL_THEMES: Array<{ id: SiteTheme; name: string }> = [{ id: 'clara', name: 'Clara' }];
+export const SPECIAL_THEMES: Array<{ id: SiteTheme; name: string }> = [{ id: 'tierra', name: 'Tierra' }];
 
 /** El estilo que se publica: si el elegido no está incluido ni habilitado, vuelve a Noche */
 export function allowedTheme(theme: SiteTheme | undefined, webDesigns: string[] | undefined): SiteTheme {
@@ -165,7 +165,7 @@ export function buildPublicSite(input: {
     checkinHour: (guide?.checkinHour || '').trim(),
     checkoutHour: (guide?.checkoutHour || '').trim(),
     currency: input.currency || 'ARS',
-    theme: settings.theme === 'dia' || settings.theme === 'clara' ? settings.theme : 'noche',
+    theme: settings.theme && ['noche', 'dia', 'clara', 'tierra'].includes(settings.theme) ? settings.theme : 'noche',
     units,
     pricing,
   };

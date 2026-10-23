@@ -168,6 +168,19 @@ const THEMES = {
     '--accent-fg': '#34D399',
     colorScheme: 'dark',
   },
+  // Tierra (diseño especial): revoque cálido, título editorial enorme y fotos flotando sobre la portada
+  tierra: {
+    '--bg': '#EDE6DC',
+    '--surface': '#F7F2EA',
+    '--surface-2': '#E3D9CB',
+    '--line': '#CBBDA9',
+    '--fg': '#1D1A16',
+    '--fg-2': '#3D352C',
+    '--accent': '#2C2720',
+    '--accent-ink': '#F3ECE1',
+    '--accent-fg': '#7A4E24',
+    colorScheme: 'light',
+  },
 } as const;
 
 function detectLang(): Lang {
@@ -230,9 +243,10 @@ export const PublicSiteView: React.FC<Props> = ({ site, photos, preview }) => {
   const searchRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const themeKey = site.theme === 'dia' || site.theme === 'clara' ? site.theme : 'noche';
+  const themeKey: keyof typeof THEMES = site.theme && site.theme in THEMES ? (site.theme as keyof typeof THEMES) : 'noche';
   const theme = THEMES[themeKey];
   const isClara = themeKey === 'clara';
+  const isTierra = themeKey === 'tierra';
   const general = photos.filter((p) => !p.unitId);
   const cover = general[0] || photos[0];
   const unitPhotos = (id: string) => photos.filter((p) => p.unitId === id);
@@ -321,7 +335,9 @@ export const PublicSiteView: React.FC<Props> = ({ site, photos, preview }) => {
     );
   }
 
-  const headingFont: React.CSSProperties = isClara
+  const headingFont: React.CSSProperties = isTierra
+    ? { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif", fontWeight: 400 }
+    : isClara
     ? { fontFamily: "'Inter', system-ui, sans-serif", fontWeight: 300, letterSpacing: '-0.02em' }
     : { fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif" };
   const btnPrimary =
@@ -349,6 +365,9 @@ export const PublicSiteView: React.FC<Props> = ({ site, photos, preview }) => {
       </div>
 
       {/* Portada */}
+      {isTierra ? (
+        <TierraHero site={site} cover={cover} floating={[...general.slice(1), ...photos.filter((p) => p.unitId)].slice(0, 3)} headingFont={headingFont} />
+      ) : (
       <header className="relative min-h-[58vh] sm:min-h-[64vh] flex items-end overflow-hidden">
         {cover ? (
           <img src={cover.data} alt={site.name} className="absolute inset-0 w-full h-full object-cover" />
@@ -377,9 +396,10 @@ export const PublicSiteView: React.FC<Props> = ({ site, photos, preview }) => {
           {site.tagline && <p className="mt-3 text-lg sm:text-xl font-medium max-w-2xl text-white/95">{site.tagline}</p>}
         </div>
       </header>
+      )}
 
       {/* Buscador */}
-      <div ref={searchRef} className="relative z-10 max-w-5xl mx-auto px-4 sm:px-8 -mt-16 sm:-mt-20">
+      <div ref={searchRef} className={`relative z-10 max-w-5xl mx-auto px-4 sm:px-8 ${isTierra ? '-mt-10 sm:-mt-14' : '-mt-16 sm:-mt-20'}`}>
         <form
           onSubmit={doSearch}
           className="rounded-3xl bg-[var(--surface)] border border-[var(--line)] shadow-2xl p-4 sm:p-5 grid grid-cols-2 sm:grid-cols-[1fr_1fr_auto_auto] gap-3 items-end"
@@ -607,6 +627,56 @@ export const PublicSiteView: React.FC<Props> = ({ site, photos, preview }) => {
         <Lightbox list={lightbox.list} index={lightbox.index} onClose={() => setLightbox(null)} closeLabel={t.close} />
       )}
     </div>
+  );
+};
+
+/** Portada del diseño Tierra: foto de fondo tenue, nombre enorme al centro y hasta tres fotos flotando (fijas, sin moverse al bajar) */
+const TierraHero: React.FC<{
+  site: PublicSiteDoc;
+  cover?: PublicSitePhoto;
+  floating: PublicSitePhoto[];
+  headingFont: React.CSSProperties;
+}> = ({ site, cover, floating, headingFont }) => {
+  const spots = [
+    'top-[13%] right-[5%] sm:right-[5%] w-32 sm:w-52 lg:w-64 aspect-[4/3] rotate-[2deg]',
+    'bottom-[9%] left-[5%] sm:left-[9%] w-28 sm:w-44 lg:w-56 aspect-[3/4] -rotate-[2deg]',
+    'hidden sm:block bottom-[14%] right-[16%] w-36 lg:w-44 aspect-square rotate-[1deg]',
+  ];
+  return (
+    <header className="relative min-h-[88vh] sm:min-h-[92vh] overflow-hidden bg-[var(--bg)]">
+      {cover && <img src={cover.data} alt="" className="absolute inset-0 w-full h-full object-cover opacity-35 mix-blend-multiply" />}
+      <div className="absolute inset-0 bg-[radial-gradient(#8C6D46_1px,transparent_1px)] [background-size:36px_36px] opacity-15" />
+      <div className="absolute top-16 inset-x-5 sm:inset-x-12 flex items-center justify-between gap-4 border-b border-[#2C2720]/25 pb-3 text-[11px] sm:text-xs uppercase tracking-[0.25em] text-[#2C2720]">
+        <span className="font-bold truncate" style={{ fontFamily: headingFont.fontFamily }}>
+          {site.name}
+        </span>
+        {site.city && <span className="hidden sm:inline font-mono font-bold text-[#5A4632]">{site.city}</span>}
+      </div>
+      {floating.map((p, i) => (
+        <div key={p.id} className={`absolute z-10 overflow-hidden rounded-xl shadow-[0_18px_40px_rgba(0,0,0,0.22)] border border-[#2C2720]/10 ${spots[i]}`}>
+          <img src={p.data} alt="" className="w-full h-full object-cover" />
+        </div>
+      ))}
+      <div className="relative z-20 min-h-[88vh] sm:min-h-[92vh] flex flex-col items-center justify-center text-center px-6 pb-16">
+        <svg viewBox="0 0 100 40" fill="none" stroke="#8C6D46" strokeWidth="2" className="w-14 h-9 mb-3" aria-hidden="true">
+          <path d="M5 35 L30 10 L50 25 L75 5 L95 35" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <h1
+          style={headingFont}
+          className="text-[clamp(2.4rem,8vw,6rem)] uppercase leading-[0.95] tracking-[0.03em] text-[#191612] text-balance max-w-4xl [text-shadow:0_1px_18px_rgba(237,230,220,0.9)]"
+        >
+          {site.name}
+        </h1>
+        {site.tagline && (
+          <p
+            style={{ fontFamily: headingFont.fontFamily }}
+            className="mt-4 text-lg sm:text-xl italic text-[#3D2F20] max-w-xl [text-shadow:0_1px_12px_rgba(237,230,220,0.95)]"
+          >
+            {site.tagline}
+          </p>
+        )}
+      </div>
+    </header>
   );
 };
 
