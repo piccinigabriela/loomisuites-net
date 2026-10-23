@@ -22,6 +22,8 @@ export interface ClientRow {
   activeUntil: Date | null;
   plan: 'propietario' | 'complejo' | null;
   note: string;
+  /** Diseños especiales de Tu Web habilitados (ver SPECIAL_THEMES) */
+  webDesigns: string[];
 }
 
 function toDate(v: any): Date | null {
@@ -63,6 +65,7 @@ export async function fetchClients(): Promise<ClientRow[]> {
       activeUntil,
       plan: sub?.plan || null,
       note: typeof sub?.note === 'string' ? sub.note : '',
+      webDesigns: Array.isArray(sub?.webDesigns) ? sub!.webDesigns.filter((x: unknown) => typeof x === 'string') : [],
     });
   });
   // Primero lo que necesita atención: vencidos, pruebas por terminar, activos
@@ -101,4 +104,10 @@ export async function suspendClient(uid: string): Promise<void> {
 export async function saveClientNote(uid: string, note: string): Promise<void> {
   if (!db) return;
   await setDoc(doc(db, 'subscriptions', uid), { note: note.slice(0, 300), updatedAt: serverTimestamp() }, { merge: true });
+}
+
+/** Habilita o saca diseños especiales de Tu Web para un cliente */
+export async function saveClientWebDesigns(uid: string, webDesigns: string[]): Promise<void> {
+  if (!db) return;
+  await setDoc(doc(db, 'subscriptions', uid), { webDesigns: webDesigns.slice(0, 10), updatedAt: serverTimestamp() }, { merge: true });
 }

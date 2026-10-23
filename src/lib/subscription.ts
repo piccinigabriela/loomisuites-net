@@ -7,6 +7,8 @@ export interface SubscriptionDoc {
   activeUntil?: any;
   /** 'propietario' (sin personal fijo) o 'complejo' (con recepción y limpieza). Se carga a mano al activar. */
   plan?: 'propietario' | 'complejo';
+  /** Diseños especiales de Tu Web habilitados (de pago) */
+  webDesigns?: string[];
   [key: string]: any;
 }
 

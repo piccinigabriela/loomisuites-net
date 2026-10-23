@@ -74,16 +74,18 @@ service cloud.firestore {
 
     match /subscriptions/{uid} {
       allow read: if isOwner(uid) || isStaff(uid, ['recepcion', 'limpieza']) || isAdmin();
-      // Solo la administración activa, renueva o suspende (y deja una nota); nadie más escribe acá.
+      // Solo la administración activa, renueva o suspende, deja una nota o habilita diseños especiales de Tu Web; nadie más escribe acá.
       // En una actualización se mira solo lo que cambia, así un documento cargado a mano con otros campos no la traba.
       allow create: if isAdmin()
-        && request.resource.data.keys().hasOnly(['status', 'plan', 'activeUntil', 'note', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['status', 'plan', 'activeUntil', 'note', 'webDesigns', 'updatedAt'])
         && (!('status' in request.resource.data) || request.resource.data.status in ['active', 'suspended'])
-        && (!('plan' in request.resource.data) || request.resource.data.plan in ['propietario', 'complejo']);
+        && (!('plan' in request.resource.data) || request.resource.data.plan in ['propietario', 'complejo'])
+        && (!('webDesigns' in request.resource.data) || (request.resource.data.webDesigns is list && request.resource.data.webDesigns.size() <= 10));
       allow update: if isAdmin()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'plan', 'activeUntil', 'note', 'updatedAt'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'plan', 'activeUntil', 'note', 'webDesigns', 'updatedAt'])
         && (!('status' in request.resource.data.diff(resource.data).affectedKeys()) || request.resource.data.status in ['active', 'suspended'])
-        && (!('plan' in request.resource.data.diff(resource.data).affectedKeys()) || request.resource.data.plan in ['propietario', 'complejo']);
+        && (!('plan' in request.resource.data.diff(resource.data).affectedKeys()) || request.resource.data.plan in ['propietario', 'complejo'])
+        && (!('webDesigns' in request.resource.data.diff(resource.data).affectedKeys()) || (request.resource.data.webDesigns is list && request.resource.data.webDesigns.size() <= 10));
     }
 
     // Invitaciones: el id es el mail en minúsculas. Las crea el dueño; las lee y acepta (o rechaza) la persona invitada.

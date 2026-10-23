@@ -22,6 +22,7 @@ import {
 import type { CurrencyCode, Property, Reservation, WelcomeGuideData } from '../../types';
 import type { PricingSettings } from '../../lib/pricing';
 import {
+  allowedTheme,
   buildPublicSite,
   buildSiteBusy,
   PublicSitePhoto,
@@ -55,6 +56,8 @@ interface Props {
   pricing?: Partial<PricingSettings> | null;
   currency?: CurrencyCode;
   onGoToPricing?: () => void;
+  /** Diseños especiales habilitados por Loomi (subscriptions/{uid}.webDesigns) */
+  webDesigns?: string[];
 }
 
 const card = 'bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200 dark:border-zinc-800 p-5 sm:p-6';
@@ -80,6 +83,7 @@ export const TuWebSettings: React.FC<Props> = ({
   pricing,
   currency,
   onGoToPricing,
+  webDesigns,
 }) => {
   const slug = settings?.slug || '';
   const [photos, setPhotos] = useState<PublicSitePhoto[]>([]);
@@ -240,7 +244,7 @@ export const TuWebSettings: React.FC<Props> = ({
       )}
 
       {/* Textos */}
-      <TextsCard settings={s} guide={guide} onSave={save} />
+      <TextsCard settings={s} guide={guide} onSave={save} webDesigns={webDesigns || []} />
 
       {/* Fotos generales */}
       <div className={card}>
@@ -307,7 +311,7 @@ export const TuWebSettings: React.FC<Props> = ({
       {showPreview && (
         <Preview
           onClose={() => setShowPreview(false)}
-          settings={s}
+          settings={{ ...s, theme: allowedTheme(s.theme, webDesigns) }}
           guide={guide}
           complexName={complexName}
           city={city}
@@ -450,12 +454,13 @@ const TextsCard: React.FC<{
   settings: WebSiteSettings;
   guide?: WelcomeGuideData | null;
   onSave: (patch: Partial<WebSiteSettings>) => Promise<void>;
-}> = ({ settings, guide, onSave }) => {
+  webDesigns: string[];
+}> = ({ settings, guide, onSave, webDesigns }) => {
   const [tagline, setTagline] = useState(settings.tagline ?? guide?.tagline ?? '');
   const [description, setDescription] = useState(settings.description || '');
   const [whatsapp, setWhatsapp] = useState(settings.whatsapp || '');
   const [saved, setSaved] = useState(false);
-  const theme = settings.theme === 'dia' || settings.theme === 'clara' ? settings.theme : 'noche';
+  const theme = allowedTheme(settings.theme, webDesigns);
   const dirty =
     tagline !== (settings.tagline ?? guide?.tagline ?? '') || description !== (settings.description || '') || whatsapp !== (settings.whatsapp || '');
 
@@ -499,11 +504,11 @@ const TextsCard: React.FC<{
           <div className="flex flex-wrap gap-2">
             {(
               [
-                ['clara', 'Clara', Trees],
                 ['noche', 'Noche', Moon],
                 ['dia', 'Día', Sun],
+                ['clara', 'Clara', Trees],
               ] as const
-            ).map(([key, name, Icon]) => (
+            ).filter(([key]) => key !== 'clara' || webDesigns.includes(key)).map(([key, name, Icon]) => (
               <button
                 key={key}
                 type="button"
@@ -520,6 +525,17 @@ const TextsCard: React.FC<{
             ))}
           </div>
         </div>
+        <p className={help}>
+          ¿Querés un diseño especial para tu web?{' '}
+          <a
+            href={`https://wa.me/5491140925939?text=${encodeURIComponent('Hola! Quiero ver los diseños especiales para Tu Web.')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold underline underline-offset-4"
+          >
+            Escribinos
+          </a>
+        </p>
         <button type="button" onClick={submit} disabled={!dirty} className={primaryBtn}>
           {saved ? <Check className="w-4 h-4" /> : null} {saved ? 'Guardado' : 'Guardar textos'}
         </button>

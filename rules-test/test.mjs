@@ -186,6 +186,8 @@ await caso('la administración NO edita datos de un complejo', false, () => setD
 await caso('sin mail confirmado NO es administración (lectura)', false, () => getDocs(collection(adminSinConfirmar, 'subscriptions')));
 await caso('sin mail confirmado NO es administración (escritura)', false, () => setDoc(doc(adminSinConfirmar, 'subscriptions/otro'), { status: 'active' }, { merge: true }));
 await caso('un dueño NO lee la lista de clientes', false, () => getDocs(collection(dueno, 'subscriptions')));
+await caso('administración habilita un diseño especial', true, () => setDoc(doc(admin, 'subscriptions/dueno'), { webDesigns: ['clara'] }, { merge: true }));
+await caso('un dueño NO se habilita diseños especiales', false, () => setDoc(doc(dueno, 'subscriptions/dueno'), { webDesigns: ['clara'] }, { merge: true }));
 await caso('un dueño NO se activa a sí mismo', false, () => setDoc(doc(dueno, 'subscriptions/dueno'), { status: 'active' }, { merge: true }));
 await caso('un extraño NO suspende a nadie', false, () => setDoc(doc(intruso, 'subscriptions/dueno'), { status: 'suspended' }, { merge: true }));
 

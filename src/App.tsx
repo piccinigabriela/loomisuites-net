@@ -75,7 +75,7 @@ import { syncCalendars } from './lib/icalSync';
 import { DesktopMoreMenu } from './components/demo/DesktopMoreMenu';
 import { DesktopAreasBar, DesktopCrumb, buildNavGroups, useTopNavEnabled } from './components/demo/DesktopNav';
 import { findConflicts, getDateStringInTimeZone, getLocalDateString, SyncResult } from './lib/icalCore';
-import { buildPublicSite, buildSiteBusy, siteUrl, stableJson, visibleUnits } from './lib/publicSite';
+import { allowedTheme, buildPublicSite, buildSiteBusy, siteUrl, stableJson, visibleUnits } from './lib/publicSite';
 import { publishSite, publishSiteBusy } from './lib/publicSiteStore';
 import {
   AccessInfo,
@@ -805,7 +805,8 @@ export default function App() {
     if (!isApp || !currentUser || tenantLoading || isStaff || !tenantUid || !webSite?.slug) return;
     const slug = webSite.slug;
     const data = buildPublicSite({
-      settings: webSite,
+      // Un diseño especial solo se publica si Loomi lo habilitó para esta cuenta
+      settings: { ...webSite, theme: allowedTheme(webSite.theme, subscriptionDoc?.webDesigns) },
       guide: demoState.welcomeGuide,
       complexName: tenantDoc?.complexName,
       city: tenantDoc?.city,
@@ -824,7 +825,7 @@ export default function App() {
         .catch((err) => console.warn('Tu Web: no se pudo publicar', err));
     }, 1500);
     return () => clearTimeout(timer);
-  }, [isApp, currentUser, tenantLoading, isStaff, tenantUid, webSite, demoState.welcomeGuide, demoState.properties, demoState.pricing, demoState.currencySettings?.settlementCurrency, tenantDoc?.complexName, tenantDoc?.city]);
+  }, [isApp, currentUser, tenantLoading, isStaff, tenantUid, webSite, subscriptionDoc?.webDesigns, demoState.welcomeGuide, demoState.properties, demoState.pricing, demoState.currencySettings?.settlementCurrency, tenantDoc?.complexName, tenantDoc?.city]);
 
   // Tu Web: fechas ocupadas (dueño y Recepción). El servidor también las actualiza cada 15 minutos.
   const lastSiteBusyRef = React.useRef('');
@@ -2987,6 +2988,7 @@ export default function App() {
                           pricing={demoState.pricing}
                           currency={demoState.currencySettings?.settlementCurrency}
                           onGoToPricing={() => setDemoTab('pricing')}
+                          webDesigns={subscriptionDoc?.webDesigns}
                         />
                       )
                     ) : (

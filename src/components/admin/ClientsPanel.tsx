@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ClientRow, ClientState, activateClient, fetchClients, saveClientNote, suspendClient } from '../../lib/adminClients';
+import { ClientRow, ClientState, activateClient, fetchClients, saveClientNote, saveClientWebDesigns, suspendClient } from '../../lib/adminClients';
+import { SPECIAL_THEMES } from '../../lib/publicSite';
 
 interface Props {
   onClose: () => void;
@@ -181,6 +182,33 @@ export const ClientsPanel: React.FC<Props> = ({ onClose, loader = fetchClients }
                       <button type="button" disabled={busy} onClick={() => run(() => activateClient(r, months, plan), r.state === 'active' ? 'Renovado.' : 'Activado.')} className={primary}>
                         {r.state === 'active' ? 'Renovar' : 'Activar'}
                       </button>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <span className="text-[15px] font-bold">Diseños especiales de Tu Web</span>
+                      <div className="flex flex-wrap gap-2">
+                        {SPECIAL_THEMES.map((d) => {
+                          const on = r.webDesigns.includes(d.id);
+                          return (
+                            <button
+                              key={d.id}
+                              type="button"
+                              disabled={busy}
+                              aria-pressed={on}
+                              onClick={() =>
+                                run(
+                                  () => saveClientWebDesigns(r.uid, on ? r.webDesigns.filter((x) => x !== d.id) : [...r.webDesigns, d.id]),
+                                  on ? `${d.name}: deshabilitado.` : `${d.name}: habilitado.`
+                                )
+                              }
+                              className={on ? primary : outline}
+                            >
+                              {on ? '✓ ' : ''}
+                              {d.name}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
 
                     <label className="flex flex-col gap-1.5 text-[15px] font-bold">

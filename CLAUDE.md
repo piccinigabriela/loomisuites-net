@@ -40,6 +40,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Config del dueño en `tenants/{uid}.webSite`. App.tsx publica sola los cambios; `busy` lo escriben la app (dueño o Recepción) y server-sync.
   Pantalla: Tu Web y Guía → pestaña Tu Web (`TuWebSettings.tsx`). Vista previa del link: `functions/web/`.
   Dominio propio (a mano): Cloudflare Pages → Custom domains; documento `siteDomains/{dominio sin www}` {slug}; sumar el dominio a la clave de reCAPTCHA (App Check).
+  Estilos: Noche y Día incluidos; diseños especiales de pago (hoy Clara) en `SPECIAL_THEMES`, se habilitan por cuenta en
+  `subscriptions/{uid}.webDesigns` desde el Panel de clientes (solo administración). Sin habilitar, se publica Noche.
   `DirectBookingLanding.tsx` es la maqueta vieja: ya no se usa en la app ni en la demo.
 
 ## Verificar antes de subir

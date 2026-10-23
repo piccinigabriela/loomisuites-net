@@ -13,6 +13,18 @@ import { normalizePricing, PricingSettings } from './pricing';
 
 export type SiteTheme = 'noche' | 'dia' | 'clara';
 
+/** Diseños incluidos en todos los planes */
+export const BASIC_THEMES: SiteTheme[] = ['noche', 'dia'];
+/** Diseños especiales (de pago): los habilita la administración de Loomi en subscriptions/{uid}.webDesigns */
+export const SPECIAL_THEMES: Array<{ id: SiteTheme; name: string }> = [{ id: 'clara', name: 'Clara' }];
+
+/** El estilo que se publica: si el elegido no está incluido ni habilitado, vuelve a Noche */
+export function allowedTheme(theme: SiteTheme | undefined, webDesigns: string[] | undefined): SiteTheme {
+  const t = theme || 'noche';
+  if (BASIC_THEMES.includes(t)) return t;
+  return (webDesigns || []).includes(t) ? t : 'noche';
+}
+
 /** Lo que el dueño configura (tenants/{uid}.webSite) */
 export interface WebSiteSettings {
   slug: string;
