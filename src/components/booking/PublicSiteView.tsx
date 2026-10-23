@@ -30,8 +30,6 @@ const T = {
     askPrice: 'Precio a consultar',
     minNights: (n: number) => `En estas fechas la estadía mínima es de ${n} noches.`,
     none: 'Probá con otras fechas o escribinos: a veces se libera algo.',
-    occupied: 'Ocupados en esas fechas',
-    tooSmall: 'Para menos personas',
     confirmNote: 'El anfitrión confirma la disponibilidad y el precio final por WhatsApp.',
     checkin: 'Ingreso desde',
     checkout: 'Salida hasta',
@@ -70,8 +68,6 @@ const T = {
     askPrice: 'Price on request',
     minNights: (n: number) => `Minimum stay for these dates is ${n} nights.`,
     none: 'Try other dates or write to us: something may open up.',
-    occupied: 'Booked on those dates',
-    tooSmall: 'For fewer guests',
     confirmNote: 'The host confirms availability and the final price on WhatsApp.',
     checkin: 'Check-in from',
     checkout: 'Check-out until',
@@ -110,8 +106,6 @@ const T = {
     askPrice: 'Preço sob consulta',
     minNights: (n: number) => `Nestas datas a estadia mínima é de ${n} noites.`,
     none: 'Tente outras datas ou fale com a gente: às vezes algo se libera.',
-    occupied: 'Ocupadas nessas datas',
-    tooSmall: 'Para menos pessoas',
     confirmNote: 'O anfitrião confirma a disponibilidade e o preço final pelo WhatsApp.',
     checkin: 'Entrada a partir das',
     checkout: 'Saída até',
@@ -475,20 +469,6 @@ export const PublicSiteView: React.FC<Props> = ({ site, photos, preview }) => {
                       </div>
                     </UnitCard>
                   ))}
-                </div>
-              )}
-              {(results.busy.length > 0 || results.small.length > 0) && (
-                <div className="space-y-1 text-base text-[var(--fg-2)]">
-                  {results.busy.length > 0 && (
-                    <p>
-                      <span className="font-bold text-[var(--fg)]">{t.occupied}:</span> {results.busy.map((u) => u.name).join(', ')}
-                    </p>
-                  )}
-                  {results.small.length > 0 && (
-                    <p>
-                      <span className="font-bold text-[var(--fg)]">{t.tooSmall}:</span> {results.small.map((u) => u.name).join(', ')}
-                    </p>
-                  )}
                 </div>
               )}
               {results.free.length > 0 && <p className="text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>}
