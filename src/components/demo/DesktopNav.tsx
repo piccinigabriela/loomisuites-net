@@ -126,9 +126,11 @@ export const DesktopAreasBar: React.FC<AreasBarProps> = ({ groups, activeTab, on
       className="relative z-50 bg-white dark:bg-[#0E0F12] border-b border-stone-300 dark:border-zinc-700 px-4 sm:px-8 flex flex-wrap items-center gap-x-6 gap-y-1"
     >
       <div className="flex items-center gap-3 py-3 min-w-0 flex-1 basis-0 min-w-[220px]">
-        <div className="w-9 h-9 rounded-[10px] bg-[#A94F12] dark:bg-[#F0A46F] text-white dark:text-[#1A1206] flex items-center justify-center font-bold text-lg shrink-0" aria-hidden>
-          L
-        </div>
+        {/* Logo de Loomi: el arco del círculo incompleto (mismo dibujo que public/favicon.svg) */}
+        <svg viewBox="0 0 1000 1000" className="w-9 h-9 shrink-0" aria-hidden="true">
+          <rect width="1000" height="1000" rx="220" fill="#0B0F17" />
+          <path d="M 809.3 385 A 330 330 0 1 1 612.9 189.9" fill="none" stroke="#EFECE5" strokeWidth="110" strokeLinecap="round" />
+        </svg>
         <div className="leading-tight min-w-0">
           <div className="text-[15px] font-bold text-stone-900 dark:text-stone-50 truncate">{complexName}</div>
           <div className="text-[13px] font-medium text-stone-700 dark:text-stone-200">{dateLabel}</div>
