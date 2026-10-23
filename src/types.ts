@@ -135,6 +135,19 @@ export interface CleaningTask {
   notes?: string;
   damageReported?: string;
   photosUploaded?: number;
+  /** Notas de ida y vuelta: Administración/Recepción dejan indicaciones, Limpieza informa (algo roto, faltan insumos) */
+  messages?: CleaningNote[];
+  /** Cuántas notas ya vio Administración (las de Limpieza que pasen de este número son avisos nuevos) */
+  notesSeen?: number;
+}
+
+export interface CleaningNote {
+  by: 'admin' | 'limpieza';
+  /** Quién la escribió (primer nombre o parte del mail) */
+  name: string;
+  text: string;
+  /** ISO */
+  at: string;
 }
 
 export interface MessageTemplate {

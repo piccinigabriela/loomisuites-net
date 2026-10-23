@@ -46,6 +46,7 @@ import { auth, onAuthStateChanged, signOut, User } from './lib/firebase';
 import { sendEmailVerification } from 'firebase/auth';
 import { subscribeToSubscription, getAccessStatus, SubscriptionDoc } from './lib/subscription';
 import { BillingConfig, DEFAULT_BILLING, subscribeToBilling } from './lib/billing';
+import { addCleaningNote, markCleaningNotesSeen, noteAuthor, unseenFromCleaning } from './lib/cleaningNotes';
 import { FirstStepsChecklist, getFirstStepsStatus } from './components/onboarding/FirstStepsChecklist';
 import {
   subscribeToTenant,
@@ -55,6 +56,7 @@ import {
   saveReservationDoc,
   deleteReservationDoc,
   saveCleaningTaskDoc,
+  updateCleaningTaskProgress,
   deleteCleaningTaskDoc,
   saveCashMovementDoc,
   deleteCashMovementDoc,
@@ -1785,7 +1787,7 @@ export default function App() {
         : task.status;
       const updatedTask: CleaningTask = { ...task, checklist: updatedChecklist, status: newStatus };
       if (isApp && currentUser) {
-        await saveCleaningTaskDoc(tenantUid, updatedTask);
+        await updateCleaningTaskProgress(tenantUid, taskId, updatedTask);
       } else {
         updateDemoState((prev) => ({
           ...prev,
@@ -1809,7 +1811,7 @@ export default function App() {
         : task.checklist;
       const updatedTask = { ...task, status: newStatus, checklist: updatedChecklist };
       if (isApp && currentUser) {
-        await saveCleaningTaskDoc(tenantUid, updatedTask);
+        await updateCleaningTaskProgress(tenantUid, taskId, updatedTask);
       } else {
         updateDemoState((prev) => ({
           ...prev,
@@ -1823,6 +1825,39 @@ export default function App() {
         ? '✨ Tarea Completada: Unidad lista para el huésped'
         : `Estado de limpieza actualizado a: ${newStatus}`
     );
+  };
+
+  // Notas de ida y vuelta en cada limpieza (Limpieza solo puede sumar las suyas: lo controlan las reglas)
+  const handleAddCleaningNote = async (taskId: string, text: string) => {
+    const note = {
+      by: (staffRole === 'limpieza' || (!isApp && userRole === 'housekeeping') ? 'limpieza' : 'admin') as 'admin' | 'limpieza',
+      name: noteAuthor(currentUser?.email, currentUser?.displayName),
+      text,
+      at: new Date().toISOString(),
+    };
+    if (isApp && currentUser) {
+      await addCleaningNote(tenantUid, taskId, note);
+    } else {
+      updateDemoState((prev) => ({
+        ...prev,
+        cleaningTasks: prev.cleaningTasks.map((t) => (t.id === taskId ? { ...t, messages: [...(t.messages || []), note] } : t)),
+        lastUpdated: new Date().toISOString(),
+      }));
+    }
+  };
+
+  const handleMarkCleaningNotesSeen = async (taskId: string) => {
+    const task = demoState.cleaningTasks.find((t) => t.id === taskId);
+    if (!task || !unseenFromCleaning(task).length) return;
+    const count = (task.messages || []).length;
+    if (isApp && currentUser) {
+      await markCleaningNotesSeen(tenantUid, taskId, count).catch((err) => console.warn('No se pudo marcar como visto:', err));
+    } else {
+      updateDemoState((prev) => ({
+        ...prev,
+        cleaningTasks: prev.cleaningTasks.map((t) => (t.id === taskId ? { ...t, notesSeen: count } : t)),
+      }));
+    }
   };
 
   // Update property price
@@ -2197,6 +2232,31 @@ export default function App() {
         </Suspense>
       )}
 
+      {/* Aviso de Limpieza: algo roto, faltan insumos (para Administración y Recepción) */}
+      {staffRole !== 'limpieza' && viewRole !== 'housekeeping' && (() => {
+        const withNews = (demoState.cleaningTasks || []).filter((t) => unseenFromCleaning(t).length > 0);
+        if (!withNews.length) return null;
+        const first = withNews[0];
+        const last = unseenFromCleaning(first).slice(-1)[0];
+        const unitName = demoState.properties.find((p) => p.id === first.propertyId)?.name || 'una unidad';
+        return (
+          <div className="py-2 px-4 text-sm font-semibold flex flex-wrap items-center justify-center gap-x-3 gap-y-1 relative z-50 border-b bg-amber-50 border-amber-300 text-amber-950 dark:bg-amber-900/30 dark:border-amber-700 dark:text-amber-50">
+            <span>
+              Limpieza en {unitName}: “{last.text.length > 80 ? `${last.text.slice(0, 80)}…` : last.text}”
+              {withNews.length > 1 ? ` · y ${withNews.length - 1} aviso${withNews.length > 2 ? 's' : ''} más` : ''}
+            </span>
+            {mobileMode !== 'light' && (
+              <button type="button" onClick={() => setDemoTab('housekeeping')} className="font-bold underline underline-offset-2 cursor-pointer">
+                Ver
+              </button>
+            )}
+            <button type="button" onClick={() => withNews.forEach((t) => handleMarkCleaningNotesSeen(t.id))} className="font-bold underline underline-offset-2 cursor-pointer">
+              Visto
+            </button>
+          </div>
+        );
+      })()}
+
       {/* Avisos del plan: prueba gratis, vence pronto, días de gracia */}
       {isApp && !isStaff && accessStatus && (accessStatus.state === 'trial' || accessStatus.state === 'grace' || (accessStatus.state === 'active' && accessStatus.until && accessStatus.daysLeft <= 5)) && (
         <div
@@ -2348,6 +2408,7 @@ export default function App() {
           checkoutHour={staffRole === 'limpieza' ? staffComplex?.checkoutHour : demoState.welcomeGuide?.checkoutHour}
           arrivals={isApp ? staffArrivals : undefined}
           staffAccess={isStaff ? { email: currentUser?.email || '', onLogout: handleLogout } : undefined}
+          onAddNote={handleAddCleaningNote}
         />
       ) : viewRole === 'frontdesk' ? (
         /* VISTA RECEPCIÓN / MOSTRADOR: OPTIMIZADA PARA PC / TABLET (/recepcion) */
@@ -2862,6 +2923,8 @@ export default function App() {
                   demoState={demoState}
                   onToggleChecklistItem={handleToggleChecklistItem}
                   onUpdateTaskStatus={handleUpdateTaskStatus}
+                  onAddNote={handleAddCleaningNote}
+                  onMarkNotesSeen={handleMarkCleaningNotesSeen}
                 />
               )}
 

@@ -397,6 +397,12 @@ export async function saveCleaningTaskDoc(uid: string, task: CleaningTask): Prom
   await setDoc(taskRef, task, { merge: true });
 }
 
+/** Solo checklist y estado (lo que también puede cambiar Limpieza): no pisa notas que hayan llegado mientras tanto */
+export async function updateCleaningTaskProgress(uid: string, taskId: string, data: Pick<CleaningTask, 'checklist' | 'status'>): Promise<void> {
+  if (!uid || !db) return;
+  await updateDoc(doc(db, 'tenants', uid, 'cleaningTasks', taskId), { checklist: data.checklist, status: data.status });
+}
+
 export async function deleteCleaningTaskDoc(uid: string, taskId: string): Promise<void> {
   if (!uid || !db) return;
   const taskRef = doc(db, 'tenants', uid, 'cleaningTasks', taskId);

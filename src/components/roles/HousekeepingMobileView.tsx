@@ -1,3 +1,4 @@
+import { CleaningNotes } from '../common/CleaningNotes';
 import React, { useState } from 'react';
 import {
   Sparkles,
@@ -37,6 +38,8 @@ interface HousekeepingMobileViewProps {
   arrivals?: StaffArrivalsDoc | null;
   /** Limpieza con su propia cuenta: sin volver a Administración, con botón Salir */
   staffAccess?: { email: string; onLogout: () => void };
+  /** Notas de ida y vuelta con Administración */
+  onAddNote?: (taskId: string, text: string) => Promise<void> | void;
 }
 
 // 4 puntos oficiales del checklist rápido
@@ -57,6 +60,7 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
   checkoutHour,
   arrivals,
   staffAccess,
+  onAddNote,
 }) => {
   // "10:00 hs (Late check-out según disponibilidad)" → "10:00"
   const shortHour = (h?: string) => {
@@ -505,12 +509,16 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
                       </button>
                     </div>
 
-                    {/* Reporte rápido de novedad */}
-                    {task.notes && (
-                      <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                        <span><strong>Nota de limpieza:</strong> {task.notes}</span>
-                      </div>
+                    {/* Notas de ida y vuelta con Administración */}
+                    {onAddNote ? (
+                      <CleaningNotes task={task} role="limpieza" onAdd={(text) => onAddNote(task.id, text)} defaultOpen={!!(task.notes || task.messages?.length)} />
+                    ) : (
+                      task.notes && (
+                        <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
+                          <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                          <span><strong>Nota de limpieza:</strong> {task.notes}</span>
+                        </div>
+                      )
                     )}
                   </div>
                 </div>

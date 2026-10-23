@@ -26,6 +26,22 @@ service cloud.firestore {
         && request.auth.token.email.lower() == 'piccini.gabriela@gmail.com';
     }
 
+    // Notas de limpieza: la lista nueva tiene todas las anteriores más una sola nota, de Limpieza y con texto corto
+    function limpiezaAddsOneNote() {
+      let before = resource.data.get('messages', []);
+      let after = request.resource.data.messages;
+      return after is list
+        && after.size() == before.size() + 1
+        && after.hasAll(before)
+        && after[after.size() - 1].keys().hasOnly(['by', 'name', 'text', 'at'])
+        && after[after.size() - 1].by == 'limpieza'
+        && after[after.size() - 1].text is string
+        && after[after.size() - 1].text.size() > 0
+        && after[after.size() - 1].text.size() <= 500
+        && after[after.size() - 1].name is string
+        && after[after.size() - 1].name.size() <= 60;
+    }
+
     match /leads/{leadId} {
       allow create: if true;
       allow read, update, delete: if false;
@@ -52,10 +68,11 @@ service cloud.firestore {
       match /cleaningTasks/{docId} {
         allow read: if isStaff(uid, ['recepcion', 'limpieza']);
         allow create, delete: if isStaff(uid, ['recepcion']);
-        // Limpieza solo marca el checklist y el estado
+        // Limpieza marca el checklist y el estado, y puede sumar una nota suya (sin tocar las demás)
         allow update: if isStaff(uid, ['recepcion'])
           || (isStaff(uid, ['limpieza'])
-              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['checklist', 'status']));
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['checklist', 'status', 'messages'])
+              && (!('messages' in request.resource.data.diff(resource.data).affectedKeys()) || limpiezaAddsOneNote()));
       }
       match /sync/{docId} {
         allow read: if isStaff(uid, ['recepcion']);

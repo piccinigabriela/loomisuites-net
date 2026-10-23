@@ -32,6 +32,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   {tenantId, role: recepcion|limpieza}. `tenantUid` en App.tsx es el complejo cuyos datos se usan (no siempre el usuario).
   Limpieza no lee reservas ni `tenants/{uid}`: ve `tenants/{uid}/staff/llegadas` (sin teléfonos ni importes; lo reescribe
   entero también el servidor) y `tenants/{uid}/staff/complejo` (nombre, horarios y fecha de alta; lo escriben el dueño y Recepción desde la app). Reglas probadas con `rules-test/` (`npm run probar` en Cloud Shell).
+  Notas de limpieza: `cleaningTasks/{id}.messages` (Administración/Recepción y Limpieza; Limpieza solo suma una nota suya, con `arrayUnion`)
+  y `notesSeen`; aviso arriba en la app para Administración y Recepción (`src/lib/cleaningNotes.ts`, `components/common/CleaningNotes.tsx`).
 
 - Tarifas: `tenants/{uid}.pricing` (se guarda entero con `savePricingDoc`). Cálculo en `src/lib/pricing.ts` (`quoteStay`):
   finde largo > temporada > normal; fin de semana = noches marcadas (por defecto vie, sáb, dom). Findes largos de

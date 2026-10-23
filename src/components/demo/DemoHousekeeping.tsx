@@ -1,3 +1,5 @@
+import { CleaningNotes } from '../common/CleaningNotes';
+import { unseenFromCleaning } from '../../lib/cleaningNotes';
 import React, { useState } from 'react';
 import {
   Sparkles,
@@ -19,12 +21,17 @@ interface DemoHousekeepingProps {
   demoState: DemoState;
   onToggleChecklistItem: (taskId: string, itemId: string) => void;
   onUpdateTaskStatus: (taskId: string, newStatus: CleaningTask['status']) => void;
+  /** Notas de ida y vuelta con Limpieza */
+  onAddNote?: (taskId: string, text: string) => Promise<void> | void;
+  onMarkNotesSeen?: (taskId: string) => void;
 }
 
 export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
   demoState,
   onToggleChecklistItem,
   onUpdateTaskStatus,
+  onAddNote,
+  onMarkNotesSeen,
 }) => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -262,8 +269,26 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
                   </div>
                 </div>
 
-                {/* Notes or Observations */}
-                {task.notes && (
+                {/* Notas de ida y vuelta con Limpieza */}
+                {onAddNote ? (
+                  <div className="mb-4">
+                    {unseenFromCleaning(task).length > 0 && (
+                      <p className="mb-2 text-sm font-bold text-amber-800 dark:text-amber-200">Limpieza dejó un aviso nuevo</p>
+                    )}
+                    <CleaningNotes
+                      task={task}
+                      role="admin"
+                      onAdd={(text) => onAddNote(task.id, text)}
+                      defaultOpen={unseenFromCleaning(task).length > 0}
+                      onOpen={() => onMarkNotesSeen?.(task.id)}
+                    />
+                    {unseenFromCleaning(task).length > 0 && onMarkNotesSeen && (
+                      <button type="button" onClick={() => onMarkNotesSeen(task.id)} className="mt-2 text-sm font-bold underline underline-offset-4 text-stone-900 dark:text-white cursor-pointer">
+                        Marcar como visto
+                      </button>
+                    )}
+                  </div>
+                ) : task.notes && (
                   <div className="bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/30 rounded-xl p-3 text-xs text-stone-700 dark:text-stone-300 flex items-start gap-2.5 mb-4">
                     <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                     <div>
