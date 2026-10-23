@@ -51,7 +51,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
                 <a href="#preguntas-clave" className="hover:text-white transition-colors">Gestión de Limpieza</a>
               </li>
               <li>
-                <a href="#preguntas-clave" className="hover:text-white transition-colors">Motor de Reservas Directas</a>
+                <a href="#preguntas-clave" className="hover:text-white transition-colors">Tu Web de reservas directas</a>
               </li>
               <li>
                 <a href="#preguntas-clave" className="hover:text-white transition-colors">Auto Check-in y WhatsApp</a>
@@ -73,7 +73,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
               <li>Booking.com (enlace de sincronización de calendarios)</li>
               <li>VRBO / Expedia (enlace iCal)</li>
               <li>TripAdvisor & Portales iCal</li>
-              <li>Motor Propio de Reservas Directas</li>
+              <li>Tu Web: pedidos de reserva por WhatsApp</li>
               <li>WhatsApp & Guía Digital para Huéspedes</li>
               <li>Mercado Pago, PayPal & CBU (Para tus Huéspedes)</li>
             </ul>

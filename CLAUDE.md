@@ -61,7 +61,7 @@ más las líneas de atribución que indique la sesión. Después `git push origi
 - Prueba de 7 días; la activación se hace a mano en Firestore (`subscriptions/{uid}`).
 - Una moneda de liquidación por complejo. AFIP no interesa.
 - "Tu Web": consulta de disponibilidad + precio + pedido por WhatsApp (sin cobro ni confirmación automática: con iCal cada
-  15 min habría riesgo de doble reserva). La landing sigue diciendo "próximamente" hasta que Gabi la pruebe con Catalinas.
+  15 min habría riesgo de doble reserva). Probada con Catalinas el 23/10: la landing ya no dice "próximamente".
 - Textos de la landing: honestos con iCal (no es instantáneo) y WhatsApp (mensajes listos, se envían con un toque).
 
 ## Pendientes

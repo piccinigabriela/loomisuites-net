@@ -94,7 +94,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
         'Modo Recepción con Roles de Usuario Separados',
         'Asistente Xenia AI (Voz & Copiloto 24/7)',
         'Portal de Bienvenida del Huésped',
-        'Web propia de reservas (próximamente)',
+        'Tu Web: disponibilidad, precios y pedidos por WhatsApp',
         'Usuarios para todo tu equipo: recepción, limpieza y administración',
       ],
     },
@@ -384,7 +384,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 TU WEB + PORTAL DEL HUÉSPED
               </span>
               <span className="px-2 py-0.5 rounded-md bg-[#FDF3E7] dark:bg-orange-950/40 text-[#AD5410] dark:text-[#E67E22] text-[10px] font-semibold">
-                Web: próximamente
+                Sin comisiones
               </span>
             </div>
 
@@ -393,7 +393,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 El huésped habita el espacio <span className="font-semibold text-slate-900 dark:text-gray-100">antes de llegar</span>
               </h2>
               <p className="text-xs text-slate-800 dark:text-zinc-300 leading-relaxed font-normal">
-                3 plantillas de diseño local incluidas (Clara, Tierra y Sombra) con clave Wi-Fi y guía interactiva continua.
+                Tu web con fotos, precios y disponibilidad, y la guía del huésped con Wi-Fi y cómo llegar.
               </p>
             </div>
 
@@ -544,7 +544,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 <div className="space-y-1">
                   <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-[#AD5410] dark:text-[#E67E22] flex items-center gap-1.5">
                     <Globe className="w-3.5 h-3.5 text-[#AD5410] dark:text-[#E67E22]" />
-                    PORTAL DEL HUÉSPED · WEB PRÓXIMAMENTE
+                    TU WEB · PORTAL DEL HUÉSPED
                   </span>
                   <h2 className="text-2xl font-light text-gray-900 dark:text-white">
                     Tu Web Directa y Portal de Bienvenida <span className="font-semibold">Unificados</span>
@@ -555,7 +555,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 </div>
 
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-300 leading-relaxed font-light">
-                  Cobrá el 100% a tu propia cuenta con 0% de comisión. Tu web oficial y el portal del huésped comparten la misma tipografía, estética y calidez visual.
+                  El huésped elige fechas, ve qué está libre y cuánto sale, y te escribe por WhatsApp con el pedido armado. Vos confirmás y cobrás directo: sin comisiones. En español, inglés y portugués.
                 </p>
 
                 <div className="space-y-3">
@@ -563,24 +563,24 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                         <CheckCircle2 className="w-4 h-4" />
-                        3 Plantillas Web Base ("Clara", "Tierra" y "Sombra")
+                        3 estilos incluidos
                       </span>
                       <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-300 font-medium">
-                        Listas en 15 min
+                        Diseños especiales a pedido
                       </span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                       <div className="p-3 rounded-xl bg-white dark:bg-zinc-900 border border-gray-100 dark:border-white/5">
-                        <strong className="block font-medium text-gray-800 dark:text-white">☀️ Clara</strong>
-                        <span className="text-slate-700 dark:text-zinc-300 text-[11px] block mt-0.5 font-medium">Estructuras limpias, luz franca y geometría noble.</span>
+                        <strong className="block font-medium text-gray-800 dark:text-white">🌙 Noche</strong>
+                        <span className="text-slate-700 dark:text-zinc-300 text-[11px] block mt-0.5 font-medium">Oscura y cálida, con tus fotos como protagonistas.</span>
                       </div>
                       <div className="p-3 rounded-xl bg-white dark:bg-zinc-900 border border-gray-100 dark:border-white/5">
-                        <strong className="block font-medium text-gray-800 dark:text-white">🪵 Tierra</strong>
-                        <span className="text-slate-700 dark:text-zinc-300 text-[11px] block mt-0.5 font-medium">Texturas nobles, maderas, revoques cálidos e imperfección natural.</span>
+                        <strong className="block font-medium text-gray-800 dark:text-white">☀️ Día</strong>
+                        <span className="text-slate-700 dark:text-zinc-300 text-[11px] block mt-0.5 font-medium">Luminosa, con fondo crema y mucho aire.</span>
                       </div>
                       <div className="p-3 rounded-xl bg-white dark:bg-zinc-900 border border-gray-100 dark:border-white/5">
-                        <strong className="block font-medium text-gray-800 dark:text-white">🌑 Sombra</strong>
-                        <span className="text-slate-700 dark:text-zinc-300 text-[11px] block mt-0.5 font-medium">Atmósfera íntima, maderas oscuras y penumbra elegante.</span>
+                        <strong className="block font-medium text-gray-800 dark:text-white">🌿 Clara</strong>
+                        <span className="text-slate-700 dark:text-zinc-300 text-[11px] block mt-0.5 font-medium">Verde bosque y letra fina, serena y moderna.</span>
                       </div>
                     </div>
                   </div>
@@ -627,7 +627,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 </div>
 
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-zinc-300 leading-relaxed font-light">
-                  Reemplazá cuadernos, planillas complejas y mensajes desordenados con una interfaz visual limpia pensada para alojamientos de 4 a 30+ unidades. Todo conectado: reservas, limpieza, cobros, WhatsApp y tu propia web oficial.
+                  Reemplazá cuadernos, planillas complejas y mensajes desordenados con una interfaz visual limpia pensada para alojamientos de 4 a 30+ unidades. Todo conectado: reservas, limpieza, cobros, WhatsApp y tu propia web.
                 </p>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs font-medium text-center">

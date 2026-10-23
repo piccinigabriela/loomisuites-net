@@ -13,6 +13,7 @@ const FEATURES: Array<[string, string]> = [
   ['Mensajes de WhatsApp listos', 'Textos preparados para cada momento de la estadía (confirmación, llegada, check-out, pedido de reseña). Se abren listos en WhatsApp y se envían con un toque. Cada complejo puede editarlos, por idioma.'],
   ['Limpieza y equipo', 'Agenda de limpiezas con checklist desde el celular. El personal de Recepción y de Limpieza entra con su propia cuenta y ve solo lo que le corresponde.'],
   ['Tarifas', 'Precios por tipo de alojamiento, temporada, fin de semana y fin de semana largo.'],
+  ['Tu Web', 'Página propia de reservas directas con fotos, disponibilidad al día y precio de la estadía. El pedido llega por WhatsApp con los datos armados. En español, inglés y portugués.'],
   ['Liquidación al propietario', 'Para quien administra departamentos de terceros: reporte mensual con la comisión de administración descontada.'],
   ['Xenia, asistente con IA', 'Responde consultas sobre la operación del complejo dentro de la app.'],
 ];
@@ -22,7 +23,7 @@ const FAQ: Array<[string, string]> = [
   ['¿Necesito cerraduras inteligentes?', 'No. Funciona con la llave de siempre; la forma de ingresar se explica en la guía digital del huésped.'],
   ['¿Cuánto dura la prueba?', '7 días gratis desde que se crea la cuenta en app.loomisuite.net. La demo con datos de ejemplo se puede usar sin registrarse.'],
   ['¿Cobra comisión por reserva?', 'No. Los huéspedes pagan directamente al anfitrión; Loomi Suite no interviene en esos cobros.'],
-  ['¿Hay una web propia de reservas directas?', 'Está en desarrollo ("Tu Web", próximamente). Hoy el sistema incluye la guía digital del huésped y los mensajes de WhatsApp.'],
+  ['¿Hay una web propia de reservas directas?', 'Sí: "Tu Web". El huésped elige fechas, ve qué unidades están libres y el precio de la estadía según tus tarifas, y te manda el pedido por WhatsApp. No cobra ni confirma sola: el anfitrión confirma y cobra directo, sin comisiones.'],
 ];
 
 export const LandingSeoContent: React.FC = () => (
