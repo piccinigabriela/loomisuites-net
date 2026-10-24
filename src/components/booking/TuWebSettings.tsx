@@ -19,6 +19,7 @@ import {
   Trees,
   Mountain,
   X,
+  Sunrise,
 } from 'lucide-react';
 import type { CurrencyCode, Property, Reservation, WelcomeGuideData } from '../../types';
 import type { PricingSettings } from '../../lib/pricing';
@@ -510,6 +511,7 @@ const TextsCard: React.FC<{
                 ['dia', 'Día', Sun],
                 ['clara', 'Clara', Trees],
                 ['tierra', 'Tierra', Mountain],
+                ['refugio', 'Refugio', Sunrise],
               ] as const
             ).filter(([key]) => BASIC_THEMES.includes(key) || webDesigns.includes(key)).map(([key, name, Icon]) => (
               <button
