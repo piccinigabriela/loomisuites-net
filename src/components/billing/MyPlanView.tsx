@@ -256,8 +256,8 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
 
   if (!onClose) return body;
   return (
-    <div className="fixed inset-0 z-[300] bg-black/70 flex items-start sm:items-center justify-center p-3 overflow-y-auto" onClick={onClose}>
-      <div className="w-full max-w-lg my-6 rounded-3xl bg-stone-50 dark:bg-[#101114] p-5 sm:p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-[300] bg-black/70 flex justify-center p-3 overflow-y-auto" onClick={onClose}>
+      <div className="w-full max-w-lg my-auto rounded-3xl bg-stone-50 dark:bg-[#101114] p-5 sm:p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         {body}
       </div>
     </div>

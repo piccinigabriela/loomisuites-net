@@ -267,7 +267,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
               <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight">
                 Crear Nueva Reserva
               </h3>
-              <p className="text-xs text-gray-400 font-medium">Carga manual o directa</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300 font-medium">Carga manual o directa</p>
             </div>
           </div>
           <button
@@ -282,7 +282,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
         <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 max-h-[85vh] overflow-y-auto">
           {/* Property */}
           <div>
-            <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Alojamiento</label>
+            <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">Alojamiento</label>
             <select
               value={propertyId}
               onChange={(e) => setPropertyId(e.target.value)}
@@ -310,7 +310,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
           {/* Dates */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Check-in</label>
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">Check-in</label>
               <input
                 type="date"
                 required
@@ -320,7 +320,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Check-out</label>
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">Check-out</label>
               <input
                 type="date"
                 required
@@ -334,7 +334,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
           {/* Guest Name & Channel */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Nombre del Huésped</label>
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">Nombre del Huésped</label>
               <input
                 type="text"
                 required
@@ -345,7 +345,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Canal de Origen</label>
+              <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">Canal de Origen</label>
               <select
                 value={platform}
                 onChange={(e) => setPlatform(e.target.value as BookingPlatform)}
@@ -361,7 +361,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
 
           {/* Payment Status Selector */}
           <div>
-            <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
               Estado de Pago
             </label>
             <select
@@ -497,7 +497,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">
+                <label className="block text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
                   {isManualPrice
                     ? `Tarifa por Noche Especial (${getActiveCurrency()})`
                     : useTable
@@ -518,7 +518,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">
+                <label className="block text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
                   Descuento Especial (%)
                 </label>
                 <input

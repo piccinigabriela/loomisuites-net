@@ -1094,10 +1094,10 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs flex justify-center p-3 sm:p-4 animate-in fade-in duration-200">
       <div
         id="calendar-import-modal"
-        className="bg-[#141414] border border-[#2a2a2a] text-[#f4f2ee] rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl relative transition-all"
+        className="bg-[#141414] border border-[#2a2a2a] text-[#f4f2ee] rounded-2xl max-w-3xl w-full my-auto overflow-hidden shadow-2xl relative transition-all"
       >
         {/* Header */}
         <div className="px-5 py-4 border-b border-[#2a2a2a] flex items-center justify-between">
