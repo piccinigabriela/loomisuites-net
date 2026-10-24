@@ -8,7 +8,9 @@
  */
 const FIREBASE_API_KEY = 'AIzaSyACFYyOeSuKNQfXR5Pk8uP1ZrRa4y_rgDI';
 const MODEL = 'claude-haiku-5-5';
-const MAX_TOKENS = 700;
+// Haiku 5.5 piensa por defecto y lo que piensa se descuenta de max_tokens: con poco margen, la respuesta salía cortada.
+// Para estas consultas no hace falta: se apaga el pensamiento y se deja margen de sobra.
+const MAX_TOKENS = 1500;
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
@@ -51,7 +53,8 @@ DÓNDE ESTÁ CADA COSA (menú de arriba en la compu)
 CÓMO FUNCIONA
 - Reservas: se abren desde Ocupación o Lista de reservas; el lápiz edita fechas, unidad, precio, personas y estado (Cancelada libera las fechas). Los pagos se anotan con "Registrar Pago" (monto, moneda, medio: efectivo, transferencia, tarjeta, Mercado Pago, plataforma u otro) y la seña y el saldo se calculan solos. Las reservas no se arrastran en el calendario. Cada reserva tiene el recuadro "Llegada y notas" (vuelo, hora de llegada, notas).
 - Calendarios: Administración → Unidades y calendarios → lápiz de la unidad → "Calendarios conectados": se pega el link .ics de Airbnb o Booking, y "Tu calendario de Loomi" se pega en el portal. Se sincroniza cada 15 minutos más o menos: no es instantáneo, por eso Loomi avisa si dos reservas se superponen.
-- Tarifas: Administración → Tarifas. Tipos de alojamiento, tarifa normal (entre semana y fin de semana), temporadas con mínimo de noches y fines de semana largos de Argentina ya cargados.
+- Tarifas: Administración → Tarifas ("Planilla de precios por noche"). De arriba hacia abajo: "Tipos de alojamiento" (botón "+ Agregar tipo", por ejemplo "Depto 2 personas", y en "Cada unidad, ¿de qué tipo es?" se asigna cada unidad) · "Noches de fin de semana" (qué noches cuentan como fin de semana; por defecto viernes, sábado y domingo) · "Tarifa normal" (precio por noche entre semana y fin de semana, y mínimo de noches) · "Temporadas" (botón "+ Agregar temporada": nombre, primera y última noche, mínimo de noches y precios por tipo) · "Fines de semana largos" (los de Argentina ya vienen cargados; se pone el precio por noche y se puede "Agregar un fin de semana largo") · "Probar un precio" (elegís unidad, entrada y salida y te muestra cuánto sale). Al final, "Guardar". Manda: fin de semana largo, después temporada, después tarifa normal.
+- Unidades: Administración → Unidades y calendarios → "Nueva Unidad" (de a una) o "Varias juntas" (una categoría con cuántas hay y cómo se numeran, y opcionalmente la crea en Tarifas).
 - Equipo: Administración → Equipo y accesos → Invitar (por mail). Recepción ve reservas, calendario, cobros y caja; Limpieza ve sus limpiezas con checklist y quién llega, sin teléfonos ni importes. Cada persona entra con su propia cuenta.
 - Limpieza: cada salida genera sola su limpieza (también las de Airbnb o Booking); se marcan con el checklist y el estado "Inspeccionado / Listo".
 - Mensajes: 5 mensajes listos (Confirmación & Bienvenida Anticipada, Coordinación del Día de Llegada, Control de Confort, Recordatorio de Check-out, Solicitud de Reseña), en español, inglés y portugués, editables en Avisos y WhatsApp. Se abren en WhatsApp listos para enviar con un toque: no se mandan solos.
@@ -109,6 +112,7 @@ export async function onRequestPost({ request, env }) {
       body: JSON.stringify({
         model: MODEL,
         max_tokens: MAX_TOKENS,
+        thinking: { type: 'disabled' },
         system: buildSystemPrompt(body.context),
         messages: buildMessages(body.history, message),
       }),
@@ -118,11 +122,16 @@ export async function onRequestPost({ request, env }) {
       return json({ error: `Claude respondió ${res.status}` }, 502);
     }
     const data = await res.json();
-    const reply = (data.content || [])
+    let reply = (data.content || [])
       .filter((b) => b.type === 'text')
       .map((b) => b.text)
       .join('\n')
       .trim();
+    // Si igual se cortó por largo, que termine en la última oración completa
+    if (data.stop_reason === 'max_tokens' && reply) {
+      const cut = Math.max(reply.lastIndexOf('. '), reply.lastIndexOf('.\n'), reply.lastIndexOf('\n\n'));
+      if (cut > reply.length * 0.5) reply = reply.slice(0, cut + 1).trim();
+    }
     if (!reply) return json({ error: 'Respuesta vacía' }, 502);
     return json({ reply, source: 'claude' });
   } catch {
