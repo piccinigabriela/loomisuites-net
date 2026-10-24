@@ -51,6 +51,12 @@ export const T = {
     book: 'Reservar',
     where: 'Dónde estamos',
     hours: 'Horarios',
+    place: 'El lugar',
+    contactTitle: 'Contacto',
+    statUnits: (n: number): string => (n === 1 ? 'alojamiento' : 'alojamientos'),
+    statGuests: 'personas como máximo',
+    statIn: 'hora de ingreso',
+    statOut: 'hora de salida',
   },
   en: {
     arrive: 'Check-in',
@@ -92,6 +98,12 @@ export const T = {
     book: 'Book',
     where: 'Where we are',
     hours: 'Hours',
+    place: 'The place',
+    contactTitle: 'Contact',
+    statUnits: (n: number): string => (n === 1 ? 'place to stay' : 'places to stay'),
+    statGuests: 'guests at most',
+    statIn: 'check-in time',
+    statOut: 'check-out time',
   },
   pt: {
     arrive: 'Chegada',
@@ -133,6 +145,12 @@ export const T = {
     book: 'Reservar',
     where: 'Onde estamos',
     hours: 'Horários',
+    place: 'O lugar',
+    contactTitle: 'Contato',
+    statUnits: (n: number): string => (n === 1 ? 'acomodação' : 'acomodações'),
+    statGuests: 'pessoas no máximo',
+    statIn: 'horário de entrada',
+    statOut: 'horário de saída',
   },
 };
 
