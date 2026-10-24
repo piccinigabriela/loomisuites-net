@@ -53,6 +53,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   su id en `SiteTheme` y `SPECIAL_THEMES`, y en el selector de `TuWebSettings.tsx`.
   Experiencias: `webSite.experiences[addonId]` {show, text, showPrice} elige qué opcionales se publican (`publicSites/{slug}.experiences`, fotos con
   unitId `exp-{addonId}`); sección `ExperiencesSection` en todos los diseños y "Sumar a mi pedido" agrega la línea al WhatsApp de la reserva.
+  Muestrario: loomisuite.net/disenos (`components/showcase/DesignShowcase.tsx`, complejo inventado en `lib/sampleSite.ts`, fotos y miniaturas
+  en `public/muestra/`; vista previa del link en `functions/disenos/`). Si se suma un diseño, agregarlo ahí y su miniatura `d-{id}.jpg`.
   `DirectBookingLanding.tsx` es la maqueta vieja: ya no se usa en la app ni en la demo.
 
 - Cobro del abono: `src/lib/billing.ts`. `config/billing` (precios en pesos por plan, datos de transferencia, mail de Payoneer,

@@ -1,5 +1,1 @@
-{
-  "version": 1,
-  "include": ["/__/*", "/guia", "/guia/*", "/manual", "/web/*", "/api/mep", "/api/xenia/chat", "/.well-known/*"],
-  "exclude": []
-}
+{"version": 1, "include": ["/__/*", "/guia", "/guia/*", "/manual", "/disenos/*", "/disenos", "/web/*", "/api/mep", "/api/xenia/chat", "/.well-known/*"], "exclude": []}

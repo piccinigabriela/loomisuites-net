@@ -591,13 +591,8 @@ const TextsCard: React.FC<{
         </div>
         <p className={help}>
           ¿Querés un diseño especial para tu web?{' '}
-          <a
-            href={`https://wa.me/5491140925939?text=${encodeURIComponent('Hola! Quiero ver los diseños especiales para Tu Web.')}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold underline underline-offset-4"
-          >
-            Escribinos
+          <a href="https://loomisuite.net/disenos" target="_blank" rel="noopener noreferrer" className="font-bold underline underline-offset-4">
+            Mirá los diseños
           </a>
         </p>
         <button type="button" onClick={submit} disabled={!dirty} className={primaryBtn}>

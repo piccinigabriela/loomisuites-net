@@ -10,6 +10,8 @@ const App = lazy(() => import('./App.tsx'));
 const ManualPage = lazy(() => import('./components/landing/ManualPage.tsx').then((m) => ({ default: m.ManualPage })));
 // Tu Web de cada complejo: página liviana, sin la app
 const PublicSitePage = lazy(() => import('./components/booking/PublicSitePage.tsx').then((m) => ({ default: m.PublicSitePage })));
+// Muestrario de diseños de Tu Web (loomisuite.net/disenos)
+const DesignShowcase = lazy(() => import('./components/showcase/DesignShowcase.tsx').then((m) => ({ default: m.DesignShowcase })));
 
 const path = window.location.pathname.toLowerCase();
 const hash = window.location.hash.toLowerCase();
@@ -22,6 +24,7 @@ const isLoomiHost =
 const customSiteHost = !isLoomiHost && (path === '/' || path === '' || path === '/index.html') ? host : '';
 // loomisuite.net/manual: página corta del manual (para links en redes)
 const isManualPage = !isAppMode() && /^\/manual\/?$/.test(path);
+const showcaseMatch = !isAppMode() ? /^\/disenos(?:\/([a-z]+))?\/?$/.exec(path) : null;
 // loomisuite.net a secas: landing liviana (las demás rutas y parámetros siguen yendo a la app)
 const isLanding =
   !siteSlug &&
@@ -55,6 +58,8 @@ createRoot(document.getElementById('root')!).render(
           <PublicSitePage slug={siteSlug} customHost={customSiteHost} />
         ) : isManualPage ? (
           <ManualPage />
+        ) : showcaseMatch ? (
+          <DesignShowcase designId={showcaseMatch[1]} />
         ) : isLanding ? (
           <LandingRoot />
         ) : (
