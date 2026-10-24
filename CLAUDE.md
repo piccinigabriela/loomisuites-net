@@ -26,6 +26,11 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   actualizarlas ahí), 2) el backend viejo de AI Studio con Gemini (`server.ts`, sus instrucciones están desactualizadas; no borrar ese
   proyecto hasta probar Claude), 3) las respuestas fijas de `xeniaLocalEngine.ts`. La función necesita la variable `ANTHROPIC_API_KEY`
   en Cloudflare Pages; sin ella responde 503 y se sigue con 2 y 3. Contexto que se manda: `src/lib/xeniaContext.ts` (sin teléfonos ni wifi).
+- Xenia en el WhatsApp de Loomi (+54 9 11 4092-5939, coexistencia vía Zernio, cartera de Meta "huu.soft"): `functions/api/whatsapp/zernio.js`
+  recibe el webhook `message.received` (firma HMAC con `ZERNIO_WEBHOOK_SECRET`), contesta 200 y en segundo plano responde con Claude
+  (instrucciones de venta dentro de la función: si cambian precios o funciones, actualizarlas ahí). No contesta en un chat donde Gabi escribió
+  en las últimas 12 h (lo de Xenia lleva una marca invisible al final). Audios: pide que escriban. Secrets: `ZERNIO_API_KEY`, `ZERNIO_WEBHOOK_SECRET`.
+  Para apagarla: desactivar el webhook en Zernio.
 - `isAppMode()` = hostname `app.` o `?mode=app`. Sin eso, la app muestra la demo con datos de ejemplo.
 - Roles: el dueño puede ver las tres vistas (`/admin`, `/recepcion`, `/limpieza`). El personal entra con su cuenta:
   `invites/{mail}` (lo crea el dueño en Administración → Equipo y accesos) → al aceptar se crea `memberships/{uid}`
