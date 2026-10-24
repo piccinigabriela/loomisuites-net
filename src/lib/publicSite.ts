@@ -8,7 +8,7 @@
  *
  * Sin Firebase ni React: lo usan la app, la página pública y el servidor (server-sync).
  */
-import type { CurrencyCode, Property, Reservation, WelcomeGuideData } from '../types';
+import type { AddonService, CurrencyCode, Property, Reservation, WelcomeGuideData } from '../types';
 import { normalizePricing, PricingSettings } from './pricing';
 
 export type SiteTheme = 'noche' | 'dia' | 'clara' | 'tierra' | 'refugio' | 'estudio' | 'calma' | 'hacienda' | 'revista';
@@ -45,7 +45,30 @@ export interface WebSiteSettings {
   theme?: SiteTheme;
   /** Por unidad: ocultarla y su descripción */
   units?: Record<string, { hidden?: boolean; description?: string }>;
+  /** Experiencias (de Opcionales y extras) que se muestran en la web: id del opcional → configuración */
+  experiences?: Record<string, ExperienceSettings>;
 }
+
+export interface ExperienceSettings {
+  /** Mostrarla en la web (apagado por defecto) */
+  show?: boolean;
+  /** Explicación para el huésped (si está vacía, se usa la descripción del opcional) */
+  text?: string;
+  /** Mostrar el precio; si no, "Precio a consultar" */
+  showPrice?: boolean;
+}
+
+/** Una experiencia publicada (sin datos internos). Sus fotos van en publicSites/{slug}/photos con unitId = expPhotoKey(id). */
+export interface PublicSiteExperience {
+  id: string;
+  name: string;
+  text: string;
+  /** 0 = a consultar */
+  price: number;
+  unitLabel: string;
+}
+
+export const expPhotoKey = (addonId: string) => `exp-${addonId}`;
 
 export interface PublicSiteUnit {
   id: string;
@@ -80,6 +103,7 @@ export interface PublicSiteDoc {
   theme: SiteTheme;
   units: PublicSiteUnit[];
   pricing: PricingSettings | null;
+  experiences?: PublicSiteExperience[];
   busy?: Record<string, BusyRange[]>;
   busyUpdatedAt?: unknown;
   updatedAt?: unknown;
@@ -140,6 +164,7 @@ export function buildPublicSite(input: {
   properties: Property[];
   pricing?: Partial<PricingSettings> | null;
   currency?: CurrencyCode;
+  addons?: AddonService[];
 }): Omit<PublicSiteDoc, 'busy' | 'busyUpdatedAt' | 'updatedAt'> {
   const { settings, guide } = input;
   const unitCfg = settings.units || {};
@@ -175,7 +200,22 @@ export function buildPublicSite(input: {
     theme: settings.theme && (BASIC_THEMES.includes(settings.theme) || SPECIAL_THEMES.some((d) => d.id === settings.theme)) ? settings.theme : 'noche',
     units,
     pricing,
+    experiences: buildExperiences(input.addons, settings),
   };
+}
+
+/** Las experiencias que el dueño eligió mostrar, en el orden del catálogo */
+export function buildExperiences(addons: AddonService[] | undefined, settings: WebSiteSettings): PublicSiteExperience[] {
+  const cfg = settings.experiences || {};
+  return (addons || [])
+    .filter((a) => a && a.id && cfg[a.id]?.show)
+    .map((a) => ({
+      id: a.id,
+      name: (a.name || '').trim(),
+      text: ((cfg[a.id].text ?? '') || a.description || '').trim().slice(0, 1500),
+      price: cfg[a.id].showPrice ? Number(a.price) || 0 : 0,
+      unitLabel: cfg[a.id].showPrice ? (a.unitLabel || '').trim() : '',
+    }));
 }
 
 export function visibleUnits(properties: Property[], settings: WebSiteSettings): Property[] {

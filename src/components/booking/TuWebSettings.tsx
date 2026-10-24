@@ -25,12 +25,13 @@ import {
   Wheat,
   BookOpen,
 } from 'lucide-react';
-import type { CurrencyCode, Property, Reservation, WelcomeGuideData } from '../../types';
+import type { AddonService, CurrencyCode, Property, Reservation, WelcomeGuideData } from '../../types';
 import type { PricingSettings } from '../../lib/pricing';
 import {
   allowedTheme,
   BASIC_THEMES,
   buildPublicSite,
+  expPhotoKey,
   buildSiteBusy,
   PublicSitePhoto,
   siteUrl,
@@ -65,6 +66,9 @@ interface Props {
   onGoToPricing?: () => void;
   /** Diseños especiales habilitados por Loomi (subscriptions/{uid}.webDesigns) */
   webDesigns?: string[];
+  /** Catálogo de Opcionales y extras (para elegir qué experiencias se muestran en la web) */
+  addons?: AddonService[];
+  onGoToAddons?: () => void;
 }
 
 const card = 'bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200 dark:border-zinc-800 p-5 sm:p-6';
@@ -91,6 +95,8 @@ export const TuWebSettings: React.FC<Props> = ({
   currency,
   onGoToPricing,
   webDesigns,
+  addons = [],
+  onGoToAddons,
 }) => {
   const slug = settings?.slug || '';
   const [photos, setPhotos] = useState<PublicSitePhoto[]>([]);
@@ -295,6 +301,50 @@ export const TuWebSettings: React.FC<Props> = ({
         </div>
       </div>
 
+      {/* Experiencias */}
+      <div className={card}>
+        <h3 className={h3}>Experiencias</h3>
+        <p className={`${help} mt-1`}>
+          Visitas, excursiones, catas o lo que ofrezcas aparte del alojamiento. Elegí cuáles se ven en la web: el huésped las consulta o
+          las suma a su pedido por WhatsApp.
+        </p>
+        {addons.length === 0 ? (
+          <p className={`${help} mt-4`}>
+            Todavía no cargaste ninguna.{' '}
+            {onGoToAddons && (
+              <button type="button" onClick={onGoToAddons} className="font-bold underline underline-offset-4 cursor-pointer">
+                Cargalas en Opcionales y extras
+              </button>
+            )}
+          </p>
+        ) : (
+          <div className="mt-5 space-y-4">
+            {addons
+              .slice()
+              .sort((a, b) => Number(b.category === 'experiencias') - Number(a.category === 'experiencias'))
+              .map((a) => (
+                <ExperienceBlock
+                  key={a.id}
+                  addon={a}
+                  settings={s}
+                  currency={currency || 'ARS'}
+                  photos={photos.filter((x) => x.unitId === expPhotoKey(a.id))}
+                  onSave={save}
+                  onUpload={(f) => upload(f, expPhotoKey(a.id))}
+                  onMove={movePhoto}
+                  onDelete={removePhoto}
+                  uploading={!!busyMsg}
+                />
+              ))}
+            {onGoToAddons && (
+              <button type="button" onClick={onGoToAddons} className="text-base font-bold text-stone-900 dark:text-white underline underline-offset-4 cursor-pointer">
+                Agregar o editar en Opcionales y extras
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Dominio propio */}
       <details className={`${card} group`}>
         <summary className={`${h3} cursor-pointer list-none flex items-center justify-between`}>
@@ -327,6 +377,7 @@ export const TuWebSettings: React.FC<Props> = ({
           pricing={pricing}
           currency={currency}
           photos={photos}
+          addons={addons}
         />
       )}
     </div>
@@ -611,6 +662,72 @@ const UnitBlock: React.FC<{
   );
 };
 
+const ExperienceBlock: React.FC<{
+  addon: AddonService;
+  settings: WebSiteSettings;
+  currency: CurrencyCode;
+  photos: PublicSitePhoto[];
+  onSave: (patch: Partial<WebSiteSettings>) => Promise<void>;
+  onUpload: (files: FileList | null) => void;
+  onMove: (p: PublicSitePhoto, dir: -1 | 1) => void;
+  onDelete: (p: PublicSitePhoto) => void;
+  uploading: boolean;
+}> = ({ addon, settings, currency, photos, onSave, onUpload, onMove, onDelete, uploading }) => {
+  const cfg = settings.experiences?.[addon.id] || {};
+  const [text, setText] = useState(cfg.text ?? addon.description ?? '');
+  const patch = (p: Partial<NonNullable<WebSiteSettings['experiences']>[string]>) =>
+    onSave({ experiences: { ...(settings.experiences || {}), [addon.id]: { ...cfg, ...p } } });
+  const price = Number(addon.price) || 0;
+
+  return (
+    <div className="rounded-xl border border-stone-300 dark:border-zinc-700 p-4 space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-base font-bold text-stone-900 dark:text-white">{addon.name}</p>
+          {price > 0 && (
+            <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">
+              {currency} {price.toLocaleString('es-AR')}
+              {addon.unitLabel ? ` · ${addon.unitLabel}` : ''}
+            </p>
+          )}
+        </div>
+        <label className="inline-flex items-center gap-2 text-base font-bold text-stone-900 dark:text-white cursor-pointer">
+          <input type="checkbox" checked={!!cfg.show} onChange={(e) => patch({ show: e.target.checked })} className="w-5 h-5 accent-[#E67E22]" />
+          Mostrar en la web
+        </label>
+      </div>
+      {cfg.show && (
+        <>
+          <label className="block space-y-1.5">
+            <span className={label}>Explicación para el huésped</span>
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onBlur={() => text.trim() !== (cfg.text ?? addon.description ?? '').trim() && patch({ text: text.trim() })}
+              maxLength={1500}
+              rows={4}
+              className={inputCls}
+              placeholder="Qué incluye, cuánto dura, desde dónde salen, qué conviene llevar."
+            />
+          </label>
+          <label className="inline-flex items-center gap-2 text-base font-semibold text-stone-900 dark:text-white cursor-pointer">
+            <input
+              type="checkbox"
+              checked={!!cfg.showPrice}
+              disabled={price <= 0}
+              onChange={(e) => patch({ showPrice: e.target.checked })}
+              className="w-5 h-5 accent-[#E67E22]"
+            />
+            {price > 0 ? 'Mostrar el precio (si no, dice "Precio a consultar")' : 'Sin precio cargado: se muestra "Precio a consultar"'}
+          </label>
+          <PhotoGrid photos={photos} onMove={onMove} onDelete={onDelete} />
+          <UploadButton onFiles={onUpload} disabled={uploading} small />
+        </>
+      )}
+    </div>
+  );
+};
+
 const PhotoGrid: React.FC<{
   photos: PublicSitePhoto[];
   onMove: (p: PublicSitePhoto, dir: -1 | 1) => void;
@@ -679,13 +796,14 @@ const Preview: React.FC<{
   pricing?: Partial<PricingSettings> | null;
   currency?: CurrencyCode;
   photos: PublicSitePhoto[];
-}> = ({ onClose, settings, guide, complexName, city, properties, reservations, pricing, currency, photos }) => {
+  addons?: AddonService[];
+}> = ({ onClose, settings, guide, complexName, city, properties, reservations, pricing, currency, photos, addons }) => {
   const site = useMemo(() => {
-    const data = buildPublicSite({ settings, guide, complexName, city, properties, pricing, currency });
+    const data = buildPublicSite({ settings, guide, complexName, city, properties, pricing, currency, addons });
     const today = new Date();
     const t = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     return { ...data, busy: buildSiteBusy(data.units.map((u) => u.id), reservations, t) };
-  }, [settings, guide, complexName, city, properties, pricing, currency, reservations]);
+  }, [settings, guide, complexName, city, properties, pricing, currency, reservations, addons]);
 
   useEffect(() => {
     const prev = document.body.style.overflow;

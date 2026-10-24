@@ -161,14 +161,16 @@ La salida es el día que se van: esa noche ya queda libre.`;
   // =========================================================================
   const has = (...words: string[]) => words.some((w) => q.includes(w));
 
-  if (has('tu web', 'pagina web', 'página web', 'sitio web', 'web propia', 'reservas directas', 'reserva directa', 'motor de reserva')) {
+  if (has('tu web', 'pagina web', 'página web', 'sitio web', 'web propia', 'reservas directas', 'reserva directa', 'motor de reserva', 'experiencias en la web', 'mostrar excursiones', 'mostrar actividades', 'vender excursiones', 'vender actividades')) {
     return `### 🌐 Tu Web
 
 Es tu página de reservas directas: fotos, tus alojamientos, buscador de fechas y el precio de la estadía según tus Tarifas. El huésped elige fechas y te escribe por WhatsApp con el pedido armado; vos confirmás y cobrás directo, sin comisiones.
 
 **Dónde se arma:** Reservas → **Tu Web y Guía** → pestaña **Tu Web**. Elegís el nombre del link (loomisuite.net/web/tu-complejo), cargás frase, presentación, WhatsApp y fotos, y elegís el estilo (Noche, Día o Clara). Con **Ver cómo queda** la ves antes de publicarla.
 
-La disponibilidad se actualiza sola con tus reservas y calendarios. No cobra ni confirma sola: eso lo hacés vos.`;
+La disponibilidad se actualiza sola con tus reservas y calendarios. No cobra ni confirma sola: eso lo hacés vos.
+
+**Experiencias:** si vendés excursiones, catas o cabalgatas, cargalas en **Opcionales y extras** y en la sección **Experiencias** de Tu Web elegí cuáles mostrar, con su explicación, foto y precio (o "a consultar"). El huésped las consulta o las suma a su pedido por WhatsApp.`;
   }
 
   if (has('tarifa', 'temporada', 'finde largo', 'fin de semana largo', 'precio por noche', 'precios por noche', 'cargar precios', 'cargo los precios')) {

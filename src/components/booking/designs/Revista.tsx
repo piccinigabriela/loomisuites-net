@@ -5,7 +5,7 @@
  */
 import React from 'react';
 import type { PublicSitePhoto, PublicSiteUnit } from '../../../lib/publicSite';
-import { fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink } from '../siteKit';
+import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink } from '../siteKit';
 
 const VARS = {
   '--bg': '#F3F3F0',
@@ -156,6 +156,26 @@ export const RevistaSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
           {results && results.free.length > 0 && <p className="mt-12 text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>}
         </section>
 
+        <ExperiencesSection
+          b={b}
+          site={site}
+          css={{
+            section: 'pt-24 sm:pt-32',
+            heading: 'text-4xl sm:text-6xl leading-none mb-10',
+            headingStyle: mincho,
+            grid: 'grid gap-10 sm:grid-cols-2 lg:grid-cols-3',
+            card: 'flex flex-col border-t-2 border-[var(--fg)] pt-5',
+            body: 'pt-5 flex flex-col gap-3 flex-1',
+            title: 'text-2xl leading-tight',
+            titleStyle: mincho,
+            price: 'text-xs font-bold uppercase tracking-[0.16em]',
+            text: 'text-base leading-[1.9] text-[var(--fg-2)]',
+            link: 'font-bold underline underline-offset-4',
+            btn: 'inline-flex items-center justify-center min-h-[44px] px-5 border-2 border-[var(--moss)] text-[var(--moss)] text-xs font-bold uppercase tracking-[0.14em]',
+            btnOn: btn,
+          }}
+        />
+
         {/* Fotos en mosaico */}
         {mosaic.length > 0 && (
           <section className="pt-24 sm:pt-32">
@@ -225,6 +245,8 @@ export const RevistaSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
           )}
         </section>
       </div>
+
+      <BookBar b={b} className="w-full sm:w-auto min-h-[56px] px-10 bg-[var(--moss)] text-white text-sm font-bold uppercase tracking-[0.16em] shadow-[0_-4px_20px_rgba(0,0,0,0.15)] sm:shadow-xl" />
 
       <footer className="max-w-6xl mx-auto px-5 sm:px-10 py-14 flex flex-col sm:flex-row sm:items-end justify-between gap-8">
         <div className="space-y-5">

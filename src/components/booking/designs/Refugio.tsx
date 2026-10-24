@@ -8,6 +8,7 @@ import { ArrowRight, MapPin, Clock } from 'lucide-react';
 import type { PublicSitePhoto, PublicSiteUnit } from '../../../lib/publicSite';
 import {
   BookBar,
+  ExperiencesSection,
   fmtDate,
   fmtMoney,
   LangSwitch,
@@ -195,6 +196,26 @@ export const RefugioSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
         )}
         {results && results.free.length > 0 && <p className="mt-16 text-center text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>}
       </section>
+
+      <ExperiencesSection
+        b={b}
+        site={site}
+        css={{
+          section: 'max-w-6xl mx-auto px-5 sm:px-10 pt-24 sm:pt-32',
+          heading: 'text-center text-2xl sm:text-3xl font-light uppercase tracking-[0.22em] mb-12 sm:mb-16',
+          headingStyle: display,
+          grid: 'grid gap-10 sm:grid-cols-2 lg:grid-cols-3',
+          card: 'flex flex-col',
+          body: 'pt-5 flex flex-col gap-3 flex-1',
+          title: 'text-xl font-normal uppercase tracking-[0.12em]',
+          titleStyle: display,
+          price: 'text-sm font-bold uppercase tracking-[0.12em] text-[var(--fg-2)]',
+          text: 'text-base leading-[1.9] text-[var(--fg-2)]',
+          link: 'font-bold underline underline-offset-4',
+          btn: 'inline-flex items-center justify-center min-h-[44px] px-5 border-2 border-[var(--fg)] text-xs font-bold uppercase tracking-[0.16em]',
+          btnOn: 'inline-flex items-center justify-center min-h-[44px] px-5 bg-[var(--accent)] text-[var(--accent-ink)] border-2 border-[var(--accent)] text-xs font-bold uppercase tracking-[0.16em]',
+        }}
+      />
 
       {/* Fotos */}
       {gallery.length > 0 && (

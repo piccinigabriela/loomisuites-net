@@ -6,7 +6,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Minus, Plus, X } from 'lucide-react';
 import type { CurrencyCode, Property } from '../../types';
 import { quoteStay } from '../../lib/pricing';
-import { isUnitFree, PublicSiteDoc, PublicSitePhoto, PublicSiteUnit } from '../../lib/publicSite';
+import { expPhotoKey, isUnitFree, PublicSiteDoc, PublicSitePhoto, PublicSiteUnit } from '../../lib/publicSite';
 
 export type Lang = 'es' | 'en' | 'pt';
 
@@ -59,6 +59,14 @@ export const T = {
     statGuests: 'personas como máximo',
     statIn: 'hora de ingreso',
     statOut: 'hora de salida',
+    experiences: 'Experiencias',
+    expAsk: 'Consultar',
+    expAdd: 'Sumar a mi pedido',
+    expAdded: 'Sumada a tu pedido',
+    readMore: 'Leer más',
+    readLess: 'Leer menos',
+    msgExpInterest: (list: string) => `• Me interesa también: ${list}`,
+    msgExpAsk: (exp: string, name: string) => `Hola! Quisiera consultar por "${exp}" en ${name}.`,
   },
   en: {
     arrive: 'Check-in',
@@ -108,6 +116,14 @@ export const T = {
     statGuests: 'guests at most',
     statIn: 'check-in time',
     statOut: 'check-out time',
+    experiences: 'Experiences',
+    expAsk: 'Ask',
+    expAdd: 'Add to my request',
+    expAdded: 'Added to your request',
+    readMore: 'Read more',
+    readLess: 'Read less',
+    msgExpInterest: (list: string) => `• I’m also interested in: ${list}`,
+    msgExpAsk: (exp: string, name: string) => `Hi! I’d like to ask about "${exp}" at ${name}.`,
   },
   pt: {
     arrive: 'Chegada',
@@ -157,6 +173,14 @@ export const T = {
     statGuests: 'pessoas no máximo',
     statIn: 'horário de entrada',
     statOut: 'horário de saída',
+    experiences: 'Experiências',
+    expAsk: 'Perguntar',
+    expAdd: 'Incluir no meu pedido',
+    expAdded: 'Incluída no seu pedido',
+    readMore: 'Ler mais',
+    readLess: 'Ler menos',
+    msgExpInterest: (list: string) => `• Também tenho interesse em: ${list}`,
+    msgExpAsk: (exp: string, name: string) => `Olá! Gostaria de perguntar sobre "${exp}" em ${name}.`,
   },
 };
 
@@ -288,6 +312,8 @@ export function useSiteBooking(site: PublicSiteDoc, photos: PublicSitePhoto[], p
   const [searched, setSearched] = useState<{ in: string; out: string; guests: number } | null>(null);
   const [error, setError] = useState('');
   const [lightbox, setLightbox] = useState<{ list: PublicSitePhoto[]; index: number } | null>(null);
+  const [wantedExp, setWantedExp] = useState<string[]>([]);
+  const toggleExp = (id: string) => setWantedExp((l) => (l.includes(id) ? l.filter((x) => x !== id) : [...l, id]));
   const searchRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -340,6 +366,8 @@ export function useSiteBooking(site: PublicSiteDoc, photos: PublicSitePhoto[], p
       t.msgGuests(searched.guests),
     ];
     if (total > 0) lines.push(t.msgPrice(fmtMoney(total, site.currency)));
+    const exps = (site.experiences || []).filter((e) => wantedExp.includes(e.id)).map((e) => e.name);
+    if (exps.length) lines.push(t.msgExpInterest(exps.join(', ')));
     lines.push('', t.msgQuestion);
     return lines.join('\n');
   };
@@ -351,6 +379,7 @@ export function useSiteBooking(site: PublicSiteDoc, photos: PublicSitePhoto[], p
     lang, setLang, t, today,
     checkIn, pickCheckIn, checkOut, setCheckOut, guests, setGuests, maxCapacity,
     searched, error, results, doSearch, requestText, goSearch, generalLink,
+    wantedExp, toggleExp,
     general, cover, unitPhotos,
     lightbox, setLightbox, searchRef, resultsRef,
   };
@@ -477,5 +506,102 @@ export const BookBar: React.FC<{ b: SiteBooking; className: string; label?: stri
         </button>
       </div>
     </div>
+  );
+};
+
+export interface ExperienceStyle {
+  /** Clase del contenedor de la sección */
+  section: string;
+  heading: string;
+  headingStyle?: React.CSSProperties;
+  grid?: string;
+  card: string;
+  /** Foto: alto/forma */
+  photo?: string;
+  body?: string;
+  title: string;
+  titleStyle?: React.CSSProperties;
+  price: string;
+  text: string;
+  link: string;
+  btn: string;
+  btnOn: string;
+}
+
+/**
+ * Sección "Experiencias" (visitas, catas, cabalgatas…): solo aparece si el dueño publicó alguna.
+ * Cada una: foto, nombre, precio o "a consultar", explicación (con "Leer más" si es larga),
+ * "Consultar" por WhatsApp y, si el huésped ya buscó fechas, "Sumar a mi pedido" (se agrega al mensaje de la reserva).
+ */
+export const ExperiencesSection: React.FC<{ b: SiteBooking; site: PublicSiteDoc; css: ExperienceStyle; id?: string }> = ({ b, site, css, id }) => {
+  const list = site.experiences || [];
+  const [open, setOpen] = useState<string[]>([]);
+  if (!list.length) return null;
+  const { t } = b;
+  return (
+    <section id={id} className={css.section}>
+      <h2 style={css.headingStyle} className={css.heading}>
+        {t.experiences}
+      </h2>
+      <div className={css.grid || 'grid gap-6 sm:grid-cols-2 lg:grid-cols-3'}>
+        {list.map((e) => {
+          const pics = b.unitPhotos(expPhotoKey(e.id));
+          const long = e.text.length > 220;
+          const expanded = open.includes(e.id);
+          const wanted = b.wantedExp.includes(e.id);
+          return (
+            <article key={e.id} className={css.card}>
+              {pics[0] && (
+                <button type="button" onClick={() => b.setLightbox({ list: pics, index: 0 })} className={`block w-full overflow-hidden cursor-pointer ${css.photo || 'aspect-[4/3]'}`}>
+                  <img src={pics[0].data} alt={e.name} loading="lazy" className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-700" />
+                </button>
+              )}
+              <div className={css.body || 'p-5 flex flex-col gap-3 flex-1'}>
+                <h3 style={css.titleStyle} className={css.title}>
+                  {e.name}
+                </h3>
+                <p className={css.price}>
+                  {e.price > 0 ? `${fmtMoney(e.price, site.currency)}${e.unitLabel ? ` · ${e.unitLabel}` : ''}` : t.askPrice}
+                </p>
+                {e.text && (
+                  <p className={`${css.text} whitespace-pre-line`}>
+                    {long && !expanded ? `${e.text.slice(0, 200).trimEnd()}…` : e.text}
+                    {long && (
+                      <>
+                        {' '}
+                        <button
+                          type="button"
+                          onClick={() => setOpen((l) => (expanded ? l.filter((x) => x !== e.id) : [...l, e.id]))}
+                          className={`${css.link} cursor-pointer`}
+                        >
+                          {expanded ? t.readLess : t.readMore}
+                        </button>
+                      </>
+                    )}
+                  </p>
+                )}
+                {pics.length > 1 && (
+                  <button type="button" onClick={() => b.setLightbox({ list: pics, index: 1 })} className={`self-start ${css.link} cursor-pointer`}>
+                    {t.gallery} ({pics.length})
+                  </button>
+                )}
+                <div className="mt-auto pt-1 flex flex-wrap gap-2">
+                  {site.whatsapp && (
+                    <a href={waLink(site.whatsapp, t.msgExpAsk(e.name, site.name))} target="_blank" rel="noopener noreferrer" className={css.btn}>
+                      {t.expAsk}
+                    </a>
+                  )}
+                  {b.results && b.results.free.length > 0 && (
+                    <button type="button" onClick={() => b.toggleExp(e.id)} aria-pressed={wanted} className={`${wanted ? css.btnOn : css.btn} cursor-pointer`}>
+                      {wanted ? `✓ ${t.expAdded}` : t.expAdd}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
   );
 };

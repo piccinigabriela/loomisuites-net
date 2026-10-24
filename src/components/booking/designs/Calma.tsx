@@ -6,7 +6,7 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import type { PublicSitePhoto, PublicSiteUnit } from '../../../lib/publicSite';
-import { BookBar, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink } from '../siteKit';
+import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink } from '../siteKit';
 
 const VARS = {
   '--bg': '#1E2A22',
@@ -189,6 +189,26 @@ export const CalmaSite: React.FC<SiteViewProps> = ({ site, photos, preview }) =>
           )}
           {results && results.free.length > 0 && <p className="mt-5 text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>}
         </section>
+
+        <ExperiencesSection
+          b={b}
+          site={site}
+          css={{
+            section: 'pt-10 sm:pt-14',
+            heading: 'bg-[var(--sand)] text-white p-6 sm:p-8 text-3xl sm:text-5xl',
+            headingStyle: serif,
+            grid: 'grid sm:grid-cols-2 lg:grid-cols-3',
+            card: 'bg-[var(--moss)] even:bg-[var(--green)] flex flex-col',
+            body: 'p-6 flex flex-col gap-3 flex-1',
+            title: 'text-2xl',
+            titleStyle: serif,
+            price: 'text-sm font-bold uppercase tracking-[0.12em]',
+            text: 'text-base leading-relaxed text-[var(--fg-2)]',
+            link: 'font-bold underline underline-offset-4',
+            btn: 'inline-flex items-center justify-center min-h-[44px] px-5 border-2 border-[var(--fg)] text-xs font-bold uppercase tracking-[0.12em]',
+            btnOn: 'inline-flex items-center justify-center min-h-[44px] px-5 bg-[var(--fg)] text-[var(--bg)] border-2 border-[var(--fg)] text-xs font-bold uppercase tracking-[0.12em]',
+          }}
+        />
 
         {/* Más fotos: tira de baldosas */}
         {general.length > 3 && (

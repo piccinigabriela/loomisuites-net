@@ -6,7 +6,7 @@
 import React, { useRef, useState } from 'react';
 import { MapPin, Users, BedDouble, Clock } from 'lucide-react';
 import type { PublicSiteDoc, PublicSitePhoto, PublicSiteUnit } from '../../lib/publicSite';
-import { fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, useGoogleFont, useSiteBooking, waLink } from './siteKit';
+import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, useGoogleFont, useSiteBooking, waLink } from './siteKit';
 import { SPECIAL_LAYOUTS } from './designs';
 
 const THEMES = {
@@ -239,6 +239,23 @@ const BaseSiteView: React.FC<Props> = ({ site, photos, preview }) => {
           )}
         </section>
 
+        <ExperiencesSection
+          b={b}
+          site={site}
+          css={{
+            section: 'space-y-6',
+            heading: 'text-3xl font-semibold',
+            headingStyle: headingFont,
+            card: 'rounded-3xl overflow-hidden border border-[var(--line)] bg-[var(--surface)] flex flex-col',
+            title: 'text-xl font-bold',
+            price: 'text-base font-bold text-[var(--accent-fg)]',
+            text: 'text-base leading-relaxed text-[var(--fg-2)]',
+            link: 'font-bold underline underline-offset-4',
+            btn: btnGhost,
+            btnOn: btnPrimary,
+          }}
+        />
+
         {/* Fotos generales */}
         {general.length > 1 && (
           <section className="space-y-5">
@@ -310,6 +327,8 @@ const BaseSiteView: React.FC<Props> = ({ site, photos, preview }) => {
           )}
         </section>
       </main>
+
+      <BookBar b={b} className="w-full sm:w-auto min-h-[56px] px-10 sm:rounded-full bg-[var(--accent)] text-[var(--accent-ink)] text-base font-bold shadow-[0_-4px_20px_rgba(0,0,0,0.2)] sm:shadow-xl" />
 
       <footer className="border-t border-[var(--line)] py-10 px-5 text-center space-y-2">
         <p style={headingFont} className="text-xl font-semibold">

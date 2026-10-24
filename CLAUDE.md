@@ -51,6 +51,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Noche, Día, Clara y Tierra se arman en `PublicSiteView.tsx`; los que tienen estructura propia están en `booking/designs/` (registro en
   `designs/index.ts`) y comparten textos, buscador e idioma de `booking/siteKit.tsx` (`useSiteBooking`). Para sumar uno: su componente,
   su id en `SiteTheme` y `SPECIAL_THEMES`, y en el selector de `TuWebSettings.tsx`.
+  Experiencias: `webSite.experiences[addonId]` {show, text, showPrice} elige qué opcionales se publican (`publicSites/{slug}.experiences`, fotos con
+  unitId `exp-{addonId}`); sección `ExperiencesSection` en todos los diseños y "Sumar a mi pedido" agrega la línea al WhatsApp de la reserva.
   `DirectBookingLanding.tsx` es la maqueta vieja: ya no se usa en la app ni en la demo.
 
 - Cobro del abono: `src/lib/billing.ts`. `config/billing` (precios en pesos por plan, datos de transferencia, mail de Payoneer,

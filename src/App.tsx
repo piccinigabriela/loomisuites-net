@@ -828,6 +828,7 @@ export default function App() {
       properties: demoState.properties || [],
       pricing: demoState.pricing,
       currency: demoState.currencySettings?.settlementCurrency,
+      addons: demoState.availableAddons || demoState.addons || [],
     });
     const key = slug + stableJson(data);
     if (lastPublishedSiteRef.current === key) return;
@@ -840,7 +841,7 @@ export default function App() {
         .catch((err) => console.warn('Tu Web: no se pudo publicar', err));
     }, 1500);
     return () => clearTimeout(timer);
-  }, [isApp, currentUser, tenantLoading, isStaff, tenantUid, webSite, subscriptionDoc?.webDesigns, demoState.welcomeGuide, demoState.properties, demoState.pricing, demoState.currencySettings?.settlementCurrency, tenantDoc?.complexName, tenantDoc?.city]);
+  }, [isApp, currentUser, tenantLoading, isStaff, tenantUid, webSite, subscriptionDoc?.webDesigns, demoState.welcomeGuide, demoState.properties, demoState.pricing, demoState.availableAddons, webSite?.experiences, demoState.currencySettings?.settlementCurrency, tenantDoc?.complexName, tenantDoc?.city]);
 
   // Tu Web: fechas ocupadas (dueño y Recepción). El servidor también las actualiza cada 15 minutos.
   const lastSiteBusyRef = React.useRef('');
@@ -3137,6 +3138,8 @@ export default function App() {
                           currency={demoState.currencySettings?.settlementCurrency}
                           onGoToPricing={() => setDemoTab('pricing')}
                           webDesigns={subscriptionDoc?.webDesigns}
+                          addons={demoState.availableAddons || demoState.addons || []}
+                          onGoToAddons={() => setDemoTab('addons')}
                         />
                       )
                     ) : (
