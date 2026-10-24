@@ -7,9 +7,11 @@ import type { SiteViewProps } from '../siteKit';
 import { RefugioSite } from './Refugio';
 import { EstudioSite } from './Estudio';
 import { CalmaSite } from './Calma';
+import { AlmacenSite } from './Almacen';
 
 export const SPECIAL_LAYOUTS: Partial<Record<string, React.FC<SiteViewProps>>> = {
   refugio: RefugioSite,
   estudio: EstudioSite,
   calma: CalmaSite,
+  almacen: AlmacenSite,
 };
