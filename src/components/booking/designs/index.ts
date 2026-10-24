@@ -8,10 +8,12 @@ import { RefugioSite } from './Refugio';
 import { EstudioSite } from './Estudio';
 import { CalmaSite } from './Calma';
 import { AlmacenSite } from './Almacen';
+import { RevistaSite } from './Revista';
 
 export const SPECIAL_LAYOUTS: Partial<Record<string, React.FC<SiteViewProps>>> = {
   refugio: RefugioSite,
   estudio: EstudioSite,
   calma: CalmaSite,
   almacen: AlmacenSite,
+  revista: RevistaSite,
 };

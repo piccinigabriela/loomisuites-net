@@ -23,6 +23,7 @@ import {
   Building2,
   Leaf,
   Stamp,
+  BookOpen,
 } from 'lucide-react';
 import type { CurrencyCode, Property, Reservation, WelcomeGuideData } from '../../types';
 import type { PricingSettings } from '../../lib/pricing';
@@ -518,6 +519,7 @@ const TextsCard: React.FC<{
                 ['estudio', 'Estudio', Building2],
                 ['calma', 'Calma', Leaf],
                 ['almacen', 'Almacén', Stamp],
+                ['revista', 'Revista', BookOpen],
               ] as const
             ).filter(([key]) => BASIC_THEMES.includes(key) || webDesigns.includes(key)).map(([key, name, Icon]) => (
               <button
