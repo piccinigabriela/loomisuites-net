@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useBackLayer } from '../../hooks/useBackLayer';
 import { normalizeWhatsAppPhone } from '../../lib/teamNotices';
 import {
   Sun,
@@ -120,6 +121,11 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
   // Quick Action Sheet for a selected guest
   const [selectedGuestAction, setSelectedGuestAction] = useState<Reservation | null>(null);
   const [copiedTextNotice, setCopiedTextNotice] = useState<string | null>(null);
+
+  // Botón atrás del celular: cierra la hoja abierta y después vuelve a la Agenda, en vez de salir de la app
+  useBackLayer(paySheetOpen, () => setPaySheetOpen(false), 3);
+  useBackLayer(!!selectedGuestAction, () => setSelectedGuestAction(null), 3);
+  useBackLayer(mobileTab !== 'agenda', () => setMobileTab('agenda'), 1);
 
   // Xenia Assistant state inside mobile view
   const [xeniaMessages, setXeniaMessages] = useState<Array<{ id: string; role: 'user' | 'assistant'; text: string }>>([

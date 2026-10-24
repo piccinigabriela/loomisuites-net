@@ -275,7 +275,18 @@ ${kpi('Gastos del período', money(report.expenses), `${report.expensesCount} re
           </div>
         </div>
 
-        {/* Comisión de gestión */}
+        {/* Comisión de gestión: escondida para quien no administra para terceros; se activa con un link discreto */}
+        {!saved.enabled && !enabledInput ? (
+          <div className="pt-3 border-t border-stone-200 dark:border-zinc-800">
+            <button
+              type="button"
+              onClick={() => setEnabledInput(true)}
+              className="text-xs font-semibold text-stone-700 dark:text-stone-300 underline underline-offset-4 cursor-pointer"
+            >
+              ¿Administrás para un propietario y cobrás comisión?
+            </button>
+          </div>
+        ) : (
         <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-stone-200 dark:border-zinc-800">
           <label className="flex items-center gap-2 cursor-pointer text-sm font-bold text-stone-900 dark:text-white">
             <input
@@ -318,6 +329,7 @@ ${kpi('Gastos del período', money(report.expenses), `${report.expensesCount} re
             </span>
           )}
         </div>
+        )}
       </div>
 
       {/* KPIs */}

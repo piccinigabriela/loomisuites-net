@@ -2,6 +2,7 @@ import { DemoState } from '../../types';
 import { toLocalDateStr, formatCurrency, withHs } from '../../data/initialData';
 import { isAppMode } from '../../lib/appMode';
 import { auth } from '../../lib/firebase';
+import { findUnitInText, parseDateRange } from '../../lib/xeniaDates';
 
 function formatFriendlyDates(checkIn: string, checkOut: string): string {
   if (!checkIn || !checkOut) return `${checkIn || ''} al ${checkOut || ''}`;
@@ -110,6 +111,49 @@ export function getClientXeniaReply(message: string, demoState?: DemoState | any
     q.includes('por dónde empiezo')
   ) {
     return 'Te recomiendo seguir los Primeros pasos que ves arriba del Panel Hoy, en orden. Si te trabás, escribinos por WhatsApp al +54 9 11 4092-5939.';
+  }
+
+  // =========================================================================
+  // DISPONIBILIDAD ENTRE FECHAS ("¿qué hay libre del 5 al 10 de noviembre?")
+  // =========================================================================
+  const asksAvailability = /libre|disponib|vacante|desocupad|hay lugar|tengo lugar|tenes lugar|tenés lugar|ocupad/.test(q);
+  if (asksAvailability && properties.length > 0) {
+    const range = parseDateRange(q, toLocalDateStr(new Date()));
+    if (range) {
+      const nights = Math.round((Date.parse(range.checkOut + 'T00:00:00Z') - Date.parse(range.checkIn + 'T00:00:00Z')) / 86400000);
+      const asked: any = findUnitInText(q, properties);
+      const list = asked ? [asked] : properties;
+      const active = reservations.filter((r: any) => r.status !== 'cancelled');
+      const free: string[] = [];
+      const busy: string[] = [];
+      for (const p of list as any[]) {
+        const clash = active
+          .filter((r: any) => r.propertyId === p.id && r.checkIn < range.checkOut && r.checkOut > range.checkIn)
+          .sort((a: any, b: any) => a.checkIn.localeCompare(b.checkIn));
+        if (clash.length === 0) free.push(p.name);
+        else
+          busy.push(
+            `• **${p.name}**: ${clash
+              .map((r: any) => `${(r.guestName || 'Reserva').split(' ')[0]} ${formatFriendlyDates(r.checkIn, r.checkOut)}`)
+              .join(' · ')}`
+          );
+      }
+      const when = `${formatFriendlyDates(range.checkIn, range.checkOut)} (${nights} ${nights === 1 ? 'noche' : 'noches'})`;
+      if (asked) {
+        return free.length
+          ? `**${asked.name}** está libre ${when}.`
+          : `**${asked.name}** no está libre ${when}. Ocupada por ${busy.join(' ').replace(/^• \*\*[^*]+\*\*: /, '')}.`;
+      }
+      return `### 🗓️ Disponibilidad ${when}
+
+${free.length ? `**Libres:** ${free.join(', ')}.` : '**No queda ninguna unidad libre todas esas noches.**'}
+${busy.length ? `\n**Ocupadas en parte o del todo:**\n${busy.join('\n')}` : ''}
+
+La salida es el día que se van: esa noche ya queda libre.`;
+    }
+    if (/fecha|del |desde|hasta|cu[aá]ndo/.test(q)) {
+      return 'Decime las fechas y te digo qué unidades están libres. Por ejemplo: "¿qué hay libre del 5 al 10 de noviembre?" o "¿el Dept A está libre el 20/12?".';
+    }
   }
 
   // =========================================================================
@@ -586,7 +630,9 @@ Si el cambio lo hizo el huésped en Airbnb o Booking, se actualiza solo con la s
     }
 
     if (targetMonth) {
+      const unitAsked: any = findUnitInText(q, properties);
       const monthReservations = reservations.filter((r: any) => {
+        if (unitAsked && r.propertyId !== unitAsked.id) return false;
         // Mes pedido del año en curso; si quedó hace más de medio año, se entiende que es el del año que viene
         const now = new Date();
         const year = Number(targetMonth.num) < now.getMonth() + 1 - 6 ? now.getFullYear() + 1 : now.getFullYear();
@@ -605,15 +651,28 @@ Si el cambio lo hizo el huésped en Airbnb o Booking, se actualiza solo con la s
         return `• **${r.guestName}** en *${pName}* (${platformLabel(r.platform)}): ${formatFriendlyDates(r.checkIn, r.checkOut)} — **${formatCurrency(r.totalAmount)}** (Neto: ${formatCurrency(r.netRevenue)})`;
       }).join('\n');
 
-      return `### 📊 Ganancias y Facturación de ${targetMonth.name} (Loomi Suite)
+      // Por unidad (solo si se pregunta por todo el complejo y hay más de una)
+      const perUnit =
+        !unitAsked && properties.length > 1
+          ? properties
+              .map((p: any) => {
+                const list = monthReservations.filter((r: any) => r.propertyId === p.id);
+                const nights = list.reduce((acc: number, r: any) => acc + (r.nights || 0), 0);
+                const total = list.reduce((acc: number, r: any) => acc + (r.totalAmount || 0), 0);
+                return `• **${p.name}:** ${list.length} ${list.length === 1 ? 'reserva' : 'reservas'}, ${nights} noches, ${formatCurrency(total)}`;
+              })
+              .join('\n')
+          : '';
 
-Aquí tenés el desglose exacto de tu negocio para **${targetMonth.name}**:
+      return `### 📊 ${unitAsked ? `${unitAsked.name} en ${targetMonth.name}` : `Ganancias y facturación de ${targetMonth.name}`}
+
+${unitAsked ? `Esto es lo de **${unitAsked.name}** en **${targetMonth.name}**:` : `Aquí tenés el desglose de tu negocio para **${targetMonth.name}**:`}
 
 - 💰 **Ganancia Neta Real en Mano:** **${formatCurrency(monthNet)}** *(lo que te queda limpio en el bolsillo después de descontar comisiones)*.
 - 💵 **Facturación Bruta Total:** **${formatCurrency(monthGross)}** sobre **${monthReservations.length} reservas registradas** (${monthNights} noches vendidas).
 - 🏷️ **Comisiones Deducidas por OTAs (Airbnb/Booking):** **-${formatCurrency(monthCommissions)}**.
 - 🌟 **Reservas directas (sin comisión):** ${monthDirect} de ${monthReservations.length}.
-
+${perUnit ? `\n🏠 **Por unidad:**\n${perUnit}\n` : ''}
 ${monthReservations.length > 0 ? `📋 **Estadías del mes de ${targetMonth.name}:**\n${snippet}\n${monthReservations.length > 6 ? `*(y ${monthReservations.length - 6} reservas más en el sistema)*` : ''}` : `ℹ️ *Aún no hay reservas registradas específicamente para ${targetMonth.name}.*`}
 
 💡 *Podés ver el informe detallado y liquidaciones en **Administración → Rendimiento financiero**.*`;

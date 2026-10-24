@@ -255,6 +255,12 @@ export function cleanTextForSpeech(text: string): string {
   clean = clean.replace(/\b(\d{1,2}):(\d{2})hs\b/gi, '$1 y $2 horas');
   clean = clean.replace(/\b(\d{1,2})hs\b/gi, '$1 horas');
   clean = clean.replace(/\bpax\b/gi, 'personas');
+  // Abreviaturas de nombres de unidades: que no las deletree ("Dept A" → "departamento A")
+  clean = clean.replace(/\b(dept|depto|dpto|dto)\b\.?/gi, 'departamento');
+  clean = clean.replace(/\b(deptos|dptos)\b\.?/gi, 'departamentos');
+  clean = clean.replace(/\bhab\b\.?/gi, 'habitación');
+  clean = clean.replace(/\bcab\b\.?/gi, 'cabaña');
+  clean = clean.replace(/\bmonoamb\b\.?/gi, 'monoambiente');
   clean = clean.replace(/\bOTAs?\b/gi, 'agencias de reserva');
   clean = clean.replace(/\biCal\b/gi, 'ai cal');
   clean = clean.replace(/\bWi-?Fi\b/gi, 'guai fai');

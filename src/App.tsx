@@ -92,6 +92,7 @@ import {
   StaffComplexDoc,
 } from './lib/team';
 import { buildStaffArrivals, StaffArrivalsDoc } from './lib/staffArrivals';
+import { useBackLayer } from './hooks/useBackLayer';
 
 
 // Carga diferida: la landing no descarga la demo, el panel ni los modales hasta que hacen falta
@@ -1214,6 +1215,18 @@ export default function App() {
     return false;
   });
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Botón atrás: primero cierra fichas y ventanas, después vuelve al inicio (Hoy) en vez de salir de la app
+  useBackLayer(!!selectedReservationForDetail, () => setSelectedReservationForDetail(null), 3);
+  useBackLayer(isNewResModalOpen, () => setIsNewResModalOpen(false), 3);
+  useBackLayer(myPlanOpen, () => setMyPlanOpen(false), 3);
+  useBackLayer(isImportModalOpen, () => setIsImportModalOpen(false), 3);
+  useBackLayer(isMobileSidebarOpen, () => setIsMobileSidebarOpen(false), 2);
+  useBackLayer(
+    currentView === 'demo' && viewRole === 'admin' && mobileMode === 'full' && demoTab !== 'overview',
+    () => setDemoTab('overview'),
+    1
+  );
 
   // Toast feedback
   const [toastMessage, setToastMessage] = useState<string | null>(null);

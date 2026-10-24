@@ -1,3 +1,4 @@
+import { matchesReservationSearch } from '../../lib/reservationSearch';
 import React, { useState } from 'react';
 import { normalizeWhatsAppPhone } from '../../lib/teamNotices';
 import {
@@ -104,17 +105,7 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
     if (checkInEnd && res.checkIn > checkInEnd) return false;
 
     if (searchTerm.trim() !== '') {
-      const q = searchTerm.toLowerCase();
-      const guestMatch = res.guestName.toLowerCase().includes(q);
-      const emailMatch = res.guestEmail.toLowerCase().includes(q);
-      const phoneMatch = res.guestPhone.toLowerCase().includes(q);
-      const carMatch = res.carPlate ? res.carPlate.toLowerCase().includes(q) : false;
-      const propMatch = demoState.properties
-        .find((p) => p.id === res.propertyId)
-        ?.name.toLowerCase()
-        .includes(q);
-
-      return Boolean(guestMatch || emailMatch || phoneMatch || carMatch || propMatch);
+      return matchesReservationSearch(searchTerm, res, demoState.properties.find((p) => p.id === res.propertyId)?.name || '');
     }
 
     return true;
@@ -317,8 +308,31 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
           </div>
         </div>
 
+        {/* Buscador grande: huésped, unidad, teléfono, mail o patente */}
+        <div className="relative">
+          <Search className="w-5 h-5 text-stone-700 dark:text-stone-300 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="search"
+            aria-label="Buscar por huésped, unidad o teléfono"
+            placeholder="Buscar por huésped, unidad o teléfono"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full text-base font-semibold bg-white dark:bg-zinc-900 border-2 border-stone-300 dark:border-zinc-600 rounded-2xl pl-12 pr-12 py-3 text-stone-900 dark:text-white placeholder-stone-600 dark:placeholder-stone-400 focus:outline-none focus:border-[#E67E22] transition-colors [&::-webkit-search-cancel-button]:hidden"
+          />
+          {(searchTerm || statusFilter !== 'todos' || propertyFilter !== 'todos' || checkInStart || checkInEnd) && (
+            <button
+              onClick={handleClearFilters}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-zinc-800 cursor-pointer"
+              title="Limpiar búsqueda y filtros"
+              aria-label="Limpiar búsqueda y filtros"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
         {/* Filters Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-3 border-t border-gray-100 dark:border-zinc-800">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3 border-t border-gray-100 dark:border-zinc-800">
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block">
               Unidad
@@ -378,30 +392,6 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block">
-              Buscar
-            </label>
-            <div className="relative">
-              <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-2.5" />
-              <input
-                type="text"
-                placeholder="Nombre, auto o mail..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full text-xs font-medium bg-[#FDFBF9] dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl pl-9 pr-8 py-2 text-gray-800 dark:text-gray-100 focus:outline-none focus:border-[#E67E22] transition-colors"
-              />
-              {(searchTerm || statusFilter !== 'todos' || propertyFilter !== 'todos' || checkInStart || checkInEnd) && (
-                <button
-                  onClick={handleClearFilters}
-                  className="absolute right-2.5 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
-                  title="Limpiar Filtros"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-          </div>
         </div>
       </div>
 

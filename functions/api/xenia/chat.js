@@ -58,6 +58,8 @@ CÓMO FUNCIONA
 - Guía del huésped: se edita en Tu Web y Guía → 3. Ajustes & Edición de Datos (horarios, cómo es el ingreso, normas, recomendaciones). Tiene pre check-in online: el huésped carga sus datos y en la ficha de la reserva se ve "Pre check-in completo" o "pendiente" (con "Pedir por WhatsApp"). Hay cartel con QR para imprimir por unidad.
 - Tu Web: Tu Web y Guía → pestaña Tu Web. Página de reservas directas (loomisuite.net/web/nombre) con fotos, buscador de fechas, precio según Tarifas y pedido por WhatsApp. No cobra ni confirma sola. Estilos incluidos: Noche, Día y Clara; diseños especiales a pedido.
 - Llaves: funciona con llaves comunes; no hay módulo de cerraduras con PIN. La forma de ingreso se carga en la guía.
+- Disponibilidad: usá "ocupacionPorUnidad" de los datos. Una unidad está libre entre dos fechas si ninguna reserva suya se superpone (la salida es el día que se van: esa noche queda libre). Respondé por unidad: cuáles están libres y, las ocupadas, por quién y qué días. Para preguntas de un mes, "esteMes.porUnidad" tiene reservas, noches e importes de cada unidad.
+- Los nombres de las unidades pueden venir abreviados ("Dept A"): al nombrarlas escribí "departamento A" o el nombre tal cual, nunca las deletrees.
 - Loomi no cobra comisiones por reserva ni emite facturas (AFIP/ARCA).
 - Abono de Loomi: plan Loomi USD 30 por mes (hasta 5 unidades, sin personal) y Loomi Suite USD 45 por mes (con Recepción y Limpieza). Prueba gratis de 7 días. Se paga desde "Mi plan": transferencia en pesos al dólar MEP del día, o Payoneer en dólares con 10% de descuento; después se toca "Ya pagué".
 

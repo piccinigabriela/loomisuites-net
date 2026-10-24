@@ -1,3 +1,4 @@
+import { matchesReservationSearch } from '../../../lib/reservationSearch';
 import React, { useState } from 'react';
 import { Search, X, Plus, ChevronDown, ChevronRight, MessageCircle, Phone, ArrowRight, Check } from 'lucide-react';
 import type { DemoState, Reservation, Reminder } from '../../../types';
@@ -225,15 +226,9 @@ export const AgendaTab: React.FC<AgendaTabProps> = ({
 
   /* ---------- búsqueda (todas las reservas, también pasadas y canceladas) ---------- */
   const q = search.trim().toLowerCase();
-  const qDigits = q.replace(/\D/g, '');
   const searchResults = q
     ? demoState.reservations
-        .filter((r) => {
-          if (r.guestName.toLowerCase().includes(q)) return true;
-          if (unitName(r.propertyId).toLowerCase().includes(q)) return true;
-          if ((r.guestPhone || '').toLowerCase().includes(q)) return true;
-          return qDigits.length >= 3 && (r.guestPhone || '').replace(/\D/g, '').includes(qDigits);
-        })
+        .filter((r) => matchesReservationSearch(q, r, unitName(r.propertyId)))
         .sort(compareForDirectory(todayStr))
     : [];
 

@@ -31,6 +31,10 @@ export function buildXeniaContext(state: Partial<DemoState> | null | undefined) 
   const ofMonth = active.filter((r) => (r.checkIn || '').startsWith(monthPrefix));
   const sum = (list: any[], k: string) => Math.round(list.reduce((a, r) => a + (Number(r[k]) || 0), 0));
 
+  const horizonDate = new Date();
+  horizonDate.setMonth(horizonDate.getMonth() + 6);
+  const horizon = localDate(horizonDate);
+
   const pendingCleanings = (s.cleaningTasks || []).filter((t) => t.status === 'pending' && t.date >= today);
 
   return {
@@ -53,7 +57,20 @@ export function buildXeniaContext(state: Partial<DemoState> | null | undefined) 
       neto: sum(ofMonth, 'netRevenue'),
       comisiones: sum(ofMonth, 'commissionPaid'),
       directas: ofMonth.filter((r) => r.platform === 'direct').length,
+      porUnidad: props.map((p) => {
+        const list = ofMonth.filter((r) => r.propertyId === p.id);
+        return { unidad: p.name, reservas: list.length, noches: sum(list, 'nights'), total: sum(list, 'totalAmount'), neto: sum(list, 'netRevenue') };
+      }),
     },
+    // Para disponibilidad: por unidad, las reservas de los próximos 6 meses (la salida es el día que se van; esa noche queda libre)
+    ocupacionPorUnidad: props.map((p) => ({
+      unidad: p.name,
+      reservas: active
+        .filter((r) => r.propertyId === p.id && r.checkOut > today && r.checkIn <= horizon)
+        .sort((a, b) => a.checkIn.localeCompare(b.checkIn))
+        .slice(0, 30)
+        .map((r) => ({ llegada: r.checkIn, salida: r.checkOut, huesped: firstName(r.guestName) })),
+    })),
     limpiezasPendientes: pendingCleanings.length,
     opcionales: (s.availableAddons || []).map((a: any) => ({ nombre: a.name, precio: a.price })),
   };
