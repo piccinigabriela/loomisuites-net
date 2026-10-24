@@ -32,6 +32,7 @@ import {
   BASIC_THEMES,
   buildPublicSite,
   expPhotoKey,
+  type SiteTheme,
   buildSiteBusy,
   PublicSitePhoto,
   siteUrl,
@@ -70,6 +71,19 @@ interface Props {
   addons?: AddonService[];
   onGoToAddons?: () => void;
 }
+
+/** Todos los estilos de Tu Web (los especiales se muestran solo si Loomi los habilitó) */
+const STYLES = [
+  ['noche', 'Noche', Moon],
+  ['dia', 'Día', Sun],
+  ['clara', 'Clara', Trees],
+  ['tierra', 'Tierra', Mountain],
+  ['refugio', 'Refugio', Sunrise],
+  ['estudio', 'Estudio', Building2],
+  ['calma', 'Calma', Leaf],
+  ['hacienda', 'Hacienda', Wheat],
+  ['revista', 'Revista', BookOpen],
+] as const;
 
 const card = 'bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200 dark:border-zinc-800 p-5 sm:p-6';
 const h3 = 'text-lg font-bold text-stone-900 dark:text-white';
@@ -369,6 +383,8 @@ export const TuWebSettings: React.FC<Props> = ({
         <Preview
           onClose={() => setShowPreview(false)}
           settings={{ ...s, theme: allowedTheme(s.theme, webDesigns) }}
+          styles={STYLES.filter(([key]) => BASIC_THEMES.includes(key) || (webDesigns || []).includes(key)).map(([key, name]) => ({ key, name }))}
+          onUseStyle={(theme) => save({ theme })}
           guide={guide}
           complexName={complexName}
           city={city}
@@ -560,19 +576,7 @@ const TextsCard: React.FC<{
         <div className="space-y-2">
           <span className={label}>Estilo</span>
           <div className="flex flex-wrap gap-2">
-            {(
-              [
-                ['noche', 'Noche', Moon],
-                ['dia', 'Día', Sun],
-                ['clara', 'Clara', Trees],
-                ['tierra', 'Tierra', Mountain],
-                ['refugio', 'Refugio', Sunrise],
-                ['estudio', 'Estudio', Building2],
-                ['calma', 'Calma', Leaf],
-                ['hacienda', 'Hacienda', Wheat],
-                ['revista', 'Revista', BookOpen],
-              ] as const
-            ).filter(([key]) => BASIC_THEMES.includes(key) || webDesigns.includes(key)).map(([key, name, Icon]) => (
+            {STYLES.filter(([key]) => BASIC_THEMES.includes(key) || webDesigns.includes(key)).map(([key, name, Icon]) => (
               <button
                 key={key}
                 type="button"
@@ -792,13 +796,18 @@ const Preview: React.FC<{
   currency?: CurrencyCode;
   photos: PublicSitePhoto[];
   addons?: AddonService[];
-}> = ({ onClose, settings, guide, complexName, city, properties, reservations, pricing, currency, photos, addons }) => {
+  styles?: Array<{ key: SiteTheme; name: string }>;
+  onUseStyle?: (theme: SiteTheme) => Promise<void> | void;
+}> = ({ onClose, settings, guide, complexName, city, properties, reservations, pricing, currency, photos, addons, styles = [], onUseStyle }) => {
+  // El estilo que se mira en la vista previa (no se publica hasta tocar "Usar este estilo")
+  const [look, setLook] = useState<SiteTheme>(settings.theme || 'noche');
+  const [saving, setSaving] = useState(false);
   const site = useMemo(() => {
-    const data = buildPublicSite({ settings, guide, complexName, city, properties, pricing, currency, addons });
+    const data = buildPublicSite({ settings: { ...settings, theme: look }, guide, complexName, city, properties, pricing, currency, addons });
     const today = new Date();
     const t = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     return { ...data, busy: buildSiteBusy(data.units.map((u) => u.id), reservations, t) };
-  }, [settings, guide, complexName, city, properties, pricing, currency, reservations, addons]);
+  }, [settings, look, guide, complexName, city, properties, pricing, currency, reservations, addons]);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -810,14 +819,54 @@ const Preview: React.FC<{
 
   return (
     <div className="fixed inset-0 z-[200] overflow-y-auto bg-black">
-      <button
-        type="button"
-        onClick={onClose}
-        className="fixed top-3 left-3 z-[210] inline-flex items-center gap-2 min-h-[44px] px-4 rounded-full bg-white text-stone-900 text-base font-bold shadow-xl cursor-pointer"
-      >
-        <X className="w-4 h-4" /> Cerrar vista previa
-      </button>
-      <PublicSiteView site={site} photos={photos} preview />
+      <div className="sticky top-0 z-[210] bg-[#0F1013] text-white border-b border-zinc-700">
+        <div className="flex items-center gap-2 px-3 py-2.5">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Cerrar vista previa"
+            className="shrink-0 inline-flex items-center gap-2 min-h-[42px] px-3 sm:px-4 rounded-full bg-white text-stone-900 text-sm sm:text-base font-bold cursor-pointer"
+          >
+            <X className="w-4 h-4" /> <span className="hidden sm:inline">Cerrar</span>
+          </button>
+          {styles.length > 1 && (
+            <div className="flex-1 min-w-0 flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {styles.map((st) => (
+                <button
+                  key={st.key}
+                  type="button"
+                  onClick={() => setLook(st.key)}
+                  aria-pressed={look === st.key}
+                  className={`shrink-0 min-h-[42px] px-3.5 rounded-full text-sm font-bold cursor-pointer border ${
+                    look === st.key ? 'bg-[#E67E22] border-[#E67E22] text-white' : 'border-zinc-500 text-white hover:bg-white/10'
+                  }`}
+                >
+                  {st.name}
+                  {st.key === settings.theme ? ' ✓' : ''}
+                </button>
+              ))}
+            </div>
+          )}
+          {onUseStyle && look !== settings.theme && (
+            <button
+              type="button"
+              disabled={saving}
+              onClick={async () => {
+                setSaving(true);
+                try {
+                  await onUseStyle(look);
+                } finally {
+                  setSaving(false);
+                }
+              }}
+              className="shrink-0 min-h-[42px] px-4 rounded-full bg-white text-stone-900 text-sm font-bold cursor-pointer disabled:opacity-60"
+            >
+              {saving ? 'Guardando…' : 'Usar este estilo'}
+            </button>
+          )}
+        </div>
+      </div>
+      <PublicSiteView key={look} site={site} photos={photos} preview />
     </div>
   );
 };
