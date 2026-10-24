@@ -46,7 +46,7 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Config del dueño en `tenants/{uid}.webSite`. App.tsx publica sola los cambios; `busy` lo escriben la app (dueño o Recepción) y server-sync.
   Pantalla: Tu Web y Guía → pestaña Tu Web (`TuWebSettings.tsx`). Vista previa del link: `functions/web/`.
   Dominio propio (a mano): Cloudflare Pages → Custom domains; documento `siteDomains/{dominio sin www}` {slug}; sumar el dominio a la clave de reCAPTCHA (App Check).
-  Estilos: Noche, Día y Clara incluidos; diseños especiales de pago (Tierra, Refugio, Estudio, Calma, Almacén, Revista) en `SPECIAL_THEMES`, se habilitan por cuenta en
+  Estilos: Noche, Día y Clara incluidos; diseños especiales de pago (Tierra, Refugio, Estudio, Calma, Hacienda, Revista) en `SPECIAL_THEMES`, se habilitan por cuenta en
   `subscriptions/{uid}.webDesigns` desde el Panel de clientes (solo administración). Sin habilitar, se publica Noche.
   Noche, Día, Clara y Tierra se arman en `PublicSiteView.tsx`; los que tienen estructura propia están en `booking/designs/` (registro en
   `designs/index.ts`) y comparten textos, buscador e idioma de `booking/siteKit.tsx` (`useSiteBooking`). Para sumar uno: su componente,

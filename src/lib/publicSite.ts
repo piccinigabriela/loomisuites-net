@@ -11,7 +11,7 @@
 import type { CurrencyCode, Property, Reservation, WelcomeGuideData } from '../types';
 import { normalizePricing, PricingSettings } from './pricing';
 
-export type SiteTheme = 'noche' | 'dia' | 'clara' | 'tierra' | 'refugio' | 'estudio' | 'calma' | 'almacen' | 'revista';
+export type SiteTheme = 'noche' | 'dia' | 'clara' | 'tierra' | 'refugio' | 'estudio' | 'calma' | 'hacienda' | 'revista';
 
 /** Diseños incluidos en todos los planes */
 export const BASIC_THEMES: SiteTheme[] = ['noche', 'dia', 'clara'];
@@ -21,7 +21,7 @@ export const SPECIAL_THEMES: Array<{ id: SiteTheme; name: string }> = [
   { id: 'refugio', name: 'Refugio' },
   { id: 'estudio', name: 'Estudio' },
   { id: 'calma', name: 'Calma' },
-  { id: 'almacen', name: 'Almacén' },
+  { id: 'hacienda', name: 'Hacienda' },
   { id: 'revista', name: 'Revista' },
 ];
 

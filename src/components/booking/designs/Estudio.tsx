@@ -1,69 +1,57 @@
 /**
- * Estudio (diseño especial): crema y negro, nombre con una palabra en cursiva y el resto en mayúsculas,
- * secciones numeradas 01, 02, 03, cifras del complejo y cierre oscuro con los contactos.
- * Pensado para departamentos en la ciudad, pero sirve para cualquier complejo con estilo moderno.
+ * Estudio (diseño especial, oscuro): gris pizarra y verde salvia, el nombre con letras separadas,
+ * la foto de portada enmarcada con las secciones arriba, y todo armado en paneles que mezclan
+ * fotos, bloques de color, las cifras reales del complejo y un dibujo de líneas.
  */
 import React from 'react';
-import { ArrowDownRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import type { PublicSitePhoto, PublicSiteUnit } from '../../../lib/publicSite';
-import { fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink } from '../siteKit';
+import { BookBar, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink } from '../siteKit';
 
 const VARS = {
-  '--bg': '#EDEAE3',
-  '--surface': '#F6F4EF',
-  '--line': '#1A1A1A',
-  '--fg': '#141414',
-  '--fg-2': '#2E2D2A',
-  '--ink': '#1B1B1B',
+  '--bg': '#172123',
+  '--panel': '#202D2F',
+  '--panel-2': '#2A3A3B',
+  '--sage': '#4E625E',
+  '--line': '#3C4E4E',
+  '--fg': '#EEF1EC',
+  '--fg-2': '#D4DAD3',
+  '--light': '#E6EBE4',
 } as React.CSSProperties;
 
-const sans: React.CSSProperties = { fontFamily: "'Montserrat', 'Helvetica Neue', Arial, sans-serif" };
-const serif: React.CSSProperties = { fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: 'italic', fontWeight: 500 };
+const thin: React.CSSProperties = { fontFamily: "'Questrial', 'Avenir Next', system-ui, sans-serif", fontWeight: 400 };
 
-/** "Corte delle Vette" → la primera palabra en cursiva y el resto en mayúsculas */
-const SplitName: React.FC<{ text: string; big?: boolean }> = ({ text, big }) => {
-  const [first, ...rest] = (text || '').trim().split(/\s+/);
-  if (!rest.length) {
-    return <span style={sans} className="uppercase font-medium tracking-[-0.01em]">{first}</span>;
-  }
-  return (
-    <>
-      <span style={serif} className={`block normal-case ${big ? 'text-[0.62em] leading-none mb-1' : 'text-[0.9em] leading-tight'}`}>
-        {first}
-      </span>
-      <span style={sans} className="block uppercase font-medium tracking-[-0.01em]">
-        {rest.join(' ')}
-      </span>
-    </>
-  );
-};
+/** "Corte delle Vette" → C·O·R·T·E  D·E·L·L·E  V·E·T·T·E (si es corto); si es largo, letras espaciadas */
+function spaced(name: string): string {
+  const clean = (name || '').trim().toUpperCase();
+  if (clean.replace(/\s/g, '').length <= 9) return clean.split(' ').map((w) => w.split('').join('·')).join('  ');
+  return clean;
+}
 
-const SectionHead: React.FC<{ n: number; title: string; id?: string }> = ({ n, title, id }) => (
-  <div id={id} className="flex items-baseline justify-between gap-4 border-b border-[var(--line)] pb-3 mb-8 scroll-mt-6">
-    <h2 style={sans} className="text-xl sm:text-2xl font-medium uppercase tracking-[0.02em]">
-      {title}
-    </h2>
-    <span style={sans} className="text-xl sm:text-2xl font-medium tabular-nums">
-      {String(n).padStart(2, '0')}
-    </span>
-  </div>
+/** Dibujo de líneas (círculos y rayos), como bordado, para los paneles de color */
+const Ornament: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="0.8" className={className} aria-hidden="true">
+    {[18, 34, 50, 66, 82, 96].map((r) => (
+      <circle key={r} cx="100" cy="100" r={r} />
+    ))}
+    {Array.from({ length: 24 }, (_, i) => {
+      const a = (i / 24) * Math.PI * 2;
+      return <line key={i} x1={100 + Math.cos(a) * 18} y1={100 + Math.sin(a) * 18} x2={100 + Math.cos(a) * 96} y2={100 + Math.sin(a) * 96} />;
+    })}
+    {Array.from({ length: 12 }, (_, i) => {
+      const a = (i / 12) * Math.PI * 2;
+      return <circle key={`p${i}`} cx={100 + Math.cos(a) * 58} cy={100 + Math.sin(a) * 58} r="8" />;
+    })}
+  </svg>
 );
 
 export const EstudioSite: React.FC<SiteViewProps> = ({ site, photos, preview }) => {
   const b = useSiteBooking(site, photos, preview);
   const { t, lang, results, searched, general, cover, unitPhotos, setLightbox } = b;
-  useGoogleFont(
-    'loomi-font-estudio',
-    'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,500&family=Montserrat:wght@400;500;600&display=swap'
-  );
+  useGoogleFont('loomi-font-questrial', 'https://fonts.googleapis.com/css2?family=Questrial&display=swap');
 
-  const initials = site.name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 3)
-    .map((w) => w[0]?.toUpperCase())
-    .join('.');
-  const gallery = general.slice(1);
+  const banner = general[1];
+  const gallery = general.slice(2);
   const unitList: Array<{ unit: PublicSiteUnit; total?: number; below?: boolean; minNights?: number }> = results
     ? results.free
     : site.units.map((unit) => ({ unit }));
@@ -71,240 +59,280 @@ export const EstudioSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
     site.units.length ? { n: String(site.units.length), label: t.statUnits(site.units.length) } : null,
     b.maxCapacity > 1 ? { n: String(b.maxCapacity), label: t.statGuests } : null,
     site.checkinHour ? { n: site.checkinHour, label: t.statIn } : null,
-    site.checkoutHour ? { n: site.checkoutHour, label: t.statOut } : null,
   ].filter(Boolean) as Array<{ n: string; label: string }>;
-
-  const btnDark =
-    'inline-flex items-center justify-center gap-2 min-h-[50px] px-6 bg-[var(--ink)] text-white text-sm font-semibold uppercase tracking-[0.08em] hover:bg-black transition cursor-pointer';
-  let sec = 0;
+  const nav: Array<[string, string]> = [
+    [t.place, 'e-lugar'],
+    [t.stays, 'e-aloj'],
+    [t.gallery, 'e-fotos'],
+    [t.contactTitle, 'e-contacto'],
+  ];
+  const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const btnLight =
+    'inline-flex items-center justify-center gap-2 min-h-[50px] px-6 bg-[var(--light)] text-[#172123] text-sm font-bold uppercase tracking-[0.12em] hover:bg-white transition cursor-pointer';
 
   return (
-    <div style={{ ...VARS, ...sans }} className="relative min-h-screen bg-[var(--bg)] text-[var(--fg)] antialiased">
-      <div className="max-w-6xl mx-auto px-5 sm:px-10">
-        {/* Barra de arriba */}
-        <div className="flex items-center justify-between gap-4 pt-5 pb-4 text-xs font-semibold uppercase tracking-[0.06em]">
-          <span>{initials}</span>
-          {site.city && <span className="hidden sm:block truncate">{site.city}</span>}
-          <LangSwitch b={b} className="flex gap-0.5 border border-[var(--line)] rounded-full p-0.5" activeCls="bg-[var(--ink)] text-white" idleCls="text-[var(--fg)]" />
+    <div style={VARS} className="relative min-h-screen bg-[var(--bg)] text-[var(--fg)] font-sans antialiased">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8">
+        {/* Línea de arriba: nombre ——— ciudad */}
+        <div className="flex items-center gap-4 pt-5 pb-5 text-sm font-semibold">
+          <span style={thin} className="truncate text-base">
+            {site.name}
+          </span>
+          <span className="flex-1 h-px bg-[var(--fg)]/40 min-w-[24px]" />
+          <span className="hidden sm:block truncate">{site.city}</span>
+          <LangSwitch b={b} className="flex gap-0.5 border border-[var(--fg)]/50 p-0.5" activeCls="bg-[var(--light)] text-[#172123] rounded-none!" idleCls="text-[var(--fg)] rounded-none!" />
         </div>
 
-        {/* Portada */}
-        <header className="pt-16 sm:pt-24 pb-12 sm:pb-16 text-center">
-          <h1 className="text-[clamp(2.6rem,11vw,7.5rem)] leading-[0.95] text-balance">
-            <SplitName text={site.name} big />
-          </h1>
-          {site.tagline && <p className="mt-6 mx-auto max-w-md text-sm sm:text-base font-medium uppercase tracking-[0.06em] text-[var(--fg-2)]">{site.tagline}</p>}
+        {/* Portada enmarcada: secciones arriba, foto con el nombre, buscador abajo */}
+        <header className="bg-[var(--panel)]">
+          <nav className="grid grid-cols-2 sm:grid-cols-4 text-xs font-bold uppercase tracking-[0.14em]">
+            {nav.map(([label, id], i) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => go(id)}
+                className={`min-h-[44px] px-3 text-center cursor-pointer hover:bg-[var(--sage)] transition ${['bg-[var(--panel-2)]', 'bg-[var(--panel)]', 'bg-[var(--sage)]', 'bg-[var(--panel-2)]'][i]}`}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
+          <div className="relative h-[62vh] min-h-[380px] max-h-[640px] overflow-hidden">
+            {cover && <img src={cover.data} alt={site.name} className="absolute inset-0 w-full h-full object-cover" />}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/55" />
+            <div className="relative h-full flex flex-col items-center justify-center text-center px-5">
+              <h1 style={thin} className="text-[clamp(1.8rem,6.5vw,4.6rem)] tracking-[0.32em] leading-tight text-balance text-white">
+                {spaced(site.name)}
+              </h1>
+              {site.tagline && <p className="mt-5 max-w-xl text-base sm:text-lg font-medium text-white">{site.tagline}</p>}
+            </div>
+          </div>
+          <div ref={b.searchRef} className="p-4 sm:p-6 scroll-mt-6">
+            <SearchForm
+              b={b}
+              colorScheme="dark"
+              formCls="grid grid-cols-2 sm:grid-cols-[1fr_1fr_auto_auto] gap-x-3 gap-y-3 items-end"
+              labelCls="text-xs font-bold uppercase tracking-[0.14em]"
+              fieldCls="bg-[var(--bg)] border border-[var(--line)] text-[var(--fg)]"
+              stepBtnCls="w-10 h-10 flex items-center justify-center hover:bg-[var(--panel-2)] cursor-pointer"
+              submitCls={btnLight}
+              errorCls="text-sm font-bold text-[#F3C9A8]"
+            />
+          </div>
         </header>
-      </div>
 
-      {cover && (
-        <button type="button" onClick={() => setLightbox({ list: general.length ? general : [cover], index: 0 })} className="block w-full max-w-6xl mx-auto sm:px-10 cursor-pointer">
-          <img src={cover.data} alt={site.name} className="w-full aspect-[4/3] sm:aspect-[21/9] object-cover" />
-        </button>
-      )}
-
-      <div className="max-w-6xl mx-auto px-5 sm:px-10">
-        {/* Buscador */}
-        <div ref={b.searchRef} className="-mt-px bg-[var(--ink)] text-white p-5 sm:p-7 scroll-mt-6">
-          <SearchForm
-            b={b}
-            colorScheme="dark"
-            formCls="grid grid-cols-2 sm:grid-cols-[1fr_1fr_auto_auto] gap-x-4 gap-y-4 items-end"
-            labelCls="text-xs font-semibold uppercase tracking-[0.08em]"
-            fieldCls="bg-transparent border border-white/70 text-white"
-            stepBtnCls="w-10 h-10 flex items-center justify-center hover:bg-white/15 cursor-pointer"
-            submitCls="inline-flex items-center justify-center min-h-[48px] px-6 bg-[var(--bg)] text-[var(--ink)] text-sm font-semibold uppercase tracking-[0.08em] hover:bg-white transition cursor-pointer"
-            errorCls="text-sm font-semibold text-[#FFD7A8]"
-          />
-        </div>
-
-        {/* El lugar */}
-        {(site.description || stats.length > 0) && (
-          <section className="pt-20 sm:pt-28">
-            <SectionHead n={++sec} title={t.place} />
-            <div className="grid gap-10 sm:grid-cols-2 sm:gap-16">
-              {site.description && <p className="text-lg sm:text-xl leading-relaxed text-[var(--fg-2)] whitespace-pre-line">{site.description}</p>}
-              {stats.length > 0 && (
-                <div className="grid grid-cols-2 gap-x-6 gap-y-8 content-start">
-                  {stats.map((s) => (
-                    <div key={s.label} className="border-t border-[var(--line)] pt-3">
-                      <p className="text-4xl sm:text-5xl font-medium tabular-nums tracking-[-0.02em]">{s.n}</p>
-                      <p className="mt-2 text-sm font-medium text-[var(--fg-2)]">{s.label}</p>
-                    </div>
-                  ))}
+        {/* El lugar: franja de foto + tres paneles */}
+        <section id="e-lugar" className="pt-14 sm:pt-20 scroll-mt-4">
+          {banner && (
+            <button type="button" onClick={() => setLightbox({ list: general, index: 1 })} className="relative block w-full h-48 sm:h-64 overflow-hidden cursor-pointer">
+              <img src={banner.data} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/65 to-black/0" />
+              <h2 style={thin} className="absolute left-5 sm:left-8 bottom-5 sm:bottom-8 text-3xl sm:text-5xl text-white text-left">
+                {t.place}
+              </h2>
+            </button>
+          )}
+          <div className="grid sm:grid-cols-3">
+            <div className="bg-[var(--panel)] p-6 sm:p-8 space-y-4">
+              {!banner && (
+                <h2 style={thin} className="text-3xl">
+                  {t.place}
+                </h2>
+              )}
+              {site.description && <p className="text-base leading-relaxed text-[var(--fg-2)] whitespace-pre-line">{site.description}</p>}
+            </div>
+            <div className="bg-[var(--panel)] sm:border-l border-[var(--line)] p-6 sm:p-8 grid grid-cols-2 sm:grid-cols-1 gap-6 content-start">
+              {stats.map((s) => (
+                <div key={s.label}>
+                  <p style={thin} className="text-4xl sm:text-5xl tabular-nums">
+                    {s.n}
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-[var(--fg-2)]">{s.label}</p>
                 </div>
+              ))}
+            </div>
+            <div className="relative bg-[var(--sage)] p-6 sm:p-8 overflow-hidden min-h-[220px] flex flex-col justify-end">
+              <Ornament className="absolute -right-10 -top-10 w-64 h-64 text-white/25" />
+              {(site.address || site.city) && (
+                <p style={thin} className="relative text-2xl sm:text-3xl leading-tight text-white">
+                  {[site.address, site.city].filter(Boolean).join(', ')}
+                </p>
+              )}
+              {site.mapsUrl && (
+                <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className="relative mt-4 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.12em] text-white underline underline-offset-4">
+                  {t.map} <ArrowRight className="w-4 h-4" />
+                </a>
               )}
             </div>
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* Alojamientos o resultados */}
-        <section ref={b.resultsRef} className="pt-20 sm:pt-28 scroll-mt-6">
-          <SectionHead n={++sec} title={results ? (results.free.length ? t.available : t.noneTitle) : t.stays} />
-          {results && searched && (
-            <p className="-mt-4 mb-8 text-base font-semibold text-[var(--fg-2)]">
-              {fmtDate(searched.in, lang)} → {fmtDate(searched.out, lang)} · {t.nights(results.n)} · {t.msgGuests(searched.guests).slice(2)}
-            </p>
-          )}
-          {!results && site.units.length > 1 && (
-            <ul className="mb-14 border-t border-[var(--line)]">
-              {site.units.map((u) => (
-                <li key={u.id} className="border-b border-[var(--line)]">
-                  <a href={`#u-${u.id}`} className="flex items-center justify-between gap-4 py-4 text-base sm:text-lg font-medium hover:pl-2 transition-all">
-                    <span>{u.name}</span>
-                    <ArrowDownRight className="w-5 h-5 shrink-0" />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
-
+        <section id="e-aloj" ref={b.resultsRef} className="pt-14 sm:pt-20 scroll-mt-4">
+          <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
+            <h2 style={thin} className="text-3xl sm:text-5xl">
+              {results ? (results.free.length ? t.available : t.noneTitle) : t.stays}
+            </h2>
+            {results && searched && (
+              <p className="text-base font-semibold text-[var(--fg-2)]">
+                {fmtDate(searched.in, lang)} → {fmtDate(searched.out, lang)} · {t.nights(results.n)} · {t.msgGuests(searched.guests).slice(2)}
+              </p>
+            )}
+          </div>
           {results && results.free.length === 0 ? (
-            <div className="space-y-6">
-              <p className="text-lg text-[var(--fg-2)]">{t.none}</p>
+            <div className="bg-[var(--panel)] p-6 sm:p-8 space-y-5">
+              <p className="text-lg">{t.none}</p>
               {b.generalLink && (
-                <a href={b.generalLink} target="_blank" rel="noopener noreferrer" className={btnDark}>
+                <a href={b.generalLink} target="_blank" rel="noopener noreferrer" className={btnLight}>
                   {t.askGeneral}
                 </a>
               )}
             </div>
           ) : (
-            <div className="grid gap-16 sm:grid-cols-2 sm:gap-x-12 sm:gap-y-20">
+            <div className="space-y-px">
               {unitList.map(({ unit, total, below, minNights }, i) => (
-                <UnitBlock key={unit.id} n={i + 1} unit={unit} photos={unitPhotos(unit.id)} t={t} onOpen={(idx) => setLightbox({ list: unitPhotos(unit.id), index: idx })}>
+                <UnitPanel key={unit.id} unit={unit} photos={unitPhotos(unit.id)} tone={i % 2 ? 'sage' : 'panel'} flip={i % 2 === 1} t={t} onOpen={(idx) => setLightbox({ list: unitPhotos(unit.id), index: idx })}>
                   {results ? (
-                    <div className="space-y-4 pt-2">
+                    <div className="space-y-3">
                       {below ? (
                         <p className="text-base font-semibold">{t.minNights(minNights || 0)}</p>
                       ) : total && total > 0 ? (
-                        <p className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-t border-[var(--line)] pt-3">
-                          <span className="text-sm font-semibold uppercase tracking-[0.06em]">
+                        <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                          <span className="text-xs font-bold uppercase tracking-[0.14em]">
                             {t.total} · {t.nights(results.n)}
                           </span>
-                          <span className="text-3xl font-medium tabular-nums">{fmtMoney(total, site.currency)}</span>
+                          <span style={thin} className="text-3xl tabular-nums">
+                            {fmtMoney(total, site.currency)}
+                          </span>
                         </p>
                       ) : (
                         <p className="text-base font-semibold">{t.askPrice}</p>
                       )}
                       {site.whatsapp && (
-                        <a href={waLink(site.whatsapp, b.requestText(unit, below ? 0 : total || 0))} target="_blank" rel="noopener noreferrer" className={`${btnDark} w-full`}>
+                        <a href={waLink(site.whatsapp, b.requestText(unit, below ? 0 : total || 0))} target="_blank" rel="noopener noreferrer" className={btnLight}>
                           {below ? t.askGeneral : t.ask}
                         </a>
                       )}
                     </div>
                   ) : (
-                    <button type="button" onClick={b.goSearch} className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.06em] underline underline-offset-[6px] decoration-2 cursor-pointer">
-                      {t.chooseDates} <ArrowDownRight className="w-4 h-4" />
+                    <button type="button" onClick={b.goSearch} className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.14em] border-b-2 border-[var(--fg)] pb-1 cursor-pointer">
+                      {t.chooseDates} <ArrowRight className="w-4 h-4" />
                     </button>
                   )}
-                </UnitBlock>
+                </UnitPanel>
               ))}
             </div>
           )}
-          {results && results.free.length > 0 && <p className="mt-12 text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>}
+          {results && results.free.length > 0 && <p className="mt-6 text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>}
         </section>
 
-        {/* Fotos */}
+        {/* Fotos: baldosas, con un panel de color en el medio */}
         {gallery.length > 0 && (
-          <section className="pt-20 sm:pt-28">
-            <SectionHead n={++sec} title={t.gallery} />
-            <div className="grid grid-cols-2 sm:grid-cols-3 sm:auto-rows-[clamp(160px,18vw,250px)] gap-2 sm:gap-4">
+          <section id="e-fotos" className="pt-14 sm:pt-20 scroll-mt-4">
+            <h2 style={thin} className="text-3xl sm:text-5xl mb-6">
+              {t.gallery}
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-[var(--line)]">
               {gallery.map((p, i) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => setLightbox({ list: general, index: i + 1 })}
-                  className={`overflow-hidden cursor-pointer ${i === 0 ? 'col-span-2 aspect-[16/10] sm:row-span-2' : 'aspect-square'} sm:aspect-auto`}
-                >
-                  <img src={p.data} alt="" loading="lazy" className="w-full h-full object-cover grayscale-[15%] hover:grayscale-0 hover:scale-[1.03] transition duration-700" />
-                </button>
+                <React.Fragment key={p.id}>
+                  {i === 1 && (
+                    <div className="relative bg-[var(--sage)] aspect-square overflow-hidden flex items-end p-5">
+                      <Ornament className="absolute inset-0 m-auto w-4/5 h-4/5 text-white/25" />
+                      <p style={thin} className="relative text-xl sm:text-2xl text-white">
+                        {site.city || site.name}
+                      </p>
+                    </div>
+                  )}
+                  <button type="button" onClick={() => setLightbox({ list: general, index: i + 2 })} className="block aspect-square overflow-hidden cursor-pointer">
+                    <img src={p.data} alt="" loading="lazy" className="w-full h-full object-cover hover:scale-[1.04] transition-transform duration-700" />
+                  </button>
+                </React.Fragment>
               ))}
+              {/* Relleno para que la grilla no quede con un hueco */}
+              <button
+                type="button"
+                onClick={b.goSearch}
+                className={`relative overflow-hidden bg-[var(--light)] text-[#172123] p-5 text-left cursor-pointer hover:bg-white transition ${(gallery.length + 1) % 2 ? 'flex aspect-square' : 'hidden'} ${
+                  ['sm:hidden', 'sm:flex sm:col-span-2 sm:aspect-auto', 'sm:flex sm:col-span-1 sm:aspect-square'][(gallery.length + 1) % 3]
+                } flex-col justify-end gap-2`}
+              >
+                <Ornament className="absolute -right-10 -top-10 w-56 h-56 text-[#172123]/15" />
+                <span style={thin} className="relative text-2xl sm:text-3xl leading-tight">
+                  {t.search}
+                </span>
+                <ArrowRight className="relative w-6 h-6" />
+              </button>
             </div>
           </section>
         )}
+
+        {/* Contacto */}
+        <section id="e-contacto" className="pt-14 sm:pt-20 pb-16 scroll-mt-4">
+          <div className="grid sm:grid-cols-2">
+            <div className="bg-[var(--panel)] p-6 sm:p-10 space-y-4">
+              <h2 style={thin} className="text-3xl sm:text-4xl">
+                {t.contact}
+              </h2>
+              {(site.checkinHour || site.checkoutHour) && (
+                <p className="text-base font-semibold text-[var(--fg-2)]">
+                  {site.checkinHour && `${t.checkin} ${site.checkinHour}`}
+                  {site.checkinHour && site.checkoutHour && ' · '}
+                  {site.checkoutHour && `${t.checkout} ${site.checkoutHour}`}
+                </p>
+              )}
+              {b.generalLink && (
+                <a href={b.generalLink} target="_blank" rel="noopener noreferrer" className={btnLight}>
+                  {t.askGeneral}
+                </a>
+              )}
+            </div>
+            <div className="relative bg-[var(--panel-2)] p-6 sm:p-10 overflow-hidden flex flex-col justify-end gap-2 min-h-[200px]">
+              <Ornament className="absolute -left-12 -bottom-12 w-64 h-64 text-white/15" />
+              <p className="relative text-sm font-bold">{t.direct}</p>
+              <a href="https://loomisuite.net" target="_blank" rel="noopener" className="relative text-sm font-bold underline underline-offset-4">
+                {t.madeWith}
+              </a>
+            </div>
+          </div>
+        </section>
       </div>
 
-      {/* Contacto */}
-      <footer className="mt-24 sm:mt-32 bg-[var(--ink)] text-white">
-        <div className="max-w-6xl mx-auto px-5 sm:px-10 py-16 sm:py-20 grid gap-12 sm:grid-cols-2">
-          <div className="space-y-5">
-            <h2 className="text-4xl sm:text-5xl leading-[0.95]">
-              <SplitName text={site.name} />
-            </h2>
-            {(site.address || site.city) && <p className="text-base font-medium">{[site.address, site.city].filter(Boolean).join(' · ')}</p>}
-            {(site.checkinHour || site.checkoutHour) && (
-              <p className="text-base font-medium">
-                {site.checkinHour && `${t.checkin} ${site.checkinHour}`}
-                {site.checkinHour && site.checkoutHour && ' · '}
-                {site.checkoutHour && `${t.checkout} ${site.checkoutHour}`}
-              </p>
-            )}
-          </div>
-          <div className="space-y-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.08em]">{t.contactTitle}</p>
-            <ul className="border-t border-white/60">
-              {b.generalLink && (
-                <li className="border-b border-white/60">
-                  <a href={b.generalLink} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-4 py-4 text-lg font-medium">
-                    {t.askGeneral} <ArrowDownRight className="w-5 h-5 -rotate-90" />
-                  </a>
-                </li>
-              )}
-              {site.mapsUrl && (
-                <li className="border-b border-white/60">
-                  <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-4 py-4 text-lg font-medium">
-                    {t.map} <ArrowDownRight className="w-5 h-5 -rotate-90" />
-                  </a>
-                </li>
-              )}
-              <li className="border-b border-white/60">
-                <button type="button" onClick={b.goSearch} className="w-full flex items-center justify-between gap-4 py-4 text-lg font-medium cursor-pointer">
-                  {t.search} <ArrowDownRight className="w-5 h-5 -rotate-90" />
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="max-w-6xl mx-auto px-5 sm:px-10 pb-10 flex flex-wrap justify-between gap-3 text-sm font-semibold">
-          <span>{t.direct}</span>
-          <a href="https://loomisuite.net" target="_blank" rel="noopener" className="underline underline-offset-4">
-            {t.madeWith}
-          </a>
-        </div>
-      </footer>
+      <BookBar b={b} className="w-full sm:w-auto min-h-[56px] px-10 bg-[var(--light)] text-[#172123] text-sm font-bold uppercase tracking-[0.16em] shadow-[0_-4px_20px_rgba(0,0,0,0.3)] sm:shadow-xl" />
 
       {b.lightbox && <Lightbox list={b.lightbox.list} index={b.lightbox.index} onClose={() => setLightbox(null)} closeLabel={t.close} />}
     </div>
   );
 };
 
-const UnitBlock: React.FC<{
-  n: number;
+/** Cada unidad: la foto con su nombre encima y un panel de color con los datos (alternan de lado) */
+const UnitPanel: React.FC<{
   unit: PublicSiteUnit;
   photos: PublicSitePhoto[];
+  tone: 'panel' | 'sage';
+  flip: boolean;
   t: SiteTexts;
   onOpen: (index: number) => void;
   children: React.ReactNode;
-}> = ({ n, unit, photos, t, onOpen, children }) => (
-  <article id={`u-${unit.id}`} className="flex flex-col gap-4 scroll-mt-6">
-    <p className="text-sm font-semibold tabular-nums">{String(n).padStart(2, '0')}</p>
-    <h3 className="text-3xl sm:text-4xl leading-[1.02]">
-      <SplitName text={unit.name} />
-    </h3>
-    {photos[0] ? (
-      <button type="button" onClick={() => onOpen(0)} className="block w-full aspect-[4/3] overflow-hidden cursor-pointer">
-        <img src={photos[0].data} alt={unit.name} loading="lazy" className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-700" />
-      </button>
-    ) : null}
-    <p className="text-sm font-semibold uppercase tracking-[0.06em]">
-      {[unit.maxGuests > 0 ? t.upTo(unit.maxGuests) : '', unit.bedrooms > 0 ? t.bedrooms(unit.bedrooms) : ''].filter(Boolean).join(' · ')}
+}> = ({ unit, photos, tone, flip, t, onOpen, children }) => (
+  <article className="grid sm:grid-cols-2">
+    <button type="button" onClick={() => photos[0] && onOpen(0)} className={`relative block aspect-[4/3] sm:aspect-auto sm:min-h-[340px] overflow-hidden bg-[var(--panel-2)] cursor-pointer ${flip ? 'sm:order-2' : ''}`}>
+      {photos[0] && <img src={photos[0].data} alt={unit.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover hover:scale-[1.03] transition-transform duration-700" />}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      <h3 style={thin} className="absolute left-5 bottom-5 right-5 text-3xl sm:text-4xl leading-tight text-white text-left">
+        {unit.name}
+      </h3>
+    </button>
+    <div className={`${tone === 'sage' ? 'bg-[var(--sage)]' : 'bg-[var(--panel)]'} p-6 sm:p-10 flex flex-col justify-center gap-4 ${flip ? 'sm:order-1' : ''}`}>
+      <p className="text-sm font-bold uppercase tracking-[0.12em]">
+        {[unit.maxGuests > 0 ? t.upTo(unit.maxGuests) : '', unit.bedrooms > 0 ? t.bedrooms(unit.bedrooms) : ''].filter(Boolean).join(' · ')}
+      </p>
+      {unit.description && <p className="text-base leading-relaxed text-[var(--fg)] whitespace-pre-line">{unit.description}</p>}
       {photos.length > 1 && (
-        <button type="button" onClick={() => onOpen(1)} className="block mt-1 sm:inline sm:mt-0 sm:ml-3 underline underline-offset-4 cursor-pointer">
+        <button type="button" onClick={() => onOpen(1)} className="self-start text-sm font-semibold underline underline-offset-4 cursor-pointer">
           {t.gallery} ({photos.length})
         </button>
       )}
-    </p>
-    {unit.description && <p className="text-base leading-relaxed text-[var(--fg-2)] whitespace-pre-line">{unit.description}</p>}
-    <div className="mt-auto">{children}</div>
+      <div className="pt-1">{children}</div>
+    </div>
   </article>
 );

@@ -7,6 +7,7 @@ import React from 'react';
 import { ArrowRight, MapPin, Clock } from 'lucide-react';
 import type { PublicSitePhoto, PublicSiteUnit } from '../../../lib/publicSite';
 import {
+  BookBar,
   fmtDate,
   fmtMoney,
   LangSwitch,
@@ -48,57 +49,54 @@ export const RefugioSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
 
   return (
     <div style={VARS} className="relative min-h-screen bg-[var(--bg)] text-[var(--fg)] font-sans antialiased">
-      {/* Portada */}
-      <header className="relative h-[100svh] min-h-[560px] max-h-[980px] overflow-hidden bg-[var(--accent)]">
-        {cover && <img src={cover.data} alt={site.name} className="absolute inset-0 w-full h-full object-cover" />}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-black/45" />
+      {/* Portada de impacto: foto a pantalla completa que se mueve despacio, texto grande al centro */}
+      <style>{`@keyframes refugio-zoom{from{transform:scale(1)}to{transform:scale(1.12) translate(-1.5%,-1%)}}
+.refugio-zoom{animation:refugio-zoom 26s ease-in-out infinite alternate}
+@media (prefers-reduced-motion:reduce){.refugio-zoom{animation:none}}`}</style>
+      <header className="relative h-[100svh] min-h-[560px] max-h-[1000px] overflow-hidden bg-[var(--accent)]">
+        {cover && <img src={cover.data} alt={site.name} className="refugio-zoom absolute inset-0 w-full h-full object-cover" />}
+        <div className="absolute inset-0 bg-black/45" />
 
-        <div className="absolute top-0 inset-x-0 z-10 flex items-start justify-between gap-4 px-5 sm:px-10 pt-5 sm:pt-7 text-white">
-          <div style={display} className="hidden sm:block min-w-0">
-            <p className="text-sm sm:text-base font-medium uppercase tracking-[0.28em] leading-snug truncate">{site.name}</p>
-            {site.city && <p className="mt-1 text-xs font-medium tracking-[0.18em] uppercase text-white/90 truncate">{site.city}</p>}
-          </div>
-          <div className="ml-auto flex items-center gap-3 shrink-0">
-            <LangSwitch
-              b={b}
-              className="flex gap-0.5 rounded-full bg-black/35 backdrop-blur p-1"
-              activeCls="bg-white text-stone-900"
-              idleCls="text-white"
-            />
-            <button
-              type="button"
-              onClick={b.goSearch}
-              style={display}
-              className="w-[68px] h-[68px] rounded-full bg-[var(--sun)] text-[#1A1A1A] text-[11px] font-semibold uppercase tracking-[0.08em] flex items-center justify-center shadow-lg hover:scale-105 transition cursor-pointer"
-            >
-              {t.book}
-            </button>
-          </div>
-        </div>
-
-        <div className="absolute z-10 bottom-14 sm:bottom-20 left-6 right-6 sm:left-auto sm:right-24 sm:max-w-md text-white sm:text-right">
-          {site.tagline && (
-            <p style={display} className="text-xl sm:text-2xl font-light leading-[1.7] tracking-[0.14em] text-balance">
-              {site.tagline}
-            </p>
-          )}
-          <p style={display} className="mt-4 text-sm font-medium uppercase tracking-[0.3em]">
+        <div className="absolute top-0 inset-x-0 z-10 flex items-center justify-between gap-4 px-5 sm:px-10 pt-5 sm:pt-7 text-white">
+          <p style={display} className="hidden sm:block text-sm font-medium uppercase tracking-[0.28em] truncate">
             {site.name}
           </p>
+          <LangSwitch b={b} className="ml-auto flex gap-0.5 rounded-full bg-black/35 backdrop-blur p-1" activeCls="bg-white text-stone-900" idleCls="text-white" />
         </div>
-        <span
-          aria-hidden="true"
-          className="hidden sm:block absolute z-10 right-8 bottom-20 text-[11px] font-semibold uppercase tracking-[0.3em] text-white [writing-mode:vertical-rl]"
+
+        {/* Pestaña vertical al costado */}
+        <button
+          type="button"
+          onClick={b.goSearch}
+          style={display}
+          className="hidden sm:block absolute z-10 left-0 top-1/2 -translate-y-1/2 bg-[var(--sun)] text-[#1A1A1A] px-3 py-5 text-xs font-semibold uppercase tracking-[0.2em] [writing-mode:vertical-rl] rotate-180 shadow-lg cursor-pointer hover:px-4 transition-all"
         >
-          Scroll
-        </span>
+          {t.directShort}
+        </button>
+
+        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center text-center text-white px-6 sm:px-20">
+          <p style={display} className="text-sm sm:text-base font-medium uppercase tracking-[0.24em] text-balance">
+            {[site.name, site.city].filter(Boolean).join(' · ')}
+          </p>
+          <h1 style={display} className="mt-5 max-w-4xl text-[clamp(2.2rem,7.5vw,5.5rem)] font-medium leading-[1.05] text-balance [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]">
+            {site.tagline || site.name}
+          </h1>
+          <button
+            type="button"
+            onClick={b.goSearch}
+            style={display}
+            className="hidden sm:inline-flex mt-10 min-h-[54px] items-center px-10 bg-[var(--sun)] text-[#1A1A1A] text-sm font-semibold uppercase tracking-[0.2em] hover:brightness-105 transition cursor-pointer"
+          >
+            {t.book}
+          </button>
+        </div>
       </header>
 
       {/* Presentación */}
       <section className="px-6 pt-24 pb-16 sm:pt-32 sm:pb-20 text-center">
-        <h1 style={display} className="text-[clamp(2rem,7vw,4.25rem)] font-light uppercase tracking-[0.12em] leading-tight text-balance">
+        <h2 style={display} className="text-[clamp(2rem,7vw,4.25rem)] font-light uppercase tracking-[0.12em] leading-tight text-balance">
           {site.name}
-        </h1>
+        </h2>
         {site.description && (
           <p className="mt-8 mx-auto max-w-xl text-base sm:text-lg leading-[2] text-[var(--fg-2)] whitespace-pre-line">{site.description}</p>
         )}
@@ -256,6 +254,11 @@ export const RefugioSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
         )}
       </section>
 
+      <BookBar
+        b={b}
+        className="w-full sm:w-auto min-h-[56px] px-10 bg-[var(--sun)] text-[#1A1A1A] text-sm font-semibold uppercase tracking-[0.2em] shadow-[0_-4px_20px_rgba(0,0,0,0.15)] sm:shadow-xl"
+      />
+
       <footer className="bg-[var(--accent)] text-white px-6 py-16 text-center space-y-4">
         <p style={display} className="text-2xl sm:text-3xl font-light uppercase tracking-[0.2em]">
           {site.name}
@@ -276,6 +279,7 @@ export const RefugioSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
           {t.madeWith}
         </a>
       </footer>
+
 
       {b.lightbox && <Lightbox list={b.lightbox.list} index={b.lightbox.index} onClose={() => setLightbox(null)} closeLabel={t.close} />}
     </div>

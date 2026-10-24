@@ -22,7 +22,7 @@ import {
   Sunrise,
   Building2,
   Leaf,
-  Stamp,
+  Wheat,
   BookOpen,
 } from 'lucide-react';
 import type { CurrencyCode, Property, Reservation, WelcomeGuideData } from '../../types';
@@ -518,7 +518,7 @@ const TextsCard: React.FC<{
                 ['refugio', 'Refugio', Sunrise],
                 ['estudio', 'Estudio', Building2],
                 ['calma', 'Calma', Leaf],
-                ['almacen', 'Almacén', Stamp],
+                ['hacienda', 'Hacienda', Wheat],
                 ['revista', 'Revista', BookOpen],
               ] as const
             ).filter(([key]) => BASIC_THEMES.includes(key) || webDesigns.includes(key)).map(([key, name, Icon]) => (

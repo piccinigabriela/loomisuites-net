@@ -49,6 +49,7 @@ export const T = {
     msgQuestion: '¿Está disponible?',
     msgGeneral: (name: string) => `Hola! Les escribo desde la web de ${name}.`,
     book: 'Reservar',
+    directShort: 'Reserva directa',
     where: 'Dónde estamos',
     hours: 'Horarios',
     place: 'El lugar',
@@ -97,6 +98,7 @@ export const T = {
     msgQuestion: 'Is it available?',
     msgGeneral: (name: string) => `Hi! I’m writing from the ${name} website.`,
     book: 'Book',
+    directShort: 'Book direct',
     where: 'Where we are',
     hours: 'Hours',
     place: 'The place',
@@ -145,6 +147,7 @@ export const T = {
     msgQuestion: 'Está disponível?',
     msgGeneral: (name: string) => `Olá! Escrevo pelo site de ${name}.`,
     book: 'Reservar',
+    directShort: 'Reserva direta',
     where: 'Onde estamos',
     hours: 'Horários',
     place: 'O lugar',
@@ -439,3 +442,40 @@ export interface SiteViewProps {
   /** Vista previa dentro de la app: muestra la página aunque esté desactivada */
   preview?: boolean;
 }
+
+/**
+ * Barra "Reservar" que acompaña al bajar (abajo de todo, siempre a mano en el celular) y lleva al buscador.
+ * Se esconde mientras el buscador está a la vista. Es sticky, no fixed: dentro de la vista previa de la app no se escapa.
+ */
+export const BookBar: React.FC<{ b: SiteBooking; className: string; label?: string }> = ({ b, className, label }) => {
+  const [searchVisible, setSearchVisible] = useState(true);
+  useEffect(() => {
+    const el = b.searchRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(([entry]) => setSearchVisible(entry.isIntersecting), { threshold: 0.15 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [b.searchRef]);
+  // En la compu, la portada ya tiene su botón: la barra aparece al bajar
+  const [pastHero, setPastHero] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setPastHero(window.scrollY > window.innerHeight * 0.6 || window.innerWidth < 640);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
+  const hidden = searchVisible || !!b.lightbox || !pastHero;
+  return (
+    <div className={`sticky bottom-0 z-40 pointer-events-none transition-all duration-300 ${hidden ? 'opacity-0 invisible' : 'opacity-100 visible'}`} aria-hidden={hidden}>
+      <div className="flex justify-center sm:justify-end px-0 sm:px-6 pb-0 sm:pb-6 pb-[env(safe-area-inset-bottom,0px)]">
+        <button type="button" tabIndex={hidden ? -1 : 0} onClick={b.goSearch} className={`pointer-events-auto cursor-pointer ${className}`}>
+          {label || (b.results ? b.t.chooseDates : b.t.book)}
+        </button>
+      </div>
+    </div>
+  );
+};

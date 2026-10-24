@@ -1,56 +1,24 @@
 /**
- * Calma (diseño especial): crema y tonos madera, títulos en una romana fina en mayúsculas,
- * portada con el texto a la izquierda y la foto fundida a la derecha, filas numeradas que alternan
- * foto y texto, las unidades en una grilla de tarjetas y una franja con foto para el contacto.
+ * Calma (diseño especial): verde profundo y tono arena, todo armado como un mosaico de baldosas
+ * (fotos y bloques de color con texto encajados), una palabra vertical al costado y títulos en una
+ * serif clásica y liviana. Para lugares en la naturaleza.
  */
 import React from 'react';
-import { MapPin, Clock } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import type { PublicSitePhoto, PublicSiteUnit } from '../../../lib/publicSite';
-import { fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink } from '../siteKit';
+import { BookBar, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink } from '../siteKit';
 
 const VARS = {
-  '--bg': '#F5F1EA',
-  '--surface': '#ECE5DA',
-  '--card': '#FBF9F5',
-  '--line': '#CFC4B4',
-  '--fg': '#1F1B16',
-  '--fg-2': '#3B342B',
-  '--wood': '#3A2F23',
+  '--bg': '#1E2A22',
+  '--green': '#2F3E33',
+  '--moss': '#3E5143',
+  '--sand': '#7A6E5C',
+  '--sand-2': '#A39478',
+  '--fg': '#F1ECE2',
+  '--fg-2': '#DDD5C6',
 } as React.CSSProperties;
 
-const roman: React.CSSProperties = { fontFamily: "'Marcellus', 'Cormorant Garamond', Georgia, serif", fontWeight: 400 };
-
-const pillDark =
-  'inline-flex items-center justify-center gap-2 min-h-[48px] px-7 rounded-full bg-[var(--wood)] text-white text-sm font-semibold uppercase tracking-[0.12em] hover:brightness-125 transition cursor-pointer';
-const pillLine =
-  'inline-flex items-center justify-center gap-2 min-h-[46px] px-7 rounded-full border border-[var(--fg)] text-[var(--fg)] text-sm font-semibold uppercase tracking-[0.12em] hover:bg-[var(--fg)] hover:text-[var(--bg)] transition cursor-pointer';
-
-/** Fila numerada: foto de un lado y texto del otro (alterna) */
-const Row: React.FC<{ n: number; title: string; photo?: PublicSitePhoto; flip?: boolean; onOpen?: () => void; children: React.ReactNode }> = ({
-  n,
-  title,
-  photo,
-  flip,
-  onOpen,
-  children,
-}) => (
-  <div className="grid gap-8 sm:gap-14 sm:grid-cols-2 items-center">
-    {photo && (
-      <button type="button" onClick={onOpen} className={`block overflow-hidden aspect-[4/3] cursor-pointer ${flip ? 'sm:order-2' : ''}`}>
-        <img src={photo.data} alt="" loading="lazy" className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-700" />
-      </button>
-    )}
-    <div className={`space-y-4 ${photo ? '' : 'sm:col-span-2 max-w-2xl'}`}>
-      <p style={roman} className="text-4xl sm:text-5xl tabular-nums">
-        {String(n).padStart(2, '0')}
-      </p>
-      <h2 style={roman} className="text-2xl sm:text-3xl uppercase tracking-[0.06em]">
-        {title}
-      </h2>
-      <div className="text-base sm:text-lg leading-relaxed text-[var(--fg-2)]">{children}</div>
-    </div>
-  </div>
-);
+const serif: React.CSSProperties = { fontFamily: "'Marcellus', 'Cormorant Garamond', Georgia, serif", fontWeight: 400 };
 
 export const CalmaSite: React.FC<SiteViewProps> = ({ site, photos, preview }) => {
   const b = useSiteBooking(site, photos, preview);
@@ -58,240 +26,257 @@ export const CalmaSite: React.FC<SiteViewProps> = ({ site, photos, preview }) =>
   useGoogleFont('loomi-font-marcellus', 'https://fonts.googleapis.com/css2?family=Marcellus&display=swap');
 
   const open = (i: number) => () => setLightbox({ list: general, index: i });
-  const band = cover;
-  const extra = general.slice(4);
-  const extraCols = ['', 'sm:grid-cols-1', 'sm:grid-cols-2', 'sm:grid-cols-3'][extra.length] || 'sm:grid-cols-4';
   const unitList: Array<{ unit: PublicSiteUnit; total?: number; below?: boolean; minNights?: number }> = results
     ? results.free
     : site.units.map((unit) => ({ unit }));
-  let n = 0;
+  const tile = 'relative overflow-hidden min-h-[220px]';
+  const btn =
+    'inline-flex items-center justify-center gap-2 min-h-[48px] px-6 bg-[var(--fg)] text-[var(--bg)] text-sm font-bold uppercase tracking-[0.12em] hover:bg-white transition cursor-pointer';
 
   return (
     <div style={VARS} className="relative min-h-screen bg-[var(--bg)] text-[var(--fg)] font-sans antialiased">
-      {/* Portada */}
-      <header className="relative overflow-hidden">
-        <div className="absolute top-0 inset-x-0 z-20 flex items-center justify-between gap-4 px-5 sm:px-10 py-5">
-          <span style={roman} className="text-base sm:text-lg uppercase tracking-[0.18em] truncate">
-            {site.name}
-          </span>
-          <LangSwitch b={b} className="flex gap-0.5 rounded-full bg-[var(--bg)]/85 backdrop-blur border border-[var(--line)] p-0.5" activeCls="bg-[var(--wood)] text-white" idleCls="text-[var(--fg)]" />
-        </div>
-        <div className="sm:min-h-[88vh] sm:grid sm:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-          {cover && (
-            <div className="relative h-[52vh] sm:h-auto sm:order-2">
-              <img src={cover.data} alt={site.name} className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-[var(--bg)] via-[var(--bg)]/10 to-transparent sm:via-transparent" />
-            </div>
-          )}
-          <div className="relative z-10 px-6 sm:pl-12 lg:pl-20 sm:pr-4 pb-12 pt-4 sm:pt-32 flex flex-col justify-center gap-6">
-            <h1 style={roman} className="text-[clamp(2.4rem,6vw,4.75rem)] uppercase leading-[1.04] tracking-[0.02em] text-balance">
+      <div className="relative max-w-6xl mx-auto px-3 sm:px-14 pt-3 sm:pt-8 pb-14">
+        {/* Palabra vertical al costado (compu) */}
+        <span
+          aria-hidden="true"
+          style={serif}
+          className="hidden lg:block absolute right-2 top-10 text-3xl tracking-[0.5em] uppercase [writing-mode:vertical-rl] text-[var(--fg)]"
+        >
+          {(site.city || site.name).split(',')[0]}
+        </span>
+
+        {/* Portada */}
+        <header className="relative h-[78vh] min-h-[460px] max-h-[760px] overflow-hidden">
+          {cover && <img src={cover.data} alt={site.name} className="absolute inset-0 w-full h-full object-cover" />}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-black/10" />
+          <div className="absolute top-0 inset-x-0 flex justify-end p-4 sm:p-6">
+            <LangSwitch b={b} className="flex gap-0.5 rounded-full bg-black/35 backdrop-blur p-1" activeCls="bg-[var(--fg)] text-[var(--bg)]" idleCls="text-white" />
+          </div>
+          <div className="relative h-full flex flex-col justify-end p-6 sm:p-12 max-w-2xl">
+            {site.city && <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white mb-4">{site.city}</p>}
+            <h1 style={serif} className="text-[clamp(2.6rem,9vw,6.5rem)] leading-[0.95] text-white text-balance">
               {site.name}
             </h1>
-            <span className="block w-14 h-px bg-[var(--fg)]" />
-            {site.tagline && <p className="text-lg sm:text-xl leading-relaxed text-[var(--fg-2)] max-w-md">{site.tagline}</p>}
-            {site.city && (
-              <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em]">
-                <MapPin className="w-4 h-4" /> {site.city}
-              </p>
-            )}
-            <div className="hidden sm:block">
-              <button type="button" onClick={b.goSearch} className={pillLine}>
-                {t.search}
-              </button>
-            </div>
+            {site.tagline && <p className="mt-5 text-lg sm:text-xl text-white max-w-md">{site.tagline}</p>}
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="max-w-6xl mx-auto px-5 sm:px-10">
-        {/* Buscador */}
-        <div ref={b.searchRef} className="mt-6 sm:mt-10 rounded-[28px] bg-[var(--card)] border border-[var(--line)] p-5 sm:p-7 scroll-mt-8">
+        {/* Buscador en franja arena */}
+        <div ref={b.searchRef} className="bg-[var(--sand)] p-4 sm:p-6 scroll-mt-4">
           <SearchForm
             b={b}
-            colorScheme="light"
-            formCls="grid grid-cols-2 sm:grid-cols-[1fr_1fr_auto_auto] gap-x-4 gap-y-4 items-end"
-            labelCls="text-xs font-bold uppercase tracking-[0.14em]"
-            fieldCls="rounded-full bg-[var(--bg)] border border-[var(--line)] text-[var(--fg)]"
-            stepBtnCls="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[var(--surface)] cursor-pointer"
-            submitCls={pillDark}
-            errorCls="text-sm font-bold text-[#8A2E12]"
+            colorScheme="dark"
+            formCls="grid grid-cols-2 sm:grid-cols-[1fr_1fr_auto_auto] gap-x-3 gap-y-3 items-end"
+            labelCls="text-xs font-bold uppercase tracking-[0.14em] text-white"
+            fieldCls="bg-[var(--green)] border border-white/30 text-white"
+            stepBtnCls="w-10 h-10 flex items-center justify-center hover:bg-white/15 cursor-pointer"
+            submitCls={btn}
+            errorCls="text-sm font-bold text-white"
           />
         </div>
 
-        {/* El lugar */}
-        {site.description && (
-          <section className="pt-20 sm:pt-28">
-            <Row n={++n} title={t.place} photo={general[1]} onOpen={open(1)}>
-              <p className="whitespace-pre-line">{site.description}</p>
-            </Row>
-          </section>
-        )}
-      </main>
+        {/* Mosaico del lugar: texto, foto, bloque, foto */}
+        <section className="grid grid-cols-1 sm:grid-cols-3">
+          <div className={`${tile} bg-[var(--sand-2)] p-6 sm:p-8 flex flex-col justify-end`}>
+            {site.description && <p className="text-base leading-relaxed text-[#1E2A22] font-medium whitespace-pre-line">{site.description}</p>}
+          </div>
+          <div className={`${tile} bg-[var(--moss)] p-6 sm:p-8 flex flex-col justify-center`}>
+            <h2 style={serif} className="text-3xl sm:text-4xl">
+              {t.place}
+            </h2>
+            {(site.checkinHour || site.checkoutHour) && (
+              <p className="mt-4 text-sm font-semibold text-[var(--fg-2)]">
+                {site.checkinHour && `${t.checkin} ${site.checkinHour}`}
+                {site.checkinHour && site.checkoutHour && ' · '}
+                {site.checkoutHour && `${t.checkout} ${site.checkoutHour}`}
+              </p>
+            )}
+          </div>
+          {general[1] ? (
+            <button type="button" onClick={open(1)} className={`${tile} cursor-pointer sm:row-span-2`}>
+              <img src={general[1].data} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover hover:scale-[1.04] transition-transform duration-700" />
+              <div className="absolute inset-0 bg-black/25" />
+              <p style={serif} className="absolute inset-x-6 top-1/2 -translate-y-1/2 text-2xl sm:text-3xl text-white text-center">
+                {t.direct}
+              </p>
+            </button>
+          ) : (
+            <div className={`${tile} bg-[var(--green)] sm:row-span-2`} />
+          )}
+          {general[2] && (
+            <button type="button" onClick={open(2)} className={`${tile} cursor-pointer sm:col-span-2`}>
+              <img src={general[2].data} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover hover:scale-[1.04] transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/55 to-transparent" />
+              <span className="absolute left-6 sm:left-8 bottom-6 sm:bottom-8 inline-flex items-center gap-3 text-white">
+                <span style={serif} className="text-3xl sm:text-4xl">
+                  {t.gallery}
+                </span>
+                <ArrowRight className="w-6 h-6" />
+              </span>
+            </button>
+          )}
+        </section>
 
-      {/* Alojamientos o resultados */}
-      <section ref={b.resultsRef} className="mt-20 sm:mt-28 bg-[var(--surface)] py-16 sm:py-24 scroll-mt-4">
-        <div className="max-w-6xl mx-auto px-5 sm:px-10">
-          <div className="text-center mb-10 sm:mb-14">
-            <h2 style={roman} className="text-3xl sm:text-4xl uppercase tracking-[0.08em]">
+        {/* Alojamientos o resultados: cada uno una baldosa doble (foto + bloque) */}
+        <section ref={b.resultsRef} className="pt-10 sm:pt-14 scroll-mt-4">
+          <div className="bg-[var(--green)] p-6 sm:p-8 flex flex-wrap items-end justify-between gap-3">
+            <h2 style={serif} className="text-3xl sm:text-5xl">
               {results ? (results.free.length ? t.available : t.noneTitle) : t.stays}
             </h2>
             {results && searched && (
-              <p className="mt-3 text-base font-semibold text-[var(--fg-2)]">
+              <p className="text-base font-semibold text-[var(--fg-2)]">
                 {fmtDate(searched.in, lang)} → {fmtDate(searched.out, lang)} · {t.nights(results.n)} · {t.msgGuests(searched.guests).slice(2)}
               </p>
             )}
           </div>
           {results && results.free.length === 0 ? (
-            <div className="max-w-lg mx-auto text-center space-y-6">
-              <p className="text-lg text-[var(--fg-2)]">{t.none}</p>
+            <div className="bg-[var(--moss)] p-6 sm:p-8 space-y-5">
+              <p className="text-lg">{t.none}</p>
               {b.generalLink && (
-                <a href={b.generalLink} target="_blank" rel="noopener noreferrer" className={pillDark}>
+                <a href={b.generalLink} target="_blank" rel="noopener noreferrer" className={btn}>
                   {t.askGeneral}
                 </a>
               )}
             </div>
           ) : (
-            <div className="grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {unitList.map(({ unit, total, below, minNights }) => (
-                <UnitCard key={unit.id} unit={unit} photos={unitPhotos(unit.id)} t={t} onOpen={(i) => setLightbox({ list: unitPhotos(unit.id), index: i })}>
+            <div className="grid sm:grid-cols-2">
+              {unitList.map(({ unit, total, below, minNights }, i) => (
+                <UnitTile key={unit.id} unit={unit} photos={unitPhotos(unit.id)} tone={(['sand', 'moss', 'moss', 'sand'] as const)[i % 4]} t={t} onOpen={(idx) => setLightbox({ list: unitPhotos(unit.id), index: idx })}>
                   {results ? (
-                    <div className="space-y-3 w-full">
+                    <div className="space-y-3">
                       {below ? (
                         <p className="text-base font-semibold">{t.minNights(minNights || 0)}</p>
                       ) : total && total > 0 ? (
-                        <div>
-                          <p className="text-xs font-bold uppercase tracking-[0.14em]">
+                        <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                          <span className="text-xs font-bold uppercase tracking-[0.14em]">
                             {t.total} · {t.nights(results.n)}
-                          </p>
-                          <p style={roman} className="text-3xl tabular-nums mt-1">
+                          </span>
+                          <span style={serif} className="text-3xl tabular-nums">
                             {fmtMoney(total, site.currency)}
-                          </p>
-                        </div>
+                          </span>
+                        </p>
                       ) : (
                         <p className="text-base font-semibold">{t.askPrice}</p>
                       )}
                       {site.whatsapp && (
-                        <a href={waLink(site.whatsapp, b.requestText(unit, below ? 0 : total || 0))} target="_blank" rel="noopener noreferrer" className={`${pillDark} w-full`}>
+                        <a href={waLink(site.whatsapp, b.requestText(unit, below ? 0 : total || 0))} target="_blank" rel="noopener noreferrer" className={btn}>
                           {below ? t.askGeneral : t.ask}
                         </a>
                       )}
                     </div>
                   ) : (
-                    <button type="button" onClick={b.goSearch} className={`${pillLine} w-full`}>
-                      {t.chooseDates}
+                    <button type="button" onClick={b.goSearch} className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.12em] border-b-2 border-current pb-1 cursor-pointer">
+                      {t.chooseDates} <ArrowRight className="w-4 h-4" />
                     </button>
                   )}
-                </UnitCard>
+                </UnitTile>
               ))}
+              {unitList.length % 2 === 1 && (
+                <button
+                  type="button"
+                  onClick={b.goSearch}
+                  className="hidden sm:flex relative overflow-hidden flex-col justify-end gap-3 p-8 text-left cursor-pointer group"
+                >
+                  {general[0] && <img src={general[0].data} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700" />}
+                  <div className="absolute inset-0 bg-[var(--bg)]/70" />
+                  <span style={serif} className="relative text-4xl text-white">
+                    {t.search}
+                  </span>
+                  <ArrowRight className="relative w-7 h-7 text-white" />
+                </button>
+              )}
             </div>
           )}
-          {results && results.free.length > 0 && <p className="mt-10 text-center text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>}
-        </div>
-      </section>
+          {results && results.free.length > 0 && <p className="mt-5 text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>}
+        </section>
 
-      <main className="max-w-6xl mx-auto px-5 sm:px-10 pt-20 sm:pt-28 space-y-20 sm:space-y-28">
-        {(site.checkinHour || site.checkoutHour) && (
-          <Row n={++n} title={t.hours} photo={general[2]} flip onOpen={open(2)}>
-            <div className="space-y-2">
-              {site.checkinHour && (
-                <p className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 shrink-0" /> <span className="font-bold text-[var(--fg)]">{t.checkin}</span> {site.checkinHour}
-                </p>
-              )}
-              {site.checkoutHour && (
-                <p className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 shrink-0" /> <span className="font-bold text-[var(--fg)]">{t.checkout}</span> {site.checkoutHour}
-                </p>
-              )}
-            </div>
-          </Row>
-        )}
-        {(site.address || site.city) && (
-          <Row n={++n} title={t.where} photo={general[3]} onOpen={open(3)}>
-            <p className="flex items-start gap-2">
-              <MapPin className="w-5 h-5 shrink-0 mt-1" /> {[site.address, site.city].filter(Boolean).join(' · ')}
-            </p>
-            {site.mapsUrl && (
-              <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className={`${pillLine} mt-5`}>
-                {t.map}
-              </a>
-            )}
-          </Row>
-        )}
-        {extra.length > 0 && (
-          <div className={`grid grid-cols-2 ${extraCols} gap-3 sm:gap-4`}>
-            {extra.map((p, i) => (
-              <button key={p.id} type="button" onClick={open(i + 4)} className={`overflow-hidden cursor-pointer ${extra.length < 3 ? 'aspect-[4/3]' : 'aspect-square'}`}>
-                <img src={p.data} alt="" loading="lazy" className="w-full h-full object-cover hover:scale-[1.04] transition-transform duration-700" />
+        {/* Más fotos: tira de baldosas */}
+        {general.length > 3 && (
+          <section className={`pt-10 sm:pt-14 grid grid-cols-2 ${['', 'sm:grid-cols-1', 'sm:grid-cols-2', 'sm:grid-cols-3'][general.length - 3] || 'sm:grid-cols-4'}`}>
+            {general.slice(3).map((p, i) => (
+              <button key={p.id} type="button" onClick={open(i + 3)} className="relative aspect-square overflow-hidden cursor-pointer">
+                <img src={p.data} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover hover:scale-[1.04] transition-transform duration-700" />
               </button>
             ))}
-          </div>
+          </section>
         )}
-      </main>
 
-      {/* Franja de contacto */}
-      <section className="relative mt-20 sm:mt-28 min-h-[420px] sm:min-h-[480px] flex items-center overflow-hidden bg-[var(--wood)]">
-        {band && <img src={band.data} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/20" />
-        <div className="relative max-w-6xl w-full mx-auto px-6 sm:px-10 py-16 text-white space-y-5">
-          <h2 style={roman} className="text-3xl sm:text-5xl uppercase leading-tight tracking-[0.04em] max-w-lg">
-            {t.contact}
-          </h2>
-          <p className="text-lg font-medium max-w-md">{t.direct}</p>
-          {b.generalLink && (
-            <a
-              href={b.generalLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center min-h-[48px] px-7 rounded-full border border-white text-white text-sm font-semibold uppercase tracking-[0.12em] hover:bg-white hover:text-[var(--wood)] transition"
-            >
-              {t.askGeneral}
-            </a>
+        {/* Contacto: tres baldosas */}
+        <footer className="pt-10 sm:pt-14 grid sm:grid-cols-3">
+          <div className={`${tile} bg-[var(--sand)] p-6 sm:p-8 flex flex-col justify-end gap-3`}>
+            <h2 style={serif} className="text-3xl text-white">
+              {t.contactTitle}
+            </h2>
+            {b.generalLink && (
+              <a href={b.generalLink} target="_blank" rel="noopener noreferrer" className={`${btn} self-start whitespace-nowrap px-5`}>
+                {t.askGeneral}
+              </a>
+            )}
+          </div>
+          <div className={`${tile} bg-[var(--moss)] p-6 sm:p-8 flex flex-col justify-end gap-3`}>
+            <p className="text-sm font-bold uppercase tracking-[0.14em]">{t.where}</p>
+            {(site.address || site.city) && <p className="text-lg">{[site.address, site.city].filter(Boolean).join(', ')}</p>}
+            {site.mapsUrl && (
+              <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-bold underline underline-offset-4">
+                {t.map} <ArrowRight className="w-4 h-4" />
+              </a>
+            )}
+          </div>
+          {general[general.length - 1] && general.length > 1 ? (
+            <div className={`${tile} flex flex-col justify-end p-6 sm:p-8`}>
+              <img src={general[general.length - 1].data} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/55" />
+              <p className="relative text-sm font-bold text-white">{t.direct}</p>
+              <a href="https://loomisuite.net" target="_blank" rel="noopener" className="relative mt-1 text-sm font-bold text-white underline underline-offset-4">
+                {t.madeWith}
+              </a>
+            </div>
+          ) : (
+            <div className={`${tile} bg-[var(--green)] flex flex-col justify-end p-6 sm:p-8`}>
+              <p className="text-sm font-bold">{t.direct}</p>
+              <a href="https://loomisuite.net" target="_blank" rel="noopener" className="mt-1 text-sm font-bold underline underline-offset-4">
+                {t.madeWith}
+              </a>
+            </div>
           )}
-        </div>
-      </section>
+        </footer>
+      </div>
 
-      <footer className="px-5 py-10 flex flex-col sm:flex-row items-center justify-between gap-3 max-w-6xl mx-auto text-sm font-semibold">
-        <span style={roman} className="text-base uppercase tracking-[0.16em]">
-          {site.name}
-        </span>
-        <a href="https://loomisuite.net" target="_blank" rel="noopener" className="underline underline-offset-4">
-          {t.madeWith}
-        </a>
-      </footer>
+      <BookBar b={b} className="w-full sm:w-auto min-h-[56px] px-10 bg-[var(--fg)] text-[var(--bg)] text-sm font-bold uppercase tracking-[0.16em] shadow-[0_-4px_20px_rgba(0,0,0,0.3)] sm:shadow-xl" />
 
       {b.lightbox && <Lightbox list={b.lightbox.list} index={b.lightbox.index} onClose={() => setLightbox(null)} closeLabel={t.close} />}
     </div>
   );
 };
 
-const UnitCard: React.FC<{
+/** Una unidad: arriba la foto con su nombre, abajo el bloque de color con los datos */
+const UnitTile: React.FC<{
   unit: PublicSiteUnit;
   photos: PublicSitePhoto[];
+  tone: 'sand' | 'moss';
   t: SiteTexts;
   onOpen: (index: number) => void;
   children: React.ReactNode;
-}> = ({ unit, photos, t, onOpen, children }) => (
-  <article className="bg-[var(--card)] flex flex-col">
-    {photos[0] ? (
-      <button type="button" onClick={() => onOpen(0)} className="block aspect-[4/3] overflow-hidden cursor-pointer">
-        <img src={photos[0].data} alt={unit.name} loading="lazy" className="w-full h-full object-cover hover:scale-[1.04] transition-transform duration-700" />
-      </button>
-    ) : null}
-    <div className="p-6 flex flex-col items-center text-center gap-3 flex-1">
-      <h3 style={roman} className="text-xl sm:text-2xl uppercase tracking-[0.08em]">
+}> = ({ unit, photos, tone, t, onOpen, children }) => (
+  <article className="flex flex-col">
+    <button type="button" onClick={() => photos[0] && onOpen(0)} className="relative aspect-[4/3] overflow-hidden bg-[var(--green)] cursor-pointer">
+      {photos[0] && <img src={photos[0].data} alt={unit.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover hover:scale-[1.04] transition-transform duration-700" />}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+      <h3 style={serif} className="absolute left-6 right-6 bottom-5 text-3xl text-white text-left">
         {unit.name}
       </h3>
-      <p className="text-sm font-semibold text-[var(--fg-2)]">
+    </button>
+    <div className={`${tone === 'sand' ? 'bg-[var(--sand)]' : 'bg-[var(--moss)]'} p-6 flex-1 flex flex-col gap-3`}>
+      <p className="text-sm font-bold uppercase tracking-[0.12em]">
         {[unit.maxGuests > 0 ? t.upTo(unit.maxGuests) : '', unit.bedrooms > 0 ? t.bedrooms(unit.bedrooms) : ''].filter(Boolean).join(' · ')}
       </p>
-      {unit.description && <p className="text-base leading-relaxed text-[var(--fg-2)] whitespace-pre-line">{unit.description}</p>}
+      {unit.description && <p className="text-base leading-relaxed whitespace-pre-line">{unit.description}</p>}
       {photos.length > 1 && (
-        <button type="button" onClick={() => onOpen(1)} className="text-sm font-semibold underline underline-offset-4 cursor-pointer">
+        <button type="button" onClick={() => onOpen(1)} className="self-start text-sm font-semibold underline underline-offset-4 cursor-pointer">
           {t.gallery} ({photos.length})
         </button>
       )}
-      <div className="mt-auto pt-3 w-full flex justify-center">{children}</div>
+      <div className="mt-auto pt-1">{children}</div>
     </div>
   </article>
 );
