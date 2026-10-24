@@ -28,12 +28,15 @@ import { toLocalDateStr, formatCurrency, getActiveCurrency } from '../../data/in
 import { OnboardingGuideView } from './OnboardingGuideView';
 import { isAppMode } from '../../lib/appMode';
 import { auth } from '../../lib/firebase';
+import { BulkUnitsModal } from './BulkUnitsModal';
 
 interface DemoPropertiesProps {
   demoState: DemoState;
   onUpdatePropertyPrice: (propertyId: string, newPrice: number) => void;
   onSaveProperty?: (property: Property) => void;
   onDeleteProperty?: (propertyId: string) => void;
+  /** Cargar varias unidades de una vez (y, si se pide, la categoría en Tarifas) */
+  onSaveProperties?: (units: Property[], categoryForPricing: string | null) => Promise<void> | void;
   isEmployeeMode?: boolean;
 }
 
@@ -42,8 +45,10 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
   onUpdatePropertyPrice,
   onSaveProperty,
   onDeleteProperty,
+  onSaveProperties,
   isEmployeeMode = false,
 }) => {
+  const [bulkOpen, setBulkOpen] = useState(false);
   const isApp = isAppMode();
   const uid = isApp ? auth.currentUser?.uid : null;
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -267,6 +272,15 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
               <Plus className="w-3.5 h-3.5" />
               <span>Nueva Unidad</span>
             </button>
+            {onSaveProperties && (
+              <button
+                onClick={() => setBulkOpen(true)}
+                className="flex-1 md:flex-none flex items-center justify-center gap-2 text-xs font-bold text-stone-900 dark:text-white bg-white dark:bg-zinc-800 border-2 border-[#E67E22] px-4 py-2 rounded-xl transition-colors cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Varias juntas</span>
+              </button>
+            )}
             <button
               onClick={() => setShowOnboardingGuide(!showOnboardingGuide)}
               className="flex-1 md:flex-none flex items-center justify-center gap-2 text-xs font-semibold text-stone-700 dark:text-stone-200 bg-stone-50 dark:bg-zinc-800 hover:border-orange-300 border border-stone-200/80 dark:border-zinc-700 px-4 py-2 rounded-xl transition-colors cursor-pointer shadow-xs"
@@ -277,6 +291,19 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
           </div>
         )}
       </div>
+
+      {bulkOpen && onSaveProperties && (
+        <BulkUnitsModal
+          existingNames={demoState.properties.map((p) => p.name)}
+          defaults={{
+            address: demoState.welcomeGuide?.locationAddress || '',
+            wifiNetwork: demoState.welcomeGuide?.wifiNetwork || '',
+            wifiPassword: demoState.welcomeGuide?.wifiPassword || '',
+          }}
+          onSave={onSaveProperties}
+          onClose={() => setBulkOpen(false)}
+        />
+      )}
 
       {/* Onboarding Guide printable cheat sheet card */}
       {showOnboardingGuide && !isEmployeeMode && (

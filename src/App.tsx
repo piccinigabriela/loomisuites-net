@@ -93,6 +93,7 @@ import {
 } from './lib/team';
 import { buildStaffArrivals, StaffArrivalsDoc } from './lib/staffArrivals';
 import { useBackLayer } from './hooks/useBackLayer';
+import { normalizePricing, type PricingSettings } from './lib/pricing';
 
 
 // Carga diferida: la landing no descarga la demo, el panel ni los modales hasta que hacen falta
@@ -1910,6 +1911,31 @@ export default function App() {
     showToast(`Unidad "${property.name}" guardada correctamente`);
   };
 
+  // Varias unidades de una vez (Unidades y calendarios → Varias juntas); si se pide, la categoría va a Tarifas
+  const handleSavePropertiesBulk = async (units: Property[], categoryForPricing: string | null) => {
+    let pricing: PricingSettings | null = null;
+    if (categoryForPricing) {
+      const base = normalizePricing(demoState.pricing);
+      const existing = base.types.find((t) => t.name.trim().toLowerCase() === categoryForPricing.trim().toLowerCase());
+      const type = existing || { id: `tipo-${Date.now()}`, name: categoryForPricing.trim() };
+      const assignments = { ...base.assignments };
+      for (const u of units) assignments[u.id] = type.id;
+      pricing = { ...base, types: existing ? base.types : [...base.types, type], assignments };
+    }
+    if (isApp && currentUser) {
+      await Promise.all(units.map((u) => savePropertyDoc(tenantUid, u)));
+      if (pricing) await savePricingDoc(tenantUid, pricing);
+    } else {
+      updateDemoState((prev) => ({
+        ...prev,
+        properties: [...prev.properties, ...units],
+        ...(pricing ? { pricing } : {}),
+        lastUpdated: new Date().toISOString(),
+      }));
+    }
+    showToast(`${units.length} ${units.length === 1 ? 'unidad creada' : 'unidades creadas'}${pricing ? ' y agregadas a Tarifas' : ''}`);
+  };
+
   const handleDeleteProperty = async (propertyId: string) => {
     const todayStr = toLocalDateStr(new Date());
     const hasFuture = (demoState.reservations || []).some(
@@ -2947,6 +2973,7 @@ export default function App() {
                   onUpdatePropertyPrice={handleUpdatePropertyPrice}
                   onSaveProperty={handleSaveProperty}
                   onDeleteProperty={handleDeleteProperty}
+                  onSaveProperties={handleSavePropertiesBulk}
                   isEmployeeMode={isEmployeeMode}
                 />
               )}
