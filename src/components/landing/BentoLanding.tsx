@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { TutorialVideoButton } from '../common/TutorialVideo';
 import {
   Play,
   Sparkles,
@@ -162,8 +163,10 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             {/* Bottom Actions with Zen CTA */}
             <div className="pt-4 border-t border-gray-100 dark:border-white/5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <span className="text-xs text-slate-700 dark:text-zinc-400 font-medium">
-                3 Plantillas Web Base ("Clara", "Tierra" y "Sombra") incluidas en Loomi Suite
+                3 estilos de Tu Web incluidos: Noche, Día y Clara
               </span>
+              <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+              <TutorialVideoButton className="px-5 py-2.5 rounded-xl border-2 border-[#B8520D] dark:border-[#E67E22] text-[#B8520D] dark:text-[#F0A46F] text-xs font-bold flex items-center justify-center gap-2 cursor-pointer hover:bg-orange-50 dark:hover:bg-zinc-800 shrink-0" />
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -174,6 +177,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 <Play className="w-3.5 h-3.5 fill-white" />
                 <span>Probar Demo en Vivo</span>
               </button>
+              </div>
             </div>
           </div>
 

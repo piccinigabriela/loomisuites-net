@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { TutorialVideoButton } from '../common/TutorialVideo';
 
 /** Bienvenida del demo: el mapa de la app en un minuto. Se muestra sola la primera vez. */
 
@@ -52,6 +53,9 @@ export const DemoWelcome: React.FC<Props> = ({ onClose }) => {
           <p className="text-[17px] font-medium text-stone-800 dark:text-stone-100">
             Un minuto para ver cómo está organizado todo, antes de entrar al demo.
           </p>
+          <div className="pt-2">
+            <TutorialVideoButton />
+          </div>
         </header>
 
         <div className="flex flex-wrap gap-4">

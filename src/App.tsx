@@ -94,6 +94,7 @@ import {
 import { buildStaffArrivals, StaffArrivalsDoc } from './lib/staffArrivals';
 import { useBackLayer } from './hooks/useBackLayer';
 import { normalizePricing, type PricingSettings } from './lib/pricing';
+import { TutorialVideoButton } from './components/common/TutorialVideo';
 
 
 // Carga diferida: la landing no descarga la demo, el panel ni los modales hasta que hacen falta
@@ -3172,6 +3173,9 @@ export default function App() {
             {/* Selector de Planes & Escenarios Comerciales (Plano de menor prioridad visual, al pie del panel) */}
             {!isApp && (useTopNav || !loggedUser) && (useTopNav ? showPlanPanelAiry : !isDemoPlanBarDismissed) && (
               <div id="demo-plan-panel" className="max-w-7xl w-full mx-auto px-3 sm:px-6 pb-6 pt-2">
+                <div className="mb-3 empty:hidden">
+                  <TutorialVideoButton />
+                </div>
                 <DemoPlanFunctionalBar
                   onSelectTab={setDemoTab}
                   currentTab={demoTab}
