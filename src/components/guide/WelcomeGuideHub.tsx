@@ -10,10 +10,6 @@ import {
   Info,
   Check,
   Compass,
-  User,
-  Car,
-  CreditCard,
-  ShoppingBag,
   Wifi,
   Copy,
 } from 'lucide-react';
@@ -159,85 +155,6 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
             </button>
           </div>
           )}
-        </div>
-
-        {/* 2. GRILLA DE PESTAÑAS DE PRESTACIONES (Tarjetas flotantes suaves con aire) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Pestaña 1: Check-in / Datos */}
-          <div
-            onClick={() => handleSetSubTab('admin-view')}
-            className="bg-white dark:bg-[#18191E] p-5 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.005)] border border-gray-100 dark:border-zinc-800 flex flex-col justify-between hover:border-orange-200/70 dark:hover:border-orange-900/60 transition-all cursor-pointer group"
-          >
-            <div className="space-y-2">
-              <div className="p-2.5 bg-gray-50 dark:bg-zinc-800 text-gray-400 dark:text-zinc-400 group-hover:text-[#E67E22] group-hover:bg-orange-50 dark:group-hover:bg-orange-950/40 rounded-xl w-max transition-colors">
-                <User className="w-5 h-5 stroke-[2]" />
-              </div>
-              <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Datos del Huésped</h3>
-              <p className="text-[11px] text-gray-400 dark:text-zinc-400 font-medium leading-relaxed">
-                Próximamente: pre check-in digital (documento, cantidad de personas y hora de llegada).
-              </p>
-            </div>
-            <span className="text-[10px] font-bold text-[#E67E22] mt-4 block opacity-0 group-hover:opacity-100 transition-opacity">
-              Configurar campos →
-            </span>
-          </div>
-
-          {/* Pestaña 2: Vehículo */}
-          <div
-            onClick={() => handleSetSubTab('admin-view')}
-            className="bg-white dark:bg-[#18191E] p-5 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.005)] border border-gray-100 dark:border-zinc-800 flex flex-col justify-between hover:border-orange-200/70 dark:hover:border-orange-900/60 transition-all cursor-pointer group"
-          >
-            <div className="space-y-2">
-              <div className="p-2.5 bg-gray-50 dark:bg-zinc-800 text-gray-400 dark:text-zinc-400 group-hover:text-[#E67E22] group-hover:bg-orange-50 dark:group-hover:bg-orange-950/40 rounded-xl w-max transition-colors">
-                <Car className="w-5 h-5 stroke-[2]" />
-              </div>
-              <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Datos del Vehículo</h3>
-              <p className="text-[11px] text-gray-400 dark:text-zinc-400 font-medium leading-relaxed">
-                Patente, marca y modelo para el control de acceso y seguridad del estacionamiento.
-              </p>
-            </div>
-            <span className="text-[10px] font-bold text-[#E67E22] mt-4 block opacity-0 group-hover:opacity-100 transition-opacity">
-              Configurar campos →
-            </span>
-          </div>
-
-          {/* Pestaña 3: Datos de Pago */}
-          <div
-            onClick={() => handleSetSubTab('admin-view')}
-            className="bg-white dark:bg-[#18191E] p-5 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.005)] border border-gray-100 dark:border-zinc-800 flex flex-col justify-between hover:border-orange-200/70 dark:hover:border-orange-900/60 transition-all cursor-pointer group"
-          >
-            <div className="space-y-2">
-              <div className="p-2.5 bg-gray-50 dark:bg-zinc-800 text-gray-400 dark:text-zinc-400 group-hover:text-[#E67E22] group-hover:bg-orange-50 dark:group-hover:bg-orange-950/40 rounded-xl w-max transition-colors">
-                <CreditCard className="w-5 h-5 stroke-[2]" />
-              </div>
-              <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Pagos & Facturación</h3>
-              <p className="text-[11px] text-gray-400 dark:text-zinc-400 font-medium leading-relaxed">
-                Pasarelas de Mercado Pago, PayPal o datos de transferencia bancaria directa.
-              </p>
-            </div>
-            <span className="text-[10px] font-bold text-[#E67E22] mt-4 block opacity-0 group-hover:opacity-100 transition-opacity">
-              Configurar pasarelas →
-            </span>
-          </div>
-
-          {/* Pestaña 4: Adicionales / Upselling */}
-          <div
-            onClick={() => handleSetSubTab('guest-view')}
-            className="bg-white dark:bg-[#18191E] p-5 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.005)] border border-gray-100 dark:border-zinc-800 flex flex-col justify-between hover:border-orange-200/70 dark:border-zinc-800 transition-all cursor-pointer group"
-          >
-            <div className="space-y-2">
-              <div className="p-2.5 bg-gray-50 dark:bg-zinc-800 text-gray-400 dark:text-zinc-400 group-hover:text-[#E67E22] group-hover:bg-orange-50 dark:group-hover:bg-orange-950/40 rounded-xl w-max transition-colors">
-                <ShoppingBag className="w-5 h-5 stroke-[2]" />
-              </div>
-              <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Opcionales Disponibles</h3>
-              <p className="text-[11px] text-gray-400 dark:text-zinc-400 font-medium leading-relaxed">
-                Venta de desayunos, masajes, late check-out o alquiler de bicicletas desde el portal.
-              </p>
-            </div>
-            <span className="text-[10px] font-bold text-[#E67E22] mt-4 block opacity-0 group-hover:opacity-100 transition-opacity">
-              Gestionar extras →
-            </span>
-          </div>
         </div>
 
         {/* 4. SELECTOR DE SUBPESTAÑAS DE VISTA Y FORMATO */}
