@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Play, X } from 'lucide-react';
 
-export const TUTORIAL_VIDEO_ID = 'QVj0TL7_1BM';
+export const TUTORIAL_VIDEO_ID = 'PcUY4rkpnkc';
 export const TUTORIAL_VIDEO_LENGTH = '4 min';
 
 const TutorialVideoModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
