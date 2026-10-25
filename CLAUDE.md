@@ -62,6 +62,9 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   en `public/muestra/`; vista previa del link en `functions/disenos/`). Si se suma un diseño, agregarlo ahí y su miniatura `d-{id}.jpg`.
   `DirectBookingLanding.tsx` es la maqueta vieja: ya no se usa en la app ni en la demo.
 
+- Video tutorial (YouTube, oculto): `components/common/TutorialVideo.tsx` (`TUTORIAL_VIDEO_ID`; vacío = no se muestra). Botón en la bienvenida de la demo,
+  el panel "Cómo funciona" y la landing. Las cerraduras inteligentes están ocultas (Loomi funciona con llaves comunes; el campo `smartLock` sigue en los datos).
+
 - Cobro del abono: `src/lib/billing.ts`. `config/billing` (precios en pesos por plan, datos de transferencia, mail de Payoneer,
   descuento, días de gracia, MEP de respaldo; precios en dólares) lo edita la administración en Panel de clientes → Cobro y precios; lo leen usuarios con sesión.
   Los datos bancarios NO van en el código (el repo es público). Pantalla "Mi plan" (`components/billing/MyPlanView.tsx`): menú de la
