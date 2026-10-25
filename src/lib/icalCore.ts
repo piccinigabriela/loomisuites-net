@@ -402,7 +402,7 @@ export async function runIcalSync(input: RunIcalSyncInput): Promise<SyncResult> 
               { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
               { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
               { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
-              { id: 'c4', task: 'Comprobación de cerradura inteligente', completed: false },
+              { id: 'c4', task: 'Llaves en su lugar', completed: false },
             ],
             notes: `Generado automáticamente por importación de ${guestName}`,
           };

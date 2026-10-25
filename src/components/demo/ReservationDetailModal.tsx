@@ -463,7 +463,8 @@ ${paymentsListStr}
     properties.find((p) => p.id === (isEditing ? editPropertyId : reservation.propertyId)) ||
     property;
 
-  const isSmartLockEnabled = activeProperty?.smartLock?.enabled ?? false;
+  // Cerraduras inteligentes: opción oculta por ahora (Loomi funciona con llaves comunes). Para volver a mostrarla: activeProperty?.smartLock?.enabled
+  const isSmartLockEnabled = false;
 
   const getAddonIcon = (category: string) => {
     switch (category) {

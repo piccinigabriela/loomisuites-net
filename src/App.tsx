@@ -1304,7 +1304,7 @@ export default function App() {
           netRevenue: totalAmount - commissionPaid,
           status: isFirst ? 'checked_in' : 'confirmed',
           paymentStatus: isFirst ? 'paid' : 'deposit_only',
-          pinCode: prop.smartLock?.enabled ? '4912' : '',
+          pinCode: '',
           createdAt: new Date().toISOString(),
           earlyCheckIn: false,
           lateCheckOut: false,
@@ -1334,7 +1334,7 @@ export default function App() {
           { id: 'c1', task: 'Cambio de sábanas y toallas sanitizadas', completed: idx === 0 },
           { id: 'c2', task: 'Limpieza profunda de baño y reposición de amenities', completed: idx === 0 },
           { id: 'c3', task: 'Desinfección de superficies y vajilla', completed: idx === 0 },
-          { id: 'c4', task: 'Verificación de WiFi y cerradura', completed: idx === 0 },
+          { id: 'c4', task: 'Verificación de WiFi y llaves', completed: idx === 0 },
         ],
         notes: `Limpieza para ${prop.name}`,
       }));
@@ -1536,7 +1536,7 @@ export default function App() {
               { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
               { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
               { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
-              { id: 'c4', task: 'Comprobación de cerradura inteligente', completed: false },
+              { id: 'c4', task: 'Llaves en su lugar', completed: false },
             ],
             notes: `Generado automáticamente por importación de ${r.guestName}`,
           };
@@ -1573,7 +1573,7 @@ export default function App() {
             { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
             { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
             { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
-            { id: 'c4', task: 'Comprobación de cerradura inteligente', completed: false },
+            { id: 'c4', task: 'Llaves en su lugar', completed: false },
           ],
           notes: `Generado automáticamente por importación de ${r.guestName}`,
         }));
@@ -1609,7 +1609,7 @@ export default function App() {
         { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
         { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
         { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
-        { id: 'c4', task: 'Comprobación de cerradura inteligente', completed: false },
+        { id: 'c4', task: 'Llaves en su lugar', completed: false },
       ],
       notes: `Generado automáticamente por check-out de ${newRes.guestName}`,
     };

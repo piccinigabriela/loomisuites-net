@@ -218,7 +218,7 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
         reviewsCount: 0,
         status: 'active',
         syncStatus: { airbnb: false, booking: false, vrbo: false },
-        smartLock: { enabled: true, brand: 'Yale Smart' },
+        smartLock: { enabled: false, brand: '' },
         wifiNetwork: '(a confirmar)',
         wifiPassword: '(a confirmar)',
       });
@@ -467,20 +467,9 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
                   </div>
                 )}
 
-                {/* Smart lock & Wi-Fi details with Zen copy button */}
+                {/* Wi-Fi con botón para copiar */}
                 <div className="space-y-2 text-xs text-stone-500 dark:text-stone-400">
-                  {!(isApp && !prop.smartLock?.enabled) && (
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center gap-1.5 font-medium">
-                        <KeyRound className="w-3.5 h-3.5 text-stone-400" />
-                        Acceso / Cerradura:
-                      </span>
-                      <span className="font-medium text-stone-800 dark:text-stone-200">
-                        {prop.smartLock?.brand || 'Habilitada'}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-center justify-between">
                     <span className="flex items-center gap-1.5 font-medium">
                       <Wifi className="w-3.5 h-3.5 text-stone-400" />
                       Wi-Fi Huéspedes:
@@ -702,39 +691,6 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
                     </button>
                   )}
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <input
-                    type="checkbox"
-                    id="smartLockEnabled"
-                    checked={activeProperty.smartLock.enabled}
-                    onChange={(e) => setActiveProperty({
-                      ...activeProperty,
-                      smartLock: { ...activeProperty.smartLock, enabled: e.target.checked }
-                    })}
-                    className="rounded text-[#E67E22] focus:ring-[#E67E22] cursor-pointer"
-                  />
-                  <label htmlFor="smartLockEnabled" className="font-semibold text-stone-700 dark:text-stone-300 cursor-pointer select-none">
-                    Tiene cerradura inteligente / acceso digital
-                  </label>
-                </div>
-                {activeProperty.smartLock.enabled && (
-                  <div>
-                    <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Marca / Cerradura inteligente:</label>
-                    <input
-                      type="text"
-                      placeholder="ej. Yale Smart, Nuki, Código digital"
-                      value={activeProperty.smartLock.brand}
-                      onChange={(e) => setActiveProperty({
-                        ...activeProperty,
-                        smartLock: { ...activeProperty.smartLock, brand: e.target.value }
-                      })}
-                      className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
-                    />
-                  </div>
-                )}
               </div>
 
               {/* Nueva Sección: Calendarios conectados */}

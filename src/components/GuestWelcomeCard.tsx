@@ -108,9 +108,10 @@ export const GuestWelcomeCard: React.FC<GuestWelcomeCardProps> = ({
             </div>
           </div>
 
-          {/* Tarjetas de Acceso Esenciales (Cerradura + Wi-Fi) */}
+          {/* Tarjetas de acceso esenciales (código + Wi-Fi) */}
           <div className="space-y-2.5">
-            {/* Código de Cerradura Digital */}
+            {/* Código de acceso (solo si el anfitrión cargó uno) */}
+            {accessCode && (
             <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#FCFAF8] border border-stone-100 hover:border-orange-200/60 transition-colors">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center border border-stone-100 text-[#C55A1B] shrink-0 shadow-2xs">
@@ -118,7 +119,7 @@ export const GuestWelcomeCard: React.FC<GuestWelcomeCardProps> = ({
                 </div>
                 <div className="min-w-0">
                   <span className="text-[10px] uppercase tracking-wider text-stone-400 block font-medium">
-                    Cerradura digital
+                    Código de acceso
                   </span>
                   <span className="text-sm font-mono font-normal tracking-wider text-stone-900">
                     {accessCode}
@@ -143,6 +144,7 @@ export const GuestWelcomeCard: React.FC<GuestWelcomeCardProps> = ({
                 )}
               </button>
             </div>
+            )}
 
             {/* Red y Clave Wi-Fi */}
             <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#FCFAF8] border border-stone-100 hover:border-orange-200/60 transition-colors">

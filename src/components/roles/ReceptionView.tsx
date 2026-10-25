@@ -714,7 +714,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                 checkInDate={formatDisplayDate(selectedResForCard.checkIn)}
                 checkOutDate={formatDisplayDate(selectedResForCard.checkOut)}
                 checkInTime={getGuideHours(demoState.welcomeGuide, isAppMode()).checkin ? `${withHs(getGuideHours(demoState.welcomeGuide, isAppMode()).checkin)}` : ''}
-                accessCode={selectedResForCard.pinCode || (isAppMode() ? '(a confirmar)' : '1024')}
+                accessCode={selectedResForCard.pinCode || ''}
                 wifiNetwork={getProp(selectedResForCard.propertyId)?.wifiNetwork || '(a confirmar)'}
                 wifiPassword={getProp(selectedResForCard.propertyId)?.wifiPassword || '(a confirmar)'}
                 address={getProp(selectedResForCard.propertyId)?.address || '(a confirmar)'}
@@ -733,7 +733,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                 onClick={() => {
                   const prop = getProp(selectedResForCard.propertyId);
                   const text = `¡Hola ${selectedResForCard.guestName}! Te compartimos tu tarjeta de bienvenida digital a ${prop?.name || 'tu cabaña'}:\n\n` +
-                    `🔑 Código cerradura: ${selectedResForCard.pinCode || '1024'}\n` +
+                    (selectedResForCard.pinCode ? `🔑 Código de acceso: ${selectedResForCard.pinCode}\n` : '') +
                     `📶 Wi-Fi: ${prop?.wifiNetwork || '(a confirmar)'} (Clave: ${prop?.wifiPassword || '(a confirmar)'})\n` +
                     `📍 Dirección: ${prop?.address || '(a confirmar)'}\n` +
                     `🌐 Guía completa y mapa: https://loomisuite.net/guia/${selectedResForCard.propertyId}\n\n` +
@@ -749,7 +749,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
 
               <a
                 href={`https://api.whatsapp.com/send?phone=${normalizeWhatsAppPhone(selectedResForCard.guestPhone || '')}&text=${encodeURIComponent(
-                  `¡Hola ${selectedResForCard.guestName}! Te enviamos tu tarjeta de bienvenida para ingresar a ${getProp(selectedResForCard.propertyId)?.name || 'tu cabaña'}: https://loomisuite.net/guia/${selectedResForCard.propertyId} (Cerradura: ${selectedResForCard.pinCode || '1024'} | Wi-Fi: ${getProp(selectedResForCard.propertyId)?.wifiNetwork || '(a confirmar)'}). ¡Buen descanso!`
+                  `¡Hola ${selectedResForCard.guestName}! Te enviamos tu tarjeta de bienvenida para ingresar a ${getProp(selectedResForCard.propertyId)?.name || 'tu cabaña'}: https://loomisuite.net/guia/${selectedResForCard.propertyId} (${selectedResForCard.pinCode ? `Código de acceso: ${selectedResForCard.pinCode} | ` : ''}Wi-Fi: ${getProp(selectedResForCard.propertyId)?.wifiNetwork || '(a confirmar)'}). ¡Buen descanso!`
                 )}`}
                 target="_blank"
                 rel="noreferrer"

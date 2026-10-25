@@ -320,14 +320,14 @@ Si querías saber cuándo llega tu próximo huésped, preguntame *"¿cuándo es 
     const wifiPass = p0?.wifiPassword || '(a confirmar)';
     const rawPin = demoState?.reservations?.[0]?.pinCode;
     const pinText = rawPin
-      ? `Cerradura digital con PIN **${rawPin}**.`
-      : 'Tu código de acceso te lo enviamos antes de tu llegada.';
+      ? `Código de acceso **${rawPin}**.`
+      : 'Te explicamos cómo ingresar en la guía, antes de tu llegada.';
     const address = p0?.address || '(a confirmar)';
 
     return `¡Hola! Con gusto te paso los datos para tu llegada y estancia:
 
 • **Horarios:** Check-in a partir de las 14:00 hs | Check-out hasta las 10:00 hs.
-• **Acceso autónomo:** ${pinText}
+• **Ingreso:** ${pinText}
 • **Wi-Fi:** Red **${wifiNet}** (Clave: **${wifiPass}**).
 • **Dirección:** ${address}.
 

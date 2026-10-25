@@ -159,8 +159,8 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
       bathrooms: 1,
       basePrice: '',
       cleaningFee: 0,
-      hasSmartLock: true,
-      smartLockBrand: 'Cerradura Digital Teclado',
+      hasSmartLock: false,
+      smartLockBrand: '',
     };
     setUnits([...units, newUnit]);
     setUnitError(null);
@@ -215,7 +215,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
       syncStatus: { airbnb: false, booking: false, vrbo: false },
       smartLock: {
         enabled: u.hasSmartLock,
-        brand: u.hasSmartLock ? u.smartLockBrand : 'Llave física tradicional (Sin cerradura digital)',
+        brand: u.hasSmartLock ? u.smartLockBrand : '',
       },
       wifiNetwork,
       wifiPassword,
@@ -462,7 +462,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                     Carga tus departamentos o cabañas individuales
                   </h4>
                   <p className="text-[11px] text-[#9c9994]">
-                    Configura la capacidad, tarifa base por noche y si tienen cerradura digital o llave física.
+                    Configurá la capacidad y la tarifa base por noche.
                   </p>
                 </div>
                 <button
@@ -510,7 +510,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
                       <div>
                         <label className="block text-[10px] font-semibold text-[#8e8c87] mb-0.5">
                           Capacidad máx:
@@ -572,23 +572,6 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-[10px] font-semibold text-[#8e8c87] mb-0.5">
-                          Acceso / Cerradura:
-                        </label>
-                        <select
-                          value={unit.hasSmartLock ? 'smart' : 'traditional'}
-                          onChange={(e) =>
-                            handleUpdateUnit(unit.id, {
-                              hasSmartLock: e.target.value === 'smart',
-                            })
-                          }
-                          className="w-full text-[11px] font-semibold p-1.5 rounded-lg border border-[#333] bg-[#181818] text-[#e0deda]"
-                        >
-                          <option value="smart">🔑 Teclado / Digital</option>
-                          <option value="traditional">🗝️ Llave Tradicional</option>
-                        </select>
-                      </div>
                     </div>
                   </div>
                 ))}

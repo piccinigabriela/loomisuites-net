@@ -235,7 +235,7 @@ Estoy conectada a tus **${demoState.properties.length} cabañas** y al motor de 
             prompts: [
               '¿Cuánto cuesta Loomi y cómo se abona la suscripción?',
               '¿Qué incluye el abono mensual y cómo funciona con llaves tradicionales?',
-              '¿Qué son los módulos opcionales de frigobar y cerraduras?',
+              '¿Qué son los opcionales y extras, como frigobar o traslados?',
               '¿Tengo que poner tarjeta de crédito para empezar?',
             ],
           },

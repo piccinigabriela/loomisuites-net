@@ -193,7 +193,6 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
     }
     setFormError(null);
 
-    const randomPin = `${Math.floor(1000 + Math.random() * 9000)}#`;
 
     const initialPayments: ReservationPayment[] = [];
     if (paymentStatus === 'paid') {
@@ -237,7 +236,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
       netRevenue,
       status: 'confirmed',
       paymentStatus,
-      pinCode: randomPin,
+      pinCode: '',
       specialNotes: specialNotes.trim(),
       createdAt: toLocalDateStr(new Date()),
       earlyCheckIn,

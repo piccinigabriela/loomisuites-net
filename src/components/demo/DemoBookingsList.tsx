@@ -548,8 +548,13 @@ export const DemoBookingsList: React.FC<DemoBookingsListProps> = ({
                                 </div>
                               ) : null}
                               <div className="text-[11px] text-gray-500 dark:text-gray-400 pt-0.5">
-                                Huéspedes: <span className="text-gray-700 dark:text-gray-300 font-semibold">{res.guestsCount} personas</span> • PIN Cerradura:{' '}
-                                <span className="font-mono text-gray-800 dark:text-gray-200 font-bold">{res.pinCode}</span>
+                                Huéspedes: <span className="text-gray-700 dark:text-gray-300 font-semibold">{res.guestsCount} personas</span>
+                                {res.pinCode && (
+                                  <>
+                                    {' '}• Código de acceso:{' '}
+                                    <span className="font-mono text-gray-800 dark:text-gray-200 font-bold">{res.pinCode}</span>
+                                  </>
+                                )}
                               </div>
                             </div>
                           </div>

@@ -415,11 +415,13 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
 
                         {/* Clave de cerradura y cobro */}
                         <div className="flex items-center gap-3 text-xs text-stone-500 dark:text-zinc-400 flex-wrap pt-0.5">
-                          <span className="flex items-center gap-1 font-mono text-stone-700 dark:text-zinc-300">
-                            <KeyRound className="w-3.5 h-3.5 text-[#E67E22]" />
-                            PIN: <strong>{res.pinCode || '4001'}</strong>
-                          </span>
-                          <span>• Total: <strong>{formatCurrency(res.totalAmount)}</strong></span>
+                          {res.pinCode && (
+                            <span className="flex items-center gap-1 font-mono text-stone-700 dark:text-zinc-300">
+                              <KeyRound className="w-3.5 h-3.5 text-[#E67E22]" />
+                              PIN: <strong>{res.pinCode}</strong>
+                            </span>
+                          )}
+                          <span>{res.pinCode ? '• ' : ''}Total: <strong>{formatCurrency(res.totalAmount)}</strong></span>
                           <span className={isPaid ? 'text-emerald-600 font-semibold' : 'text-amber-600 font-semibold'}>
                             • {isPaid ? 'Pagado 100%' : 'Saldo pendiente'}
                           </span>
@@ -794,7 +796,7 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
               ¿Querés cargar más cabañas o departamentos?
             </h4>
             <p className="text-[11px] text-stone-500 font-light mt-0.5">
-              Configurá fotos, WiFi y cerraduras inteligentes en minutos.
+              Configurá fotos y WiFi en minutos.
             </p>
           </div>
           {onOpenOnboardingWizard && (

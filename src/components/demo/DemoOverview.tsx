@@ -81,7 +81,7 @@ export const DemoOverview: React.FC<DemoOverviewProps> = ({
           </div>
           <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">¡Hola, Anfitrión!</h2>
           <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 max-w-xl font-medium">
-            Hoy tienes <strong>{todayCheckIns.length} check-in</strong> programado y <strong>{todayCheckOuts.length} check-out</strong>. Todas las claves de cerradura y notificaciones automáticas están operativas.
+            Hoy tienes <strong>{todayCheckIns.length} check-in</strong> programado y <strong>{todayCheckOuts.length} check-out</strong>. Todo listo para recibirlos.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -312,10 +312,12 @@ export const DemoOverview: React.FC<DemoOverviewProps> = ({
                           <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5 font-medium">
                             {prop?.name} • {res.nights} noches ({formatDisplayDate(res.checkIn)} - {formatDisplayDate(res.checkOut)})
                           </p>
-                          <div className="flex items-center gap-2 mt-1 text-[11px] text-stone-400 dark:text-stone-500 font-mono">
-                            <KeyRound className="w-3.5 h-3.5 text-[#E67E22]" />
-                            <span>PIN Cerradura: <strong className="text-stone-800 dark:text-stone-200">{res.pinCode}</strong></span>
-                          </div>
+                          {res.pinCode && (
+                            <div className="flex items-center gap-2 mt-1 text-[11px] text-stone-600 dark:text-stone-300 font-mono">
+                              <KeyRound className="w-3.5 h-3.5 text-[#E67E22]" />
+                              <span>Código de acceso: <strong className="text-stone-800 dark:text-stone-200">{res.pinCode}</strong></span>
+                            </div>
+                          )}
                         </div>
                       </div>
 

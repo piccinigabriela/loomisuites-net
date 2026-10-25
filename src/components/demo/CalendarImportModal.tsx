@@ -1081,7 +1081,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
         netRevenue: totalAmount - commissionPaid,
         status: 'confirmed',
         paymentStatus: 'deposit_only',
-        pinCode: matchedProperty?.smartLock?.enabled ? String(1000 + Math.floor(Math.random() * 9000)) : '',
+        pinCode: '',
         createdAt: new Date().toISOString(),
       };
     });
