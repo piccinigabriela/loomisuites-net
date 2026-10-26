@@ -1060,7 +1060,7 @@ ${paymentsListStr}
               {/* Dates & Nights */}
               <div className="grid grid-cols-3 gap-2.5 text-center">
                 <div className="bg-white dark:bg-[#1A1B20] p-3 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
-                  <span className="text-[10px] text-gray-400 font-medium block">Check-in</span>
+                  <span className="text-[11px] text-zinc-600 dark:text-zinc-300 font-semibold block">Check-in</span>
                   <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
                     {formatDisplayDate(reservation.checkIn)}
                   </span>
@@ -1071,13 +1071,13 @@ ${paymentsListStr}
                   )}
                 </div>
                 <div className="bg-white dark:bg-[#1A1B20] p-3 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
-                  <span className="text-[10px] text-gray-400 font-medium block">Estadía</span>
+                  <span className="text-[11px] text-zinc-600 dark:text-zinc-300 font-semibold block">Estadía</span>
                   <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
                     {reservation.nights} noches
                   </span>
                 </div>
                 <div className="bg-white dark:bg-[#1A1B20] p-3 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
-                  <span className="text-[10px] text-gray-400 font-medium block">Check-out</span>
+                  <span className="text-[11px] text-zinc-600 dark:text-zinc-300 font-semibold block">Check-out</span>
                   <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
                     {formatDisplayDate(reservation.checkOut)}
                   </span>
@@ -1112,7 +1112,7 @@ ${paymentsListStr}
               {/* Guest contact */}
               <div className="p-4 bg-white dark:bg-[#1A1B20] rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-2.5 text-xs">
                 <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
-                  <span className="flex items-center gap-1.5 text-gray-400">
+                  <span className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300">
                     <Phone className="w-3.5 h-3.5 text-[#25D366]" /> Teléfono:
                   </span>
                   <div className="flex items-center gap-2">
@@ -1122,7 +1122,7 @@ ${paymentsListStr}
                   </div>
                 </div>
                 <div className="flex items-center justify-between pb-2 border-b border-gray-50 dark:border-zinc-800">
-                  <span className="flex items-center gap-1.5 text-gray-400">
+                  <span className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300">
                     <Mail className="w-3.5 h-3.5" /> Correo:
                   </span>
                   <span className="font-semibold text-gray-800 dark:text-gray-200">
@@ -1130,7 +1130,7 @@ ${paymentsListStr}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Huéspedes:</span>
+                  <span className="text-zinc-600 dark:text-zinc-300">Huéspedes:</span>
                   <span className="font-semibold text-gray-800 dark:text-gray-200">
                     {reservation.guestsCount} personas
                   </span>
@@ -1166,7 +1166,7 @@ ${paymentsListStr}
                     </span>
                   </div>
 
-                  <div className="flex justify-between text-gray-400 text-[11px]">
+                  <div className="flex justify-between text-zinc-600 dark:text-zinc-300 text-[11px]">
                     <span>Comisión Plataforma ({reservation.platform.toUpperCase()}):</span>
                     <span>-{formatCurrency(reservation.commissionPaid)}</span>
                   </div>
@@ -1203,19 +1203,19 @@ ${paymentsListStr}
                   {/* Summary Bar */}
                   <div className="grid grid-cols-3 gap-2 bg-stone-50 dark:bg-zinc-800/60 p-3 rounded-xl border border-stone-200/60 dark:border-zinc-700 text-center">
                     <div>
-                      <span className="block text-[10px] font-bold text-stone-400 uppercase">Total Reserva</span>
+                      <span className="block text-[10px] font-bold text-stone-600 dark:text-stone-300 uppercase">Total Reserva</span>
                       <span className="font-extrabold text-stone-800 dark:text-stone-100 text-xs">
                         {formatCurrency(reservation.totalAmount, settlementCurrency)}
                       </span>
                     </div>
                     <div>
-                      <span className="block text-[10px] font-bold text-stone-400 uppercase">Pagado</span>
+                      <span className="block text-[10px] font-bold text-stone-600 dark:text-stone-300 uppercase">Pagado</span>
                       <span className="font-extrabold text-emerald-600 dark:text-emerald-400 text-xs">
                         {formatCurrency(totalPaidSettlement, settlementCurrency)}
                       </span>
                     </div>
                     <div>
-                      <span className="block text-[10px] font-bold text-stone-400 uppercase">Saldo</span>
+                      <span className="block text-[10px] font-bold text-stone-600 dark:text-stone-300 uppercase">Saldo</span>
                       <span className={`font-extrabold text-xs ${saldo <= 0 ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-amber-600 dark:text-amber-400'}`}>
                         {saldo <= 0 ? 'Pagada ✓' : formatCurrency(saldo, settlementCurrency)}
                       </span>
@@ -1224,12 +1224,12 @@ ${paymentsListStr}
 
                   {/* Payments List */}
                   <div className="space-y-2">
-                    <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
+                    <span className="text-[10px] font-bold text-stone-600 dark:text-stone-300 uppercase tracking-wider block">
                       Historial de Pagos ({payments.length})
                     </span>
 
                     {payments.length === 0 ? (
-                      <p className="text-[11px] text-stone-400 italic">
+                      <p className="text-[11px] text-stone-600 dark:text-stone-300 italic">
                         No hay pagos registrados aún para esta reserva.
                       </p>
                     ) : (
@@ -1245,7 +1245,7 @@ ${paymentsListStr}
                                   {formatCurrency(p.amount, p.currency)}
                                 </span>
                                 {p.currency !== settlementCurrency && (
-                                  <span className="text-[10px] text-stone-400 font-medium">
+                                  <span className="text-[10px] text-stone-600 dark:text-stone-300 font-medium">
                                     × {p.rate} = {formatCurrency(p.amountSettlement, settlementCurrency)}
                                   </span>
                                 )}
@@ -1253,7 +1253,7 @@ ${paymentsListStr}
                                   {METHOD_LABELS[p.method] || p.method}
                                 </span>
                               </div>
-                              <div className="text-[10px] text-stone-400 flex items-center gap-2">
+                              <div className="text-[10px] text-stone-600 dark:text-stone-300 flex items-center gap-2">
                                 <span>{p.date}</span>
                                 {p.note && <span className="italic truncate max-w-[180px]">• {p.note}</span>}
                               </div>
@@ -1264,7 +1264,7 @@ ${paymentsListStr}
                               <button
                                 type="button"
                                 onClick={() => handleDeletePayment(p.id)}
-                                className="p-1 text-stone-400 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
+                                className="p-1 text-stone-600 dark:text-stone-300 hover:text-rose-600 transition-colors cursor-pointer shrink-0"
                                 title="Eliminar pago"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -1284,7 +1284,7 @@ ${paymentsListStr}
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-[10px] font-semibold text-stone-500 mb-1">
+                        <label className="block text-[10px] font-semibold text-stone-700 dark:text-stone-300 mb-1">
                           Monto*:
                         </label>
                         <input
@@ -1300,7 +1300,7 @@ ${paymentsListStr}
                       </div>
 
                       <div>
-                        <label className="block text-[10px] font-semibold text-stone-500 mb-1">
+                        <label className="block text-[10px] font-semibold text-stone-700 dark:text-stone-300 mb-1">
                           Moneda:
                         </label>
                         <select
@@ -1319,7 +1319,7 @@ ${paymentsListStr}
                     {/* Rate Input (only if currency !== settlementCurrency) */}
                     {payCurrency !== settlementCurrency && (
                       <div>
-                        <label className="block text-[10px] font-semibold text-stone-500 mb-1">
+                        <label className="block text-[10px] font-semibold text-stone-700 dark:text-stone-300 mb-1">
                           Cotización (1 {payCurrency} = [____] {settlementCurrency}):
                         </label>
                         <input
@@ -1343,7 +1343,7 @@ ${paymentsListStr}
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-[10px] font-semibold text-stone-500 mb-1">
+                        <label className="block text-[10px] font-semibold text-stone-700 dark:text-stone-300 mb-1">
                           Método:
                         </label>
                         <select
@@ -1361,7 +1361,7 @@ ${paymentsListStr}
                       </div>
 
                       <div>
-                        <label className="block text-[10px] font-semibold text-stone-500 mb-1">
+                        <label className="block text-[10px] font-semibold text-stone-700 dark:text-stone-300 mb-1">
                           Fecha:
                         </label>
                         <input
@@ -1374,7 +1374,7 @@ ${paymentsListStr}
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-semibold text-stone-500 mb-1">
+                      <label className="block text-[10px] font-semibold text-stone-700 dark:text-stone-300 mb-1">
                         Nota / Comprobante (opcional):
                       </label>
                       <input
