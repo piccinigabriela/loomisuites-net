@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Building2,
   Mail,
   Lock,
   Eye,
@@ -219,8 +218,11 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
       {/* Top Navbar / Brand */}
       <header className="relative z-10 w-full px-6 py-6 max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#E67E22] to-amber-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
-            <Building2 className="w-5 h-5" />
+          <div className="w-10 h-10 shrink-0">
+          <svg viewBox="0 0 1000 1000" className="w-full h-full" aria-hidden="true">
+            <rect width="1000" height="1000" rx="220" fill="#0B0F17" />
+            <path d="M 809.3 385 A 330 330 0 1 1 612.9 189.9" fill="none" stroke="#EFECE5" strokeWidth="110" strokeLinecap="round" />
+          </svg>
           </div>
           <div>
             <span className="text-lg font-bold tracking-tight text-white">
