@@ -54,6 +54,7 @@ import {
   savePropertyDoc,
   deletePropertyDoc,
   saveReservationDoc,
+  saveImportedReservations,
   deleteReservationDoc,
   saveCleaningTaskDoc,
   updateCleaningTaskProgress,
@@ -1510,89 +1511,69 @@ export default function App() {
   };
 
   const handleImportCalendarReservations = async (newRes: Reservation[], mode: 'add' | 'replace') => {
-    if (isApp && currentUser) {
-      const existingReservations = demoState.reservations || [];
-      const existingIds = new Set(existingReservations.map(r => `${r.propertyId}_${r.checkIn}_${r.checkOut}`));
-      const todayStr = toLocalDateStr(new Date());
+    const todayStr = toLocalDateStr(new Date());
+    // Ya está cargada si coinciden unidad y fechas y, además, el huésped o que ninguna de las dos esté cancelada
+    // (así entra una cancelada aunque esas fechas se hayan vuelto a reservar, y no se duplica lo que trajo el iCal)
+    const slotOf = (r: Reservation) => `${r.propertyId}_${r.checkIn}_${r.checkOut}`;
+    const guestOf = (r: Reservation) => (r.guestName || '').toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g, '');
+    const makeTask = (r: Reservation): CleaningTask => ({
+      id: `clean-${r.id}`,
+      propertyId: r.propertyId,
+      reservationId: r.id,
+      date: r.checkOut,
+      scheduledTime: '11:00 - 13:30',
+      cleanerName: 'Sin asignar',
+      cleanerPhone: '',
+      status: 'pending',
+      checklist: [
+        { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
+        { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
+        { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
+        { id: 'c4', task: 'Llaves en su lugar', completed: false },
+      ],
+      notes: `Generado automáticamente por importación de ${r.guestName}`,
+    });
+    const needsCleaning = (r: Reservation) => r.checkOut >= todayStr && r.status !== 'cancelled' && r.status !== 'checked_out';
 
-      let addedCount = 0;
-      for (const r of newRes) {
-        const key = `${r.propertyId}_${r.checkIn}_${r.checkOut}`;
-        if (existingIds.has(key)) continue; // omit duplicates
-
-        await saveReservationDoc(tenantUid, r);
-        addedCount++;
-
-        if (r.checkOut >= todayStr && r.status !== 'cancelled') {
-          const newCleaningTask: CleaningTask = {
-            id: `clean-import-${Date.now()}-${Math.random()}`,
-            propertyId: r.propertyId,
-            reservationId: r.id,
-            date: r.checkOut,
-            scheduledTime: '11:00 - 13:30',
-            cleanerName: 'Sin asignar',
-            cleanerPhone: '',
-            status: 'pending',
-            checklist: [
-              { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
-              { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
-              { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
-              { id: 'c4', task: 'Llaves en su lugar', completed: false },
-            ],
-            notes: `Generado automáticamente por importación de ${r.guestName}`,
-          };
-          await saveCleaningTaskDoc(tenantUid, newCleaningTask);
-        }
-      }
-      showToast(`🎉 ¡Éxito! Se importaron ${addedCount} nuevas reservas a Firestore.`);
-    } else {
-      updateDemoState((prev) => {
-        let finalReservations = [...(prev.reservations || [])];
-        if (mode === 'replace') {
-          finalReservations = newRes;
-        } else {
-          // Mode 'add' - filter duplicates or keep existing and append new ones
-          const existingIds = new Set((prev.reservations || []).map(r => `${r.propertyId}_${r.checkIn}_${r.checkOut}`));
-          const filterNew = newRes.filter(r => !existingIds.has(`${r.propertyId}_${r.checkIn}_${r.checkOut}`));
-          finalReservations = [...filterNew, ...(prev.reservations || [])];
-        }
-
-        // Automatically create cleaning tasks for upcoming / active reservations
-        const todayStr = toLocalDateStr(new Date());
-        const activeForCleaning = newRes.filter(r => r.checkOut >= todayStr);
-
-        const newCleaningTasks = activeForCleaning.map((r) => ({
-          id: `clean-import-${Date.now()}-${Math.random()}`,
-          propertyId: r.propertyId,
-          reservationId: r.id,
-          date: r.checkOut,
-          scheduledTime: '11:00 - 13:30',
-          cleanerName: 'Sin asignar',
-          cleanerPhone: '',
-          status: 'pending' as const,
-          checklist: [
-            { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
-            { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
-            { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
-            { id: 'c4', task: 'Llaves en su lugar', completed: false },
-          ],
-          notes: `Generado automáticamente por importación de ${r.guestName}`,
-        }));
-
-        const finalCleaningTasks = mode === 'replace'
-          ? newCleaningTasks
-          : [...newCleaningTasks, ...(prev.cleaningTasks || [])];
-
-        return {
-          ...prev,
-          reservations: finalReservations,
-          cleaningTasks: finalCleaningTasks,
-          lastUpdated: new Date().toISOString(),
-        };
-      });
-
-      showToast(`🎉 ¡Éxito! Se procesaron e importaron ${newRes.length} reservas correctamente.`);
+    const existing = mode === 'replace' && !isApp ? [] : demoState.reservations || [];
+    const bySlot = new Map<string, Reservation[]>();
+    const seenIds = new Set<string>();
+    const remember = (r: Reservation) => {
+      bySlot.set(slotOf(r), [...(bySlot.get(slotOf(r)) || []), r]);
+      seenIds.add(r.id);
+    };
+    existing.forEach(remember);
+    const isDuplicate = (r: Reservation) =>
+      seenIds.has(r.id) ||
+      (bySlot.get(slotOf(r)) || []).some(
+        (o) => guestOf(o) === guestOf(r) || (o.status !== 'cancelled' && r.status !== 'cancelled')
+      );
+    const toAdd: Reservation[] = [];
+    for (const r of newRes) {
+      if (isDuplicate(r)) continue;
+      remember(r);
+      toAdd.push(r);
     }
+    const skipped = newRes.length - toAdd.length;
+    const tasks = toAdd.filter(needsCleaning).map(makeTask);
+
+    if (isApp && currentUser) {
+      // Todo junto: si falla, no queda nada a medias y la ventana de importación muestra el error
+      await saveImportedReservations(tenantUid, toAdd, tasks);
+    } else {
+      updateDemoState((prev) => ({
+        ...prev,
+        reservations: mode === 'replace' ? toAdd : [...toAdd, ...(prev.reservations || [])],
+        cleaningTasks: mode === 'replace' ? tasks : [...tasks, ...(prev.cleaningTasks || [])],
+        lastUpdated: new Date().toISOString(),
+      }));
+    }
+    showToast(
+      toAdd.length === 0
+        ? 'Esas reservas ya estaban en Loomi: no se cargó nada nuevo.'
+        : `Listo: se cargaron ${toAdd.length} reservas.${skipped ? ` ${skipped === 1 ? '1 ya estaba' : `${skipped} ya estaban`} en Loomi.` : ''}`
+    );
+    return { added: toAdd.length, skipped };
   };
 
   // New Reservation creation

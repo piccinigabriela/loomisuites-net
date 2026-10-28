@@ -6,6 +6,7 @@ import {
   collection,
   onSnapshot,
   serverTimestamp,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import type { PricingSettings } from './pricing';
@@ -383,6 +384,36 @@ export async function saveReservationDoc(uid: string, reservation: Reservation):
   if (!uid || !db) return;
   const resRef = doc(db, 'tenants', uid, 'reservations', reservation.id);
   await setDoc(resRef, reservation, { merge: true });
+}
+
+/**
+ * Importación de planillas: guarda reservas y limpiezas todas juntas.
+ * Va en tandas de 400 (el límite de Firestore es 500 por operación); si una tanda falla,
+ * borra lo que ya había entrado y devuelve el error: o se carga todo, o no queda nada a medias.
+ */
+export async function saveImportedReservations(uid: string, reservations: Reservation[], tasks: CleaningTask[]): Promise<void> {
+  if (!uid || !db) return;
+  const ops = [
+    ...reservations.map((r) => ({ ref: doc(db!, 'tenants', uid, 'reservations', r.id), data: r })),
+    ...tasks.map((t) => ({ ref: doc(db!, 'tenants', uid, 'cleaningTasks', t.id), data: t })),
+  ];
+  const written: typeof ops = [];
+  try {
+    for (let i = 0; i < ops.length; i += 400) {
+      const chunk = ops.slice(i, i + 400);
+      const batch = writeBatch(db);
+      chunk.forEach((o) => batch.set(o.ref, o.data));
+      await batch.commit();
+      written.push(...chunk);
+    }
+  } catch (err) {
+    for (let i = 0; i < written.length; i += 400) {
+      const batch = writeBatch(db);
+      written.slice(i, i + 400).forEach((o) => batch.delete(o.ref));
+      await batch.commit().catch(() => {});
+    }
+    throw err;
+  }
 }
 
 export async function deleteReservationDoc(uid: string, reservationId: string): Promise<void> {

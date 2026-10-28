@@ -8,14 +8,13 @@ import {
   Calendar,
   Sparkles,
   Clipboard,
-  ArrowRight,
   Sliders,
   Building,
   FileSpreadsheet,
   Check,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { DemoState, Reservation, Property, BookingPlatform } from '../../types';
+import { DemoState, Reservation, Property, BookingPlatform, ReservationStatus, PaymentStatus } from '../../types';
 import { INITIAL_PROPERTIES } from '../../data/initialData';
 import { isAppMode } from '../../lib/appMode';
 import { isLegacyBackup, LegacyBackup } from '../../lib/legacyBackupImport';
@@ -25,7 +24,8 @@ interface CalendarImportModalProps {
   isOpen: boolean;
   onClose: () => void;
   demoState: DemoState;
-  onImport: (importedReservations: Reservation[], mode: 'add' | 'replace') => void;
+  /** Guarda todo junto: si algo falla, rechaza y no queda nada cargado a medias */
+  onImport: (importedReservations: Reservation[], mode: 'add' | 'replace') => Promise<{ added: number; skipped: number } | void> | void;
   /** Importa un backup .json de la app anterior (unidades + reservas + calendarios) */
   onImportLegacy?: (payload: LegacyImportPayload) => Promise<void>;
   onUndoLegacyImport?: () => Promise<void>;
@@ -42,6 +42,11 @@ interface ParsedEvent {
   totalAmount?: number;
   guestPhone?: string;
   guestEmail?: string;
+  status?: ReservationStatus;
+  paymentStatus?: PaymentStatus;
+  carPlate?: string;
+  /** ID que trae la planilla (por ej. el export de Loomi): con el mismo archivo no se duplica */
+  sourceId?: string;
 }
 
 const MONTH_MAP: Record<string, string> = {
@@ -224,6 +229,112 @@ function smartMatchProperty(
   } catch {
     return '';
   }
+}
+
+// --- Planillas (CSV / Excel): unidad, estados y datos tal cual vienen, sin inventar nada ---
+
+// Palabras genéricas que no identifican la unidad ("Dept A", "Cabaña A" y "A" son la misma)
+const UNIT_WORDS = new Set([
+  'depto', 'dept', 'dpto', 'departamento', 'depart', 'apto', 'apartamento', 'unidad', 'unit', 'cabana',
+  'casa', 'habitacion', 'hab', 'room', 'suite', 'loft', 'duplex', 'monoambiente', 'studio', 'estudio',
+]);
+function unitTokens(s: string): string[] {
+  return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').split(/[^a-z0-9]+/).filter(Boolean);
+}
+function unitKey(s: string): string {
+  return unitTokens(s).filter((t) => !UNIT_WORDS.has(t)).join('');
+}
+/** La letra o el número final que distingue la unidad ("Catalinas A" → "a", "Depto 101" → "101") */
+function unitIdent(s: string): string {
+  const t = unitTokens(s).filter((x) => !UNIT_WORDS.has(x));
+  const last = t[t.length - 1] || '';
+  return last.length === 1 || /^\d+$/.test(last) ? last : '';
+}
+
+/** Unidad de Loomi que corresponde al texto de la planilla, o '' si no hay una sola que coincida (nunca elige una al azar) */
+export function matchUnitStrict(raw: string, properties: Property[]): string {
+  const props = (properties || []).filter(Boolean);
+  const norm = normalizeString(raw);
+  if (!norm) return '';
+  const exact = props.filter((p) => normalizeString(p.name) === norm || normalizeString(p.id) === norm);
+  if (exact.length === 1) return exact[0].id;
+  const key = unitKey(raw);
+  if (key) {
+    const byKey = props.filter((p) => unitKey(p.name) === key);
+    if (byKey.length === 1) return byKey[0].id;
+  }
+  const ident = unitIdent(raw);
+  if (ident) {
+    const byIdent = props.filter((p) => unitIdent(p.name) === ident);
+    if (byIdent.length === 1) return byIdent[0].id;
+  }
+  return '';
+}
+
+function parseReservationStatus(raw: string): ReservationStatus | undefined {
+  const s = normalizeString(raw);
+  if (!s) return undefined;
+  if (s.includes('cancel') || s.includes('anulad') || s.includes('baja')) return 'cancelled';
+  if (s.includes('checkout') || s.includes('salio') || s.includes('finaliz') || s.includes('complet')) return 'checked_out';
+  if (s.includes('encabana') || s.includes('checkin') || s.includes('alojad') || s.includes('hospedad') || s.includes('enestadia')) return 'checked_in';
+  return 'confirmed';
+}
+
+function parsePaymentStatus(raw: string): PaymentStatus | undefined {
+  const s = normalizeString(raw);
+  if (!s) return undefined;
+  if (s.includes('impag') || s.includes('unpaid') || s.includes('nopag')) return 'unpaid';
+  if (s.includes('sena') || s.includes('deposit') || s.includes('anticipo') || s.includes('parcial')) return 'deposit_only';
+  if (s.includes('pagad') || s.includes('paid') || s.includes('cobrad') || s.includes('total')) return 'paid';
+  return 'pending';
+}
+
+/** "65,6" · "1.234,50" · "1,234.50" · "$ 12.000" → número */
+function parseAmount(raw: string): number | undefined {
+  let s = String(raw || '').replace(/[^0-9.,-]/g, '');
+  if (!s) return undefined;
+  const lastComma = s.lastIndexOf(',');
+  const lastDot = s.lastIndexOf('.');
+  if (lastComma !== -1 && lastDot !== -1) {
+    s = lastComma > lastDot ? s.replace(/\./g, '').replace(',', '.') : s.replace(/,/g, '');
+  } else if (lastComma !== -1) {
+    s = /^-?\d{1,3}(,\d{3})+$/.test(s) ? s.replace(/,/g, '') : s.replace(',', '.');
+  } else if (lastDot !== -1 && /^-?\d{1,3}(\.\d{3})+$/.test(s)) {
+    s = s.replace(/\./g, '');
+  }
+  const n = parseFloat(s);
+  return isNaN(n) ? undefined : n;
+}
+
+/** Saca las marcas invisibles que suelen traer los teléfonos copiados (‪…‬) */
+function cleanText(raw: string): string {
+  return String(raw || '').replace(/[​-‏‪-‮⁦-⁩﻿]/g, '').trim();
+}
+
+interface ExtraCols {
+  status: number;
+  payment: number;
+  phone: number;
+  email: number;
+  plate: number;
+  id: number;
+}
+const NO_EXTRA_COLS: ExtraCols = { status: -1, payment: -1, phone: -1, email: -1, plate: -1, id: -1 };
+
+function detectExtraCols(headers: string[]): ExtraCols {
+  const h = headers.map((x) => normalizeString(x));
+  const find = (fn: (x: string) => boolean) => h.findIndex(fn);
+  const payment = find((x) => x.includes('cobro') || x.includes('pago') || x.includes('payment'));
+  let status = find((x) => x.includes('estado') && x.includes('reserva'));
+  if (status === -1) status = find((x) => (x.includes('estado') || x === 'status') && !x.includes('cobro') && !x.includes('pago'));
+  return {
+    status,
+    payment,
+    phone: find((x) => x.includes('telefono') || x.includes('celular') || x.includes('whatsapp') || x.includes('phone') || x === 'tel' || x === 'movil'),
+    email: find((x) => x.includes('email') || x === 'mail' || x.includes('correo')),
+    plate: find((x) => x.includes('patente') || x.includes('dominio') || x.includes('plate') || x.includes('matricula')),
+    id: find((x) => x === 'id' || x === 'idreserva' || x === 'reservaid' || x === 'bookingid'),
+  };
 }
 
 // Universal Platform Detector
@@ -443,6 +554,11 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
 
   const [unitValueMapping, setUnitValueMapping] = useState<Record<string, string>>({});
   const [showMappingSettings, setShowMappingSettings] = useState(false);
+  // Columnas de estado, cobro, teléfono, mail, patente e ID (se detectan solas por el encabezado)
+  const extraColsRef = useRef<ExtraCols>(NO_EXTRA_COLS);
+  const [skippedRows, setSkippedRows] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Property counts calculated via regular reduce or memoized at top level
   const propertyCounts = useMemo(() => {
@@ -486,6 +602,8 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
     setFile(selectedFile);
     setParseErrorNotice(null);
     setRawFileSnippet(null);
+    setSaveError(null);
+    setSkippedRows(0);
 
     const fileName = selectedFile.name.toLowerCase();
 
@@ -556,6 +674,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
   };
 
   const processSheetMatrix = (matrix: any[][]) => {
+    setSaveError(null);
     try {
       // Strip any sep= directive row often added by Excel
       const filteredMatrix = matrix.filter(row => {
@@ -666,11 +785,12 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
         dataRows.forEach(row => {
           const val = row[cabinIdx]?.trim();
           if (val && !initialValueMap[val]) {
-            initialValueMap[val] = smartMatchProperty(val, row, safeProperties);
+            initialValueMap[val] = matchUnitStrict(val, safeProperties);
           }
         });
       }
       setUnitValueMapping(initialValueMap);
+      extraColsRef.current = detectExtraCols(headerRow);
 
       const initialEvents = recomputeEvents(
         dataRows,
@@ -691,6 +811,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
       }
 
       setParsedEvents(initialEvents);
+      setSkippedRows(dataRows.filter((r) => r.some((v) => v)).length - initialEvents.length);
       setStep('preview');
     } catch (err: any) {
       console.error('Error processing matrix:', err);
@@ -871,7 +992,6 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
   ) => {
     try {
       const events: ParsedEvent[] = [];
-      const defaultPropertyId = safeProperties[0]?.id || 'cat-a';
 
       if (!Array.isArray(rows)) return [];
 
@@ -944,9 +1064,8 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
         if (pIdx !== -1 && row[pIdx]) platformVal = String(row[pIdx]).trim();
 
         if (amtIdx !== -1 && row[amtIdx]) {
-          const cleanAmt = String(row[amtIdx]).replace(/[^0-9.,]/g, '').replace(',', '.');
-          const num = parseFloat(cleanAmt);
-          if (!isNaN(num) && num > 0) totalAmount = num;
+          const num = parseAmount(row[amtIdx]);
+          if (num !== undefined && num >= 0) totalAmount = num;
         }
 
         const cInDate = new Date(checkIn + 'T00:00:00');
@@ -963,14 +1082,22 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
           checkOut = adjustedOut.toISOString().split('T')[0];
         }
 
-        let matchedPropertyId = defaultPropertyId;
-        if (rawCabin && valueMap && valueMap[rawCabin]) {
-          matchedPropertyId = valueMap[rawCabin];
-        } else {
-          matchedPropertyId = smartMatchProperty(rawCabin, row, safeProperties);
+        // Unidad: tiene que coincidir con una de Loomi. Si no, queda vacía y no se importa (nunca va a parar a otra unidad).
+        let matchedPropertyId = '';
+        if (rawCabin) {
+          matchedPropertyId = valueMap?.[rawCabin] ?? matchUnitStrict(rawCabin, safeProperties);
+        } else if (safeProperties.length === 1) {
+          matchedPropertyId = safeProperties[0].id;
+        } else if (cIdx === -1) {
+          for (const c of row) {
+            matchedPropertyId = matchUnitStrict(c, safeProperties);
+            if (matchedPropertyId) break;
+          }
         }
 
         const platform = detectPlatform(platformVal, row);
+        const extra = extraColsRef.current;
+        const cell = (idx: number) => (idx !== -1 && row[idx] ? cleanText(row[idx]) : '');
 
         events.push({
           guestName: guestName || `Reserva #${i + 1}`,
@@ -981,6 +1108,12 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
           nights,
           rawCabin,
           totalAmount,
+          status: parseReservationStatus(cell(extra.status)),
+          paymentStatus: parsePaymentStatus(cell(extra.payment)),
+          guestPhone: cell(extra.phone),
+          guestEmail: cell(extra.email),
+          carPlate: cell(extra.plate),
+          sourceId: cell(extra.id),
         });
       });
 
@@ -1014,7 +1147,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
         rawRows.forEach(row => {
           const val = row[colIdx]?.trim();
           if (val && !newValueMap[val]) {
-            newValueMap[val] = smartMatchProperty(val, row, safeProperties);
+            newValueMap[val] = matchUnitStrict(val, safeProperties);
           }
         });
       }
@@ -1028,15 +1161,6 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
 
     const updated = recomputeEvents(rawRows, g, ci, co, n, c, p, a, unitValueMapping);
     setParsedEvents(updated);
-  };
-
-  const handleUnitValueMapChange = (rawUnitValue: string, targetPropertyId: string) => {
-    const nextMap = { ...unitValueMapping, [rawUnitValue]: targetPropertyId };
-    setUnitValueMapping(nextMap);
-
-    setParsedEvents(prev =>
-      prev.map(ev => (ev.rawCabin === rawUnitValue ? { ...ev, propertyId: targetPropertyId } : ev))
-    );
   };
 
   const handleDownloadSampleCSV = () => {
@@ -1056,42 +1180,64 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
     document.body.removeChild(link);
   };
 
-  const handleConfirmImport = () => {
-    const newReservations: Reservation[] = parsedEvents.map((ev, idx) => {
-      const matchedProperty = safeProperties.find(p => p.id === ev.propertyId) || safeProperties[0];
-      const basePrice = matchedProperty?.basePrice || 65;
-      const cleaningFee = matchedProperty?.cleaningFee ?? 0;
-      const totalAmount = ev.totalAmount && ev.totalAmount > 0 ? ev.totalAmount : basePrice * ev.nights + cleaningFee;
-      const commissionPaid = ev.platform === 'airbnb' ? Math.round(totalAmount * 0.03 * 10) / 10 : 0;
+  const handleConfirmImport = async () => {
+    if (saving) return;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const stamp = Date.now();
+    const newReservations: Reservation[] = parsedEvents
+      .filter((ev) => ev.propertyId)
+      .map((ev, idx) => {
+        const matchedProperty = safeProperties.find((p) => p.id === ev.propertyId);
+        const cleaningFee = matchedProperty?.cleaningFee ?? 0;
+        // Lo que dice la planilla; sin importe, se calcula con la tarifa base de la unidad (como al cargar a mano)
+        const totalAmount =
+          ev.totalAmount !== undefined ? ev.totalAmount : (matchedProperty?.basePrice || 0) * ev.nights + cleaningFee;
+        const commissionPaid = ev.platform === 'airbnb' ? Math.round(totalAmount * 0.03 * 10) / 10 : 0;
+        const safeSourceId = (ev.sourceId || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 80);
 
-      return {
-        id: `imported-${Date.now()}-${idx}`,
-        propertyId: ev.propertyId,
-        guestName: ev.guestName,
-        guestEmail: ev.guestEmail || `${ev.guestName.toLowerCase().replace(/[^a-z0-9]/g, '.')}@example.com`,
-        guestPhone: ev.guestPhone || '+54 9 11 ' + Math.floor(10000000 + Math.random() * 90000000),
-        checkIn: ev.checkIn,
-        checkOut: ev.checkOut,
-        nights: ev.nights,
-        guestsCount: 2,
-        platform: ev.platform,
-        totalAmount,
-        cleaningFee,
-        commissionPaid,
-        netRevenue: totalAmount - commissionPaid,
-        status: 'confirmed',
-        paymentStatus: 'deposit_only',
-        pinCode: '',
-        createdAt: new Date().toISOString(),
-      };
-    });
+        return {
+          id: safeSourceId ? `imported-${safeSourceId}` : `imported-${stamp}-${idx}`,
+          propertyId: ev.propertyId,
+          guestName: ev.guestName,
+          guestEmail: ev.guestEmail || '',
+          guestPhone: ev.guestPhone || '',
+          checkIn: ev.checkIn,
+          checkOut: ev.checkOut,
+          nights: ev.nights,
+          guestsCount: 2,
+          platform: ev.platform,
+          totalAmount,
+          cleaningFee,
+          commissionPaid,
+          netRevenue: totalAmount - commissionPaid,
+          // Sin columna de estado: lo que ya pasó queda como salida hecha; lo que viene, confirmado
+          status: ev.status || (ev.checkOut < todayStr ? 'checked_out' : 'confirmed'),
+          paymentStatus: ev.paymentStatus || 'pending',
+          pinCode: '',
+          ...(ev.carPlate ? { carPlate: ev.carPlate } : {}),
+          createdAt: new Date().toISOString(),
+        };
+      });
 
-    onImport(newReservations, importMode);
-    setStep('upload');
-    setFile(null);
-    setPastedText('');
-    onClose();
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await onImport(newReservations, importMode);
+      setStep('upload');
+      setFile(null);
+      setPastedText('');
+      onClose();
+    } catch (err: any) {
+      console.error('Importación de reservas:', err);
+      setSaveError(
+        'No se pudo guardar y no se cargó ninguna reserva. Revisá la conexión y probá de nuevo. Si sigue igual, mandanos la planilla y la cargamos nosotros.'
+      );
+    } finally {
+      setSaving(false);
+    }
   };
+
+  const unmatchedUnits = Array.from(new Set(parsedEvents.filter((ev) => !ev.propertyId).map((ev) => ev.rawCabin || 'sin unidad')));
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs flex justify-center p-3 sm:p-4 animate-in fade-in duration-200">
@@ -1564,7 +1710,7 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   {parsedEvents.length} reservas identificadas
                 </span>
-                <p className="text-[11px] text-[#8e8c87] mt-0.5">
+                <p className="text-[11px] text-zinc-300 mt-0.5">
                   Revisá la asignación antes de confirmar la importación
                 </p>
               </div>
@@ -1706,34 +1852,6 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
                   </div>
                 </div>
 
-                {Object.keys(unitValueMapping).length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-[#2d2822]">
-                    <span className="text-[11px] font-bold text-zinc-300 block mb-2">
-                      Mapeo de valores encontrados en tu columna de departamentos:
-                    </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {Object.keys(unitValueMapping).map(rawVal => (
-                        <div key={rawVal} className="flex items-center justify-between gap-2 bg-[#141414] p-2 rounded-lg border border-[#333]">
-                          <span className="text-[11px] text-zinc-300 truncate max-w-[120px] font-mono">
-                            "{rawVal}"
-                          </span>
-                          <ArrowRight className="w-3 h-3 text-[#d88d5e] shrink-0" />
-                          <select
-                            value={unitValueMapping[rawVal] || safeProperties[0]?.id}
-                            onChange={e => handleUnitValueMapChange(rawVal, e.target.value)}
-                            className="bg-[#242424] text-white border border-[#444] text-[11px] rounded-md px-2 py-1 focus:border-[#d88d5e]"
-                          >
-                            {safeProperties.map(p => (
-                              <option key={p.id} value={p.id}>
-                                {p.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             )}
 
@@ -1759,18 +1877,23 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
                         >
                           {ev.platform}
                         </span>
+                        {ev.status === 'cancelled' && (
+                          <span className="text-[10px] font-bold text-rose-200 bg-rose-950/60 px-1.5 py-0.5 rounded border border-rose-800/50">
+                            Cancelada
+                          </span>
+                        )}
                         {ev.rawCabin && (
                           <span className="text-[10px] text-[#9e9c97] bg-[#242424] px-1.5 py-0.5 rounded border border-[#333]">
                             En archivo: {ev.rawCabin}
                           </span>
                         )}
                       </div>
-                      <div className="text-[11px] text-[#8e8c87] mt-0.5 flex items-center gap-2">
+                      <div className="text-[11px] text-zinc-300 mt-0.5 flex items-center gap-2">
                         <span>
                           📅 {ev.checkIn} → {ev.checkOut}
                         </span>
                         <span className="text-[#d88d5e] font-semibold">({ev.nights} noches)</span>
-                        {ev.totalAmount && (
+                        {ev.totalAmount !== undefined && ev.totalAmount > 0 && (
                           <span className="text-emerald-400 font-semibold">${ev.totalAmount}</span>
                         )}
                       </div>
@@ -1793,22 +1916,9 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
                         <option value="vrbo">VRBO / Expedia</option>
                       </select>
 
-                      <select
-                        value={ev.propertyId}
-                        onChange={e => {
-                          const newId = e.target.value;
-                          setParsedEvents(prev =>
-                            prev.map((item, i) => (i === idx ? { ...item, propertyId: newId } : item))
-                          );
-                        }}
-                        className="bg-[#242424] text-[#f4f2ee] font-medium border border-[#48372b] text-[11px] rounded-lg px-2.5 py-1.5 focus:border-[#d88d5e]"
-                      >
-                        {safeProperties.map(p => (
-                          <option key={p.id} value={p.id}>
-                            {p.name}
-                          </option>
-                        ))}
-                      </select>
+                      <span className="text-[11px] font-bold text-white bg-[#242424] border border-[#48372b] rounded-lg px-2.5 py-1.5">
+                        {safeProperties.find(p => p.id === ev.propertyId)?.name || '—'}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -1821,22 +1931,60 @@ export const CalendarImportModal: React.FC<CalendarImportModalProps> = ({
               )}
             </div>
 
+            {/* Unidades de la planilla que no existen en Loomi: no se importa nada (nunca se mandan a otra unidad) */}
+            {unmatchedUnits.length > 0 && (
+              <div id="import-unidades-faltantes" className="bg-rose-950/50 border border-rose-700/60 rounded-xl p-4 space-y-2">
+                <p className="text-sm font-bold text-white flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-rose-300 shrink-0 mt-0.5" />
+                  {unmatchedUnits.length === 1 ? 'Esta unidad de tu planilla no está en Loomi:' : 'Estas unidades de tu planilla no están en Loomi:'}{' '}
+                  {unmatchedUnits.map((u) => `"${u}"`).join(', ')}
+                </p>
+                <p className="text-xs text-rose-100 leading-relaxed">
+                  Creá {unmatchedUnits.length === 1 ? 'esa unidad' : 'esas unidades'} en Loomi con el mismo nombre, o sacá esas filas de la planilla, y volvé a subirla. Si preferís, la cargamos nosotros.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep('upload');
+                    setActiveTab('concierge');
+                  }}
+                  className="text-xs font-bold text-white underline cursor-pointer"
+                >
+                  Que la cargue el equipo de Loomi
+                </button>
+              </div>
+            )}
+
+            {skippedRows > 0 && (
+              <p className="text-xs text-zinc-300">
+                {skippedRows === 1 ? '1 fila no tiene' : `${skippedRows} filas no tienen`} fechas de entrada y salida válidas y no se cargan.
+              </p>
+            )}
+
+            {saveError && (
+              <div role="alert" className="bg-rose-950/50 border border-rose-700/60 rounded-xl p-3 text-xs font-semibold text-white">
+                {saveError}
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex items-center justify-between pt-3 border-t border-[#252525]">
               <button
                 type="button"
                 onClick={() => setStep('upload')}
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-[#8e8c87] hover:text-white hover:bg-[#202020] transition-colors cursor-pointer"
+                disabled={saving}
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-[#202020] transition-colors cursor-pointer disabled:opacity-50"
               >
                 ← Elegir otro archivo
               </button>
               <button
                 type="button"
                 onClick={handleConfirmImport}
-                className="px-5 py-2.5 bg-[#d88d5e] hover:bg-[#c27c4f] text-[#141414] font-bold text-xs rounded-xl transition-colors flex items-center gap-2 cursor-pointer shadow-sm active:scale-98"
+                disabled={saving || unmatchedUnits.length > 0 || parsedEvents.length === 0}
+                className="px-5 py-2.5 bg-[#d88d5e] hover:bg-[#c27c4f] text-[#141414] font-bold text-xs rounded-xl transition-colors flex items-center gap-2 cursor-pointer shadow-sm active:scale-98 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                Confirmar e Importar {parsedEvents.length} Reservas
+                {saving ? 'Guardando…' : `Confirmar e Importar ${parsedEvents.length} Reservas`}
               </button>
             </div>
           </div>
