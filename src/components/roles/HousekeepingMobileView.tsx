@@ -20,6 +20,7 @@ import {
   ArrowLeft,
   X,
   CheckCheck,
+  CalendarDays,
 } from 'lucide-react';
 import { DemoState, CleaningTask, Property } from '../../types';
 import { nextArrival, StaffArrivalsDoc } from '../../lib/staffArrivals';
@@ -109,6 +110,26 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
 
   // Las de hoy y las atrasadas; las de días futuros todavía no se muestran
   const tasks = getCleaningsForDay(demoState.cleaningTasks, getRelativeDate(0));
+
+  // Entradas y salidas de los próximos 7 días (sin teléfonos ni importes), para planificar la semana
+  const weekStays: Array<{ propertyId: string; checkIn: string; checkOut: string; guestName: string; guestsCount: number }> =
+    arrivals !== undefined
+      ? Object.entries(arrivals?.unidades || {}).flatMap(([propertyId, list]) => (list || []).map((a) => ({ propertyId, ...a })))
+      : demoState.reservations
+          .filter((r) => r.status !== 'cancelled')
+          .map((r) => ({ propertyId: r.propertyId, checkIn: r.checkIn, checkOut: r.checkOut, guestName: r.guestName, guestsCount: r.guestsCount || 1 }));
+  const weekDays = Array.from({ length: 7 }, (_, i) => {
+    const date = getRelativeDate(i);
+    const label =
+      i === 0
+        ? 'Hoy'
+        : i === 1
+          ? 'Mañana'
+          : new Date(date + 'T12:00:00').toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'short' });
+    const out = weekStays.filter((x) => x.checkOut === date);
+    const inn = weekStays.filter((x) => x.checkIn === date);
+    return { date, label, out, inn };
+  }).filter((d) => d.out.length || d.inn.length);
 
   // 3-state traffic light helper:
   // 1: 'pending' -> Ocupada / Salida pendiente (Rojo/Ámbar)
@@ -524,6 +545,43 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
                 </div>
               );
             })
+          )}
+        </section>
+
+        {/* ESTA SEMANA: entradas y salidas de los próximos 7 días */}
+        <section className="bg-white dark:bg-[#18191E] rounded-3xl p-4 border border-stone-200 dark:border-zinc-800 space-y-4">
+          <h2 className="flex items-center gap-2 text-sm font-bold text-stone-900 dark:text-white">
+            <CalendarDays className="w-4 h-4 text-[#E67E22]" />
+            Esta semana
+          </h2>
+          {weekDays.length === 0 ? (
+            <p className="text-sm font-medium text-stone-700 dark:text-stone-200">Sin entradas ni salidas en los próximos 7 días.</p>
+          ) : (
+            weekDays.map((d) => (
+              <div key={d.date} className="space-y-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-200 first-letter:uppercase">{d.label}</p>
+                {d.out.map((x, i) => (
+                  <div key={'o' + i} className="flex items-start gap-3 rounded-2xl bg-stone-50 dark:bg-zinc-900/60 border border-stone-200 dark:border-zinc-800 px-3 py-2.5">
+                    <span className="shrink-0 mt-0.5 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-200">Sale{salida ? ` ${salida}` : ''}</span>
+                    <span className="min-w-0 text-sm">
+                      <span className="block font-bold text-stone-900 dark:text-white truncate">{getProp(x.propertyId)?.name || 'Unidad'}</span>
+                      <span className="block font-medium text-stone-700 dark:text-stone-200 truncate">{x.guestName}</span>
+                    </span>
+                  </div>
+                ))}
+                {d.inn.map((x, i) => (
+                  <div key={'i' + i} className="flex items-start gap-3 rounded-2xl bg-stone-50 dark:bg-zinc-900/60 border border-stone-200 dark:border-zinc-800 px-3 py-2.5">
+                    <span className="shrink-0 mt-0.5 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-200">Entra{ingreso ? ` ${ingreso}` : ''}</span>
+                    <span className="min-w-0 text-sm">
+                      <span className="block font-bold text-stone-900 dark:text-white truncate">{getProp(x.propertyId)?.name || 'Unidad'}</span>
+                      <span className="block font-medium text-stone-700 dark:text-stone-200 truncate">
+                        {x.guestName} · {x.guestsCount} {x.guestsCount === 1 ? 'persona' : 'personas'}
+                      </span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ))
           )}
         </section>
       </main>
