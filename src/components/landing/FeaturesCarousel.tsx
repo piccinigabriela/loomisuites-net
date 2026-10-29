@@ -323,7 +323,7 @@ export const FeaturesCarousel: React.FC<FeaturesCarouselProps> = ({ onOpenDemo, 
                       <div className="w-4 h-4 rounded border border-[#E1500A] flex items-center justify-center text-[10px] font-bold text-[#E1500A]">
                         ...
                       </div>
-                      <span>Verificación de cerradura y foto final</span>
+                      <span>Llaves en su lugar y foto final</span>
                     </div>
                   </div>
                 </div>

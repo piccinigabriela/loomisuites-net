@@ -2,7 +2,7 @@
  * Mi plan: estado del abono (precio en dólares), cómo pagar (transferencia en pesos al MEP del día, o Payoneer con descuento) y "Ya pagué".
  * Se abre desde el menú de la cuenta, desde el aviso de vencimiento y desde la pantalla de cuenta pausada.
  */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Check, Copy, Loader2, MessageCircle, X } from 'lucide-react';
 import type { AccessStatus, SubscriptionDoc } from '../../lib/subscription';
 import {
@@ -76,6 +76,14 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
   const [sending, setSending] = useState<PayMethod | null>(null);
   const [sent, setSent] = useState<PayMethod | null>(null);
   const [error, setError] = useState('');
+  // Al elegir un plan: confirmación visible y la pantalla baja sola a cómo pagar
+  const [chosen, setChosen] = useState(false);
+  const payRef = useRef<HTMLDivElement>(null);
+  const choosePlan = (id: PlanId) => {
+    setPlan(id);
+    setChosen(true);
+    setTimeout(() => payRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+  };
 
   const usdPrice = billing.plans[plan].usd;
   const hasTransfer = !!(billing.alias || billing.cbu);
@@ -167,7 +175,7 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
               <button
                 key={id}
                 type="button"
-                onClick={() => setPlan(id)}
+                onClick={() => choosePlan(id)}
                 aria-pressed={plan === id}
                 className={`text-left rounded-2xl border-2 p-4 cursor-pointer ${
                   plan === id ? 'border-[#A94F12] dark:border-[#F0A46F] bg-orange-50 dark:bg-orange-950/30' : 'border-stone-300 dark:border-zinc-700 bg-white dark:bg-[#18191E]'
@@ -178,6 +186,11 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
                   {id === 'propietario' ? 'Hasta 5 unidades, sin personal' : 'Con recepción y limpieza'}
                 </span>
                 <span className="block mt-2 text-xl font-bold text-stone-900 dark:text-white tabular-nums">{formatUsd(billing.plans[id].usd)} / mes</span>
+                {plan === id && (
+                  <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-[#A94F12] dark:text-[#F0A46F]">
+                    <Check className="w-4 h-4" /> Elegido
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -188,6 +201,16 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
       {pending && !sent && (
         <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 p-4 text-base font-bold text-emerald-900 dark:text-emerald-100">
           Ya nos avisaste que pagaste. Lo confirmamos y renovamos tu plan dentro de las 24 hs hábiles.
+        </div>
+      )}
+
+      <div ref={payRef} className="scroll-mt-3 space-y-5">
+      {chosen && !subscription?.plan && (
+        <div role="status" className="rounded-2xl bg-orange-50 dark:bg-orange-950/40 border-2 border-[#A94F12] dark:border-[#F0A46F] p-4">
+          <p className="text-base font-bold text-stone-900 dark:text-white">
+            Elegiste {billing.plans[plan].name}: {formatUsd(usdPrice)} por mes.
+          </p>
+          <p className="text-sm font-semibold text-stone-800 dark:text-stone-200 mt-1">Pagá como te quede cómodo y después tocá "Ya transferí" o "Ya pagué".</p>
         </div>
       )}
 
@@ -245,6 +268,8 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
           </button>
         </div>
       )}
+
+      </div>
 
       {error && <p className="text-base font-bold text-rose-700 dark:text-rose-300">{error}</p>}
 

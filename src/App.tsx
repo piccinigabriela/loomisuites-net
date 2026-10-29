@@ -920,6 +920,25 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [isApp, currentUser, tenantUid, tenantLoading, staffRole, demoState.properties, demoState.reservations, precheckins]);
 
+  // Limpiezas creadas antes de ocultar las cerraduras inteligentes: cambia ese ítem por el de llaves (una vez por tarea)
+  const fixedLockTasksRef = React.useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!isApp || !currentUser || !tenantUid || tenantLoading || staffRole === 'limpieza') return;
+    const OLD: Record<string, string> = {
+      'Comprobación de cerradura inteligente': 'Llaves en su lugar',
+      'Control de cerradura digital y llaves': 'Llaves en su lugar',
+      'Verificación de WiFi y cerradura': 'Verificación de WiFi y llaves',
+    };
+    for (const t of demoState.cleaningTasks || []) {
+      if (fixedLockTasksRef.current.has(t.id) || !(t.checklist || []).some((c) => OLD[c.task])) continue;
+      fixedLockTasksRef.current.add(t.id);
+      const checklist = t.checklist.map((c) => (OLD[c.task] ? { ...c, task: OLD[c.task] } : c));
+      updateCleaningTaskProgress(tenantUid, t.id, { checklist, status: t.status }).catch((err) =>
+        console.warn('No se pudo actualizar el texto de la limpieza:', err)
+      );
+    }
+  }, [isApp, currentUser, tenantUid, tenantLoading, staffRole, demoState.cleaningTasks]);
+
   // Nombre del complejo y horarios para Limpieza: los escriben el dueño y Recepción, que sí leen el complejo
   const lastSavedStaffComplexRef = React.useRef<string>('');
   useEffect(() => {

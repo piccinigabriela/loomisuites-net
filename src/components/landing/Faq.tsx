@@ -27,7 +27,7 @@ export const Faq: React.FC = () => {
     },
     {
       q: '¿Necesito cerraduras inteligentes o cambiar las puertas de mis cabañas?',
-      a: 'No, de ninguna manera. En Argentina y la región la gran mayoría de complejos y cabañas opera con llave física tradicional, llavero o candado con combinación. Loomi Suite está 100% preparado para trabajar con tus llaves físicas de siempre (podés enviar ubicación del llavero o coordinar la entrega por WhatsApp). Quienes tengan departamentos urbanos con cerraduras digitales (Tuya, Yale, TTLock) pueden activar opcionalmente el Módulo de Cerraduras Inteligentes con una tarifa adicional diferencial, pagando solo si lo usan.',
+      a: 'No, de ninguna manera. En Argentina y la región la gran mayoría de complejos y cabañas opera con llave física tradicional, llavero o candado con combinación. Loomi Suite está 100% preparado para trabajar con tus llaves físicas de siempre (podés enviar ubicación del llavero o coordinar la entrega por WhatsApp).',
     },
     {
       q: '¿Cómo funciona el motor de reservas directas para ahorrar comisiones?',
