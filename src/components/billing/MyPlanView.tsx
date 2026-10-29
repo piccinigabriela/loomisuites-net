@@ -3,6 +3,7 @@
  * Se abre desde el menú de la cuenta, desde el aviso de vencimiento y desde la pantalla de cuenta pausada.
  */
 import React, { useEffect, useRef, useState } from 'react';
+import { notifyLoomi } from '../../lib/notifyLoomi';
 import { Check, Copy, Loader2, MessageCircle, X } from 'lucide-react';
 import type { AccessStatus, SubscriptionDoc } from '../../lib/subscription';
 import {
@@ -129,6 +130,13 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
         rate: method === 'transferencia' && mep ? mep.rate : 0,
       });
       setSent(method);
+      const monto = method === 'payoneer' ? formatUsd(payoneer) : formatArs(ars);
+      notifyLoomi(
+        `Aviso de pago: ${complexName || email}`,
+        `${complexName || 'Una cuenta'} (${email || 'sin mail'}) avisó que pagó el plan ${billing.plans[plan].name} ` +
+          `por ${method === 'payoneer' ? 'Payoneer' : 'transferencia'}: ${monto}. Renovalo en Clientes de Loomi.`,
+        email || undefined
+      );
     } catch {
       setError('No se pudo enviar el aviso. Escribinos por WhatsApp y lo vemos.');
     }

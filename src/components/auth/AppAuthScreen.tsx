@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { notifyLoomi } from '../../lib/notifyLoomi';
 import {
   Mail,
   Lock,
@@ -40,17 +41,11 @@ function notifyNewSignup(registeredEmail: string, userUid: string, method: 'emai
   const nowEsAr = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
   const viaText = method === 'google' ? ' (con Google)' : '';
 
-  fetch('https://api.web3forms.com/submit', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({
-      access_key: '4451c78e-3861-41c1-8c94-f977bbd0c979',
-      subject: 'Nuevo registro en Loomi Suite',
-      from_name: 'Loomi Suite',
-      email: registeredEmail,
-      message: 'Se registró ' + registeredEmail + viaText + ' el ' + nowEsAr + '. Prueba de 7 días iniciada.',
-    }),
-  }).catch((err) => console.warn('Error al enviar aviso de registro a Web3Forms:', err));
+  notifyLoomi(
+    'Nuevo registro en Loomi Suite',
+    'Se registró ' + registeredEmail + viaText + ' el ' + nowEsAr + '. Prueba de 7 días iniciada.',
+    registeredEmail
+  );
 
   fetch('https://api.emailjs.com/api/v1.0/email/send', {
     method: 'POST',
