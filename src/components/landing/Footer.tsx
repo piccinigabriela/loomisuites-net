@@ -75,7 +75,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
               <li>TripAdvisor & Portales iCal</li>
               <li>Tu Web: pedidos de reserva por WhatsApp</li>
               <li>WhatsApp & Guía Digital para Huéspedes</li>
-              <li>Mercado Pago, PayPal & CBU (Para tus Huéspedes)</li>
             </ul>
           </div>
 
@@ -123,7 +122,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
               <span>contacto@loomisuite.net</span>
             </a>
             <span className="hidden sm:inline">•</span>
-            <span>Diseñado para cabañas, glampings, domos y alojamientos independientes</span>
+            <a href="/privacidad" className="text-[#D9DEE8] hover:text-white underline underline-offset-4">Privacidad</a>
+            <a href="/terminos" className="text-[#D9DEE8] hover:text-white underline underline-offset-4">Términos</a>
           </div>
         </div>
       </div>

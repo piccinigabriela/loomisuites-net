@@ -23,6 +23,8 @@ const T: Record<Lang, Record<string, string>> = {
     companions: 'Nombres de quienes te acompañan (opcional)',
     comments: 'Comentarios para tu anfitrión (opcional)',
     rules: 'Leí y acepto las normas de la casa',
+    privacy: 'Tus datos los recibe el alojamiento para registrar tu ingreso y se guardan en Loomi Suite, el sistema que usa. No se usan para otros fines ni se comparten con terceros. Podés pedir verlos, corregirlos o borrarlos al alojamiento o a contacto@loomisuite.net.',
+    privacyLink: 'Política de privacidad',
     seeRules: 'Ver normas',
     send: 'Enviar pre check-in',
     sending: 'Enviando…',
@@ -49,6 +51,8 @@ const T: Record<Lang, Record<string, string>> = {
     companions: 'Names of other guests (optional)',
     comments: 'Comments for your host (optional)',
     rules: 'I have read and accept the house rules',
+    privacy: 'Your details go to the property to register your check-in and are stored in Loomi Suite, the system it uses. They are not used for anything else or shared with third parties. You can ask the property or contacto@loomisuite.net to see, correct or delete them.',
+    privacyLink: 'Privacy policy (Spanish)',
     seeRules: 'See rules',
     send: 'Send pre check-in',
     sending: 'Sending…',
@@ -75,6 +79,8 @@ const T: Record<Lang, Record<string, string>> = {
     companions: 'Nomes dos acompanhantes (opcional)',
     comments: 'Comentários para o anfitrião (opcional)',
     rules: 'Li e aceito as regras da casa',
+    privacy: 'Seus dados vão para a hospedagem para registrar sua entrada e ficam guardados no Loomi Suite, o sistema que ela usa. Não são usados para outros fins nem compartilhados com terceiros. Você pode pedir para vê-los, corrigi-los ou apagá-los à hospedagem ou a contacto@loomisuite.net.',
+    privacyLink: 'Política de privacidade (em espanhol)',
     seeRules: 'Ver regras',
     send: 'Enviar pré check-in',
     sending: 'Enviando…',
@@ -278,6 +284,12 @@ export const PreCheckinCard: React.FC<PreCheckinCardProps> = ({ hostUid, reserva
               </ul>
             )}
           </div>
+          <p className="sm:col-span-2 text-sm leading-relaxed text-stone-800 dark:text-stone-200">
+            {t.privacy}{' '}
+            <a href="https://loomisuite.net/privacidad" target="_blank" rel="noreferrer" className="font-bold text-[#B5520B] dark:text-[#F5A35C] underline underline-offset-2">
+              {t.privacyLink}
+            </a>
+          </p>
           {error && <p className="sm:col-span-2 text-sm font-bold text-rose-700 dark:text-rose-300">{error}</p>}
           <div className="sm:col-span-2">
             <button

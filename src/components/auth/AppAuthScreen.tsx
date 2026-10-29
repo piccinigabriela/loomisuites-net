@@ -553,6 +553,20 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
                 </div>
               </form>
             )}
+
+            {mode !== 'forgot_password' && (
+              <p className="mt-5 text-center text-xs leading-relaxed text-slate-200">
+                Al crear tu cuenta o entrar con Google aceptás los{' '}
+                <a href="https://loomisuite.net/terminos" target="_blank" rel="noreferrer" className="font-semibold text-[#F5A35C] underline underline-offset-2">
+                  Términos
+                </a>{' '}
+                y la{' '}
+                <a href="https://loomisuite.net/privacidad" target="_blank" rel="noreferrer" className="font-semibold text-[#F5A35C] underline underline-offset-2">
+                  Política de privacidad
+                </a>
+                .
+              </p>
+            )}
           </div>
         </div>
       </main>

@@ -65,6 +65,10 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
 - Video tutorial (YouTube, oculto): `components/common/TutorialVideo.tsx` (`TUTORIAL_VIDEO_ID`; vacío = no se muestra). Botón en la bienvenida de la demo,
   el panel "Cómo funciona" y la landing. Las cerraduras inteligentes están ocultas (Loomi funciona con llaves comunes; el campo `smartLock` sigue en los datos).
 
+- Privacidad y términos: `components/legal/LegalPage.tsx` (loomisuite.net/privacidad y /terminos; texto revisado por la abogada el 29/10).
+  Links en el pie de la landing, la pantalla de ingreso y el pre check-in. Si cambia un proveedor (IA, WhatsApp, mails), un precio,
+  un plazo o se suma un píxel o analítica, actualizar el texto y la fecha ahí.
+
 - Cobro del abono: `src/lib/billing.ts`. `config/billing` (precios en pesos por plan, datos de transferencia, mail de Payoneer,
   descuento, días de gracia, MEP de respaldo; precios en dólares) lo edita la administración en Panel de clientes → Cobro y precios; lo leen usuarios con sesión.
   Los datos bancarios NO van en el código (el repo es público). Pantalla "Mi plan" (`components/billing/MyPlanView.tsx`): menú de la
