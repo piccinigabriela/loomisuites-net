@@ -105,19 +105,19 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
     const r = demoState.reservations
       .filter((x) => x.propertyId === task.propertyId && x.status !== 'cancelled' && x.checkIn >= task.date)
       .sort((a, b) => a.checkIn.localeCompare(b.checkIn))[0];
-    return r ? { checkIn: r.checkIn, checkOut: r.checkOut, guestName: r.guestName, guestsCount: r.guestsCount || 1 } : null;
+    return r ? { checkIn: r.checkIn, checkOut: r.checkOut, guestName: r.guestName, guestsCount: r.guestsCount || 1, arrivalTime: r.arrivalEta } : null;
   };
 
   // Las de hoy y las atrasadas; las de días futuros todavía no se muestran
   const tasks = getCleaningsForDay(demoState.cleaningTasks, getRelativeDate(0));
 
   // Entradas y salidas de los próximos 7 días (sin teléfonos ni importes), para planificar la semana
-  const weekStays: Array<{ propertyId: string; checkIn: string; checkOut: string; guestName: string; guestsCount: number }> =
+  const weekStays: Array<{ propertyId: string; checkIn: string; checkOut: string; guestName: string; guestsCount: number; arrivalTime?: string }> =
     arrivals !== undefined
       ? Object.entries(arrivals?.unidades || {}).flatMap(([propertyId, list]) => (list || []).map((a) => ({ propertyId, ...a })))
       : demoState.reservations
           .filter((r) => r.status !== 'cancelled')
-          .map((r) => ({ propertyId: r.propertyId, checkIn: r.checkIn, checkOut: r.checkOut, guestName: r.guestName, guestsCount: r.guestsCount || 1 }));
+          .map((r) => ({ propertyId: r.propertyId, checkIn: r.checkIn, checkOut: r.checkOut, guestName: r.guestName, guestsCount: r.guestsCount || 1, arrivalTime: r.arrivalEta }));
   const weekDays = Array.from({ length: 7 }, (_, i) => {
     const date = getRelativeDate(i);
     const label =
@@ -402,6 +402,7 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
                             >
                               {sameDay ? 'Llega hoy' : `Llega el ${formatDisplayDate(next.checkIn)}`}: {next.guestName} ·{' '}
                               {next.guestsCount} {next.guestsCount === 1 ? 'persona' : 'personas'}
+                              {next.arrivalTime && <span className="block font-bold">Llegada: {next.arrivalTime}</span>}
                             </p>
                           );
                         })()}
@@ -577,6 +578,9 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
                       <span className="block font-medium text-stone-700 dark:text-stone-200 truncate">
                         {x.guestName} · {x.guestsCount} {x.guestsCount === 1 ? 'persona' : 'personas'}
                       </span>
+                      {x.arrivalTime && (
+                        <span className="block font-bold text-emerald-800 dark:text-emerald-200">Llegada: {x.arrivalTime}</span>
+                      )}
                     </span>
                   </div>
                 ))}

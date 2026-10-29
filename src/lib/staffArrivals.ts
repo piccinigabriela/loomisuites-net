@@ -10,6 +10,8 @@ export interface StaffArrival {
   checkOut: string;
   guestName: string;
   guestsCount: number;
+  /** Hora de llegada que avisó el huésped (pre check-in) o que cargó el anfitrión en la reserva. Texto libre. */
+  arrivalTime?: string;
 }
 
 export interface StaffArrivalsDoc {
@@ -25,8 +27,16 @@ function addDays(date: string, n: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-/** Ingresos de hoy a 21 días (y estadías en curso), por unidad. */
-export function buildStaffArrivals(properties: Property[], reservations: Reservation[], today: string): StaffArrivalsDoc {
+/**
+ * Ingresos de hoy a 21 días (y estadías en curso), por unidad.
+ * arrivalTimes: id de reserva → hora de llegada del pre check-in (manda sobre la cargada a mano en la reserva).
+ */
+export function buildStaffArrivals(
+  properties: Property[],
+  reservations: Reservation[],
+  today: string,
+  arrivalTimes: Record<string, string | undefined> = {}
+): StaffArrivalsDoc {
   const limit = addDays(today, DIAS);
   const unidades: Record<string, StaffArrival[]> = {};
   for (const p of properties) unidades[p.id] = [];
@@ -34,11 +44,14 @@ export function buildStaffArrivals(properties: Property[], reservations: Reserva
     if (r.status === 'cancelled' || r.status === 'checked_out') continue;
     if (r.checkOut < today || r.checkIn > limit) continue;
     if (!unidades[r.propertyId]) continue;
+    const arrivalTime = (String(arrivalTimes[r.id] || '').trim() || String(r.arrivalEta || '').trim()).slice(0, 40);
     unidades[r.propertyId].push({
       checkIn: r.checkIn,
       checkOut: r.checkOut,
       guestName: (r.guestName || '').trim() || 'Huésped',
       guestsCount: Number(r.guestsCount) || 1,
+      // Sin hora, el campo no va (Firestore del servidor no acepta valores vacíos sin definir)
+      ...(arrivalTime ? { arrivalTime } : {}),
     });
   }
   for (const id of Object.keys(unidades)) {

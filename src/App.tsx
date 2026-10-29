@@ -906,7 +906,8 @@ export default function App() {
   useEffect(() => {
     if (!isApp || !currentUser || !tenantUid || tenantLoading || staffRole === 'limpieza') return;
     const timer = setTimeout(() => {
-      const data = buildStaffArrivals(demoState.properties || [], demoState.reservations || [], getLocalDateString());
+      const arrivalTimes = Object.fromEntries(Object.entries(precheckins).map(([id, p]) => [id, p?.arrivalTime]));
+      const data = buildStaffArrivals(demoState.properties || [], demoState.reservations || [], getLocalDateString(), arrivalTimes);
       const json = JSON.stringify(data);
       setStaffArrivals(data);
       if (json === lastSavedArrivalsRef.current) return;
@@ -917,7 +918,7 @@ export default function App() {
         .catch((err) => console.warn('Llegadas para Limpieza no guardadas (¿faltan las reglas nuevas?):', err));
     }, 3000);
     return () => clearTimeout(timer);
-  }, [isApp, currentUser, tenantUid, tenantLoading, staffRole, demoState.properties, demoState.reservations]);
+  }, [isApp, currentUser, tenantUid, tenantLoading, staffRole, demoState.properties, demoState.reservations, precheckins]);
 
   // Nombre del complejo y horarios para Limpieza: los escriben el dueño y Recepción, que sí leen el complejo
   const lastSavedStaffComplexRef = React.useRef<string>('');

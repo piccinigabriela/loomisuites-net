@@ -220,7 +220,14 @@ export async function sincronizarCuenta(
     });
 
     // Próximos ingresos para Limpieza (sin teléfonos ni importes); se escribe solo si cambió
-    const llegadas = buildStaffArrivals(properties, result.reservasResultantes || [], hoy);
+    // Hora de llegada que avisó cada huésped en su pre check-in (manda sobre la cargada a mano en la reserva)
+    const horas: Record<string, string> = {};
+    const pre = await db.collection(`precheckins/${uid}/items`).get();
+    pre.docs.forEach((d) => {
+      const v = d.data();
+      if (typeof v.arrivalTime === 'string' && v.arrivalTime.trim()) horas[v.reservationId || d.id] = v.arrivalTime;
+    });
+    const llegadas = buildStaffArrivals(properties, result.reservasResultantes || [], hoy, horas);
     const llegadasRef = db.doc(`tenants/${uid}/staff/llegadas`);
     const actual = await llegadasRef.get();
     if (!actual.exists || canon(actual.get('unidades') || {}) !== canon(llegadas.unidades)) {
