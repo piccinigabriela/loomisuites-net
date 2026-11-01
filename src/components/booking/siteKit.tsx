@@ -6,7 +6,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Minus, Plus, X } from 'lucide-react';
 import type { CurrencyCode, Property } from '../../types';
 import { quoteStay } from '../../lib/pricing';
-import { expPhotoKey, isUnitFree, PublicSiteDoc, PublicSitePhoto, PublicSiteUnit } from '../../lib/publicSite';
+import { depositAmount, expPhotoKey, isUnitFree, PublicSiteDoc, PublicSitePhoto, PublicSiteUnit } from '../../lib/publicSite';
 
 export type Lang = 'es' | 'en' | 'pt';
 
@@ -31,6 +31,9 @@ export const T = {
     minNights: (n: number) => `En estas fechas la estadía mínima es de ${n} noches.`,
     none: 'Probá con otras fechas o escribinos: a veces se libera algo.',
     confirmNote: 'El anfitrión confirma la disponibilidad y el precio final por WhatsApp.',
+    confirmNoteDeposit: (p: number) =>
+      `Para reservar se pide una seña del ${p}%. El anfitrión te confirma la disponibilidad por WhatsApp y te pasa los datos para transferirla; la reserva queda firme al recibirla.`,
+    msgDeposit: (amount: string, p: number) => `• Seña para reservar (${p}%): ${amount}`,
     checkin: 'Ingreso desde',
     checkout: 'Salida hasta',
     map: 'Ver en el mapa',
@@ -124,6 +127,9 @@ export const T = {
     readLess: 'Read less',
     msgExpInterest: (list: string) => `• I’m also interested in: ${list}`,
     msgExpAsk: (exp: string, name: string) => `Hi! I’d like to ask about "${exp}" at ${name}.`,
+    confirmNoteDeposit: (p: number) =>
+      `A ${p}% deposit is required to book. The host confirms availability on WhatsApp and sends you the bank transfer details; the booking is secured once it arrives.`,
+    msgDeposit: (amount: string, p: number) => `• Deposit to book (${p}%): ${amount}`,
   },
   pt: {
     arrive: 'Chegada',
@@ -181,6 +187,9 @@ export const T = {
     readLess: 'Ler menos',
     msgExpInterest: (list: string) => `• Também tenho interesse em: ${list}`,
     msgExpAsk: (exp: string, name: string) => `Olá! Gostaria de perguntar sobre "${exp}" em ${name}.`,
+    confirmNoteDeposit: (p: number) =>
+      `Para reservar é pedido um sinal de ${p}%. O anfitrião confirma a disponibilidade pelo WhatsApp e envia os dados para a transferência; a reserva fica garantida ao recebê-lo.`,
+    msgDeposit: (amount: string, p: number) => `• Sinal para reservar (${p}%): ${amount}`,
   },
 };
 
@@ -304,7 +313,9 @@ export function useGoogleFont(id: string, href: string) {
 /** Todo lo que necesita cualquier diseño: idioma, buscador, resultados, pedido por WhatsApp y fotos */
 export function useSiteBooking(site: PublicSiteDoc, photos: PublicSitePhoto[], preview?: boolean) {
   const [lang, setLang] = useState<Lang>(detectLang);
-  const t = T[lang];
+  const deposit = Number(site.depositPercent) || 0;
+  // Con seña, la nota de confirmación de todos los diseños la explica
+  const t = deposit > 0 ? { ...T[lang], confirmNote: T[lang].confirmNoteDeposit(deposit) } : T[lang];
   const today = todayStr();
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
@@ -366,6 +377,7 @@ export function useSiteBooking(site: PublicSiteDoc, photos: PublicSitePhoto[], p
       t.msgGuests(searched.guests),
     ];
     if (total > 0) lines.push(t.msgPrice(fmtMoney(total, site.currency)));
+    if (total > 0 && deposit > 0) lines.push(t.msgDeposit(fmtMoney(depositAmount(total, deposit), site.currency), deposit));
     const exps = (site.experiences || []).filter((e) => wantedExp.includes(e.id)).map((e) => e.name);
     if (exps.length) lines.push(t.msgExpInterest(exps.join(', ')));
     lines.push('', t.msgQuestion);

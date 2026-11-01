@@ -47,6 +47,20 @@ export interface WebSiteSettings {
   units?: Record<string, { hidden?: boolean; description?: string }>;
   /** Experiencias (de Opcionales y extras) que se muestran en la web: id del opcional → configuración */
   experiences?: Record<string, ExperienceSettings>;
+  /** Seña para reservar: la web muestra el porcentaje y el monto; los datos para transferir los pasa el anfitrión por WhatsApp */
+  deposit?: { enabled?: boolean; percent?: number };
+}
+
+/** Porcentaje de seña publicado (0 = sin seña) */
+export function depositPercent(settings: WebSiteSettings): number {
+  if (!settings.deposit?.enabled) return 0;
+  const p = Math.round(Number(settings.deposit.percent) || 0);
+  return Math.min(100, Math.max(1, p || 30));
+}
+
+/** Monto de la seña, redondeado a entero */
+export function depositAmount(total: number, percent: number): number {
+  return percent > 0 && total > 0 ? Math.round((total * percent) / 100) : 0;
 }
 
 export interface ExperienceSettings {
@@ -104,6 +118,8 @@ export interface PublicSiteDoc {
   units: PublicSiteUnit[];
   pricing: PricingSettings | null;
   experiences?: PublicSiteExperience[];
+  /** Seña para reservar, en % del total (0 o ausente = sin seña) */
+  depositPercent?: number;
   busy?: Record<string, BusyRange[]>;
   busyUpdatedAt?: unknown;
   updatedAt?: unknown;
@@ -201,6 +217,7 @@ export function buildPublicSite(input: {
     units,
     pricing,
     experiences: buildExperiences(input.addons, settings),
+    depositPercent: depositPercent(settings),
   };
 }
 

@@ -56,6 +56,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Noche, Día, Clara y Tierra se arman en `PublicSiteView.tsx`; los que tienen estructura propia están en `booking/designs/` (registro en
   `designs/index.ts`) y comparten textos, buscador e idioma de `booking/siteKit.tsx` (`useSiteBooking`). Para sumar uno: su componente,
   su id en `SiteTheme` y `SPECIAL_THEMES`, y en el selector de `TuWebSettings.tsx`.
+  Seña: `webSite.deposit` {enabled, percent} → `publicSites/{slug}.depositPercent`; la nota de confirmación y el pedido de WhatsApp muestran
+  el porcentaje y el monto. Los datos bancarios NO van a la web: el anfitrión los pasa por WhatsApp al confirmar (pedido de Roxana, 1/11).
   Experiencias: `webSite.experiences[addonId]` {show, text, showPrice} elige qué opcionales se publican (`publicSites/{slug}.experiences`, fotos con
   unitId `exp-{addonId}`); sección `ExperiencesSection` en todos los diseños y "Sumar a mi pedido" agrega la línea al WhatsApp de la reserva.
   Muestrario: loomisuite.net/disenos (`components/showcase/DesignShowcase.tsx`, complejo inventado en `lib/sampleSite.ts`, fotos y miniaturas

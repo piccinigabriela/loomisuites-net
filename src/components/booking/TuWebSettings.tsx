@@ -273,6 +273,9 @@ export const TuWebSettings: React.FC<Props> = ({
       {/* Textos */}
       <TextsCard settings={s} guide={guide} onSave={save} webDesigns={webDesigns || []} />
 
+      {/* Seña */}
+      <DepositCard settings={s} onSave={save} />
+
       {/* Fotos generales */}
       <div className={card}>
         <h3 className={h3}>Fotos del complejo</h3>
@@ -520,6 +523,55 @@ const ChangeSlug: React.FC<{ uid: string; slug: string; onChanged: (s: string) =
           Cancelar
         </button>
       </div>
+    </div>
+  );
+};
+
+/** Seña para reservar: la web muestra el porcentaje; los datos para transferir los pasa el anfitrión por WhatsApp, recién al confirmar */
+const DepositCard: React.FC<{ settings: WebSiteSettings; onSave: (patch: Partial<WebSiteSettings>) => Promise<void> }> = ({ settings, onSave }) => {
+  const enabled = !!settings.deposit?.enabled;
+  const [percent, setPercent] = useState(String(settings.deposit?.percent || 30));
+  const n = Math.round(Number(percent));
+  const valid = n >= 1 && n <= 100;
+  const dirty = valid && n !== (settings.deposit?.percent || 30);
+  return (
+    <div className={card}>
+      <h3 className={h3}>Seña para reservar</h3>
+      <p className={`${help} mt-1`}>
+        La web avisa que se pide una seña y la suma al pedido de WhatsApp. Vos confirmás la disponibilidad y le pasás tus datos para
+        transferir: la reserva queda firme cuando la recibís.
+      </p>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={() => onSave({ deposit: { enabled: !enabled, percent: valid ? n : 30 } })}
+          aria-pressed={enabled}
+          className={enabled ? ghostBtn : primaryBtn}
+        >
+          {enabled ? 'Sacar la seña' : 'Pedir seña'}
+        </button>
+        {enabled && (
+          <label className="flex items-center gap-2">
+            <input
+              type="number"
+              min={1}
+              max={100}
+              inputMode="numeric"
+              value={percent}
+              onChange={(e) => setPercent(e.target.value)}
+              className={`${inputCls} w-24 text-center`}
+              aria-label="Porcentaje de la seña"
+            />
+            <span className={label}>% del total</span>
+            {dirty && (
+              <button type="button" onClick={() => onSave({ deposit: { enabled: true, percent: n } })} className={primaryBtn}>
+                Guardar
+              </button>
+            )}
+          </label>
+        )}
+      </div>
+      {enabled && <p className={`${help} mt-3`}>Tus datos bancarios no aparecen en la web: se los mandás vos por WhatsApp.</p>}
     </div>
   );
 };
