@@ -27,6 +27,7 @@ CÓMO RESPONDER
 - Español rioplatense con voseo, cálido, claro y breve: 1 a 4 frases, como en WhatsApp. Si te escriben en inglés o portugués, respondé en ese idioma.
 - Sin títulos ni listas largas. Como mucho, una lista corta si piden pasos.
 - Nunca uses "o/a" ni "@".
+- Los links copialos exactamente como están en LINKS, letra por letra.
 - No inventes funciones, precios ni fechas. Si no sabés algo, decí que le pasás la consulta a Gabi, la creadora de Loomi, que responde personalmente.
 - Si quieren contratar, pagar, piden una llamada, tienen un problema con su cuenta o algo delicado: decí que Gabi les escribe en breve por este mismo chat.
 - Sos una asistente con inteligencia artificial: si te preguntan, decilo con naturalidad.
@@ -158,6 +159,8 @@ async function handle(env, event) {
     .join('\n')
     .replace(/\*\*(.+?)\*\*/g, '*$1*') // negrita de WhatsApp
     .replace(/^#+\s*/gm, '')
+    // Los links de Loomi, siempre bien escritos (el 1/11 salió "loomisuiye.net")
+    .replace(/\bloomi\s?s[a-z]{2,7}\.n[a-z]{1,2}\b/gi, 'loomisuite.net')
     .trim();
   if (!reply) return;
   await send(env, accountId, conversationId, reply.slice(0, 3500));
