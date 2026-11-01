@@ -68,6 +68,27 @@
         } catch (e) {}
       })();
     </script>
+    <script>
+      /* Estadísticas de visitas (GoatCounter, sin cookies ni datos personales). Solo cuenta en loomisuite.net público:
+         no en app.loomisuite.net (datos reales de clientes), ni en vistas previas, localhost o dominios propios de Tu Web.
+         En guía y precheckin se cuenta solo la primera parte de la ruta, para no guardar identificadores de clientes. */
+      (function () {
+        try {
+          if (!/^(www\.)?loomisuite\.net$/i.test(location.hostname)) return;
+          if (/[?&]mode=app\b/.test(location.search)) return;
+          window.goatcounter = {
+            path: function (p) {
+              return /^\/(guia|guide|precheckin)(\/|$)/i.test(p) ? '/' + p.split('/')[1].toLowerCase() : p;
+            }
+          };
+          var s = document.createElement('script');
+          s.async = true;
+          s.setAttribute('data-goatcounter', 'https://loomisuite.goatcounter.com/count');
+          s.src = '//gc.zgo.at/count.js';
+          document.head.appendChild(s);
+        } catch (e) {}
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
