@@ -1,4 +1,5 @@
 import React, { useEffect, useState, Suspense } from 'react';
+import { withAdSource } from './lib/adSource';
 import { Navbar } from './components/landing/Navbar';
 import { BentoLanding } from './components/landing/BentoLanding';
 import { ManualLeadMagnet } from './components/landing/ManualLeadMagnet';
@@ -38,7 +39,7 @@ export const LandingRoot: React.FC = () => {
     setLeadOpen(true);
   };
   const openLogin = () => {
-    window.location.href = 'https://app.loomisuite.net';
+    window.location.href = withAdSource('https://app.loomisuite.net');
   };
 
   return (

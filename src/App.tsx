@@ -39,6 +39,7 @@ import { LeadModal } from './components/landing/LeadModal';
 
 // Demo Application Components
 import { markPreCheckinSeen, precheckinMillis, subscribeToPreCheckins } from './lib/precheckin';
+import { withAdSource } from './lib/adSource';
 import type { LegacyImportPayload } from './components/demo/LegacyBackupImport';
 import { INITIAL_WELCOME_GUIDE, getEmptyAppState, getCleaningsForDay, formatDisplayDate } from './data/initialData';
 import { isAppMode } from './lib/appMode';
@@ -2407,7 +2408,7 @@ export default function App() {
             theme={theme}
             onToggleTheme={toggleTheme}
             onOpenLogin={() => {
-              window.location.href = 'https://app.loomisuite.net';
+              window.location.href = withAdSource('https://app.loomisuite.net');
             }}
             onOpenDemo={() => handleOpenDemo()}
             onOpenContact={() => {
@@ -2424,7 +2425,7 @@ export default function App() {
               setIsLeadModalOpen(true);
             }}
             onOpenLogin={() => {
-              window.location.href = 'https://app.loomisuite.net';
+              window.location.href = withAdSource('https://app.loomisuite.net');
             }}
           />
 

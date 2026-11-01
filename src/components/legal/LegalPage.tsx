@@ -67,7 +67,7 @@ const Privacy: React.FC = () => (
             <td className="p-3 font-semibold text-white">Clientes y su equipo</td>
             <td className="p-3">
               Nombre, email, cuenta de Google si inician sesión con ella, datos del alojamiento, tarifas, datos de cobro que el
-              cliente decida cargar (alias, CBU)
+              cliente decida cargar (alias, CBU), y por dónde llegaron a Loomi (por ejemplo, un anuncio)
             </td>
             <td className="p-3">Prestar el servicio, dar acceso a cada persona según su rol, soporte y facturación</td>
           </tr>

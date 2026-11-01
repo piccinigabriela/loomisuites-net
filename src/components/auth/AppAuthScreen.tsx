@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { notifyLoomi } from '../../lib/notifyLoomi';
+import { adSourceLabel, getAdSource } from '../../lib/adSource';
 import {
   Mail,
   Lock,
@@ -43,7 +44,7 @@ function notifyNewSignup(registeredEmail: string, userUid: string, method: 'emai
 
   notifyLoomi(
     'Nuevo registro en Loomi Suite',
-    'Se registró ' + registeredEmail + viaText + ' el ' + nowEsAr + '. Prueba de 7 días iniciada.',
+    'Se registró ' + registeredEmail + viaText + ' el ' + nowEsAr + '. Prueba de 7 días iniciada. Llegó por: ' + (adSourceLabel() || 'sin anuncio') + '.',
     registeredEmail
   );
 
@@ -64,6 +65,8 @@ function notifyNewSignup(registeredEmail: string, userUid: string, method: 'emai
       method,
       email: registeredEmail,
       uid: userUid,
+      source: getAdSource()?.source || '',
+      campaign: getAdSource()?.campaign || '',
       createdAt: serverTimestamp(),
     }).catch((err) => console.warn('Error al guardar documento de lead en Firestore:', err));
   }

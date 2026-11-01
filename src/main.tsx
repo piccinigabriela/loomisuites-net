@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import { ErrorBoundary } from './components/ErrorBoundary.tsx';
 import './index.css';
 import { isAppMode } from './lib/appMode';
+import { captureAdSource, onlyTrackingParams, tagAppLinks } from './lib/adSource';
 import { LandingRoot } from './LandingRoot.tsx';
 
 // La app completa (demo, panel, guía, Firebase) se descarga solo cuando hace falta
@@ -16,6 +17,10 @@ const FeaturesPage = lazy(() => import('./components/landing/FeaturesPage.tsx').
 // Política de privacidad y términos (loomisuite.net/privacidad y /terminos)
 const LegalPage = lazy(() => import('./components/legal/LegalPage.tsx').then((m) => ({ default: m.LegalPage })));
 const DesignShowcase = lazy(() => import('./components/showcase/DesignShowcase.tsx').then((m) => ({ default: m.DesignShowcase })));
+
+// De dónde llegó (anuncio): se guarda en este navegador y viaja en los links a la app
+captureAdSource();
+tagAppLinks();
 
 const path = window.location.pathname.toLowerCase();
 const hash = window.location.hash.toLowerCase();
@@ -36,7 +41,7 @@ const isLanding =
   !customSiteHost &&
   !isAppMode() &&
   (path === '/' || path === '' || path === '/index.html') &&
-  !window.location.search &&
+  onlyTrackingParams(window.location.search) &&
   !/app|panel|login|web|limpieza|recepcion|admin|guia|guide/.test(hash);
 
 // index.html esconde la landing prearmada en las páginas que no son la landing (clase no-prerender).
