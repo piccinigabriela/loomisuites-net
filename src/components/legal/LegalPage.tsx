@@ -7,7 +7,7 @@ import React, { useEffect } from 'react';
 
 export type LegalDoc = 'privacidad' | 'terminos';
 
-const UPDATED = '29 de octubre de 2026';
+const UPDATED = '1 de noviembre de 2026';
 const OWNER = 'María Gabriela Piccini';
 const CUIT = '27-17515982-4';
 const ADDRESS = 'General Pinto 1525, San Fernando (1646), provincia de Buenos Aires, Argentina';
@@ -119,6 +119,10 @@ const Privacy: React.FC = () => (
         Loomi. Xenia puede contestarlos de forma automática.
       </li>
       <li>
+        <strong className="text-white">GoatCounter:</strong> estadísticas de visitas de la web pública (páginas vistas, país, navegador,
+        tamaño de pantalla y sitio de origen). No usa cookies, no guarda tu dirección IP y no se usa dentro de la aplicación.
+      </li>
+      <li>
         <strong className="text-white">Web3Forms y EmailJS:</strong> avisos y mails cuando alguien se registra o completa un formulario
         de la web.
       </li>
@@ -157,7 +161,7 @@ const Privacy: React.FC = () => (
     <H3>9. Cookies y almacenamiento local</H3>
     <P>
       La web guarda en tu navegador preferencias como el modo oscuro y datos de la demo. No usamos cookies de publicidad ni de
-      seguimiento.
+      seguimiento. Para saber cuánta gente visita la web usamos una estadística sin cookies (GoatCounter), que no te identifica.
     </P>
 
     <H3>10. Cambios</H3>
