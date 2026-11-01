@@ -38,9 +38,9 @@ import { Footer } from './components/landing/Footer';
 import { LeadModal } from './components/landing/LeadModal';
 
 // Demo Application Components
-import { subscribeToPreCheckins } from './lib/precheckin';
+import { markPreCheckinSeen, precheckinMillis, subscribeToPreCheckins } from './lib/precheckin';
 import type { LegacyImportPayload } from './components/demo/LegacyBackupImport';
-import { INITIAL_WELCOME_GUIDE, getEmptyAppState, getCleaningsForDay } from './data/initialData';
+import { INITIAL_WELCOME_GUIDE, getEmptyAppState, getCleaningsForDay, formatDisplayDate } from './data/initialData';
 import { isAppMode } from './lib/appMode';
 import { auth, onAuthStateChanged, signOut, User } from './lib/firebase';
 import { sendEmailVerification } from 'firebase/auth';
@@ -2293,6 +2293,44 @@ export default function App() {
               </button>
             )}
             <button type="button" onClick={() => withNews.forEach((t) => handleMarkCleaningNotesSeen(t.id))} className="font-bold underline underline-offset-2 cursor-pointer">
+              Visto
+            </button>
+          </div>
+        );
+      })()}
+
+      {/* Aviso: un huésped completó su pre check-in (Administración y Recepción). Solo los de los últimos 7 días y de reservas que siguen en pie. */}
+      {isApp && staffRole !== 'limpieza' && viewRole !== 'housekeeping' && (() => {
+        const today = toLocalDateStr(new Date());
+        const since = Date.now() - 7 * 86400000;
+        const fresh = Object.values(precheckins)
+          .filter((p) => p && !p.seen && precheckinMillis(p) >= since)
+          .map((p) => ({ p, r: demoState.reservations.find((r) => r.id === p.reservationId) }))
+          .filter((x): x is { p: PreCheckin; r: Reservation } => !!x.r && x.r.status !== 'cancelled' && x.r.status !== 'checked_out' && x.r.checkOut >= today)
+          .sort((a, b) => precheckinMillis(b.p) - precheckinMillis(a.p));
+        if (!fresh.length) return null;
+        const { p, r } = fresh[0];
+        const unitName = demoState.properties.find((u) => u.id === r.propertyId)?.name || '';
+        const markAll = () =>
+          fresh.forEach((x) => markPreCheckinSeen(tenantUid, x.p.reservationId).catch((err) => console.warn('No se pudo marcar el pre check-in como visto:', err)));
+        return (
+          <div className="py-2 px-4 text-sm font-semibold flex flex-wrap items-center justify-center gap-x-3 gap-y-1 relative z-50 border-b bg-emerald-50 border-emerald-300 text-emerald-950 dark:bg-emerald-900/30 dark:border-emerald-700 dark:text-emerald-50">
+            <span>
+              {(p.fullName || r.guestName || 'Un huésped').trim()} completó su pre check-in
+              {unitName ? ` · ${unitName}` : ''}, llega el {formatDisplayDate(r.checkIn)}
+              {fresh.length > 1 ? ` · y ${fresh.length - 1} más` : ''}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedReservationForDetail(r);
+                markPreCheckinSeen(tenantUid, p.reservationId).catch(() => {});
+              }}
+              className="font-bold underline underline-offset-2 cursor-pointer"
+            >
+              Ver datos
+            </button>
+            <button type="button" onClick={markAll} className="font-bold underline underline-offset-2 cursor-pointer">
               Visto
             </button>
           </div>

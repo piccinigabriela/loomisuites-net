@@ -6,7 +6,7 @@
  * solo el anfitrión puede leerlo, editarlo o borrarlo. Sin foto del documento: si el dueño la necesita,
  * la pide por WhatsApp.
  */
-import { collection, doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collection, doc, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { GuestLanguage } from '../data/initialData';
 import type { PreCheckin } from '../types';
@@ -22,6 +22,18 @@ export async function submitPreCheckin(hostUid: string, data: PreCheckin): Promi
     ...data,
     submittedAt: serverTimestamp(),
   });
+}
+
+/** El aviso "completó su pre check-in" ya se vio (lo marcan Administración o Recepción) */
+export async function markPreCheckinSeen(hostUid: string, reservationId: string): Promise<void> {
+  if (!hostUid || !db) return;
+  await updateDoc(doc(db, 'precheckins', hostUid, 'items', precheckinDocId(reservationId)), { seen: true });
+}
+
+/** Momento en que llegó (Timestamp de Firestore, o nada si todavía no lo confirmó el servidor) */
+export function precheckinMillis(p: PreCheckin): number {
+  const s = p.submittedAt as { toMillis?: () => number } | undefined;
+  return s && typeof s.toMillis === 'function' ? s.toMillis() : Date.now();
 }
 
 export function subscribeToPreCheckins(hostUid: string, onData: (map: Record<string, PreCheckin>) => void): () => void {

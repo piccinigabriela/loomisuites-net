@@ -318,4 +318,6 @@ export interface PreCheckin {
   acceptedRules: boolean;
   lang: string;
   submittedAt?: any;
+  /** Administración o Recepción ya vio el aviso de que llegó */
+  seen?: boolean;
 }
