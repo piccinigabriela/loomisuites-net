@@ -67,6 +67,9 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
 - Video tutorial (YouTube, oculto): `components/common/TutorialVideo.tsx` (`TUTORIAL_VIDEO_ID`; vacío = no se muestra). Botón en la bienvenida de la demo,
   el panel "Cómo funciona" y la landing. Las cerraduras inteligentes están ocultas (Loomi funciona con llaves comunes; el campo `smartLock` sigue en los datos).
 
+- Todo lo que hace Loomi: loomisuite.net/funciones (`components/landing/FeaturesPage.tsx`, página liviana; links en el menú y el pie de la landing,
+  y Xenia en WhatsApp la manda). Si se suma, cambia o se saca una función, o cambian los precios, actualizarla.
+
 - Privacidad y términos: `components/legal/LegalPage.tsx` (loomisuite.net/privacidad y /terminos; texto revisado por la abogada el 29/10).
   Links en el pie de la landing, la pantalla de ingreso y el pre check-in. Si cambia un proveedor (IA, WhatsApp, mails), un precio,
   un plazo o se suma un píxel o analítica, actualizar el texto y la fecha ahí.

@@ -11,6 +11,8 @@ const ManualPage = lazy(() => import('./components/landing/ManualPage.tsx').then
 // Tu Web de cada complejo: página liviana, sin la app
 const PublicSitePage = lazy(() => import('./components/booking/PublicSitePage.tsx').then((m) => ({ default: m.PublicSitePage })));
 // Muestrario de diseños de Tu Web (loomisuite.net/disenos)
+// Todo lo que hace Loomi (loomisuite.net/funciones)
+const FeaturesPage = lazy(() => import('./components/landing/FeaturesPage.tsx').then((m) => ({ default: m.FeaturesPage })));
 // Política de privacidad y términos (loomisuite.net/privacidad y /terminos)
 const LegalPage = lazy(() => import('./components/legal/LegalPage.tsx').then((m) => ({ default: m.LegalPage })));
 const DesignShowcase = lazy(() => import('./components/showcase/DesignShowcase.tsx').then((m) => ({ default: m.DesignShowcase })));
@@ -59,6 +61,8 @@ createRoot(document.getElementById('root')!).render(
       >
         {siteSlug || customSiteHost ? (
           <PublicSitePage slug={siteSlug} customHost={customSiteHost} />
+        ) : isLoomiHost && /^\/funciones\/?$/.test(path) ? (
+          <FeaturesPage />
         ) : legalMatch && isLoomiHost ? (
           <LegalPage doc={legalMatch[1] as 'privacidad' | 'terminos'} />
         ) : isManualPage ? (

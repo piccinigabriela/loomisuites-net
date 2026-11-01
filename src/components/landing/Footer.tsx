@@ -122,6 +122,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDemo, onOpenContact }) => 
               <span>contacto@loomisuite.net</span>
             </a>
             <span className="hidden sm:inline">•</span>
+            <a href="/funciones" className="text-[#D9DEE8] hover:text-white underline underline-offset-4">Todo lo que hace Loomi</a>
             <a href="/privacidad" className="text-[#D9DEE8] hover:text-white underline underline-offset-4">Privacidad</a>
             <a href="/terminos" className="text-[#D9DEE8] hover:text-white underline underline-offset-4">Términos</a>
           </div>

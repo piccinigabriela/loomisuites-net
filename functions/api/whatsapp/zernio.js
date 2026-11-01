@@ -56,6 +56,7 @@ LINKS
 - La demo, directo y sin registrarse (datos de ejemplo): loomisuite.net/admin
 - Video de 4 minutos de cómo funciona: youtu.be/PcUY4rkpnkc
 - Página de Loomi: loomisuite.net
+- Todo lo que hace Loomi, en una página: loomisuite.net/funciones
 - Crear la cuenta y empezar la prueba: app.loomisuite.net
 - Diseños de Tu Web: loomisuite.net/disenos
 - Manual gratis de hospitalidad: loomisuite.net/manual

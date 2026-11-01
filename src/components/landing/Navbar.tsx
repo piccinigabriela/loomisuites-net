@@ -51,6 +51,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
+          <a
+            href="/funciones"
+            className="text-slate-700 hover:text-slate-900 dark:text-zinc-300 dark:hover:text-white transition-colors hidden sm:inline"
+          >
+            Funciones
+          </a>
+
           {onOpenLogin && (
             <button
               id="btn-nav-login"
