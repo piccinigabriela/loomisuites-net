@@ -1,7 +1,8 @@
 /**
  * Xenia para huéspedes: lo que usa el chat de la guía y de Tu Web (src/components/guest/GuestXenia.tsx).
  * El servidor (functions/api/xenia/huesped.js) lee la información publicada, cuenta y aplica los topes.
- * Incluida durante la prueba: 1.000 conversaciones por mes por complejo (ver XENIA_GUEST_TRIAL_END).
+ * Incluida en el plan: 1.000 conversaciones por mes por complejo. Más: 1.000 extra por USD 10 por mes, solo si el cliente lo pide
+ * (se habilita a mano con subscriptions/{uid}.xeniaGuestLimit).
  */
 import { whatsappDigits } from './publicSite';
 
@@ -10,8 +11,8 @@ export type GuestXeniaLang = 'es' | 'en' | 'pt';
 
 /** Conversaciones por mes incluidas (el servidor usa el mismo número) */
 export const XENIA_GUEST_MONTH_LIMIT = 1000;
-/** Fin de la prueba sin cargo (YYYY-MM-DD). Antes de cobrar algo se avisa con 30 días. */
-export const XENIA_GUEST_TRIAL_END = '2027-01-31';
+/** Precio de cada paquete de 1.000 conversaciones extra, en USD por mes */
+export const XENIA_GUEST_EXTRA_USD = 10;
 
 export interface GuestXeniaReply {
   reply?: string;

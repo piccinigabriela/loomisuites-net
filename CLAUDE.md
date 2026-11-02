@@ -40,7 +40,7 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Topes: 1.000 conversaciones por mes (`subscriptions/{uid}.xeniaGuestLimit` lo cambia), 100 por día, 20 mensajes por conversación.
   Uso en `xeniaUsage/{uid}/months/{AAAA-MM}` (el dueño lo lee; escribe solo el servidor). No se guarda el texto de las conversaciones.
   Pagos, cambios y lo que no sabe: marca `<<ANFITRION: …>>` → botón de WhatsApp al anfitrión. Chat: `components/guest/GuestXenia.tsx`;
-  tarjeta del dueño: `GuestXeniaSettings.tsx`; fin de la prueba sin cargo en `lib/guestXenia.ts` (`XENIA_GUEST_TRIAL_END`).
+  tarjeta del dueño: `GuestXeniaSettings.tsx`; incluida en el plan (1.000/mes); 1.000 extra por USD 10/mes solo si el cliente lo pide (subir `xeniaGuestLimit`; hoy a mano, las reglas no dejan que el Panel lo escriba).
   La guía pública ya no publica `directBookingSettings` (datos de cobro).
 - `isAppMode()` = hostname `app.` o `?mode=app`. Sin eso, la app muestra la demo con datos de ejemplo.
 - Roles: el dueño puede ver las tres vistas (`/admin`, `/recepcion`, `/limpieza`). El personal entra con su cuenta:

@@ -119,7 +119,7 @@ const BLOCKS: Block[] = [
       'Responde dudas de uso de la app.',
       'Te dice qué está libre en tus fechas, cómo viene la ocupación o cuánto entró en el mes.',
       'Te puede contestar con voz.',
-      <><B>Para tus huéspedes:</B> si la activás, responde en tu guía y en Tu Web, en español, inglés y portugués, con lo que cargaste. Pagos, cambios y lo que no sabe te lo pasa por WhatsApp. Sin cargo durante el lanzamiento.</>,
+      <><B>Para tus huéspedes:</B> si la activás, responde en tu guía y en Tu Web, en español, inglés y portugués, con lo que cargaste. Pagos, cambios y lo que no sabe te lo pasa por WhatsApp. Incluye 1.000 conversaciones por mes; si necesitás más, 1.000 extra por USD 10 por mes, solo si las pedís.</>,
     ],
   },
   {

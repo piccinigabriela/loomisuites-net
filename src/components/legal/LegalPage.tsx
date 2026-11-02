@@ -239,9 +239,10 @@ const Terms: React.FC = () => (
       <li>
         <strong className="text-white">Xenia para huéspedes:</strong> si el cliente la activa, responde preguntas en su guía y en Tu
         Web solo con la información que el cliente cargó, y le pasa por WhatsApp los pagos, cambios de reserva y lo que no sabe. El
-        cliente es responsable de que esa información esté al día. Durante el lanzamiento no tiene cargo e incluye hasta 1.000
-        conversaciones por mes por complejo; al llegar a ese tope, deja de responder hasta el mes siguiente. Antes de cualquier
-        cambio de condiciones avisamos con 30 días, y nunca se cobra sin que el cliente lo pida.
+        cliente es responsable de que esa información esté al día. El plan incluye hasta 1.000 conversaciones por mes por complejo;
+        al llegar a ese tope, deja de responder hasta el mes siguiente y ofrece a los huéspedes escribirle al cliente por WhatsApp.
+        Si el cliente necesita más, puede sumar 1.000 conversaciones por USD 10 por mes, solo si lo pide. Nunca se cobra sin que el
+        cliente lo pida.
       </li>
       <li>
         <strong className="text-white">Tarifas y cobros:</strong> Loomi calcula según lo que configura el cliente. No procesa pagos ni

@@ -5,15 +5,9 @@
 import React, { useEffect, useState } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
-import { XENIA_GUEST_MONTH_LIMIT, XENIA_GUEST_TRIAL_END } from '../../lib/guestXenia';
+import { XENIA_GUEST_EXTRA_USD, XENIA_GUEST_MONTH_LIMIT } from '../../lib/guestXenia';
 
 const monthKey = () => new Date(Date.now() - 3 * 3600 * 1000).toISOString().slice(0, 7);
-const trialEnd = new Date(`${XENIA_GUEST_TRIAL_END}T12:00:00Z`).toLocaleDateString('es-AR', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  timeZone: 'UTC',
-});
 
 export const GuestXeniaSettings: React.FC<{
   uid: string;
@@ -104,19 +98,21 @@ export const GuestXeniaSettings: React.FC<{
           </div>
           {pct >= 100 ? (
             <p className="mt-3 text-base font-semibold text-red-700 dark:text-red-300">
-              Llegaste al tope del mes: Xenia ofrece escribirte por WhatsApp hasta el mes que viene. Si necesitás más, escribinos.
+              Llegaste al tope del mes: Xenia ofrece a tus huéspedes escribirte por WhatsApp hasta el mes que viene. Si querés sumar{' '}
+              {XENIA_GUEST_MONTH_LIMIT.toLocaleString('es-AR')} más por USD {XENIA_GUEST_EXTRA_USD} por mes, escribinos.
             </p>
           ) : pct >= 80 ? (
             <p className="mt-3 text-base font-semibold text-amber-800 dark:text-amber-200">
-              Ya usaste el {pct}% del mes. Al llegar al tope, Xenia ofrece escribirte por WhatsApp.
+              Ya usaste el {pct}% del mes. Al llegar al tope, Xenia ofrece a tus huéspedes escribirte por WhatsApp. Si preferís que
+              siga respondiendo, podés sumar {XENIA_GUEST_MONTH_LIMIT.toLocaleString('es-AR')} más por USD {XENIA_GUEST_EXTRA_USD} por mes: escribinos.
             </p>
           ) : null}
         </div>
       )}
 
       <p className="mt-4 text-sm text-stone-800 dark:text-stone-200 leading-relaxed">
-        Sin cargo durante el lanzamiento, hasta el {trialEnd}. Incluye hasta {XENIA_GUEST_MONTH_LIMIT.toLocaleString('es-AR')}{' '}
-        conversaciones por mes. Antes de cualquier cambio te avisamos con 30 días, y nunca se cobra sola.
+        Incluida en tu plan: hasta {XENIA_GUEST_MONTH_LIMIT.toLocaleString('es-AR')} conversaciones por mes. Si necesitás más, sumás
+        otras {XENIA_GUEST_MONTH_LIMIT.toLocaleString('es-AR')} por USD {XENIA_GUEST_EXTRA_USD} por mes, solo si lo pedís. Nunca se cobra sola.
       </p>
     </section>
   );
