@@ -44,6 +44,7 @@ Sistema de gestión para alojamientos chicos (de 4 a 20 unidades), hecho en Arge
 - 5 mensajes de WhatsApp listos (confirmación, día de llegada, control de confort, check-out, reseña) en español, inglés y portugués: se abren listos y se envían con un toque, no salen solos.
 - Tu Web: página de reservas directas (loomisuite.net/web/nombre-del-lugar) con fotos, buscador de fechas, precio según las tarifas y pedido por WhatsApp; también puede mostrar experiencias (excursiones, catas, cabalgatas). No cobra ni confirma sola: el anfitrión confirma. Puede pedir una seña (el porcentaje lo elige el anfitrión): la web la avisa y el huésped la transfiere cuando el anfitrión le confirma. Sin comisiones.
 - Xenia dentro de la app: responde dudas de uso y datos del complejo.
+- Xenia para huéspedes (se activa si el anfitrión quiere): responde a los huéspedes en la guía y en Tu Web, en español, inglés y portugués, solo con lo que el anfitrión cargó; pagos, cambios de reserva y lo que no sabe se lo pasa al anfitrión por WhatsApp. Sin cargo durante el lanzamiento, hasta 1.000 conversaciones por mes.
 - Funciona con llaves comunes; no hay cerraduras con código.
 
 PLANES Y PRECIOS (por mes, todo el complejo, sin comisiones por reserva)
