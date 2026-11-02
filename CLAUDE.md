@@ -31,6 +31,15 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   (instrucciones de venta dentro de la función: si cambian precios o funciones, actualizarlas ahí). No contesta en un chat donde Gabi escribió
   en las últimas 12 h (lo de Xenia lleva una marca invisible al final). Audios: pide que escriban. Secrets: `ZERNIO_API_KEY`, `ZERNIO_WEBHOOK_SECRET`.
   Para apagarla: desactivar el webhook en Zernio.
+- Xenia para huéspedes (guía y Tu Web): `functions/api/xenia/huesped.js` (POST `/api/xenia/huesped`). El navegador manda solo la pregunta;
+  la información la lee el servidor de `publicGuides/{uid}` o `publicSites/{slug}` con una cuenta de servicio (`functions-lib/firestoreAdmin.js`,
+  secret `FIREBASE_SERVICE_ACCOUNT` = JSON de la clave, rol "Usuario de Cloud Datastore"; las cuentas de servicio no pasan por App Check).
+  Responde solo si `xeniaGuest: true` en lo publicado (lo activa el dueño en Tu Web y Guía; `tenants/{uid}.xeniaGuest.enabled`).
+  Topes: 1.000 conversaciones por mes (`subscriptions/{uid}.xeniaGuestLimit` lo cambia), 100 por día, 20 mensajes por conversación.
+  Uso en `xeniaUsage/{uid}/months/{AAAA-MM}` (el dueño lo lee; escribe solo el servidor). No se guarda el texto de las conversaciones.
+  Pagos, cambios y lo que no sabe: marca `<<ANFITRION: …>>` → botón de WhatsApp al anfitrión. Chat: `components/guest/GuestXenia.tsx`;
+  tarjeta del dueño: `GuestXeniaSettings.tsx`; fin de la prueba sin cargo en `lib/guestXenia.ts` (`XENIA_GUEST_TRIAL_END`).
+  La guía pública ya no publica `directBookingSettings` (datos de cobro).
 - `isAppMode()` = hostname `app.` o `?mode=app`. Sin eso, la app muestra la demo con datos de ejemplo.
 - Roles: el dueño puede ver las tres vistas (`/admin`, `/recepcion`, `/limpieza`). El personal entra con su cuenta:
   `invites/{mail}` (lo crea el dueño en Administración → Equipo y accesos) → al aceptar se crea `memberships/{uid}`

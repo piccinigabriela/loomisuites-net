@@ -1,9 +1,11 @@
 import { PreCheckinCard } from './PreCheckinCard';
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { GuestWelcomePortal, PortalTheme } from './GuestWelcomePortal';
 import { WelcomeGuideData } from '../../types';
+
+const GuestXenia = lazy(() => import('../guest/GuestXenia'));
 
 export const PublicGuideView: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -11,6 +13,9 @@ export const PublicGuideView: React.FC = () => {
     guide: WelcomeGuideData;
     template: PortalTheme;
     units: Array<{ id: string; name: string; address?: string; wifiNetwork?: string; wifiPassword?: string }>;
+    complexName?: string;
+    /** El anfitrión activó Xenia para huéspedes */
+    xeniaGuest?: boolean;
   } | null>(null);
 
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
@@ -111,6 +116,18 @@ export const PublicGuideView: React.FC = () => {
         isPublicView={true}
         unitName={unitName}
       />
+      {guideDoc.xeniaGuest && (
+        <Suspense fallback={null}>
+          <GuestXenia
+            kind="guia"
+            id={uid}
+            unit={propertyId || undefined}
+            placeName={guide?.propertyName || guideDoc.complexName || ''}
+            hostName={guide?.hostName}
+            hostPhone={guide?.hostPhone}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };

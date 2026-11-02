@@ -7,6 +7,7 @@ import {
   onSnapshot,
   serverTimestamp,
   writeBatch,
+  deleteField,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import type { PricingSettings } from './pricing';
@@ -39,6 +40,8 @@ export interface TenantDoc {
   templateOverrides?: import('../types').TemplateOverrides;
   /** Tu Web (ver src/lib/publicSite.ts) */
   webSite?: import('./publicSite').WebSiteSettings;
+  /** Xenia para huéspedes (guía y Tu Web). Ver functions/api/xenia/huesped.js y src/lib/guestXenia.ts */
+  xeniaGuest?: { enabled?: boolean };
   createdAt?: any;
   updatedAt?: any;
 }
@@ -471,10 +474,14 @@ export async function savePublicGuide(
     welcomeGuide?: WelcomeGuideData;
     guideTemplate?: string;
     properties?: Property[];
+    /** Xenia contesta a los huéspedes en la guía */
+    xeniaGuest?: boolean;
   }
 ): Promise<void> {
   if (!uid || !db) return;
   const publicRef = doc(db, 'publicGuides', uid);
+  // Los datos de cobro (alias, CBU) no van a la guía pública: la guía no los usa y la puede leer cualquiera
+  const guide = data.welcomeGuide ? { ...data.welcomeGuide, directBookingSettings: deleteField() } : null;
   const units = (data.properties || []).map((p) => ({
     id: p.id,
     name: p.name,
@@ -487,9 +494,10 @@ export async function savePublicGuide(
     publicRef,
     {
       complexName: data.complexName || '',
-      guide: data.welcomeGuide || null,
+      guide,
       template: data.guideTemplate || 'dos-aguas',
       units,
+      xeniaGuest: Boolean(data.xeniaGuest),
       updatedAt: serverTimestamp(),
     },
     { merge: true }

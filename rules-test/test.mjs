@@ -216,6 +216,12 @@ await caso('un dueño NO se habilita diseños especiales', false, () => setDoc(d
 await caso('un dueño NO se activa a sí mismo', false, () => setDoc(doc(dueno, 'subscriptions/dueno'), { status: 'active' }, { merge: true }));
 await caso('un extraño NO suspende a nadie', false, () => setDoc(doc(intruso, 'subscriptions/dueno'), { status: 'suspended' }, { merge: true }));
 
+console.log('\nXenia para huéspedes (uso del mes)');
+await caso('el dueño ve su contador', true, () => getDoc(doc(dueno, 'xeniaUsage/dueno/months/2026-11')));
+await caso('otro NO ve el contador', false, () => getDoc(doc(otro, 'xeniaUsage/dueno/months/2026-11')));
+await caso('el dueño NO se baja el contador', false, () => setDoc(doc(dueno, 'xeniaUsage/dueno/months/2026-11'), { conversations: 0 }));
+await caso('nadie lee las conversaciones', false, () => getDoc(doc(dueno, 'xeniaUsage/dueno/convs/abc')));
+
 console.log(`\n${fail === 0 ? '✔ TODO BIEN' : '✖ HAY PROBLEMAS'}: ${ok} pruebas pasaron, ${fail} fallaron.\n`);
 await env.cleanup();
 process.exit(fail === 0 ? 0 : 1);

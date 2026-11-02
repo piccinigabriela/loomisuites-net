@@ -136,6 +136,7 @@ const TeamNotices = lazyNamed(() => import('./components/demo/TeamNotices'), 'Te
 const DemoCashDrawer = lazyNamed(() => import('./components/demo/DemoCashDrawer'), 'DemoCashDrawer');
 const WelcomeGuideHub = lazyNamed(() => import('./components/guide/WelcomeGuideHub'), 'WelcomeGuideHub');
 const TuWebSettings = lazyNamed(() => import('./components/booking/TuWebSettings'), 'TuWebSettings');
+const GuestXeniaSettings = lazyNamed(() => import('./components/guest/GuestXeniaSettings'), 'GuestXeniaSettings');
 const DemoTuWeb = lazyNamed(() => import('./components/booking/DemoTuWeb'), 'DemoTuWeb');
 const XeniaCopilotView = lazyNamed(() => import('./components/xenia/XeniaCopilotView'), 'XeniaCopilotView');
 const XeniaFloatingWidget = lazyNamed(() => import('./components/xenia/XeniaFloatingWidget'), 'XeniaFloatingWidget');
@@ -744,6 +745,7 @@ export default function App() {
     const complexName = demoState.welcomeGuide?.propertyName || '';
     const welcomeGuide = demoState.welcomeGuide;
     const properties = demoState.properties;
+    const xeniaGuest = Boolean(tenantDoc?.xeniaGuest?.enabled);
 
     if (isInitialPublicGuideSaveRef.current) {
       isInitialPublicGuideSaveRef.current = false;
@@ -752,6 +754,7 @@ export default function App() {
         welcomeGuide,
         guideTemplate,
         properties,
+        xeniaGuest,
       }).catch((err) => console.warn('Error initial savePublicGuide:', err));
       return;
     }
@@ -762,11 +765,12 @@ export default function App() {
         welcomeGuide,
         guideTemplate,
         properties,
+        xeniaGuest,
       }).catch((err) => console.warn('Error debounced savePublicGuide:', err));
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [isApp, currentUser, tenantLoading, demoState.welcomeGuide, guideTemplate, demoState.properties]);
+  }, [isApp, currentUser, tenantLoading, demoState.welcomeGuide, guideTemplate, demoState.properties, tenantDoc?.xeniaGuest?.enabled]);
 
   // Debounced savePublicCalendar (3 seconds)
   const lastSavedPublicCalendarsRef = React.useRef<Record<string, string>>({});
@@ -832,6 +836,7 @@ export default function App() {
       pricing: demoState.pricing,
       currency: demoState.currencySettings?.settlementCurrency,
       addons: demoState.availableAddons || demoState.addons || [],
+      xeniaGuest: Boolean(tenantDoc?.xeniaGuest?.enabled),
     });
     const key = slug + stableJson(data);
     if (lastPublishedSiteRef.current === key) return;
@@ -844,7 +849,7 @@ export default function App() {
         .catch((err) => console.warn('Tu Web: no se pudo publicar', err));
     }, 1500);
     return () => clearTimeout(timer);
-  }, [isApp, currentUser, tenantLoading, isStaff, tenantUid, webSite, subscriptionDoc?.webDesigns, demoState.welcomeGuide, demoState.properties, demoState.pricing, demoState.availableAddons, webSite?.experiences, demoState.currencySettings?.settlementCurrency, tenantDoc?.complexName, tenantDoc?.city]);
+  }, [isApp, currentUser, tenantLoading, isStaff, tenantUid, webSite, subscriptionDoc?.webDesigns, demoState.welcomeGuide, demoState.properties, demoState.pricing, demoState.availableAddons, webSite?.experiences, demoState.currencySettings?.settlementCurrency, tenantDoc?.complexName, tenantDoc?.city, tenantDoc?.xeniaGuest?.enabled]);
 
   // Tu Web: fechas ocupadas (dueño y Recepción). El servidor también las actualiza cada 15 minutos.
   const lastSiteBusyRef = React.useRef('');
@@ -3159,6 +3164,19 @@ export default function App() {
                   onBackToPanel={() => setDemoTab('overview')}
                   uid={tenantUid}
                   webStatus={isApp && webSite?.slug ? { url: siteUrl(webSite.slug), enabled: !!webSite.enabled } : null}
+                  xeniaPanel={
+                    isApp && currentUser && !isStaff && tenantUid ? (
+                      <GuestXeniaSettings
+                        uid={tenantUid}
+                        enabled={Boolean(tenantDoc?.xeniaGuest?.enabled)}
+                        hasWhatsapp={Boolean((demoState.welcomeGuide?.hostPhone || '').replace(/\D/g, '') || (webSite?.whatsapp || '').replace(/\D/g, ''))}
+                        onToggle={async (enabled) => {
+                          await saveTenantData(tenantUid, { xeniaGuest: { enabled } });
+                          setTenantDoc((prev) => (prev ? { ...prev, xeniaGuest: { enabled } } : prev));
+                        }}
+                      />
+                    ) : null
+                  }
                   tuWebPanel={
                     isApp ? (
                       isStaff ? (

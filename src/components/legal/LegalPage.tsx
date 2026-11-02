@@ -7,7 +7,7 @@ import React, { useEffect } from 'react';
 
 export type LegalDoc = 'privacidad' | 'terminos';
 
-const UPDATED = '1 de noviembre de 2026';
+const UPDATED = '2 de noviembre de 2026';
 const OWNER = 'María Gabriela Piccini';
 const CUIT = '27-17515982-4';
 const ADDRESS = 'General Pinto 1525, San Fernando (1646), provincia de Buenos Aires, Argentina';
@@ -85,6 +85,11 @@ const Privacy: React.FC = () => (
             <td className="p-3">Que el cliente registre el ingreso sin papeles. No pedimos foto del documento</td>
           </tr>
           <tr>
+            <td className="p-3 font-semibold text-white">Huéspedes y visitantes que usan el chat de Xenia</td>
+            <td className="p-3">Las preguntas que escriben. No pedimos nombre ni contacto, y Loomi no guarda el texto de la conversación: solo cuenta cuántas hay</td>
+            <td className="p-3">Responder dudas sobre el alojamiento en su guía o su web, cuando el cliente activa este servicio</td>
+          </tr>
+          <tr>
             <td className="p-3 font-semibold text-white">Visitantes y contactos</td>
             <td className="p-3">Nombre, email y WhatsApp si los dejan en un formulario, y los mensajes que nos mandan</td>
             <td className="p-3">Responder consultas, enviar los manuales pedidos y novedades de Loomi</td>
@@ -112,7 +117,8 @@ const Privacy: React.FC = () => (
       </li>
       <li>
         <strong className="text-white">Anthropic (Claude), y Google (Gemini) como respaldo:</strong> responden las consultas que se le
-        hacen a la asistente Xenia, con los datos necesarios para cada respuesta.
+        hacen a la asistente Xenia, con los datos necesarios para cada respuesta. También las preguntas de huéspedes en la guía o
+        la web de un alojamiento, junto con la información que ese alojamiento publicó.
       </li>
       <li>
         <strong className="text-white">Zernio y Meta (WhatsApp):</strong> reciben y envían los mensajes que nos escriben al WhatsApp de
@@ -229,6 +235,13 @@ const Terms: React.FC = () => (
       <li>
         <strong className="text-white">Asistente Xenia:</strong> da orientación general y puede equivocarse. No reemplaza el criterio
         del cliente.
+      </li>
+      <li>
+        <strong className="text-white">Xenia para huéspedes:</strong> si el cliente la activa, responde preguntas en su guía y en Tu
+        Web solo con la información que el cliente cargó, y le pasa por WhatsApp los pagos, cambios de reserva y lo que no sabe. El
+        cliente es responsable de que esa información esté al día. Durante el lanzamiento no tiene cargo e incluye hasta 1.000
+        conversaciones por mes por complejo; al llegar a ese tope, deja de responder hasta el mes siguiente. Antes de cualquier
+        cambio de condiciones avisamos con 30 días, y nunca se cobra sin que el cliente lo pida.
       </li>
       <li>
         <strong className="text-white">Tarifas y cobros:</strong> Loomi calcula según lo que configura el cliente. No procesa pagos ni

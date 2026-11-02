@@ -255,6 +255,13 @@ service cloud.firestore {
       allow read, update, delete: if isOwner(hostUid) || isStaff(hostUid, ['recepcion']);
     }
 
+    // Xenia para huéspedes: uso por mes (conversaciones y mensajes). Lo escribe solo el servidor (cuenta de servicio);
+    // el dueño lo lee para ver el contador. Las conversaciones (convs) no las lee nadie desde la app.
+    match /xeniaUsage/{uid}/months/{month} {
+      allow read: if isOwner(uid);
+      allow write: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

@@ -33,6 +33,8 @@ interface WelcomeGuideHubProps {
   tuWebPanel?: React.ReactNode;
   /** Link y estado reales de Tu Web (en la app) */
   webStatus?: { url: string; enabled: boolean } | null;
+  /** Xenia para huéspedes (activar y contador), solo en la app para el dueño */
+  xeniaPanel?: React.ReactNode;
 }
 
 export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
@@ -47,6 +49,7 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
   uid,
   tuWebPanel,
   webStatus,
+  xeniaPanel,
 }) => {
   const [internalSubTab, setInternalSubTab] = useState<'landing-booking' | 'guest-view' | 'admin-view'>('guest-view');
   const [internalTemplate, setInternalTemplate] = useState<LandingTemplate>('dos-aguas');
@@ -269,6 +272,8 @@ export const WelcomeGuideHub: React.FC<WelcomeGuideHubProps> = ({
             </div>
           )}
         </div>
+
+        {xeniaPanel}
 
         {/* 5. MÓDULO DEL SIMULADOR DEL CELULAR DEL HUÉSPED & PANTALLAS */}
         <div className="transition-all">

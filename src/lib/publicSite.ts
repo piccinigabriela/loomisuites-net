@@ -111,6 +111,8 @@ export interface PublicSiteDoc {
   address: string;
   mapsUrl: string;
   whatsapp: string;
+  /** Nombre del anfitrión (de la guía), para Xenia */
+  hostName?: string;
   checkinHour: string;
   checkoutHour: string;
   currency: CurrencyCode;
@@ -120,6 +122,8 @@ export interface PublicSiteDoc {
   experiences?: PublicSiteExperience[];
   /** Seña para reservar, en % del total (0 o ausente = sin seña) */
   depositPercent?: number;
+  /** Xenia contesta consultas en la página (lo activa el anfitrión) */
+  xeniaGuest?: boolean;
   busy?: Record<string, BusyRange[]>;
   busyUpdatedAt?: unknown;
   updatedAt?: unknown;
@@ -181,6 +185,7 @@ export function buildPublicSite(input: {
   pricing?: Partial<PricingSettings> | null;
   currency?: CurrencyCode;
   addons?: AddonService[];
+  xeniaGuest?: boolean;
 }): Omit<PublicSiteDoc, 'busy' | 'busyUpdatedAt' | 'updatedAt'> {
   const { settings, guide } = input;
   const unitCfg = settings.units || {};
@@ -210,6 +215,7 @@ export function buildPublicSite(input: {
     address: (guide?.locationAddress || '').trim(),
     mapsUrl: (guide?.googleMapsUrl || '').trim(),
     whatsapp: whatsappDigits(settings.whatsapp || guide?.hostPhone || ''),
+    hostName: (guide?.hostName || '').trim().slice(0, 80),
     checkinHour: (guide?.checkinHour || '').trim(),
     checkoutHour: (guide?.checkoutHour || '').trim(),
     currency: input.currency || 'ARS',
@@ -218,6 +224,7 @@ export function buildPublicSite(input: {
     pricing,
     experiences: buildExperiences(input.addons, settings),
     depositPercent: depositPercent(settings),
+    xeniaGuest: Boolean(input.xeniaGuest),
   };
 }
 

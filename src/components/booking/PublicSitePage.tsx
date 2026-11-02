@@ -2,10 +2,13 @@
  * Tu Web publicada: loomisuite.net/web/{nombre} o el dominio propio del complejo.
  * Carga publicSites/{nombre} y sus fotos (lectura pública) y muestra PublicSiteView.
  */
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import type { PublicSiteDoc, PublicSitePhoto } from '../../lib/publicSite';
 import { fetchPublicSite, fetchSitePhotos, resolveSiteDomain } from '../../lib/publicSiteStore';
 import { PublicSiteView } from './PublicSiteView';
+
+// Xenia para huéspedes: solo se descarga si el anfitrión la activó
+const GuestXenia = lazy(() => import('../guest/GuestXenia'));
 
 /** Nombre del link a partir de la URL: /web/{nombre}. Vacío si es un dominio propio. */
 export function slugFromPath(pathname: string): string {
@@ -14,7 +17,7 @@ export function slugFromPath(pathname: string): string {
 }
 
 export const PublicSitePage: React.FC<{ slug?: string; customHost?: string }> = ({ slug, customHost }) => {
-  const [state, setState] = useState<{ loading: boolean; site: PublicSiteDoc | null; photos: PublicSitePhoto[] }>({
+  const [state, setState] = useState<{ loading: boolean; site: PublicSiteDoc | null; photos: PublicSitePhoto[]; name?: string }>({
     loading: true,
     site: null,
     photos: [],
@@ -30,7 +33,7 @@ export const PublicSitePage: React.FC<{ slug?: string; customHost?: string }> = 
           return;
         }
         const [site, photos] = await Promise.all([fetchPublicSite(name), fetchSitePhotos(name).catch(() => [])]);
-        if (alive) setState({ loading: false, site, photos });
+        if (alive) setState({ loading: false, site, photos, name });
       } catch (err) {
         console.warn('Tu Web no se pudo cargar:', err);
         if (alive) setState({ loading: false, site: null, photos: [] });
@@ -60,5 +63,14 @@ export const PublicSitePage: React.FC<{ slug?: string; customHost?: string }> = 
     );
   }
 
-  return <PublicSiteView site={state.site} photos={state.photos} />;
+  return (
+    <>
+      <PublicSiteView site={state.site} photos={state.photos} />
+      {state.site.xeniaGuest && state.name && (
+        <Suspense fallback={null}>
+          <GuestXenia kind="web" id={state.name} placeName={state.site.name} hostName={state.site.hostName} hostPhone={state.site.whatsapp} />
+        </Suspense>
+      )}
+    </>
+  );
 };
