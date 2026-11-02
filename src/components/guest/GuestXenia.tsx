@@ -22,15 +22,15 @@ const T: Record<
     launcher: string;
     title: string;
     sub: (place: string) => string;
-    hello: (place: string, host: string, web: boolean) => string;
+    hello: (place: string, web: boolean) => string;
     suggestions: (web: boolean) => string[];
     placeholder: string;
     send: string;
     close: string;
-    write: (host: string) => string;
+    write: () => string;
     waIntro: (place: string, web: boolean) => string;
-    conv: (host: string) => string;
-    busy: (host: string) => string;
+    conv: () => string;
+    busy: () => string;
     thinking: string;
     note: string;
     privacy: string;
@@ -40,18 +40,18 @@ const T: Record<
     launcher: 'Preguntale a Xenia',
     title: 'Xenia',
     sub: (p) => `Asistente de ${p}`,
-    hello: (p, h, web) =>
+    hello: (p, web) =>
       web
-        ? `¡Hola! Soy Xenia, la asistente de ${p}. Te ayudo con dudas sobre el lugar. Para ver precio y disponibilidad, elegí las fechas en el buscador de la página. Reservas y pagos los coordina ${h}.`
-        : `¡Hola! Soy Xenia, la asistente de ${p}. Te ayudo con horarios, cómo llegar, normas y qué hacer cerca. Para pagos o cambios en tu reserva, te comunico con ${h}.`,
+        ? `¡Hola! Soy Xenia, la asistente de ${p}. Te ayudo con dudas sobre el lugar. Para ver precio y disponibilidad, elegí las fechas en el buscador de la página. Las reservas y los pagos los coordina el alojamiento.`
+        : `¡Hola! Soy Xenia, la asistente de ${p}. Te ayudo con horarios, cómo llegar, normas y qué hacer cerca. Para pagos o cambios en tu reserva, te comunico con el alojamiento.`,
     suggestions: (web) => (web ? ['¿Cuántas personas entran?', '¿Cómo se reserva?', '¿Qué hay para hacer cerca?'] : ['¿A qué hora es el check-in?', '¿Cuál es la clave del wifi?', '¿Dónde puedo comer cerca?']),
     placeholder: 'Escribí tu pregunta',
     send: 'Enviar',
     close: 'Cerrar',
-    write: (h) => `Escribirle a ${h} por WhatsApp`,
+    write: () => 'Escribir al alojamiento por WhatsApp',
     waIntro: (p, web) => `Hola, te escribo desde ${web ? 'la web' : 'la guía'} de ${p}.`,
-    conv: (h) => `Para seguir con tu consulta, escribile directamente a ${h}.`,
-    busy: (h) => `Ahora no puedo responder. Escribile a ${h}, que te contesta por WhatsApp.`,
+    conv: () => 'Para seguir con tu consulta, escribí directamente al alojamiento.',
+    busy: () => 'Ahora no puedo responder. Escribí al alojamiento, que te contesta por WhatsApp.',
     thinking: 'Xenia está escribiendo…',
     note: 'Asistente automática: puede equivocarse.',
     privacy: 'Privacidad',
@@ -60,18 +60,18 @@ const T: Record<
     launcher: 'Ask Xenia',
     title: 'Xenia',
     sub: (p) => `${p}'s assistant`,
-    hello: (p, h, web) =>
+    hello: (p, web) =>
       web
-        ? `Hi! I'm Xenia, ${p}'s assistant. I can help with questions about the place. To see prices and availability, pick your dates in the search box on this page. Bookings and payments are handled by ${h}.`
-        : `Hi! I'm Xenia, ${p}'s assistant. I can help with check-in times, directions, house rules and things to do nearby. For payments or changes to your booking, I'll put you in touch with ${h}.`,
+        ? `Hi! I'm Xenia, ${p}'s assistant. I can help with questions about the place. To see prices and availability, pick your dates in the search box on this page. Bookings and payments are handled by the property.`
+        : `Hi! I'm Xenia, ${p}'s assistant. I can help with check-in times, directions, house rules and things to do nearby. For payments or changes to your booking, I'll put you in touch with the property.`,
     suggestions: (web) => (web ? ['How many guests fit?', 'How do I book?', 'What is there to do nearby?'] : ['What time is check-in?', "What's the wifi password?", 'Where can I eat nearby?']),
     placeholder: 'Type your question',
     send: 'Send',
     close: 'Close',
-    write: (h) => `Message ${h} on WhatsApp`,
+    write: () => 'Message the property on WhatsApp',
     waIntro: (p, web) => `Hi, I'm writing from ${p}'s ${web ? 'website' : 'guide'}.`,
-    conv: (h) => `To continue, please message ${h} directly.`,
-    busy: (h) => `I can't answer right now. Please message ${h} on WhatsApp.`,
+    conv: () => 'To continue, please message the property directly.',
+    busy: () => "I can't answer right now. Please message the property on WhatsApp.",
     thinking: 'Xenia is typing…',
     note: 'Automated assistant: it can make mistakes.',
     privacy: 'Privacy',
@@ -80,25 +80,23 @@ const T: Record<
     launcher: 'Pergunte à Xenia',
     title: 'Xenia',
     sub: (p) => `Assistente de ${p}`,
-    hello: (p, h, web) =>
+    hello: (p, web) =>
       web
-        ? `Olá! Sou a Xenia, assistente de ${p}. Ajudo com dúvidas sobre o lugar. Para ver preço e disponibilidade, escolha as datas na busca desta página. Reservas e pagamentos são com ${h}.`
-        : `Olá! Sou a Xenia, assistente de ${p}. Ajudo com horários, como chegar, regras da casa e o que fazer por perto. Para pagamentos ou mudanças na reserva, coloco você em contato com ${h}.`,
+        ? `Olá! Sou a Xenia, assistente de ${p}. Ajudo com dúvidas sobre o lugar. Para ver preço e disponibilidade, escolha as datas na busca desta página. Reservas e pagamentos são com a hospedagem.`
+        : `Olá! Sou a Xenia, assistente de ${p}. Ajudo com horários, como chegar, regras da casa e o que fazer por perto. Para pagamentos ou mudanças na reserva, coloco você em contato com a hospedagem.`,
     suggestions: (web) => (web ? ['Quantas pessoas cabem?', 'Como faço a reserva?', 'O que fazer por perto?'] : ['Qual o horário do check-in?', 'Qual é a senha do wi-fi?', 'Onde comer por perto?']),
     placeholder: 'Escreva sua pergunta',
     send: 'Enviar',
     close: 'Fechar',
-    write: (h) => `Falar com ${h} no WhatsApp`,
+    write: () => 'Falar com a hospedagem no WhatsApp',
     waIntro: (p, web) => `Olá, escrevo pelo ${web ? 'site' : 'guia'} de ${p}.`,
-    conv: (h) => `Para continuar, fale diretamente com ${h}.`,
-    busy: (h) => `Agora não consigo responder. Fale com ${h} pelo WhatsApp.`,
+    conv: () => 'Para continuar, fale diretamente com a hospedagem.',
+    busy: () => 'Agora não consigo responder. Fale com a hospedagem pelo WhatsApp.',
     thinking: 'Xenia está digitando…',
     note: 'Assistente automática: pode errar.',
     privacy: 'Privacidade',
   },
 };
-
-const HOST_FALLBACK: Record<GuestXeniaLang, string> = { es: 'el anfitrión', en: 'your host', pt: 'o anfitrião' };
 
 export const GuestXenia: React.FC<{
   kind: GuestXeniaKind;
@@ -106,9 +104,9 @@ export const GuestXenia: React.FC<{
   id: string;
   unit?: string;
   placeName: string;
-  hostName?: string;
+  /** WhatsApp del alojamiento, para pasarle las consultas. Nunca se muestra un nombre de persona. */
   hostPhone?: string;
-}> = ({ kind, id, unit, placeName, hostName, hostPhone }) => {
+}> = ({ kind, id, unit, placeName, hostPhone }) => {
   const web = kind === 'web';
   const [lang, setLang] = useState<GuestXeniaLang>(() => guessLang(kind));
   const [open, setOpen] = useState(false);
@@ -119,7 +117,6 @@ export const GuestXenia: React.FC<{
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const t = T[lang];
-  const host = (hostName || '').trim() || HOST_FALLBACK[lang];
   const place = (placeName || '').trim() || (lang === 'es' ? 'este alojamiento' : lang === 'pt' ? 'esta hospedagem' : 'this place');
 
   // En Tu Web, el selector de idioma cambia <html lang>: el chat lo sigue
@@ -162,10 +159,10 @@ export const GuestXenia: React.FC<{
       return;
     }
     if (r.reply || r.handoff) {
-      setMsgs((prev) => [...prev, { role: 'assistant', content: r.reply || t.busy(host), handoff: r.handoff }]);
+      setMsgs((prev) => [...prev, { role: 'assistant', content: r.reply || t.busy(), handoff: r.handoff }]);
     } else {
       // Tope o error: se ofrece escribirle al anfitrión con la pregunta tal cual
-      setMsgs((prev) => [...prev, { role: 'assistant', content: r.limit === 'conv' ? t.conv(host) : t.busy(host), handoff: message, system: true }]);
+      setMsgs((prev) => [...prev, { role: 'assistant', content: r.limit === 'conv' ? t.conv() : t.busy(), handoff: message, system: true }]);
     }
   };
 
@@ -213,7 +210,7 @@ export const GuestXenia: React.FC<{
           </div>
 
           <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-            <Bubble role="assistant">{t.hello(place, host, web)}</Bubble>
+            <Bubble role="assistant">{t.hello(place, web)}</Bubble>
             {msgs.length === 0 && (
               <div className="flex flex-wrap gap-2 pt-1">
                 {t.suggestions(web).map((s) => (
@@ -240,7 +237,7 @@ export const GuestXenia: React.FC<{
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#25D366] text-[#08260F] text-sm font-bold hover:brightness-105"
                     >
-                      <MessageCircle className="w-4 h-4" /> {t.write(host)}
+                      <MessageCircle className="w-4 h-4" /> {t.write()}
                     </a>
                   )}
                 </div>

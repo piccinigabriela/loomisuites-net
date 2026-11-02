@@ -68,7 +68,7 @@ export const PublicSitePage: React.FC<{ slug?: string; customHost?: string }> = 
       <PublicSiteView site={state.site} photos={state.photos} />
       {state.site.xeniaGuest && state.name && (
         <Suspense fallback={null}>
-          <GuestXenia kind="web" id={state.name} placeName={state.site.name} hostName={state.site.hostName} hostPhone={state.site.whatsapp} />
+          <GuestXenia kind="web" id={state.name} placeName={state.site.name} hostPhone={state.site.whatsapp} />
         </Suspense>
       )}
     </>

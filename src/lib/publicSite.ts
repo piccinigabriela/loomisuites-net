@@ -111,8 +111,6 @@ export interface PublicSiteDoc {
   address: string;
   mapsUrl: string;
   whatsapp: string;
-  /** Nombre del anfitrión (de la guía), para Xenia */
-  hostName?: string;
   checkinHour: string;
   checkoutHour: string;
   currency: CurrencyCode;
@@ -215,7 +213,6 @@ export function buildPublicSite(input: {
     address: (guide?.locationAddress || '').trim(),
     mapsUrl: (guide?.googleMapsUrl || '').trim(),
     whatsapp: whatsappDigits(settings.whatsapp || guide?.hostPhone || ''),
-    hostName: (guide?.hostName || '').trim().slice(0, 80),
     checkinHour: (guide?.checkinHour || '').trim(),
     checkoutHour: (guide?.checkoutHour || '').trim(),
     currency: input.currency || 'ARS',

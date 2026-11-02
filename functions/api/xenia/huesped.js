@@ -40,7 +40,6 @@ export function guideInfo(pg, unitId, { forWeb = false } = {}) {
   const info = {
     alojamiento: clean(pg?.complexName || g.propertyName, 120),
     frase: clean(g.tagline, 200),
-    anfitrion: clean(g.hostName, 80),
     direccion: clean((unit && unit.address) || g.locationAddress, 200),
     mapa: clean(g.googleMapsUrl, 300),
     checkIn: clean(g.checkinHour, 40),
@@ -110,8 +109,9 @@ export function siteInfo(site) {
   };
 }
 
-export function buildGuestPrompt({ kind, info, extra, hostName, today }) {
-  const host = hostName || 'el anfitrión';
+export function buildGuestPrompt({ kind, info, extra, today }) {
+  // Nunca un nombre propio: del otro lado puede haber una persona o un equipo
+  const host = 'el alojamiento';
   const where =
     kind === 'web'
       ? 'la página web del alojamiento, donde la gente consulta fechas y pide su reserva'
@@ -126,14 +126,15 @@ export function buildGuestPrompt({ kind, info, extra, hostName, today }) {
 CÓMO RESPONDER
 - En el idioma en que te escriben: español rioplatense con voseo, inglés o portugués de Brasil.
 - Corto y cálido: 1 a 3 frases. Texto simple, sin títulos, sin asteriscos ni negritas. Una lista corta solo si piden varias cosas.
-- Usá solo la INFORMACIÓN DEL ALOJAMIENTO. Si algo no está ahí (horarios, precios, servicios, distancias, mascotas, estacionamiento, políticas), no lo inventes ni lo supongas: pasá la consulta a ${host}.
+- Usá solo la INFORMACIÓN DEL ALOJAMIENTO. Si algo no está ahí (horarios, precios, servicios, distancias, mascotas, estacionamiento, políticas), no lo inventes ni lo supongas: pasá la consulta al alojamiento.
 ${webRules}
-- Pasale la consulta a ${host} cuando: la respuesta no está en la información; es sobre pagos, seña, transferencias, reintegros, facturas, descuentos, cambios o cancelaciones; hay un problema en la unidad (algo roto, falta algo, limpieza, ruidos); o es un pedido especial (ingresar antes, salir más tarde, cuna, mascota).
+- Pasale la consulta al alojamiento cuando: la respuesta no está en la información; es sobre pagos, seña, transferencias, reintegros, facturas, descuentos, cambios o cancelaciones; hay un problema en la unidad (algo roto, falta algo, limpieza, ruidos); o es un pedido especial (ingresar antes, salir más tarde, cuna, mascota).
   En esos casos, decí en una frase que eso lo resuelve ${host} y agregá al final, en una línea aparte y sin nada después:
   <<ANFITRION: la consulta resumida en una frase, en primera persona y en el idioma del huésped, como si la escribiera él>>
-- Emergencias (salud, incendio, gas, inseguridad): que llame primero al número de emergencias (911 en Argentina; 107 emergencias médicas, 100 bomberos) y después avise a ${host}, con la línea <<ANFITRION: ...>>.
+- Emergencias (salud, incendio, gas, inseguridad): que llame primero al número de emergencias (911 en Argentina; 107 emergencias médicas, 100 bomberos) y después avise al alojamiento, con la línea <<ANFITRION: ...>>.
 - Nunca pidas ni des datos bancarios, de tarjetas ni documentos.
 - No hables de Loomi ni de cómo funcionás. Si preguntan, sos una asistente automática del alojamiento.
+- No nombres a ninguna persona del alojamiento: hablá siempre del alojamiento ("el alojamiento te responde por WhatsApp").
 - Si piden algo que no tiene que ver con la estadía o el viaje (tareas, código, otros temas), decí con amabilidad que solo ayudás con eso.
 
 INFORMACIÓN DEL ALOJAMIENTO
@@ -205,25 +206,21 @@ export async function onRequestPost({ request, env }) {
   let uid = '';
   let info;
   let extra = null;
-  let hostName = '';
   try {
     if (kind === 'guia') {
       const pg = await getDoc(token, `publicGuides/${id}`);
       if (!pg || pg.xeniaGuest !== true) return json({ error: 'Xenia no está activada', off: true }, 403);
       uid = id;
       info = guideInfo(pg, unitId);
-      hostName = info.anfitrion;
     } else {
       const [site, owner] = await Promise.all([getDoc(token, `publicSites/${id}`), getDoc(token, `siteOwners/${id}`)]);
       if (!site || !site.enabled || site.xeniaGuest !== true || !owner?.uid) return json({ error: 'Xenia no está activada', off: true }, 403);
       uid = owner.uid;
       info = siteInfo(site);
-      hostName = clean(site.hostName, 80);
       const pg = await getDoc(token, `publicGuides/${uid}`).catch(() => null);
       if (pg) {
         const g = guideInfo(pg, '', { forWeb: true });
-        hostName = hostName || g.anfitrion;
-        extra = { anfitrion: g.anfitrion, normas: g.normas, pileta: g.pileta, lena: g.lena, comoLlegar: g.comoLlegar, paseos: g.paseos, dondeComer: g.dondeComer };
+        extra = { normas: g.normas, pileta: g.pileta, lena: g.lena, comoLlegar: g.comoLlegar, paseos: g.paseos, dondeComer: g.dondeComer };
       }
     }
   } catch {
@@ -270,7 +267,7 @@ export async function onRequestPost({ request, env }) {
         model: MODEL,
         max_tokens: 600,
         thinking: { type: 'disabled' },
-        system: buildGuestPrompt({ kind, info, extra, hostName, today: TODAY_FMT(iso) }),
+        system: buildGuestPrompt({ kind, info, extra, today: TODAY_FMT(iso) }),
         messages: buildMessages(body.history, message),
       }),
     });

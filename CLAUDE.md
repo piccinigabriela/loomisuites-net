@@ -5,6 +5,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
 
 ## Cómo hablarle a Gabi
 - Español rioplatense con voseo. Nada de "o/a": roles neutros (Limpieza, Recepción, Administración).
+- Hacia afuera, Loomi es "el equipo de Loomi": ningún texto ni Xenia nombra a una persona. Si hace falta un nombre, es María
+  (nunca Gabi). Xenia para huéspedes habla siempre de "el alojamiento", nunca del nombre del anfitrión.
 - Respuestas cortas y claras; ella no programa en el día a día.
 - UI: alto contraste, modo oscuro; nada de textos grises claros.
 

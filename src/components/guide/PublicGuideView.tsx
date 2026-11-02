@@ -123,7 +123,6 @@ export const PublicGuideView: React.FC = () => {
             id={uid}
             unit={propertyId || undefined}
             placeName={guide?.propertyName || guideDoc.complexName || ''}
-            hostName={guide?.hostName}
             hostPhone={guide?.hostPhone}
           />
         </Suspense>
