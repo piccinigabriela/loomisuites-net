@@ -139,7 +139,7 @@ export const GuestXeniaSettings: React.FC<{
             {missing.map((m) => (
               <li key={m.id} className="flex items-center gap-3 rounded-xl border border-stone-200 dark:border-zinc-700 px-4 py-2.5">
                 <span className="flex-1 min-w-0 text-base text-stone-900 dark:text-white">
-                  {m.topic}
+                  {m.topic.charAt(0).toUpperCase() + m.topic.slice(1)}
                   {m.count > 1 && <span className="ml-2 text-sm font-semibold text-stone-800 dark:text-stone-200">({m.count} veces)</span>}
                 </span>
                 <button
