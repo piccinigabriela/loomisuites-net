@@ -131,6 +131,7 @@ ${webRules}
 - Pasale la consulta al alojamiento cuando: la respuesta no está en la información; es sobre pagos, seña, transferencias, reintegros, facturas, descuentos, cambios o cancelaciones; hay un problema en la unidad (algo roto, falta algo, limpieza, ruidos); o es un pedido especial (ingresar antes, salir más tarde, cuna, mascota).
   En esos casos, decí en una frase que eso lo resuelve ${host} y agregá al final, en una línea aparte y sin nada después:
   <<ANFITRION: la consulta resumida en una frase, en primera persona y en el idioma del huésped, como si la escribiera él>>
+- Las líneas que empiezan con << son marcas internas: escribilas exactamente así, con << al principio y >> al final; el huésped no las ve.
 - Si la respuesta no estaba en la INFORMACIÓN DEL ALOJAMIENTO (no por pagos, problemas ni pedidos especiales: solo porque falta el dato), agregá además, en otra línea al final:
   <<FALTA: el tema en pocas palabras y en español, sin nombres, teléfonos, fechas ni datos personales (por ejemplo: Si aceptan mascotas)>>
 - Emergencias (salud, incendio, gas, inseguridad): que llame primero al número de emergencias (911 en Argentina; 107 emergencias médicas, 100 bomberos) y después avise al alojamiento, con la línea <<ANFITRION: ...>>.
@@ -168,18 +169,25 @@ export function scrubPersonal(text) {
     .trim();
 }
 
-/** Separa la respuesta del pedido de pase al anfitrión y del tema que le falta a la guía */
+/** Separa la respuesta del pedido de pase al anfitrión y del tema que le falta a la guía.
+ * Acepta las marcas con o sin << >> (a veces el modelo las escribe sueltas: "FALTA: …"), en cualquier lugar. */
+const MARK = /(?:<<\s*|^[ \t*_]*)(ANFITRI[OÓ]N|FALTA)[*_]*\s*:[*_]*\s*([^\n>]*?)\s*(?:>>|$)/gim;
 export function splitHandoff(text) {
-  const m = /<<\s*ANFITRI[OÓ]N\s*:?\s*([\s\S]*?)>>/i.exec(text || '');
-  const f = /<<\s*FALTA\s*:?\s*([\s\S]*?)>>/i.exec(text || '');
-  const reply = (text || '')
-    .replace(/<<\s*ANFITRI[OÓ]N[\s\S]*?>>/gi, '')
-    .replace(/<<\s*FALTA[\s\S]*?>>/gi, '')
+  let handoff = '';
+  let rawMissing = '';
+  const reply = String(text || '')
+    .replace(MARK, (_, kind, value) => {
+      if (/^falta$/i.test(kind)) rawMissing = rawMissing || value;
+      else handoff = handoff || value;
+      return '';
+    })
+    .replace(/<<[\s\S]*?>>/g, '')
     .replace(/\*\*(.+?)\*\*/g, '$1')
     .replace(/^#+\s*/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
     .trim();
-  const missing = f ? scrubPersonal(f[1]).replace(/[.¿?¡!]+$/g, '').replace(/^¿/, '').slice(0, 120) : '';
-  return { reply, handoff: m ? m[1].trim().slice(0, 400) : '', missing: missing.length >= 3 ? missing : '' };
+  const missing = scrubPersonal(rawMissing).replace(/[.¿?¡!]+$/g, '').replace(/^¿/, '').slice(0, 120);
+  return { reply, handoff: handoff.trim().slice(0, 400), missing: missing.length >= 3 ? missing : '' };
 }
 
 /** Id estable de un tema ("Si aceptan mascotas" y "si aceptan mascotas?" dan lo mismo) */
@@ -303,7 +311,10 @@ export async function onRequestPost({ request, env }) {
       .filter((b) => b.type === 'text')
       .map((b) => b.text)
       .join('\n');
-    const { reply, handoff, missing } = splitHandoff(text);
+    const parts = splitHandoff(text);
+    const { reply, missing } = parts;
+    // Si no sabía el dato, siempre se ofrece escribir al alojamiento (aunque el modelo se olvide de la marca)
+    const handoff = parts.handoff || (missing ? message : '');
     if (!reply && !handoff) return json({ error: 'Respuesta vacía', unavailable: true }, 502);
     const writes = [];
     if (handoff) writes.push(incrementWrite(monthPath, { handoffs: 1 }));
