@@ -37,6 +37,8 @@ export interface TenantDoc {
   };
   checklistDismissed?: boolean;
   pricing?: PricingSettings;
+  /** Checklist de limpieza propio (ver src/lib/cleaningChecklist.ts) */
+  cleaningChecklist?: import('./cleaningChecklist').CleaningChecklistSettings;
   templateOverrides?: import('../types').TemplateOverrides;
   /** Tu Web (ver src/lib/publicSite.ts) */
   webSite?: import('./publicSite').WebSiteSettings;
@@ -342,6 +344,15 @@ export async function savePricingDoc(uid: string, pricing: PricingSettings): Pro
   if (!uid || !db) return;
   await updateDoc(doc(db, 'tenants', uid), {
     pricing: JSON.parse(JSON.stringify(pricing)),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/** Guarda el checklist de limpieza entero (reemplaza el anterior) */
+export async function saveCleaningChecklistDoc(uid: string, settings: import('./cleaningChecklist').CleaningChecklistSettings): Promise<void> {
+  if (!uid || !db) return;
+  await updateDoc(doc(db, 'tenants', uid), {
+    cleaningChecklist: JSON.parse(JSON.stringify(settings)),
     updatedAt: serverTimestamp(),
   });
 }

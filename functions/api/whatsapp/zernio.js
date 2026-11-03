@@ -38,7 +38,7 @@ Sistema de gestión para alojamientos chicos (de 4 a 20 unidades), hecho en Arge
 - Calendario de reservas y ocupación. Se conecta con Airbnb y Booking por calendario iCal: se sincroniza cada 15 minutos más o menos (no es instantáneo) y avisa si dos reservas se superponen.
 - Cobros: seña, saldo, caja y rendimiento por unidad y por mes. No emite facturas.
 - Tarifas por temporada, fin de semana y fines de semana largos de Argentina ya cargados.
-- Limpieza: cada salida genera su limpieza con checklist; el personal de limpieza entra con su cuenta y ve solo lo suyo (sin teléfonos ni importes). Notas de ida y vuelta.
+- Limpieza: cada salida genera su limpieza con el checklist que arma el dueño (tareas generales y tareas propias de cada unidad); el personal de limpieza entra con su cuenta y ve solo lo suyo (sin teléfonos ni importes). Notas de ida y vuelta.
 - Recepción con su propia cuenta (reservas, calendario, cobros).
 - Guía digital para el huésped con pre check-in online y cartel con QR por unidad.
 - 5 mensajes de WhatsApp listos (confirmación, día de llegada, control de confort, check-out, reseña) en español, inglés y portugués: se abren listos y se envían con un toque, no salen solos.

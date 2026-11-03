@@ -70,6 +70,7 @@ import {
   savePublicGuide,
   savePublicCalendar,
   savePricingDoc,
+  saveCleaningChecklistDoc,
   saveWebSiteSettingsDoc,
   saveTemplateOverridesDoc,
   subscribeToServerIcalSync,
@@ -96,6 +97,7 @@ import {
 import { buildStaffArrivals, StaffArrivalsDoc } from './lib/staffArrivals';
 import { useBackLayer } from './hooks/useBackLayer';
 import { normalizePricing, type PricingSettings } from './lib/pricing';
+import { buildCleaningChecklist, normalizeChecklistSettings, type CleaningChecklistSettings } from './lib/cleaningChecklist';
 import { TutorialVideoButton } from './components/common/TutorialVideo';
 
 
@@ -136,6 +138,7 @@ const TeamNotices = lazyNamed(() => import('./components/demo/TeamNotices'), 'Te
 const DemoCashDrawer = lazyNamed(() => import('./components/demo/DemoCashDrawer'), 'DemoCashDrawer');
 const WelcomeGuideHub = lazyNamed(() => import('./components/guide/WelcomeGuideHub'), 'WelcomeGuideHub');
 const TuWebSettings = lazyNamed(() => import('./components/booking/TuWebSettings'), 'TuWebSettings');
+const CleaningChecklistEditor = lazyNamed(() => import('./components/housekeeping/CleaningChecklistEditor'), 'CleaningChecklistEditor');
 const GuestXeniaSettings = lazyNamed(() => import('./components/guest/GuestXeniaSettings'), 'GuestXeniaSettings');
 const DemoTuWeb = lazyNamed(() => import('./components/booking/DemoTuWeb'), 'DemoTuWeb');
 const XeniaCopilotView = lazyNamed(() => import('./components/xenia/XeniaCopilotView'), 'XeniaCopilotView');
@@ -399,6 +402,7 @@ export default function App() {
             managementSettings: data.tenant?.managementSettings,
             teamContacts: data.tenant?.teamContacts || [],
             pricing: data.tenant?.pricing,
+            cleaningChecklist: data.tenant?.cleaningChecklist,
             templateOverrides: data.tenant?.templateOverrides,
             lastUpdated: new Date().toISOString(),
           });
@@ -1047,7 +1051,7 @@ export default function App() {
         return { ...emptySyncResult, conflictos };
       }
 
-      const result = await syncCalendars(tenantUid, currentProps, currentRes, currentTasks);
+      const result = await syncCalendars(tenantUid, currentProps, currentRes, currentTasks, demoStateRef.current?.cleaningChecklist || null);
 
       setIcalSyncState({
         lastSyncAt: new Date().toISOString(),
@@ -1451,11 +1455,7 @@ export default function App() {
       cleanerName: 'Sin asignar',
       cleanerPhone: '',
       status: 'pending',
-      checklist: [
-        { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
-        { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
-        { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
-      ],
+      checklist: buildCleaningChecklist(demoState.cleaningChecklist, r.propertyId),
       notes: `Generado por importación de ${r.guestName}`,
     });
     const needsCleaning = (r: Reservation) => r.status !== 'cancelled' && r.checkOut >= todayStr;
@@ -1551,12 +1551,7 @@ export default function App() {
       cleanerName: 'Sin asignar',
       cleanerPhone: '',
       status: 'pending',
-      checklist: [
-        { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
-        { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
-        { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
-        { id: 'c4', task: 'Llaves en su lugar', completed: false },
-      ],
+      checklist: buildCleaningChecklist(demoState.cleaningChecklist, r.propertyId),
       notes: `Generado automáticamente por importación de ${r.guestName}`,
     });
     const needsCleaning = (r: Reservation) => r.checkOut >= todayStr && r.status !== 'cancelled' && r.status !== 'checked_out';
@@ -1613,12 +1608,7 @@ export default function App() {
       cleanerName: 'Sin asignar',
       cleanerPhone: '',
       status: 'pending',
-      checklist: [
-        { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
-        { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
-        { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
-        { id: 'c4', task: 'Llaves en su lugar', completed: false },
-      ],
+      checklist: buildCleaningChecklist(demoState.cleaningChecklist, newRes.propertyId),
       notes: `Generado automáticamente por check-out de ${newRes.guestName}`,
     };
 
@@ -1819,6 +1809,37 @@ export default function App() {
         }));
       }
     }
+  };
+
+  // Checklist de limpieza propio del complejo
+  const todayForChecklist = toLocalDateStr(new Date());
+  const pendingCleaningsNotStarted = (demoState.cleaningTasks || []).filter(
+    (t) => t.status === 'pending' && t.date >= todayForChecklist && !(t.checklist || []).some((c) => c.completed)
+  );
+  const handleSaveCleaningChecklist = async (settings: CleaningChecklistSettings, applyToPending: boolean) => {
+    const clean = normalizeChecklistSettings(settings, (demoState.properties || []).map((p) => p.id));
+    const targets = applyToPending ? pendingCleaningsNotStarted : [];
+    const rebuilt = new Map(targets.map((t) => [t.id, buildCleaningChecklist(clean, t.propertyId)]));
+    if (isApp && currentUser) {
+      await saveCleaningChecklistDoc(tenantUid, clean);
+      for (let i = 0; i < targets.length; i += 20) {
+        await Promise.all(
+          targets.slice(i, i + 20).map((t) => updateCleaningTaskProgress(tenantUid, t.id, { checklist: rebuilt.get(t.id)!, status: t.status }))
+        );
+      }
+    } else {
+      updateDemoState((prev) => ({
+        ...prev,
+        cleaningChecklist: clean,
+        cleaningTasks: prev.cleaningTasks.map((t) => (rebuilt.has(t.id) ? { ...t, checklist: rebuilt.get(t.id)! } : t)),
+        lastUpdated: new Date().toISOString(),
+      }));
+    }
+    showToast(
+      targets.length
+        ? `Checklist guardado. ${targets.length === 1 ? 'Se actualizó 1 limpieza agendada' : `Se actualizaron ${targets.length} limpiezas agendadas`}.`
+        : 'Checklist guardado: lo van a usar las próximas limpiezas.'
+    );
   };
 
   // Update cleaning task status
@@ -3011,6 +3032,16 @@ export default function App() {
                   onUpdateTaskStatus={handleUpdateTaskStatus}
                   onAddNote={handleAddCleaningNote}
                   onMarkNotesSeen={handleMarkCleaningNotesSeen}
+                  checklistEditor={
+                    !isStaff ? (
+                      <CleaningChecklistEditor
+                        settings={demoState.cleaningChecklist}
+                        properties={demoState.properties || []}
+                        pendingCount={pendingCleaningsNotStarted.length}
+                        onSave={handleSaveCleaningChecklist}
+                      />
+                    ) : null
+                  }
                 />
               )}
 

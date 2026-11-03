@@ -51,6 +51,11 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Notas de limpieza: `cleaningTasks/{id}.messages` (Administración/Recepción y Limpieza; Limpieza solo suma una nota suya, con `arrayUnion`)
   y `notesSeen`; aviso arriba en la app para Administración y Recepción (`src/lib/cleaningNotes.ts`, `components/common/CleaningNotes.tsx`).
 
+- Checklist de limpieza: `tenants/{uid}.cleaningChecklist` {items, units: {propertyId: [tareas]}} (`src/lib/cleaningChecklist.ts`,
+  `buildCleaningChecklist`; sin `items` = las 4 de siempre). Lo usan todas las limpiezas nuevas: reserva manual, importación y
+  `icalCore` (la app y server-sync le pasan `cleaningChecklist`). Editor del dueño arriba de la Agenda de limpiezas
+  (`components/housekeeping/CleaningChecklistEditor.tsx`); al guardar puede rehacer las limpiezas pendientes que no empezaron.
+
 - Tarifas: `tenants/{uid}.pricing` (se guarda entero con `savePricingDoc`). Cálculo en `src/lib/pricing.ts` (`quoteStay`):
   finde largo > temporada > normal; fin de semana = noches marcadas (por defecto vie, sáb, dom). Findes largos de
   Argentina precargados hasta oct 2027 (faltan los días turísticos 2027, sin decreto todavía). Pantalla: Administración → Tarifas.

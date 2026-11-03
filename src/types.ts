@@ -275,6 +275,8 @@ export interface DemoState {
   templateOverrides?: TemplateOverrides;
   /** Planilla de tarifas (ver src/lib/pricing.ts) */
   pricing?: import('./lib/pricing').PricingSettings;
+  /** Checklist de limpieza propio del complejo (ver src/lib/cleaningChecklist.ts) */
+  cleaningChecklist?: import('./lib/cleaningChecklist').CleaningChecklistSettings;
   lastUpdated: string;
   /** Solo demo: día (YYYY-MM-DD) al que corresponden las fechas guardadas; si cambia, se corren hasta hoy */
   seedDate?: string;

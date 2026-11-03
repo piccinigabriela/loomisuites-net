@@ -24,6 +24,8 @@ interface DemoHousekeepingProps {
   /** Notas de ida y vuelta con Limpieza */
   onAddNote?: (taskId: string, text: string) => Promise<void> | void;
   onMarkNotesSeen?: (taskId: string) => void;
+  /** Editor del checklist propio del complejo (solo el dueño) */
+  checklistEditor?: React.ReactNode;
 }
 
 export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
@@ -32,6 +34,7 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
   onUpdateTaskStatus,
   onAddNote,
   onMarkNotesSeen,
+  checklistEditor,
 }) => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -125,6 +128,8 @@ export const DemoHousekeeping: React.FC<DemoHousekeepingProps> = ({
           </button>
         </div>
       </div>
+
+      {checklistEditor}
 
       {/* Task Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">

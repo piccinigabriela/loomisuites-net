@@ -10,6 +10,7 @@
  * así que si la app y el servidor sincronizan al mismo tiempo, el resultado es el mismo.
  */
 import type { Property, Reservation, CleaningTask } from '../types';
+import { buildCleaningChecklist, type CleaningChecklistSettings } from './cleaningChecklist';
 
 export type IcalPortal = 'airbnb' | 'booking' | 'vrbo' | 'google';
 
@@ -276,6 +277,8 @@ export interface RunIcalSyncInput {
   /** Sin writer = modo prueba: calcula todo y no escribe nada */
   writer?: IcalSyncWriter | null;
   nowIso?: string;
+  /** Checklist de limpieza del complejo (tenants/{uid}.cleaningChecklist). Sin él, van las tareas de siempre. */
+  cleaningChecklist?: CleaningChecklistSettings | null;
 }
 
 function nightsBetween(start: string, end: string): number {
@@ -398,12 +401,7 @@ export async function runIcalSync(input: RunIcalSyncInput): Promise<SyncResult> 
             cleanerName: 'Sin asignar',
             cleanerPhone: '',
             status: 'pending',
-            checklist: [
-              { id: 'c1', task: 'Cambio integral de sábanas y toallas limpias', completed: false },
-              { id: 'c2', task: 'Sanitización de baños y reposición de amenities', completed: false },
-              { id: 'c3', task: 'Limpieza profunda de cocina y vajilla', completed: false },
-              { id: 'c4', task: 'Llaves en su lugar', completed: false },
-            ],
+            checklist: buildCleaningChecklist(input.cleaningChecklist, property.id),
             notes: `Generado automáticamente por importación de ${guestName}`,
           };
 

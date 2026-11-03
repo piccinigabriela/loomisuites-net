@@ -16,6 +16,7 @@ import {
   runIcalSync,
   SyncResult,
 } from '../../src/lib/icalCore';
+import type { CleaningChecklistSettings } from '../../src/lib/cleaningChecklist';
 import { buildStaffArrivals } from '../../src/lib/staffArrivals';
 import { buildSiteBusy, stableJson, visibleUnits, WebSiteSettings } from '../../src/lib/publicSite';
 
@@ -198,6 +199,10 @@ export async function sincronizarCuenta(
   const tareasSnap = await db.collection(`tenants/${uid}/cleaningTasks`).where('status', '==', 'pending').get();
   const cleaningTasks = tareasSnap.docs.map((d) => ({ ...(d.data() as CleaningTask), id: d.id }));
 
+  // Checklist de limpieza propio del complejo (si lo cargó); si no, las tareas de siempre
+  const tenantSnap = await db.doc(`tenants/${uid}`).get();
+  const cleaningChecklist = (tenantSnap.data()?.cleaningChecklist as CleaningChecklistSettings | undefined) || null;
+
   const result = await runIcalSync({
     properties,
     reservations: [...reservations.values()],
@@ -205,6 +210,7 @@ export async function sincronizarCuenta(
     feeds,
     today: hoy,
     writer: modo === 'real' ? adminWriter(db, uid) : null,
+    cleaningChecklist,
   });
 
   if (modo === 'real') {

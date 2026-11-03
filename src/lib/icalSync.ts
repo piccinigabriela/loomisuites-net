@@ -10,6 +10,7 @@ import {
   runIcalSync,
   SyncResult,
 } from './icalCore';
+import type { CleaningChecklistSettings } from './cleaningChecklist';
 
 export { parseIcal };
 export type { SyncResult };
@@ -85,7 +86,8 @@ export async function syncCalendars(
   uid: string,
   properties: Property[],
   reservations: Reservation[],
-  cleaningTasks: CleaningTask[] = []
+  cleaningTasks: CleaningTask[] = [],
+  cleaningChecklist: CleaningChecklistSettings | null = null
 ): Promise<SyncResult> {
   const feeds = await fetchAllFeeds(properties, fetchIcalText);
   return runIcalSync({
@@ -95,5 +97,6 @@ export async function syncCalendars(
     feeds,
     today: getLocalDateString(),
     writer: webWriter(uid),
+    cleaningChecklist,
   });
 }

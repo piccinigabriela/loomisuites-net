@@ -82,7 +82,7 @@ const BLOCKS: Block[] = [
     icon: SprayCan,
     title: 'Limpieza',
     items: [
-      'Cada salida genera su limpieza, con checklist.',
+      'Cada salida genera su limpieza, con tu propio checklist: tareas de todas las limpiezas y tareas propias de cada unidad.',
       'Quien limpia entra con su cuenta y ve solo lo suyo: sin teléfonos ni importes.',
       'Ve las entradas y salidas de la semana, con la hora de llegada que avisó el huésped.',
       'Notas de ida y vuelta: "falta papel", "la canilla gotea", con aviso en la app.',
