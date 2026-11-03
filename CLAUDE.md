@@ -38,7 +38,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   secret `FIREBASE_SERVICE_ACCOUNT` = JSON de la clave, rol "Usuario de Cloud Datastore"; las cuentas de servicio no pasan por App Check).
   Responde solo si `xeniaGuest: true` en lo publicado (lo activa el dueño en Tu Web y Guía; `tenants/{uid}.xeniaGuest.enabled`).
   Topes: 1.000 conversaciones por mes (`subscriptions/{uid}.xeniaGuestLimit` lo cambia), 100 por día, 20 mensajes por conversación.
-  Uso en `xeniaUsage/{uid}/months/{AAAA-MM}` (el dueño lo lee; escribe solo el servidor). No se guarda el texto de las conversaciones.
+  Uso en `xeniaUsage/{uid}/months/{AAAA-MM}` (el dueño lo lee; escribe solo el servidor). No se guarda el texto de las conversaciones;
+  sí los temas que no supo responder (marca `<<FALTA: …>>`, sin datos personales) en `xeniaUsage/{uid}/questions/{tema}` {topic, count}: el dueño los ve en la tarjeta y los borra con "Listo".
   Pagos, cambios y lo que no sabe: marca `<<ANFITRION: …>>` → botón de WhatsApp al anfitrión. Chat: `components/guest/GuestXenia.tsx`;
   tarjeta del dueño: `GuestXeniaSettings.tsx`; incluida en el plan (1.000/mes); 1.000 extra por USD 10/mes solo si el cliente lo pide (subir `xeniaGuestLimit`; hoy a mano, las reglas no dejan que el Panel lo escriba).
   La guía pública ya no publica `directBookingSettings` (datos de cobro).

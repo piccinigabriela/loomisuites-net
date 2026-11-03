@@ -131,6 +131,8 @@ ${webRules}
 - Pasale la consulta al alojamiento cuando: la respuesta no está en la información; es sobre pagos, seña, transferencias, reintegros, facturas, descuentos, cambios o cancelaciones; hay un problema en la unidad (algo roto, falta algo, limpieza, ruidos); o es un pedido especial (ingresar antes, salir más tarde, cuna, mascota).
   En esos casos, decí en una frase que eso lo resuelve ${host} y agregá al final, en una línea aparte y sin nada después:
   <<ANFITRION: la consulta resumida en una frase, en primera persona y en el idioma del huésped, como si la escribiera él>>
+- Si la respuesta no estaba en la INFORMACIÓN DEL ALOJAMIENTO (no por pagos, problemas ni pedidos especiales: solo porque falta el dato), agregá además, en otra línea al final:
+  <<FALTA: el tema en pocas palabras y en español, sin nombres, teléfonos, fechas ni datos personales (por ejemplo: Si aceptan mascotas)>>
 - Emergencias (salud, incendio, gas, inseguridad): que llame primero al número de emergencias (911 en Argentina; 107 emergencias médicas, 100 bomberos) y después avise al alojamiento, con la línea <<ANFITRION: ...>>.
 - Nunca pidas ni des datos bancarios, de tarjetas ni documentos.
 - No hables de Loomi ni de cómo funcionás. Si preguntan, sos una asistente automática del alojamiento.
@@ -157,15 +159,39 @@ export function buildMessages(history, message) {
   return out;
 }
 
-/** Separa la respuesta del pedido de pase al anfitrión */
+/** Saca teléfonos, mails y números largos de un texto que se guarda */
+export function scrubPersonal(text) {
+  return String(text || '')
+    .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, '')
+    .replace(/\+?\d[\d\s().-]{6,}\d/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Separa la respuesta del pedido de pase al anfitrión y del tema que le falta a la guía */
 export function splitHandoff(text) {
   const m = /<<\s*ANFITRI[OÓ]N\s*:?\s*([\s\S]*?)>>/i.exec(text || '');
+  const f = /<<\s*FALTA\s*:?\s*([\s\S]*?)>>/i.exec(text || '');
   const reply = (text || '')
     .replace(/<<\s*ANFITRI[OÓ]N[\s\S]*?>>/gi, '')
+    .replace(/<<\s*FALTA[\s\S]*?>>/gi, '')
     .replace(/\*\*(.+?)\*\*/g, '$1')
     .replace(/^#+\s*/gm, '')
     .trim();
-  return { reply, handoff: m ? m[1].trim().slice(0, 400) : '' };
+  const missing = f ? scrubPersonal(f[1]).replace(/[.¿?¡!]+$/g, '').replace(/^¿/, '').slice(0, 120) : '';
+  return { reply, handoff: m ? m[1].trim().slice(0, 400) : '', missing: missing.length >= 3 ? missing : '' };
+}
+
+/** Id estable de un tema ("Si aceptan mascotas" y "si aceptan mascotas?" dan lo mismo) */
+export function topicId(topic) {
+  const key = String(topic || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+  return key || 'tema';
 }
 
 const TODAY_FMT = (iso) => {
@@ -277,9 +303,21 @@ export async function onRequestPost({ request, env }) {
       .filter((b) => b.type === 'text')
       .map((b) => b.text)
       .join('\n');
-    const { reply, handoff } = splitHandoff(text);
+    const { reply, handoff, missing } = splitHandoff(text);
     if (!reply && !handoff) return json({ error: 'Respuesta vacía', unavailable: true }, 502);
-    if (handoff) await commit(token, [incrementWrite(monthPath, { handoffs: 1 })]).catch(() => {});
+    const writes = [];
+    if (handoff) writes.push(incrementWrite(monthPath, { handoffs: 1 }));
+    // Lo que no estaba en la guía: el dueño lo ve en su tarjeta (solo el tema, sin datos personales)
+    if (missing) {
+      const qPath = `xeniaUsage/${uid}/questions/${topicId(missing)}`;
+      // Una sola escritura por documento: los campos y la suma juntos (crea el tema si no existía)
+      writes.push({
+        update: { name: docName(qPath), fields: { topic: toValue(missing), lastDay: toValue(iso), kind: toValue(kind) } },
+        updateMask: { fieldPaths: ['topic', 'lastDay', 'kind'] },
+        updateTransforms: [{ fieldPath: 'count', increment: { integerValue: '1' } }],
+      });
+    }
+    if (writes.length) await commit(token, writes).catch(() => {});
     return json({ reply, handoff });
   } catch {
     return json({ error: 'No se pudo responder', unavailable: true }, 502);

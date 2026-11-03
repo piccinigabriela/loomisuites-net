@@ -1,9 +1,10 @@
 /**
  * Tarjeta del anfitrión para Xenia en la guía y en Tu Web: activar/apagar y contador del mes.
- * Se muestra arriba en Tu Web y Guía (solo el dueño, en la app). El uso lo escribe el servidor en xeniaUsage/{uid}/months/{AAAA-MM}.
+ * Se muestra arriba en Tu Web y Guía (solo el dueño, en la app). El uso lo escribe el servidor en xeniaUsage/{uid}/months/{AAAA-MM}
+ * y los temas que no supo responder en xeniaUsage/{uid}/questions (el dueño los borra con "Listo").
  */
 import React, { useEffect, useState } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { collection, deleteDoc, doc, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { XENIA_GUEST_EXTRA_USD, XENIA_GUEST_MONTH_LIMIT } from '../../lib/guestXenia';
 
@@ -19,6 +20,24 @@ export const GuestXeniaSettings: React.FC<{
   const [usage, setUsage] = useState<{ conversations: number; handoffs: number } | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [missing, setMissing] = useState<Array<{ id: string; topic: string; count: number }>>([]);
+
+  // Lo que Xenia no supo responder porque no estaba en la guía ni en Tu Web
+  useEffect(() => {
+    if (!uid || !db || !enabled) return;
+    return onSnapshot(
+      query(collection(db, 'xeniaUsage', uid, 'questions'), orderBy('count', 'desc'), limit(8)),
+      (snap) => setMissing(snap.docs.map((d) => ({ id: d.id, topic: String(d.data().topic || ''), count: Number(d.data().count) || 1 }))),
+      () => setMissing([])
+    );
+  }, [uid, enabled]);
+
+  const markDone = async (id: string) => {
+    setMissing((prev) => prev.filter((m) => m.id !== id));
+    try {
+      await deleteDoc(doc(db!, 'xeniaUsage', uid, 'questions', id));
+    } catch {}
+  };
 
   useEffect(() => {
     if (!uid || !db || !enabled) return;
@@ -107,6 +126,32 @@ export const GuestXeniaSettings: React.FC<{
               siga respondiendo, podés sumar {XENIA_GUEST_MONTH_LIMIT.toLocaleString('es-AR')} más por USD {XENIA_GUEST_EXTRA_USD} por mes: escribinos.
             </p>
           ) : null}
+        </div>
+      )}
+
+      {enabled && missing.length > 0 && (
+        <div className="mt-6">
+          <h4 className="text-base font-bold text-stone-900 dark:text-white">Lo que Xenia no supo responder</h4>
+          <p className="text-sm text-stone-800 dark:text-stone-200 mb-3">
+            Sumalo a tu guía o a Tu Web y la próxima vez lo responde sola. Cuando lo cargues, tocá "Listo".
+          </p>
+          <ul className="space-y-2">
+            {missing.map((m) => (
+              <li key={m.id} className="flex items-center gap-3 rounded-xl border border-stone-200 dark:border-zinc-700 px-4 py-2.5">
+                <span className="flex-1 min-w-0 text-base text-stone-900 dark:text-white">
+                  {m.topic}
+                  {m.count > 1 && <span className="ml-2 text-sm font-semibold text-stone-800 dark:text-stone-200">({m.count} veces)</span>}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => markDone(m.id)}
+                  className="shrink-0 min-h-[40px] px-4 rounded-xl border-2 border-stone-400 dark:border-zinc-500 text-sm font-bold text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-zinc-800 cursor-pointer"
+                >
+                  Listo
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

@@ -7,7 +7,7 @@ import React, { useEffect } from 'react';
 
 export type LegalDoc = 'privacidad' | 'terminos';
 
-const UPDATED = '2 de noviembre de 2026';
+const UPDATED = '3 de noviembre de 2026';
 const OWNER = 'María Gabriela Piccini';
 const CUIT = '27-17515982-4';
 const ADDRESS = 'General Pinto 1525, San Fernando (1646), provincia de Buenos Aires, Argentina';
@@ -86,8 +86,8 @@ const Privacy: React.FC = () => (
           </tr>
           <tr>
             <td className="p-3 font-semibold text-white">Huéspedes y visitantes que usan el chat de Xenia</td>
-            <td className="p-3">Las preguntas que escriben. No pedimos nombre ni contacto, y Loomi no guarda el texto de la conversación: solo cuenta cuántas hay</td>
-            <td className="p-3">Responder dudas sobre el alojamiento en su guía o su web, cuando el cliente activa este servicio</td>
+            <td className="p-3">Las preguntas que escriben. No pedimos nombre ni contacto, y Loomi no guarda el texto de la conversación: solo cuenta cuántas hay y anota, sin datos personales, los temas que Xenia no supo responder</td>
+            <td className="p-3">Responder dudas sobre el alojamiento en su guía o su web, cuando el cliente activa este servicio, y que el cliente sepa qué información le falta</td>
           </tr>
           <tr>
             <td className="p-3 font-semibold text-white">Visitantes y contactos</td>

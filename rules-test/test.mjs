@@ -220,6 +220,9 @@ console.log('\nXenia para huéspedes (uso del mes)');
 await caso('el dueño ve su contador', true, () => getDoc(doc(dueno, 'xeniaUsage/dueno/months/2026-11')));
 await caso('otro NO ve el contador', false, () => getDoc(doc(otro, 'xeniaUsage/dueno/months/2026-11')));
 await caso('el dueño NO se baja el contador', false, () => setDoc(doc(dueno, 'xeniaUsage/dueno/months/2026-11'), { conversations: 0 }));
+await caso('el dueño ve lo que Xenia no supo responder', true, () => getDocs(collection(dueno, 'xeniaUsage/dueno/questions')));
+await caso('otro NO ve lo que Xenia no supo responder', false, () => getDocs(collection(otro, 'xeniaUsage/dueno/questions')));
+await caso('el dueño NO inventa temas', false, () => setDoc(doc(dueno, 'xeniaUsage/dueno/questions/x'), { topic: 'x', count: 1 }));
 await caso('nadie lee las conversaciones', false, () => getDoc(doc(dueno, 'xeniaUsage/dueno/convs/abc')));
 
 console.log(`\n${fail === 0 ? '✔ TODO BIEN' : '✖ HAY PROBLEMAS'}: ${ok} pruebas pasaron, ${fail} fallaron.\n`);
