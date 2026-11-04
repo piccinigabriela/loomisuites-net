@@ -50,6 +50,7 @@ Sistema de gestión para alojamientos chicos (de 4 a 20 unidades), hecho en Arge
 PLANES Y PRECIOS (por mes, sin comisiones por reserva)
 - Loomi: USD 25. Para dueños con hasta 5 unidades y sin personal.
 - Loomi Suite: USD 35 hasta 10 unidades, con cuentas para Recepción y Limpieza. Desde la unidad 11 se suman USD 2 por unidad (por ejemplo, 15 unidades = USD 45).
+- PROMO FIN DE AÑO: quien crea su cuenta antes del 31 de diciembre de 2026 paga Loomi Suite USD 30 por mes para siempre (en vez de 35; las unidades extra siguen a USD 2). Mencionala cuando hablen de precios, sin presionar.
 - Prueba gratis de 7 días, sin tarjeta.
 - Se paga por transferencia en pesos al dólar MEP del día, o por Payoneer en dólares con 10% de descuento.
 - Diseños especiales para Tu Web: USD 70, pago único. Se ven funcionando en loomisuite.net/disenos.

@@ -165,7 +165,9 @@ más las líneas de atribución que indique la sesión. Después `git push origi
 ## Decisiones tomadas
 - Prueba de 7 días; la activación se hace desde el Panel de clientes (`subscriptions/{uid}`).
 - Precios en dólares (4/11, antes USD 30 y 45): Loomi USD 25 hasta 5 unidades; Loomi Suite USD 35 hasta 10 unidades y USD 2 por cada unidad
-  desde la 11 (`PLAN_UNITS` y `planPriceUsd` en `billing.ts`; `extraUnitUsd` en config/billing). Cambio por el competidor Areca (USD 32 con 10 unidades y channel manager). Se pagan por transferencia en pesos al dólar MEP del día (redondeado a $100) o por Payoneer en dólares con 10% de descuento. Sin IPC, Mercado Pago ni PayPal por ahora.
+  desde la 11 (`PLAN_UNITS` y `planPriceUsd` en `billing.ts`; `extraUnitUsd` en config/billing). Cambio por el competidor Areca (USD 32 con 10 unidades y channel manager).
+  Promo fin de año (nombre elegido por Gabi; nada de "lanzamiento" ni "fundador"): cuentas creadas hasta el 31/12/2026 pagan Loomi Suite USD 30
+  para siempre (`YEAR_END_PROMO`, `hasYearEndPromo` con la fecha de alta de la cuenta; Mi plan lo muestra). Se pagan por transferencia en pesos al dólar MEP del día (redondeado a $100) o por Payoneer en dólares con 10% de descuento. Sin IPC, Mercado Pago ni PayPal por ahora.
 - Diseños especiales de Tu Web: pago único de USD 70 cada uno (23/10), se cobra a mano y se habilita en el Panel.
   Idea: plan Loomi Signature USD 90/mes (channel manager + diseños incluidos), solo cuando el channel manager funcione.
 - Una moneda de liquidación por complejo. AFIP no interesa.

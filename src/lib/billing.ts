@@ -37,9 +37,21 @@ export interface BillingConfig {
 /** Unidades incluidas en cada plan (4/11: Loomi hasta 5, Loomi Suite hasta 10 y después se suma por unidad) */
 export const PLAN_UNITS: Record<PlanId, number> = { propietario: 5, complejo: 10 };
 
-/** Precio por mes según las unidades del complejo */
-export function planPriceUsd(billing: BillingConfig, plan: PlanId, units = 0): number {
-  const base = billing.plans[plan].usd;
+/** Promo fin de año (4/11): quien crea su cuenta hasta el 31/12/2026 paga Loomi Suite a USD 30 para siempre */
+export const YEAR_END_PROMO = { name: 'Promo fin de año', plan: 'complejo' as PlanId, usd: 30, lastDay: '2026-12-31' };
+
+/** ¿La cuenta se creó a tiempo para la promo? (fecha de alta de la cuenta del dueño) */
+export function hasYearEndPromo(signup?: string | number | Date | null): boolean {
+  if (!signup) return false;
+  const t = new Date(signup).getTime();
+  // Hasta el 31/12 a la medianoche de Argentina (UTC−3)
+  return !isNaN(t) && t < Date.parse(`${YEAR_END_PROMO.lastDay}T23:59:59-03:00`);
+}
+
+/** Precio por mes según las unidades del complejo (y la promo, si le corresponde) */
+export function planPriceUsd(billing: BillingConfig, plan: PlanId, units = 0, promo = false): number {
+  const listed = billing.plans[plan].usd;
+  const base = promo && plan === YEAR_END_PROMO.plan ? Math.min(listed, YEAR_END_PROMO.usd) : listed;
   if (plan !== 'complejo') return base;
   const extra = Math.max(0, Math.round(units) - PLAN_UNITS.complejo);
   return Math.round((base + extra * billing.extraUnitUsd) * 100) / 100;

@@ -229,6 +229,8 @@ export const FeaturesPage: React.FC = () => {
               </div>
             </div>
             <p className="mt-6 text-base text-stone-100">
+              <strong className="font-semibold text-white">Promo fin de año: si creás tu cuenta antes del 31 de diciembre, Loomi Suite te queda en USD 30 por mes para siempre.</strong>
+              <br />
               Por mes. Se paga en pesos al dólar MEP del día, o en dólares por Payoneer con 10% de descuento.
             </p>
           </div>

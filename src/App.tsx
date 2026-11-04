@@ -2395,6 +2395,7 @@ export default function App() {
               access={accessStatus}
               billing={billing}
               unitCount={(demoState.properties || []).length}
+            signupDate={currentUser?.metadata?.creationTime}
             />
           )
         }
@@ -2453,6 +2454,7 @@ export default function App() {
             access={accessStatus}
             billing={billing}
             unitCount={(demoState.properties || []).length}
+            signupDate={currentUser?.metadata?.creationTime}
             onClose={() => setMyPlanOpen(false)}
           />
         </Suspense>

@@ -474,7 +474,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 Loomi • Loomi Suite
               </h3>
               <p className="text-[11px] text-slate-800 dark:text-zinc-300 font-normal leading-relaxed">
-                Sin comisiones por reserva. Loomi Suite: USD 35 hasta 10 unidades.
+                Sin comisiones por reserva. Loomi Suite: USD 35 hasta 10 unidades, o USD 30 para siempre si te sumás antes del 31/12.
               </p>
             </div>
 

@@ -779,6 +779,8 @@ Dos planes por mes, en dólares, sin comisiones por reserva:
 1. **Loomi:** **USD 25 por mes.** Para dueños de hasta 5 unidades sin personal.
 2. **Loomi Suite:** **USD 35 por mes, hasta 10 unidades.** Para complejos con recepción y limpieza: cada persona entra con su cuenta. Desde la unidad 11 se suman USD 2 por unidad.
 
+**Promo fin de año:** si creás tu cuenta antes del 31 de diciembre, Loomi Suite te queda en **USD 30 por mes para siempre**.
+
 La prueba gratis dura **7 días**.
 
 **Cómo se paga:** por **transferencia en pesos**, al dólar MEP del día, o en dólares por **Payoneer**, con 10% de descuento. Los datos están en **Mi plan**, en el menú de tu cuenta; cuando pagás, tocás **"Ya pagué"** y lo confirmamos.

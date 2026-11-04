@@ -22,6 +22,8 @@ import {
   planPriceUsd,
   planFits,
   PLAN_UNITS,
+  hasYearEndPromo,
+  YEAR_END_PROMO,
 } from '../../lib/billing';
 
 interface Props {
@@ -33,6 +35,8 @@ interface Props {
   billing: BillingConfig;
   /** Unidades del complejo (el precio de Loomi Suite suma por unidad después de 10) */
   unitCount?: number;
+  /** Fecha de alta de la cuenta del dueño (para la promo fin de año) */
+  signupDate?: string;
   /** Si viene, se muestra como ventana con botón de cerrar */
   onClose?: () => void;
 }
@@ -74,7 +78,8 @@ const CopyRow: React.FC<{ name: string; value: string; mono?: boolean }> = ({ na
   );
 };
 
-export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscription, access, billing, unitCount = 0, onClose }) => {
+export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscription, access, billing, unitCount = 0, signupDate, onClose }) => {
+  const promo = hasYearEndPromo(signupDate);
   const [plan, setPlan] = useState<PlanId>(subscription?.plan || (planFits('propietario', unitCount) ? 'propietario' : 'complejo'));
   const [mep, setMep] = useState<MepQuote | null>(null);
   const [mepLoading, setMepLoading] = useState(false);
@@ -91,7 +96,7 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
     setTimeout(() => payRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
   };
 
-  const usdPrice = planPriceUsd(billing, plan, unitCount);
+  const usdPrice = planPriceUsd(billing, plan, unitCount, promo);
   const extraUnits = Math.max(0, unitCount - PLAN_UNITS.complejo);
   const hasTransfer = !!(billing.alias || billing.cbu);
   const hasPayoneer = !!billing.payoneerEmail;
@@ -204,7 +209,17 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
                     ? `Hasta ${PLAN_UNITS.propietario} unidades, sin personal`
                     : `Hasta ${PLAN_UNITS.complejo} unidades, con Recepción y Limpieza`}
                 </span>
-                <span className="block mt-2 text-xl font-bold text-stone-900 dark:text-white tabular-nums">{formatUsd(planPriceUsd(billing, id, unitCount))} / mes</span>
+                <span className="block mt-2 text-xl font-bold text-stone-900 dark:text-white tabular-nums">
+                  {formatUsd(planPriceUsd(billing, id, unitCount, promo))} / mes
+                  {promo && id === YEAR_END_PROMO.plan && planPriceUsd(billing, id, unitCount, promo) < planPriceUsd(billing, id, unitCount) && (
+                    <span className="ml-2 text-base font-semibold line-through text-stone-700 dark:text-stone-300">{formatUsd(planPriceUsd(billing, id, unitCount))}</span>
+                  )}
+                </span>
+                {promo && id === YEAR_END_PROMO.plan && (
+                  <span className="block mt-1 text-sm font-bold text-emerald-800 dark:text-emerald-300">
+                    {YEAR_END_PROMO.name}: tu precio queda así para siempre
+                  </span>
+                )}
                 {id === 'complejo' && (
                   <span className="block text-sm font-semibold text-stone-800 dark:text-stone-200">
                     {extraUnits > 0

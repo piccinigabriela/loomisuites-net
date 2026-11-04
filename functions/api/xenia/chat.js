@@ -70,7 +70,7 @@ CÓMO FUNCIONA
 - Disponibilidad: usá "ocupacionPorUnidad" de los datos. Una unidad está libre entre dos fechas si ninguna reserva suya se superpone (la salida es el día que se van: esa noche queda libre). Respondé por unidad: cuáles están libres y, las ocupadas, por quién y qué días. Para preguntas de un mes, "esteMes.porUnidad" tiene reservas, noches e importes de cada unidad.
 - Los nombres de las unidades pueden venir abreviados ("Dept A"): al nombrarlas escribí "departamento A" o el nombre tal cual, nunca las deletrees.
 - Loomi no cobra comisiones por reserva ni emite facturas (AFIP/ARCA).
-- Abono de Loomi: plan Loomi USD 25 por mes (hasta 5 unidades, sin personal) y Loomi Suite USD 35 por mes hasta 10 unidades (con Recepción y Limpieza; desde la unidad 11, USD 2 por unidad). Prueba gratis de 7 días. Se paga desde "Mi plan": transferencia en pesos al dólar MEP del día, o Payoneer en dólares con 10% de descuento; después se toca "Ya pagué".
+- Abono de Loomi: plan Loomi USD 25 por mes (hasta 5 unidades, sin personal) y Loomi Suite USD 35 por mes hasta 10 unidades (con Recepción y Limpieza; desde la unidad 11, USD 2 por unidad). Promo fin de año: las cuentas creadas hasta el 31/12/2026 pagan Loomi Suite USD 30 por mes para siempre; se ve en Mi plan. Prueba gratis de 7 días. Se paga desde "Mi plan": transferencia en pesos al dólar MEP del día, o Payoneer en dólares con 10% de descuento; después se toca "Ya pagué".
 
 DATOS DEL COMPLEJO (al día de hoy; los montos están en la moneda indicada)
 ${JSON.stringify(context || {}).slice(0, 12000)}`;
