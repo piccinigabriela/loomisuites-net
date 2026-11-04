@@ -19,6 +19,9 @@ import {
   arsAmount,
   payoneerAmount,
   formatUsd,
+  planPriceUsd,
+  planFits,
+  PLAN_UNITS,
 } from '../../lib/billing';
 
 interface Props {
@@ -28,6 +31,8 @@ interface Props {
   subscription: SubscriptionDoc | null;
   access: AccessStatus | null;
   billing: BillingConfig;
+  /** Unidades del complejo (el precio de Loomi Suite suma por unidad después de 10) */
+  unitCount?: number;
   /** Si viene, se muestra como ventana con botón de cerrar */
   onClose?: () => void;
 }
@@ -69,8 +74,8 @@ const CopyRow: React.FC<{ name: string; value: string; mono?: boolean }> = ({ na
   );
 };
 
-export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscription, access, billing, onClose }) => {
-  const [plan, setPlan] = useState<PlanId>(subscription?.plan || 'propietario');
+export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscription, access, billing, unitCount = 0, onClose }) => {
+  const [plan, setPlan] = useState<PlanId>(subscription?.plan || (planFits('propietario', unitCount) ? 'propietario' : 'complejo'));
   const [mep, setMep] = useState<MepQuote | null>(null);
   const [mepLoading, setMepLoading] = useState(false);
   const [notices, setNotices] = useState<PaymentNotice[]>([]);
@@ -86,7 +91,8 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
     setTimeout(() => payRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
   };
 
-  const usdPrice = billing.plans[plan].usd;
+  const usdPrice = planPriceUsd(billing, plan, unitCount);
+  const extraUnits = Math.max(0, unitCount - PLAN_UNITS.complejo);
   const hasTransfer = !!(billing.alias || billing.cbu);
   const hasPayoneer = !!billing.payoneerEmail;
   const ars = mep ? arsAmount(usdPrice, mep.rate) : 0;
@@ -173,7 +179,9 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
             <span className="text-lg font-bold text-stone-900 dark:text-white">{billing.plans[plan].name}</span>
             <span className="text-2xl font-bold text-stone-900 dark:text-white tabular-nums">{formatUsd(usdPrice)}</span>
           </div>
-          <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">Por mes. Se paga en pesos al dólar MEP del día, o en dólares por Payoneer.</p>
+          <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">
+            Por mes{plan === 'complejo' && extraUnits > 0 ? `, con tus ${unitCount} unidades` : ''}. Se paga en pesos al dólar MEP del día, o en dólares por Payoneer.
+          </p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -184,16 +192,29 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
                 key={id}
                 type="button"
                 onClick={() => choosePlan(id)}
+                disabled={!planFits(id, unitCount)}
                 aria-pressed={plan === id}
-                className={`text-left rounded-2xl border-2 p-4 cursor-pointer ${
+                className={`text-left rounded-2xl border-2 p-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                   plan === id ? 'border-[#A94F12] dark:border-[#F0A46F] bg-orange-50 dark:bg-orange-950/30' : 'border-stone-300 dark:border-zinc-700 bg-white dark:bg-[#18191E]'
                 }`}
               >
                 <span className="block text-lg font-bold text-stone-900 dark:text-white">{billing.plans[id].name}</span>
                 <span className="block text-sm font-semibold text-stone-800 dark:text-stone-200">
-                  {id === 'propietario' ? 'Hasta 5 unidades, sin personal' : 'Con recepción y limpieza'}
+                  {id === 'propietario'
+                    ? `Hasta ${PLAN_UNITS.propietario} unidades, sin personal`
+                    : `Hasta ${PLAN_UNITS.complejo} unidades, con Recepción y Limpieza`}
                 </span>
-                <span className="block mt-2 text-xl font-bold text-stone-900 dark:text-white tabular-nums">{formatUsd(billing.plans[id].usd)} / mes</span>
+                <span className="block mt-2 text-xl font-bold text-stone-900 dark:text-white tabular-nums">{formatUsd(planPriceUsd(billing, id, unitCount))} / mes</span>
+                {id === 'complejo' && (
+                  <span className="block text-sm font-semibold text-stone-800 dark:text-stone-200">
+                    {extraUnits > 0
+                      ? `Con tus ${unitCount} unidades (${formatUsd(billing.extraUnitUsd)} por cada una después de la ${PLAN_UNITS.complejo})`
+                      : `Después de ${PLAN_UNITS.complejo} unidades, ${formatUsd(billing.extraUnitUsd)} por cada una`}
+                  </span>
+                )}
+                {!planFits(id, unitCount) && (
+                  <span className="block mt-1 text-sm font-semibold text-stone-900 dark:text-white">Tenés {unitCount} unidades: te corresponde Loomi Suite</span>
+                )}
                 {plan === id && (
                   <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-[#A94F12] dark:text-[#F0A46F]">
                     <Check className="w-4 h-4" /> Elegido

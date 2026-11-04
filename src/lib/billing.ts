@@ -30,12 +30,28 @@ export interface BillingConfig {
   graceDays: number;
   /** Dólar MEP de respaldo, si no se puede leer la cotización del día */
   mepFallback: number;
+  /** Loomi Suite: dólares por mes por cada unidad después de las incluidas */
+  extraUnitUsd: number;
 }
+
+/** Unidades incluidas en cada plan (4/11: Loomi hasta 5, Loomi Suite hasta 10 y después se suma por unidad) */
+export const PLAN_UNITS: Record<PlanId, number> = { propietario: 5, complejo: 10 };
+
+/** Precio por mes según las unidades del complejo */
+export function planPriceUsd(billing: BillingConfig, plan: PlanId, units = 0): number {
+  const base = billing.plans[plan].usd;
+  if (plan !== 'complejo') return base;
+  const extra = Math.max(0, Math.round(units) - PLAN_UNITS.complejo);
+  return Math.round((base + extra * billing.extraUnitUsd) * 100) / 100;
+}
+
+/** El plan Loomi no alcanza para más de 5 unidades */
+export const planFits = (plan: PlanId, units: number) => plan === 'complejo' || units <= PLAN_UNITS.propietario;
 
 export const DEFAULT_BILLING: BillingConfig = {
   plans: {
-    propietario: { name: 'Loomi', usd: 30 },
-    complejo: { name: 'Loomi Suite', usd: 45 },
+    propietario: { name: 'Loomi', usd: 25 },
+    complejo: { name: 'Loomi Suite', usd: 35 },
   },
   holder: '',
   cuit: '',
@@ -47,6 +63,7 @@ export const DEFAULT_BILLING: BillingConfig = {
   payoneerDiscount: 10,
   graceDays: 5,
   mepFallback: 0,
+  extraUnitUsd: 2,
 };
 
 export function normalizeBilling(raw: any): BillingConfig {
@@ -69,6 +86,7 @@ export function normalizeBilling(raw: any): BillingConfig {
     payoneerDiscount: Math.min(50, Math.max(0, num(r.payoneerDiscount, d.payoneerDiscount))),
     graceDays: Math.min(30, Math.max(0, Math.round(num(r.graceDays, d.graceDays)))),
     mepFallback: Math.max(0, num(r.mepFallback, 0)),
+    extraUnitUsd: Math.max(0, num(r.extraUnitUsd, d.extraUnitUsd)),
   };
 }
 

@@ -2394,6 +2394,7 @@ export default function App() {
               subscription={subscriptionDoc}
               access={accessStatus}
               billing={billing}
+              unitCount={(demoState.properties || []).length}
             />
           )
         }
@@ -2451,6 +2452,7 @@ export default function App() {
             subscription={subscriptionDoc}
             access={accessStatus}
             billing={billing}
+            unitCount={(demoState.properties || []).length}
             onClose={() => setMyPlanOpen(false)}
           />
         </Suspense>
@@ -3029,7 +3031,7 @@ export default function App() {
                     <span className="text-stone-300 dark:text-zinc-800 hidden md:inline">|</span>
                     <button
                       onClick={() => {
-                        setSelectedPlanForLead('Plan Loomi (USD 30/mes)');
+                        setSelectedPlanForLead('Plan Loomi (USD 25/mes)');
                         setIsLeadModalOpen(true);
                       }}
                       className="bg-white hover:bg-stone-50 text-stone-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-stone-200 border border-stone-200/80 dark:border-zinc-800 text-xs font-medium px-3 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
@@ -3068,7 +3070,7 @@ export default function App() {
                       ...(!isApp
                         ? [
                             { label: 'Ver la bienvenida', onClick: () => setWelcomeOpen(true) },
-                            { label: 'Quiero un plan', onClick: () => { setSelectedPlanForLead('Plan Loomi (USD 30/mes)'); setIsLeadModalOpen(true); } },
+                            { label: 'Quiero un plan', onClick: () => { setSelectedPlanForLead('Plan Loomi (USD 25/mes)'); setIsLeadModalOpen(true); } },
                             { label: 'Restablecer demo', onClick: handleResetData },
                           ]
                         : []),
@@ -3167,7 +3169,7 @@ export default function App() {
                     onQuickCheckIn={handleQuickCheckIn}
                     onOpenOnboardingWizard={() => setIsOnboardingModalOpen(true)}
                     onRequestPlan={() => {
-                      setSelectedPlanForLead('Plan Loomi (USD 30/mes)');
+                      setSelectedPlanForLead('Plan Loomi (USD 25/mes)');
                       setIsLeadModalOpen(true);
                     }}
                     isEmployeeMode={isEmployeeMode}
@@ -3480,7 +3482,7 @@ export default function App() {
                   }}
                   onOpenOnboardingWizard={() => setIsOnboardingModalOpen(true)}
                   onRequestPlan={() => {
-                    setSelectedPlanForLead('Plan Loomi Suite (USD 45/mes)');
+                    setSelectedPlanForLead('Plan Loomi Suite (USD 35/mes)');
                     setIsLeadModalOpen(true);
                   }}
                   onDismiss={useTopNav ? () => setShowPlanPanelAiry(false) : handleDismissDemoPlanBar}

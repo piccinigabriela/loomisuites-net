@@ -218,18 +218,18 @@ export const FeaturesPage: React.FC = () => {
                   <p className="text-lg font-bold text-white">Loomi</p>
                   <p className="text-base text-stone-200">Hasta 5 unidades, para dueños sin personal</p>
                 </div>
-                <p className="text-2xl font-bold text-white tabular-nums shrink-0">USD 30</p>
+                <p className="text-2xl font-bold text-white tabular-nums shrink-0">USD 25</p>
               </div>
               <div className="flex items-baseline justify-between gap-4">
                 <div>
                   <p className="text-lg font-bold text-white">Loomi Suite</p>
-                  <p className="text-base text-stone-200">Con cuentas para Recepción y Limpieza</p>
+                  <p className="text-base text-stone-200">Hasta 10 unidades, con cuentas para Recepción y Limpieza. Desde la 11, USD 2 por unidad.</p>
                 </div>
-                <p className="text-2xl font-bold text-white tabular-nums shrink-0">USD 45</p>
+                <p className="text-2xl font-bold text-white tabular-nums shrink-0">USD 35</p>
               </div>
             </div>
             <p className="mt-6 text-base text-stone-100">
-              Por mes, todo el complejo. Se paga en pesos al dólar MEP del día, o en dólares por Payoneer con 10% de descuento.
+              Por mes. Se paga en pesos al dólar MEP del día, o en dólares por Payoneer con 10% de descuento.
             </p>
           </div>
 

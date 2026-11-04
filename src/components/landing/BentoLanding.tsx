@@ -67,7 +67,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
       id: 'plan-simple',
       name: 'Loomi',
       tag: 'Hasta 5 unidades • Dueños sin personal',
-      usd: 30,
+      usd: 25,
       highlight: false,
       badge: 'PLAN PROPIETARIO • HASTA 5 U.',
       description: 'La herramienta perfecta para dueños que gestionan todo de forma autónoma desde el celular. Calendario modo light y reservas.',
@@ -75,18 +75,18 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
         'Calendario Rack (Modo Light optimizado para móvil)',
         'Gestión de Reservas Directas & iCal',
         'Reportes de Rendimiento Básicos',
-        'Sin costos por habitación (precio por todo el complejo)',
+        'Precio fijo por todo el complejo',
         '2 usuarios',
       ],
     },
     {
       id: 'plan-suite',
       name: 'Loomi Suite',
-      tag: 'Unidades Ilimitadas • Complejo Total',
-      usd: 45,
+      tag: 'Hasta 10 unidades • Complejo con equipo',
+      usd: 35,
       highlight: true,
       badge: 'RECOMENDADO • TODO INCLUIDO',
-      description: 'La solución definitiva para complejos que operan con personal de recepción y equipos de limpieza. Ecosistema ilimitado.',
+      description: 'La solución definitiva para complejos que operan con personal de recepción y equipos de limpieza. Desde la unidad 11, USD 2 por unidad.',
       features: [
         'Todo lo del Plan Loomi e iCal avanzado',
         'Módulo Housekeeping Completo (Semáforo de Limpieza en vivo)',
@@ -456,7 +456,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
           >
             <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 dark:border-white/5">
               <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-700 dark:text-zinc-400">
-                PLANES / ARS
+                PLANES / USD
               </span>
               <span className="w-2 h-2 rounded-full bg-[#E67E22] shrink-0" />
             </div>
@@ -464,7 +464,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             <div className="my-auto py-2 space-y-1">
               <div className="flex items-baseline gap-1.5">
                 <span className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
-                  USD 30
+                  USD 25
                 </span>
                 <span className="text-xs text-slate-700 dark:text-zinc-400 font-medium">
                   /mes
@@ -474,7 +474,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 Loomi • Loomi Suite
               </h3>
               <p className="text-[11px] text-slate-800 dark:text-zinc-300 font-normal leading-relaxed">
-                Sin comisiones por reserva ni cobro por habitación.
+                Sin comisiones por reserva. Loomi Suite: USD 35 hasta 10 unidades.
               </p>
             </div>
 

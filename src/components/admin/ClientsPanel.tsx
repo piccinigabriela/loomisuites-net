@@ -381,6 +381,7 @@ const BillingSettings: React.FC<{ value: BillingConfig }> = ({ value }) => {
             <label className={lbl}>Descuento por Payoneer (%)<input className={field} type="number" min={0} max={50} value={form.payoneerDiscount} onChange={(e) => set({ payoneerDiscount: Number(e.target.value) || 0 })} /></label>
             <label className={lbl}>Días de gracia después del vencimiento<input className={field} type="number" min={0} max={30} value={form.graceDays} onChange={(e) => set({ graceDays: Number(e.target.value) || 0 })} /></label>
             <label className={lbl}>Dólar MEP de respaldo (si no carga el del día)<input className={field} type="number" min={0} value={form.mepFallback || ''} onChange={(e) => set({ mepFallback: Number(e.target.value) || 0 })} /></label>
+            <label className={lbl}>Loomi Suite: dólares por unidad después de la 10<input className={field} type="number" inputMode="decimal" min={0} value={form.extraUnitUsd} onChange={(e) => set({ extraUnitUsd: Number(e.target.value) || 0 })} /></label>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" disabled={saving} onClick={save} className="min-h-[44px] px-5 rounded-xl text-[15px] font-bold cursor-pointer disabled:opacity-60 bg-[#A94F12] text-white dark:bg-[#F0A46F] dark:text-[#1A1206]">

@@ -47,9 +47,9 @@ Sistema de gestión para alojamientos chicos (de 4 a 20 unidades), hecho en Arge
 - Xenia para huéspedes (se activa si el anfitrión quiere): responde a los huéspedes en la guía y en Tu Web, en español, inglés y portugués, solo con lo que el anfitrión cargó; pagos, cambios de reserva y lo que no sabe se lo pasa al anfitrión por WhatsApp. Incluye 1.000 conversaciones por mes; si necesitan más, 1.000 extra cuestan USD 10 por mes, solo si las piden.
 - Funciona con llaves comunes; no hay cerraduras con código.
 
-PLANES Y PRECIOS (por mes, todo el complejo, sin comisiones por reserva)
-- Loomi: USD 30. Para dueños con hasta 5 unidades y sin personal.
-- Loomi Suite: USD 45. Con cuentas para Recepción y Limpieza.
+PLANES Y PRECIOS (por mes, sin comisiones por reserva)
+- Loomi: USD 25. Para dueños con hasta 5 unidades y sin personal.
+- Loomi Suite: USD 35 hasta 10 unidades, con cuentas para Recepción y Limpieza. Desde la unidad 11 se suman USD 2 por unidad (por ejemplo, 15 unidades = USD 45).
 - Prueba gratis de 7 días, sin tarjeta.
 - Se paga por transferencia en pesos al dólar MEP del día, o por Payoneer en dólares con 10% de descuento.
 - Diseños especiales para Tu Web: USD 70, pago único. Se ven funcionando en loomisuite.net/disenos.

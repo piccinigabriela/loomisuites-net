@@ -774,10 +774,10 @@ ${pendingPayments.length > 0 ? `⚠️ **Cobros y Saldos Pendientes:** Tenés ${
   ) {
     return `### 🏷️ Planes de Loomi Suite
 
-Dos planes con precio fijo por todo el complejo, en dólares (sin cobro por unidad ni comisiones por reserva):
+Dos planes por mes, en dólares, sin comisiones por reserva:
 
-1. **Loomi:** **USD 30 por mes.** Para dueños de hasta 5 unidades sin personal.
-2. **Loomi Suite:** **USD 45 por mes.** Para complejos con recepción y limpieza: cada persona entra con su cuenta.
+1. **Loomi:** **USD 25 por mes.** Para dueños de hasta 5 unidades sin personal.
+2. **Loomi Suite:** **USD 35 por mes, hasta 10 unidades.** Para complejos con recepción y limpieza: cada persona entra con su cuenta. Desde la unidad 11 se suman USD 2 por unidad.
 
 La prueba gratis dura **7 días**.
 
