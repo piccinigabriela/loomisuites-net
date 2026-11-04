@@ -52,6 +52,9 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Notas de limpieza: `cleaningTasks/{id}.messages` (Administración/Recepción y Limpieza; Limpieza solo suma una nota suya, con `arrayUnion`)
   y `notesSeen`; aviso arriba en la app para Administración y Recepción (`src/lib/cleaningNotes.ts`, `components/common/CleaningNotes.tsx`).
 
+- "Cómo configurar Loomi" (primeros pasos, arriba de Hoy en la app real): `components/onboarding/FirstStepsChecklist.tsx`. 6 pasos que se tildan
+  solos (complejo, unidades, tarifas, Airbnb/Booking, reservas, guía) + opcionales (equipo, Tu Web, Xenia huéspedes, checklist, mensajes).
+  Marcas a mano en `tenants/{uid}.onboardingChecklist`; "Ocultar" = `checklistDismissed` (se vuelve a abrir desde el menú de la cuenta).
 - Checklist de limpieza: `tenants/{uid}.cleaningChecklist` {items, units: {propertyId: [tareas]}} (`src/lib/cleaningChecklist.ts`,
   `buildCleaningChecklist`; sin `items` = las 4 de siempre). Lo usan todas las limpiezas nuevas: reserva manual, importación y
   `icalCore` (la app y server-sync le pasan `cleaningChecklist`). Editor del dueño arriba de la Agenda de limpiezas

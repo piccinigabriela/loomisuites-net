@@ -1109,6 +1109,27 @@ export default function App() {
     }
   };
 
+  // Lo que ya está hecho, para "Cómo configurar Loomi"
+  const firstStepsExtras = {
+    pricingDone: Object.values(tenantDoc?.pricing?.normal?.precios || {}).some((dp: any) =>
+      Object.values(dp || {}).some((v) => Number(v) > 0)
+    ),
+    webDone: Boolean(tenantDoc?.webSite?.enabled),
+    xeniaDone: Boolean(tenantDoc?.xeniaGuest?.enabled),
+    cleaningChecklistDone: Boolean(
+      Array.isArray(tenantDoc?.cleaningChecklist?.items) || Object.keys(tenantDoc?.cleaningChecklist?.units || {}).length
+    ),
+  };
+  const handleReopenChecklist = async () => {
+    setTenantDoc((prev) => (prev ? { ...prev, checklistDismissed: false } : null));
+    setDemoTab('overview');
+    try {
+      await saveTenantData(tenantUid, { checklistDismissed: false });
+    } catch (err) {
+      console.warn('Error saving checklistDismissed:', err);
+    }
+  };
+
   const handleDismissChecklist = async () => {
     if (!currentUser) return;
     setTenantDoc((prev) => (prev ? { ...prev, checklistDismissed: true } : null));
@@ -2886,6 +2907,7 @@ export default function App() {
                         ? [
                             { label: currentUser?.email || 'Mi cuenta', onClick: () => {}, note: true },
                             ...(!isStaff ? [{ label: 'Mi plan', onClick: () => setMyPlanOpen(true) }] : []),
+                            ...(!isStaff && tenantDoc?.checklistDismissed ? [{ label: 'Cómo configurar Loomi', onClick: handleReopenChecklist }] : []),
                             ...(isPlatformAdmin(currentUser) ? [{ label: 'Clientes de Loomi', onClick: () => setClientsPanelOpen(true) }] : []),
                             { label: 'Cerrar sesión', onClick: handleLogout, danger: true },
                           ]
@@ -2926,6 +2948,7 @@ export default function App() {
                   properties: demoState.properties,
                   reservations: demoState.reservations,
                   onboardingChecklist: tenantDoc?.onboardingChecklist,
+                  pricingDone: firstStepsExtras.pricingDone,
                 });
                 if (progress.completedCount >= progress.total) return null;
                 return (
@@ -2961,10 +2984,13 @@ export default function App() {
                       reservations={demoState.reservations}
                       onboardingChecklist={tenantDoc?.onboardingChecklist}
                       checklistDismissed={tenantDoc?.checklistDismissed}
+                      extras={firstStepsExtras}
                       onOpenOnboarding={() => setIsOnboardingModalOpen(true)}
-                      onNavigateToProperties={() => setDemoTab('properties')}
-                      onNavigateToCalendar={() => setDemoTab('calendar')}
-                      onNavigateToGuide={() => setDemoTab('welcome-guide')}
+                      onNavigate={(tab) => setDemoTab(tab as any)}
+                      onOpenGuide={(sub) => {
+                        setGuideSubTab(sub);
+                        setDemoTab('welcome-guide');
+                      }}
                       onUpdateChecklist={handleUpdateChecklist}
                       onDismissChecklist={handleDismissChecklist}
                     />

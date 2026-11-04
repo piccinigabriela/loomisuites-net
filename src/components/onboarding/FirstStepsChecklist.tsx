@@ -1,92 +1,70 @@
+/**
+ * "Cómo configurar Loomi": la lista de primeros pasos arriba de Hoy (solo en la app real, para el dueño).
+ * Idea tomada del onboarding de Areca (4/11): pasos numerados, una línea que explica cada uno y un botón para ir.
+ * Cada paso se tilda solo cuando está hecho; algunos se pueden marcar a mano ("No uso Airbnb ni Booking").
+ */
 import React from 'react';
-import {
-  CheckCircle2,
-  Circle,
-  Building2,
-  Home,
-  Calendar,
-  BookOpen,
-  Clock,
-  Sparkles,
-  ChevronRight,
-  EyeOff,
-  Check,
-} from 'lucide-react';
+import { Check, ChevronRight } from 'lucide-react';
 import { WelcomeGuideData, Property, Reservation } from '../../types';
+
+type ChecklistFlags = { calendarios?: boolean; guia?: boolean; diaADia?: boolean };
+
+/** Lo opcional que ya está hecho (se calcula en App con los datos de la cuenta) */
+export interface FirstStepsExtras {
+  pricingDone?: boolean;
+  webDone?: boolean;
+  xeniaDone?: boolean;
+  cleaningChecklistDone?: boolean;
+}
 
 interface FirstStepsChecklistProps {
   welcomeGuide?: WelcomeGuideData;
   properties: Property[];
   reservations: Reservation[];
-  onboardingChecklist?: {
-    calendarios?: boolean;
-    guia?: boolean;
-    diaADia?: boolean;
-  };
+  onboardingChecklist?: ChecklistFlags;
   checklistDismissed?: boolean;
+  extras?: FirstStepsExtras;
   onOpenOnboarding: () => void;
-  onNavigateToProperties: () => void;
-  onNavigateToCalendar: () => void;
-  onNavigateToGuide: () => void;
-  onUpdateChecklist: (update: { calendarios?: boolean; guia?: boolean; diaADia?: boolean }) => void;
+  /** Ir a una pantalla de la app (ids de demoTab) */
+  onNavigate: (tab: string) => void;
+  /** Tu Web y Guía, en la pestaña que corresponda */
+  onOpenGuide: (sub: 'guest-view' | 'landing-booking') => void;
+  onUpdateChecklist: (update: ChecklistFlags) => void;
   onDismissChecklist: () => void;
 }
 
-/** Estado de cada paso de "Primeros pasos" (lo usa también el atajo para volver a la lista). */
+/** Estado de cada paso (lo usa también el atajo para volver a la lista). */
 export function getFirstStepsStatus({
   welcomeGuide,
   properties = [],
   reservations = [],
   onboardingChecklist = {},
+  pricingDone = false,
 }: {
   welcomeGuide?: WelcomeGuideData;
   properties?: Property[];
   reservations?: Reservation[];
-  onboardingChecklist?: { calendarios?: boolean; guia?: boolean; diaADia?: boolean };
+  onboardingChecklist?: ChecklistFlags;
+  pricingDone?: boolean;
 }) {
-  // 1. Tu complejo
-  const isComplexDone = Boolean(
-    welcomeGuide?.propertyName &&
-      welcomeGuide.propertyName.trim() !== '' &&
-      welcomeGuide.propertyName.trim() !== 'Mi Complejo' &&
-      welcomeGuide.propertyName.trim() !== 'Mi complejo' &&
-      welcomeGuide?.locationAddress &&
-      welcomeGuide.locationAddress.trim() !== ''
-  );
-
-  // 2. Tus unidades
+  const name = (welcomeGuide?.propertyName || '').trim();
+  const isComplexDone = Boolean(name && !/^mi complejo$/i.test(name) && (welcomeGuide?.locationAddress || '').trim());
   const isUnitsDone = properties.length > 0;
-
-  // 3. Tus calendarios
-  const hasSyncConfigured = properties.some(
-    (p) =>
-      Boolean(p.syncStatus?.airbnb || p.syncStatus?.booking || p.syncStatus?.vrbo || p.icalGoogleUrl)
-  );
-  const isCalendarsDone = Boolean(onboardingChecklist.calendarios || hasSyncConfigured);
-
-  // 4. Tus reservas
+  const isPricingDone = Boolean(pricingDone);
+  const hasSync = properties.some((p) => Boolean(p.syncStatus?.airbnb || p.syncStatus?.booking || p.syncStatus?.vrbo || p.icalGoogleUrl));
+  const isCalendarsDone = Boolean(onboardingChecklist.calendarios || hasSync);
   const isReservationsDone = reservations.length > 0;
-
-  // 5. La guía de tus huéspedes
-  const isGuideConfigured = Boolean(
-    welcomeGuide?.hostPhone &&
-      welcomeGuide.hostPhone.trim() !== '' &&
-      welcomeGuide?.wifiNetwork &&
-      welcomeGuide.wifiNetwork.trim() !== ''
+  const isGuideDone = Boolean(
+    onboardingChecklist.guia || ((welcomeGuide?.hostPhone || '').trim() && (welcomeGuide?.wifiNetwork || '').trim())
   );
-  const isGuideDone = Boolean(onboardingChecklist.guia || isGuideConfigured);
-
-  // 6. Tu día a día
-  const isDailyDone = Boolean(onboardingChecklist.diaADia);
-
-  const flags = [isComplexDone, isUnitsDone, isCalendarsDone, isReservationsDone, isGuideDone, isDailyDone];
+  const flags = [isComplexDone, isUnitsDone, isPricingDone, isCalendarsDone, isReservationsDone, isGuideDone];
   return {
     isComplexDone,
     isUnitsDone,
+    isPricingDone,
     isCalendarsDone,
     isReservationsDone,
     isGuideDone,
-    isDailyDone,
     completedCount: flags.filter(Boolean).length,
     total: flags.length,
   };
@@ -98,209 +76,139 @@ export const FirstStepsChecklist: React.FC<FirstStepsChecklistProps> = ({
   reservations = [],
   onboardingChecklist = {},
   checklistDismissed = false,
+  extras = {},
   onOpenOnboarding,
-  onNavigateToProperties,
-  onNavigateToCalendar,
-  onNavigateToGuide,
+  onNavigate,
+  onOpenGuide,
   onUpdateChecklist,
   onDismissChecklist,
 }) => {
-  if (checklistDismissed) {
-    return null;
-  }
+  if (checklistDismissed) return null;
 
-  const {
-    isComplexDone,
-    isUnitsDone,
-    isCalendarsDone,
-    isReservationsDone,
-    isGuideDone,
-    isDailyDone,
-  } = getFirstStepsStatus({ welcomeGuide, properties, reservations, onboardingChecklist });
+  const s = getFirstStepsStatus({ welcomeGuide, properties, reservations, onboardingChecklist, pricingDone: extras.pricingDone });
 
-  const steps = [
-    {
-      id: 'complex',
-      num: '1',
-      title: 'Tu complejo',
-      subtitle: 'Configurá el nombre, dirección y horarios de check-in / check-out',
-      icon: Building2,
-      isDone: isComplexDone,
-      actionText: 'Configurar complejo',
-      onAction: onOpenOnboarding,
-    },
-    {
-      id: 'units',
-      num: '2',
-      title: 'Tus unidades',
-      subtitle: 'Registrá tus cabañas o departamentos con capacidad y fotos',
-      icon: Home,
-      isDone: isUnitsDone,
-      actionText: 'Configurar unidades',
-      onAction: onNavigateToProperties,
-    },
+  const steps: Array<{
+    id: string;
+    title: string;
+    text: string;
+    done: boolean;
+    action: () => void;
+    actionText?: string;
+    manual?: { label: string; onClick: () => void };
+  }> = [
+    { id: 'complex', title: 'Tu complejo', text: 'Nombre, dirección y horarios de check-in y check-out.', done: s.isComplexDone, action: onOpenOnboarding },
+    { id: 'units', title: 'Tus unidades', text: 'Cabañas o departamentos, con capacidad, fotos y wifi.', done: s.isUnitsDone, action: () => onNavigate('properties') },
+    { id: 'pricing', title: 'Tus tarifas', text: 'Precio normal, temporadas, fines de semana y findes largos. Con esto se calculan las reservas y Tu Web.', done: s.isPricingDone, action: () => onNavigate('pricing') },
     {
       id: 'calendars',
-      num: '3',
-      title: 'Tus calendarios',
-      subtitle: 'Sincronizá Airbnb y Booking para evitar doble reserva',
-      icon: Calendar,
-      isDone: isCalendarsDone,
-      actionText: 'Unidades & Calendarios',
-      onAction: onNavigateToProperties,
-      secondaryText: 'No uso Airbnb/Booking',
-      onSecondary: () => onUpdateChecklist({ calendarios: true }),
+      title: 'Airbnb y Booking',
+      text: 'Pegá el calendario de cada portal en su unidad para que Loomi traiga las reservas y no haya doble reserva.',
+      done: s.isCalendarsDone,
+      action: () => onNavigate('properties'),
+      manual: { label: 'No uso Airbnb ni Booking', onClick: () => onUpdateChecklist({ calendarios: true }) },
     },
-    {
-      id: 'reservations',
-      num: '4',
-      title: 'Tus reservas',
-      subtitle: 'Cargá las reservas confirmadas para ver tu ocupación',
-      icon: Calendar,
-      isDone: isReservationsDone,
-      actionText: 'Ver Ocupación',
-      onAction: onNavigateToCalendar,
-    },
+    { id: 'reservations', title: 'Tus reservas', text: 'Cargá las que ya tenés, a mano o importando un Excel, para ver la ocupación real.', done: s.isReservationsDone, action: () => onNavigate('calendar') },
     {
       id: 'guide',
-      num: '5',
       title: 'La guía de tus huéspedes',
-      subtitle: 'Personalizá el WhatsApp, el Wi-Fi y el link para que te dejen reseñas en Google',
-      icon: BookOpen,
-      isDone: isGuideDone,
-      actionText: 'Tu Web & Guía',
-      onAction: onNavigateToGuide,
-      secondaryText: 'Listo',
-      onSecondary: () => onUpdateChecklist({ guia: true }),
-    },
-    {
-      id: 'daily',
-      num: '6',
-      title: 'Tu día a día',
-      subtitle: 'El Panel Hoy te muestra ingresos, salidas, limpiezas y cobros',
-      icon: Clock,
-      isDone: isDailyDone,
-      secondaryText: 'Entendido',
-      onSecondary: () => onUpdateChecklist({ diaADia: true }),
+      text: 'Tu WhatsApp, el wifi, cómo llegar y las normas. Se comparte con un link o con el QR.',
+      done: s.isGuideDone,
+      action: () => onOpenGuide('guest-view'),
+      manual: { label: 'Ya está', onClick: () => onUpdateChecklist({ guia: true }) },
     },
   ];
 
-  const completedCount = steps.filter((s) => s.isDone).length;
-  const progressPercent = Math.round((completedCount / 6) * 100);
-  const isAllDone = completedCount === 6;
+  const optional: Array<{ id: string; title: string; text: string; done?: boolean; action: () => void }> = [
+    { id: 'team', title: 'Tu equipo', text: 'Cuentas para Recepción y Limpieza, cada una con lo suyo.', action: () => onNavigate('team') },
+    { id: 'web', title: 'Tu Web', text: 'Tu página de reservas directas, sin comisiones.', done: extras.webDone, action: () => onOpenGuide('landing-booking') },
+    { id: 'xenia', title: 'Xenia para huéspedes', text: 'Responde dudas en tu guía y en Tu Web.', done: extras.xeniaDone, action: () => onOpenGuide('guest-view') },
+    { id: 'cleaning', title: 'Tu checklist de limpieza', text: 'Las tareas de cada limpieza y las de cada unidad.', done: extras.cleaningChecklistDone, action: () => onNavigate('housekeeping') },
+    { id: 'messages', title: 'Mensajes de WhatsApp', text: 'Confirmación, llegada y pedido de reseña, listos para enviar.', action: () => onNavigate('messages') },
+  ];
+
+  const pct = Math.round((s.completedCount / s.total) * 100);
+  const allDone = s.completedCount === s.total;
 
   return (
-    <div className="w-full bg-white dark:bg-zinc-900 border border-amber-500/25 dark:border-amber-500/20 rounded-3xl p-4 sm:p-6 shadow-md space-y-4 font-sans text-stone-900 dark:text-zinc-100 transition-colors mb-6 animate-in fade-in duration-300">
-      {/* Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-[#E67E22]/15 text-[#E67E22] flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5" />
-            </div>
-            <h2 className="font-bold text-sm sm:text-base tracking-tight text-stone-900 dark:text-white">
-              Primeros pasos · {completedCount} de 6 completados
-            </h2>
-          </div>
-          <p className="text-xs text-stone-500 dark:text-zinc-400">
-            Completá esta guía inicial para tener tu complejo operando al 100%.
+    <section className="w-full mb-6 rounded-3xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-[#18191E] p-5 sm:p-7 text-stone-900 dark:text-white">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-bold">Cómo configurar Loomi</h2>
+          <p className="mt-1 text-base text-stone-800 dark:text-stone-100">
+            {allDone ? 'Tu complejo está listo.' : `${s.completedCount} de ${s.total} listos. Lo que hagas se tilda solo.`}
           </p>
         </div>
-
-        {!isAllDone && (
-          <button
-            onClick={onDismissChecklist}
-            className="text-xs text-stone-600 dark:text-zinc-300 hover:text-stone-900 dark:hover:text-white font-medium flex items-center gap-1 cursor-pointer transition-colors"
-            title="Ocultar esta lista de primeros pasos"
-          >
-            <EyeOff className="w-3.5 h-3.5" />
-            <span>Ocultar por ahora</span>
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={onDismissChecklist}
+          className="min-h-[40px] px-4 rounded-xl border-2 border-stone-300 dark:border-zinc-600 text-sm font-bold hover:bg-stone-100 dark:hover:bg-zinc-800 cursor-pointer"
+        >
+          {allDone ? 'Cerrar la guía' : 'Ocultar por ahora'}
+        </button>
       </div>
 
-      {/* Progress Bar */}
-      <div className="w-full bg-stone-100 dark:bg-zinc-800 rounded-full h-2 overflow-hidden">
-        <div
-          className="bg-gradient-to-r from-[#E67E22] to-amber-500 h-full transition-all duration-500 rounded-full"
-          style={{ width: `${progressPercent}%` }}
-        />
+      <div className="mt-4 h-2 rounded-full bg-stone-200 dark:bg-zinc-800 overflow-hidden">
+        <div className="h-full rounded-full bg-[#E67E22] transition-all duration-500" style={{ width: `${pct}%` }} />
       </div>
 
-      {/* All Done Banner */}
-      {isAllDone && (
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-950 dark:text-emerald-200 text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in duration-300">
-          <div className="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-400">
-            <CheckCircle2 className="w-5 h-5 shrink-0" />
-            <span>¡Tu complejo está listo! 🎉</span>
-          </div>
-          <button
-            onClick={onDismissChecklist}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer transition-colors"
-          >
-            Configuración finalizada
-          </button>
-        </div>
-      )}
-
-      {/* 6 Steps List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs pt-1">
-        {steps.map((step) => {
-          const IconComponent = step.icon;
-          return (
-            <div
-              key={step.id}
-              className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between space-y-2.5 ${
-                step.isDone
-                  ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-500/30 text-stone-800 dark:text-zinc-200'
-                  : 'bg-stone-50/80 dark:bg-zinc-800/60 border-stone-200/80 dark:border-zinc-700/60 text-stone-900 dark:text-zinc-100'
-              }`}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-start gap-2.5">
-                  {step.isDone ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                  ) : (
-                    <Circle className="w-5 h-5 text-stone-300 dark:text-zinc-600 shrink-0 mt-0.5" />
-                  )}
-                  <div>
-                    <span className="font-bold block text-xs flex items-center gap-1.5">
-                      <span className="opacity-60">{step.num}.</span>
-                      <span>{step.title}</span>
-                    </span>
-                    <p className="text-[11px] text-stone-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                      {step.subtitle}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-stone-200/50 dark:border-zinc-700/50">
-                {step.onAction && (
+      <ol className="mt-5 divide-y divide-stone-200 dark:divide-zinc-800 rounded-2xl border border-stone-200 dark:border-zinc-800">
+        {steps.map((st, i) => (
+          <li key={st.id} className={`flex flex-col sm:flex-row sm:items-center gap-3 p-4 ${st.done ? '' : 'bg-orange-50/40 dark:bg-white/[0.02]'}`}>
+            <div className="flex items-start gap-3 flex-1 min-w-0">
+              <span
+                className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-sm font-bold ${
+                  st.done ? 'bg-emerald-600 text-white' : 'border-2 border-stone-400 dark:border-zinc-500 text-stone-900 dark:text-white'
+                }`}
+                aria-hidden
+              >
+                {st.done ? <Check className="w-4 h-4" /> : i + 1}
+              </span>
+              <div className="min-w-0">
+                <p className={`text-base font-bold ${st.done ? 'line-through decoration-2 decoration-emerald-600/60' : ''}`}>{st.title}</p>
+                <p className="text-sm text-stone-800 dark:text-stone-200 leading-relaxed">{st.text}</p>
+                {!st.done && st.manual && (
                   <button
-                    onClick={step.onAction}
-                    className="px-3 py-1.5 rounded-xl bg-stone-900 dark:bg-zinc-100 hover:bg-stone-800 dark:hover:bg-white text-white dark:text-stone-900 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                    type="button"
+                    onClick={st.manual.onClick}
+                    className="mt-1 text-sm font-semibold text-[#A94F12] dark:text-[#F5A35C] underline underline-offset-4 cursor-pointer"
                   >
-                    <span>{step.actionText}</span>
-                    <ChevronRight className="w-3 h-3" />
-                  </button>
-                )}
-
-                {step.secondaryText && step.onSecondary && !step.isDone && (
-                  <button
-                    onClick={step.onSecondary}
-                    className="px-3 py-1.5 rounded-xl bg-stone-200/80 dark:bg-zinc-700 hover:bg-stone-300 dark:hover:bg-zinc-600 text-stone-700 dark:text-zinc-200 font-medium text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
-                  >
-                    <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                    <span>{step.secondaryText}</span>
+                    {st.manual.label}
                   </button>
                 )}
               </div>
             </div>
-          );
-        })}
+            <button
+              type="button"
+              onClick={st.action}
+              className={`self-start sm:self-center ml-11 sm:ml-0 shrink-0 min-h-[40px] px-4 rounded-xl text-sm font-bold flex items-center gap-1 cursor-pointer ${
+                st.done
+                  ? 'text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-zinc-800'
+                  : 'bg-stone-900 dark:bg-white text-white dark:text-stone-900 hover:bg-black dark:hover:bg-stone-100'
+              }`}
+            >
+              {st.done ? 'Ver' : 'Configurar'} <ChevronRight className="w-4 h-4" />
+            </button>
+          </li>
+        ))}
+      </ol>
+
+      <h3 className="mt-7 text-base font-bold">Pasos opcionales</h3>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {optional.map((op) => (
+          <button
+            key={op.id}
+            type="button"
+            onClick={op.action}
+            className="text-left rounded-2xl border border-stone-200 dark:border-zinc-800 p-4 hover:border-[#E67E22] cursor-pointer"
+          >
+            <span className="flex items-center gap-2 text-base font-bold">
+              {op.done && <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+              {op.title}
+            </span>
+            <span className="block mt-1 text-sm text-stone-800 dark:text-stone-200">{op.text}</span>
+          </button>
+        ))}
       </div>
-    </div>
+    </section>
   );
 };
