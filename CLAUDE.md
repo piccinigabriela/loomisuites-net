@@ -52,6 +52,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Notas de limpieza: `cleaningTasks/{id}.messages` (Administración/Recepción y Limpieza; Limpieza solo suma una nota suya, con `arrayUnion`)
   y `notesSeen`; aviso arriba en la app para Administración y Recepción (`src/lib/cleaningNotes.ts`, `components/common/CleaningNotes.tsx`).
 
+- Cuentas trabadas: la app guarda `tenants/{uid}.unitCount`; el Panel de clientes marca "Necesitan ayuda" (en prueba, más de 24 h y 0 unidades)
+  con un mail listo para ofrecer la carga sin costo (`needsHelp` y `helpMailto` en `lib/adminClients.ts`). Idea copiada de Areca (4/11).
 - "Cómo configurar Loomi" (primeros pasos, arriba de Hoy en la app real): `components/onboarding/FirstStepsChecklist.tsx`. 6 pasos que se tildan
   solos (complejo, unidades, tarifas, Airbnb/Booking, reservas, guía) + opcionales (equipo, Tu Web, Xenia huéspedes, checklist, mensajes).
   Marcas a mano en `tenants/{uid}.onboardingChecklist`; "Ocultar" = `checklistDismissed` (se vuelve a abrir desde el menú de la cuenta).

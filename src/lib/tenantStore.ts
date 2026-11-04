@@ -42,6 +42,8 @@ export interface TenantDoc {
   templateOverrides?: import('../types').TemplateOverrides;
   /** Tu Web (ver src/lib/publicSite.ts) */
   webSite?: import('./publicSite').WebSiteSettings;
+  /** Cuántas unidades cargó (lo escribe la app; lo usa el Panel de clientes para ver quién necesita ayuda) */
+  unitCount?: number;
   /** Xenia para huéspedes (guía y Tu Web). Ver functions/api/xenia/huesped.js y src/lib/guestXenia.ts */
   xeniaGuest?: { enabled?: boolean };
   createdAt?: any;

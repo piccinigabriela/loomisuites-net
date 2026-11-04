@@ -1109,6 +1109,17 @@ export default function App() {
     }
   };
 
+  // Cuántas unidades cargó el dueño: el Panel de clientes lo usa para ver quién se trabó y ofrecerle ayuda
+  const unitCountNow = (demoState.properties || []).length;
+  useEffect(() => {
+    if (!isApp || !currentUser || isStaff || tenantLoading || !tenantUid || !tenantDoc) return;
+    if (tenantDoc.unitCount === unitCountNow) return;
+    const t = setTimeout(() => {
+      saveTenantData(tenantUid, { unitCount: unitCountNow }).catch(() => {});
+    }, 3000);
+    return () => clearTimeout(t);
+  }, [isApp, currentUser, isStaff, tenantLoading, tenantUid, tenantDoc?.unitCount, unitCountNow]);
+
   // Lo que ya está hecho, para "Cómo configurar Loomi"
   const firstStepsExtras = {
     pricingDone: Object.values(tenantDoc?.pricing?.normal?.precios || {}).some((dp: any) =>

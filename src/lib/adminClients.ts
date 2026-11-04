@@ -24,6 +24,32 @@ export interface ClientRow {
   note: string;
   /** Diseños especiales de Tu Web habilitados (ver SPECIAL_THEMES) */
   webDesigns: string[];
+  /** Unidades cargadas (null = la cuenta no abrió la app desde que se cuenta) */
+  unitCount: number | null;
+  /** Creó la cuenta hace más de 24 h, está en prueba y no cargó unidades: conviene escribirle */
+  needsHelp: boolean;
+}
+
+/** Cuenta nueva que se trabó: más de 24 h, en prueba y sin unidades */
+export function needsHelp(state: ClientState, createdAt: Date | null, unitCount: number | null, now = Date.now()): boolean {
+  return state === 'trial' && unitCount === 0 && !!createdAt && now - createdAt.getTime() > 24 * 3600 * 1000;
+}
+
+/** Mail para ofrecer ayuda con la carga (lo manda la administración desde su correo) */
+export function helpMailto(row: Pick<ClientRow, 'ownerEmail' | 'complexName'>): string {
+  const subject = 'Te ayudamos a cargar tu complejo en Loomi';
+  const body = [
+    'Hola, ¿cómo estás?',
+    '',
+    `Vimos que creaste tu cuenta en Loomi${row.complexName && row.complexName !== '(sin nombre)' ? ` para ${row.complexName}` : ''} y todavía no cargaste tus unidades.`,
+    'Si querés, las cargamos nosotros sin costo: pasanos los nombres de tus cabañas o departamentos y, si tenés, tus reservas en un Excel.',
+    '',
+    'También podés escribirnos por WhatsApp al +54 9 11 4092-5939.',
+    '',
+    'Saludos,',
+    'María, del equipo de Loomi',
+  ].join('\n');
+  return `mailto:${encodeURIComponent(row.ownerEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 function toDate(v: any): Date | null {
@@ -66,6 +92,8 @@ export async function fetchClients(graceDays = 0): Promise<ClientRow[]> {
       plan: sub?.plan || null,
       note: typeof sub?.note === 'string' ? sub.note : '',
       webDesigns: Array.isArray(sub?.webDesigns) ? sub!.webDesigns.filter((x: unknown) => typeof x === 'string') : [],
+      unitCount: typeof data.unitCount === 'number' ? data.unitCount : null,
+      needsHelp: needsHelp(state, createdAt, typeof data.unitCount === 'number' ? data.unitCount : null, now),
     });
   });
   // Primero lo que necesita atención: vencidos, pruebas por terminar, activos

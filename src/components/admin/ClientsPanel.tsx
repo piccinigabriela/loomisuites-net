@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ClientRow, ClientState, activateClient, fetchClients, saveClientNote, saveClientWebDesigns, suspendClient } from '../../lib/adminClients';
+import { ClientRow, ClientState, activateClient, fetchClients, helpMailto, saveClientNote, saveClientWebDesigns, suspendClient } from '../../lib/adminClients';
 import { SPECIAL_THEMES } from '../../lib/publicSite';
 import { BillingConfig, DEFAULT_BILLING, PaymentNotice, fetchPendingNotices, formatArs, formatUsd, markNoticeHandled, saveBillingConfig, subscribeToBilling } from '../../lib/billing';
 
@@ -32,7 +32,7 @@ function detail(r: ClientRow): string {
 export const ClientsPanel: React.FC<Props> = ({ onClose, loader = fetchClients }) => {
   const [rows, setRows] = useState<ClientRow[] | null>(null);
   const [error, setError] = useState('');
-  const [filter, setFilter] = useState<'all' | ClientState>('all');
+  const [filter, setFilter] = useState<'all' | 'help' | ClientState>('all');
   const [search, setSearch] = useState('');
   const [openUid, setOpenUid] = useState<string | null>(null);
   const [months, setMonths] = useState(1);
@@ -63,14 +63,17 @@ export const ClientsPanel: React.FC<Props> = ({ onClose, loader = fetchClients }
   }, [load]);
 
   const counts = useMemo(() => {
-    const c: Record<string, number> = { all: rows?.length || 0, trial: 0, active: 0, grace: 0, expired: 0, suspended: 0 };
-    rows?.forEach((r) => (c[r.state] += 1));
+    const c: Record<string, number> = { all: rows?.length || 0, help: 0, trial: 0, active: 0, grace: 0, expired: 0, suspended: 0 };
+    rows?.forEach((r) => {
+      c[r.state] += 1;
+      if (r.needsHelp) c.help += 1;
+    });
     return c;
   }, [rows]);
 
   const shown = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return (rows || []).filter((r) => (filter === 'all' || r.state === filter) && (!q || r.complexName.toLowerCase().includes(q) || r.ownerEmail.toLowerCase().includes(q)));
+    return (rows || []).filter((r) => (filter === 'all' || (filter === 'help' ? r.needsHelp : r.state === filter)) && (!q || r.complexName.toLowerCase().includes(q) || r.ownerEmail.toLowerCase().includes(q)));
   }, [rows, filter, search]);
 
   const open = (r: ClientRow) => {
@@ -158,7 +161,7 @@ export const ClientsPanel: React.FC<Props> = ({ onClose, loader = fetchClients }
         {billing && <BillingSettings value={billing} />}
 
         <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filtro por estado">
-          {FILTERS.map(([id, label]) => (
+          {[...(counts.help ? ([['help', 'Necesitan ayuda']] as Array<['help', string]>) : []), ...FILTERS].map(([id, label]) => (
             <button
               key={id}
               type="button"
@@ -206,12 +209,22 @@ export const ClientsPanel: React.FC<Props> = ({ onClose, loader = fetchClients }
                     </span>
                     <span className="text-[14px] font-medium text-stone-800 dark:text-stone-100">{detail(r)}</span>
                     {notices.some((n) => n.uid === r.uid) && <span className="text-[14px] font-bold text-emerald-800 dark:text-emerald-300">Avisó que pagó</span>}
+                    {r.needsHelp && <span className="text-[14px] font-bold text-amber-800 dark:text-amber-300">Sin unidades: ofrecele ayuda</span>}
                   </span>
                 </button>
 
                 {isOpen && (
                   <div className="border-t border-stone-300 dark:border-zinc-600 p-5 flex flex-col gap-5">
-                    <p className="text-[15px] font-medium">Se registró el {fmt(r.createdAt)}.</p>
+                    <p className="text-[15px] font-medium">
+                      Se registró el {fmt(r.createdAt)}.
+                      {r.unitCount !== null && ` Tiene ${r.unitCount} ${r.unitCount === 1 ? 'unidad cargada' : 'unidades cargadas'}.`}
+                    </p>
+                    {r.needsHelp && r.ownerEmail && (
+                      <div className="rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-950 dark:text-amber-50 p-4 flex flex-wrap items-center justify-between gap-3">
+                        <span className="text-[15px] font-semibold">Creó la cuenta hace más de un día y no cargó unidades.</span>
+                        <a href={helpMailto(r)} className={primary}>Ofrecerle ayuda por mail</a>
+                      </div>
+                    )}
 
                     <div className="flex flex-wrap items-end gap-4">
                       <label className="flex flex-col gap-1.5 text-[15px] font-bold">
