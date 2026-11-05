@@ -99,7 +99,7 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   `siteOwners/{slug}` {uid} (privado) · `publicSites/{slug}` (público: textos, unidades, tarifas, `busy` = rangos ocupados sin datos de huéspedes)
   · `publicSites/{slug}/photos` (data URL JPEG < 950 KB) · `siteDomains/{host}` {slug} (dominio propio, lo carga la administración).
   Config del dueño en `tenants/{uid}.webSite`. App.tsx publica sola los cambios; `busy` lo escriben la app (dueño o Recepción) y server-sync.
-  Pantalla: Tu Web y Guía → pestaña Tu Web (`TuWebSettings.tsx`). Vista previa del link: `functions/web/`.
+  Pantalla: Tu Web y Guía → pestaña Tu Web (`TuWebSettings.tsx`). Vista previa del link: `functions/web/` (lee con la cuenta de servicio, `publicGet` de `functions-lib/firestoreAdmin.js`; con App Check la clave pública ya no lee).
   Dominio propio (a mano): Cloudflare Pages → Custom domains; documento `siteDomains/{dominio sin www}` {slug}; sumar el dominio a la clave de reCAPTCHA (App Check).
   Estilos: Noche, Día y Clara incluidos; diseños especiales de pago (Tierra, Refugio, Estudio, Calma, Hacienda, Revista) en `SPECIAL_THEMES`, se habilitan por cuenta en
   `subscriptions/{uid}.webDesigns` desde el Panel de clientes (solo administración). Sin habilitar, se publica Noche.

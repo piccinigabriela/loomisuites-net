@@ -5,22 +5,16 @@
  * Sin esto, el link /guia/... mostraba el aviso de Loomi Suite (software para anfitriones).
  * Acá servimos el mismo index.html pero con título y descripción de la guía del complejo.
  */
-const PROJECT_ID = 'gen-lang-client-0206771016';
-const DATABASE_ID = 'ai-studio-loomisuitesoftwa-4808a07b-59ca-4c3c-a656-b8a461bf5e08';
-const API_KEY = 'AIzaSyACFYyOeSuKNQfXR5Pk8uP1ZrRa4y_rgDI';
+import { publicGet } from '../../functions-lib/firestoreAdmin.js';
 
 const DEFAULT_DESCRIPTION =
   'Cómo llegar, Wi-Fi, horarios y contacto · How to get there, Wi-Fi, check-in times and contact';
 
-/** Lee publicGuides/{uid} (lectura pública) y devuelve { complexName, unitName }. */
-export async function fetchGuideNames(uid, propertyId, fetchImpl = fetch) {
+/** Lee publicGuides/{uid} y devuelve { complexName, unitName }. */
+export async function fetchGuideNames(env, uid, propertyId, fetchImpl = fetch) {
   if (!uid || !/^[A-Za-z0-9_-]{6,128}$/.test(uid)) return {};
-  const url =
-    `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/${DATABASE_ID}` +
-    `/documents/publicGuides/${uid}?key=${API_KEY}` +
-    `&mask.fieldPaths=complexName&mask.fieldPaths=units`;
   try {
-    const res = await fetchImpl(url, { cf: { cacheTtl: 300, cacheEverything: true } });
+    const res = await publicGet(env, `publicGuides/${uid}?mask.fieldPaths=complexName&mask.fieldPaths=units`, fetchImpl);
     if (!res.ok) return {};
     const data = await res.json();
     const fields = data.fields || {};
@@ -55,7 +49,7 @@ export async function onRequest({ request, env }) {
 
   const url = new URL(request.url);
   const parts = url.pathname.split('/').filter(Boolean); // ["guia", uid, propertyId]
-  const names = await fetchGuideNames(parts[1] || '', parts[2] || '');
+  const names = await fetchGuideNames(env, parts[1] || '', parts[2] || '');
   const { title, description } = buildGuideMeta(names);
   const pageUrl = url.origin + url.pathname;
 

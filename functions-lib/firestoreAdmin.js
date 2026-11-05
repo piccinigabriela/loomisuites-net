@@ -124,3 +124,27 @@ export const incrementWrite = (path, fields) => ({
     fieldTransforms: Object.entries(fields).map(([fieldPath, n]) => ({ fieldPath, increment: { integerValue: String(n) } })),
   },
 });
+
+/** Clave pública de la app web (la misma que va en el navegador; no es secreta). */
+const PUBLIC_API_KEY = 'AIzaSyACFYyOeSuKNQfXR5Pk8uP1ZrRa4y_rgDI';
+
+/**
+ * GET de la API REST de Firestore para documentos públicos (vistas previas de links).
+ * Con la cuenta de servicio si está configurada; si no, o si falla, con la clave pública
+ * (que desde que se exige App Check, 1/11, ya no deja leer).
+ * pathAndQuery: por ejemplo "publicGuides/{uid}?mask.fieldPaths=complexName". Devuelve la Response.
+ */
+export async function publicGet(env, pathAndQuery, fetchImpl = fetch) {
+  const sa = readServiceAccount(env || {});
+  if (sa) {
+    try {
+      const token = await getAccessToken(sa, fetchImpl);
+      const res = await fetchImpl(`${BASE}/${pathAndQuery}`, { headers: { authorization: `Bearer ${token}` } });
+      if (res.ok || res.status === 404) return res;
+    } catch {
+      /* sigue con la clave pública */
+    }
+  }
+  const sep = pathAndQuery.includes('?') ? '&' : '?';
+  return fetchImpl(`${BASE}/${pathAndQuery}${sep}key=${PUBLIC_API_KEY}`, { cf: { cacheTtl: 300, cacheEverything: true } });
+}
