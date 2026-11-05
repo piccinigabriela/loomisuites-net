@@ -30,6 +30,26 @@ import { isAppMode } from '../../lib/appMode';
 import { auth } from '../../lib/firebase';
 import { BulkUnitsModal } from './BulkUnitsModal';
 
+const inputCls =
+  'w-full min-h-[44px] px-3.5 rounded-xl border border-stone-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-base text-stone-900 dark:text-white placeholder:text-stone-600 dark:placeholder:text-stone-400 focus:outline-none focus:border-[#E67E22]';
+
+const Section: React.FC<{ title: string; hint?: string; children: React.ReactNode }> = ({ title, hint, children }) => (
+  <section className="space-y-3">
+    <div>
+      <h5 className="text-sm font-bold uppercase tracking-wide text-[#A94F12] dark:text-[#F5A35C]">{title}</h5>
+      {hint && <p className="mt-0.5 text-sm text-stone-800 dark:text-stone-200">{hint}</p>}
+    </div>
+    {children}
+  </section>
+);
+
+const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
+  <div>
+    <span className="block mb-1 text-sm font-semibold text-stone-900 dark:text-stone-100">{label}</span>
+    {children}
+  </div>
+);
+
 interface DemoPropertiesProps {
   demoState: DemoState;
   onUpdatePropertyPrice: (propertyId: string, newPrice: number) => void;
@@ -51,10 +71,7 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
   const [bulkOpen, setBulkOpen] = useState(false);
   const isApp = isAppMode();
   const uid = isApp ? auth.currentUser?.uid : null;
-  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copiedCalLink, setCopiedCalLink] = useState<'airbnb' | 'booking' | null>(null);
-  const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
-  const [tempPrice, setTempPrice] = useState<number>(0);
 
   // Modal State for Create/Edit Property
   const [modalMode, setModalMode] = useState<'create' | 'edit' | null>(null);
@@ -63,10 +80,6 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [formValidationError, setFormValidationError] = useState<string | null>(null);
 
-  // Custom Domain state
-  const [customDomain, setCustomDomain] = useState<string>('reservas.misalojamientos.com');
-  const [isDomainSaved, setIsDomainSaved] = useState<boolean>(true);
-  const [showDomainConfig, setShowDomainConfig] = useState<boolean>(false);
   const [showOnboardingGuide, setShowOnboardingGuide] = useState<boolean>(false);
 
   const compressImageFile = (file: File): Promise<string> => {
@@ -159,22 +172,6 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
     }
   };
 
-  const handleCopyDirectLink = (propertyId: string) => {
-    const link = isDomainSaved && customDomain
-      ? `https://${customDomain}/${propertyId}`
-      : `${window.location.origin}/reserva-directa/${propertyId}`;
-    copyToClipboard(link);
-    setCopiedId(propertyId);
-    setTimeout(() => setCopiedId(null), 2500);
-  };
-
-  const handleSavePrice = (propertyId: string) => {
-    if (tempPrice > 0) {
-      onUpdatePropertyPrice(propertyId, tempPrice);
-    }
-    setEditingPriceId(null);
-  };
-
   const handleOpenCreate = () => {
     setPhotoError(null);
     setFormValidationError(null);
@@ -247,46 +244,46 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
     }
   };
 
+  const calendarsOf = (prop: Property) =>
+    [
+      prop.icalAirbnbUrl?.trim() || prop.syncStatus?.airbnb ? 'Airbnb' : '',
+      prop.icalBookingUrl?.trim() || prop.syncStatus?.booking ? 'Booking' : '',
+      prop.icalOtherUrl?.trim() || prop.syncStatus?.vrbo ? 'Otro portal' : '',
+      prop.icalGoogleUrl?.trim() ? 'Google' : '',
+    ].filter(Boolean);
+
   return (
-    <div className="space-y-5 sm:space-y-6 font-sans">
-      <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 p-5 shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors">
+    <div className="space-y-6 font-sans text-stone-900 dark:text-white">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <span className="air-hide text-[10px] font-semibold uppercase tracking-wider text-stone-400 dark:text-stone-500 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" /> INVENTARIO • DEPARTAMENTOS & SUITES
-          </span>
-          <h3 className="text-xl font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2 mt-0.5">
-            <Building2 className="w-5 h-5 text-[#E67E22]" />
-            <span>Unidades Activas ({demoState.properties.length})</span>
-          </h3>
-          <p className="air-hide text-xs text-stone-500 dark:text-stone-400 mt-0.5 font-medium">
-            Tarifas base por noche, credenciales de Wi-Fi y enlaces de reserva directa sin comisiones.
-          </p>
+          <h3 className="text-2xl font-bold">Unidades ({demoState.properties.length})</h3>
+          <p className="mt-1 text-base text-stone-800 dark:text-stone-200">Tus cabañas o departamentos, con su precio y sus calendarios.</p>
         </div>
 
         {!isEmployeeMode && (
-          <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={handleOpenCreate}
-              className="flex-1 md:flex-none flex items-center justify-center gap-2 text-xs font-semibold text-white bg-[#E67E22] hover:bg-[#D35400] px-4 py-2 rounded-xl transition-all cursor-pointer shadow-xs active:scale-95"
+              className="min-h-[44px] flex items-center justify-center gap-2 text-sm font-bold text-[#111] bg-[#E67E22] hover:bg-[#D35400] px-4 rounded-xl cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Nueva Unidad</span>
+              <Plus className="w-4 h-4" />
+              <span>Nueva unidad</span>
             </button>
             {onSaveProperties && (
               <button
                 onClick={() => setBulkOpen(true)}
-                className="flex-1 md:flex-none flex items-center justify-center gap-2 text-xs font-bold text-stone-900 dark:text-white bg-white dark:bg-zinc-800 border-2 border-[#E67E22] px-4 py-2 rounded-xl transition-colors cursor-pointer"
+                className="min-h-[44px] flex items-center justify-center gap-2 text-sm font-bold bg-white dark:bg-transparent border-2 border-[#E67E22] px-4 rounded-xl cursor-pointer hover:bg-[#E67E22]/10"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-4 h-4" />
                 <span>Varias juntas</span>
               </button>
             )}
             <button
               onClick={() => setShowOnboardingGuide(!showOnboardingGuide)}
-              className="flex-1 md:flex-none flex items-center justify-center gap-2 text-xs font-semibold text-stone-700 dark:text-stone-200 bg-stone-50 dark:bg-zinc-800 hover:border-orange-300 border border-stone-200/80 dark:border-zinc-700 px-4 py-2 rounded-xl transition-colors cursor-pointer shadow-xs"
+              className="min-h-[44px] flex items-center justify-center gap-2 text-sm font-bold border-2 border-stone-300 dark:border-zinc-600 px-4 rounded-xl cursor-pointer hover:bg-stone-100 dark:hover:bg-zinc-800"
             >
-              <FileText className="w-3.5 h-3.5" />
-              <span>{showOnboardingGuide ? 'Ocultar Guía' : 'Guía'}</span>
+              <FileText className="w-4 h-4" />
+              <span>{showOnboardingGuide ? 'Ocultar guía' : 'Guía'}</span>
             </button>
           </div>
         )}
@@ -305,7 +302,6 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
         />
       )}
 
-      {/* Onboarding Guide printable cheat sheet card */}
       {showOnboardingGuide && !isEmployeeMode && (
         <OnboardingGuideView
           complexName={demoState.welcomeGuide?.propertyName || 'Mi Complejo'}
@@ -313,591 +309,357 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
         />
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        {demoState.properties.map((prop) => {
-          const isDemoPhotoInApp = isApp && prop.imageUrl && prop.imageUrl.startsWith('/cabanas/');
-          const hasNoImage = !prop.imageUrl || prop.imageUrl.trim() === '' || isDemoPhotoInApp;
-
-          let neighborhoodStr = prop.neighborhood ? prop.neighborhood.trim() : '';
-          if (isApp && neighborhoodStr === 'Centro / Zona Residencial') {
-            neighborhoodStr = '';
-          }
-          const cityStr = prop.city ? prop.city.trim() : '';
-          let locationTag = '';
-          if (neighborhoodStr && cityStr) {
-            locationTag = `${neighborhoodStr}, ${cityStr}`;
-          } else if (neighborhoodStr) {
-            locationTag = neighborhoodStr;
-          } else if (cityStr) {
-            locationTag = cityStr;
-          }
-
-          return (
-            <div
-              key={prop.id}
-              className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200/70 dark:border-zinc-800/70 overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.02)] hover:border-orange-300 transition-all flex flex-col justify-between"
-            >
-              <div>
-                {/* Image & Badges */}
-                <div className="relative h-48 w-full overflow-hidden bg-stone-100 dark:bg-zinc-800">
-                  {hasNoImage ? (
-                    <button
-                      onClick={() => handleOpenEdit(prop)}
-                      className="w-full h-full bg-stone-100 dark:bg-zinc-800 flex flex-col items-center justify-center gap-2 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 hover:bg-stone-200/50 dark:hover:bg-zinc-700/50 transition-colors cursor-pointer group"
-                    >
-                      <Camera className="w-8 h-8 text-stone-400 dark:text-stone-500 group-hover:scale-110 transition-transform" />
-                      <span className="text-xs font-semibold">Agregá una foto de esta unidad</span>
-                    </button>
-                  ) : (
-                    <img
-                      src={prop.imageUrl}
-                      alt={prop.name}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-
-                  {locationTag && (
-                    <div className="absolute top-3 left-3 bg-stone-900/80 backdrop-blur-xs text-white px-2.5 py-1 rounded-lg text-xs font-medium">
-                      {locationTag}
-                    </div>
-                  )}
-
-                  {!isApp && prop.reviewsCount > 0 && (
-                    <div className="absolute top-3 right-3 bg-stone-900/80 backdrop-blur-xs text-white px-2 py-0.5 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-xs border border-white/10">
-                      <Star className="w-3.5 h-3.5 fill-[#E67E22] text-[#E67E22]" />
-                      <span>{prop.rating} ({prop.reviewsCount})</span>
-                    </div>
-                  )}
+      {demoState.properties.length === 0 ? (
+        <div className="rounded-2xl border-2 border-dashed border-stone-300 dark:border-zinc-700 p-10 text-center">
+          <Building2 className="w-8 h-8 mx-auto text-[#E67E22]" />
+          <p className="mt-3 text-lg font-bold">Todavía no cargaste unidades</p>
+          <p className="mt-1 text-base text-stone-800 dark:text-stone-200">Sumá la primera o cargá varias juntas.</p>
+        </div>
+      ) : (
+        <ul className="rounded-2xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-[#18191E] divide-y divide-stone-200 dark:divide-zinc-800 overflow-hidden">
+          {demoState.properties.map((prop) => {
+            const isDemoPhotoInApp = isApp && prop.imageUrl && prop.imageUrl.startsWith('/cabanas/');
+            const hasNoImage = !prop.imageUrl || prop.imageUrl.trim() === '' || isDemoPhotoInApp;
+            const cals = calendarsOf(prop);
+            const details = [
+              prop.type,
+              `hasta ${prop.maxGuests} ${prop.maxGuests === 1 ? 'huésped' : 'huéspedes'}`,
+              prop.bedrooms ? `${prop.bedrooms} ${prop.bedrooms === 1 ? 'dormitorio' : 'dormitorios'}` : '',
+              prop.bathrooms ? `${prop.bathrooms} ${prop.bathrooms === 1 ? 'baño' : 'baños'}` : '',
+            ].filter(Boolean);
+            return (
+              <li key={prop.id} className="p-4 sm:px-5 flex flex-col lg:flex-row lg:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => !isEmployeeMode && handleOpenEdit(prop)}
+                    className="w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-stone-100 dark:bg-zinc-800 flex items-center justify-center cursor-pointer"
+                    aria-label={hasNoImage ? `Agregar foto de ${prop.name}` : `Foto de ${prop.name}`}
+                  >
+                    {hasNoImage ? (
+                      <Camera className="w-6 h-6 text-stone-700 dark:text-stone-300" />
+                    ) : (
+                      <img src={prop.imageUrl} alt="" className="w-full h-full object-cover" />
+                    )}
+                  </button>
+                  <div className="min-w-0">
+                    <p className="text-lg font-bold truncate">{prop.name}</p>
+                    <p className="text-sm text-stone-800 dark:text-stone-200 truncate">{details.join(' · ')}</p>
+                  </div>
                 </div>
 
-              {/* Body */}
-              <div className="p-4 sm:p-5">
-                <div className="flex items-start justify-between gap-2 mb-1">
-                  <h4 className="text-base font-bold text-stone-800 dark:text-stone-100 tracking-tight">{prop.name}</h4>
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-3 lg:justify-end">
                   {!isEmployeeMode && (
-                    <div className="flex items-center gap-1">
+                    <div className="min-w-[110px]">
+                      <p className="text-lg font-bold tabular-nums">{formatCurrency(prop.basePrice)}</p>
+                      <p className="text-sm text-stone-800 dark:text-stone-200">
+                        por noche{prop.cleaningFee ? ` · limpieza ${formatCurrency(prop.cleaningFee)}` : ''}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-1.5 min-w-[150px]">
+                    {cals.length > 0 ? (
+                      cals.map((c) => (
+                        <span
+                          key={c}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-sm font-semibold bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-100"
+                        >
+                          <Check className="w-3.5 h-3.5" /> {c}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="px-2.5 py-1 rounded-lg text-sm font-semibold bg-amber-100 text-amber-950 dark:bg-amber-900/40 dark:text-amber-100">
+                        Sin calendarios
+                      </span>
+                    )}
+                  </div>
+
+                  {!isEmployeeMode && (
+                    <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => handleOpenEdit(prop)}
-                        className="text-stone-400 hover:text-[#E67E22] p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                        title="Editar unidad"
+                        className="min-h-[40px] px-4 rounded-xl border-2 border-stone-300 dark:border-zinc-600 text-sm font-bold flex items-center gap-1.5 cursor-pointer hover:bg-stone-100 dark:hover:bg-zinc-800"
                       >
-                        <Edit2 className="w-3.5 h-3.5" />
+                        <Edit2 className="w-4 h-4" /> Editar
                       </button>
                       <button
                         onClick={() => handleDelete(prop.id)}
-                        className="text-stone-400 hover:text-rose-500 p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                        className="w-10 h-10 rounded-xl flex items-center justify-center text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer"
+                        aria-label={`Eliminar ${prop.name}`}
                         title="Eliminar unidad"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   )}
                 </div>
-                <p className="text-xs text-stone-400 dark:text-stone-500 mb-4 font-medium">{prop.address} • {prop.type}</p>
+              </li>
+            );
+          })}
+        </ul>
+      )}
 
-                {/* Amenities Badges */}
-                <div className="flex flex-wrap items-center gap-3 text-xs text-stone-500 dark:text-stone-400 mb-4 pb-4 border-b border-stone-100 dark:border-zinc-800 font-medium">
-                  <span className="flex items-center gap-1.5">
-                    <Users className="w-3.5 h-3.5 text-[#E67E22]" />
-                    Hasta {prop.maxGuests} huéspedes
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1.5">
-                    <Bed className="w-3.5 h-3.5 text-[#E67E22]" />
-                    {prop.bedrooms} hab.
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1.5">
-                    <Bath className="w-3.5 h-3.5 text-[#E67E22]" />
-                    {prop.bathrooms} baños
-                  </span>
-                </div>
-
-                {/* Price editor */}
-                {!isEmployeeMode ? (
-                  <div className="bg-stone-50/70 dark:bg-zinc-800/50 rounded-xl p-3 border border-stone-100 dark:border-zinc-700/60 mb-4 flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] text-stone-400 dark:text-stone-500 font-semibold uppercase tracking-wider block">Tarifa por noche</span>
-                      {editingPriceId === prop.id ? (
-                        <div className="flex items-center gap-2 mt-1">
-                          <input
-                            type="number"
-                            value={tempPrice}
-                            onChange={(e) => setTempPrice(Number(e.target.value))}
-                            className="w-20 px-2 py-1 text-xs border rounded-lg bg-white dark:bg-zinc-900 text-stone-800 dark:text-stone-100 font-bold border-stone-200 dark:border-zinc-700"
-                          />
-                          <button
-                            onClick={() => handleSavePrice(prop.id)}
-                            className="text-[10px] bg-[#E67E22] text-white font-semibold px-2.5 py-1 rounded-lg cursor-pointer"
-                          >
-                            Guardar
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-base font-bold text-stone-800 dark:text-stone-100">{formatCurrency(prop.basePrice)}</span>
-                          <button
-                            onClick={() => {
-                              setEditingPriceId(prop.id);
-                              setTempPrice(prop.basePrice);
-                            }}
-                            className="text-stone-400 hover:text-[#E67E22] p-1 cursor-pointer transition-colors"
-                            title="Editar tarifa"
-                          >
-                            <Edit2 className="w-3 h-3" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="text-right">
-                      <span className="text-[10px] text-stone-400 dark:text-stone-500 font-semibold uppercase tracking-wider block">Tarifa Limpieza</span>
-                      <span className="text-sm font-bold text-stone-800 dark:text-stone-100">{formatCurrency(prop.cleaningFee)}</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-stone-50/70 dark:bg-zinc-800/50 rounded-xl p-3 border border-stone-100 dark:border-zinc-700/60 mb-4 flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] text-[#E67E22] font-semibold uppercase tracking-wider block">Gestión de Unidad</span>
-                      <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Capacidad: {prop.maxGuests} personas</span>
-                    </div>
-                    <span className="text-[10px] font-medium bg-stone-100 dark:bg-zinc-800 text-stone-500 dark:text-stone-400 px-2 py-1 rounded-md">
-                      🔒 Solo Admin
-                    </span>
-                  </div>
-                )}
-
-                {/* Wi-Fi con botón para copiar */}
-                <div className="space-y-2 text-xs text-stone-500 dark:text-stone-400">
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 font-medium">
-                      <Wifi className="w-3.5 h-3.5 text-stone-400" />
-                      Wi-Fi Huéspedes:
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs text-stone-700 dark:text-stone-300">{prop.wifiNetwork}</span>
-                      <button
-                        onClick={() => {
-                          copyToClipboard(prop.wifiNetwork);
-                          setCopiedId(`wifi-${prop.id}`);
-                          setTimeout(() => setCopiedId(null), 2000);
-                        }}
-                        className="text-[11px] text-stone-400 hover:text-[#E67E22] px-2 py-0.5 rounded-lg hover:bg-orange-50/60 transition-colors cursor-pointer"
-                      >
-                        {copiedId === `wifi-${prop.id}` ? '✓ Copiado' : 'Copiar'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sync Channels Status */}
-                <div className="mt-4 pt-3 border-t border-stone-100 dark:border-zinc-800 flex items-center justify-between text-xs">
-                  <span className="text-stone-400 dark:text-stone-500 text-[10px] font-semibold uppercase tracking-wider">iCal Activo:</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${prop.syncStatus.airbnb ? 'bg-orange-50 text-[#E67E22] border border-orange-100/60' : 'bg-stone-100 text-stone-400'}`}>
-                      Airbnb
-                    </span>
-                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${prop.syncStatus.booking ? 'bg-orange-50 text-[#E67E22] border border-orange-100/60' : 'bg-stone-100 text-stone-400'}`}>
-                      Booking
-                    </span>
-                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${prop.syncStatus.vrbo ? 'bg-orange-50 text-[#E67E22] border border-orange-100/60' : 'bg-stone-100 text-stone-400'}`}>
-                      VRBO
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Direct Booking Footer */}
-            {!isApp && (
-              <div className="p-3.5 bg-stone-50/60 dark:bg-zinc-800/40 border-t border-stone-100 dark:border-zinc-800 flex items-center justify-between gap-3">
-                <div className="text-xs text-stone-500 dark:text-stone-400 truncate">
-                  <span className="block text-[10px] font-semibold text-stone-400 dark:text-stone-500">Motor directo (0% comisiones)</span>
-                  <span className="font-mono text-stone-700 dark:text-stone-300 text-[11px]">
-                    {window.location.host}/{prop.id}
-                  </span>
-                </div>
-                <button
-                  onClick={() => handleCopyDirectLink(prop.id)}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 dark:text-stone-200 bg-white dark:bg-zinc-800 hover:text-[#E67E22] hover:border-orange-200 border border-stone-200/80 dark:border-zinc-700 px-3 py-1.5 rounded-xl transition-all cursor-pointer shrink-0 shadow-2xs"
-                >
-                  {copiedId === prop.id ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-emerald-500" />
-                      <span>¡Copiado!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3.5 h-3.5" />
-                      <span>Copiar Enlace</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
-          </div>
-        );
-      })}
-      </div>
-
-      {/* Property Create/Edit Modal */}
+      {/* Nueva unidad / Editar unidad: por secciones, como en Areca */}
       {modalMode && activeProperty && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200 dark:border-zinc-800 w-full max-w-lg p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-stone-100 dark:border-zinc-800 pb-4">
-              <h4 className="text-base font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-[#E67E22]" />
-                <span>{modalMode === 'create' ? 'Nueva Unidad de Alojamiento' : 'Editar Unidad'}</span>
-              </h4>
-              <button
-                onClick={() => setModalMode(null)}
-                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer p-1"
-              >
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4" onClick={() => setModalMode(null)}>
+          <div
+            className="bg-white dark:bg-[#18191E] text-stone-900 dark:text-white rounded-2xl border border-stone-200 dark:border-zinc-800 w-full max-w-xl shadow-2xl max-h-[92vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-label={modalMode === 'create' ? 'Nueva unidad' : 'Editar unidad'}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 dark:border-zinc-800">
+              <h4 className="text-lg font-bold">{modalMode === 'create' ? 'Nueva unidad' : `Editar ${activeProperty.name || 'unidad'}`}</h4>
+              <button onClick={() => setModalMode(null)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-stone-100 dark:hover:bg-zinc-800 cursor-pointer" aria-label="Cerrar">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-4 text-xs">
-              <div>
-                <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Nombre de la unidad:</label>
-                <input
-                  type="text"
-                  value={activeProperty.name}
-                  onChange={(e) => setActiveProperty({ ...activeProperty, name: e.target.value })}
-                  className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Tipo de unidad:</label>
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-8">
+              <Section title="La unidad">
+                <Field label="Nombre">
                   <input
                     type="text"
-                    value={activeProperty.type}
-                    onChange={(e) => setActiveProperty({ ...activeProperty, type: e.target.value })}
-                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
+                    value={activeProperty.name}
+                    placeholder="Por ejemplo: Cabaña Lapacho"
+                    onChange={(e) => setActiveProperty({ ...activeProperty, name: e.target.value })}
+                    className={inputCls}
                   />
-                </div>
-                <div>
-                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Capacidad (huéspedes):</label>
-                  <input
-                    type="number"
-                    min={1}
-                    value={activeProperty.maxGuests}
-                    onChange={(e) => setActiveProperty({ ...activeProperty, maxGuests: Number(e.target.value) })}
-                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Precio base por noche ({getActiveCurrency()}):</label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={activeProperty.basePrice}
-                    onChange={(e) => setActiveProperty({ ...activeProperty, basePrice: Number(e.target.value) })}
-                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Tarifa de limpieza ({getActiveCurrency()}):</label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={activeProperty.cleaningFee}
-                    onChange={(e) => setActiveProperty({ ...activeProperty, cleaningFee: Number(e.target.value) })}
-                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Red Wi-Fi:</label>
-                  <input
-                    type="text"
-                    value={activeProperty.wifiNetwork}
-                    onChange={(e) => setActiveProperty({ ...activeProperty, wifiNetwork: e.target.value })}
-                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Clave Wi-Fi:</label>
-                  <input
-                    type="text"
-                    value={activeProperty.wifiPassword}
-                    onChange={(e) => setActiveProperty({ ...activeProperty, wifiPassword: e.target.value })}
-                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
-                  />
-                </div>
-              </div>
-
-              {/* Foto de la unidad */}
-              <div className="space-y-2 pt-2 border-t border-stone-100 dark:border-zinc-800">
-                <label className="block font-semibold text-stone-700 dark:text-stone-300">Foto de la unidad:</label>
-                
-                <div className="relative w-full h-40 rounded-xl overflow-hidden bg-stone-100 dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 flex flex-col items-center justify-center">
-                  {activeProperty.imageUrl ? (
-                    <img
-                      src={activeProperty.imageUrl}
-                      alt="Vista previa de la unidad"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 gap-2 p-4 text-center">
-                      <Camera className="w-8 h-8 text-stone-400" />
-                      <span className="text-xs font-medium">Sin foto de la unidad</span>
-                    </div>
-                  )}
-
-                  {isCompressingPhoto && (
-                    <div className="absolute inset-0 bg-stone-900/70 backdrop-blur-xs flex flex-col items-center justify-center text-white gap-2">
-                      <RefreshCw className="w-6 h-6 animate-spin text-[#E67E22]" />
-                      <span className="text-xs font-semibold">Procesando foto…</span>
-                    </div>
-                  )}
-                </div>
-
-                {photoError && (
-                  <p className="text-xs font-semibold text-rose-500">{photoError}</p>
-                )}
-
-                <div className="flex items-center gap-2">
-                  <label className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-stone-100 dark:bg-zinc-800 hover:bg-stone-200 dark:hover:bg-zinc-700 text-stone-700 dark:text-stone-200 font-semibold text-xs transition-colors cursor-pointer border border-stone-200 dark:border-zinc-700">
-                    <Camera className="w-4 h-4 text-[#E67E22]" />
-                    <span>{activeProperty.imageUrl ? 'Cambiar foto' : 'Subir foto'}</span>
+                </Field>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Tipo">
                     <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageFileChange}
-                      className="hidden"
-                      disabled={isCompressingPhoto}
+                      type="text"
+                      value={activeProperty.type}
+                      placeholder="Cabaña, departamento…"
+                      onChange={(e) => setActiveProperty({ ...activeProperty, type: e.target.value })}
+                      className={inputCls}
                     />
-                  </label>
-
-                  {activeProperty.imageUrl && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveProperty({ ...activeProperty, imageUrl: '' });
-                        setPhotoError(null);
-                      }}
-                      className="px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 font-semibold text-xs transition-colors cursor-pointer border border-rose-200 dark:border-rose-900/50 flex items-center gap-1.5"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>Quitar foto</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Nueva Sección: Calendarios conectados */}
-              <div className="pt-3 border-t border-stone-100 dark:border-zinc-800 space-y-3">
-                <h5 className="font-bold text-stone-800 dark:text-stone-100 text-xs flex items-center gap-1.5">
-                  <Globe className="w-4 h-4 text-[#E67E22]" />
-                  <span>Calendarios conectados</span>
-                </h5>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Enlace iCal de Airbnb:</label>
-                  <input
-                    type="url"
-                    value={activeProperty.icalAirbnbUrl || ''}
-                    onChange={(e) => setActiveProperty({ ...activeProperty, icalAirbnbUrl: e.target.value })}
-                    placeholder="https://www.airbnb.com/calendar/ical/..."
-                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
-                  />
-                  {activeProperty.icalAirbnbUrl && activeProperty.icalAirbnbUrl.trim() !== '' && !activeProperty.icalAirbnbUrl.trim().startsWith('https://') && (
-                    <span className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold block mt-1">
-                      Pegá el enlace completo, empieza con https://
-                    </span>
-                  )}
-                  <div className="flex items-start gap-2 pt-2">
+                  </Field>
+                  <Field label="Huéspedes (máximo)">
                     <input
-                      type="checkbox"
-                      id={`importAirbnbBlocks-${activeProperty.id}`}
-                      checked={Boolean(activeProperty.importAirbnbBlocks)}
-                      onChange={(e) => setActiveProperty({ ...activeProperty, importAirbnbBlocks: e.target.checked })}
-                      className="mt-0.5 rounded text-[#E67E22] focus:ring-[#E67E22] cursor-pointer"
+                      type="number"
+                      min={1}
+                      value={activeProperty.maxGuests}
+                      onChange={(e) => setActiveProperty({ ...activeProperty, maxGuests: Number(e.target.value) })}
+                      className={inputCls}
                     />
-                    <label htmlFor={`importAirbnbBlocks-${activeProperty.id}`} className="cursor-pointer space-y-0.5 select-none">
-                      <span className="block font-medium text-stone-700 dark:text-stone-300">
-                        Importar también las fechas bloqueadas de Airbnb
-                      </span>
-                      <span className="block text-[11px] text-stone-500 dark:text-stone-400">
-                        Dejala desmarcada si conectaste otros calendarios a Airbnb, para evitar bloqueos duplicados.
-                      </span>
+                  </Field>
+                  <Field label="Dormitorios">
+                    <input
+                      type="number"
+                      min={0}
+                      value={activeProperty.bedrooms}
+                      onChange={(e) => setActiveProperty({ ...activeProperty, bedrooms: Number(e.target.value) })}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="Baños">
+                    <input
+                      type="number"
+                      min={0}
+                      value={activeProperty.bathrooms}
+                      onChange={(e) => setActiveProperty({ ...activeProperty, bathrooms: Number(e.target.value) })}
+                      className={inputCls}
+                    />
+                  </Field>
+                </div>
+              </Section>
+
+              <Section title="Precio" hint="El precio de cada noche sale de Administración → Tarifas. Este es el de referencia si no cargaste tarifas.">
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label={`Por noche (${getActiveCurrency()})`}>
+                    <input
+                      type="number"
+                      min={0}
+                      value={activeProperty.basePrice}
+                      onChange={(e) => setActiveProperty({ ...activeProperty, basePrice: Number(e.target.value) })}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label={`Limpieza (${getActiveCurrency()})`}>
+                    <input
+                      type="number"
+                      min={0}
+                      value={activeProperty.cleaningFee}
+                      onChange={(e) => setActiveProperty({ ...activeProperty, cleaningFee: Number(e.target.value) })}
+                      className={inputCls}
+                    />
+                  </Field>
+                </div>
+              </Section>
+
+              <Section title="Para el huésped" hint="Aparece en la guía de esta unidad.">
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Red wifi">
+                    <input
+                      type="text"
+                      value={activeProperty.wifiNetwork}
+                      onChange={(e) => setActiveProperty({ ...activeProperty, wifiNetwork: e.target.value })}
+                      className={inputCls}
+                    />
+                  </Field>
+                  <Field label="Clave wifi">
+                    <input
+                      type="text"
+                      value={activeProperty.wifiPassword}
+                      onChange={(e) => setActiveProperty({ ...activeProperty, wifiPassword: e.target.value })}
+                      className={inputCls}
+                    />
+                  </Field>
+                </div>
+              </Section>
+
+              <Section title="Foto">
+                <div className="flex items-center gap-4">
+                  <div className="relative w-28 h-20 shrink-0 rounded-xl overflow-hidden bg-stone-100 dark:bg-zinc-800 flex items-center justify-center">
+                    {activeProperty.imageUrl ? (
+                      <img src={activeProperty.imageUrl} alt="Vista previa de la unidad" className="w-full h-full object-cover" />
+                    ) : (
+                      <Camera className="w-6 h-6 text-stone-700 dark:text-stone-300" />
+                    )}
+                    {isCompressingPhoto && (
+                      <div className="absolute inset-0 bg-stone-900/70 flex items-center justify-center">
+                        <RefreshCw className="w-5 h-5 animate-spin text-[#F5A35C]" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <label className="min-h-[40px] px-4 rounded-xl border-2 border-stone-300 dark:border-zinc-600 text-sm font-bold flex items-center gap-1.5 cursor-pointer hover:bg-stone-100 dark:hover:bg-zinc-800">
+                      <Camera className="w-4 h-4" />
+                      <span>{activeProperty.imageUrl ? 'Cambiar' : 'Subir foto'}</span>
+                      <input type="file" accept="image/*" onChange={handleImageFileChange} className="hidden" disabled={isCompressingPhoto} />
                     </label>
+                    {activeProperty.imageUrl && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveProperty({ ...activeProperty, imageUrl: '' });
+                          setPhotoError(null);
+                        }}
+                        className="min-h-[40px] px-4 rounded-xl text-sm font-bold text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer"
+                      >
+                        Quitar
+                      </button>
+                    )}
                   </div>
                 </div>
+                {photoError && <p className="text-sm font-semibold text-rose-700 dark:text-rose-300">{photoError}</p>}
+              </Section>
 
-                <div>
-                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Enlace iCal de Booking:</label>
-                  <input
-                    type="url"
-                    value={activeProperty.icalBookingUrl || ''}
-                    onChange={(e) => setActiveProperty({ ...activeProperty, icalBookingUrl: e.target.value })}
-                    placeholder="https://admin.booking.com/hotel/hoteladmin/ical/..."
-                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
-                  />
-                  {activeProperty.icalBookingUrl && activeProperty.icalBookingUrl.trim() !== '' && !activeProperty.icalBookingUrl.trim().startsWith('https://') && (
-                    <span className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold block mt-1">
-                      Pegá el enlace completo, empieza con https://
-                    </span>
-                  )}
-                </div>
+              <Section
+                title="Calendarios conectados"
+                hint="En Airbnb y Booking buscá Exportar calendario (o Sincronizar calendarios) y pegá acá el enlace que termina en .ics."
+              >
+                {(
+                  [
+                    ['icalAirbnbUrl', 'Airbnb', 'https://www.airbnb.com/calendar/ical/...'],
+                    ['icalBookingUrl', 'Booking', 'https://admin.booking.com/hotel/hoteladmin/ical/...'],
+                    ['icalOtherUrl', 'Otro portal (opcional)', 'https://...'],
+                    ['icalGoogleUrl', 'Google Calendar (opcional)', 'https://calendar.google.com/calendar/ical/...'],
+                  ] as Array<['icalAirbnbUrl' | 'icalBookingUrl' | 'icalOtherUrl' | 'icalGoogleUrl', string, string]>
+                ).map(([key, label, ph]) => {
+                  const val = (activeProperty[key] as string) || '';
+                  return (
+                    <Field key={key} label={label}>
+                      <input
+                        type="url"
+                        value={val}
+                        placeholder={ph}
+                        onChange={(e) => setActiveProperty({ ...activeProperty, [key]: e.target.value })}
+                        className={inputCls}
+                      />
+                      {val.trim() !== '' && !val.trim().startsWith('https://') && (
+                        <span className="block mt-1 text-sm font-semibold text-amber-800 dark:text-amber-300">Pegá el enlace completo: empieza con https://</span>
+                      )}
+                      {key === 'icalAirbnbUrl' && (
+                        <label className="flex items-start gap-2 pt-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(activeProperty.importAirbnbBlocks)}
+                            onChange={(e) => setActiveProperty({ ...activeProperty, importAirbnbBlocks: e.target.checked })}
+                            className="mt-1 w-4 h-4 accent-[#E67E22]"
+                          />
+                          <span className="text-sm text-stone-900 dark:text-stone-100">
+                            Traer también las fechas bloqueadas de Airbnb.{' '}
+                            <span className="text-stone-800 dark:text-stone-200">Dejalo sin marcar si conectaste otros calendarios a Airbnb.</span>
+                          </span>
+                        </label>
+                      )}
+                      {key === 'icalGoogleUrl' && (
+                        <span className="block mt-1 text-sm text-stone-800 dark:text-stone-200">
+                          Configuración → el calendario → Integrar el calendario → Dirección secreta en formato iCal. Usá un calendario solo para esta unidad.
+                        </span>
+                      )}
+                    </Field>
+                  );
+                })}
 
-                <div>
-                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">Otro portal (opcional):</label>
-                  <input
-                    type="url"
-                    value={activeProperty.icalOtherUrl || ''}
-                    onChange={(e) => setActiveProperty({ ...activeProperty, icalOtherUrl: e.target.value })}
-                    placeholder="https://..."
-                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
-                  />
-                  {activeProperty.icalOtherUrl && activeProperty.icalOtherUrl.trim() !== '' && !activeProperty.icalOtherUrl.trim().startsWith('https://') && (
-                    <span className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold block mt-1">
-                      Pegá el enlace completo, empieza with https://
-                    </span>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
-                    Google Calendar (dirección secreta en formato iCal):
-                  </label>
-                  <input
-                    type="url"
-                    value={activeProperty.icalGoogleUrl || ''}
-                    onChange={(e) => setActiveProperty({ ...activeProperty, icalGoogleUrl: e.target.value })}
-                    placeholder="https://calendar.google.com/calendar/ical/..."
-                    className="w-full p-2.5 rounded-xl border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-800 text-stone-800 dark:text-stone-100 font-medium"
-                  />
-                  {activeProperty.icalGoogleUrl && activeProperty.icalGoogleUrl.trim() !== '' && !activeProperty.icalGoogleUrl.trim().startsWith('https://') && (
-                    <span className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold block mt-1">
-                      Pegá el enlace completo, empieza con https://
-                    </span>
-                  )}
-                  <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
-                    En Google Calendar: Configuración → elegí el calendario → Integrar el calendario → Dirección secreta en formato iCal. Usá un calendario solo para esta unidad: cada evento se toma como fecha ocupada.
-                  </p>
-                </div>
-
-                <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
-                  En Airbnb y en Booking buscá la opción Exportar calendario o Sincronizar calendarios y copiá el enlace que termina en .ics.
-                </p>
-
-                {/* Tu calendario de Loomi (solo en modo app y si la unidad ya está guardada) */}
                 {isApp && modalMode === 'edit' && uid && (
-                  <div className="mt-3 pt-3 border-t border-dashed border-stone-200 dark:border-zinc-700 space-y-2 bg-orange-50/50 dark:bg-orange-950/20 p-3 rounded-xl">
-                    <h6 className="font-bold text-stone-800 dark:text-stone-100 text-xs">
-                      Tu calendario de Loomi (pegalo en cada portal):
-                    </h6>
-
-                    <div className="space-y-2">
-                      <div>
-                        <span className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-0.5">Para Airbnb:</span>
-                        <div className="flex items-center gap-1.5">
-                          <input
-                            type="text"
-                            readOnly
-                            value={`https://ical.loomisuite.net/cal/${uid}/${activeProperty.id}.ics?para=airbnb`}
-                            className="flex-1 p-2 text-[10px] font-mono rounded-lg border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-stone-700 dark:text-stone-300"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const link = `https://ical.loomisuite.net/cal/${uid}/${activeProperty.id}.ics?para=airbnb`;
-                              copyToClipboard(link);
-                              setCopiedCalLink('airbnb');
-                              setTimeout(() => setCopiedCalLink(null), 2500);
-                            }}
-                            className="px-2.5 py-1.5 rounded-lg bg-[#E67E22] hover:bg-[#D35400] text-white font-bold text-xs shrink-0 cursor-pointer transition-colors"
-                          >
-                            {copiedCalLink === 'airbnb' ? 'Enlace copiado' : 'Copiar'}
-                          </button>
+                  <div className="rounded-xl bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-900/50 p-4 space-y-3">
+                    <p className="text-base font-bold">El calendario de Loomi, para pegar en cada portal</p>
+                    {(['airbnb', 'booking'] as const).map((para) => {
+                      const link = `https://ical.loomisuite.net/cal/${uid}/${activeProperty.id}.ics?para=${para}`;
+                      return (
+                        <div key={para}>
+                          <span className="block text-sm font-semibold mb-1">{para === 'airbnb' ? 'Para Airbnb' : 'Para Booking'}</span>
+                          <div className="flex items-center gap-2">
+                            <input type="text" readOnly value={link} className={`${inputCls} font-mono text-xs`} />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                copyToClipboard(link);
+                                setCopiedCalLink(para);
+                                setTimeout(() => setCopiedCalLink(null), 2500);
+                              }}
+                              className="min-h-[44px] px-4 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-[#111] font-bold text-sm shrink-0 cursor-pointer"
+                            >
+                              {copiedCalLink === para ? 'Copiado' : 'Copiar'}
+                            </button>
+                          </div>
                         </div>
-                      </div>
-
-                      <div>
-                        <span className="block text-[11px] font-semibold text-stone-600 dark:text-stone-300 mb-0.5">Para Booking:</span>
-                        <div className="flex items-center gap-1.5">
-                          <input
-                            type="text"
-                            readOnly
-                            value={`https://ical.loomisuite.net/cal/${uid}/${activeProperty.id}.ics?para=booking`}
-                            className="flex-1 p-2 text-[10px] font-mono rounded-lg border border-stone-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-stone-700 dark:text-stone-300"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const link = `https://ical.loomisuite.net/cal/${uid}/${activeProperty.id}.ics?para=booking`;
-                              copyToClipboard(link);
-                              setCopiedCalLink('booking');
-                              setTimeout(() => setCopiedCalLink(null), 2500);
-                            }}
-                            className="px-2.5 py-1.5 rounded-lg bg-[#E67E22] hover:bg-[#D35400] text-white font-bold text-xs shrink-0 cursor-pointer transition-colors"
-                          >
-                            {copiedCalLink === 'booking' ? 'Enlace copiado' : 'Copiar'}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed pt-1">
-                      Pegalo en Airbnb o Booking en Importar calendario. Así bloquean solas las fechas que se reservan en Loomi.
-                    </p>
+                      );
+                    })}
+                    <p className="text-sm text-stone-900 dark:text-stone-100">Pegalo en Airbnb o Booking en Importar calendario: así bloquean solas lo que se reserva en Loomi.</p>
                   </div>
                 )}
-              </div>
+              </Section>
             </div>
 
             {formValidationError && (
-              <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-semibold">
-                ⚠️ {formValidationError}
-              </div>
+              <p className="mx-6 mb-2 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200 text-sm font-semibold">{formValidationError}</p>
             )}
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-100 dark:border-zinc-800">
-              <button
-                onClick={() => setModalMode(null)}
-                className="px-4 py-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-zinc-800 transition-colors font-semibold cursor-pointer text-xs"
-              >
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-stone-200 dark:border-zinc-800">
+              <button onClick={() => setModalMode(null)} className="min-h-[44px] px-5 rounded-xl text-sm font-bold hover:bg-stone-100 dark:hover:bg-zinc-800 cursor-pointer">
                 Cancelar
               </button>
               <button
                 onClick={() => {
-                  if (activeProperty) {
-                    if (!activeProperty.name || activeProperty.name.trim() === '') {
-                      setFormValidationError('Ingresá un nombre para la unidad');
-                      alert('Ingresá un nombre para la unidad');
-                      return;
-                    }
-                    if (!activeProperty.basePrice || activeProperty.basePrice <= 0) {
-                      setFormValidationError('Ingresá la tarifa por noche');
-                      alert('Ingresá la tarifa por noche');
-                      return;
-                    }
-
-                    setFormValidationError(null);
-                    const finalProp: Property = {
-                      ...activeProperty,
-                      syncStatus: {
-                        airbnb: Boolean(activeProperty.icalAirbnbUrl && activeProperty.icalAirbnbUrl.trim() !== ''),
-                        booking: Boolean(activeProperty.icalBookingUrl && activeProperty.icalBookingUrl.trim() !== ''),
-                        vrbo: Boolean(activeProperty.icalOtherUrl && activeProperty.icalOtherUrl.trim() !== ''),
-                      },
-                    };
-                    onSaveProperty?.(finalProp);
-                    setModalMode(null);
+                  if (!activeProperty.name || activeProperty.name.trim() === '') {
+                    setFormValidationError('Ponele un nombre a la unidad.');
+                    return;
                   }
+                  if (!activeProperty.basePrice || activeProperty.basePrice <= 0) {
+                    setFormValidationError('Cargá el precio por noche.');
+                    return;
+                  }
+                  setFormValidationError(null);
+                  const finalProp: Property = {
+                    ...activeProperty,
+                    syncStatus: {
+                      airbnb: Boolean(activeProperty.icalAirbnbUrl && activeProperty.icalAirbnbUrl.trim() !== ''),
+                      booking: Boolean(activeProperty.icalBookingUrl && activeProperty.icalBookingUrl.trim() !== ''),
+                      vrbo: Boolean(activeProperty.icalOtherUrl && activeProperty.icalOtherUrl.trim() !== ''),
+                    },
+                  };
+                  onSaveProperty?.(finalProp);
+                  setModalMode(null);
                 }}
-                className="px-5 py-2 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-white font-semibold transition-colors cursor-pointer text-xs shadow-xs"
+                className="min-h-[44px] px-6 rounded-xl bg-[#E67E22] hover:bg-[#D35400] text-[#111] text-sm font-bold cursor-pointer"
               >
-                Guardar Unidad
+                {modalMode === 'create' ? 'Crear unidad' : 'Guardar'}
               </button>
             </div>
           </div>
