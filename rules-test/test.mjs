@@ -81,6 +81,18 @@ await caso('sin confirmar el mail NO puede aceptar', false, () => setDoc(doc(mar
 await caso('NO puede subirse el rol', false, () => setDoc(doc(marta, 'memberships/marta'), mem('dueno', 'recepcion', 'marta@x.com')));
 await caso('NO puede elegir otro complejo', false, () => setDoc(doc(marta, 'memberships/marta'), mem('otro', 'limpieza', 'marta@x.com')));
 await caso('un extraño sin invitación NO entra', false, () => setDoc(doc(intruso, 'memberships/intruso'), mem('dueno', 'recepcion', 'intruso@x.com')));
+// Usuario del equipo sin mail (lo crea el dueño con usuario y clave)
+const rosaMail = 'rosa--catalinas-x7k2@personal.loomisuite.net';
+const rosa = as('rosa', rosaMail, false);
+const falsoMail = as('falso', 'rosa--catalinas-x7k2@personal.loomisuite.net.ar', false);
+await caso('el dueño invita a un usuario sin mail', true, () => setDoc(doc(dueno, `invites/${rosaMail}`), inv('dueno', rosaMail, 'limpieza')));
+await caso('un mail parecido sin confirmar NO acepta', false, () => setDoc(doc(falsoMail, 'memberships/falso'), mem('dueno', 'limpieza', 'rosa--catalinas-x7k2@personal.loomisuite.net.ar')));
+await caso('el usuario sin mail acepta sin confirmar', true, () => {
+  const b = writeBatch(rosa);
+  b.set(doc(rosa, 'memberships/rosa'), mem('dueno', 'limpieza', rosaMail));
+  b.delete(doc(rosa, `invites/${rosaMail}`));
+  return b.commit();
+});
 await caso('Limpieza acepta su invitación', true, () => {
   const b = writeBatch(marta);
   b.set(doc(marta, 'memberships/marta'), mem('dueno', 'limpieza', 'marta@x.com'));

@@ -163,7 +163,9 @@ service cloud.firestore {
       allow list: if signedIn() && resource.data.tenantId == request.auth.uid;
       allow create: if signedIn()
         && request.auth.uid == memberUid
-        && request.auth.token.email_verified == true
+        // Mail confirmado, o usuario del equipo creado por el dueño (mail inventado @personal.loomisuite.net, sin buzón):
+        // a esos los crea la app del dueño y aceptan en el mismo momento (ver src/lib/staffUsers.ts)
+        && (request.auth.token.email_verified == true || myEmail().matches('^[a-z0-9]+--[a-z0-9-]+@personal[.]loomisuite[.]net$'))
         && request.resource.data.keys().hasOnly(['tenantId', 'role', 'email', 'name', 'complexName', 'joinedAt'])
         && request.resource.data.email == myEmail()
         && request.resource.data.tenantId != request.auth.uid

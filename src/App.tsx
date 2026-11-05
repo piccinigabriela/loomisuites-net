@@ -97,6 +97,8 @@ import {
 import { buildStaffArrivals, StaffArrivalsDoc } from './lib/staffArrivals';
 import { useBackLayer } from './hooks/useBackLayer';
 import { normalizePricing, type PricingSettings } from './lib/pricing';
+import { isStaffLoginEmail, makeStaffAlias } from './lib/staffUsers';
+import { StaffLoginScreen } from './components/auth/StaffLoginScreen';
 import { buildCleaningChecklist, normalizeChecklistSettings, type CleaningChecklistSettings } from './lib/cleaningChecklist';
 import { TutorialVideoButton } from './components/common/TutorialVideo';
 
@@ -217,6 +219,15 @@ export default function App() {
       }
     });
   }, [isApp, currentUser, access.kind]);
+
+  // Ingreso del equipo con usuario y clave (?equipo=código)
+  const [staffLoginAlias, setStaffLoginAlias] = useState<string | null>(() => {
+    try {
+      return new URLSearchParams(window.location.search).get('equipo');
+    } catch {
+      return null;
+    }
+  });
 
   // Email Verification State in App Mode
   const [isEmailVerified, setIsEmailVerified] = useState<boolean>(() => Boolean(currentUser?.emailVerified));
@@ -2226,7 +2237,21 @@ export default function App() {
 
   // Pantalla de autenticación completa de Firebase en modo App si no inició sesión
   if (isApp && !currentUser) {
-    return <AppAuthScreen onSuccess={() => {}} />;
+    // Equipo con usuario y clave: app.loomisuite.net/?equipo={código del complejo}
+    if (staffLoginAlias !== null) {
+      return (
+        <StaffLoginScreen
+          alias={staffLoginAlias}
+          onOwnerLogin={() => {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('equipo');
+            window.history.replaceState(null, '', url.toString());
+            setStaffLoginAlias(null);
+          }}
+        />
+      );
+    }
+    return <AppAuthScreen onSuccess={() => {}} onStaffLogin={() => setStaffLoginAlias('')} />;
   }
 
   // Invitación pendiente: la persona acepta y queda fija en su rol
@@ -2424,7 +2449,7 @@ export default function App() {
       )}
 
       {/* Aviso fino de confirmación de correo electrónico */}
-      {isApp && currentUser && !isEmailVerified && (
+      {isApp && currentUser && !isEmailVerified && !isStaffLoginEmail(currentUser.email) && (
         <div className="bg-sky-50 border-b border-sky-200 text-sky-900 dark:bg-sky-500/10 dark:border-sky-500/20 dark:text-sky-200 py-2 px-4 text-xs font-medium flex flex-wrap items-center justify-between gap-2 relative z-50 transition-colors">
           <span>
             📩 Confirmá tu correo ({currentUser.email || ''}) para poder recuperar tu contraseña si la olvidás.
@@ -3170,6 +3195,14 @@ export default function App() {
                   ownerEmail={currentUser?.email || ''}
                   complexName={demoState.welcomeGuide?.propertyName || ''}
                   showToast={showToast}
+                  staffAlias={tenantDoc?.staffAlias}
+                  ensureStaffAlias={async () => {
+                    if (tenantDoc?.staffAlias) return tenantDoc.staffAlias;
+                    const alias = makeStaffAlias(demoState.welcomeGuide?.propertyName || tenantDoc?.complexName || '');
+                    await saveTenantData(tenantUid, { staffAlias: alias });
+                    setTenantDoc((prev) => (prev ? { ...prev, staffAlias: alias } : prev));
+                    return alias;
+                  }}
                 />
               )}
 

@@ -92,7 +92,7 @@ const BLOCKS: Block[] = [
     icon: Users,
     title: 'Tu equipo',
     items: [
-      'Cuentas para Recepción y Limpieza: cada persona entra con su mail y ve lo que le toca.',
+      'Cuentas para Recepción y Limpieza: cada persona ve lo que le toca. Entran con su mail o con un usuario y clave que creás vos (sin mail).',
       'Las invitás desde la app y les avisás por WhatsApp con un toque.',
     ],
   },

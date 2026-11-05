@@ -33,7 +33,7 @@ import {
 import { DemoState } from '../types';
 import firebaseConfigJson from '../../firebase-applet-config.json';
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: firebaseConfigJson.apiKey,
   // En app.loomisuite.net el login de Google pasa por nuestro propio dominio (proxy en functions/__/),
   // así la pantalla de Google muestra app.loomisuite.net. En otros hosts (localhost, previews) se usa el de Firebase.
@@ -47,7 +47,7 @@ const firebaseConfig = {
   appId: firebaseConfigJson.appId,
 };
 
-const databaseId = firebaseConfigJson.firestoreDatabaseId || '(default)';
+export const databaseId = firebaseConfigJson.firestoreDatabaseId || '(default)';
 
 // Initialize Firebase App
 export const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -55,9 +55,11 @@ export const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : g
 // App Check: demuestra a Firebase que las consultas vienen de la app de Loomi y no de un script ajeno.
 // Se activa solo cuando hay clave de reCAPTCHA en firebase-applet-config.json (recaptchaSiteKey); sin clave, no hace nada.
 // Tiene que iniciarse antes de usar Firestore.
+/** App Check (para llamadas REST a Firestore, como crear usuarios del equipo). null si no está activo. */
+export let appCheck: ReturnType<typeof initializeAppCheck> | null = null;
 if (typeof window !== 'undefined' && firebaseConfigJson.recaptchaSiteKey) {
   try {
-    initializeAppCheck(firebaseApp, {
+    appCheck = initializeAppCheck(firebaseApp, {
       provider: new ReCaptchaEnterpriseProvider(firebaseConfigJson.recaptchaSiteKey),
       isTokenAutoRefreshEnabled: true,
     });

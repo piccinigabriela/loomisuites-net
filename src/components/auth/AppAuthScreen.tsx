@@ -28,6 +28,8 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface AppAuthScreenProps {
   onSuccess?: () => void;
+  /** Ir al ingreso del equipo con usuario y clave */
+  onStaffLogin?: () => void;
 }
 
 type AuthMode = 'login' | 'register' | 'forgot_password';
@@ -72,7 +74,7 @@ function notifyNewSignup(registeredEmail: string, userUid: string, method: 'emai
   }
 }
 
-export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
+export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess, onStaffLogin }) => {
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -555,6 +557,16 @@ export const AppAuthScreen: React.FC<AppAuthScreenProps> = ({ onSuccess }) => {
                   </button>
                 </div>
               </form>
+            )}
+
+            {mode === 'login' && onStaffLogin && (
+              <button
+                type="button"
+                onClick={onStaffLogin}
+                className="mt-5 w-full min-h-[48px] rounded-2xl border border-slate-600 text-sm font-bold text-white hover:bg-white/5 cursor-pointer"
+              >
+                Soy del equipo y me dieron usuario y clave
+              </button>
             )}
 
             {mode !== 'forgot_password' && (
