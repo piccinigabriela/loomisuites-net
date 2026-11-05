@@ -39,7 +39,7 @@ export const DemoNavTabs: React.FC<DemoNavTabsProps> = ({
     { id: 'properties', label: 'Propiedades', icon: Building2 },
     { id: 'addons', label: 'Opcionales & Catas', icon: ShoppingBag },
     { id: 'messages', label: 'WhatsApp & Mensajes', icon: MessageSquare },
-    { id: 'finances', label: 'Finanzas', icon: DollarSign, adminOnly: true },
+    { id: 'finances', label: 'Informes', icon: DollarSign, adminOnly: true },
     {
       id: 'welcome-guide',
       label: 'Tu Web & Guía QR',

@@ -21,7 +21,7 @@ const BLOCKS: Array<{ title: string; line: string; items: string[] }> = [
   {
     title: 'Administración',
     line: 'Tus números y tu complejo.',
-    items: ['Gastos y caja', 'Rendimiento financiero', 'Unidades y calendarios', 'Tarifas'],
+    items: ['Gastos y caja', 'Informes', 'Unidades y calendarios', 'Tarifas'],
   },
 ];
 

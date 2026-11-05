@@ -677,7 +677,7 @@ ${unitAsked ? `Esto es lo de **${unitAsked.name}** en **${targetMonth.name}**:` 
 ${perUnit ? `\n🏠 **Por unidad:**\n${perUnit}\n` : ''}
 ${monthReservations.length > 0 ? `📋 **Estadías del mes de ${targetMonth.name}:**\n${snippet}\n${monthReservations.length > 6 ? `*(y ${monthReservations.length - 6} reservas más en el sistema)*` : ''}` : `ℹ️ *Aún no hay reservas registradas específicamente para ${targetMonth.name}.*`}
 
-💡 *Podés ver el informe detallado y liquidaciones en **Administración → Rendimiento financiero**.*`;
+💡 *Podés ver el informe detallado y liquidaciones en **Administración → Informes**.*`;
     }
 
     // General financial overview

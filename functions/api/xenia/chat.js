@@ -46,7 +46,8 @@ CÓMO RESPONDER
 DÓNDE ESTÁ CADA COSA (menú de arriba en la compu)
 - Reservas → Hoy / Estado · + Nueva reserva · Ocupación (Calendario) · Lista de reservas · Avisos y WhatsApp · Opcionales y extras · Tu Web y Guía.
 - Limpieza → Agenda de limpiezas.
-- Administración → Gastos y caja · Rendimiento financiero · Unidades y calendarios · Tarifas · Equipo y accesos.
+- Administración → Gastos y caja · Informes · Unidades y calendarios · Tarifas · Equipo y accesos.
+- Informes (Administración → Informes): tarjetas Resultado del mes (ingresos, comisiones, gastos y liquidación al propietario, con copiar resumen, CSV y PDF), Ocupación (noche por noche y por unidad, precio promedio por noche), Ingresos por canal (con la comisión descontada), Por unidad, Cobros y saldos (cobrado por medio de pago y quién debe), Opcionales vendidos, y Moneda y cotización (moneda de liquidación y cotizaciones). Cada informe tiene atajos de período (este mes, mes pasado, próximo mes, últimos 30 días, este año) o fechas a elección, y botones Descargar e Imprimir.
 - Menú "Más" (arriba a la derecha): Mi plan (abono de Loomi), Modo Celular Ágil, Cerrar sesión.
 - En el celular, la vista simple tiene pestañas: Agenda · Calendario · Avisos · Xenia · Más. En la Agenda, cada huésped tiene "Acciones Rápidas" (1. Pedir pago / saldo · 2. Enviar Bienvenida & Guía Digital) y está el botón "+ Recordatorio". En Más: Datos de cobro, Cambiar a vista completa (PC), Mi plan de Loomi.
 

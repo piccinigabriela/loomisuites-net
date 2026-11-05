@@ -49,7 +49,7 @@ function whatsappInviteUrl(email: string, role: StaffRole, complexName: string):
 }
 
 const ROLE_HELP: Record<StaffRole, string> = {
-  recepcion: 'Mostrador y calendario: reservas, check-in y check-out, cobros y caja. No ve Finanzas, Administración ni Configuración.',
+  recepcion: 'Mostrador y calendario: reservas, check-in y check-out, cobros y caja. No ve Informes, Administración ni Configuración.',
   limpieza: 'Solo las limpiezas del día con su checklist, y quién llega a cada unidad (nombre y cuántos son). Nada de teléfonos ni importes.',
 };
 
@@ -168,7 +168,7 @@ export const TeamAccessView: React.FC<TeamAccessViewProps> = ({ ownerUid, ownerE
         </span>
         <h2 className="text-xl font-bold text-stone-900 dark:text-white tracking-tight mt-1">Sumá a Recepción y Limpieza</h2>
         <p className="text-sm font-medium text-stone-800 dark:text-stone-200 mt-1">
-          Cada persona entra con su propio acceso y queda fija en su rol. Finanzas, Administración y Configuración las ves solo vos.
+          Cada persona entra con su propio acceso y queda fija en su rol. Informes, Administración y Configuración los ves solo vos.
         </p>
 
         <div className="mt-4 inline-flex rounded-xl border border-stone-300 dark:border-zinc-600 p-1" role="tablist">

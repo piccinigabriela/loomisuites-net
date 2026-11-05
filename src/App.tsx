@@ -135,7 +135,7 @@ const DemoHousekeeping = lazyNamed(() => import('./components/demo/DemoHousekeep
 const DemoProperties = lazyNamed(() => import('./components/demo/DemoProperties'), 'DemoProperties');
 const DemoAddons = lazyNamed(() => import('./components/demo/DemoAddons'), 'DemoAddons');
 const DemoMessages = lazyNamed(() => import('./components/demo/DemoMessages'), 'DemoMessages');
-const DemoFinances = lazyNamed(() => import('./components/demo/DemoFinances'), 'DemoFinances');
+const ReportsView = lazyNamed(() => import('./components/reports/ReportsView'), 'ReportsView');
 const TeamNotices = lazyNamed(() => import('./components/demo/TeamNotices'), 'TeamNotices');
 const DemoCashDrawer = lazyNamed(() => import('./components/demo/DemoCashDrawer'), 'DemoCashDrawer');
 const WelcomeGuideHub = lazyNamed(() => import('./components/guide/WelcomeGuideHub'), 'WelcomeGuideHub');
@@ -2208,7 +2208,7 @@ export default function App() {
         () => import('./components/demo/ReservationDetailModal'),
         () => import('./components/demo/NewReservationModal'),
         () => import('./components/demo/DemoMessages'),
-        () => import('./components/demo/DemoFinances'),
+        () => import('./components/reports/ReportsView'),
         () => import('./components/demo/DemoBookingsList'),
         () => import('./components/demo/TeamNotices'),
         () => import('./components/guide/WelcomeGuideHub'),
@@ -2796,7 +2796,7 @@ export default function App() {
                     : demoTab === 'housekeeping'
                     ? 'Limpiezas'
                     : demoTab === 'finances'
-                    ? 'Rendimiento'
+                    ? 'Informes'
                     : demoTab === 'welcome-guide'
                     ? 'Guía Huésped'
                     : demoTab === 'direct-booking'
@@ -3213,7 +3213,7 @@ export default function App() {
               )}
 
               {demoTab === 'finances' && userRole === 'admin' && (
-                <DemoFinances
+                <ReportsView
                   demoState={demoState}
                   onUpdateCurrencySettings={async (settings) => {
                     if (isApp && currentUser) {

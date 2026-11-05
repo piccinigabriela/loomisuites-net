@@ -71,6 +71,10 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   `tenants/{uid}.addonCategories` [{id, label}] (`src/lib/addonCategories.ts`; sin el campo = las 6 de siempre). Si se borra una categoría,
   sus opcionales quedan en "Sin categoría". Los opcionales siguen en `tenants/{uid}.availableAddons`.
 
+- Informes (Administración → Informes, pestaña `finances`; 5/11, molde de Areca): `components/reports/ReportsView.tsx` (grilla de tarjetas y,
+  en cada informe, período + 4 números + tabla + Descargar CSV / Imprimir). Cálculos en `src/lib/reports.ts`. "Resultado del mes" es
+  `OwnerReport` (criterio de Catalinas: mes del check-in). "Moneda y cotización": `reports/CurrencySettings.tsx`. Se borró `DemoFinances.tsx`.
+
 - Tarifas: `tenants/{uid}.pricing` (se guarda entero con `savePricingDoc`). Cálculo en `src/lib/pricing.ts` (`quoteStay`):
   finde largo > temporada > normal; fin de semana = noches marcadas (por defecto vie, sáb, dom). Findes largos de
   Argentina precargados hasta oct 2027 (faltan los días turísticos 2027, sin decreto todavía). Pantalla: Administración → Tarifas.

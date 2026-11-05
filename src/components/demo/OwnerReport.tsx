@@ -369,7 +369,7 @@ ${kpi('Gastos del período', money(report.expenses), `${report.expensesCount} re
           <div className="text-xl font-bold text-stone-900 dark:text-white mt-1">{money(report.expenses)}</div>
           <div className={`${sub} text-rose-700 dark:text-rose-300`}>
             {report.expensesNeedRate
-              ? `${report.expensesCount} registros en pesos: cargá la cotización del peso en Finanzas para descontarlos`
+              ? `${report.expensesCount} registros en pesos: cargá la cotización del peso en Informes → Moneda y cotización para descontarlos`
               : `${report.expensesCount} registros${currency !== 'ARS' && report.expensesCount > 0 ? ' (pesos convertidos)' : ''}`}
           </div>
         </div>

@@ -380,7 +380,7 @@ export const LegacyBackupImport: React.FC<LegacyBackupImportProps> = ({
         {needsRate && (
           <p className="text-xs text-amber-900 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 rounded-xl p-2.5">
             Tu complejo liquida en {settlementCurrency} y el archivo está en {fileCurrency}: los totales se convierten con esta
-            cotización. Si preferís llevar todo en {fileCurrency}, cambiá la moneda de liquidación en Rendimiento Financiero
+            cotización. Si preferís llevar todo en {fileCurrency}, cambiá la moneda de liquidación en Informes → Moneda y cotización
             antes de importar.
           </p>
         )}

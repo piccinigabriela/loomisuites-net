@@ -104,7 +104,7 @@ const BLOCKS: Block[] = [
     items: [
       <><B>Tarifas:</B> normal, por temporada, de fin de semana y fines de semana largos de Argentina ya cargados.</>,
       <><B>Gastos y caja</B>, y caja de mostrador para Recepción.</>,
-      <><B>Rendimiento</B> por unidad y por mes.</>,
+      <><B>Informes:</B> resultado del mes, ocupación, ingresos por canal y por unidad, cobros y saldos, y opcionales vendidos. Se descargan o se imprimen.</>,
       <><B>Informe para el propietario</B>, con la comisión del administrador si corresponde.</>,
       <><B>Unidades:</B> de a una o varias juntas, con fotos, Wi-Fi y calendarios.</>,
     ],

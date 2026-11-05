@@ -1335,7 +1335,7 @@ ${paymentsListStr}
                         />
                         {isFrontdesk && (!payRate || parseFloat(payRate) <= 0) && (
                           <p className="text-[10px] font-semibold text-rose-600 dark:text-rose-400 mt-1">
-                            ⚠️ Falta la cotización de {payCurrency}. Pedile al administrador que la cargue en Finanzas.
+                            ⚠️ Falta la cotización de {payCurrency}. Pedile al administrador que la cargue en Informes → Moneda y cotización.
                           </p>
                         )}
                       </div>

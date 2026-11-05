@@ -557,7 +557,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                     >
                       <div className="flex items-center gap-2.5">
                         <DollarSign className="w-3.5 h-3.5 shrink-0" />
-                        <span>Rendimiento Financiero</span>
+                        <span>Informes</span>
                       </div>
                       {activeTab === 'finances' && (
                         <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" />

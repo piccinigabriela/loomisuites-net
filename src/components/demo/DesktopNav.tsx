@@ -68,7 +68,7 @@ export function buildNavGroups(opts: {
         { tab: 'cash-drawer', label: userRole === 'frontdesk' ? 'Caja de mostrador' : 'Gastos y caja' },
         ...(isAdmin
           ? [
-              { tab: 'finances', label: 'Rendimiento financiero' },
+              { tab: 'finances', label: 'Informes' },
               { tab: 'properties', label: isApp ? 'Unidades y calendarios' : 'Cabañas y calendarios' },
               { tab: 'pricing', label: 'Tarifas' },
               ...(isApp ? [{ tab: 'team', label: 'Equipo y accesos' }] : []),

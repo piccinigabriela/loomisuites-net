@@ -183,7 +183,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
         return;
       }
       if (isDepositMissingRate) {
-        setFormError(`Falta la cotización de ${depositCurrency}: cargala en Finanzas o registrá la seña en ${settlementCurrency}`);
+        setFormError(`Falta la cotización de ${depositCurrency}: cargala en Informes → Moneda y cotización o registrá la seña en ${settlementCurrency}`);
         return;
       }
       if (totalAmount > 0 && depositSettlement >= totalAmount) {
@@ -418,7 +418,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
                 </select>
                 {isDepositMissingRate ? (
                   <p className="text-[11px] font-semibold text-rose-600 dark:text-rose-400">
-                    Falta la cotización de {depositCurrency}: cargala en Finanzas o registrá la seña en {settlementCurrency}.
+                    Falta la cotización de {depositCurrency}: cargala en Informes → Moneda y cotización o registrá la seña en {settlementCurrency}.
                   </p>
                 ) : (
                   depositValue > 0 &&
