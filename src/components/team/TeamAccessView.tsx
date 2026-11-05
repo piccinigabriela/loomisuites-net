@@ -10,6 +10,7 @@ import {
   suggestPassword,
 } from '../../lib/staffUsers';
 import { copyToClipboard } from '../../utils/clipboard';
+import { CheckInNoteCard } from '../common/CheckInNote';
 import {
   cancelInvite,
   createInvite,
@@ -31,6 +32,9 @@ interface TeamAccessViewProps {
   staffAlias?: string;
   /** Lo crea y lo guarda si todavía no existe; devuelve el código */
   ensureStaffAlias: () => Promise<string>;
+  /** Nota que aparece en cada check-in */
+  checkinNote?: string;
+  onSaveCheckinNote?: (text: string) => Promise<void> | void;
 }
 
 const card = 'bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200 dark:border-zinc-800 p-5';
@@ -54,7 +58,7 @@ const ROLE_HELP: Record<StaffRole, string> = {
 };
 
 /** Administración → Equipo y accesos: invitar, ver y quitar accesos de Recepción y Limpieza. */
-export const TeamAccessView: React.FC<TeamAccessViewProps> = ({ ownerUid, ownerEmail, complexName, showToast, staffAlias, ensureStaffAlias }) => {
+export const TeamAccessView: React.FC<TeamAccessViewProps> = ({ ownerUid, ownerEmail, complexName, showToast, staffAlias, ensureStaffAlias, checkinNote = '', onSaveCheckinNote }) => {
   const [mode, setMode] = useState<'usuario' | 'mail'>('usuario');
   const [uName, setUName] = useState('');
   const [uUser, setUUser] = useState('');
@@ -404,6 +408,8 @@ export const TeamAccessView: React.FC<TeamAccessViewProps> = ({ ownerUid, ownerE
           </ul>
         </div>
       )}
+
+      {onSaveCheckinNote && <CheckInNoteCard note={checkinNote} onSave={onSaveCheckinNote} />}
     </div>
   );
 };

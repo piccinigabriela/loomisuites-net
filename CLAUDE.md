@@ -75,6 +75,10 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   en cada informe, período + 4 números + tabla + Descargar CSV / Imprimir). Cálculos en `src/lib/reports.ts`. "Resultado del mes" es
   `OwnerReport` (criterio de Catalinas: mes del check-in). "Moneda y cotización": `reports/CurrencySettings.tsx`. Se borró `DemoFinances.tsx`.
 
+- Nota de check-in (5/11, idea de Areca): `tenants/{uid}.checkinNote` (demo: `demoState.checkinNote`, con un ejemplo). Si hay nota, todo ingreso
+  pasa por `requestReservationStatus` en App.tsx y muestra `CheckInNoteModal` (`components/common/CheckInNote.tsx`); se edita en Equipo y accesos
+  o desde la misma ventana (solo el dueño). Paso opcional "Tu Web en Google Maps" en Cómo configurar Loomi (`onboardingChecklist.googleMaps`).
+
 - Tarifas: `tenants/{uid}.pricing` (se guarda entero con `savePricingDoc`). Cálculo en `src/lib/pricing.ts` (`quoteStay`):
   finde largo > temporada > normal; fin de semana = noches marcadas (por defecto vie, sáb, dom). Findes largos de
   Argentina precargados hasta oct 2027 (faltan los días turísticos 2027, sin decreto todavía). Pantalla: Administración → Tarifas.

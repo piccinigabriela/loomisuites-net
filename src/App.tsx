@@ -98,6 +98,7 @@ import { buildStaffArrivals, StaffArrivalsDoc } from './lib/staffArrivals';
 import { useBackLayer } from './hooks/useBackLayer';
 import { normalizePricing, type PricingSettings } from './lib/pricing';
 import { accountLabel, isStaffLoginEmail, makeStaffAlias } from './lib/staffUsers';
+import { CheckInNoteModal } from './components/common/CheckInNote';
 import { StaffLoginScreen } from './components/auth/StaffLoginScreen';
 import { buildCleaningChecklist, normalizeChecklistSettings, type CleaningChecklistSettings } from './lib/cleaningChecklist';
 import { TutorialVideoButton } from './components/common/TutorialVideo';
@@ -2106,9 +2107,36 @@ export default function App() {
     showToast('Datos de cobro guardados');
   };
 
+  // Nota para cada check-in: si el complejo tiene una, el ingreso pasa por una ventana que la muestra (CheckInNote.tsx)
+  const DEMO_CHECKIN_NOTE = 'Pedir DNI y patente del auto. Explicar el horario de la pileta (9 a 20) y dónde se dejan las llaves al salir.';
+  const checkinNote = (isApp ? tenantDoc?.checkinNote : demoState.checkinNote ?? DEMO_CHECKIN_NOTE) || '';
+  const [pendingCheckIns, setPendingCheckIns] = useState<string[]>([]);
+  const requestReservationStatus = async (resId: string, newStatus: ReservationStatus) => {
+    const res = demoState.reservations.find((r) => r.id === resId);
+    if (newStatus === 'checked_in' && checkinNote.trim() && res && res.status !== 'checked_in') {
+      setPendingCheckIns((prev) => (prev.includes(resId) ? prev : [...prev, resId]));
+      return;
+    }
+    await handleUpdateReservationStatus(resId, newStatus);
+  };
+  const confirmPendingCheckIns = async () => {
+    const ids = pendingCheckIns;
+    setPendingCheckIns([]);
+    for (const id of ids) await handleUpdateReservationStatus(id, 'checked_in');
+  };
+  const handleSaveCheckinNote = async (text: string) => {
+    if (isApp && currentUser) {
+      await saveTenantData(tenantUid, { checkinNote: text });
+      setTenantDoc((prev) => (prev ? { ...prev, checkinNote: text } : prev));
+    } else {
+      updateDemoState((prev) => ({ ...prev, checkinNote: text, lastUpdated: new Date().toISOString() }));
+    }
+    showToast(text ? 'Nota de check-in guardada' : 'Sin nota de check-in');
+  };
+
   // Quick check in
   const handleQuickCheckIn = (resId: string) => {
-    handleUpdateReservationStatus(resId, 'checked_in');
+    requestReservationStatus(resId, 'checked_in');
   };
 
   // Handle open messages directly for guest
@@ -2474,6 +2502,20 @@ export default function App() {
         </div>
       )}
 
+      {pendingCheckIns.length > 0 && (
+        <CheckInNoteModal
+          guests={pendingCheckIns.map((id) => {
+            const r = demoState.reservations.find((x) => x.id === id);
+            return { id, name: r?.guestName || 'Huésped', unit: demoState.properties.find((p) => p.id === r?.propertyId)?.name || '' };
+          })}
+          note={checkinNote}
+          canEdit={!isStaff}
+          onSaveNote={handleSaveCheckinNote}
+          onConfirm={confirmPendingCheckIns}
+          onCancel={() => setPendingCheckIns([])}
+        />
+      )}
+
       {/* Global Toast */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 bg-zinc-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-2xl border border-zinc-700 flex items-center gap-2 animate-in slide-in-from-bottom-3">
@@ -2640,7 +2682,7 @@ export default function App() {
           <ReceptionView
             demoState={demoState}
             onSelectReservation={setSelectedReservationForDetail}
-            onUpdateReservationStatus={handleUpdateReservationStatus}
+            onUpdateReservationStatus={requestReservationStatus}
             onUpdatePaymentStatus={handleUpdatePaymentStatus}
             onAddCashMovement={handleAddCashMovement}
             onQuickCheckIn={handleQuickCheckIn}
@@ -2666,7 +2708,7 @@ export default function App() {
             setInitialDateForRes(undefined);
             setIsNewResModalOpen(true);
           }}
-          onUpdateReservationStatus={handleUpdateReservationStatus}
+          onUpdateReservationStatus={requestReservationStatus}
           onUpdatePaymentStatus={handleUpdatePaymentStatus}
           onToggleCleaningStatus={(taskId, currentStatus) =>
             handleUpdateTaskStatus(
@@ -3083,7 +3125,7 @@ export default function App() {
                 <DemoBookingsList
                   demoState={demoState}
                   onSelectReservation={setSelectedReservationForDetail}
-                  onUpdateReservationStatus={handleUpdateReservationStatus}
+                  onUpdateReservationStatus={requestReservationStatus}
                   onUpdateReservation={handleUpdateReservation}
                   onDeleteReservation={handleDeleteReservation}
                 />
@@ -3210,6 +3252,8 @@ export default function App() {
                     setTenantDoc((prev) => (prev ? { ...prev, staffAlias: alias } : prev));
                     return alias;
                   }}
+                  checkinNote={tenantDoc?.checkinNote || ''}
+                  onSaveCheckinNote={handleSaveCheckinNote}
                 />
               )}
 
@@ -3413,7 +3457,7 @@ export default function App() {
         allReservations={demoState.reservations}
         availableAddons={demoState.addons || demoState.availableAddons || []}
         onClose={() => setSelectedReservationForDetail(null)}
-        onUpdateStatus={handleUpdateReservationStatus}
+        onUpdateStatus={requestReservationStatus}
         onUpdatePrice={handleUpdateReservationPrice}
         onUpdateReservation={handleUpdateReservation}
         onDeleteReservation={handleDeleteReservation}

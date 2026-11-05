@@ -266,6 +266,8 @@ export interface DemoState {
   availableAddons?: AddonService[];
   addons?: AddonService[];
   addonCategories?: AddonCategoryDef[];
+  /** Demo: nota que aparece en cada check-in (en la app va en tenants/{uid}.checkinNote) */
+  checkinNote?: string;
   cashMovements?: CashMovement[];
   currencySettings?: {
     settlementCurrency: CurrencyCode;

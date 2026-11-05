@@ -40,6 +40,8 @@ export interface TenantDoc {
     googleMaps?: boolean;
   };
   checklistDismissed?: boolean;
+  /** Nota que aparece en cada check-in (components/common/CheckInNote.tsx) */
+  checkinNote?: string;
   pricing?: PricingSettings;
   /** Checklist de limpieza propio (ver src/lib/cleaningChecklist.ts) */
   cleaningChecklist?: import('./cleaningChecklist').CleaningChecklistSettings;
