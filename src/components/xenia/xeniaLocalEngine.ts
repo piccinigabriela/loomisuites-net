@@ -110,7 +110,7 @@ export function getClientXeniaReply(message: string, demoState?: DemoState | any
     q.includes('por donde empiezo') ||
     q.includes('por dónde empiezo')
   ) {
-    return 'Te recomiendo seguir los Primeros pasos que ves arriba del Panel Hoy, en orden. Si te trabás, escribinos por WhatsApp al +54 9 11 4092-5939.';
+    return 'Seguí **Cómo configurar Loomi**, arriba de Hoy: son 6 pasos que se tildan solos. Empezá por **Tu complejo** (nombre, dirección, WhatsApp y horarios) y después tus unidades y tarifas. Si te trabás, escribinos por WhatsApp al +54 9 11 4092-5939.';
   }
 
   // =========================================================================
@@ -170,7 +170,45 @@ Es tu página de reservas directas: fotos, tus alojamientos, buscador de fechas 
 
 La disponibilidad se actualiza sola con tus reservas y calendarios. No cobra ni confirma sola: eso lo hacés vos.
 
+También podés sumar tu **logo**, pedir **seña** (sale el porcentaje y el monto en el pedido), poner **condiciones de la reserva** que el huésped tiene que aceptar y un **descuento por reservar directo** (se ve el precio normal tachado).
+
 **Experiencias:** si vendés excursiones, catas o cabalgatas, cargalas en **Opcionales y extras** y en la sección **Experiencias** de Tu Web elegí cuáles mostrar, con su explicación, foto y precio (o "a consultar"). El huésped las consulta o las suma a su pedido por WhatsApp.`;
+  }
+
+  if (has('informe', 'reporte', 'estadistica', 'estadística', 'liquidacion', 'liquidación', 'ingresos por canal', 'ocupacion del mes', 'ocupación del mes')) {
+    return `### 📊 Informes
+
+Están en **Administración → Informes**. Cada tarjeta abre un informe con su período, 4 números clave y una tabla:
+- **Resultado del mes:** ingresos, comisiones, gastos y liquidación.
+- **Ocupación:** noche por noche y por unidad.
+- **Ingresos por canal:** Airbnb, Booking, directas y tus orígenes propios.
+- **Por unidad**, **Cobros y saldos** (quién debe todavía) y **Opcionales vendidos**.
+
+Todos se descargan en CSV o se imprimen.`;
+  }
+
+  if (has('huespedes anteriores', 'huéspedes anteriores', 'lista de huespedes', 'lista de huéspedes', 'que vuelvan', 'invitar a volver', 'vino antes', 'clientes frecuentes', 'nota del huesped', 'nota del huésped')) {
+    return `### 🧳 Huéspedes
+
+En **Reservas → Huéspedes** está cada persona una sola vez, con las veces que vino y si tiene otra reserva. Se arma sola con tus reservas.
+- **Para invitar a volver:** muestra a quienes vinieron hace más de un mes y no volvieron a reservar. El botón **Invitar a volver** abre WhatsApp con un mensaje listo, con tu descuento por reservar directo y el link de Tu Web si los tenés.
+- **Nota:** anotá algo de la persona ("viene con su perro", "aniversario en marzo"). Aparece en la ficha cada vez que vuelve a reservar.`;
+  }
+
+  if (has('nota de check', 'nota para cada check', 'nota al dar el ingreso', 'recordarle a recepcion', 'recordarle a recepción')) {
+    return `### 📝 Nota para cada check-in
+
+En **Administración → Equipo y accesos → Nota para cada check-in** escribís lo que hay que hacer en cada ingreso (pedir DNI y patente, explicar la pileta…). Aparece cada vez que vos o Recepción dan un ingreso. Si la dejás vacía, el ingreso se da directo.`;
+  }
+
+  if (has('origen', 'instagram', 'agencia', 'despegar', 'comision propia', 'comisión propia')) {
+    return `### 🧭 Orígenes de reserva
+
+Al cargar o editar una reserva, en **Canal de origen** tocá **+ Nuevo origen…** para sumar Instagram, una agencia, Despegar o lo que uses, con su comisión en % (0 si no cobra). La comisión se descuenta en la reserva y en **Informes → Ingresos por canal** cada origen tiene su fila.`;
+  }
+
+  if (has('datos del complejo', 'nombre del complejo', 'direccion del complejo', 'dirección del complejo', 'cambiar el horario', 'cambiar los horarios')) {
+    return 'Se cargan en **Administración → Datos del complejo** (o en Cómo configurar Loomi → Tu complejo): nombre, dirección, link de Google Maps, WhatsApp del alojamiento, horarios de ingreso y salida y moneda. Arranca con lo que ya tenés y guarda solo esos datos.';
   }
 
   if (has('tarifa', 'temporada', 'finde largo', 'fin de semana largo', 'precio por noche', 'precios por noche', 'cargar precios', 'cargo los precios')) {
@@ -187,11 +225,15 @@ Con eso Loomi calcula el precio de cada estadía al cargar una reserva y en Tu W
   if (has('invit', 'mi personal', 'empleado', 'equipo y accesos', 'darle acceso', 'dar acceso', 'usuario para', 'cuenta para mi', 'recepcionista')) {
     return `### 👥 Equipo y accesos
 
-En **Administración → Equipo y accesos** tocás **Invitar**, ponés el mail de la persona y elegís el rol:
+En **Administración → Equipo y accesos** elegís cómo darle acceso:
+- **Con usuario y clave:** para quien no usa mail. Creás el usuario y la clave y se los mandás por WhatsApp con el link de ingreso.
+- **Por mail:** tocás **Invitar** y ponés su mail.
+
+Y elegís el rol:
 - **Recepción:** reservas, calendario, cobros y caja (sin finanzas ni configuración).
 - **Limpieza:** sus limpiezas con el checklist y quién llega (sin teléfonos ni importes).
 
-Le llega la invitación, entra con su propia cuenta y ve solo lo suyo. El acceso se quita desde la misma pantalla.`;
+Cada persona entra con su propio acceso y ve solo lo suyo. El acceso se quita desde la misma pantalla.`;
   }
 
   if (has('pre check', 'precheck', 'pre-check', 'datos del huesped', 'datos del huésped', 'documento del huesped', 'documento del huésped', 'dni')) {
@@ -306,11 +348,11 @@ Quedamos a tu completa disposición para asistirte en lo que precises.`;
         .join('\n');
       return `Estos son los datos que ven tus huéspedes en su guía:
 
-• **Check-in:** ${guide.checkinHour ? `desde las ${withHs(String(guide.checkinHour).replace(/\s*hs\.?$/i, ''))}` : '_sin cargar_ (se carga en Reservas → Tu Web y Guía)'}
-• **Check-out:** ${guide.checkoutHour ? `hasta las ${withHs(String(guide.checkoutHour).replace(/\s*hs\.?$/i, ''))}` : '_sin cargar_ (se carga en Reservas → Tu Web y Guía)'}
+• **Check-in:** ${guide.checkinHour ? `desde las ${withHs(String(guide.checkinHour).replace(/\s*hs\.?$/i, ''))}` : '_sin cargar_ (se carga en Administración → Datos del complejo)'}
+• **Check-out:** ${guide.checkoutHour ? `hasta las ${withHs(String(guide.checkoutHour).replace(/\s*hs\.?$/i, ''))}` : '_sin cargar_ (se carga en Administración → Datos del complejo)'}
 ${unitsInfo || '• Todavía no cargaste unidades.'}
 
-Para cambiarlos: Wi-Fi y dirección en **Administración → Unidades y calendarios**; horarios y normas en **Reservas → Tu Web y Guía → Ajustes & Edición de Datos**.${
+Para cambiarlos: Wi-Fi y dirección en **Administración → Unidades y calendarios**; horarios en **Administración → Datos del complejo**; normas en **Reservas → Tu Web y Guía → Ajustes & Edición de Datos**.${
         uid ? `\n\nLink de tu guía: ${origin}/guia/${uid}` : ''
       }
 

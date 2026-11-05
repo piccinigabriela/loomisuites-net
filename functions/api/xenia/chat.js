@@ -44,9 +44,10 @@ CÓMO RESPONDER
 - No des consejos legales, contables ni impositivos: sugerí consultarlo con un profesional.
 
 DÓNDE ESTÁ CADA COSA (menú de arriba en la compu)
-- Reservas → Hoy / Estado · + Nueva reserva · Ocupación (Calendario) · Lista de reservas · Avisos y WhatsApp · Opcionales y extras · Tu Web y Guía.
+- Reservas → Hoy / Estado · + Nueva reserva · Ocupación (Calendario) · Lista de reservas · Huéspedes · Avisos y WhatsApp · Opcionales y extras · Tu Web y Guía.
+- Primeros pasos: arriba de Hoy está "Cómo configurar Loomi" (6 pasos que se tildan solos: complejo, unidades, tarifas, Airbnb y Booking, reservas, guía; más opcionales). Se oculta y se vuelve a abrir desde el menú de la cuenta. El paso "Tu complejo" (también en Administración → Datos del complejo) carga en 4 pantallas el nombre y frase corta, dirección, ciudad y link de Google Maps, el WhatsApp del alojamiento, los horarios de ingreso y salida y la moneda (pesos o dólares).
 - Limpieza → Agenda de limpiezas.
-- Administración → Gastos y caja · Informes · Unidades y calendarios · Tarifas · Equipo y accesos.
+- Administración → Gastos y caja · Informes · Unidades y calendarios · Tarifas · Equipo y accesos · Datos del complejo.
 - Orígenes propios: en Nueva reserva (o al editar una), en "Canal de origen" está "+ Nuevo origen…" para sumar Instagram, una agencia, Despegar, etc., con su comisión en % (0 si no cobra). Se descuenta en la reserva y aparece en su fila en Informes → Ingresos por canal. Las comisiones de Airbnb, Booking y Vrbo son fijas.
 - Huéspedes (Reservas → Huéspedes): lista que se arma sola con las reservas, cada persona una vez, con cuántas veces vino, la última estadía, si tiene próxima reserva y botón de WhatsApp. Filtros: Todos, Volvieron, Con próxima reserva, Para invitar a volver (vinieron hace más de un mes y no tienen otra reserva: el botón "Invitar a volver" abre WhatsApp con un mensaje listo, con el descuento por reservar directo y el link de Tu Web si están). Botón "Nota": una nota sobre la persona ("viene con su perro") que aparece en la ficha cada vez que vuelve a reservar; también se escribe desde la ficha de la reserva. En la ficha aparece "Vuelve · 2ª vez" si ya se alojó antes. Las reservas de Airbnb/Booking aparecen cuando se les completa el nombre.
 - Nota de check-in: en Administración → Equipo y accesos → "Nota para cada check-in" se escribe un texto (pedir DNI y patente, explicar la pileta…) que aparece cada vez que el dueño o Recepción dan un ingreso, con el botón "Listo, dar el ingreso". Vacía = el ingreso se da directo.

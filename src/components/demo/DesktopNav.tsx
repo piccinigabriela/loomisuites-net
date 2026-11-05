@@ -73,7 +73,7 @@ export function buildNavGroups(opts: {
               { tab: 'properties', label: isApp ? 'Unidades y calendarios' : 'Cabañas y calendarios' },
               { tab: 'pricing', label: 'Tarifas' },
               ...(isApp ? [{ tab: 'team', label: 'Equipo y accesos' }] : []),
-              ...(hasOnboarding ? [{ action: 'onboarding' as NavAction, label: 'Configurar unidades' }] : []),
+              ...(hasOnboarding ? [{ action: 'onboarding' as NavAction, label: isApp ? 'Datos del complejo' : 'Configurar unidades' }] : []),
             ]
           : []),
       ],
