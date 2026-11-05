@@ -103,6 +103,9 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   el porcentaje y el monto. Los datos bancarios NO van a la web: el anfitrión los pasa por WhatsApp al confirmar (pedido de Roxana, 1/11).
   Condiciones de la reserva (5/11, idea de Areca): `webSite.terms` → `publicSites/{slug}.terms`; `TermsBox` de `siteKit.tsx` debajo de los
   resultados en todos los diseños, los botones de pedido usan `b.guardRequest` (sin tildar "Leí y acepto" no abre WhatsApp) y el mensaje lo dice.
+  Descuento por reservar directo (5/11; acá es lo usual, no el recargo por canal): `webSite.directDiscount` {enabled, percent libre 1–90} →
+  `publicSites/{slug}.directDiscount`; `useSiteBooking` da `total` con descuento y `full` sin descuento, `WasPrice` muestra el normal tachado
+  en todos los diseños y el WhatsApp aclara el descuento. La seña se calcula sobre el precio con descuento.
   Logo: foto con `unitId: 'logo'` (`LOGO_KEY`, PNG con `compressLogo`); `PublicSiteView` la separa de las fotos y la pasa como `site.logoUrl` (`SiteLogo`).
   `SITE_FIELDS` de `publicSiteStore.ts` es la lista de campos que se publican: todo campo nuevo de `PublicSiteDoc` tiene que estar ahí
   (hasta el 5/11 faltaban experiences, depositPercent y xeniaGuest, y no llegaban a la web).

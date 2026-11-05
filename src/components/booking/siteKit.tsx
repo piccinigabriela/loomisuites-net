@@ -6,7 +6,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Minus, Plus, X } from 'lucide-react';
 import type { CurrencyCode, Property } from '../../types';
 import { quoteStay } from '../../lib/pricing';
-import { depositAmount, expPhotoKey, isUnitFree, PublicSiteDoc, PublicSitePhoto, PublicSiteUnit } from '../../lib/publicSite';
+import { applyDirectDiscount, depositAmount, expPhotoKey, isUnitFree, PublicSiteDoc, PublicSitePhoto, PublicSiteUnit } from '../../lib/publicSite';
 
 export type Lang = 'es' | 'en' | 'pt';
 
@@ -53,6 +53,8 @@ export const T = {
     termsAccept: 'Leí y acepto las condiciones de la reserva',
     termsNeeded: 'Antes de pedir, leé y aceptá las condiciones de la reserva.',
     msgTermsOk: 'Leí y acepto las condiciones de la reserva.',
+    directOff: (p: number) => `${p} % menos reservando directo`,
+    msgDirectDiscount: (p: number) => `(con el ${p} % de descuento por reservar directo)`,
     msgQuestion: '¿Está disponible?',
     msgGeneral: (name: string) => `Hola! Les escribo desde la web de ${name}.`,
     book: 'Reservar',
@@ -114,6 +116,8 @@ export const T = {
     termsAccept: 'I have read and accept the booking conditions',
     termsNeeded: 'Before sending your request, please read and accept the booking conditions.',
     msgTermsOk: 'I have read and accept the booking conditions.',
+    directOff: (p: number) => `${p}% off for booking direct`,
+    msgDirectDiscount: (p: number) => `(including the ${p}% direct booking discount)`,
     msgQuestion: 'Is it available?',
     msgGeneral: (name: string) => `Hi! I’m writing from the ${name} website.`,
     book: 'Book',
@@ -178,6 +182,8 @@ export const T = {
     termsAccept: 'Li e aceito as condições da reserva',
     termsNeeded: 'Antes de pedir, leia e aceite as condições da reserva.',
     msgTermsOk: 'Li e aceito as condições da reserva.',
+    directOff: (p: number) => `${p}% a menos reservando direto`,
+    msgDirectDiscount: (p: number) => `(com ${p}% de desconto por reservar direto)`,
     msgQuestion: 'Está disponível?',
     msgGeneral: (name: string) => `Olá! Escrevo pelo site de ${name}.`,
     book: 'Reservar',
@@ -326,6 +332,7 @@ export function useGoogleFont(id: string, href: string) {
 export function useSiteBooking(site: PublicSiteDoc, photos: PublicSitePhoto[], preview?: boolean) {
   const [lang, setLang] = useState<Lang>(detectLang);
   const deposit = Number(site.depositPercent) || 0;
+  const directOff = Math.max(0, Math.min(90, Math.round(Number(site.directDiscount) || 0)));
   // Con seña, la nota de confirmación de todos los diseños la explica
   const t = deposit > 0 ? { ...T[lang], confirmNote: T[lang].confirmNoteDeposit(deposit) } : T[lang];
   const today = todayStr();
@@ -366,12 +373,13 @@ export function useSiteBooking(site: PublicSiteDoc, photos: PublicSitePhoto[], p
   const results = useMemo(() => {
     if (!searched) return null;
     const n = nightsBetween(searched.in, searched.out);
-    const free: Array<{ unit: PublicSiteUnit; total: number; minNights: number; below: boolean }> = [];
+    // total = lo que paga reservando directo (con el descuento, si hay); full = el precio normal, para mostrarlo tachado
+    const free: Array<{ unit: PublicSiteUnit; total: number; full: number; minNights: number; below: boolean }> = [];
     for (const u of site.units) {
       if (!isUnitFree(site.busy?.[u.id], searched.in, searched.out)) continue;
       if (u.maxGuests && u.maxGuests < searched.guests) continue;
       const q = quoteStay(site.pricing, { id: u.id, basePrice: u.basePrice } as Property, searched.in, searched.out);
-      free.push({ unit: u, total: q.total, minNights: q.minNights, below: q.belowMinimum });
+      free.push({ unit: u, total: applyDirectDiscount(q.total, directOff), full: q.total, minNights: q.minNights, below: q.belowMinimum });
     }
     free.sort((a, b) => Number(a.below) - Number(b.below));
     return { n, free };
@@ -400,7 +408,7 @@ export function useSiteBooking(site: PublicSiteDoc, photos: PublicSitePhoto[], p
       t.msgDates(fmtDate(searched.in, lang), fmtDate(searched.out, lang), t.nights(nightsBetween(searched.in, searched.out))),
       t.msgGuests(searched.guests),
     ];
-    if (total > 0) lines.push(t.msgPrice(fmtMoney(total, site.currency)));
+    if (total > 0) lines.push(t.msgPrice(fmtMoney(total, site.currency)) + (directOff > 0 ? ` ${t.msgDirectDiscount(directOff)}` : ''));
     if (total > 0 && deposit > 0) lines.push(t.msgDeposit(fmtMoney(depositAmount(total, deposit), site.currency), deposit));
     const exps = (site.experiences || []).filter((e) => wantedExp.includes(e.id)).map((e) => e.name);
     if (exps.length) lines.push(t.msgExpInterest(exps.join(', ')));
@@ -418,6 +426,8 @@ export function useSiteBooking(site: PublicSiteDoc, photos: PublicSitePhoto[], p
     searched, error, results, doSearch, requestText, goSearch, generalLink,
     wantedExp, toggleExp,
     terms, termsOk, setTermsOk, termsWarn, setTermsWarn, termsRef, guardRequest,
+    directOff,
+    site,
     logo: site.logoUrl || '',
     general, cover, unitPhotos,
     lightbox, setLightbox, searchRef, resultsRef,
@@ -689,6 +699,18 @@ export const SiteLogo: React.FC<{ src?: string; name: string; className?: string
   return (
     <span className={className}>
       <img src={src} alt={name} className={imgClassName} />
+    </span>
+  );
+};
+
+/** Precio normal tachado y "10 % menos reservando directo", debajo del total (solo si el dueño puso descuento) */
+export const WasPrice: React.FC<{ b: SiteBooking; unitId: string; className?: string }> = ({ b, unitId, className = '' }) => {
+  if (!b.directOff || !b.results) return null;
+  const r = b.results.free.find((x) => x.unit.id === unitId);
+  if (!r || r.below || !r.full || r.full <= r.total) return null;
+  return (
+    <span className={`block text-sm font-semibold text-[var(--fg-2)] ${className}`}>
+      <s className="tabular-nums">{fmtMoney(r.full, b.site.currency)}</s> · {b.t.directOff(b.directOff)}
     </span>
   );
 };

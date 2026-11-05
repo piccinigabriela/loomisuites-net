@@ -18,7 +18,7 @@ import {
   SiteViewProps,
   useGoogleFont,
   useSiteBooking,
-  waLink, SiteLogo, TermsBox } from '../siteKit';
+  waLink, SiteLogo, TermsBox, WasPrice } from '../siteKit';
 
 const VARS = {
   '--bg': '#FFFFFF',
@@ -170,6 +170,7 @@ export const RefugioSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
                         </span>
                         <span style={display} className="text-3xl font-normal tabular-nums">
                           {fmtMoney(total, site.currency)}
+                            <WasPrice b={b} unitId={unit.id} />
                         </span>
                       </p>
                     ) : (

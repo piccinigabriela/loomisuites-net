@@ -34,6 +34,7 @@ const SITE_FIELDS = [
   'depositPercent',
   'xeniaGuest',
   'terms',
+  'directDiscount',
   'updatedAt',
 ];
 

@@ -6,7 +6,7 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import type { PublicSitePhoto, PublicSiteUnit } from '../../../lib/publicSite';
-import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink, SiteLogo, TermsBox } from '../siteKit';
+import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink, SiteLogo, TermsBox, WasPrice } from '../siteKit';
 
 const VARS = {
   '--bg': '#172123',
@@ -204,6 +204,7 @@ export const EstudioSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
                           </span>
                           <span style={thin} className="text-3xl tabular-nums">
                             {fmtMoney(total, site.currency)}
+                            <WasPrice b={b} unitId={unit.id} />
                           </span>
                         </p>
                       ) : (

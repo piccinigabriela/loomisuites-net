@@ -296,6 +296,9 @@ export const TuWebSettings: React.FC<Props> = ({
       {/* Seña */}
       <DepositCard settings={s} onSave={save} />
 
+      {/* Descuento por reservar directo */}
+      <DirectDiscountCard settings={s} onSave={save} />
+
       {/* Condiciones de la reserva */}
       <TermsCard settings={s} onSave={save} />
 
@@ -612,6 +615,53 @@ const DepositCard: React.FC<{ settings: WebSiteSettings; onSave: (patch: Partial
         )}
       </div>
       {enabled && <p className={`${help} mt-3`}>Tus datos bancarios no aparecen en la web: se los mandás vos por WhatsApp.</p>}
+    </div>
+  );
+};
+
+/** Descuento por reservar directo: porcentaje libre de cada dueño (lo usual acá, en vez de recargar los canales) */
+const DirectDiscountCard: React.FC<{ settings: WebSiteSettings; onSave: (patch: Partial<WebSiteSettings>) => Promise<void> }> = ({ settings, onSave }) => {
+  const enabled = !!settings.directDiscount?.enabled;
+  const savedPct = settings.directDiscount?.percent || 0;
+  const [percent, setPercent] = useState(savedPct ? String(savedPct) : '');
+  const n = Math.round(Number(percent));
+  const valid = n >= 1 && n <= 90;
+  const dirty = valid && n !== savedPct;
+  return (
+    <div className={card}>
+      <h3 className={h3}>Descuento por reservar directo</h3>
+      <p className={`${help} mt-1`}>
+        Tus tarifas son las mismas en todos lados; en Tu Web se ve el precio normal tachado y el precio con tu descuento. El pedido de WhatsApp ya llega con
+        el descuento.
+      </p>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <label className="flex items-center gap-2">
+          <input
+            type="number"
+            min={1}
+            max={90}
+            inputMode="numeric"
+            value={percent}
+            placeholder="0"
+            onChange={(e) => setPercent(e.target.value)}
+            className={`${inputCls} w-24 text-center`}
+            aria-label="Porcentaje de descuento"
+          />
+          <span className={label}>% menos</span>
+        </label>
+        {(dirty || (!enabled && valid)) && (
+          <button type="button" onClick={() => onSave({ directDiscount: { enabled: true, percent: n } })} className={primaryBtn}>
+            {enabled ? 'Guardar' : 'Activar descuento'}
+          </button>
+        )}
+        {enabled && (
+          <button type="button" onClick={() => onSave({ directDiscount: { enabled: false, percent: savedPct } })} className={ghostBtn}>
+            Sacar el descuento
+          </button>
+        )}
+      </div>
+      {enabled && savedPct > 0 && <p className={`${help} mt-3`}>Activo: {savedPct} % menos reservando directo.</p>}
+      {percent !== '' && !valid && <p className={`${help} mt-3`}>Poné un número entre 1 y 90.</p>}
     </div>
   );
 };

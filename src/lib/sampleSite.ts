@@ -32,6 +32,7 @@ export function sampleSite(theme: string): PublicSiteDoc {
       { id: 'u3', name: 'Casa de la Finca', maxGuests: 6, bedrooms: 3, bathrooms: 2, description: 'Para familias o amigos: tres dormitorios, cocina completa y parrilla.', basePrice: 320000 },
     ],
     pricing: null,
+    directDiscount: 10,
     terms:
       '• La reserva queda confirmada al recibir la seña del 30%.\n• Cancelación sin cargo hasta 15 días antes de la llegada; después, la seña no se devuelve.\n• Ingreso desde las 14 y salida hasta las 11.\n• No se aceptan mascotas.',
     busy: { u2: [{ s: plusDays(10), e: plusDays(13) }] },

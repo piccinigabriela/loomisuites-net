@@ -6,7 +6,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { MapPin, Users, BedDouble, Clock } from 'lucide-react';
 import { LOGO_KEY, type PublicSiteDoc, type PublicSitePhoto, type PublicSiteUnit } from '../../lib/publicSite';
-import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteLogo, SiteTexts, TermsBox, useGoogleFont, useSiteBooking, waLink } from './siteKit';
+import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteLogo, SiteTexts, TermsBox, useGoogleFont, useSiteBooking, waLink, WasPrice } from './siteKit';
 import { SPECIAL_LAYOUTS } from './designs';
 
 const THEMES = {
@@ -207,7 +207,8 @@ const BaseSiteView: React.FC<Props> = ({ site, photos, preview }) => {
                             <span className="text-sm font-bold">
                               {t.total} · {t.nights(results.n)}
                             </span>
-                            <span className="text-2xl font-bold tabular-nums">{fmtMoney(total, site.currency)}</span>
+                            <span className="text-2xl font-bold tabular-nums">{fmtMoney(total, site.currency)}
+                            <WasPrice b={b} unitId={unit.id} /></span>
                           </div>
                         ) : (
                           <p className="text-base font-semibold">{t.askPrice}</p>

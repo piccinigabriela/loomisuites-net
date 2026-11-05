@@ -26,6 +26,7 @@ export const DemoTuWeb: React.FC<{ demoState: DemoState }> = ({ demoState }) => 
           'addon-desayuno-selva': { show: true, showPrice: true },
         },
         terms: TERMS_EXAMPLE,
+        directDiscount: { enabled: true, percent: 10 },
       },
       guide: demoState.welcomeGuide,
       city: 'Puerto Iguazú, Misiones',

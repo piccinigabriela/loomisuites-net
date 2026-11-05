@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { ArrowRight, MapPin, Clock } from 'lucide-react';
 import type { PublicSiteUnit } from '../../../lib/publicSite';
-import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteViewProps, useGoogleFont, useSiteBooking, waLink, SiteLogo, TermsBox } from '../siteKit';
+import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteViewProps, useGoogleFont, useSiteBooking, waLink, SiteLogo, TermsBox, WasPrice } from '../siteKit';
 
 const VARS = {
   '--bg': '#FBF8F2',
@@ -216,6 +216,7 @@ export const HaciendaSite: React.FC<SiteViewProps> = ({ site, photos, preview })
                             </span>
                             <span style={serif} className="text-3xl tabular-nums">
                               {fmtMoney(active.total, site.currency)}
+                              <WasPrice b={b} unitId={active.unit.id} />
                             </span>
                           </p>
                         ) : (

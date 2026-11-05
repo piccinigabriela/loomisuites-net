@@ -51,6 +51,8 @@ export interface WebSiteSettings {
   deposit?: { enabled?: boolean; percent?: number };
   /** Condiciones de la reserva (cancelación, seña, mascotas…): el huésped las acepta antes de mandar el pedido */
   terms?: string;
+  /** Descuento por reservar directo (porcentaje libre de cada dueño) */
+  directDiscount?: { enabled?: boolean; percent?: number };
 }
 
 /** Foto del logo: publicSites/{slug}/photos con unitId = LOGO_KEY (PNG, se muestra en el encabezado) */
@@ -63,6 +65,16 @@ export const TERMS_EXAMPLE = `• La reserva queda confirmada cuando el alojamie
 • Ingreso desde las 14 y salida hasta las 10. Si necesitás otro horario, consultanos.
 • No se aceptan mascotas.
 • El saldo se paga al llegar.`;
+
+/** Descuento por reservar directo publicado (0 = sin descuento; tope 90 %) */
+export function directDiscountPercent(settings: WebSiteSettings): number {
+  if (!settings.directDiscount?.enabled) return 0;
+  const p = Math.round(Number(settings.directDiscount.percent) || 0);
+  return Math.min(90, Math.max(0, p));
+}
+
+/** Precio con el descuento directo, redondeado a entero */
+export const applyDirectDiscount = (total: number, percent: number) => (percent > 0 ? Math.round(total * (1 - percent / 100)) : total);
 
 /** Porcentaje de seña publicado (0 = sin seña) */
 export function depositPercent(settings: WebSiteSettings): number {
@@ -137,6 +149,8 @@ export interface PublicSiteDoc {
   xeniaGuest?: boolean;
   /** Condiciones de la reserva ('' = no se piden) */
   terms?: string;
+  /** Descuento por reservar directo en % (0 = sin descuento) */
+  directDiscount?: number;
   /** Solo en el navegador: el logo, sacado de las fotos (no se guarda en este documento) */
   logoUrl?: string;
   busy?: Record<string, BusyRange[]>;
@@ -238,6 +252,7 @@ export function buildPublicSite(input: {
     pricing,
     experiences: buildExperiences(input.addons, settings),
     depositPercent: depositPercent(settings),
+    directDiscount: directDiscountPercent(settings),
     xeniaGuest: Boolean(input.xeniaGuest),
     terms: (settings.terms || '').trim().slice(0, TERMS_MAX),
   };
