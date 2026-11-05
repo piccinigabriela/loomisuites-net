@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import type { PricingSettings } from './pricing';
-import { Property, Reservation, CleaningTask, MessageTemplate, AddonService, WelcomeGuideData, CashMovement, CurrencyCode, TeamContact, Reminder } from '../types';
+import { Property, Reservation, CleaningTask, MessageTemplate, AddonService, AddonCategoryDef, WelcomeGuideData, CashMovement, CurrencyCode, TeamContact, Reminder } from '../types';
 
 export interface TenantDoc {
   ownerEmail: string;
@@ -22,6 +22,8 @@ export interface TenantDoc {
   guideTemplate?: string;
   templates?: MessageTemplate[];
   availableAddons?: AddonService[];
+  /** Categorías de los opcionales (ver src/lib/addonCategories.ts) */
+  addonCategories?: AddonCategoryDef[];
   currencySettings?: {
     settlementCurrency: CurrencyCode;
     rates: Partial<Record<CurrencyCode, number>>;

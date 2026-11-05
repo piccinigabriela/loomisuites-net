@@ -38,7 +38,13 @@ export interface Property {
   importAirbnbBlocks?: boolean;
 }
 
-export type AddonCategory = 'frigobar' | 'transfers' | 'spa' | 'desayuno' | 'experiencias' | 'servicios';
+/** Id de categoría: las de siempre ('frigobar', 'transfers', 'spa', 'desayuno', 'experiencias', 'servicios') o una propia ('cat-…') */
+export type AddonCategory = string;
+
+export interface AddonCategoryDef {
+  id: string;
+  label: string;
+}
 
 export interface AddonService {
   id: string;
@@ -259,6 +265,7 @@ export interface DemoState {
   welcomeGuide?: WelcomeGuideData;
   availableAddons?: AddonService[];
   addons?: AddonService[];
+  addonCategories?: AddonCategoryDef[];
   cashMovements?: CashMovement[];
   currencySettings?: {
     settlementCurrency: CurrencyCode;

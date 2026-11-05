@@ -407,6 +407,7 @@ export default function App() {
             welcomeGuide: data.tenant?.welcomeGuide || getEmptyAppState().welcomeGuide,
             availableAddons: data.tenant?.availableAddons || [],
             addons: data.tenant?.availableAddons || [],
+            addonCategories: data.tenant?.addonCategories,
             cashMovements: data.cashMovements,
             reminders: data.reminders,
             currencySettings: data.tenant?.currencySettings || { settlementCurrency: 'ARS', rates: {} },
@@ -3121,17 +3122,22 @@ export default function App() {
               {demoTab === 'addons' && (
                 <DemoAddons
                   demoState={demoState}
-                  onUpdateAddons={async (updatedAddons) => {
+                  onUpdateAddons={async (updatedAddons, categories) => {
                     if (isApp && currentUser) {
-                      await saveTenantData(tenantUid, { availableAddons: updatedAddons });
+                      await saveTenantData(tenantUid, {
+                        availableAddons: updatedAddons,
+                        ...(categories ? { addonCategories: categories } : {}),
+                      });
                     } else {
                       updateDemoState((prev) => ({
                         ...prev,
                         addons: updatedAddons,
+                        availableAddons: updatedAddons,
+                        ...(categories ? { addonCategories: categories } : {}),
                         lastUpdated: new Date().toISOString(),
                       }));
                     }
-                    showToast('Catálogo de Servicios Opcionales actualizado');
+                    showToast('Opcionales guardados');
                   }}
                   isEmployeeMode={isEmployeeMode}
                 />

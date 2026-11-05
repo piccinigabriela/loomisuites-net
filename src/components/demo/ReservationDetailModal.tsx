@@ -889,7 +889,7 @@ ${paymentsListStr}
                       <option value="">+ Seleccionar servicio para agregar...</option>
                       {availableAddons.map((addon) => (
                         <option key={addon.id} value={addon.id}>
-                          [{addon.category.toUpperCase()}] {addon.name} (+{formatCurrency(addon.price)})
+                          {addon.name} (+{formatCurrency(addon.price)})
                         </option>
                       ))}
                     </select>

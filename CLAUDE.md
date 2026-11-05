@@ -67,6 +67,10 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   `icalCore` (la app y server-sync le pasan `cleaningChecklist`). Editor del dueño arriba de la Agenda de limpiezas
   (`components/housekeeping/CleaningChecklistEditor.tsx`); al guardar puede rehacer las limpiezas pendientes que no empezaron.
 
+- Opcionales y extras (`components/demo/DemoAddons.tsx`, rediseño 5/11 con idea de Areca): lista por categoría. Categorías propias en
+  `tenants/{uid}.addonCategories` [{id, label}] (`src/lib/addonCategories.ts`; sin el campo = las 6 de siempre). Si se borra una categoría,
+  sus opcionales quedan en "Sin categoría". Los opcionales siguen en `tenants/{uid}.availableAddons`.
+
 - Tarifas: `tenants/{uid}.pricing` (se guarda entero con `savePricingDoc`). Cálculo en `src/lib/pricing.ts` (`quoteStay`):
   finde largo > temporada > normal; fin de semana = noches marcadas (por defecto vie, sáb, dom). Findes largos de
   Argentina precargados hasta oct 2027 (faltan los días turísticos 2027, sin decreto todavía). Pantalla: Administración → Tarifas.

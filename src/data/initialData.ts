@@ -944,7 +944,7 @@ export const INITIAL_ADDONS: AddonService[] = [
   {
     id: 'addon-excursion-cataratas',
     name: 'Excursión Guiada Parque Nacional Iguazú',
-    category: 'transfers',
+    category: 'experiencias',
     price: 40,
     unitLabel: 'por persona',
     description: 'Traslado ida y vuelta con guía profesional bilingüe por las pasarelas y miradores de Cataratas.',
