@@ -41,6 +41,13 @@ export interface Property {
 /** Id de categoría: las de siempre ('frigobar', 'transfers', 'spa', 'desayuno', 'experiencias', 'servicios') o una propia ('cat-…') */
 export type AddonCategory = string;
 
+/** Origen de reserva propio del complejo (Instagram, una agencia, Despegar…), con su comisión en % (0 si no cobra) */
+export interface ReservationOrigin {
+  id: string;
+  label: string;
+  commission: number;
+}
+
 export interface AddonCategoryDef {
   id: string;
   label: string;
@@ -90,6 +97,8 @@ export interface Reservation {
   nights: number;
   guestsCount: number;
   platform: BookingPlatform;
+  /** Origen propio (ReservationOrigin.id); va con platform 'direct' */
+  origin?: string;
   totalAmount: number;
   cleaningFee: number;
   commissionPaid: number;
@@ -268,6 +277,8 @@ export interface DemoState {
   addonCategories?: AddonCategoryDef[];
   /** Demo: nota que aparece en cada check-in (en la app va en tenants/{uid}.checkinNote) */
   checkinNote?: string;
+  /** Orígenes de reserva propios (en la app, tenants/{uid}.reservationOrigins) */
+  reservationOrigins?: ReservationOrigin[];
   cashMovements?: CashMovement[];
   currencySettings?: {
     settlementCurrency: CurrencyCode;

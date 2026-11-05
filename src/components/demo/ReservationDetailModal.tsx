@@ -55,8 +55,10 @@ import {
 } from '../../data/initialData';
 import { isAppMode } from '../../lib/appMode';
 import { PreCheckinStatus } from './PreCheckinStatus';
-import type { PreCheckin } from '../../types';
+import type { PreCheckin, ReservationOrigin } from '../../types';
 import { previousStays } from '../../lib/guests';
+import { ChannelSelect } from '../common/ChannelSelect';
+import { channelLabel, channelRate, channelValue, decodeChannel } from '../../lib/origins';
 
 interface ReservationDetailModalProps {
   reservation: Reservation | null;
@@ -75,6 +77,9 @@ interface ReservationDetailModalProps {
   currencySettings?: DemoState['currencySettings'];
   precheckin?: PreCheckin;
   complexName?: string;
+  /** Orígenes propios del complejo (Instagram, agencias…) y cómo guardarlos */
+  origins?: ReservationOrigin[];
+  onSaveOrigins?: (list: ReservationOrigin[]) => void;
 }
 
 export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
@@ -94,7 +99,10 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
   currencySettings,
   precheckin,
   complexName,
+  origins = [],
+  onSaveOrigins,
 }) => {
+  const [editOrigin, setEditOrigin] = useState<string | undefined>(undefined);
   // Mode toggle
   const [isEditing, setIsEditing] = useState(false);
 
@@ -140,6 +148,7 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
       setEditCheckOut(reservation.checkOut);
       setEditGuestsCount(reservation.guestsCount);
       setEditPlatform(reservation.platform);
+      setEditOrigin(reservation.origin);
       setEditStatus(reservation.status);
       setEditPinCode(reservation.pinCode);
       setEditTotalAmount(reservation.totalAmount);
@@ -353,12 +362,7 @@ ${paymentsListStr}
 
   // Calculate dynamic commissions
   const getCalculatedFinancials = () => {
-    let rate = 0;
-    if (editPlatform === 'airbnb') {
-      rate = editAirbnbFeeMode === 'traditional_3' ? 0.03 : 0.15;
-    } else if (editPlatform === 'booking' || editPlatform === 'vrbo') {
-      rate = 0.15;
-    }
+    const rate = channelRate(channelValue(editPlatform, editOrigin), editAirbnbFeeMode, origins);
     const accommodation = Math.max(0, editTotalAmount - (reservation.cleaningFee ?? 0));
     const commissionPaid = Math.round(accommodation * rate * 10) / 10;
     const netRevenue = Math.round((editTotalAmount - commissionPaid) * 10) / 10;
@@ -442,6 +446,7 @@ ${paymentsListStr}
       nights: calculatedNights,
       guestsCount: Math.max(1, Number(editGuestsCount)),
       platform: editPlatform,
+      origin: editOrigin || '', // '' = sin origen propio (se guarda con merge: undefined no borraría el anterior)
       status: editStatus,
       pinCode: editPinCode.trim() || reservation.pinCode,
       totalAmount: Math.max(0, Number(editTotalAmount)),
@@ -519,7 +524,7 @@ ${paymentsListStr}
                         : 'bg-[#FDF3E7] text-[#D86F35]'
                     }`}
                   >
-                    {reservation.platform === 'direct' ? 'Directa (0% com)' : reservation.platform.toUpperCase()}
+                    {reservation.origin ? channelLabel(reservation, origins) : reservation.platform === 'direct' ? 'Directa (0% com)' : reservation.platform.toUpperCase()}
                   </span>
                   <span className="text-[11px] text-gray-400 font-medium">
                     ID: {reservation.id.slice(0, 8)}
@@ -672,16 +677,17 @@ ${paymentsListStr}
                   <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
                     Canal de Origen
                   </label>
-                  <select
-                    value={editPlatform}
-                    onChange={(e) => setEditPlatform(e.target.value as BookingPlatform)}
+                  <ChannelSelect
+                    value={channelValue(editPlatform, editOrigin)}
+                    onChange={(v) => {
+                      const d = decodeChannel(v);
+                      setEditPlatform(d.platform);
+                      setEditOrigin(d.origin);
+                    }}
+                    origins={origins}
+                    onSaveOrigins={onSaveOrigins}
                     className="w-full text-xs font-semibold p-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
-                  >
-                    <option value="direct">Directa (0% comisiones)</option>
-                    <option value="airbnb">Airbnb</option>
-                    <option value="booking">Booking.com</option>
-                    <option value="vrbo">VRBO</option>
-                  </select>
+                  />
                 </div>
               </div>
 
@@ -1176,7 +1182,7 @@ ${paymentsListStr}
                   </div>
 
                   <div className="flex justify-between text-zinc-600 dark:text-zinc-300 text-[11px]">
-                    <span>Comisión Plataforma ({reservation.platform.toUpperCase()}):</span>
+                    <span>Comisión ({reservation.origin ? channelLabel(reservation, origins) : reservation.platform.toUpperCase()}):</span>
                     <span>-{formatCurrency(reservation.commissionPaid)}</span>
                   </div>
 

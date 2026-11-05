@@ -19,7 +19,7 @@ import {
   Menu,
   Smartphone,
 } from 'lucide-react';
-import { DemoState, Reservation, CleaningTask, ReservationStatus, PaymentStatus, CashMovement, CleaningStatus, Property, CurrencyCode, TeamContact, PreCheckin, Reminder } from './types';
+import { DemoState, Reservation, CleaningTask, ReservationStatus, PaymentStatus, CashMovement, CleaningStatus, Property, CurrencyCode, TeamContact, PreCheckin, Reminder, ReservationOrigin } from './types';
 import {
   getDemoState,
   saveDemoState,
@@ -99,6 +99,7 @@ import { useBackLayer } from './hooks/useBackLayer';
 import { normalizePricing, type PricingSettings } from './lib/pricing';
 import { accountLabel, isStaffLoginEmail, makeStaffAlias } from './lib/staffUsers';
 import { CheckInNoteModal } from './components/common/CheckInNote';
+import { normalizeOrigins } from './lib/origins';
 import { StaffLoginScreen } from './components/auth/StaffLoginScreen';
 import { buildCleaningChecklist, normalizeChecklistSettings, type CleaningChecklistSettings } from './lib/cleaningChecklist';
 import { TutorialVideoButton } from './components/common/TutorialVideo';
@@ -410,6 +411,7 @@ export default function App() {
             availableAddons: data.tenant?.availableAddons || [],
             addons: data.tenant?.availableAddons || [],
             addonCategories: data.tenant?.addonCategories,
+            reservationOrigins: data.tenant?.reservationOrigins,
             cashMovements: data.cashMovements,
             reminders: data.reminders,
             currencySettings: data.tenant?.currencySettings || { settlementCurrency: 'ARS', rates: {} },
@@ -2135,6 +2137,14 @@ export default function App() {
     showToast(text ? 'Nota de check-in guardada' : 'Sin nota de check-in');
   };
 
+  // Orígenes de reserva propios (Instagram, agencias…; src/lib/origins.ts)
+  const handleSaveOrigins = async (list: ReservationOrigin[]) => {
+    if (isApp && currentUser) {
+      await saveTenantData(tenantUid, { reservationOrigins: list });
+    }
+    updateDemoState((prev) => ({ ...prev, reservationOrigins: list, lastUpdated: new Date().toISOString() }));
+  };
+
   // Quick check in
   const handleQuickCheckIn = (resId: string) => {
     requestReservationStatus(resId, 'checked_in');
@@ -3451,6 +3461,7 @@ export default function App() {
         initialDate={initialDateForRes}
         onClose={() => setIsNewResModalOpen(false)}
         onSaveReservation={handleSaveReservation}
+        onSaveOrigins={isStaff ? undefined : handleSaveOrigins}
       />
       )}
 
@@ -3462,6 +3473,8 @@ export default function App() {
         )}
         properties={demoState.properties}
         allReservations={demoState.reservations}
+        origins={normalizeOrigins(demoState.reservationOrigins)}
+        onSaveOrigins={isStaff ? undefined : handleSaveOrigins}
         availableAddons={demoState.addons || demoState.availableAddons || []}
         onClose={() => setSelectedReservationForDetail(null)}
         onUpdateStatus={requestReservationStatus}

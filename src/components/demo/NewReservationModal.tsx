@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Calendar, User, DollarSign, KeyRound, Check, ShoppingBag, Trash2 } from 'lucide-react';
-import { DemoState, Reservation, BookingPlatform, ReservationAddon, AddonService, PaymentStatus, ReservationPayment, CurrencyCode } from '../../types';
+import { DemoState, Reservation, BookingPlatform, ReservationAddon, AddonService, PaymentStatus, ReservationPayment, CurrencyCode, ReservationOrigin } from '../../types';
 import { getRelativeDate, toLocalDateStr, formatCurrency, getActiveCurrency, getGuideHours, withHs } from '../../data/initialData';
 import { isAppMode } from '../../lib/appMode';
 import { normalizePricing, quoteStay } from '../../lib/pricing';
+import { ChannelSelect } from '../common/ChannelSelect';
+import { channelLabel, channelRate, channelValue, decodeChannel, normalizeOrigins } from '../../lib/origins';
 
 interface NewReservationModalProps {
   isOpen: boolean;
@@ -12,6 +14,8 @@ interface NewReservationModalProps {
   initialDate?: string;
   onClose: () => void;
   onSaveReservation: (reservation: Reservation) => void;
+  /** Guarda la lista de orígenes propios (Instagram, agencias…) */
+  onSaveOrigins?: (list: ReservationOrigin[]) => void;
 }
 
 export const NewReservationModal: React.FC<NewReservationModalProps> = ({
@@ -21,7 +25,10 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
   initialDate,
   onClose,
   onSaveReservation,
+  onSaveOrigins,
 }) => {
+  const origins = normalizeOrigins(demoState.reservationOrigins);
+  const [origin, setOrigin] = useState<string | undefined>(undefined);
   const [propertyId, setPropertyId] = useState<string>(
     initialPropertyId || demoState.properties[0]?.id || ''
   );
@@ -76,6 +83,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
       setGuestEmail('');
       setGuestPhone('');
       setPlatform('direct');
+      setOrigin(undefined);
       setGuestsCount(2);
       setPaymentStatus('pending');
       setSpecialNotes('');
@@ -153,14 +161,8 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
   };
 
   // Commission calculation (considering Airbnb 3% legacy mode vs 15% standard)
-  let commissionRate = 0;
-  if (platform === 'booking' || platform === 'vrbo') {
-    commissionRate = 0.15;
-  } else if (platform === 'airbnb') {
-    commissionRate = airbnbFeeMode === 'traditional_3' ? 0.03 : 0.15;
-  } else {
-    commissionRate = 0; // Direct booking
-  }
+  // Orígenes propios (src/lib/origins.ts): su comisión la pone el dueño
+  const commissionRate = channelRate(channelValue(platform, origin), airbnbFeeMode, origins);
 
   const commissionPaid = Math.round(accommodationTotal * commissionRate);
   const netRevenue = totalAmount - commissionPaid;
@@ -230,6 +232,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
       nights,
       guestsCount,
       platform,
+      ...(origin ? { origin } : {}),
       totalAmount,
       cleaningFee,
       commissionPaid,
@@ -345,16 +348,17 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
             </div>
             <div>
               <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">Canal de Origen</label>
-              <select
-                value={platform}
-                onChange={(e) => setPlatform(e.target.value as BookingPlatform)}
+              <ChannelSelect
+                value={channelValue(platform, origin)}
+                onChange={(v) => {
+                  const d = decodeChannel(v);
+                  setPlatform(d.platform);
+                  setOrigin(d.origin);
+                }}
+                origins={origins}
+                onSaveOrigins={onSaveOrigins}
                 className="w-full text-xs font-semibold p-3 rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-[#D86F35]/40 cursor-pointer shadow-xs"
-              >
-                <option value="direct">Directa (0% comisiones)</option>
-                <option value="airbnb">Airbnb</option>
-                <option value="booking">Booking.com</option>
-                <option value="vrbo">VRBO</option>
-              </select>
+              />
             </div>
           </div>
 
@@ -745,7 +749,7 @@ export const NewReservationModal: React.FC<NewReservationModalProps> = ({
               <span className="text-sm font-extrabold text-[#c46d45] dark:text-[#d88d5e]">{formatCurrency(totalAmount)}</span>
             </div>
             <div className="flex justify-between text-[11px] text-zinc-500 dark:text-zinc-400 pt-1 border-t border-[#ded9cd] dark:border-zinc-700">
-              <span>Comisión ({platform === 'airbnb' ? `Airbnb ${airbnbFeeMode === 'traditional_3' ? '3% tradicional' : '15% simplificada'}` : platform.toUpperCase()}):</span>
+              <span>Comisión ({origin ? channelLabel({ platform, origin }, origins) : platform === 'airbnb' ? `Airbnb ${airbnbFeeMode === 'traditional_3' ? '3% tradicional' : '15% simplificada'}` : platform.toUpperCase()}):</span>
               <span>-{formatCurrency(commissionPaid)}</span>
             </div>
             <div className="flex justify-between text-[11px] font-bold text-emerald-600 dark:text-emerald-400">

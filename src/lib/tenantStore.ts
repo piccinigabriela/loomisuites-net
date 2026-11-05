@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import type { PricingSettings } from './pricing';
-import { Property, Reservation, CleaningTask, MessageTemplate, AddonService, AddonCategoryDef, WelcomeGuideData, CashMovement, CurrencyCode, TeamContact, Reminder } from '../types';
+import { Property, Reservation, CleaningTask, MessageTemplate, AddonService, AddonCategoryDef, ReservationOrigin, WelcomeGuideData, CashMovement, CurrencyCode, TeamContact, Reminder } from '../types';
 
 export interface TenantDoc {
   ownerEmail: string;
@@ -42,6 +42,8 @@ export interface TenantDoc {
   checklistDismissed?: boolean;
   /** Nota que aparece en cada check-in (components/common/CheckInNote.tsx) */
   checkinNote?: string;
+  /** Orígenes de reserva propios (src/lib/origins.ts) */
+  reservationOrigins?: ReservationOrigin[];
   pricing?: PricingSettings;
   /** Checklist de limpieza propio (ver src/lib/cleaningChecklist.ts) */
   cleaningChecklist?: import('./cleaningChecklist').CleaningChecklistSettings;

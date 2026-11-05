@@ -83,6 +83,11 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   sola con las reservas (no guarda nada): junta por teléfono (últimos 8 dígitos), mail o nombre; ignora nombres de iCal tipo "Reserva Airbnb".
   En la ficha de la reserva, "Vuelve · Nª vez" (`previousStays`). La demo tiene dos huéspedes que vuelven (res-090 y res-091).
 
+- Orígenes de reserva propios (5/11, idea de Areca): `tenants/{uid}.reservationOrigins` [{id, label, commission %}] (`src/lib/origins.ts`).
+  Una reserva con origen propio lleva `platform: 'direct'` + `origin` (id; '' = ninguno), así calendario, iCal y colores no cambian.
+  Selector compartido `components/common/ChannelSelect.tsx` (alta "+ Nuevo origen…" y cambio de comisión) en Nueva reserva y en la ficha.
+  Informes → Ingresos por canal los muestra en su fila (`channelReport(..., origins)`). Las comisiones de Airbnb/Booking/Vrbo siguen fijas.
+
 - Tarifas: `tenants/{uid}.pricing` (se guarda entero con `savePricingDoc`). Cálculo en `src/lib/pricing.ts` (`quoteStay`):
   finde largo > temporada > normal; fin de semana = noches marcadas (por defecto vie, sáb, dom). Findes largos de
   Argentina precargados hasta oct 2027 (faltan los días turísticos 2027, sin decreto todavía). Pantalla: Administración → Tarifas.

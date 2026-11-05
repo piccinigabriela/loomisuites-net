@@ -8,7 +8,8 @@
  * - Cobros: los pagos registrados con fecha dentro del período (las reservas marcadas "pagado" sin pagos anotados, el día que entran).
  * Montos en la moneda de liquidación (como el resto de la app).
  */
-import type { AddonCategoryDef, Property, Reservation, ReservationPayment } from '../types';
+import type { AddonCategoryDef, Property, Reservation, ReservationOrigin, ReservationPayment } from '../types';
+import { channelLabel } from './origins';
 import { countsForReport, PLATFORM_LABELS } from './ownerReport';
 import { addonCategoryLabel } from './addonCategories';
 
@@ -156,11 +157,17 @@ export interface ChannelRow {
   share: number;
 }
 
-export function channelReport(reservations: Reservation[], range: DateRange): { rows: ChannelRow[]; totals: Omit<ChannelRow, 'key' | 'label' | 'share'> } {
+export function channelReport(
+  reservations: Reservation[],
+  range: DateRange,
+  origins: ReservationOrigin[] = []
+): { rows: ChannelRow[]; totals: Omit<ChannelRow, 'key' | 'label' | 'share'> } {
   const map = new Map<string, ChannelRow>();
   for (const r of moneyReservations(reservations, range)) {
-    const key = r.platform || 'direct';
-    const row = map.get(key) || { key, label: PLATFORM_LABELS[key] || key, reservations: 0, nights: 0, gross: 0, fees: 0, net: 0, share: 0 };
+    // Los orígenes propios (Instagram, agencias…) van en su propia fila
+    const key = r.origin ? `o:${r.origin}` : r.platform || 'direct';
+    const label = r.origin ? channelLabel(r, origins) : PLATFORM_LABELS[key] || key;
+    const row = map.get(key) || { key, label, reservations: 0, nights: 0, gross: 0, fees: 0, net: 0, share: 0 };
     const gross = r.totalAmount || 0;
     const fees = Math.min(gross, Math.max(0, r.commissionPaid || 0));
     row.reservations += 1;

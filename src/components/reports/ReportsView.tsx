@@ -8,6 +8,7 @@ import { ArrowLeft, ArrowRight, BarChart3, BedDouble, Coins, Download, Printer, 
 import type { CurrencyCode, DemoState } from '../../types';
 import { formatCurrency } from '../../data/initialData';
 import { normalizeAddonCategories } from '../../lib/addonCategories';
+import { normalizeOrigins } from '../../lib/origins';
 import {
   addonsReport,
   channelReport,
@@ -297,13 +298,13 @@ export const ReportsView: React.FC<Props> = ({ demoState, onUpdateCurrencySettin
       };
     }
     if (open === 'canales') {
-      const c = channelReport(reservations, range);
+      const c = channelReport(reservations, range, normalizeOrigins(demoState.reservationOrigins));
       const direct = c.rows.find((r) => r.key === 'direct');
       return {
-        note: 'Cuentan las reservas que entran en el período. Neto = lo que paga el huésped menos la comisión de la plataforma.',
+        note: 'Cuentan las reservas que entran en el período. Neto = lo que paga el huésped menos la comisión. Tus orígenes propios (Instagram, agencias…) van en su fila.',
         kpis: [
           { label: 'Ingresos', value: money(c.totals.gross), sub: `${c.totals.reservations} reservas` },
-          { label: 'Comisiones', value: money(c.totals.fees), sub: 'Airbnb, Booking y Vrbo' },
+          { label: 'Comisiones', value: money(c.totals.fees), sub: 'de plataformas y agencias' },
           { label: 'Neto', value: money(c.totals.net), sub: `${c.totals.nights} noches` },
           { label: 'Directas', value: direct ? pct(direct.share) : '0 %', sub: 'del neto, sin comisión' },
         ],
@@ -385,7 +386,7 @@ export const ReportsView: React.FC<Props> = ({ demoState, onUpdateCurrencySettin
       ] as TableData[],
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, reservations, properties, range.from, range.to, categories, currency]);
+  }, [open, reservations, properties, range.from, range.to, categories, currency, demoState.reservationOrigins]);
 
   const card = CARDS.find((c) => c.id === open);
 
