@@ -22,6 +22,7 @@ import {
   TrendingDown,
   Globe,
   Sparkle,
+  Users,
 } from 'lucide-react';
 import { LoomiLogo } from '../common/LoomiLogo';
 
@@ -81,7 +82,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
 
   // Automatically keep the active group open when navigating
   useEffect(() => {
-    if (['overview', 'calendar', 'bookings', 'addons', 'messages', 'team-notices', 'welcome-guide'].includes(activeTab)) {
+    if (['overview', 'calendar', 'bookings', 'guests', 'addons', 'messages', 'team-notices', 'welcome-guide'].includes(activeTab)) {
       setOpenGroups((prev) => ({ ...prev, reservations: true }));
     } else if (['housekeeping', 'xenia'].includes(activeTab)) {
       setOpenGroups((prev) => ({ ...prev, housekeeping: true }));
@@ -104,7 +105,7 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
     }
   };
 
-  const isReservationsActive = ['overview', 'calendar', 'bookings', 'addons', 'messages', 'team-notices', 'welcome-guide'].includes(activeTab);
+  const isReservationsActive = ['overview', 'calendar', 'bookings', 'guests', 'addons', 'messages', 'team-notices', 'welcome-guide'].includes(activeTab);
   const isHousekeepingActive = ['housekeeping', 'xenia'].includes(activeTab);
   const isAdminActive = ['cash-drawer', 'finances', 'properties', 'team', 'pricing'].includes(activeTab);
 
@@ -328,6 +329,22 @@ export const CleanSidebar: React.FC<CleanSidebarProps> = ({
                     {activeTab === 'bookings' && (
                       <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" />
                     )}
+                  </button>
+
+                  {/* Huéspedes */}
+                  <button
+                    onClick={() => handleTabClick('guests')}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all text-left ${
+                      activeTab === 'guests'
+                        ? 'bg-orange-50/80 text-[#E67E22] dark:bg-orange-950/40 font-semibold'
+                        : 'text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800/50 font-light'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Users className="w-3.5 h-3.5 shrink-0" />
+                      <span>Huéspedes</span>
+                    </div>
+                    {activeTab === 'guests' && <span className="w-1.5 h-1.5 rounded-full bg-[#E67E22]" />}
                   </button>
 
                   {/* Avisos & WhatsApp */}

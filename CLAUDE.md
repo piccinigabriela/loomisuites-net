@@ -79,6 +79,10 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   pasa por `requestReservationStatus` en App.tsx y muestra `CheckInNoteModal` (`components/common/CheckInNote.tsx`); se edita en Equipo y accesos
   o desde la misma ventana (solo el dueño). Paso opcional "Tu Web en Google Maps" en Cómo configurar Loomi (`onboardingChecklist.googleMaps`).
 
+- Huéspedes (Reservas → Huéspedes, pestaña `guests`; 5/11, idea de Areca): `components/guests/GuestsView.tsx` + `src/lib/guests.ts`. Se arma
+  sola con las reservas (no guarda nada): junta por teléfono (últimos 8 dígitos), mail o nombre; ignora nombres de iCal tipo "Reserva Airbnb".
+  En la ficha de la reserva, "Vuelve · Nª vez" (`previousStays`). La demo tiene dos huéspedes que vuelven (res-090 y res-091).
+
 - Tarifas: `tenants/{uid}.pricing` (se guarda entero con `savePricingDoc`). Cálculo en `src/lib/pricing.ts` (`quoteStay`):
   finde largo > temporada > normal; fin de semana = noches marcadas (por defecto vie, sáb, dom). Findes largos de
   Argentina precargados hasta oct 2027 (faltan los días turísticos 2027, sin decreto todavía). Pantalla: Administración → Tarifas.

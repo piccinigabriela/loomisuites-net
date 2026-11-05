@@ -47,6 +47,7 @@ export function buildNavGroups(opts: {
         { action: 'new-reservation', label: '+ Nueva reserva' },
         { tab: 'calendar', label: 'Ocupación (Calendario)' },
         { tab: 'bookings', label: 'Lista de reservas' },
+        { tab: 'guests', label: 'Huéspedes' },
         { tab: 'messages', label: 'Avisos y WhatsApp' },
         ...(showTeamNotices ? [{ tab: 'team-notices', label: 'Avisos al equipo' }] : []),
         { tab: 'addons', label: 'Opcionales y extras' },

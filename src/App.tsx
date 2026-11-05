@@ -137,6 +137,7 @@ const DemoProperties = lazyNamed(() => import('./components/demo/DemoProperties'
 const DemoAddons = lazyNamed(() => import('./components/demo/DemoAddons'), 'DemoAddons');
 const DemoMessages = lazyNamed(() => import('./components/demo/DemoMessages'), 'DemoMessages');
 const ReportsView = lazyNamed(() => import('./components/reports/ReportsView'), 'ReportsView');
+const GuestsView = lazyNamed(() => import('./components/guests/GuestsView'), 'GuestsView');
 const TeamNotices = lazyNamed(() => import('./components/demo/TeamNotices'), 'TeamNotices');
 const DemoCashDrawer = lazyNamed(() => import('./components/demo/DemoCashDrawer'), 'DemoCashDrawer');
 const WelcomeGuideHub = lazyNamed(() => import('./components/guide/WelcomeGuideHub'), 'WelcomeGuideHub');
@@ -2840,6 +2841,8 @@ export default function App() {
                     ? 'Limpiezas'
                     : demoTab === 'finances'
                     ? 'Informes'
+                    : demoTab === 'guests'
+                    ? 'Huéspedes'
                     : demoTab === 'welcome-guide'
                     ? 'Guía Huésped'
                     : demoTab === 'direct-booking'
@@ -3129,6 +3132,10 @@ export default function App() {
                   onUpdateReservation={handleUpdateReservation}
                   onDeleteReservation={handleDeleteReservation}
                 />
+              )}
+
+              {demoTab === 'guests' && (
+                <GuestsView demoState={demoState} precheckins={precheckins} onSelectReservation={setSelectedReservationForDetail} />
               )}
 
               {demoTab === 'housekeeping' && (

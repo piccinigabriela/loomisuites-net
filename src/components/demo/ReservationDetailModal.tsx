@@ -56,6 +56,7 @@ import {
 import { isAppMode } from '../../lib/appMode';
 import { PreCheckinStatus } from './PreCheckinStatus';
 import type { PreCheckin } from '../../types';
+import { previousStays } from '../../lib/guests';
 
 interface ReservationDetailModalProps {
   reservation: Reservation | null;
@@ -495,6 +496,14 @@ ${paymentsListStr}
             <div>
               <h3 className="text-base font-bold flex items-center gap-2 tracking-tight text-gray-900 dark:text-gray-100">
                 <span>{isEditing ? 'Editar Reserva' : reservation.guestName}</span>
+                {!isEditing && previousStays(reservation, allReservations) > 0 && (
+                  <span
+                    className="text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-900 dark:bg-emerald-900/50 dark:text-emerald-100"
+                    title="Ya se alojó antes (Reservas → Huéspedes)"
+                  >
+                    Vuelve · {previousStays(reservation, allReservations) + 1}ª vez
+                  </span>
+                )}
                 {isEditing && (
                   <span className="text-[10px] font-bold bg-[#D86F35] text-white px-2 py-0.5 rounded-md uppercase">
                     Edición
