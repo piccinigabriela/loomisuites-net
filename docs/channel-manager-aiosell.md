@@ -51,11 +51,12 @@ Esquema decidido (Gabi, 5/11): cada complejo = 1 "hotel" en Aiosell (`hotelCode`
 7. **Pruebas**: hotel de prueba de Aiosell primero; después Catalinas con el iCal de respaldo, mirando que no haya dobles reservas.
    Reglas de Firestore: `channelHotels` sin acceso desde la app (salvo administración). Probar con `rules-test/`.
 
-## Para decidir con Gabi
+## Decidido con Gabi (5/11)
 
-- Precio en las plataformas: ¿el mismo de Tarifas o con un recargo para cubrir la comisión (por ejemplo +15 %)? Hoy acá se usa el
-  descuento por reservar directo, así que podría ser el mismo.
-- Precio por cantidad de huéspedes: las tarifas de Loomi pueden variar por personas; Aiosell manda un solo `rate` por tarifa en la doc.
+- Precio en las plataformas: lo decide cada cliente. Ajuste por complejo en la pantalla del channel manager:
+  "igual que Tarifas" o "Tarifas + X %" (libre). Y la opción de no mandar precios desde Loomi (los maneja en cada plataforma o en Aiosell).
+- Loomi manda un solo precio por noche y por unidad (el de `quoteStay`) y la estadía mínima. Nada de precios por cantidad de huéspedes
+  ni gestión de tarifas: quien la quiera contrata el revenue manager de Aiosell aparte.
 
 ## Para preguntar a Aiosell (técnico)
 
