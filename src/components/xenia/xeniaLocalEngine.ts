@@ -822,7 +822,7 @@ Loomi trae **5 mensajes listos** para cada momento de la estadía:
 2. Coordinación del Día de Llegada
 3. Control de Confort (unas horas después de llegar)
 4. Recordatorio de Check-out
-5. Solicitud de Reseña
+5. Despedida: opinión privada y reseña
 
 Se completan solos con el nombre del huésped, las fechas, la unidad y el link de su guía, en español, inglés o portugués. Se abren en WhatsApp **listos para enviar con un toque**: no se mandan solos.
 

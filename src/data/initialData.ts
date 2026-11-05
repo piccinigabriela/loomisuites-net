@@ -662,10 +662,10 @@ export const INITIAL_TEMPLATES: MessageTemplate[] = [
   },
   {
     id: 'tpl-5',
-    title: 'Solicitud de Reseña 5 Estrellas y Descuento Directo',
+    title: 'Despedida: Opinión Privada, Reseña y Descuento Directo',
     triggerEvent: '2 horas después del Check-out',
     channel: 'whatsapp',
-    content: '¡Muchas gracias por visitar Complejo Iguazú y cuidar {{unidad_alojamiento}} con tanto cariño, {{nombre_huésped}}! 🌟\nSi disfrutaron de la naturaleza y el descanso, nos ayudarían un montón dejándonos una reseña de 5 estrellas en Google (lleva 1 minuto):\n⭐ {{link_resena_google}}\nY para su próxima escapada a la selva misionera, pueden reservar directo con nosotros con tarifa preferencial: 🔗 {{link_guia_digital}}\n¡Hasta la próxima!',
+    content: '¡Muchas gracias por visitar Complejo Iguazú y cuidar {{unidad_alojamiento}} con tanto cariño, {{nombre_huésped}}! 🌟\nAntes que nada: ¿hubo algo que podamos mejorar? Contanos por acá con total confianza; lo leemos nosotros y nos ayuda muchísimo.\nY si tienen un minuto, una reseña en Google nos ayuda un montón: ⭐ {{link_resena_google}}\nY para su próxima escapada a la selva misionera, pueden reservar directo con nosotros con tarifa preferencial: 🔗 {{link_guia_digital}}\n¡Hasta la próxima!',
     variables: ['{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}', '{{link_resena_google}}'],
   },
 ];
@@ -709,10 +709,10 @@ export const APP_TEMPLATES: MessageTemplate[] = [
   },
   {
     id: 'tpl-5',
-    title: 'Solicitud de Reseña y Descuento Directo',
+    title: 'Despedida: Opinión Privada, Reseña y Descuento Directo',
     triggerEvent: '2 horas después del Check-out',
     channel: 'whatsapp',
-    content: '¡Muchas gracias por elegir {{nombre_complejo}}, {{nombre_huésped}}! 🌟\nSi disfrutaste tu estadía en {{unidad_alojamiento}}, nos ayudarías un montón dejándonos una reseña en Google (lleva 1 minuto):\n⭐ {{link_resena_google}}\nY para tu próxima visita, escribinos directo por este WhatsApp: tenés tarifa preferencial reservando con nosotros.\n¡Hasta la próxima!',
+    content: '¡Muchas gracias por elegir {{nombre_complejo}}, {{nombre_huésped}}! 🌟\nAntes que nada: ¿hubo algo de tu estadía en {{unidad_alojamiento}} que podamos mejorar? Contanos por acá con total confianza; lo leemos nosotros y nos ayuda muchísimo.\nY si tenés un minuto, una reseña en Google nos ayuda un montón: ⭐ {{link_resena_google}}\nPara tu próxima visita, escribinos directo por este WhatsApp: tenés tarifa preferencial reservando con nosotros.\n¡Hasta la próxima!',
     variables: ['{{nombre_complejo}}', '{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{link_resena_google}}'],
   },
 ];
@@ -753,10 +753,10 @@ export const APP_TEMPLATES_EN: MessageTemplate[] = [
   },
   {
     id: 'tpl-5',
-    title: 'Review Request & Direct Booking Discount',
+    title: 'Farewell: Private Feedback, Review & Direct Booking Discount',
     triggerEvent: '2 hours after check-out',
     channel: 'whatsapp',
-    content: 'Thank you so much for staying at {{nombre_complejo}}, {{nombre_huésped}}! 🌟\nIf you enjoyed your time at {{unidad_alojamiento}}, a Google review would help us a lot (it takes 1 minute):\n⭐ {{link_resena_google}}\nAnd for your next visit, just message us here on WhatsApp: booking directly with us gets you a preferential rate.\nHope to see you again!',
+    content: 'Thank you so much for staying at {{nombre_complejo}}, {{nombre_huésped}}! 🌟\nFirst of all: is there anything about your stay at {{unidad_alojamiento}} we could improve? Feel free to tell us here; we read it ourselves and it helps us a lot.\nAnd if you have a minute, a Google review helps us a lot: ⭐ {{link_resena_google}}\nFor your next visit, just message us here on WhatsApp: booking directly with us gets you a preferential rate.\nHope to see you again!',
     variables: ['{{nombre_complejo}}', '{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}', '{{link_resena_google}}'],
   },
 ];
@@ -797,10 +797,10 @@ export const APP_TEMPLATES_PT: MessageTemplate[] = [
   },
   {
     id: 'tpl-5',
-    title: 'Pedido de Avaliação e Desconto Direto',
+    title: 'Despedida: Opinião Privada, Avaliação e Desconto Direto',
     triggerEvent: '2 horas após o check-out',
     channel: 'whatsapp',
-    content: 'Muito obrigado por escolher {{nombre_complejo}}, {{nombre_huésped}}! 🌟\nSe você gostou da sua estadia em {{unidad_alojamiento}}, uma avaliação no Google nos ajudaria muito (leva 1 minuto):\n⭐ {{link_resena_google}}\nE na próxima visita, é só nos escrever por este WhatsApp: reservando diretamente conosco você tem tarifa especial.\nAté a próxima!',
+    content: 'Muito obrigado por escolher {{nombre_complejo}}, {{nombre_huésped}}! 🌟\nAntes de tudo: tem algo da sua estadia em {{unidad_alojamiento}} que possamos melhorar? Conte pra gente por aqui, com toda a confiança; nós mesmos lemos e isso nos ajuda muito.\nE se tiver um minuto, uma avaliação no Google nos ajuda muito: ⭐ {{link_resena_google}}\nNa próxima visita, é só nos escrever por este WhatsApp: reservando diretamente conosco você tem tarifa especial.\nAté a próxima!',
     variables: ['{{nombre_complejo}}', '{{nombre_huésped}}', '{{unidad_alojamiento}}', '{{link_guia_digital}}', '{{link_resena_google}}'],
   },
 ];
