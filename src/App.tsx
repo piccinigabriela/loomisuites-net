@@ -19,7 +19,7 @@ import {
   Menu,
   Smartphone,
 } from 'lucide-react';
-import { DemoState, Reservation, CleaningTask, ReservationStatus, PaymentStatus, CashMovement, CleaningStatus, Property, CurrencyCode, TeamContact, PreCheckin, Reminder, ReservationOrigin } from './types';
+import { DemoState, Reservation, CleaningTask, ReservationStatus, PaymentStatus, CashMovement, CleaningStatus, Property, CurrencyCode, TeamContact, PreCheckin, Reminder, ReservationOrigin, WelcomeGuideData } from './types';
 import {
   getDemoState,
   saveDemoState,
@@ -153,6 +153,7 @@ const ReservationDetailModal = lazyNamed(() => import('./components/demo/Reserva
 const DemoBookingsList = lazyNamed(() => import('./components/demo/DemoBookingsList'), 'DemoBookingsList');
 const JsonDataModal = lazyNamed(() => import('./components/demo/JsonDataModal'), 'JsonDataModal');
 const OnboardingWizardModal = lazyNamed(() => import('./components/demo/OnboardingWizardModal'), 'OnboardingWizardModal');
+import { ComplexSetup, type ComplexSetupData } from './components/onboarding/ComplexSetup';
 const CalendarImportModal = lazyNamed(() => import('./components/demo/CalendarImportModal'), 'CalendarImportModal');
 const ClientAuthModal = lazyNamed(() => import('./components/auth/ClientAuthModal'), 'ClientAuthModal');
 const ClientsPanel = lazyNamed(() => import('./components/admin/ClientsPanel'), 'ClientsPanel');
@@ -1331,6 +1332,39 @@ export default function App() {
   };
 
   // Handle Onboarding Completion
+  // "Tu complejo" paso a paso (app real): guarda solo nombre, ubicación, contacto, horarios y moneda
+  const handleSaveComplexSetup = async (d: ComplexSetupData) => {
+    const guide = {
+      ...(demoState.welcomeGuide || ({} as WelcomeGuideData)),
+      propertyName: d.complexName,
+      tagline: d.tagline,
+      locationAddress: d.address,
+      googleMapsUrl: d.googleMapsUrl,
+      hostPhone: d.hostPhone,
+      checkinHour: `${d.checkinHour} hs`,
+      checkoutHour: `${d.checkoutHour} hs`,
+    } as WelcomeGuideData;
+    const currencySettings = {
+      ...(demoState.currencySettings || { rates: {} }),
+      settlementCurrency: d.currency,
+    } as NonNullable<DemoState['currencySettings']>;
+    if (isApp && currentUser) {
+      await saveTenantData(tenantUid, {
+        welcomeGuide: guide,
+        complexName: d.complexName,
+        address: d.address,
+        city: d.city,
+        currencySettings,
+        ...(tenantDoc?.ownerEmail ? {} : { ownerEmail: currentUser.email || '' }),
+        // Fecha de alta (la usa la prueba gratis del personal): solo si todavía no estaba
+        ...(tenantDoc?.createdAt ? {} : { createdAt: new Date() }),
+      });
+    } else {
+      updateDemoState((prev) => ({ ...prev, welcomeGuide: guide, currencySettings, lastUpdated: new Date().toISOString() }));
+    }
+    showToast('Datos del complejo guardados.');
+  };
+
   const handleCompleteOnboarding = async (data: {
     complexName: string;
     city: string;
@@ -3532,7 +3566,23 @@ export default function App() {
       />
       )}
 
-      {everOpened.onboarding && (
+      {/* App real: "Tu complejo" paso a paso, que guarda solo esos datos. El asistente viejo (crea unidades de prueba
+          y pisaba la guía entera) queda para la demo. */}
+      {isApp && !isStaff && isOnboardingModalOpen && (
+        <ComplexSetup
+          isOpen
+          guide={demoState.welcomeGuide}
+          city={tenantDoc?.city}
+          currency={demoState.currencySettings?.settlementCurrency}
+          onSave={handleSaveComplexSetup}
+          onClose={() => setIsOnboardingModalOpen(false)}
+          onNext={() => {
+            setIsOnboardingModalOpen(false);
+            setDemoTab('properties');
+          }}
+        />
+      )}
+      {!isApp && everOpened.onboarding && (
       <OnboardingWizardModal
         isOpen={isOnboardingModalOpen}
         onClose={() => setIsOnboardingModalOpen(false)}

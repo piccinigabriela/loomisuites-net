@@ -244,8 +244,10 @@ export const CleanToday: React.FC<CleanTodayProps> = ({
             <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">
               Configurá tu complejo
             </h3>
-            <p className="text-xs text-stone-600 dark:text-zinc-400 leading-relaxed">
-              Todavía no tenés cabañas o departamentos dados de alta. Iniciá el asistente de configuración para cargar tus unidades, fotos, reglas y servicios en pocos minutos.
+            <p className="text-sm text-stone-800 dark:text-stone-200 leading-relaxed">
+              {isAppMode
+                ? 'Empezá por los datos de tu complejo: nombre, dirección, WhatsApp y horarios. Después cargás tus cabañas o departamentos.'
+                : 'Todavía no tenés cabañas o departamentos dados de alta. Iniciá el asistente de configuración para cargar tus unidades, fotos, reglas y servicios en pocos minutos.'}
             </p>
           </div>
           {onOpenOnboardingWizard && (

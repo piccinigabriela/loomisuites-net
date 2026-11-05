@@ -64,6 +64,9 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
 - "Cómo configurar Loomi" (primeros pasos, arriba de Hoy en la app real): `components/onboarding/FirstStepsChecklist.tsx`. 6 pasos que se tildan
   solos (complejo, unidades, tarifas, Airbnb/Booking, reservas, guía) + opcionales (equipo, Tu Web, Xenia huéspedes, checklist, mensajes).
   Marcas a mano en `tenants/{uid}.onboardingChecklist`; "Ocultar" = `checklistDismissed` (se vuelve a abrir desde el menú de la cuenta).
+  Paso "Tu complejo" (5/11, idea de Areca): `components/onboarding/ComplexSetup.tsx`, 4 pantallas (nombre, ubicación, WhatsApp, horarios y moneda),
+  arranca con lo cargado y guarda solo eso (`handleSaveComplexSetup` en App.tsx). En la app real reemplaza a `OnboardingWizardModal`
+  (lo abren `isOnboardingModalOpen` y `?configurar`), que pisaba la guía entera y la fecha de alta: ese queda solo para la demo.
 - Checklist de limpieza: `tenants/{uid}.cleaningChecklist` {items, units: {propertyId: [tareas]}} (`src/lib/cleaningChecklist.ts`,
   `buildCleaningChecklist`; sin `items` = las 4 de siempre). Lo usan todas las limpiezas nuevas: reserva manual, importación y
   `icalCore` (la app y server-sync le pasan `cleaningChecklist`). Editor del dueño arriba de la Agenda de limpiezas
