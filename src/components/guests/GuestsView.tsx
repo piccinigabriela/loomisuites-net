@@ -1,14 +1,18 @@
 /**
  * Reservas → Huéspedes: cada persona una sola vez, cuántas veces vino y cuándo vuelve (src/lib/guests.ts).
  * Para reconocer al que vuelve y escribirle en temporada. La ven el dueño y Recepción.
+ * "Que vuelvan" (5/11): a quien ya vino y no tiene otra reserva, "Invitar a volver" abre WhatsApp con un mensaje armado
+ * (descuento por reservar directo y link de Tu Web si están). Nota del huésped: GuestNote.tsx.
  */
 import React, { useMemo, useState } from 'react';
-import { MessageCircle, Search, Users } from 'lucide-react';
+import { MessageCircle, Search, StickyNote, Users } from 'lucide-react';
 import type { DemoState, PreCheckin, Reservation } from '../../types';
-import { buildGuestList } from '../../lib/guests';
+import { buildGuestList, returnInviteMessage } from '../../lib/guests';
+import { guessGuestLanguage } from '../../data/initialData';
+import { GuestNoteBox } from './GuestNote';
 import { whatsappDigits } from '../../lib/publicSite';
 
-type Filter = 'todos' | 'volvieron' | 'proximos';
+type Filter = 'todos' | 'volvieron' | 'proximos' | 'invitar';
 
 const fmt = (s: string) => {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || '');
@@ -24,8 +28,14 @@ export const GuestsView: React.FC<{
   demoState: DemoState;
   precheckins?: Record<string, PreCheckin>;
   onSelectReservation: (r: Reservation) => void;
-}> = ({ demoState, precheckins = {}, onSelectReservation }) => {
+  onSaveGuestNote?: (resId: string, text: string) => Promise<void> | void;
+  /** Para el mensaje de "Invitar a volver" */
+  complexName?: string;
+  webLink?: string;
+  discount?: number;
+}> = ({ demoState, precheckins = {}, onSelectReservation, onSaveGuestNote, complexName, webLink, discount }) => {
   const [q, setQ] = useState('');
+  const [noteOpen, setNoteOpen] = useState('');
   const [filter, setFilter] = useState<Filter>('todos');
   const today = localToday();
   const guests = useMemo(() => buildGuestList(demoState.reservations || [], today, precheckins), [demoState.reservations, today, precheckins]);
@@ -34,10 +44,20 @@ export const GuestsView: React.FC<{
 
   const returning = guests.filter((g) => g.stays > 1).length;
   const upcoming = guests.filter((g) => g.nextStay).length;
+  // Invitar a volver: vino hace más de un mes, no tiene otra reserva y hay teléfono
+  const monthAgo = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  })();
+  const canInvite = (g: (typeof guests)[number]) =>
+    g.stays > 0 && !g.nextStay && Boolean(g.lastStay) && g.lastStay <= monthAgo && Boolean(whatsappDigits(g.phone));
+  const toInvite = guests.filter(canInvite).length;
   const term = q.trim().toLowerCase();
   const shown = guests.filter((g) => {
     if (filter === 'volvieron' && g.stays < 2) return false;
     if (filter === 'proximos' && !g.nextStay) return false;
+    if (filter === 'invitar' && !canInvite(g)) return false;
     if (!term) return true;
     return g.name.toLowerCase().includes(term) || g.phone.replace(/\D/g, '').includes(term.replace(/\D/g, '') || '§') || g.email.toLowerCase().includes(term);
   });
@@ -68,6 +88,7 @@ export const GuestsView: React.FC<{
           {chip('todos', 'Todos', guests.length)}
           {chip('volvieron', 'Volvieron', returning)}
           {chip('proximos', 'Con próxima reserva', upcoming)}
+          {chip('invitar', 'Para invitar a volver', toInvite)}
         </div>
         <label className="relative sm:ml-auto sm:w-72">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-700 dark:text-stone-300" />
@@ -99,8 +120,16 @@ export const GuestsView: React.FC<{
               g.nights ? `${g.nights} ${g.nights === 1 ? 'noche' : 'noches'}` : '',
               g.country,
             ].filter(Boolean);
+            const invite = canInvite(g);
+            const waHref = wa
+              ? `https://wa.me/${wa}` +
+                (invite
+                  ? `?text=${encodeURIComponent(returnInviteMessage({ name: g.name, complexName, link: webLink, discount, lang: guessGuestLanguage(g.phone) }))}`
+                  : '')
+              : '';
             return (
-              <li key={g.key} className="p-4 sm:px-5 flex flex-col sm:flex-row sm:items-center gap-3">
+              <li key={g.key} className="p-4 sm:px-5 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex-1 min-w-0">
                   <p className="flex flex-wrap items-center gap-2 text-base font-bold">
                     <span className="truncate">{g.name}</span>
@@ -116,17 +145,33 @@ export const GuestsView: React.FC<{
                     )}
                   </p>
                   {details.length > 0 && <p className="mt-0.5 text-sm text-stone-800 dark:text-stone-200">{details.join(' · ')}</p>}
+                  {g.note && noteOpen !== g.key && (
+                    <p className="mt-1 text-sm font-semibold text-amber-950 dark:text-amber-100 flex items-start gap-1.5">
+                      <StickyNote className="w-4 h-4 shrink-0 mt-0.5 text-amber-700 dark:text-amber-300" />
+                      <span className="break-words">{g.note}</span>
+                    </p>
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  {wa && (
+                <div className="flex flex-wrap items-center gap-2">
+                  {waHref && (
                     <a
-                      href={`https://wa.me/${wa}`}
+                      href={waHref}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="min-h-[40px] px-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold flex items-center gap-1.5"
                     >
-                      <MessageCircle className="w-4 h-4" /> WhatsApp
+                      <MessageCircle className="w-4 h-4" /> {invite ? 'Invitar a volver' : 'WhatsApp'}
                     </a>
+                  )}
+                  {onSaveGuestNote && latest && (
+                    <button
+                      type="button"
+                      onClick={() => setNoteOpen(noteOpen === g.key ? '' : g.key)}
+                      aria-expanded={noteOpen === g.key}
+                      className="min-h-[40px] px-3.5 rounded-xl border-2 border-stone-300 dark:border-zinc-600 text-sm font-bold hover:bg-stone-100 dark:hover:bg-zinc-800 cursor-pointer"
+                    >
+                      Nota
+                    </button>
                   )}
                   {latest && (
                     <button
@@ -138,6 +183,10 @@ export const GuestsView: React.FC<{
                     </button>
                   )}
                 </div>
+                </div>
+                {noteOpen === g.key && onSaveGuestNote && latest && (
+                  <GuestNoteBox note={g.note} initialEditing onDone={() => setNoteOpen('')} onSave={(text) => onSaveGuestNote(latest.id, text)} />
+                )}
               </li>
             );
           })}

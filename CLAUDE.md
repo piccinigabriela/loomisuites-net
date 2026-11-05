@@ -84,6 +84,10 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
 - Huéspedes (Reservas → Huéspedes, pestaña `guests`; 5/11, idea de Areca): `components/guests/GuestsView.tsx` + `src/lib/guests.ts`. Se arma
   sola con las reservas (no guarda nada): junta por teléfono (últimos 8 dígitos), mail o nombre; ignora nombres de iCal tipo "Reserva Airbnb".
   En la ficha de la reserva, "Vuelve · Nª vez" (`previousStays`). La demo tiene dos huéspedes que vuelven (res-090 y res-091).
+  Nota del huésped (5/11): `Reservation.guestNote` + `guestNoteAt`; vale la última escrita entre las reservas de esa persona (`guestNoteFor`),
+  así no hace falta colección nueva ni cambiar reglas. Se ve y edita en la ficha (`components/guests/GuestNote.tsx`) y en la lista (botón Nota).
+  "Que vuelvan": filtro "Para invitar a volver" (vino hace más de 30 días, sin otra reserva, con teléfono) y botón "Invitar a volver" con
+  mensaje armado (`returnInviteMessage`, es/en/pt según el teléfono; descuento directo y link de Tu Web si están publicados). Demo: res-092.
 
 - Orígenes de reserva propios (5/11, idea de Areca): `tenants/{uid}.reservationOrigins` [{id, label, commission %}] (`src/lib/origins.ts`).
   Una reserva con origen propio lleva `platform: 'direct'` + `origin` (id; '' = ninguno), así calendario, iCal y colores no cambian.

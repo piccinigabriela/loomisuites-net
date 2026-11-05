@@ -56,7 +56,8 @@ import {
 import { isAppMode } from '../../lib/appMode';
 import { PreCheckinStatus } from './PreCheckinStatus';
 import type { PreCheckin, ReservationOrigin } from '../../types';
-import { previousStays } from '../../lib/guests';
+import { guestNoteFor, previousStays } from '../../lib/guests';
+import { GuestNoteBox } from '../guests/GuestNote';
 import { ChannelSelect } from '../common/ChannelSelect';
 import { channelLabel, channelRate, channelValue, decodeChannel } from '../../lib/origins';
 
@@ -80,6 +81,8 @@ interface ReservationDetailModalProps {
   /** Orígenes propios del complejo (Instagram, agencias…) y cómo guardarlos */
   origins?: ReservationOrigin[];
   onSaveOrigins?: (list: ReservationOrigin[]) => void;
+  /** Guarda la nota del huésped en esta reserva (se recuerda en las próximas de la misma persona) */
+  onSaveGuestNote?: (resId: string, text: string) => Promise<void> | void;
 }
 
 export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
@@ -101,6 +104,7 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
   complexName,
   origins = [],
   onSaveOrigins,
+  onSaveGuestNote,
 }) => {
   const [editOrigin, setEditOrigin] = useState<string | undefined>(undefined);
   // Mode toggle
@@ -1028,6 +1032,12 @@ ${paymentsListStr}
           ) : (
             /* ================= VIEW MODE ================= */
             <>
+              {userRole !== 'housekeeping' && (
+                <GuestNoteBox
+                  note={guestNoteFor(reservation, allReservations)}
+                  onSave={onSaveGuestNote ? (text) => onSaveGuestNote(reservation.id, text) : undefined}
+                />
+              )}
               {/* Property name */}
               <div className="p-4 bg-white dark:bg-[#1A1B20] rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
                 <span className="text-[10px] font-bold text-[#D86F35] uppercase tracking-wider block">

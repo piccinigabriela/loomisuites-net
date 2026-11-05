@@ -132,6 +132,10 @@ export interface Reservation {
   /** Reserva cargada a mano atada a una reserva del calendario de Airbnb/Booking (id que tendría la importada).
    *  La sincronización le cambia las fechas y la cancela como si fuera importada (icalCore.ts). */
   icalLinkId?: string;
+  /** Nota sobre la persona ("viene con su perro"): se recuerda en sus próximas reservas; vale la última escrita (src/lib/guests.ts) */
+  guestNote?: string;
+  /** ISO: cuándo se escribió guestNote */
+  guestNoteAt?: string;
 }
 
 export interface CleaningChecklistItem {

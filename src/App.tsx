@@ -81,7 +81,7 @@ import { syncCalendars } from './lib/icalSync';
 import { DesktopMoreMenu } from './components/demo/DesktopMoreMenu';
 import { DesktopAreasBar, DesktopCrumb, buildNavGroups, useTopNavEnabled } from './components/demo/DesktopNav';
 import { findConflicts, getDateStringInTimeZone, getLocalDateString, SyncResult } from './lib/icalCore';
-import { allowedTheme, buildPublicSite, buildSiteBusy, siteUrl, stableJson, visibleUnits } from './lib/publicSite';
+import { allowedTheme, buildPublicSite, buildSiteBusy, directDiscountPercent, siteUrl, stableJson, visibleUnits } from './lib/publicSite';
 import { publishSite, publishSiteBusy } from './lib/publicSiteStore';
 import {
   AccessInfo,
@@ -1713,6 +1713,29 @@ export default function App() {
     showToast(`Reserva de ${updatedRes.guestName} guardada y actualizada.`);
   };
 
+  // Nota del huésped: se guarda en la reserva y se recuerda en las próximas de la misma persona (src/lib/guests.ts)
+  const handleSaveGuestNote = async (resId: string, text: string) => {
+    const res = demoState.reservations.find((r) => r.id === resId);
+    if (!res) return;
+    const updated: Reservation = { ...res, guestNote: text, guestNoteAt: new Date().toISOString() };
+    if (isApp && currentUser) {
+      try {
+        await saveReservationDoc(tenantUid, updated);
+      } catch (err) {
+        console.error(err);
+        showToast('No se pudo guardar la nota. Probá de nuevo.');
+        throw err;
+      }
+    } else {
+      updateDemoState((prev) => ({
+        ...prev,
+        reservations: prev.reservations.map((r) => (r.id === resId ? updated : r)),
+        lastUpdated: new Date().toISOString(),
+      }));
+    }
+    showToast(text ? 'Nota del huésped guardada.' : 'Nota del huésped borrada.');
+  };
+
   // Avisos al equipo: contactos y marca de "avisado"
   const handleSaveTeamContacts = async (contacts: TeamContact[]) => {
     if (isApp && currentUser) {
@@ -3145,7 +3168,15 @@ export default function App() {
               )}
 
               {demoTab === 'guests' && (
-                <GuestsView demoState={demoState} precheckins={precheckins} onSelectReservation={setSelectedReservationForDetail} />
+                <GuestsView
+                  demoState={demoState}
+                  precheckins={precheckins}
+                  onSelectReservation={setSelectedReservationForDetail}
+                  onSaveGuestNote={staffRole === 'limpieza' ? undefined : handleSaveGuestNote}
+                  complexName={demoState.welcomeGuide?.propertyName || tenantDoc?.complexName || ''}
+                  webLink={isApp ? (tenantDoc?.webSite?.enabled && tenantDoc.webSite.slug ? siteUrl(tenantDoc.webSite.slug) : '') : ''}
+                  discount={isApp ? (tenantDoc?.webSite?.enabled ? directDiscountPercent(tenantDoc.webSite) : 0) : 10}
+                />
               )}
 
               {demoTab === 'housekeeping' && (
@@ -3475,6 +3506,7 @@ export default function App() {
         allReservations={demoState.reservations}
         origins={normalizeOrigins(demoState.reservationOrigins)}
         onSaveOrigins={isStaff ? undefined : handleSaveOrigins}
+        onSaveGuestNote={staffRole === 'limpieza' ? undefined : handleSaveGuestNote}
         availableAddons={demoState.addons || demoState.availableAddons || []}
         onClose={() => setSelectedReservationForDetail(null)}
         onUpdateStatus={requestReservationStatus}

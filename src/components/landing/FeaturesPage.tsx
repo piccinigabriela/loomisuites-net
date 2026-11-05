@@ -34,7 +34,7 @@ const BLOCKS: Block[] = [
       <><B>Nueva reserva:</B> el precio sale solo de tus tarifas. Sumás descuento, early check-in, late check-out, opcionales y notas.</>,
       <><B>Calendario de ocupación:</B> todas las unidades por día, con colores por Airbnb, Booking, directo y VRBO.</>,
       <><B>Lista de reservas:</B> buscador por huésped, unidad o teléfono, filtros, exportación a Excel e impresión.</>,
-      <><B>Huéspedes:</B> cada persona una vez, cuántas veces vino y cuándo vuelve, con su WhatsApp a mano.</>,
+      <><B>Huéspedes:</B> cada persona una vez, cuántas veces vino y cuándo vuelve, con una nota que se recuerda ("viene con su perro") y un mensaje listo para invitar a volver.</>,
       <><B>Tus propios orígenes:</B> Instagram, una agencia, Despegar… con su comisión, y separados en los informes.</>,
       <><B>Nota de check-in:</B> lo que hay que pedir o explicar al dar cada ingreso.</>,
       <><B>Cobros:</B> seña, saldo y estado de pago de cada reserva.</>,
