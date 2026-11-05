@@ -5,7 +5,7 @@
  */
 import React from 'react';
 import type { PublicSitePhoto, PublicSiteUnit } from '../../../lib/publicSite';
-import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink } from '../siteKit';
+import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink, SiteLogo, TermsBox } from '../siteKit';
 
 const VARS = {
   '--bg': '#F3F3F0',
@@ -59,6 +59,7 @@ export const RevistaSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
         {/* Portada: cabecera y texto a la izquierda, foto grande a la derecha */}
         <header className="pt-10 sm:pt-14 grid gap-8 sm:grid-cols-12 sm:gap-10 items-start">
           <div className="sm:col-span-4 space-y-6 sm:pt-6 order-2 sm:order-1">
+            {site.logoUrl && <SiteLogo src={site.logoUrl} name={site.name} className="flex w-fit rounded-2xl bg-white p-2 border border-[var(--line)]" />}
             <Masthead name={site.name} />
             {site.tagline && (
               <h1 style={mincho} className="text-2xl sm:text-3xl leading-snug text-balance">
@@ -139,7 +140,8 @@ export const RevistaSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
                         <p className="text-base font-semibold">{t.askPrice}</p>
                       )}
                       {site.whatsapp && (
-                        <a href={waLink(site.whatsapp, b.requestText(unit, below ? 0 : total || 0))} target="_blank" rel="noopener noreferrer" className={btn}>
+                        <a onClick={b.guardRequest}
+                            href={waLink(site.whatsapp, b.requestText(unit, below ? 0 : total || 0))} target="_blank" rel="noopener noreferrer" className={btn}>
                           {below ? t.askGeneral : t.ask}
                         </a>
                       )}
@@ -153,7 +155,12 @@ export const RevistaSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
               ))}
             </div>
           )}
-          {results && results.free.length > 0 && <p className="mt-12 text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>}
+          {results && results.free.length > 0 && (
+          <>
+            <p className="mt-12 text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>
+            <TermsBox b={b} className="mt-6 max-w-2xl" />
+          </>
+        )}
         </section>
 
         <ExperiencesSection

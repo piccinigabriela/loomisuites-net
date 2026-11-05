@@ -3,7 +3,7 @@
  * "Corte delle Vette" es inventado: no existe. Fotos en public/muestra/.
  */
 import type { PublicSiteDoc, PublicSitePhoto } from './publicSite';
-import { expPhotoKey } from './publicSite';
+import { expPhotoKey, LOGO_KEY } from './publicSite';
 
 function plusDays(n: number): string {
   const d = new Date();
@@ -32,6 +32,8 @@ export function sampleSite(theme: string): PublicSiteDoc {
       { id: 'u3', name: 'Casa de la Finca', maxGuests: 6, bedrooms: 3, bathrooms: 2, description: 'Para familias o amigos: tres dormitorios, cocina completa y parrilla.', basePrice: 320000 },
     ],
     pricing: null,
+    terms:
+      '• La reserva queda confirmada al recibir la seña del 30%.\n• Cancelación sin cargo hasta 15 días antes de la llegada; después, la seña no se devuelve.\n• Ingreso desde las 14 y salida hasta las 11.\n• No se aceptan mascotas.',
     busy: { u2: [{ s: plusDays(10), e: plusDays(13) }] },
     experiences: [
       {
@@ -53,4 +55,5 @@ export const samplePhotos: PublicSitePhoto[] = [
   ph(2), ph(3, '', 1), ph(1, '', 2), ph(8, '', 3), ph(5, '', 4), ph(4, '', 5),
   ph(6, 'u1'), ph(4, 'u1', 1), ph(7, 'u2'), ph(2, 'u2', 1), ph(3, 'u3'), ph(1, 'u3', 1),
   ph(8, expPhotoKey('x1')), ph(3, expPhotoKey('x3')),
+  { id: 'logo', data: '/muestra/logo.png', order: 0, unitId: LOGO_KEY },
 ];

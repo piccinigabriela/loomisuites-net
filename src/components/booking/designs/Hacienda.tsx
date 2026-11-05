@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { ArrowRight, MapPin, Clock } from 'lucide-react';
 import type { PublicSiteUnit } from '../../../lib/publicSite';
-import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteViewProps, useGoogleFont, useSiteBooking, waLink } from '../siteKit';
+import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteViewProps, useGoogleFont, useSiteBooking, waLink, SiteLogo, TermsBox } from '../siteKit';
 
 const VARS = {
   '--bg': '#FBF8F2',
@@ -80,6 +80,7 @@ export const HaciendaSite: React.FC<SiteViewProps> = ({ site, photos, preview })
           <LangSwitch b={b} className="ml-auto flex gap-0.5 rounded-full bg-black/35 backdrop-blur p-1" activeCls="bg-white text-stone-900" idleCls="text-white" />
         </div>
         <div className="relative h-full flex flex-col items-center justify-center text-center text-white px-6">
+          <SiteLogo src={site.logoUrl} name={site.name} className="inline-flex mb-6 rounded-2xl bg-white/95 p-2 shadow-lg" />
           <h1 style={serif} className="text-[clamp(2.4rem,8vw,5.5rem)] leading-none uppercase tracking-[0.08em] text-balance">
             {site.name}
           </h1>
@@ -222,6 +223,7 @@ export const HaciendaSite: React.FC<SiteViewProps> = ({ site, photos, preview })
                         )}
                         {site.whatsapp && (
                           <a
+                            onClick={b.guardRequest}
                             href={waLink(site.whatsapp, b.requestText(active.unit, active.below ? 0 : active.total || 0))}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -242,7 +244,12 @@ export const HaciendaSite: React.FC<SiteViewProps> = ({ site, photos, preview })
             )}
           </div>
         )}
-        {results && results.free.length > 0 && <p className="mt-10 text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>}
+        {results && results.free.length > 0 && (
+          <>
+            <p className="mt-10 text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>
+            <TermsBox b={b} className="mt-6 max-w-2xl" />
+          </>
+        )}
       </section>
 
       <ExperiencesSection

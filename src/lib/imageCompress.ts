@@ -39,3 +39,26 @@ export async function compressImage(file: File): Promise<string> {
   }
   throw new Error('La foto es demasiado pesada');
 }
+
+/**
+ * Logo para Tu Web: PNG (respeta la transparencia), lado mayor 480 px. Si queda pesado, prueba más chico y al final WebP.
+ */
+export async function compressLogo(file: File): Promise<string> {
+  const img = await loadImage(file);
+  for (const maxSide of [480, 360, 260]) {
+    const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+    const w = Math.max(1, Math.round(img.naturalWidth * scale));
+    const h = Math.max(1, Math.round(img.naturalHeight * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('El navegador no permite procesar imágenes');
+    ctx.drawImage(img, 0, 0, w, h);
+    const png = canvas.toDataURL('image/png');
+    if (png.length <= 400_000) return png;
+    const webp = canvas.toDataURL('image/webp', 0.9);
+    if (webp.startsWith('data:image/webp') && webp.length <= 400_000) return webp;
+  }
+  throw new Error('El logo es demasiado pesado');
+}

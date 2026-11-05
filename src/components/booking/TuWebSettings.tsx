@@ -32,6 +32,9 @@ import {
   BASIC_THEMES,
   buildPublicSite,
   expPhotoKey,
+  LOGO_KEY,
+  TERMS_EXAMPLE,
+  TERMS_MAX,
   type SiteTheme,
   buildSiteBusy,
   PublicSitePhoto,
@@ -50,7 +53,7 @@ import {
   moveSite,
   updateSitePhoto,
 } from '../../lib/publicSiteStore';
-import { compressImage } from '../../lib/imageCompress';
+import { compressImage, compressLogo } from '../../lib/imageCompress';
 import { PublicSiteView } from './PublicSiteView';
 
 interface Props {
@@ -186,6 +189,23 @@ export const TuWebSettings: React.FC<Props> = ({
     }
   };
 
+  const logo = photos.find((p) => p.unitId === LOGO_KEY);
+  const uploadLogo = async (files: FileList | null) => {
+    const file = files?.[0];
+    if (!file) return;
+    setBusyMsg('Subiendo el logo…');
+    try {
+      const data = await compressLogo(file);
+      const photo = { data, order: 0, unitId: LOGO_KEY };
+      const id = await addSitePhoto(slug, photo);
+      if (logo) await deleteSitePhoto(slug, logo.id).catch(() => {});
+      setPhotos((prev) => [...prev.filter((x) => x.unitId !== LOGO_KEY), { ...photo, id }]);
+    } catch {
+      flashError('No se pudo subir el logo. Probá con un PNG o JPG más liviano.');
+    }
+    setBusyMsg('');
+  };
+
   /** Mueve una foto un lugar dentro de su grupo (general o de una unidad) */
   const movePhoto = async (p: PublicSitePhoto, dir: -1 | 1) => {
     const group = photos.filter((x) => x.unitId === p.unitId);
@@ -275,6 +295,26 @@ export const TuWebSettings: React.FC<Props> = ({
 
       {/* Seña */}
       <DepositCard settings={s} onSave={save} />
+
+      {/* Condiciones de la reserva */}
+      <TermsCard settings={s} onSave={save} />
+
+      {/* Logo */}
+      <div className={card}>
+        <h3 className={h3}>Logo (opcional)</h3>
+        <p className={`${help} mt-1`}>Aparece arriba, en la portada. Mejor un PNG con fondo transparente.</p>
+        {logo && (
+          <div className="mt-4 flex items-center gap-4">
+            <span className="inline-flex rounded-2xl bg-white border border-stone-200 dark:border-zinc-700 p-2">
+              <img src={logo.data} alt="Logo" className="h-16 w-auto max-w-[200px] object-contain" />
+            </span>
+            <button type="button" onClick={() => removePhoto(logo)} className={ghostBtn}>
+              <Trash2 className="w-4 h-4" /> Sacar
+            </button>
+          </div>
+        )}
+        <LogoButton onFile={uploadLogo} disabled={!!busyMsg} hasLogo={!!logo} />
+      </div>
 
       {/* Fotos generales */}
       <div className={card}>
@@ -810,6 +850,73 @@ const PhotoGrid: React.FC<{
           </div>
         </div>
       ))}
+    </div>
+  );
+};
+
+const LogoButton: React.FC<{ onFile: (f: FileList | null) => void; disabled?: boolean; hasLogo: boolean }> = ({ onFile, disabled, hasLogo }) => {
+  const ref = useRef<HTMLInputElement>(null);
+  return (
+    <>
+      <input
+        ref={ref}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        className="hidden"
+        onChange={(e) => {
+          onFile(e.target.files);
+          e.target.value = '';
+        }}
+      />
+      <button type="button" disabled={disabled} onClick={() => ref.current?.click()} className={`${ghostBtn} mt-4`}>
+        <ImagePlus className="w-4 h-4" /> {hasLogo ? 'Cambiar logo' : 'Subir logo'}
+      </button>
+    </>
+  );
+};
+
+const TermsCard: React.FC<{ settings: WebSiteSettings; onSave: (patch: Partial<WebSiteSettings>) => Promise<void> }> = ({ settings, onSave }) => {
+  const [text, setText] = useState(settings.terms || '');
+  const [saved, setSaved] = useState(false);
+  const dirty = text.trim() !== (settings.terms || '').trim();
+  const submit = async () => {
+    await onSave({ terms: text.trim().slice(0, TERMS_MAX) });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  };
+  return (
+    <div className={card}>
+      <h3 className={h3}>Condiciones de la reserva</h3>
+      <p className={`${help} mt-1`}>
+        Cancelación, seña, horarios, mascotas… El huésped las ve antes de pedir y tiene que tildar "Leí y acepto". Si lo dejás vacío, no se piden.
+      </p>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        maxLength={TERMS_MAX}
+        rows={7}
+        className={`${inputCls} mt-4`}
+        placeholder="Escribí tus condiciones o usá el ejemplo."
+        aria-label="Condiciones de la reserva"
+      />
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {dirty && (
+          <button type="button" onClick={submit} className={primaryBtn}>
+            Guardar
+          </button>
+        )}
+        {!text.trim() && (
+          <button type="button" onClick={() => setText(TERMS_EXAMPLE)} className={ghostBtn}>
+            Usar el ejemplo
+          </button>
+        )}
+        {saved && (
+          <span className="text-base font-bold text-emerald-800 dark:text-emerald-200 flex items-center gap-1.5">
+            <Check className="w-4 h-4" /> Guardado
+          </span>
+        )}
+      </div>
+      {!text.trim() && <p className={`${help} mt-3`}>El ejemplo es para arrancar: cambialo con tus horarios y tus reglas antes de guardar.</p>}
     </div>
   );
 };

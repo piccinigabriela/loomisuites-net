@@ -49,7 +49,20 @@ export interface WebSiteSettings {
   experiences?: Record<string, ExperienceSettings>;
   /** Seña para reservar: la web muestra el porcentaje y el monto; los datos para transferir los pasa el anfitrión por WhatsApp */
   deposit?: { enabled?: boolean; percent?: number };
+  /** Condiciones de la reserva (cancelación, seña, mascotas…): el huésped las acepta antes de mandar el pedido */
+  terms?: string;
 }
+
+/** Foto del logo: publicSites/{slug}/photos con unitId = LOGO_KEY (PNG, se muestra en el encabezado) */
+export const LOGO_KEY = 'logo';
+export const TERMS_MAX = 3000;
+
+/** Ejemplo para arrancar (el dueño lo cambia a su gusto) */
+export const TERMS_EXAMPLE = `• La reserva queda confirmada cuando el alojamiento recibe la seña.
+• Cancelación: con más de 15 días de anticipación se devuelve la seña o se pasa a otra fecha. Con menos, la seña no se devuelve.
+• Ingreso desde las 14 y salida hasta las 10. Si necesitás otro horario, consultanos.
+• No se aceptan mascotas.
+• El saldo se paga al llegar.`;
 
 /** Porcentaje de seña publicado (0 = sin seña) */
 export function depositPercent(settings: WebSiteSettings): number {
@@ -122,6 +135,10 @@ export interface PublicSiteDoc {
   depositPercent?: number;
   /** Xenia contesta consultas en la página (lo activa el anfitrión) */
   xeniaGuest?: boolean;
+  /** Condiciones de la reserva ('' = no se piden) */
+  terms?: string;
+  /** Solo en el navegador: el logo, sacado de las fotos (no se guarda en este documento) */
+  logoUrl?: string;
   busy?: Record<string, BusyRange[]>;
   busyUpdatedAt?: unknown;
   updatedAt?: unknown;
@@ -222,6 +239,7 @@ export function buildPublicSite(input: {
     experiences: buildExperiences(input.addons, settings),
     depositPercent: depositPercent(settings),
     xeniaGuest: Boolean(input.xeniaGuest),
+    terms: (settings.terms || '').trim().slice(0, TERMS_MAX),
   };
 }
 

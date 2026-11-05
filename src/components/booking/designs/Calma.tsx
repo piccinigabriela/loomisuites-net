@@ -6,7 +6,7 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import type { PublicSitePhoto, PublicSiteUnit } from '../../../lib/publicSite';
-import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink } from '../siteKit';
+import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink, SiteLogo, TermsBox } from '../siteKit';
 
 const VARS = {
   '--bg': '#1E2A22',
@@ -53,6 +53,7 @@ export const CalmaSite: React.FC<SiteViewProps> = ({ site, photos, preview }) =>
             <LangSwitch b={b} className="flex gap-0.5 rounded-full bg-black/35 backdrop-blur p-1" activeCls="bg-[var(--fg)] text-[var(--bg)]" idleCls="text-white" />
           </div>
           <div className="relative h-full flex flex-col justify-end p-6 sm:p-12 max-w-2xl">
+            <SiteLogo src={site.logoUrl} name={site.name} className="inline-flex self-start mb-5 rounded-2xl bg-white/95 p-2 shadow-lg" />
             {site.city && <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white mb-4">{site.city}</p>}
             <h1 style={serif} className="text-[clamp(2.6rem,9vw,6.5rem)] leading-[0.95] text-white text-balance">
               {site.name}
@@ -159,7 +160,8 @@ export const CalmaSite: React.FC<SiteViewProps> = ({ site, photos, preview }) =>
                         <p className="text-base font-semibold">{t.askPrice}</p>
                       )}
                       {site.whatsapp && (
-                        <a href={waLink(site.whatsapp, b.requestText(unit, below ? 0 : total || 0))} target="_blank" rel="noopener noreferrer" className={btn}>
+                        <a onClick={b.guardRequest}
+                            href={waLink(site.whatsapp, b.requestText(unit, below ? 0 : total || 0))} target="_blank" rel="noopener noreferrer" className={btn}>
                           {below ? t.askGeneral : t.ask}
                         </a>
                       )}
@@ -187,7 +189,12 @@ export const CalmaSite: React.FC<SiteViewProps> = ({ site, photos, preview }) =>
               )}
             </div>
           )}
-          {results && results.free.length > 0 && <p className="mt-5 text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>}
+          {results && results.free.length > 0 && (
+          <>
+            <p className="mt-5 text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>
+            <TermsBox b={b} className="mt-6 max-w-2xl" />
+          </>
+        )}
         </section>
 
         <ExperiencesSection

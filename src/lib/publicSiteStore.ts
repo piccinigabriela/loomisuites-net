@@ -30,6 +30,10 @@ const SITE_FIELDS = [
   'theme',
   'units',
   'pricing',
+  'experiences',
+  'depositPercent',
+  'xeniaGuest',
+  'terms',
   'updatedAt',
 ];
 

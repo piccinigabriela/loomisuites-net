@@ -3,10 +3,10 @@
  * La usan la página real (PublicSitePage), la vista previa de la app y la demo.
  * Noche, Día, Clara y Tierra se arman acá; los diseños especiales con otra estructura están en designs/.
  */
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { MapPin, Users, BedDouble, Clock } from 'lucide-react';
-import type { PublicSiteDoc, PublicSitePhoto, PublicSiteUnit } from '../../lib/publicSite';
-import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, useGoogleFont, useSiteBooking, waLink } from './siteKit';
+import { LOGO_KEY, type PublicSiteDoc, type PublicSitePhoto, type PublicSiteUnit } from '../../lib/publicSite';
+import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteLogo, SiteTexts, TermsBox, useGoogleFont, useSiteBooking, waLink } from './siteKit';
 import { SPECIAL_LAYOUTS } from './designs';
 
 const THEMES = {
@@ -69,7 +69,16 @@ interface Props {
   preview?: boolean;
 }
 
-export const PublicSiteView: React.FC<Props> = (props) => {
+export const PublicSiteView: React.FC<Props> = (raw) => {
+  // El logo viaja como una foto más (unitId = LOGO_KEY): se separa acá para que ningún diseño lo muestre en la galería
+  const props = useMemo(() => {
+    const logo = raw.photos.find((p) => p.unitId === LOGO_KEY);
+    return {
+      ...raw,
+      site: logo ? { ...raw.site, logoUrl: logo.data } : raw.site,
+      photos: raw.photos.filter((p) => p.unitId !== LOGO_KEY),
+    };
+  }, [raw]);
   const Special = props.site.theme ? SPECIAL_LAYOUTS[props.site.theme] : undefined;
   if (Special && (props.site.enabled || props.preview)) return <Special {...props} />;
   return <BaseSiteView {...props} />;
@@ -125,6 +134,7 @@ const BaseSiteView: React.FC<Props> = ({ site, photos, preview }) => {
           }`}
         />
         <div className="relative w-full max-w-5xl mx-auto px-5 sm:px-8 pb-24 sm:pb-28 pt-20 text-white">
+          <SiteLogo src={site.logoUrl} name={site.name} className="inline-flex mb-5 rounded-2xl bg-white/95 p-2 shadow-lg" />
           {site.city &&
             (isClara ? (
               <p className="flex items-center gap-2 text-xs sm:text-sm font-mono font-bold uppercase tracking-[0.2em] text-[#34D399] mb-4">
@@ -204,6 +214,7 @@ const BaseSiteView: React.FC<Props> = ({ site, photos, preview }) => {
                         )}
                         {whatsapp && (
                           <a
+                            onClick={b.guardRequest}
                             href={waLink(whatsapp, requestText(unit, below ? 0 : total))}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -217,7 +228,12 @@ const BaseSiteView: React.FC<Props> = ({ site, photos, preview }) => {
                   ))}
                 </div>
               )}
-              {results.free.length > 0 && <p className="text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>}
+              {results.free.length > 0 && (
+          <>
+            <p className="text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>
+            <TermsBox b={b} className="mt-6 max-w-2xl" />
+          </>
+        )}
             </>
           ) : (
             <>
@@ -375,9 +391,13 @@ const TierraHero: React.FC<{
         </div>
       ))}
       <div className="relative z-20 min-h-[88vh] sm:min-h-[92vh] flex flex-col items-center justify-center text-center px-6 pb-16">
-        <svg viewBox="0 0 100 40" fill="none" stroke="#8C6D46" strokeWidth="2" className="w-14 h-9 mb-3" aria-hidden="true">
-          <path d="M5 35 L30 10 L50 25 L75 5 L95 35" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        {site.logoUrl ? (
+          <SiteLogo src={site.logoUrl} name={site.name} className="inline-flex mb-6 rounded-2xl bg-white/95 p-2 shadow-lg" />
+        ) : (
+          <svg viewBox="0 0 100 40" fill="none" stroke="#8C6D46" strokeWidth="2" className="w-14 h-9 mb-3" aria-hidden="true">
+            <path d="M5 35 L30 10 L50 25 L75 5 L95 35" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
         <h1
           style={headingFont}
           className="text-[clamp(2.4rem,8vw,6rem)] uppercase leading-[0.95] tracking-[0.03em] text-[#191612] text-balance max-w-4xl [text-shadow:0_1px_18px_rgba(237,230,220,0.9)]"

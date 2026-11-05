@@ -49,6 +49,10 @@ export const T = {
     msgDates: (a: string, b: string, n: string) => `• Llegada: ${a} — Salida: ${b} (${n})`,
     msgGuests: (n: number) => `• ${n} ${n === 1 ? 'persona' : 'personas'}`,
     msgPrice: (p: string) => `• Precio que vi en la web: ${p}`,
+    termsTitle: 'Condiciones de la reserva',
+    termsAccept: 'Leí y acepto las condiciones de la reserva',
+    termsNeeded: 'Antes de pedir, leé y aceptá las condiciones de la reserva.',
+    msgTermsOk: 'Leí y acepto las condiciones de la reserva.',
     msgQuestion: '¿Está disponible?',
     msgGeneral: (name: string) => `Hola! Les escribo desde la web de ${name}.`,
     book: 'Reservar',
@@ -106,6 +110,10 @@ export const T = {
     msgDates: (a: string, b: string, n: string) => `• Check-in: ${a} — Check-out: ${b} (${n})`,
     msgGuests: (n: number) => `• ${n} ${n === 1 ? 'guest' : 'guests'}`,
     msgPrice: (p: string) => `• Price I saw on the website: ${p}`,
+    termsTitle: 'Booking conditions',
+    termsAccept: 'I have read and accept the booking conditions',
+    termsNeeded: 'Before sending your request, please read and accept the booking conditions.',
+    msgTermsOk: 'I have read and accept the booking conditions.',
     msgQuestion: 'Is it available?',
     msgGeneral: (name: string) => `Hi! I’m writing from the ${name} website.`,
     book: 'Book',
@@ -166,6 +174,10 @@ export const T = {
     msgDates: (a: string, b: string, n: string) => `• Chegada: ${a} — Saída: ${b} (${n})`,
     msgGuests: (n: number) => `• ${n} ${n === 1 ? 'pessoa' : 'pessoas'}`,
     msgPrice: (p: string) => `• Preço que vi no site: ${p}`,
+    termsTitle: 'Condições da reserva',
+    termsAccept: 'Li e aceito as condições da reserva',
+    termsNeeded: 'Antes de pedir, leia e aceite as condições da reserva.',
+    msgTermsOk: 'Li e aceito as condições da reserva.',
     msgQuestion: 'Está disponível?',
     msgGeneral: (name: string) => `Olá! Escrevo pelo site de ${name}.`,
     book: 'Reservar',
@@ -325,6 +337,18 @@ export function useSiteBooking(site: PublicSiteDoc, photos: PublicSitePhoto[], p
   const [lightbox, setLightbox] = useState<{ list: PublicSitePhoto[]; index: number } | null>(null);
   const [wantedExp, setWantedExp] = useState<string[]>([]);
   const toggleExp = (id: string) => setWantedExp((l) => (l.includes(id) ? l.filter((x) => x !== id) : [...l, id]));
+  // Condiciones de la reserva: si el anfitrión las cargó, hay que aceptarlas antes de mandar el pedido
+  const terms = (site.terms || '').trim();
+  const [termsOk, setTermsOk] = useState(false);
+  const [termsWarn, setTermsWarn] = useState(false);
+  const termsRef = useRef<HTMLDivElement>(null);
+  /** onClick de los botones "Pedir por WhatsApp": sin aceptar, no abre WhatsApp y lleva a las condiciones */
+  const guardRequest = (e: React.MouseEvent) => {
+    if (!terms || termsOk) return;
+    e.preventDefault();
+    setTermsWarn(true);
+    termsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
   const searchRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -380,6 +404,7 @@ export function useSiteBooking(site: PublicSiteDoc, photos: PublicSitePhoto[], p
     if (total > 0 && deposit > 0) lines.push(t.msgDeposit(fmtMoney(depositAmount(total, deposit), site.currency), deposit));
     const exps = (site.experiences || []).filter((e) => wantedExp.includes(e.id)).map((e) => e.name);
     if (exps.length) lines.push(t.msgExpInterest(exps.join(', ')));
+    if (terms) lines.push('', t.msgTermsOk);
     lines.push('', t.msgQuestion);
     return lines.join('\n');
   };
@@ -392,6 +417,8 @@ export function useSiteBooking(site: PublicSiteDoc, photos: PublicSitePhoto[], p
     checkIn, pickCheckIn, checkOut, setCheckOut, guests, setGuests, maxCapacity,
     searched, error, results, doSearch, requestText, goSearch, generalLink,
     wantedExp, toggleExp,
+    terms, termsOk, setTermsOk, termsWarn, setTermsWarn, termsRef, guardRequest,
+    logo: site.logoUrl || '',
     general, cover, unitPhotos,
     lightbox, setLightbox, searchRef, resultsRef,
   };
@@ -615,5 +642,53 @@ export const ExperiencesSection: React.FC<{ b: SiteBooking; site: PublicSiteDoc;
         })}
       </div>
     </section>
+  );
+};
+
+/**
+ * Condiciones de la reserva + casilla "Leí y acepto". Va debajo de los resultados en todos los diseños
+ * (los botones de pedido usan b.guardRequest: sin aceptar, traen hasta acá).
+ */
+export const TermsBox: React.FC<{ b: SiteBooking; className?: string }> = ({ b, className = '' }) => {
+  if (!b.terms) return null;
+  return (
+    <div
+      ref={b.termsRef}
+      className={`scroll-mt-24 rounded-2xl border-2 p-5 sm:p-6 text-left ${
+        b.termsWarn && !b.termsOk ? 'border-[#D9480F]' : 'border-[color:var(--line,rgba(127,127,127,0.45))]'
+      } ${className}`}
+    >
+      <p className="text-lg font-bold text-[var(--fg)]">{b.t.termsTitle}</p>
+      <p className="mt-2 text-base leading-relaxed text-[var(--fg-2)] whitespace-pre-line">{b.terms}</p>
+      <label className="mt-4 flex items-start gap-3 cursor-pointer text-base font-bold text-[var(--fg)]">
+        <input
+          type="checkbox"
+          checked={b.termsOk}
+          onChange={(e) => {
+            b.setTermsOk(e.target.checked);
+            if (e.target.checked) b.setTermsWarn(false);
+          }}
+          className="mt-0.5 w-6 h-6 shrink-0 cursor-pointer"
+          style={{ accentColor: 'currentColor' }}
+        />
+        <span>{b.t.termsAccept}</span>
+      </label>
+      {b.termsWarn && !b.termsOk && <p className="mt-3 text-base font-bold text-[#D9480F]">{b.t.termsNeeded}</p>}
+    </div>
+  );
+};
+
+/** Logo del complejo sobre una placa clara (se lee igual sobre fotos oscuras o fondos de color) */
+export const SiteLogo: React.FC<{ src?: string; name: string; className?: string; imgClassName?: string }> = ({
+  src,
+  name,
+  className = 'inline-flex rounded-2xl bg-white/95 p-2 shadow-lg',
+  imgClassName = 'h-12 sm:h-16 w-auto max-w-[200px] object-contain',
+}) => {
+  if (!src) return null;
+  return (
+    <span className={className}>
+      <img src={src} alt={name} className={imgClassName} />
+    </span>
   );
 };

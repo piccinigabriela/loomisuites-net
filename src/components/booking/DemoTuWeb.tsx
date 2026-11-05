@@ -3,7 +3,7 @@
  */
 import React, { useMemo } from 'react';
 import type { DemoState } from '../../types';
-import { buildPublicSite, buildSiteBusy, expPhotoKey, PublicSitePhoto } from '../../lib/publicSite';
+import { buildPublicSite, buildSiteBusy, expPhotoKey, PublicSitePhoto, TERMS_EXAMPLE } from '../../lib/publicSite';
 import { PublicSiteView } from './PublicSiteView';
 
 export const DemoTuWeb: React.FC<{ demoState: DemoState }> = ({ demoState }) => {
@@ -25,6 +25,7 @@ export const DemoTuWeb: React.FC<{ demoState: DemoState }> = ({ demoState }) => 
           },
           'addon-desayuno-selva': { show: true, showPrice: true },
         },
+        terms: TERMS_EXAMPLE,
       },
       guide: demoState.welcomeGuide,
       city: 'Puerto Iguazú, Misiones',

@@ -18,8 +18,7 @@ import {
   SiteViewProps,
   useGoogleFont,
   useSiteBooking,
-  waLink,
-} from '../siteKit';
+  waLink, SiteLogo, TermsBox } from '../siteKit';
 
 const VARS = {
   '--bg': '#FFFFFF',
@@ -76,6 +75,7 @@ export const RefugioSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
         </button>
 
         <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center text-center text-white px-6 sm:px-20">
+          <SiteLogo src={site.logoUrl} name={site.name} className="inline-flex mb-6 rounded-2xl bg-white/95 p-2 shadow-lg" />
           <p style={display} className="text-sm sm:text-base font-medium uppercase tracking-[0.24em] text-balance">
             {[site.name, site.city].filter(Boolean).join(' · ')}
           </p>
@@ -176,7 +176,8 @@ export const RefugioSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
                       <p className="text-base font-semibold">{t.askPrice}</p>
                     )}
                     {site.whatsapp && (
-                      <a href={waLink(site.whatsapp, b.requestText(unit, below ? 0 : total || 0))} target="_blank" rel="noopener noreferrer" className={btnDark}>
+                      <a onClick={b.guardRequest}
+                            href={waLink(site.whatsapp, b.requestText(unit, below ? 0 : total || 0))} target="_blank" rel="noopener noreferrer" className={btnDark}>
                         {below ? t.askGeneral : t.ask}
                       </a>
                     )}
@@ -194,7 +195,12 @@ export const RefugioSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
             ))}
           </div>
         )}
-        {results && results.free.length > 0 && <p className="mt-16 text-center text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>}
+        {results && results.free.length > 0 && (
+          <>
+            <p className="mt-16 text-center text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>
+            <TermsBox b={b} className="mt-6 max-w-2xl mx-auto" />
+          </>
+        )}
       </section>
 
       <ExperiencesSection

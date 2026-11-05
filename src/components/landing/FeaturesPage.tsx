@@ -74,6 +74,8 @@ const BLOCKS: Block[] = [
       'Tu página en loomisuite.net/web/tu-lugar, con fotos, buscador de fechas y precio según tus tarifas.',
       'El huésped pide la reserva por WhatsApp y vos confirmás. Sin comisiones.',
       <><B>Seña para reservar:</B> la web avisa el porcentaje y lo suma al pedido; vos pasás tus datos al confirmar.</>,
+      <><B>Condiciones de la reserva:</B> cancelación, seña, mascotas… el huésped las acepta antes de mandar el pedido.</>,
+      <><B>Tu logo</B> en la portada de la web.</>,
       'Experiencias para sumar al pedido: excursiones, catas, cabalgatas.',
       <>3 estilos incluidos y 6 diseños especiales. <a href="/disenos" className="font-semibold text-[#F5A35C] underline underline-offset-4">Miralos acá</a>.</>,
     ],

@@ -6,7 +6,7 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import type { PublicSitePhoto, PublicSiteUnit } from '../../../lib/publicSite';
-import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink } from '../siteKit';
+import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteTexts, SiteViewProps, useGoogleFont, useSiteBooking, waLink, SiteLogo, TermsBox } from '../siteKit';
 
 const VARS = {
   '--bg': '#172123',
@@ -101,6 +101,7 @@ export const EstudioSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
             {cover && <img src={cover.data} alt={site.name} className="absolute inset-0 w-full h-full object-cover" />}
             <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/55" />
             <div className="relative h-full flex flex-col items-center justify-center text-center px-5">
+              <SiteLogo src={site.logoUrl} name={site.name} className="inline-flex mb-6 rounded-2xl bg-white/95 p-2 shadow-lg" />
               <h1 style={thin} className="text-[clamp(1.8rem,6.5vw,4.6rem)] tracking-[0.32em] leading-tight text-balance text-white">
                 {spaced(site.name)}
               </h1>
@@ -209,7 +210,8 @@ export const EstudioSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
                         <p className="text-base font-semibold">{t.askPrice}</p>
                       )}
                       {site.whatsapp && (
-                        <a href={waLink(site.whatsapp, b.requestText(unit, below ? 0 : total || 0))} target="_blank" rel="noopener noreferrer" className={btnLight}>
+                        <a onClick={b.guardRequest}
+                            href={waLink(site.whatsapp, b.requestText(unit, below ? 0 : total || 0))} target="_blank" rel="noopener noreferrer" className={btnLight}>
                           {below ? t.askGeneral : t.ask}
                         </a>
                       )}
@@ -223,7 +225,12 @@ export const EstudioSite: React.FC<SiteViewProps> = ({ site, photos, preview }) 
               ))}
             </div>
           )}
-          {results && results.free.length > 0 && <p className="mt-6 text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>}
+          {results && results.free.length > 0 && (
+          <>
+            <p className="mt-6 text-sm font-medium text-[var(--fg-2)]">{t.confirmNote}</p>
+            <TermsBox b={b} className="mt-6 max-w-2xl" />
+          </>
+        )}
         </section>
 
         <ExperiencesSection
