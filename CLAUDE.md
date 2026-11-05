@@ -144,6 +144,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Días de gracia: `getAccessStatus(..., graceDays)` devuelve `grace` (sigue entrando, con aviso) antes de `expired`.
   Precios de la landing (`BentoLanding.tsx`, `LeadModal.tsx`, `DemoPlanFunctionalBar.tsx`) y de Xenia están fijos en el código: si cambian, actualizarlos también ahí.
 
+- Channel manager (Aiosell): plan de la conexión en `docs/channel-manager-aiosell.md` (5/11, sin programar todavía).
+
 ## Verificar antes de subir
 1. `npx tsc --noEmit`
 2. `npm run build` (incluye la landing prearmada; `npx vite build` solo no la prueba)
