@@ -164,7 +164,10 @@ más las líneas de atribución que indique la sesión. Después `git push origi
 
 ## Decisiones tomadas
 - Prueba de 7 días; la activación se hace desde el Panel de clientes (`subscriptions/{uid}`).
-- Precios en dólares (USD 30 y USD 45 por mes, 23/10). Se pagan por transferencia en pesos al dólar MEP del día (redondeado a $100) o por Payoneer en dólares con 10% de descuento. Sin IPC, Mercado Pago ni PayPal por ahora.
+- Precios en dólares (5/11, antes USD 30 y 45): Loomi USD 25 hasta 4 unidades (iCal); Loomi Suite USD 45 de 5 a 20 unidades, con channel manager
+  incluido cuando funcione. Promo fin de año (nombre elegido por Gabi; nada de "lanzamiento" ni "fundador"): cuentas creadas hasta el 31/12/2026 pagan
+  Loomi Suite USD 35 para siempre (`PLAN_UNITS`, `YEAR_END_PROMO`, `hasYearEndPromo` con la fecha de alta, `planPriceUsd` en `billing.ts`; Mi plan lo muestra).
+  Los precios base salen de `config/billing` (Panel → Cobro y precios); la promo está en el código. Se pagan por transferencia en pesos al dólar MEP del día (redondeado a $100) o por Payoneer en dólares con 10% de descuento. Sin IPC, Mercado Pago ni PayPal por ahora.
 - Diseños especiales de Tu Web: pago único de USD 70 cada uno (23/10), se cobra a mano y se habilita en el Panel.
   Idea: plan Loomi Signature USD 90/mes (channel manager + diseños incluidos), solo cuando el channel manager funcione.
 - Una moneda de liquidación por complejo. AFIP no interesa.

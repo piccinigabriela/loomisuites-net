@@ -66,35 +66,34 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
     {
       id: 'plan-simple',
       name: 'Loomi',
-      tag: 'Hasta 5 unidades • Dueños sin personal',
-      usd: 30,
+      tag: 'Hasta 4 unidades',
+      usd: 25,
+      promo: '',
       highlight: false,
-      badge: 'PLAN PROPIETARIO • HASTA 5 U.',
-      description: 'La herramienta perfecta para dueños que gestionan todo de forma autónoma desde el celular. Calendario modo light y reservas.',
+      badge: 'PLAN LOOMI • HASTA 4 UNIDADES',
+      description: 'Todo Loomi para complejos chicos, con los calendarios de Airbnb y Booking conectados por iCal.',
       features: [
-        'Calendario Rack (Modo Light optimizado para móvil)',
-        'Gestión de Reservas Directas & iCal',
-        'Reportes de Rendimiento Básicos',
-        'Sin costos por habitación (precio por todo el complejo)',
-        '2 usuarios',
+        'Calendario, reservas, cobros e informes',
+        'Limpieza con checklist y guía del huésped',
+        'Tu Web de reservas directas y Xenia',
+        'Cuentas para Recepción y Limpieza',
+        'Airbnb y Booking por iCal (cada 15 minutos)',
       ],
     },
     {
       id: 'plan-suite',
       name: 'Loomi Suite',
-      tag: 'Unidades Ilimitadas • Complejo Total',
+      tag: 'De 5 a 20 unidades',
       usd: 45,
+      promo: 'Promo fin de año: USD 35 para siempre si creás tu cuenta antes del 31/12',
       highlight: true,
-      badge: 'RECOMENDADO • TODO INCLUIDO',
-      description: 'La solución definitiva para complejos que operan con personal de recepción y equipos de limpieza. Ecosistema ilimitado.',
+      badge: 'LOOMI SUITE • DE 5 A 20 UNIDADES',
+      description: 'Para complejos más grandes. Incluye el channel manager (conexión directa con Airbnb y Booking) apenas esté disponible, sin aumento.',
       features: [
-        'Todo lo del Plan Loomi e iCal avanzado',
-        'Módulo Housekeeping Completo (Semáforo de Limpieza en vivo)',
-        'Modo Recepción con Roles de Usuario Separados',
-        'Asistente Xenia AI (Voz & Copiloto 24/7)',
-        'Portal de Bienvenida del Huésped',
-        'Tu Web: disponibilidad, precios y pedidos por WhatsApp',
-        'Usuarios para todo tu equipo: recepción, limpieza y administración',
+        'Todo lo del Plan Loomi',
+        'De 5 a 20 unidades, precio fijo por todo el complejo',
+        'Channel manager: Airbnb y Booking al instante, apenas esté disponible',
+        'Sin aumento cuando llegue el channel manager',
       ],
     },
   ];
@@ -456,7 +455,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
           >
             <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 dark:border-white/5">
               <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-700 dark:text-zinc-400">
-                PLANES / ARS
+                PLANES / USD
               </span>
               <span className="w-2 h-2 rounded-full bg-[#E67E22] shrink-0" />
             </div>
@@ -464,7 +463,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             <div className="my-auto py-2 space-y-1">
               <div className="flex items-baseline gap-1.5">
                 <span className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
-                  USD 30
+                  USD 25
                 </span>
                 <span className="text-xs text-slate-700 dark:text-zinc-400 font-medium">
                   /mes
@@ -474,7 +473,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 Loomi • Loomi Suite
               </h3>
               <p className="text-[11px] text-slate-800 dark:text-zinc-300 font-normal leading-relaxed">
-                Sin comisiones por reserva ni cobro por habitación.
+                Sin comisiones por reserva. Loomi Suite: USD 45, o USD 35 para siempre si te sumás antes del 31/12.
               </p>
             </div>
 
@@ -857,6 +856,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                         <div className="text-2xl font-light text-gray-900 dark:text-white">
                           USD {p.usd} <span className="text-xs font-semibold text-slate-700 dark:text-zinc-400">/mes</span>
                         </div>
+                        {p.promo && <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300">{p.promo}</p>}
                         <p className="text-xs font-semibold text-slate-800 dark:text-zinc-300">
                           En pesos al dólar MEP del día, o por Payoneer con 10% de descuento
                         </p>

@@ -216,19 +216,21 @@ export const FeaturesPage: React.FC = () => {
               <div className="flex items-baseline justify-between gap-4 border-b border-white/10 pb-5">
                 <div>
                   <p className="text-lg font-bold text-white">Loomi</p>
-                  <p className="text-base text-stone-200">Hasta 5 unidades, para dueños sin personal</p>
+                  <p className="text-base text-stone-200">Hasta 4 unidades, con Airbnb y Booking por iCal</p>
                 </div>
-                <p className="text-2xl font-bold text-white tabular-nums shrink-0">USD 30</p>
+                <p className="text-2xl font-bold text-white tabular-nums shrink-0">USD 25</p>
               </div>
               <div className="flex items-baseline justify-between gap-4">
                 <div>
                   <p className="text-lg font-bold text-white">Loomi Suite</p>
-                  <p className="text-base text-stone-200">Con cuentas para Recepción y Limpieza</p>
+                  <p className="text-base text-stone-200">De 5 a 20 unidades, con channel manager incluido apenas esté disponible</p>
                 </div>
                 <p className="text-2xl font-bold text-white tabular-nums shrink-0">USD 45</p>
               </div>
             </div>
             <p className="mt-6 text-base text-stone-100">
+              <strong className="font-semibold text-white">Promo fin de año: si creás tu cuenta antes del 31 de diciembre, Loomi Suite te queda en USD 35 por mes para siempre.</strong>
+              <br />
               Por mes, todo el complejo. Se paga en pesos al dólar MEP del día, o en dólares por Payoneer con 10% de descuento.
             </p>
           </div>

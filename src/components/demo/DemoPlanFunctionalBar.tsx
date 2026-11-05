@@ -268,11 +268,11 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                       Plan Propietario • Loomi
                     </span>
                     <span className="text-xs font-mono font-bold text-[#E67E22]">
-                      USD 30 / mes
+                      USD 25 / mes
                     </span>
                   </div>
                   <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 max-w-2xl leading-relaxed font-medium">
-                    <strong>Ideado para dueños de 4 a 10 unidades sin personal:</strong> Calendario Rack (Modo Light móvil), gestión de reservas directas y rendimiento básico. Sin cobro por habitación.
+                    <strong>Hasta 4 unidades:</strong> todo Loomi (calendario, reservas, limpieza, guía, Tu Web y Xenia), con Airbnb y Booking por iCal.
                   </p>
                 </div>
 
@@ -330,11 +330,11 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                       Plan Complejo • Loomi Suite
                     </span>
                     <span className="text-xs font-mono font-bold text-[#E67E22]">
-                      USD 45 / mes
+                      USD 45 / mes · promo USD 35
                     </span>
                   </div>
                   <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 max-w-2xl leading-relaxed font-medium">
-                    <strong>Ecosistema ilimitado para todo el complejo:</strong> Módulo Housekeeping en vivo para limpieza, modo recepción multisuario, asistente Xenia AI 24/7 y Portal de Bienvenida del Huésped.
+                    <strong>De 5 a 20 unidades:</strong> todo Loomi, más el channel manager apenas esté disponible. Promo fin de año: USD 35 para siempre si creás tu cuenta antes del 31/12.
                   </p>
                 </div>
 

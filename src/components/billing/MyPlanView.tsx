@@ -19,6 +19,11 @@ import {
   arsAmount,
   payoneerAmount,
   formatUsd,
+  planPriceUsd,
+  planFits,
+  PLAN_UNITS,
+  hasYearEndPromo,
+  YEAR_END_PROMO,
 } from '../../lib/billing';
 
 interface Props {
@@ -28,6 +33,10 @@ interface Props {
   subscription: SubscriptionDoc | null;
   access: AccessStatus | null;
   billing: BillingConfig;
+  /** Unidades del complejo (Loomi alcanza hasta 4) */
+  unitCount?: number;
+  /** Fecha de alta de la cuenta del dueño (para la promo fin de año) */
+  signupDate?: string;
   /** Si viene, se muestra como ventana con botón de cerrar */
   onClose?: () => void;
 }
@@ -69,8 +78,9 @@ const CopyRow: React.FC<{ name: string; value: string; mono?: boolean }> = ({ na
   );
 };
 
-export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscription, access, billing, onClose }) => {
-  const [plan, setPlan] = useState<PlanId>(subscription?.plan || 'propietario');
+export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscription, access, billing, unitCount = 0, signupDate, onClose }) => {
+  const promo = hasYearEndPromo(signupDate);
+  const [plan, setPlan] = useState<PlanId>(subscription?.plan || (planFits('propietario', unitCount) ? 'propietario' : 'complejo'));
   const [mep, setMep] = useState<MepQuote | null>(null);
   const [mepLoading, setMepLoading] = useState(false);
   const [notices, setNotices] = useState<PaymentNotice[]>([]);
@@ -86,7 +96,7 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
     setTimeout(() => payRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
   };
 
-  const usdPrice = billing.plans[plan].usd;
+  const usdPrice = planPriceUsd(billing, plan, promo);
   const hasTransfer = !!(billing.alias || billing.cbu);
   const hasPayoneer = !!billing.payoneerEmail;
   const ars = mep ? arsAmount(usdPrice, mep.rate) : 0;
@@ -184,16 +194,32 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
                 key={id}
                 type="button"
                 onClick={() => choosePlan(id)}
+                disabled={!planFits(id, unitCount)}
                 aria-pressed={plan === id}
-                className={`text-left rounded-2xl border-2 p-4 cursor-pointer ${
+                className={`text-left rounded-2xl border-2 p-4 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
                   plan === id ? 'border-[#A94F12] dark:border-[#F0A46F] bg-orange-50 dark:bg-orange-950/30' : 'border-stone-300 dark:border-zinc-700 bg-white dark:bg-[#18191E]'
                 }`}
               >
                 <span className="block text-lg font-bold text-stone-900 dark:text-white">{billing.plans[id].name}</span>
                 <span className="block text-sm font-semibold text-stone-800 dark:text-stone-200">
-                  {id === 'propietario' ? 'Hasta 5 unidades, sin personal' : 'Con recepción y limpieza'}
+                  {id === 'propietario'
+                    ? `Hasta ${PLAN_UNITS.propietario} unidades, con los calendarios de Airbnb y Booking por iCal`
+                    : `De ${PLAN_UNITS.propietario + 1} a ${PLAN_UNITS.complejo} unidades, con channel manager incluido apenas esté disponible`}
                 </span>
-                <span className="block mt-2 text-xl font-bold text-stone-900 dark:text-white tabular-nums">{formatUsd(billing.plans[id].usd)} / mes</span>
+                <span className="block mt-2 text-xl font-bold text-stone-900 dark:text-white tabular-nums">
+                  {formatUsd(planPriceUsd(billing, id, promo))} / mes
+                  {promo && id === YEAR_END_PROMO.plan && planPriceUsd(billing, id, promo) < billing.plans[id].usd && (
+                    <span className="ml-2 text-base font-semibold line-through text-stone-800 dark:text-stone-200">{formatUsd(billing.plans[id].usd)}</span>
+                  )}
+                </span>
+                {promo && id === YEAR_END_PROMO.plan && planPriceUsd(billing, id, promo) < billing.plans[id].usd && (
+                  <span className="block mt-1 text-sm font-bold text-emerald-800 dark:text-emerald-300">
+                    {YEAR_END_PROMO.name}: tu precio queda así para siempre
+                  </span>
+                )}
+                {!planFits(id, unitCount) && (
+                  <span className="block mt-1 text-sm font-semibold text-stone-900 dark:text-white">Tenés {unitCount} unidades: te corresponde Loomi Suite</span>
+                )}
                 {plan === id && (
                   <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-[#A94F12] dark:text-[#F0A46F]">
                     <Check className="w-4 h-4" /> Elegido

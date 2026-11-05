@@ -32,9 +32,32 @@ export interface BillingConfig {
   mepFallback: number;
 }
 
+/** Unidades de cada plan (5/11): Loomi hasta 4; Loomi Suite de 5 a 20 (channel manager incluido cuando esté) */
+export const PLAN_UNITS: Record<PlanId, number> = { propietario: 4, complejo: 20 };
+
+/** Promo fin de año (5/11): quien crea su cuenta hasta el 31/12/2026 paga Loomi Suite USD 35 en vez de 45, para siempre */
+export const YEAR_END_PROMO = { name: 'Promo fin de año', plan: 'complejo' as PlanId, usd: 35, lastDay: '2026-12-31' };
+
+/** ¿La cuenta se creó a tiempo para la promo? (fecha de alta de la cuenta del dueño) */
+export function hasYearEndPromo(signup?: string | number | Date | null): boolean {
+  if (!signup) return false;
+  const t = new Date(signup).getTime();
+  // Hasta el 31/12 a la medianoche de Argentina (UTC−3)
+  return !isNaN(t) && t <= Date.parse(`${YEAR_END_PROMO.lastDay}T23:59:59-03:00`);
+}
+
+/** Precio por mes del plan (con la promo, si le corresponde) */
+export function planPriceUsd(billing: BillingConfig, plan: PlanId, promo = false): number {
+  const listed = billing.plans[plan].usd;
+  return promo && plan === YEAR_END_PROMO.plan ? Math.min(listed, YEAR_END_PROMO.usd) : listed;
+}
+
+/** El plan Loomi alcanza hasta 4 unidades */
+export const planFits = (plan: PlanId, units: number) => plan === 'complejo' || units <= PLAN_UNITS.propietario;
+
 export const DEFAULT_BILLING: BillingConfig = {
   plans: {
-    propietario: { name: 'Loomi', usd: 30 },
+    propietario: { name: 'Loomi', usd: 25 },
     complejo: { name: 'Loomi Suite', usd: 45 },
   },
   holder: '',

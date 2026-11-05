@@ -205,7 +205,7 @@ export const ClientsPanel: React.FC<Props> = ({ onClose, loader = fetchClients }
                   <span className="flex flex-col items-end gap-0.5">
                     <span className="text-[15px] font-bold">
                       {STATE_LABEL[r.state]}
-                      {r.plan ? ` · ${r.plan === 'complejo' ? 'Complejo' : 'Propietario'}` : ''}
+                      {r.plan ? ` · ${r.plan === 'complejo' ? 'Loomi Suite' : 'Loomi'}` : ''}
                     </span>
                     <span className="text-[14px] font-medium text-stone-800 dark:text-stone-100">{detail(r)}</span>
                     {notices.some((n) => n.uid === r.uid) && <span className="text-[14px] font-bold text-emerald-800 dark:text-emerald-300">Avisó que pagó</span>}
@@ -230,8 +230,8 @@ export const ClientsPanel: React.FC<Props> = ({ onClose, loader = fetchClients }
                       <label className="flex flex-col gap-1.5 text-[15px] font-bold">
                         Plan
                         <select value={plan} onChange={(e) => setPlan(e.target.value as 'propietario' | 'complejo')} className="min-h-[44px] rounded-xl border border-stone-400 dark:border-zinc-500 bg-white dark:bg-zinc-800 px-3 text-[15px] font-semibold text-stone-900 dark:text-stone-50">
-                          <option value="propietario">Propietario (sin personal fijo)</option>
-                          <option value="complejo">Complejo (con recepción y limpieza)</option>
+                          <option value="propietario">Loomi (hasta 4 unidades)</option>
+                          <option value="complejo">Loomi Suite (de 5 a 20 unidades)</option>
                         </select>
                       </label>
                       <label className="flex flex-col gap-1.5 text-[15px] font-bold">
