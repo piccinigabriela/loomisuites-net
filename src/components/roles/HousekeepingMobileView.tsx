@@ -68,7 +68,9 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
   const shortHour = (h?: string) => {
     const t = (h || '').trim();
     const m = t.match(/\b(\d{1,2})[:.](\d{2})\b/);
-    return m ? `${m[1].padStart(2, '0')}:${m[2]}` : t.replace(/\s*hs\.?$/i, '').slice(0, 12);
+    if (m) return `${m[1].padStart(2, '0')}:${m[2]}`;
+    const n = t.match(/\b(\d{1,2})\b/); // "11", "11 hs", "11 Hs11" → "11 hs"
+    return n ? `${n[1]} hs` : t.slice(0, 12);
   };
   const salida = shortHour(checkoutHour);
   const ingreso = shortHour(checkinHour);
