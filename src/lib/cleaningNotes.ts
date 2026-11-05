@@ -34,5 +34,5 @@ export function unseenFromCleaning(task: CleaningTask): CleaningNote[] {
 export function noteAuthor(email?: string | null, displayName?: string | null): string {
   const n = (displayName || '').trim().split(/\s+/)[0];
   if (n) return n.slice(0, 40);
-  return (email || '').split('@')[0].slice(0, 40);
+  return (email || '').split('@')[0].split('--')[0].slice(0, 40);
 }

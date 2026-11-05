@@ -23,6 +23,7 @@ import {
   CalendarDays,
 } from 'lucide-react';
 import { DemoState, CleaningTask, Property } from '../../types';
+import { accountLabel } from '../../lib/staffUsers';
 import { nextArrival, StaffArrivalsDoc } from '../../lib/staffArrivals';
 import { formatDisplayDate, getCleaningsForDay, getRelativeDate } from '../../data/initialData';
 
@@ -209,7 +210,7 @@ export const HousekeepingMobileView: React.FC<HousekeepingMobileViewProps> = ({
         <div className="max-w-md mx-auto flex items-center justify-between gap-2">
           {staffAccess ? (
             <>
-              <span className="text-sm font-semibold text-stone-900 dark:text-white truncate">{staffAccess.email}</span>
+              <span className="text-sm font-semibold text-stone-900 dark:text-white truncate">{accountLabel(staffAccess.email)}</span>
               <button
                 onClick={staffAccess.onLogout}
                 className="shrink-0 text-sm font-bold text-stone-900 dark:text-white bg-stone-100 dark:bg-zinc-800 px-3 py-1.5 rounded-xl border border-stone-300 dark:border-zinc-600 cursor-pointer"

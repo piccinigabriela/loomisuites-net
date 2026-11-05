@@ -23,6 +23,10 @@ export const isStaffLoginEmail = (email?: string | null) => (email || '').toLowe
 export const staffUsernameFromEmail = (email?: string | null) =>
   isStaffLoginEmail(email) ? (email || '').split('@')[0].split('--')[0] : '';
 
+/** Lo que se muestra como cuenta: "Usuario: rosa" para el equipo sin mail, el mail para el resto */
+export const accountLabel = (email?: string | null) =>
+  isStaffLoginEmail(email) ? `Usuario: ${staffUsernameFromEmail(email)}` : email || '';
+
 export function cleanUsername(raw: string): string {
   return (raw || '')
     .toLowerCase()

@@ -97,7 +97,7 @@ import {
 import { buildStaffArrivals, StaffArrivalsDoc } from './lib/staffArrivals';
 import { useBackLayer } from './hooks/useBackLayer';
 import { normalizePricing, type PricingSettings } from './lib/pricing';
-import { isStaffLoginEmail, makeStaffAlias } from './lib/staffUsers';
+import { accountLabel, isStaffLoginEmail, makeStaffAlias } from './lib/staffUsers';
 import { StaffLoginScreen } from './components/auth/StaffLoginScreen';
 import { buildCleaningChecklist, normalizeChecklistSettings, type CleaningChecklistSettings } from './lib/cleaningChecklist';
 import { TutorialVideoButton } from './components/common/TutorialVideo';
@@ -2601,7 +2601,7 @@ export default function App() {
             {isStaff ? (
               <div className="flex items-center gap-2">
                 <span className="hidden sm:inline text-sm font-semibold text-stone-900 dark:text-white">
-                  Recepción · {currentUser?.email}
+                  Recepción · {accountLabel(currentUser?.email)}
                 </span>
                 <button
                   type="button"
@@ -2880,7 +2880,7 @@ export default function App() {
                 {isApp ? (
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-stone-500 dark:text-zinc-400 font-medium hidden sm:inline truncate max-w-[200px]">
-                      {currentUser?.email}
+                      {accountLabel(currentUser?.email)}
                     </span>
                     <button
                       onClick={handleLogout}
@@ -2941,7 +2941,7 @@ export default function App() {
                     items={[
                       ...(isApp
                         ? [
-                            { label: currentUser?.email || 'Mi cuenta', onClick: () => {}, note: true },
+                            { label: accountLabel(currentUser?.email) || 'Mi cuenta', onClick: () => {}, note: true },
                             ...(!isStaff ? [{ label: 'Mi plan', onClick: () => setMyPlanOpen(true) }] : []),
                             ...(!isStaff && tenantDoc?.checklistDismissed ? [{ label: 'Cómo configurar Loomi', onClick: handleReopenChecklist }] : []),
                             ...(isPlatformAdmin(currentUser) ? [{ label: 'Clientes de Loomi', onClick: () => setClientsPanelOpen(true) }] : []),

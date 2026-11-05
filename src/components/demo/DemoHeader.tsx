@@ -1,3 +1,4 @@
+import { accountLabel } from '../../lib/staffUsers';
 import React from 'react';
 import {
   Building2,
@@ -122,7 +123,7 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({
               </div>
               <p className="text-[11px] text-stone-400 font-medium leading-none hidden sm:block">
                 {isAppMode
-                  ? currentUser?.email || complexName
+                  ? accountLabel(currentUser?.email) || complexName
                   : `${complexName} • Puerto Iguazú`}
               </p>
             </div>
