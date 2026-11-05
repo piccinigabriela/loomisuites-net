@@ -62,6 +62,13 @@ function webWriter(uid: string): IcalSyncWriter {
         }
       }
     },
+    async link(reservationId, data) {
+      try {
+        await updateDoc(doc(db, 'tenants', uid, 'reservations', reservationId), data);
+      } catch (err) {
+        if (!isNotFound(err)) throw err;
+      }
+    },
     async cancel(reservationId, pendingCleaningTaskIds) {
       try {
         await updateDoc(doc(db, 'tenants', uid, 'reservations', reservationId), { status: 'cancelled' });

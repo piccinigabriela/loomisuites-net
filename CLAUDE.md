@@ -21,6 +21,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Functions en `functions/` (proxy de login en `functions/__/`, OG de `/guia` y `/manual`); rutas en `public/_routes.json`.
 - Sincronización iCal en el servidor: `server-sync/` (Firebase Function programada cada 15 min, codebase `ical`,
   config en `firebase.json`). La lógica está en `src/lib/icalCore.ts` y la comparten la app y el servidor: no duplicarla.
+  Reserva cargada a mano (o traída de CheckInn) con la misma unidad, fechas y canal que un evento que no es bloqueo: queda atada
+  (`icalLinkId` + `icalSource`) y se le cambian fechas y se cancela como a una importada (5/11). Los bloqueos nunca atan.
   Modo en Firestore `sistema/icalSync.modo` ("prueba" no escribe; "real" escribe). Estado por cuenta en `tenants/{uid}/sync/ical`.
   Se publica desde Cloud Shell (`firebase deploy --only functions`), no con el push. Comandos: `npm run prueba|estado|activar|pausar` en `server-sync/`.
 - Xenia: `src/lib/xeniaClient.ts` (`askXenia`) prueba en orden 1) Claude, `functions/api/xenia/chat.js` (solo app real y con sesión:

@@ -129,6 +129,9 @@ export interface Reservation {
   source?: 'manual' | 'ical';
   icalUid?: string;
   icalSource?: 'airbnb' | 'booking' | 'vrbo' | 'google';
+  /** Reserva cargada a mano atada a una reserva del calendario de Airbnb/Booking (id que tendría la importada).
+   *  La sincronización le cambia las fechas y la cancela como si fuera importada (icalCore.ts). */
+  icalLinkId?: string;
 }
 
 export interface CleaningChecklistItem {

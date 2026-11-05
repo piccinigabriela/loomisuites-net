@@ -216,6 +216,8 @@ export interface IcalSyncWriter {
   moveCleaningTasks(taskIds: string[], date: string): Promise<void>;
   /** Marca la reserva como cancelada y borra sus limpiezas pendientes. */
   cancel(reservationId: string, pendingCleaningTaskIds: string[]): Promise<void>;
+  /** Ata una reserva cargada a mano al evento del calendario (icalLinkId + icalSource). */
+  link(reservationId: string, data: { icalLinkId: string; icalSource: IcalPortal }): Promise<void>;
 }
 
 export type IcalChange =
@@ -240,6 +242,17 @@ export type IcalChange =
       despues: { checkIn: string; checkOut: string; nights: number };
       /** Limpiezas pendientes que se pasan al nuevo día de salida */
       cleaningTaskIds: string[];
+    }
+  | {
+      /** Reserva cargada a mano (misma unidad, fechas y canal) que ahora queda atada al calendario */
+      tipo: 'atada';
+      propertyId: string;
+      unitName: string;
+      portal: IcalPortal;
+      reservationId: string;
+      guestName: string;
+      checkIn: string;
+      checkOut: string;
     }
   | {
       tipo: 'cancelada';
@@ -292,7 +305,9 @@ function nightsBetween(start: string, end: string): number {
  * los cambios. Misma lógica que tenía la app:
  * - eventos que terminan hoy o después;
  * - bloqueos de Airbnb solo si la unidad tiene importAirbnbBlocks;
- * - no duplica una reserva manual con exactamente las mismas fechas;
+ * - no duplica una reserva manual con exactamente las mismas fechas; si además es del mismo canal (Airbnb con Airbnb,
+ *   Booking con Booking) y no es un bloqueo, la ata al calendario (icalLinkId) para cambiarle fechas y cancelarla igual
+ *   que a una importada (5/11: reservas pasadas del respaldo de CheckInn o cargadas a mano);
  * - si cambian las fechas, actualiza solo checkIn, checkOut y noches;
  * - cancela las reservas importadas que desaparecieron del calendario (salvo calendario vacío con 3+ reservas);
  * - si un enlace falla, no toca las reservas de esa unidad/portal.
@@ -340,18 +355,46 @@ export async function runIcalSync(input: RunIcalSyncInput): Promise<SyncResult> 
         const resId = icalReservationId(portal, property.id, event.uid);
         fetchedResIds.add(resId);
 
-        const existingRes = workingReservations.find((r) => r.id === resId);
+        // La importada (mismo id) o una cargada a mano que ya quedó atada a este evento
+        const existingRes =
+          workingReservations.find((r) => r.id === resId) ||
+          workingReservations.find((r) => r.icalLinkId === resId && r.status !== 'cancelled');
 
         if (!existingRes) {
           // Si ya hay en esa unidad una reserva no cancelada cargada a mano con exactamente las mismas fechas, no crear nada.
-          const manualDuplicate = workingReservations.some(
+          const manualMatches = workingReservations.filter(
             (r) =>
               r.propertyId === property.id &&
               r.status !== 'cancelled' &&
               r.checkIn === event.start &&
               r.checkOut === event.end
           );
-          if (manualDuplicate) continue;
+          if (manualMatches.length) {
+            // Si es del mismo canal y el evento es una reserva (no un bloqueo), queda atada al calendario.
+            // Un bloqueo nunca ata: el dueño cierra fechas en Airbnb/Booking por reservas directas, y al reabrirlas
+            // no hay que cancelar nada.
+            const toLink =
+              !isBlocked && portal !== 'google'
+                ? manualMatches.find((r) => r.source !== 'ical' && !r.icalLinkId && r.platform === portal)
+                : undefined;
+            if (toLink) {
+              if (writer) await writer.link(toLink.id, { icalLinkId: resId, icalSource: portal });
+              cambios.push({
+                tipo: 'atada',
+                propertyId: property.id,
+                unitName: property.name,
+                portal,
+                reservationId: toLink.id,
+                guestName: toLink.guestName,
+                checkIn: toLink.checkIn,
+                checkOut: toLink.checkOut,
+              });
+              const linked: Reservation = { ...toLink, icalLinkId: resId, icalSource: portal };
+              workingReservations = workingReservations.map((r) => (r.id === toLink.id ? linked : r));
+              actualizadas++;
+            }
+            continue;
+          }
 
           const portalName =
             portal === 'airbnb' ? 'Airbnb' : portal === 'booking' ? 'Booking' : portal === 'google' ? 'Google Calendar' : 'otro portal';
@@ -423,7 +466,7 @@ export async function runIcalSync(input: RunIcalSyncInput): Promise<SyncResult> 
           }
           cambios.push(change);
           workingReservations = [newRes, ...workingReservations];
-        } else if (existingRes.source === 'ical') {
+        } else if (existingRes.source === 'ical' || existingRes.icalLinkId === resId) {
           // Si cambiaron las fechas: actualizar SOLO checkIn, checkOut y nights
           if (existingRes.checkIn !== event.start || existingRes.checkOut !== event.end) {
             const nights = nightsBetween(event.start, event.end);
@@ -434,12 +477,12 @@ export async function runIcalSync(input: RunIcalSyncInput): Promise<SyncResult> 
                 ? cleaningTasks
                     .filter(
                       (t) =>
-                        t.reservationId === resId && t.status === 'pending' && t.date === existingRes.checkOut
+                        t.reservationId === existingRes.id && t.status === 'pending' && t.date === existingRes.checkOut
                     )
                     .map((t) => t.id)
                 : [];
             if (writer) {
-              await writer.updateDates(resId, { checkIn: event.start, checkOut: event.end, nights });
+              await writer.updateDates(existingRes.id, { checkIn: event.start, checkOut: event.end, nights });
               if (tasksToMove.length) await writer.moveCleaningTasks(tasksToMove, event.end);
             }
             cambios.push({
@@ -447,14 +490,14 @@ export async function runIcalSync(input: RunIcalSyncInput): Promise<SyncResult> 
               propertyId: property.id,
               unitName: property.name,
               portal,
-              reservationId: resId,
+              reservationId: existingRes.id,
               guestName: existingRes.guestName,
               antes: { checkIn: existingRes.checkIn, checkOut: existingRes.checkOut },
               despues: { checkIn: event.start, checkOut: event.end, nights },
               cleaningTaskIds: tasksToMove,
             });
             const updatedRes: Reservation = { ...existingRes, checkIn: event.start, checkOut: event.end, nights };
-            workingReservations = workingReservations.map((r) => (r.id === resId ? updatedRes : r));
+            workingReservations = workingReservations.map((r) => (r.id === existingRes.id ? updatedRes : r));
             actualizadas++;
           }
         }
@@ -464,7 +507,7 @@ export async function runIcalSync(input: RunIcalSyncInput): Promise<SyncResult> 
       const existingFutureIcalRes = workingReservations.filter(
         (r) =>
           r.propertyId === property.id &&
-          r.source === 'ical' &&
+          (r.source === 'ical' || !!r.icalLinkId) &&
           r.icalSource === portal &&
           r.status !== 'cancelled' &&
           r.checkOut >= today
@@ -481,7 +524,7 @@ export async function runIcalSync(input: RunIcalSyncInput): Promise<SyncResult> 
       }
 
       for (const existingRes of existingFutureIcalRes) {
-        if (fetchedResIds.has(existingRes.id)) continue;
+        if (fetchedResIds.has(existingRes.icalLinkId || existingRes.id)) continue;
 
         // Limpiezas pendientes asociadas a la reserva cancelada
         const pendingTaskIds = cleaningTasks
@@ -564,6 +607,9 @@ export function describeChange(c: IcalChange): string {
     const r = c.reservation;
     const extra = c.aplicada === false ? ' (ya la había creado otra sincronización)' : '';
     return `NUEVA     · ${c.unitName} · ${portal} · ${r.checkIn} → ${r.checkOut} (${r.nights} noches) · "${r.guestName}" + limpieza el ${c.cleaningTask.date}${extra}`;
+  }
+  if (c.tipo === 'atada') {
+    return `ATADA     · ${c.unitName} · ${portal} · "${c.guestName}" ${c.checkIn} → ${c.checkOut} (cargada a mano: ahora se cancela sola si se cancela en ${portal})`;
   }
   if (c.tipo === 'fechas') {
     const limpieza = c.cleaningTaskIds.length ? ` (la limpieza pasa al ${c.despues.checkOut})` : '';

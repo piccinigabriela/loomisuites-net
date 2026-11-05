@@ -568,6 +568,15 @@ ${paymentsListStr}
           </div>
         </div>
 
+        {/* Reserva cargada a mano que la sincronización ató a un evento del calendario */}
+        {reservation.source !== 'ical' && reservation.icalLinkId && (
+          <div className="bg-sky-50 dark:bg-sky-950/30 border-b border-sky-200/80 dark:border-sky-800/40 p-3 px-4 sm:px-5 flex items-start gap-2.5 text-xs text-sky-900 dark:text-sky-200 shrink-0">
+            <Sparkles className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
+            <p className="text-[11px] leading-snug font-semibold">
+              Atada al calendario de {reservation.icalSource === 'booking' ? 'Booking' : reservation.icalSource === 'airbnb' ? 'Airbnb' : 'otro portal'}: si allá cambian las fechas o la cancelan, acá se actualiza sola.
+            </p>
+          </div>
+        )}
         {/* Banner para reservas importadas vía iCal */}
         {reservation.source === 'ical' && (
           <div className="bg-sky-50 dark:bg-sky-950/30 border-b border-sky-200/80 dark:border-sky-800/40 p-3 px-4 sm:px-5 flex items-start gap-2.5 text-xs text-sky-900 dark:text-sky-200 shrink-0">
