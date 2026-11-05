@@ -36,6 +36,8 @@ export interface TenantDoc {
     calendarios?: boolean;
     guia?: boolean;
     diaADia?: boolean;
+    /** Puso el link de Tu Web en su perfil de Google (Maps) */
+    googleMaps?: boolean;
   };
   checklistDismissed?: boolean;
   pricing?: PricingSettings;

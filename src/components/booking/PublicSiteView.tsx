@@ -3,7 +3,7 @@
  * La usan la página real (PublicSitePage), la vista previa de la app y la demo.
  * Noche, Día, Clara y Tierra se arman acá; los diseños especiales con otra estructura están en designs/.
  */
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { MapPin, Users, BedDouble, Clock } from 'lucide-react';
 import { LOGO_KEY, type PublicSiteDoc, type PublicSitePhoto, type PublicSiteUnit } from '../../lib/publicSite';
 import { BookBar, ExperiencesSection, fmtDate, fmtMoney, LangSwitch, Lightbox, SearchForm, SiteLogo, SiteTexts, TermsBox, useGoogleFont, useSiteBooking, waLink } from './siteKit';
@@ -364,20 +364,58 @@ const BaseSiteView: React.FC<Props> = ({ site, photos, preview }) => {
 };
 
 /** Portada del diseño Tierra: foto de fondo tenue, nombre enorme al centro y hasta tres fotos flotando (fijas, sin moverse al bajar) */
+/**
+ * Portada de Tierra: el nombre grande quieto y las fotos flotando a distinta velocidad al bajar (paralaje).
+ * Las fotos además se mecen apenas solas, así se nota que flotan aunque no se baje (y en la vista previa de la app).
+ * Con "reducir movimiento" activado en el teléfono, todo queda quieto.
+ */
 const TierraHero: React.FC<{
   site: PublicSiteDoc;
   cover?: PublicSitePhoto;
   floating: PublicSitePhoto[];
   headingFont: React.CSSProperties;
 }> = ({ site, cover, floating, headingFont }) => {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof window === 'undefined') return;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      // Cuánto se bajó desde que la portada empezó a salir de la pantalla
+      const y = Math.max(0, -el.getBoundingClientRect().top);
+      el.style.setProperty('--tierra-y', String(Math.min(y, window.innerHeight * 1.5)));
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  // Cada foto: lugar, giro, velocidad (negativa = sube más rápido que la página) y ritmo del vaivén
   const spots = [
-    'top-[13%] right-[5%] sm:right-[5%] w-32 sm:w-52 lg:w-64 aspect-[4/3] rotate-[2deg]',
-    'bottom-[9%] left-[5%] sm:left-[9%] w-28 sm:w-44 lg:w-56 aspect-[3/4] -rotate-[2deg]',
-    'hidden sm:block bottom-[14%] right-[16%] w-36 lg:w-44 aspect-square rotate-[1deg]',
+    { pos: 'top-[13%] right-[5%] sm:right-[5%] w-32 sm:w-52 lg:w-64 aspect-[4/3]', rot: 2, speed: -0.45, bob: '7s', delay: '0s' },
+    { pos: 'bottom-[9%] left-[5%] sm:left-[9%] w-28 sm:w-44 lg:w-56 aspect-[3/4]', rot: -2, speed: -0.8, bob: '8.5s', delay: '-2s' },
+    { pos: 'hidden sm:block bottom-[14%] right-[16%] w-36 lg:w-44 aspect-square', rot: 1, speed: -0.25, bob: '6s', delay: '-4s' },
   ];
+  const move = (speed: number): React.CSSProperties => ({ transform: `translate3d(0, calc(var(--tierra-y, 0) * ${speed}px), 0)`, willChange: 'transform' });
+
   return (
-    <header className="relative min-h-[88vh] sm:min-h-[92vh] overflow-hidden bg-[var(--bg)]">
-      {cover && <img src={cover.data} alt="" className="absolute inset-0 w-full h-full object-cover opacity-35 mix-blend-multiply" />}
+    <header ref={ref} className="relative min-h-[88vh] sm:min-h-[92vh] overflow-hidden bg-[var(--bg)]">
+      <style>{`@keyframes tierra-bob{0%,100%{translate:0 0}50%{translate:0 -10px}}
+.tierra-bob{animation:tierra-bob var(--bob,7s) ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.tierra-bob{animation:none}}`}</style>
+      {cover && (
+        <img src={cover.data} alt="" style={move(0.3)} className="absolute inset-0 w-full h-full object-cover opacity-35 mix-blend-multiply" />
+      )}
       <div className="absolute inset-0 bg-[radial-gradient(#8C6D46_1px,transparent_1px)] [background-size:36px_36px] opacity-15" />
       <div className="absolute top-16 inset-x-5 sm:inset-x-12 flex items-center justify-between gap-4 border-b border-[#2C2720]/25 pb-3 text-[11px] sm:text-xs uppercase tracking-[0.25em] text-[#2C2720]">
         <span className="font-bold truncate" style={{ fontFamily: headingFont.fontFamily }}>
@@ -385,12 +423,22 @@ const TierraHero: React.FC<{
         </span>
         {site.city && <span className="hidden sm:inline font-mono font-bold text-[#5A4632]">{site.city}</span>}
       </div>
-      {floating.map((p, i) => (
-        <div key={p.id} className={`absolute z-10 overflow-hidden rounded-xl shadow-[0_18px_40px_rgba(0,0,0,0.22)] border border-[#2C2720]/10 ${spots[i]}`}>
-          <img src={p.data} alt="" className="w-full h-full object-cover" />
-        </div>
-      ))}
-      <div className="relative z-20 min-h-[88vh] sm:min-h-[92vh] flex flex-col items-center justify-center text-center px-6 pb-16">
+      {floating.map((p, i) => {
+        const s = spots[i];
+        return (
+          <div key={p.id} className={`absolute z-10 ${s.pos}`} style={move(s.speed)}>
+            <div className="tierra-bob w-full h-full" style={{ ['--bob' as string]: s.bob, animationDelay: s.delay } as React.CSSProperties}>
+              <div
+                className="w-full h-full overflow-hidden rounded-xl shadow-[0_18px_40px_rgba(0,0,0,0.22)] border border-[#2C2720]/10"
+                style={{ transform: `rotate(${s.rot}deg)` }}
+              >
+                <img src={p.data} alt="" className="w-full h-full object-cover" />
+              </div>
+            </div>
+          </div>
+        );
+      })}
+      <div className="relative z-20 min-h-[88vh] sm:min-h-[92vh] flex flex-col items-center justify-center text-center px-6 pb-16" style={move(0.12)}>
         {site.logoUrl ? (
           <SiteLogo src={site.logoUrl} name={site.name} className="inline-flex mb-6 rounded-2xl bg-white/95 p-2 shadow-lg" />
         ) : (

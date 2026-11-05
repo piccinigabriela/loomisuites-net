@@ -3,11 +3,11 @@
  * Idea tomada del onboarding de Areca (4/11): pasos numerados, una línea que explica cada uno y un botón para ir.
  * Cada paso se tilda solo cuando está hecho; algunos se pueden marcar a mano ("No uso Airbnb ni Booking").
  */
-import React from 'react';
-import { Check, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { Check, ChevronRight, Copy, MapPin, X } from 'lucide-react';
 import { WelcomeGuideData, Property, Reservation } from '../../types';
 
-type ChecklistFlags = { calendarios?: boolean; guia?: boolean; diaADia?: boolean };
+type ChecklistFlags = { calendarios?: boolean; guia?: boolean; diaADia?: boolean; googleMaps?: boolean };
 
 /** Lo opcional que ya está hecho (se calcula en App con los datos de la cuenta) */
 export interface FirstStepsExtras {
@@ -15,6 +15,8 @@ export interface FirstStepsExtras {
   webDone?: boolean;
   xeniaDone?: boolean;
   cleaningChecklistDone?: boolean;
+  /** Link de Tu Web publicada ('' si no hay) */
+  webUrl?: string;
 }
 
 interface FirstStepsChecklistProps {
@@ -83,6 +85,7 @@ export const FirstStepsChecklist: React.FC<FirstStepsChecklistProps> = ({
   onUpdateChecklist,
   onDismissChecklist,
 }) => {
+  const [mapsOpen, setMapsOpen] = useState(false);
   if (checklistDismissed) return null;
 
   const s = getFirstStepsStatus({ welcomeGuide, properties, reservations, onboardingChecklist, pricingDone: extras.pricingDone });
@@ -124,6 +127,10 @@ export const FirstStepsChecklist: React.FC<FirstStepsChecklistProps> = ({
     { id: 'xenia', title: 'Xenia para huéspedes', text: 'Responde dudas en tu guía y en Tu Web.', done: extras.xeniaDone, action: () => onOpenGuide('guest-view') },
     { id: 'cleaning', title: 'Tu checklist de limpieza', text: 'Las tareas de cada limpieza y las de cada unidad.', done: extras.cleaningChecklistDone, action: () => onNavigate('housekeeping') },
     { id: 'messages', title: 'Mensajes de WhatsApp', text: 'Confirmación, llegada y pedido de reseña, listos para enviar.', action: () => onNavigate('messages') },
+    // Con Tu Web publicada: el link en el perfil de Google, para que quien busca el complejo en Maps reserve directo
+    ...(extras.webUrl
+      ? [{ id: 'maps', title: 'Tu Web en Google Maps', text: 'Que quien te busca en Google reserve directo, sin comisión.', done: onboardingChecklist?.googleMaps, action: () => setMapsOpen(true) }]
+      : []),
   ];
 
   const pct = Math.round((s.completedCount / s.total) * 100);
@@ -209,6 +216,76 @@ export const FirstStepsChecklist: React.FC<FirstStepsChecklistProps> = ({
           </button>
         ))}
       </div>
+
+      {mapsOpen && extras.webUrl && (
+        <GoogleMapsHelp
+          url={extras.webUrl}
+          done={!!onboardingChecklist?.googleMaps}
+          onDone={() => {
+            onUpdateChecklist({ googleMaps: true });
+            setMapsOpen(false);
+          }}
+          onClose={() => setMapsOpen(false)}
+        />
+      )}
     </section>
+  );
+};
+
+/** Cómo poner el link de Tu Web en el perfil de Google del complejo (lo que aparece en Maps). Gratis y sin programar nada. */
+const GoogleMapsHelp: React.FC<{ url: string; done: boolean; onDone: () => void; onClose: () => void }> = ({ url, done, onDone, onClose }) => {
+  const [copied, setCopied] = useState(false);
+  const copy = () =>
+    navigator.clipboard?.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  const steps = [
+    'Buscá tu complejo en Google con la cuenta que lo administra (o entrá a business.google.com) y tocá "Editar perfil".',
+    'En "Contacto", pegá el link en "Sitio web". Si te aparece "Vínculos de reserva", pegalo también ahí.',
+    'Guardá. Google puede tardar unos días en mostrarlo.',
+  ];
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
+      <div
+        role="dialog"
+        aria-label="Tu Web en Google Maps"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full sm:max-w-lg bg-white dark:bg-[#18191E] text-stone-900 dark:text-white rounded-t-3xl sm:rounded-3xl border border-stone-200 dark:border-zinc-800 p-6 space-y-5"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="text-xl font-bold flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-[#E67E22]" /> Tu Web en Google Maps
+          </h3>
+          <button type="button" onClick={onClose} aria-label="Cerrar" className="w-10 h-10 -mt-1 -mr-2 rounded-full flex items-center justify-center hover:bg-stone-100 dark:hover:bg-zinc-800 cursor-pointer">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <p className="text-base text-stone-800 dark:text-stone-200">
+          Mucha gente busca el complejo en Google antes de reservar. Con tu link ahí, reservan directo con vos, sin comisión.
+        </p>
+        <div className="flex items-center gap-2 rounded-xl border-2 border-stone-300 dark:border-zinc-600 p-2 pl-3">
+          <span className="flex-1 min-w-0 truncate text-base font-bold">{url.replace('https://', '')}</span>
+          <button type="button" onClick={copy} className="shrink-0 min-h-[40px] px-3 rounded-lg bg-[#E67E22] hover:bg-[#D35400] text-[#111] text-sm font-bold flex items-center gap-1.5 cursor-pointer">
+            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />} {copied ? 'Copiado' : 'Copiar'}
+          </button>
+        </div>
+        <ol className="space-y-3">
+          {steps.map((t, i) => (
+            <li key={i} className="flex gap-3 text-base">
+              <span className="w-7 h-7 shrink-0 rounded-full border-2 border-stone-400 dark:border-zinc-500 flex items-center justify-center text-sm font-bold">{i + 1}</span>
+              <span>{t}</span>
+            </li>
+          ))}
+        </ol>
+        <button
+          type="button"
+          onClick={onDone}
+          className="w-full min-h-[48px] rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 text-base font-bold cursor-pointer"
+        >
+          {done ? 'Listo' : 'Ya lo puse'}
+        </button>
+      </div>
+    </div>
   );
 };

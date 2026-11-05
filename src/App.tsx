@@ -1106,7 +1106,7 @@ export default function App() {
   }, [isApp, currentUser, tenantLoading, tenantUid, staffRole]);
 
   // Onboarding Checklist Handlers in App Mode
-  const handleUpdateChecklist = async (update: { calendarios?: boolean; guia?: boolean; diaADia?: boolean }) => {
+  const handleUpdateChecklist = async (update: { calendarios?: boolean; guia?: boolean; diaADia?: boolean; googleMaps?: boolean }) => {
     if (!currentUser) return;
     const currentOnboarding = tenantDoc?.onboardingChecklist || {};
     const nextChecklist = {
@@ -1138,6 +1138,7 @@ export default function App() {
       Object.values(dp || {}).some((v) => Number(v) > 0)
     ),
     webDone: Boolean(tenantDoc?.webSite?.enabled),
+    webUrl: tenantDoc?.webSite?.enabled && tenantDoc?.webSite?.slug ? siteUrl(tenantDoc.webSite.slug) : '',
     xeniaDone: Boolean(tenantDoc?.xeniaGuest?.enabled),
     cleaningChecklistDone: Boolean(
       Array.isArray(tenantDoc?.cleaningChecklist?.items) || Object.keys(tenantDoc?.cleaningChecklist?.units || {}).length
