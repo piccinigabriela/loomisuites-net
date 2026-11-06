@@ -1,8 +1,7 @@
 # Channel manager con Aiosell — plan de la conexión (5/11)
 
-Estado (6/11): esperando respuesta de Aiosell (esquema de cobro, marca blanca, credenciales de prueba). Programada solo la lógica pura, sin conectar
-a nada: `src/lib/aiosell.ts` con pruebas en `scripts/probar-aiosell.ts` (`npm run probar:aiosell`). Faltan los puntos 2 (función que recibe),
-3 y 4 (disparadores que envían), 5, 6 y 7 de abajo, que dependen de las respuestas de Aiosell (autenticación, código de PMS, sandbox, `endDate`).
+Estado (6/11 a la mañana): Aiosell respondió por WhatsApp (Aswin). Falta aclarar el cobro por unidad y las credenciales de prueba (ver "Respuestas de Aiosell").
+Programada solo la lógica pura, sin conectar a nada: `src/lib/aiosell.ts` con pruebas en `scripts/probar-aiosell.ts` (`npm run probar:aiosell`).
 Documentación pública: https://support.aiosell.com/portal/en/kb/aiosell-kb/api-documentation/aiosell-channel-manager-to-3rd-party-property-management-system
 
 ## Cómo funciona su API (lo que está publicado)
@@ -22,6 +21,32 @@ Aiosell → Loomi (POST a una URL nuestra):
 - Hay que contestar `{success: true, message: "..."}`.
 
 No dice: autenticación (en ningún sentido), reintentos si nuestra URL falla, si endDate es inclusivo, monedas aceptadas (ARS/USD).
+
+## Respuestas de Aiosell (6/11, por WhatsApp)
+
+Resueltas:
+- Alta (USD 15) y marca blanca (USD 12/mes): no se cobran a los socios tecnológicos. Sin cobro por reserva ni por canal.
+- Son socios oficiales de Airbnb y Booking.com, conectan con Despegar y tienen clientes y soporte en Latinoamérica.
+- Reintentos: 3 veces si nuestra URL falla (no dijo cada cuánto).
+- Al conectar un complejo mandan las reservas existentes con check-in futuro (no solo las nuevas).
+- `endDate` es inclusivo (el código ya viene así: `endInclusive` por defecto).
+- Aceptan ARS y USD.
+- Precio por noche o por cantidad de huéspedes: se puede de las dos maneras (nosotros mandamos uno por noche).
+- Pruebas: el código de socio para el sandbox es `sample-pms`.
+- Autenticación: "basic auth", detalles en apidocs.aiosell.com (esa página no se puede leer sin navegador; las notas públicas no dicen nada de la autenticación).
+
+Sin resolver (hay que volver a preguntar):
+1. Cobro: "depende de cómo esté publicada la propiedad en las OTA". Si Airbnb cuenta cada aviso como una propiedad (USD 5 c/u), un complejo de 7 cabañas costaría USD 35 y no USD 10.
+   Pedir un ejemplo con números (7 avisos de Airbnb en un mismo complejo y esas mismas 7 en Booking).
+2. Habitaciones iguales por tipo (modo hotel): no entendió la pregunta; explicarla con un ejemplo (4 dobles iguales: Booking manda una reserva "doble" y la habitación se asigna después).
+3. Autenticación: confirmar en qué sentido va cada una. Lo que nosotros mandamos (con qué usuario y clave) y lo que ellos nos mandan a nuestra URL (si mandan basic auth con usuario y clave que les damos nosotros).
+4. Credenciales del sandbox: usuario y clave, y si el hotel de prueba es `SANDBOX-PMS`.
+5. Cuál es nuestro código de PMS definitivo para producción (después de las pruebas).
+
+Consecuencias para el código:
+- **Reservas que ya existen en Loomi**: como Aiosell manda las futuras al conectar, llegarán como `book` reservas que Loomi ya tiene (cargadas a mano o traídas por iCal como "Reserva Airbnb").
+  Antes de crear, el receptor tiene que buscar en esa unidad una reserva no cancelada con las mismas fechas y el mismo canal, y atarla (como hace `icalCore`) en vez de duplicar. Falta programarlo.
+- Con las credenciales de prueba falta decidir cómo se guardan: como secrets de Cloudflare (`AIOSELL_USER`, `AIOSELL_PASSWORD` y las que nos den ellos para su llamada a nuestra URL), nunca en el repo.
 
 ## Cómo encaja en Loomi
 
@@ -60,7 +85,7 @@ Esquema decidido (Gabi, 5/11): cada complejo = 1 "hotel" en Aiosell (`hotelCode`
 - Loomi manda un solo precio por noche y por unidad (el de `quoteStay`) y la estadía mínima. Nada de precios por cantidad de huéspedes
   ni gestión de tarifas: quien la quiera contrata el revenue manager de Aiosell aparte.
 
-## Para preguntar a Aiosell (técnico)
+## Para preguntar a Aiosell (técnico) — mandadas el 6/11; las respuestas están arriba
 
 1. Autenticación: ¿cómo firmamos lo que les mandamos y cómo firman ellos lo que nos mandan (clave en el encabezado, usuario y clave)?
 2. ¿Cuál es nuestro código de PMS en la URL y nos dan un hotel de prueba (sandbox)?
