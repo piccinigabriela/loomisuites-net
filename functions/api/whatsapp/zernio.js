@@ -4,7 +4,7 @@
  * Zernio manda cada mensaje que llega al número de Loomi (coexistencia: la app sigue andando en el celular de Gabi).
  * Esta función responde 200 enseguida (Zernio exige respuesta en menos de 5 s) y en segundo plano:
  *   1. trae los últimos mensajes del chat,
- *   2. si Gabi escribió en ese chat en las últimas 12 horas, no contesta (la charla es de ella),
+ *   2. si Gabi escribió en ese chat en las últimas 12 horas, o si el chat lo empezó ella (proveedores, contactos suyos), no contesta,
  *   3. si es un audio o una imagen sin texto, pide que escriban,
  *   4. si no, le pide la respuesta a Claude con la información de Loomi y la manda por Zernio.
  *
@@ -32,6 +32,7 @@ CÓMO RESPONDER
 - Si quieren contratar, pagar, piden una llamada, tienen un problema con su cuenta o algo delicado: decí que el equipo de Loomi les escribe en breve por este mismo chat.
 - No nombres a ninguna persona del equipo. Si te preguntan con quién hablan o piden un nombre, la persona de Loomi es María.
 - Sos una asistente con inteligencia artificial: si te preguntan, decilo con naturalidad.
+- Contestá solo a posibles clientes. Si el mensaje es de una empresa que ofrece sus servicios, un proveedor, publicidad, un mensaje automático o un bot (por ejemplo, novedades de un software, ofertas, encuestas), respondé exactamente <<SILENCIO>> y nada más: lo ve el equipo de Loomi.
 
 QUÉ ES LOOMI
 Sistema de gestión para alojamientos chicos (de 4 a 20 unidades), hecho en Argentina, con 19 años de experiencia en hotelería detrás. Se usa desde el celular o la compu.
@@ -86,6 +87,18 @@ export function toClaudeMessages(msgs) {
   return out;
 }
 
+const isHuman = (m) => {
+  if (m.direction === 'incoming') return false;
+  if (m.sentVia && /api|zernio|automation/i.test(String(m.sentVia))) return false;
+  return !String(m.message || '').endsWith(MARK);
+};
+
+/** ¿El chat lo empezó Gabi a mano? (6/11: escribió a Aiosell desde este número y Xenia le contestó al bot de ellos) */
+export function startedByHuman(msgs) {
+  const first = msgs.find((m) => String(m.message || '').trim());
+  return Boolean(first && isHuman(first));
+}
+
 /** ¿Gabi escribió a mano en este chat hace poco? (mensajes salientes sin la marca de Xenia) */
 export function humanRecently(msgs, now = Date.now()) {
   return msgs.some((m) => {
@@ -136,7 +149,7 @@ async function handle(env, event) {
     const r = await zernio(env, `/inbox/conversations/${encodeURIComponent(conversationId)}/messages?accountId=${encodeURIComponent(accountId)}&limit=20&sortOrder=desc`);
     if (r.ok) history = ((await r.json()).messages || []).slice().reverse();
   } catch {}
-  if (humanRecently(history)) return;
+  if (humanRecently(history) || startedByHuman(history)) return;
 
   if (!incoming) {
     await send(env, accountId, conversationId, 'Por ahora leo solo mensajes escritos. Si me escribís tu consulta, te respondo enseguida 😊');
@@ -165,7 +178,7 @@ async function handle(env, event) {
     // Los links de Loomi, siempre bien escritos (el 1/11 salió "loomisuiye.net")
     .replace(/\bloomi\s?s[a-z]{2,7}\.n[a-z]{1,2}\b/gi, 'loomisuite.net')
     .trim();
-  if (!reply) return;
+  if (!reply || /<<\s*SILENCIO\s*>>/i.test(reply)) return; // proveedores, publicidad o bots: lo ve Gabi en el celular
   await send(env, accountId, conversationId, reply.slice(0, 3500));
 }
 

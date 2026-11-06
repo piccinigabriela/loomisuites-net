@@ -33,7 +33,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
 - Xenia en el WhatsApp de Loomi (+54 9 11 4092-5939, coexistencia vía Zernio, cartera de Meta "Loomi Suite" desde el 1/11; el número no puede estar cargado como WhatsApp de otra página de Facebook): `functions/api/whatsapp/zernio.js`
   recibe el webhook `message.received` (firma HMAC con `ZERNIO_WEBHOOK_SECRET`), contesta 200 y en segundo plano responde con Claude
   (instrucciones de venta dentro de la función: si cambian precios o funciones, actualizarlas ahí). No contesta en un chat donde Gabi escribió
-  en las últimas 12 h (lo de Xenia lleva una marca invisible al final). Audios: pide que escriban. Secrets: `ZERNIO_API_KEY`, `ZERNIO_WEBHOOK_SECRET`.
+  en las últimas 12 h (lo de Xenia lleva una marca invisible al final), ni en uno que empezó Gabi (`startedByHuman`), ni a proveedores, publicidad o bots
+  (Claude responde `<<SILENCIO>>` y no se manda nada; 6/11, le había contestado al bot de Aiosell). Audios: pide que escriban. Secrets: `ZERNIO_API_KEY`, `ZERNIO_WEBHOOK_SECRET`.
   Para apagarla: desactivar el webhook en Zernio.
 - Xenia para huéspedes (guía y Tu Web): `functions/api/xenia/huesped.js` (POST `/api/xenia/huesped`). El navegador manda solo la pregunta;
   la información la lee el servidor de `publicGuides/{uid}` o `publicSites/{slug}` con una cuenta de servicio (`functions-lib/firestoreAdmin.js`,
