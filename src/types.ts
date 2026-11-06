@@ -126,12 +126,16 @@ export interface Reservation {
   addons?: ReservationAddon[];
   payments?: ReservationPayment[];
   // Sincronización iCal:
-  source?: 'manual' | 'ical';
+  source?: 'manual' | 'ical' | 'channel';
   icalUid?: string;
   icalSource?: 'airbnb' | 'booking' | 'vrbo' | 'google';
   /** Reserva cargada a mano atada a una reserva del calendario de Airbnb/Booking (id que tendría la importada).
    *  La sincronización le cambia las fechas y la cancela como si fuera importada (icalCore.ts). */
   icalLinkId?: string;
+  /** Reserva que llegó por el channel manager (source 'channel'): id de la reserva en el canal, código del hotel en el channel manager y nombre del canal */
+  channelBookingId?: string;
+  channelHotelCode?: string;
+  channelName?: string;
   /** Nota sobre la persona ("viene con su perro"): se recuerda en sus próximas reservas; vale la última escrita (src/lib/guests.ts) */
   guestNote?: string;
   /** ISO: cuándo se escribió guestNote */

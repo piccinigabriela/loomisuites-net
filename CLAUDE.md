@@ -148,7 +148,11 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Días de gracia: `getAccessStatus(..., graceDays)` devuelve `grace` (sigue entrando, con aviso) antes de `expired`.
   Precios de la landing (`BentoLanding.tsx`, `LeadModal.tsx`, `DemoPlanFunctionalBar.tsx`) y de Xenia están fijos en el código: si cambian, actualizarlos también ahí.
 
-- Channel manager (Aiosell): plan de la conexión en `docs/channel-manager-aiosell.md` (5/11, sin programar todavía).
+- Channel manager (Aiosell): plan de la conexión en `docs/channel-manager-aiosell.md` (5/11). Esperando respuesta de Aiosell (mail del 6/11).
+  Lógica pura ya escrita y probada, sin conectar a nada: `src/lib/aiosell.ts` (validar lo que manda Aiosell, convertir book/modify/cancel en reservas y limpiezas,
+  armar disponibilidad, precios y estadía mínima a enviar). Pruebas: `npm run probar:aiosell`. Reserva nueva: `source: 'channel'` + `channelBookingId`,
+  `channelHotelCode`, `channelName`. Supuestos a confirmar con Aiosell: `endDate` inclusivo (`endInclusive`), formato de fechas, monedas. Falta: función de Cloudflare que recibe,
+  disparadores de Firebase que envían, pantalla de administración y reglas de `channelHotels`.
 
 ## Verificar antes de subir
 1. `npx tsc --noEmit`

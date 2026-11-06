@@ -1,6 +1,8 @@
 # Channel manager con Aiosell — plan de la conexión (5/11)
 
-Estado: esperando respuesta de Aiosell (esquema de cobro, marca blanca, credenciales de prueba). Nada programado todavía.
+Estado (6/11): esperando respuesta de Aiosell (esquema de cobro, marca blanca, credenciales de prueba). Programada solo la lógica pura, sin conectar
+a nada: `src/lib/aiosell.ts` con pruebas en `scripts/probar-aiosell.ts` (`npm run probar:aiosell`). Faltan los puntos 2 (función que recibe),
+3 y 4 (disparadores que envían), 5, 6 y 7 de abajo, que dependen de las respuestas de Aiosell (autenticación, código de PMS, sandbox, `endDate`).
 Documentación pública: https://support.aiosell.com/portal/en/kb/aiosell-kb/api-documentation/aiosell-channel-manager-to-3rd-party-property-management-system
 
 ## Cómo funciona su API (lo que está publicado)
