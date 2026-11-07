@@ -460,6 +460,8 @@ export interface UnitRoom {
   propertyId: string;
   /** roomCode que Aiosell conoce para esa unidad */
   roomCode: string;
+  /** Tarifa de esa unidad en Aiosell (por defecto la general, "STD") */
+  rateplanCode?: string;
 }
 
 export interface RangeOptions {
@@ -564,6 +566,7 @@ export interface RestrictionsBody {
 
 interface NightSeries {
   roomCode: string;
+  rateplanCode?: string;
   /** null = sin precio cargado: esa noche no se manda */
   prices: Array<number | null>;
   minNights: number[];
@@ -587,7 +590,7 @@ function nightSeries(
       prices.push(price > 0 ? Math.round(price * factor) : null);
       minNights.push(Math.max(1, q.minNights || 1));
     }
-    out.push({ roomCode: unit.roomCode, prices, minNights });
+    out.push({ roomCode: unit.roomCode, rateplanCode: unit.rateplanCode, prices, minNights });
   }
   return out;
 }
@@ -613,7 +616,7 @@ export function rateUpdates(
       const end = endOf(run.last, input);
       const key = `${run.first}|${end}`;
       const entry = merged.get(key) || { startDate: run.first, endDate: end, rates: [] };
-      entry.rates.push({ roomCode: s.roomCode, rateplanCode: plan, rate: run.value });
+      entry.rates.push({ roomCode: s.roomCode, rateplanCode: s.rateplanCode || plan, rate: run.value });
       merged.set(key, entry);
     }
   }
@@ -643,4 +646,68 @@ export function minimumStayUpdates(
     }
   }
   return { hotelCode: input.hotelCode, updates: sortUpdates([...merged.values()]) };
+}
+
+/* ------------------------------------------------------------------ */
+/* 3. Qué se manda de una cuenta (lo usa server-sync)                   */
+/* ------------------------------------------------------------------ */
+
+/** tenants/{uid}.channelManager */
+export interface ChannelManagerSettings {
+  enabled?: boolean;
+  provider?: 'aiosell';
+  hotelCode?: string;
+  since?: string;
+  units?: Record<string, { roomCode?: string; rateplanCode?: string; enabled?: boolean }>;
+  /** Precios: sin definir o send false = no se mandan (cada uno los maneja en las plataformas). percent = "Tarifas + X %". */
+  rates?: { send?: boolean; percent?: number };
+}
+
+/** Unidades conectadas de una cuenta, en el formato de los envíos */
+export function connectedUnits(cm: ChannelManagerSettings | null | undefined): UnitRoom[] {
+  return Object.entries(cm?.units || {})
+    .filter(([, u]) => u && u.enabled !== false && typeof u.roomCode === 'string' && u.roomCode)
+    .map(([propertyId, u]) => ({ propertyId, roomCode: String(u.roomCode), rateplanCode: u.rateplanCode || undefined }));
+}
+
+export interface ChannelSendBodies {
+  availability: AvailabilityBody;
+  rates: RatesBody | null;
+  restrictions: RestrictionsBody | null;
+}
+
+/** Todo lo que hay que mandarle a Aiosell de una cuenta, desde `from` por `days` noches. */
+export function channelSendBodies(input: {
+  cm: ChannelManagerSettings;
+  reservations: ReservationLike[];
+  properties: Property[];
+  pricing: PricingSettings | null | undefined;
+  from: string;
+  days: number;
+}): ChannelSendBodies | null {
+  const hotelCode = input.cm.hotelCode;
+  const units = connectedUnits(input.cm);
+  if (!input.cm.enabled || !hotelCode || units.length === 0) return null;
+  const base = { hotelCode, units, from: input.from, days: input.days };
+  const sendRates = input.cm.rates?.send === true;
+  return {
+    availability: availabilityUpdates({ ...base, reservations: input.reservations }),
+    rates: sendRates
+      ? rateUpdates({ ...base, properties: input.properties, pricing: input.pricing, adjustment: { percent: Number(input.cm.rates?.percent) || 0 } })
+      : null,
+    restrictions: sendRates ? minimumStayUpdates({ ...base, properties: input.properties, pricing: input.pricing }) : null,
+  };
+}
+
+/** Huella corta de un envío: si no cambió, no hace falta mandarlo de nuevo */
+export function bodyFingerprint(body: unknown): string {
+  const text = JSON.stringify(body);
+  let h1 = 0x811c9dc5;
+  let h2 = 0;
+  for (let i = 0; i < text.length; i++) {
+    const c = text.charCodeAt(i);
+    h1 = Math.imul(h1 ^ c, 0x01000193) >>> 0;
+    h2 = (h2 * 31 + c) >>> 0;
+  }
+  return `${h1.toString(36)}-${h2.toString(36)}-${text.length}`;
 }

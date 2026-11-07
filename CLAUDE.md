@@ -156,7 +156,12 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Registro de cada aviso en `tenants/{uid}/channelLog` y estado en `tenants/{uid}/sync/aiosell`. Una reserva que ya estaba (a mano o por iCal,
   mismas fechas, unidad y canal) se ata en vez de duplicarse; el iCal a su vez ata las del canal (no hay duplicados en ningún orden).
   Pruebas: `npm run probar:aiosell` (lógica + receptor con Firestore simulado). Sandbox: hotel `sandbox-pms`, roomCode `executive` y `suite`;
-  código de PMS definitivo `loomi-suites`. Falta: envío de disponibilidad y precios (disparadores en `server-sync/`) y pantalla.
+  código de PMS definitivo `loomi-suites`.
+  Envío (Loomi → Aiosell): `server-sync/src/aiosellSend.ts` + función programada `enviarChannelManager` (cada 10 min, solo hoteles con `mode: 'real'`):
+  arma 365 días con `channelSendBodies` (disponibilidad siempre; precios y estadía mínima solo si `channelManager.rates.send`, con `percent`),
+  manda solo lo que cambió (huellas en `tenants/{uid}/sync/aiosell.sent`) y todo una vez por día. Tarifa por unidad: `units[pid].rateplanCode`.
+  Credenciales en `sistema/aiosell` {user, password, pms, baseUrl} (sin reglas = sin acceso desde la app). Todo se maneja con
+  `npm run aiosell -- conectar|ver|desconectar|credenciales|precios|enviar` en `server-sync/` (Cloud Shell). Falta: pantalla en la app.
 
 ## Verificar antes de subir
 1. `npx tsc --noEmit`

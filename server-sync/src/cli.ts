@@ -10,11 +10,17 @@
  *   npm run aiosell -- conectar tu@correo.com sandbox-pms real executive,suite
  *       → conecta esa cuenta al hotel de Aiosell: la 1.ª unidad (por nombre) con la 1.ª habitación, la 2.ª con la 2.ª…
  *         "prueba" solo registra lo que haría; "real" escribe reservas.
+ *       Opcional al final, la tarifa de cada habitación: ... executive,suite executive-d-ep,suite-d-ep (sin eso, "STD").
  *   npm run aiosell -- ver tu@correo.com      → los últimos avisos que llegaron de Aiosell y qué se hizo
  *   npm run aiosell -- desconectar tu@correo.com sandbox-pms
+ *   npm run aiosell -- credenciales USUARIO CLAVE CODIGO-PMS   → usuario y clave que nos dio Aiosell (sample-pms para pruebas)
+ *   npm run aiosell -- precios tu@correo.com si 0             → manda los precios de Tarifas (+0 %); "no" = no mandar precios
+ *   npm run aiosell -- enviar tu@correo.com                   → muestra qué se le mandaría a Aiosell, sin mandar nada
+ *   npm run aiosell -- enviar tu@correo.com mandar            → lo manda ya (sin esperar los 10 minutos)
  */
 import { describeChange } from '../../src/lib/icalCore';
 import { cuentasConIcal, getDb, getModo, propiedadesDeCuenta, setModo, sincronizarCuenta, Cuenta } from './sync';
+import { AIOSELL_CONFIG_DOC, enviarCuentaAiosell, getAiosellConfig } from './aiosellSend';
 
 const db = getDb();
 
@@ -93,7 +99,19 @@ async function estado() {
   console.log('');
 }
 
-async function aiosell(sub?: string, correo?: string, hotel?: string, modo?: string, habitaciones?: string) {
+async function aiosell(sub?: string, correo?: string, hotel?: string, modo?: string, habitaciones?: string, tarifas?: string) {
+  if (sub === 'credenciales') {
+    // acá "correo" es el usuario, "hotel" la clave y "modo" el código de PMS
+    const [user, password, pms, baseUrl] = [correo, hotel, modo, habitaciones];
+    if (!user || !password || !pms) {
+      console.log('\nUso:  npm run aiosell -- credenciales USUARIO CLAVE CODIGO-PMS\n');
+      process.exitCode = 1;
+      return;
+    }
+    await db.doc(AIOSELL_CONFIG_DOC).set({ user, password, pms, ...(baseUrl ? { baseUrl } : {}), updatedAt: new Date().toISOString() }, { merge: true });
+    console.log(`\n✔ Credenciales de Aiosell guardadas (usuario ${user}, código de PMS ${pms}). La clave no se muestra.\n`);
+    return;
+  }
   const uid = correo ? (correo.includes('@') ? await buscarCuentaPorCorreo(correo) : correo) : null;
   if (!sub || !uid) {
     console.log('\nUso:  npm run aiosell -- conectar tu@correo.com sandbox-pms real executive,suite');
@@ -117,6 +135,49 @@ async function aiosell(sub?: string, correo?: string, hotel?: string, modo?: str
       console.log(`\n${l.at}  [${l.mode}] ${l.action} ${l.bookingId} · ${l.channel || ''}${l.checkIn ? ` · ${l.checkIn} a ${l.checkOut}` : ''}`);
       for (const line of l.summary || []) console.log('   ' + line);
     }
+    console.log('');
+    return;
+  }
+
+  if (sub === 'precios') {
+    const si = hotel === 'si' || hotel === 'sí';
+    if (!si && hotel !== 'no') {
+      console.log('\nUso:  npm run aiosell -- precios tu@correo.com si 0   (o "no")\n');
+      process.exitCode = 1;
+      return;
+    }
+    const percent = Number(modo || 0) || 0;
+    await tenantRef.update({ 'channelManager.rates': { send: si, percent } });
+    console.log(si ? `\n✔ ${nombre}: se mandan los precios de Tarifas${percent ? ` ${percent > 0 ? '+' : ''}${percent} %` : ''} y la estadía mínima.\n` : `\n✔ ${nombre}: no se mandan precios (se manejan en cada plataforma).\n`);
+    return;
+  }
+
+  if (sub === 'enviar') {
+    const cm = tenant.get('channelManager') || {};
+    if (!cm.hotelCode) {
+      console.log(`\n✖ ${nombre} no está conectada a ningún hotel de Aiosell.\n`);
+      process.exitCode = 1;
+      return;
+    }
+    const mandar = hotel === 'mandar';
+    const cfg = await getAiosellConfig(db);
+    if (mandar && !cfg) {
+      console.log('\n✖ Faltan las credenciales: npm run aiosell -- credenciales USUARIO CLAVE CODIGO-PMS\n');
+      process.exitCode = 1;
+      return;
+    }
+    const r = await enviarCuentaAiosell(db, cfg, uid, cm.hotelCode, { force: true, dryRun: !mandar });
+    console.log(`\nCuenta: ${nombre} · hotel ${cm.hotelCode} · ${mandar ? 'ENVÍO REAL' : 'solo muestra, no manda nada'}`);
+    for (const [kind, body] of Object.entries(r.bodies || {})) {
+      const updates = (body as any).updates || [];
+      console.log(`\n${kind === 'availability' ? 'Disponibilidad' : kind === 'rates' ? 'Precios' : 'Estadía mínima'} (${updates.length} tramos):`);
+      for (const u of updates.slice(0, 8)) {
+        const items = (u.rooms || u.rates || []).map((x: any) => `${x.roomCode}=${x.available ?? x.rate ?? x.restrictions?.minimumStay}${x.rateplanCode ? ` (${x.rateplanCode})` : ''}`);
+        console.log(`   ${u.startDate} a ${u.endDate}: ${items.join(', ')}`);
+      }
+      if (updates.length > 8) console.log(`   … y ${updates.length - 8} tramos más`);
+    }
+    if (mandar) console.log(r.errors.length ? `\n✖ Errores: ${r.errors.map((e) => `${e.kind}: ${e.error}`).join(' | ')}` : `\n✔ Enviado: ${r.sent.join(', ') || 'nada'}`);
     console.log('');
     return;
   }
@@ -163,15 +224,17 @@ async function aiosell(sub?: string, correo?: string, hotel?: string, modo?: str
     process.exitCode = 1;
     return;
   }
-  const units: Record<string, { roomCode: string; enabled: boolean }> = {};
-  rooms.forEach((roomCode, i) => (units[unidades[i].id] = { roomCode, enabled: true }));
+  const plans = (tarifas || '').split(',').map((r) => r.trim());
+  const units: Record<string, { roomCode: string; enabled: boolean; rateplanCode?: string }> = {};
+  rooms.forEach((roomCode, i) => (units[unidades[i].id] = { roomCode, enabled: true, ...(plans[i] ? { rateplanCode: plans[i] } : {}) }));
 
   await db.doc(`channelHotels/${hotel}`).set({ uid, mode: modo, provider: 'aiosell', updatedAt: new Date().toISOString() });
+  const rates = (tenant.get('channelManager') || {}).rates || { send: false, percent: 0 };
   await tenantRef.update({
-    channelManager: { enabled: true, provider: 'aiosell', hotelCode: hotel, since: new Date().toISOString(), units },
+    channelManager: { enabled: true, provider: 'aiosell', hotelCode: hotel, since: new Date().toISOString(), units, rates },
   });
   console.log(`\n✔ ${nombre} conectada al hotel ${hotel} de Aiosell, en modo ${modo.toUpperCase()}:`);
-  rooms.forEach((roomCode, i) => console.log(`   ${unidades[i].name}  ←  ${roomCode}`));
+  rooms.forEach((roomCode, i) => console.log(`   ${unidades[i].name}  ←  ${roomCode}${plans[i] ? ` (tarifa ${plans[i]})` : ''}`));
   console.log(modo === 'real' ? '\nLos avisos de Aiosell crean, cambian y cancelan reservas en esta cuenta.\n' : '\nModo prueba: solo se registra lo que haría (npm run aiosell -- ver ...).\n');
 }
 
@@ -180,7 +243,7 @@ async function main() {
   const quien = process.env.USER || 'cloud-shell';
   if (cmd === 'prueba') return prueba(arg);
   if (cmd === 'estado') return estado();
-  if (cmd === 'aiosell') return aiosell(arg, rest[0], rest[1], rest[2], rest[3]);
+  if (cmd === 'aiosell') return aiosell(arg, rest[0], rest[1], rest[2], rest[3], rest[4]);
   if (cmd === 'activar') {
     await setModo(db, 'real', quien);
     console.log('\n✔ Activado: desde la próxima corrida (máximo 15 minutos) el servidor escribe las reservas.\n');

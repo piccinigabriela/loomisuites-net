@@ -3,7 +3,9 @@
 Estado (7/11): Aiosell respondió todo (ver "Respuestas de Aiosell"); se paga con tarjeta.
 Hecho: receptor de reservas `functions/api/channel/aiosell.js` con su planificador `planChannelPush` (src/lib/aiosell.ts) y pruebas
 (`npm run probar:aiosell`, también contra un Firestore simulado). Falta: cargar secrets y el hotel de prueba, pasarle la URL a Aiosell,
-envío de disponibilidad y precios, pantalla.
+pantalla.
+Hecho también (7/11): envío de disponibilidad, precios y estadía mínima (`server-sync/src/aiosellSend.ts`, función `enviarChannelManager`
+cada 10 minutos, solo lo que cambió; pruebas en `scripts/probar-aiosell-envio.ts`). Se publica desde Cloud Shell con `firebase deploy --only functions`.
 
 ### Para probar con el sandbox (pasos de Gabi)
 1. Cloudflare Pages → Settings → Variables and secrets: `AIOSELL_WEBHOOK_USER` y `AIOSELL_WEBHOOK_PASSWORD` (los inventamos nosotros).
@@ -90,7 +92,7 @@ Esquema decidido (Gabi, 5/11): cada complejo = 1 "hotel" en Aiosell (`hotelCode`
    (reserva + limpieza). `modify`: cambia fechas/unidad/importes y mueve la limpieza pendiente. `cancel`: cancela y borra la limpieza pendiente.
    Si la unidad ya está ocupada esas fechas: se guarda igual y queda como conflicto (como hoy con iCal), nunca se pierde una reserva.
    Contesta rápido; si algo falla devuelve error para que Aiosell reintente.
-3. **Mandar disponibilidad**: función de Firebase en `server-sync/` (codebase `ical`) con disparador `onDocumentWritten` en
+3. **Mandar disponibilidad** (HECHO 7/11 con una función cada 10 minutos en vez de disparadores: sin Eventarc y con menos lecturas): función de Firebase en `server-sync/` (codebase `ical`) con disparador `onDocumentWritten` en
    `tenants/{uid}/reservations/{id}`: si el complejo tiene channel manager, recalcula las fechas afectadas de esa unidad (0 o 1 por noche,
    contando reservas no canceladas y bloqueos) y hace `update/{pms}`. Así sirve para todo lo que cambia una reserva: la app, Recepción,
    la función de arriba y el iCal. Además, una pasada diaria que manda los próximos 365 días completos (por si algo se perdió).
