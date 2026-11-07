@@ -148,11 +148,15 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Días de gracia: `getAccessStatus(..., graceDays)` devuelve `grace` (sigue entrando, con aviso) antes de `expired`.
   Precios de la landing (`BentoLanding.tsx`, `LeadModal.tsx`, `DemoPlanFunctionalBar.tsx`) y de Xenia están fijos en el código: si cambian, actualizarlos también ahí.
 
-- Channel manager (Aiosell): plan de la conexión en `docs/channel-manager-aiosell.md` (5/11). Esperando respuesta de Aiosell (mail del 6/11).
-  Lógica pura ya escrita y probada, sin conectar a nada: `src/lib/aiosell.ts` (validar lo que manda Aiosell, convertir book/modify/cancel en reservas y limpiezas,
-  armar disponibilidad, precios y estadía mínima a enviar). Pruebas: `npm run probar:aiosell`. Reserva nueva: `source: 'channel'` + `channelBookingId`,
-  `channelHotelCode`, `channelName`. Supuestos a confirmar con Aiosell: `endDate` inclusivo (`endInclusive`), formato de fechas, monedas. Falta: función de Cloudflare que recibe,
-  disparadores de Firebase que envían, pantalla de administración y reglas de `channelHotels`.
+- Channel manager (Aiosell): plan y respuestas de Aiosell en `docs/channel-manager-aiosell.md` (todo respondido el 7/11; se paga con tarjeta).
+  Lógica pura y probada: `src/lib/aiosell.ts` (validar lo que manda Aiosell, `planChannelPush` decide crear / atar / modificar / cancelar,
+  disponibilidad, precios y estadía mínima a enviar). Receptor: `functions/api/channel/aiosell.js` (POST `/api/channel/aiosell`, basic auth con
+  secrets `AIOSELL_WEBHOOK_USER` y `AIOSELL_WEBHOOK_PASSWORD`, escribe con `FIREBASE_SERVICE_ACCOUNT`). `channelHotels/{hotelCode}` {uid, mode}
+  (solo servidor; `mode: 'real'` escribe, si no es prueba y solo registra) y `tenants/{uid}.channelManager.units` {propertyId: {roomCode, enabled}}.
+  Registro de cada aviso en `tenants/{uid}/channelLog` y estado en `tenants/{uid}/sync/aiosell`. Una reserva que ya estaba (a mano o por iCal,
+  mismas fechas, unidad y canal) se ata en vez de duplicarse; el iCal a su vez ata las del canal (no hay duplicados en ningún orden).
+  Pruebas: `npm run probar:aiosell` (lógica + receptor con Firestore simulado). Sandbox: hotel `sandbox-pms`, roomCode `executive` y `suite`;
+  código de PMS definitivo `loomi-suites`. Falta: envío de disponibilidad y precios (disparadores en `server-sync/`) y pantalla.
 
 ## Verificar antes de subir
 1. `npx tsc --noEmit`

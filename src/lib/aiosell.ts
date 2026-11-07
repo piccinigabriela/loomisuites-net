@@ -228,6 +228,7 @@ export function bookingToReservations(b: AiosellBooking, ctx: ChannelReservation
       channelBookingId: b.bookingId,
       channelHotelCode: b.hotelCode,
       channelName: label,
+      channelRoomIndex: i,
     };
 
     const cleaningTask: CleaningTask = {
@@ -272,6 +273,183 @@ export function modificationPatch(existing: Reservation, next: Reservation): Par
   // Un pago ya registrado en Loomi no se pisa con el estado que informa el canal
   if (existing.payments && existing.payments.length > 0) delete patch.paymentStatus;
   return patch as Partial<Reservation>;
+}
+
+/* ------------------------------------------------------------------ */
+/* 1b. Qué hacer con cada aviso (lo usa functions/api/channel/aiosell.js) */
+/* ------------------------------------------------------------------ */
+
+export type ChannelOp =
+  | { op: 'create'; reservation: Reservation; cleaningTask: CleaningTask }
+  | {
+      op: 'update';
+      /** attach = reserva que ya estaba en Loomi (a mano o por iCal) y queda atada al canal; modify = cambio que mandó el canal */
+      kind: 'attach' | 'modify';
+      id: string;
+      patch: Partial<Reservation>;
+      taskMoves: Array<{ id: string; patch: Partial<CleaningTask> }>;
+    }
+  | { op: 'cancel'; id: string; deleteTaskIds: string[] }
+  /** Limpieza nueva para una reserva que ya existe (reactivada) */
+  | { op: 'createTask'; cleaningTask: CleaningTask };
+
+export interface ChannelPlanInput {
+  push: AiosellPush;
+  ctx: ChannelReservationContext;
+  /** Reservas de Loomi con este channelHotelCode + channelBookingId */
+  byBooking: Reservation[];
+  /** Reservas de las unidades de la reserva con el mismo check-in (para atar en vez de duplicar) */
+  candidates: Reservation[];
+  /** Limpiezas de las reservas de byBooking y candidates */
+  tasks: CleaningTask[];
+}
+
+export interface ChannelPlan {
+  ops: ChannelOp[];
+  unknownRooms: string[];
+  /** Una línea por cambio, en castellano, para el registro */
+  summary: string[];
+}
+
+const GENERIC_NAME = /^(reserva\b|reserved\b|not available|airbnb\b|booking\b|$)/i;
+const BLOCK_NAME = /^bloqueado\b/i;
+
+function roomIndexOf(r: Reservation): number {
+  if (typeof r.channelRoomIndex === 'number') return r.channelRoomIndex;
+  const base = `cm-${r.channelHotelCode}-${r.channelBookingId}-`;
+  const n = r.id.startsWith(base) ? Number(r.id.slice(base.length)) : NaN;
+  return Number.isInteger(n) && n > 0 ? n - 1 : 0;
+}
+
+/** Datos del canal que se suman a una reserva que ya estaba en Loomi, sin pisar lo que cargó el dueño. */
+function attachPatch(existing: Reservation, next: Reservation): Partial<Reservation> {
+  const patch: Partial<Reservation> = {
+    channelBookingId: next.channelBookingId,
+    channelHotelCode: next.channelHotelCode,
+    channelName: next.channelName,
+    channelRoomIndex: next.channelRoomIndex,
+  };
+  if (GENERIC_NAME.test((existing.guestName || '').trim()) && next.guestName && !GENERIC_NAME.test(next.guestName)) {
+    patch.guestName = next.guestName;
+  }
+  if (!existing.guestEmail && next.guestEmail) patch.guestEmail = next.guestEmail;
+  if (!existing.guestPhone && next.guestPhone) patch.guestPhone = next.guestPhone;
+  if (existing.source === 'ical' && next.guestsCount > (existing.guestsCount || 0)) patch.guestsCount = next.guestsCount;
+  if (!(existing.totalAmount > 0) && next.totalAmount > 0) {
+    patch.totalAmount = next.totalAmount;
+    patch.netRevenue = next.netRevenue;
+  }
+  return patch;
+}
+
+/** Limpiezas pendientes de una reserva que hay que mover si cambia la salida o la unidad */
+function moveTasks(tasks: CleaningTask[], reservationId: string, next: { checkOut: string; propertyId: string }) {
+  return tasks
+    .filter((t) => t.reservationId === reservationId && t.status === 'pending')
+    .map((t) => {
+      const patch: Partial<CleaningTask> = {};
+      if (t.date !== next.checkOut) patch.date = next.checkOut;
+      if (t.propertyId !== next.propertyId) patch.propertyId = next.propertyId;
+      return { id: t.id, patch };
+    })
+    .filter((m) => Object.keys(m.patch).length > 0);
+}
+
+const pendingTaskIds = (tasks: CleaningTask[], reservationId: string) =>
+  tasks.filter((t) => t.reservationId === reservationId && t.status === 'pending').map((t) => t.id);
+
+/**
+ * Decide qué escribir en Loomi por un aviso de Aiosell. Pura: no lee ni escribe nada.
+ * - book: crea una reserva por habitación. Si en esa unidad ya hay una reserva no cancelada del mismo canal con las mismas
+ *   fechas (cargada a mano o traída por iCal) y sin canal asignado, la ata en vez de duplicar (Aiosell manda las reservas
+ *   futuras al conectar un complejo). Un book repetido (reintento) se trata como modify.
+ * - modify: cambia fechas, unidad, personas e importes de cada habitación (modificationPatch) y mueve su limpieza pendiente.
+ *   Si la reserva no estaba, se trata como book. Habitaciones que ya no vienen: se cancelan.
+ * - cancel: cancela todas las habitaciones de esa reserva y borra sus limpiezas pendientes. Si no estaba, no hace nada.
+ */
+export function planChannelPush(input: ChannelPlanInput): ChannelPlan {
+  const { push, ctx, tasks } = input;
+  const ops: ChannelOp[] = [];
+  const summary: string[] = [];
+  const live = input.byBooking.filter((r) => r.status !== 'cancelled');
+
+  if (push.action === 'cancel') {
+    for (const r of live) {
+      ops.push({ op: 'cancel', id: r.id, deleteTaskIds: pendingTaskIds(tasks, r.id) });
+      summary.push(`Cancelada: ${r.guestName} (${r.checkIn} a ${r.checkOut})`);
+    }
+    if (!live.length) summary.push(`Cancelación de ${push.bookingId}: no había reserva activa en Loomi`);
+    return { ops, unknownRooms: [], summary };
+  }
+
+  const built = bookingToReservations(push, ctx);
+  const used = new Set<string>();
+
+  for (const { reservation: next, cleaningTask } of built.items) {
+    const index = next.channelRoomIndex ?? 0;
+    const existing =
+      input.byBooking.find((r) => roomIndexOf(r) === index && r.status !== 'cancelled') ||
+      input.byBooking.find((r) => r.id === next.id);
+
+    if (existing) {
+      used.add(existing.id);
+      if (existing.status === 'cancelled') {
+        // Volvió una reserva que el canal había cancelado: se reactiva con los datos nuevos
+        const patch: Partial<Reservation> = { ...modificationPatch(existing, next), status: 'confirmed' };
+        ops.push({ op: 'update', kind: 'modify', id: existing.id, patch, taskMoves: [] });
+        if (!tasks.some((t) => t.reservationId === existing.id && t.status === 'pending')) {
+          ops.push({ op: 'createTask', cleaningTask: { ...cleaningTask, id: icalCleaningTaskId(existing.id), reservationId: existing.id, propertyId: next.propertyId } });
+        }
+        summary.push(`Reactivada: ${existing.guestName} (${next.checkIn} a ${next.checkOut})`);
+        continue;
+      }
+      const patch = modificationPatch(existing, next);
+      if (Object.keys(patch).length) {
+        ops.push({ op: 'update', kind: 'modify', id: existing.id, patch, taskMoves: moveTasks(tasks, existing.id, next) });
+        summary.push(`Modificada: ${existing.guestName} (${next.checkIn} a ${next.checkOut})`);
+      } else {
+        summary.push(`Sin cambios: ${existing.guestName} (${next.checkIn} a ${next.checkOut})`);
+      }
+      continue;
+    }
+
+    // ¿Ya estaba en Loomi sin canal (a mano o por iCal)? Se ata.
+    const match =
+      next.platform !== 'direct'
+        ? input.candidates.find(
+            (r) =>
+              !used.has(r.id) &&
+              r.propertyId === next.propertyId &&
+              r.status !== 'cancelled' &&
+              r.checkIn === next.checkIn &&
+              r.checkOut === next.checkOut &&
+              r.platform === next.platform &&
+              !r.channelBookingId &&
+              !BLOCK_NAME.test(r.guestName || '')
+          )
+        : undefined;
+    if (match) {
+      used.add(match.id);
+      ops.push({ op: 'update', kind: 'attach', id: match.id, patch: attachPatch(match, next), taskMoves: [] });
+      summary.push(`Atada a la que ya estaba: ${match.guestName} (${next.checkIn} a ${next.checkOut})`);
+      continue;
+    }
+
+    ops.push({ op: 'create', reservation: next, cleaningTask });
+    summary.push(`Nueva: ${next.guestName} (${next.checkIn} a ${next.checkOut})`);
+  }
+
+  // Habitaciones que estaban y ya no vienen en el modify
+  if (push.action === 'modify' && built.unknownRooms.length === 0) {
+    for (const r of live) {
+      if (used.has(r.id)) continue;
+      ops.push({ op: 'cancel', id: r.id, deleteTaskIds: pendingTaskIds(tasks, r.id) });
+      summary.push(`Cancelada (ya no viene en la reserva): ${r.guestName}`);
+    }
+  }
+
+  for (const code of built.unknownRooms) summary.push(`Habitación ${code} sin unidad conectada en Loomi: no se cargó`);
+  return { ops, unknownRooms: built.unknownRooms, summary };
 }
 
 /* ------------------------------------------------------------------ */

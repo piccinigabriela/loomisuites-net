@@ -97,12 +97,37 @@ export function toValue(v) {
 
 export const docName = (path) => `${ROOT}/${path}`;
 
-/** Lee un documento. null si no existe. */
-export async function getDoc(token, path, fetchImpl = fetch) {
-  const res = await fetchImpl(`${BASE}/${path}`, { headers: { authorization: `Bearer ${token}` } });
+/** Lee un documento. null si no existe. mask: lista de campos a traer (opcional; para no bajar documentos grandes). */
+export async function getDoc(token, path, fetchImpl = fetch, mask = null) {
+  const q = Array.isArray(mask) && mask.length ? '?' + mask.map((f) => `mask.fieldPaths=${encodeURIComponent(f)}`).join('&') : '';
+  const res = await fetchImpl(`${BASE}/${path}${q}`, { headers: { authorization: `Bearer ${token}` } });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`get ${path} ${res.status}`);
   return fromFields((await res.json()).fields || {});
+}
+
+/** Filtro de igualdad (op 'IN' con una lista) para runQuery */
+export const where = (field, value, op = 'EQUAL') => ({ fieldFilter: { field: { fieldPath: field }, op, value: toValue(value) } });
+
+/**
+ * Consulta una colección. parentPath: documento padre ("tenants/{uid}") o '' para la raíz.
+ * Devuelve [{ id, ...campos }].
+ */
+export async function runQuery(token, parentPath, collectionId, filters, fetchImpl = fetch, limit = 200) {
+  const structuredQuery = { from: [{ collectionId }], limit };
+  if (filters.length === 1) structuredQuery.where = filters[0];
+  else if (filters.length > 1) structuredQuery.where = { compositeFilter: { op: 'AND', filters } };
+  const url = parentPath ? `${BASE}/${parentPath}:runQuery` : `${BASE}:runQuery`;
+  const res = await fetchImpl(url, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ structuredQuery }),
+  });
+  if (!res.ok) throw new Error(`query ${collectionId} ${res.status}`);
+  const rows = await res.json();
+  return (Array.isArray(rows) ? rows : [])
+    .filter((r) => r && r.document)
+    .map((r) => ({ id: r.document.name.split('/').pop(), ...fromFields(r.document.fields || {}) }));
 }
 
 /** Escrituras atómicas. Devuelve true si se aplicaron; false si falló una condición (por ejemplo, el documento ya existía). */

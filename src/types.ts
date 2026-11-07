@@ -136,6 +136,8 @@ export interface Reservation {
   channelBookingId?: string;
   channelHotelCode?: string;
   channelName?: string;
+  /** Posición de la habitación dentro de la reserva del canal (0 = primera). Solo cuando una reserva trae varias unidades. */
+  channelRoomIndex?: number;
   /** Nota sobre la persona ("viene con su perro"): se recuerda en sus próximas reservas; vale la última escrita (src/lib/guests.ts) */
   guestNote?: string;
   /** ISO: cuándo se escribió guestNote */

@@ -1,6 +1,18 @@
 # Channel manager con Aiosell — plan de la conexión (5/11)
 
-Estado (7/11): Aiosell respondió todo lo técnico (ver "Respuestas de Aiosell"). Pago con tarjeta. Siguiente paso: receptor de reservas y pruebas en el sandbox; después Catalinas en paralelo con iCal.
+Estado (7/11): Aiosell respondió todo (ver "Respuestas de Aiosell"); se paga con tarjeta.
+Hecho: receptor de reservas `functions/api/channel/aiosell.js` con su planificador `planChannelPush` (src/lib/aiosell.ts) y pruebas
+(`npm run probar:aiosell`, también contra un Firestore simulado). Falta: cargar secrets y el hotel de prueba, pasarle la URL a Aiosell,
+envío de disponibilidad y precios, pantalla.
+
+### Para probar con el sandbox (pasos de Gabi)
+1. Cloudflare Pages → Settings → Variables and secrets: `AIOSELL_WEBHOOK_USER` y `AIOSELL_WEBHOOK_PASSWORD` (los inventamos nosotros).
+   `FIREBASE_SERVICE_ACCOUNT` ya está (Xenia para huéspedes).
+2. Una cuenta de Loomi de prueba (no Catalinas) con 2 unidades. En Firestore: `channelHotels/sandbox-pms` {uid: (uid de esa cuenta), mode: "real"}
+   y en `tenants/{uid}`: `channelManager.units` = {idUnidad1: {roomCode: "executive", enabled: true}, idUnidad2: {roomCode: "suite", enabled: true}}.
+3. Pasarle a Aiosell la URL `https://app.loomisuite.net/api/channel/aiosell` con el usuario y la clave (por WhatsApp, no en el grupo grande si se puede).
+4. Pedirles que manden un book, un modify y un cancel de prueba; mirar `tenants/{uid}/channelLog`.
+Para Catalinas, después: `mode` sin "real" (prueba) primero: registra qué haría sin tocar reservas, con el iCal andando.
 Programada solo la lógica pura, sin conectar a nada: `src/lib/aiosell.ts` con pruebas en `scripts/probar-aiosell.ts` (`npm run probar:aiosell`).
 Documentación pública: https://support.aiosell.com/portal/en/kb/aiosell-kb/api-documentation/aiosell-channel-manager-to-3rd-party-property-management-system
 
@@ -73,7 +85,7 @@ Esquema decidido (Gabi, 5/11): cada complejo = 1 "hotel" en Aiosell (`hotelCode`
    - Reserva: id `cm-{hotelCode}-{bookingId}`, `source: 'channel'`, `platform` según `channel` (Airbnb → airbnb, Booking.com → booking,
      Expedia/Vrbo → vrbo, el resto → origen propio con su comisión), `channelBookingId`, importes de `amount`, `pah` → estado de pago.
      Limpieza al check-out con `buildCleaningChecklist` (igual que la reserva manual y `icalCore`).
-2. **Recibir reservas**: Cloudflare Pages Function `functions/api/channel/aiosell.js` (POST). Verifica la clave que acordemos con Aiosell,
+2. **Recibir reservas** (HECHO 7/11, ver arriba): Cloudflare Pages Function `functions/api/channel/aiosell.js` (POST). Verifica la clave que acordemos con Aiosell,
    busca el uid por `hotelCode`, escribe con la cuenta de servicio (`functions-lib/firestoreAdmin.js`, ya existe) en una transacción
    (reserva + limpieza). `modify`: cambia fechas/unidad/importes y mueve la limpieza pendiente. `cancel`: cancela y borra la limpieza pendiente.
    Si la unidad ya está ocupada esas fechas: se guarda igual y queda como conflicto (como hoy con iCal), nunca se pierde una reserva.
