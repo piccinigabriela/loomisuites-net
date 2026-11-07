@@ -1,6 +1,6 @@
 # Channel manager con Aiosell — plan de la conexión (5/11)
 
-Estado (7/11): Aiosell respondió todo lo técnico (ver "Respuestas de Aiosell"). Falta solo si aceptan PayPal o Payoneer. Siguiente paso: receptor de reservas y pruebas en el sandbox; después Catalinas en paralelo con iCal.
+Estado (7/11): Aiosell respondió todo lo técnico (ver "Respuestas de Aiosell"). Pago con tarjeta. Siguiente paso: receptor de reservas y pruebas en el sandbox; después Catalinas en paralelo con iCal.
 Programada solo la lógica pura, sin conectar a nada: `src/lib/aiosell.ts` con pruebas en `scripts/probar-aiosell.ts` (`npm run probar:aiosell`).
 Documentación pública: https://support.aiosell.com/portal/en/kb/aiosell-kb/api-documentation/aiosell-channel-manager-to-3rd-party-property-management-system
 
@@ -55,7 +55,7 @@ Sin resolver (hay que volver a preguntar):
     En producción seguimos con una tarifa por unidad; `buildRateUpdates` ya acepta `rateplanCode` (por defecto `STD`) y `unitForRoom` traduce el roomCode.
   - Código de PMS definitivo: lo generan con nuestro nombre, **`loomi-suites`**.
   - Cobro con Airbnb (7 avisos de un mismo complejo): "Yes we can", se puede cobrar como un hotel (confirmar por escrito al contratar).
-  - PayPal o Payoneer: sin respuesta todavía.
+  - PayPal o Payoneer: sin respuesta. Decisión de Gabi (7/11): se asume que no y se paga con tarjeta.
 
 Consecuencias para el código:
 - **Reservas que ya existen en Loomi**: como Aiosell manda las futuras al conectar, llegarán como `book` reservas que Loomi ya tiene (cargadas a mano o traídas por iCal como "Reserva Airbnb").
