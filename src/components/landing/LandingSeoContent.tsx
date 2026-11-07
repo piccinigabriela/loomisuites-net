@@ -21,6 +21,7 @@ const FEATURES: Array<[string, string]> = [
 const FAQ: Array<[string, string]> = [
   ['¿Reemplaza a Airbnb o Booking.com?', 'No. Seguís recibiendo reservas en esos portales; Loomi Suite sincroniza los calendarios por iCal (cada 15 minutos) para evitar reservas dobles y las muestra juntas.'],
   ['¿Necesito cerraduras inteligentes?', 'No. Funciona con la llave de siempre; la forma de ingresar se explica en la guía digital del huésped.'],
+  ['¿Cuánto tarda pasar a Loomi?', 'Unidades y tarifas, unos 15 minutos. Las reservas de Airbnb y Booking entran solas en cuanto pegás los links de calendario, y las que tengas en Excel u otro sistema se importan desde un archivo. Si preferís, te las cargamos nosotros sin costo. No hace falta capacitación: dentro de la app, Xenia te explica cómo hacer cada cosa.'],
   ['¿Cuánto dura la prueba?', '7 días gratis desde que se crea la cuenta en app.loomisuite.net. La demo con datos de ejemplo se puede usar sin registrarse.'],
   ['¿Cobra comisión por reserva?', 'No. Los huéspedes pagan directamente al anfitrión; Loomi Suite no interviene en esos cobros.'],
   ['¿Hay una web propia de reservas directas?', 'Sí: "Tu Web". El huésped elige fechas, ve qué unidades están libres y el precio de la estadía según tus tarifas, y te manda el pedido por WhatsApp. No cobra ni confirma sola: el anfitrión confirma y cobra directo, sin comisiones.'],

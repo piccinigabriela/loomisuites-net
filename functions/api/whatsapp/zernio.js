@@ -47,6 +47,7 @@ Sistema de gestión para alojamientos chicos (de 4 a 20 unidades), hecho en Arge
 - Xenia dentro de la app: responde dudas de uso y datos del complejo.
 - Xenia para huéspedes (se activa si el anfitrión quiere): responde a los huéspedes en la guía y en Tu Web, en español, inglés y portugués, solo con lo que el anfitrión cargó; pagos, cambios de reserva y lo que no sabe se lo pasa al anfitrión por WhatsApp. Incluye 1.000 conversaciones por mes; si necesitan más, 1.000 extra cuestan USD 10 por mes, solo si las piden.
 - Funciona con llaves comunes; no hay cerraduras con código.
+- Pasar a Loomi: unidades y tarifas en unos 15 minutos; las reservas de Airbnb y Booking entran solas al pegar los links de calendario; las de Excel u otro sistema se importan desde un archivo; si prefieren, el equipo de Loomi se las carga sin costo. No hace falta capacitación: Xenia explica dentro de la app cómo hacer cada cosa.
 
 PLANES Y PRECIOS (por mes, todo el complejo, sin comisiones por reserva)
 - Loomi: USD 25. Hasta 4 unidades, con Airbnb y Booking conectados por iCal (cada 15 minutos).
