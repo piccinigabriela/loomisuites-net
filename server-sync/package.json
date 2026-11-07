@@ -12,7 +12,8 @@
     "prueba": "npm run build --silent && node lib/cli.js prueba",
     "estado": "npm run build --silent && node lib/cli.js estado",
     "activar": "npm run build --silent && node lib/cli.js activar",
-    "pausar": "npm run build --silent && node lib/cli.js pausar"
+    "pausar": "npm run build --silent && node lib/cli.js pausar",
+    "aiosell": "npm run build --silent && node lib/cli.js aiosell"
   },
   "dependencies": {
     "firebase-admin": "^13.10.0",

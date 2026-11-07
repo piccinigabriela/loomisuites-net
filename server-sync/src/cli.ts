@@ -5,6 +5,13 @@
  *   npm run estado                    → modo actual y última sincronización de cada cuenta
  *   npm run activar                   → la función programada empieza a escribir datos reales
  *   npm run pausar                    → vuelve a modo prueba (no escribe nada)
+ *
+ * Channel manager (Aiosell), docs/channel-manager-aiosell.md:
+ *   npm run aiosell -- conectar tu@correo.com sandbox-pms real executive,suite
+ *       → conecta esa cuenta al hotel de Aiosell: la 1.ª unidad (por nombre) con la 1.ª habitación, la 2.ª con la 2.ª…
+ *         "prueba" solo registra lo que haría; "real" escribe reservas.
+ *   npm run aiosell -- ver tu@correo.com      → los últimos avisos que llegaron de Aiosell y qué se hizo
+ *   npm run aiosell -- desconectar tu@correo.com sandbox-pms
  */
 import { describeChange } from '../../src/lib/icalCore';
 import { cuentasConIcal, getDb, getModo, propiedadesDeCuenta, setModo, sincronizarCuenta, Cuenta } from './sync';
@@ -86,11 +93,94 @@ async function estado() {
   console.log('');
 }
 
+async function aiosell(sub?: string, correo?: string, hotel?: string, modo?: string, habitaciones?: string) {
+  const uid = correo ? (correo.includes('@') ? await buscarCuentaPorCorreo(correo) : correo) : null;
+  if (!sub || !uid) {
+    console.log('\nUso:  npm run aiosell -- conectar tu@correo.com sandbox-pms real executive,suite');
+    console.log('      npm run aiosell -- ver tu@correo.com');
+    console.log('      npm run aiosell -- desconectar tu@correo.com sandbox-pms\n');
+    if (correo && !uid) console.log(`No encontré ninguna cuenta con el correo ${correo}.\n`);
+    process.exitCode = 1;
+    return;
+  }
+  const tenantRef = db.doc(`tenants/${uid}`);
+  const tenant = await tenantRef.get();
+  const nombre = tenant.get('complexName') || tenant.get('ownerEmail') || uid;
+
+  if (sub === 'ver') {
+    const s = await db.doc(`tenants/${uid}/sync/aiosell`).get();
+    console.log(`\nCuenta: ${nombre}`);
+    console.log(s.exists ? `Último aviso: ${s.get('lastAt')} (${s.get('lastAction')} ${s.get('lastBookingId')}, modo ${s.get('mode')})` : 'Todavía no llegó ningún aviso de Aiosell.');
+    const logs = await db.collection(`tenants/${uid}/channelLog`).orderBy('at', 'desc').limit(15).get();
+    for (const d of logs.docs) {
+      const l = d.data();
+      console.log(`\n${l.at}  [${l.mode}] ${l.action} ${l.bookingId} · ${l.channel || ''}${l.checkIn ? ` · ${l.checkIn} a ${l.checkOut}` : ''}`);
+      for (const line of l.summary || []) console.log('   ' + line);
+    }
+    console.log('');
+    return;
+  }
+
+  if (!hotel || !/^[A-Za-z0-9_.-]{1,80}$/.test(hotel)) {
+    console.log('\nFalta el código del hotel de Aiosell (por ejemplo sandbox-pms).\n');
+    process.exitCode = 1;
+    return;
+  }
+
+  if (sub === 'desconectar') {
+    await db.doc(`channelHotels/${hotel}`).delete();
+    await tenantRef.update({ 'channelManager.enabled': false });
+    console.log(`\n✔ ${nombre} desconectada de ${hotel}. Los avisos que lleguen van a responder "hotel desconocido".\n`);
+    return;
+  }
+
+  if (sub !== 'conectar' || (modo !== 'real' && modo !== 'prueba') || !habitaciones) {
+    console.log('\nUso:  npm run aiosell -- conectar tu@correo.com sandbox-pms real executive,suite\n');
+    process.exitCode = 1;
+    return;
+  }
+
+  const otro = await db.doc(`channelHotels/${hotel}`).get();
+  if (otro.exists && otro.get('uid') !== uid) {
+    console.log(`\n✖ El hotel ${hotel} ya está conectado a otra cuenta (${otro.get('uid')}). Desconectala primero.\n`);
+    process.exitCode = 1;
+    return;
+  }
+  if (modo === 'real' && /sandbox/i.test(hotel)) {
+    const reservas = await db.collection(`tenants/${uid}/reservations`).limit(21).get();
+    if (reservas.size > 20) {
+      console.log(`\n✖ ${nombre} tiene más de 20 reservas: parece una cuenta real. El hotel de prueba de Aiosell manda reservas inventadas;`);
+      console.log('  usá una cuenta de prueba, o este complejo en modo "prueba" (solo registra).\n');
+      process.exitCode = 1;
+      return;
+    }
+  }
+
+  const rooms = habitaciones.split(',').map((r) => r.trim()).filter(Boolean);
+  const unidades = (await propiedadesDeCuenta(db, uid)).sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'es'));
+  if (unidades.length < rooms.length) {
+    console.log(`\n✖ ${nombre} tiene ${unidades.length} unidad(es) y pediste ${rooms.length} habitaciones. Cargá más unidades en Loomi.\n`);
+    process.exitCode = 1;
+    return;
+  }
+  const units: Record<string, { roomCode: string; enabled: boolean }> = {};
+  rooms.forEach((roomCode, i) => (units[unidades[i].id] = { roomCode, enabled: true }));
+
+  await db.doc(`channelHotels/${hotel}`).set({ uid, mode: modo, provider: 'aiosell', updatedAt: new Date().toISOString() });
+  await tenantRef.update({
+    channelManager: { enabled: true, provider: 'aiosell', hotelCode: hotel, since: new Date().toISOString(), units },
+  });
+  console.log(`\n✔ ${nombre} conectada al hotel ${hotel} de Aiosell, en modo ${modo.toUpperCase()}:`);
+  rooms.forEach((roomCode, i) => console.log(`   ${unidades[i].name}  ←  ${roomCode}`));
+  console.log(modo === 'real' ? '\nLos avisos de Aiosell crean, cambian y cancelan reservas en esta cuenta.\n' : '\nModo prueba: solo se registra lo que haría (npm run aiosell -- ver ...).\n');
+}
+
 async function main() {
-  const [cmd, arg] = process.argv.slice(2);
+  const [cmd, arg, ...rest] = process.argv.slice(2);
   const quien = process.env.USER || 'cloud-shell';
   if (cmd === 'prueba') return prueba(arg);
   if (cmd === 'estado') return estado();
+  if (cmd === 'aiosell') return aiosell(arg, rest[0], rest[1], rest[2], rest[3]);
   if (cmd === 'activar') {
     await setModo(db, 'real', quien);
     console.log('\n✔ Activado: desde la próxima corrida (máximo 15 minutos) el servidor escribe las reservas.\n');
@@ -101,7 +191,7 @@ async function main() {
     console.log('\n✔ Pausado: el servidor vuelve a modo prueba y no escribe nada. La app sigue sincronizando como antes.\n');
     return;
   }
-  console.log('Comandos: prueba <correo|todas>, estado, activar, pausar');
+  console.log('Comandos: prueba <correo|todas>, estado, activar, pausar, aiosell');
 }
 
 main()
