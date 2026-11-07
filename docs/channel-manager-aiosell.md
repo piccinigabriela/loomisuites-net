@@ -47,7 +47,7 @@ Sin resolver (hay que volver a preguntar):
 - Cobro: si en la OTA figura como **un tipo de habitación con 7 unidades de inventario**, lo cobran como **un hotel** (USD 10). Falta saber qué pasa con Airbnb, donde cada cabaña es un aviso.
 - Sandbox: se puede probar con código de socio `sample-pms` y basic auth (usuario y clave los pasó Aswin por WhatsApp; **no van en el repo**, van como secrets `AIOSELL_USER` y `AIOSELL_PASSWORD`).
 - Cobro del servicio: en dólares, mensual, trimestral o anual, con tarjeta o netbanking (no se habló de PayPal).
-- Un "Yes" a la pregunta 3 de Gabi (confirmar a cuál se refería).
+- Pregunta 3 (propiedades de unidad única y de tipo hotel, como 4 dobles iguales, en la misma cuenta de socio): **Yes**. El modo hotel se puede sumar después sin cuenta aparte.
 - Sigue sin respuesta: en qué sentido va cada autenticación (la que ellos mandan a nuestra URL), si el hotel de prueba es `SANDBOX-PMS` y el código de PMS definitivo.
 
 Consecuencias para el código:
