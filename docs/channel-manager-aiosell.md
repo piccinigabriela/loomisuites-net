@@ -14,6 +14,7 @@ cada 10 minutos, solo lo que cambió; pruebas en `scripts/probar-aiosell-envio.t
    y en `tenants/{uid}`: `channelManager.units` = {idUnidad1: {roomCode: "executive", enabled: true}, idUnidad2: {roomCode: "suite", enabled: true}}.
 3. Pasarle a Aiosell la URL `https://app.loomisuite.net/api/channel/aiosell` con el usuario y la clave (por WhatsApp, no en el grupo grande si se puede).
 4. Pedirles que manden un book, un modify y un cancel de prueba; mirar `tenants/{uid}/channelLog`.
+ANTES DE PRODUCCIÓN: cambiar `AIOSELL_WEBHOOK_PASSWORD` en Cloudflare (la del sandbox se compartió en el grupo de WhatsApp de Aiosell, 7/11) y pasar la nueva a una sola persona.
 Para Catalinas, después: `mode` sin "real" (prueba) primero: registra qué haría sin tocar reservas, con el iCal andando.
 Programada solo la lógica pura, sin conectar a nada: `src/lib/aiosell.ts` con pruebas en `scripts/probar-aiosell.ts` (`npm run probar:aiosell`).
 Documentación pública: https://support.aiosell.com/portal/en/kb/aiosell-kb/api-documentation/aiosell-channel-manager-to-3rd-party-property-management-system
