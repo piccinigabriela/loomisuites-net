@@ -1,6 +1,6 @@
 # Channel manager con Aiosell — plan de la conexión (5/11)
 
-Estado (6/11 a la mañana): Aiosell respondió por WhatsApp (Aswin). Falta aclarar el cobro por unidad y las credenciales de prueba (ver "Respuestas de Aiosell").
+Estado (7/11): Aiosell respondió todo lo técnico (ver "Respuestas de Aiosell"). Falta solo si aceptan PayPal o Payoneer. Siguiente paso: receptor de reservas y pruebas en el sandbox; después Catalinas en paralelo con iCal.
 Programada solo la lógica pura, sin conectar a nada: `src/lib/aiosell.ts` con pruebas en `scripts/probar-aiosell.ts` (`npm run probar:aiosell`).
 Documentación pública: https://support.aiosell.com/portal/en/kb/aiosell-kb/api-documentation/aiosell-channel-manager-to-3rd-party-property-management-system
 
@@ -48,7 +48,14 @@ Sin resolver (hay que volver a preguntar):
 - Sandbox: se puede probar con código de socio `sample-pms` y basic auth (usuario y clave los pasó Aswin por WhatsApp; **no van en el repo**, van como secrets `AIOSELL_USER` y `AIOSELL_PASSWORD`).
 - Cobro del servicio: en dólares, mensual, trimestral o anual, con tarjeta o netbanking (no se habló de PayPal).
 - Pregunta 3 (propiedades de unidad única y de tipo hotel, como 4 dobles iguales, en la misma cuenta de socio): **Yes**. El modo hotel se puede sumar después sin cuenta aparte.
-- Sigue sin respuesta: en qué sentido va cada autenticación (la que ellos mandan a nuestra URL), si el hotel de prueba es `SANDBOX-PMS` y el código de PMS definitivo.
+- Respuestas del 7/11 (segunda tanda):
+  - Autenticación hacia nuestra URL: **basic auth que definimos nosotros** y se lo pasamos (secrets `AIOSELL_WEBHOOK_USER` y `AIOSELL_WEBHOOK_PASSWORD`).
+  - Sandbox: hotelCode `sandbox-pms` (en minúscula). roomCode `executive` y `suite`. rateplanCode `{room}-{s|d}-{ep|cp}`
+    (s/d = ocupación single/doble; ep = solo alojamiento, cp = con desayuno), por ejemplo `executive-d-ep`.
+    En producción seguimos con una tarifa por unidad; `buildRateUpdates` ya acepta `rateplanCode` (por defecto `STD`) y `unitForRoom` traduce el roomCode.
+  - Código de PMS definitivo: lo generan con nuestro nombre, **`loomi-suites`**.
+  - Cobro con Airbnb (7 avisos de un mismo complejo): "Yes we can", se puede cobrar como un hotel (confirmar por escrito al contratar).
+  - PayPal o Payoneer: sin respuesta todavía.
 
 Consecuencias para el código:
 - **Reservas que ya existen en Loomi**: como Aiosell manda las futuras al conectar, llegarán como `book` reservas que Loomi ya tiene (cargadas a mano o traídas por iCal como "Reserva Airbnb").
