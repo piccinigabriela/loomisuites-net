@@ -43,6 +43,13 @@ Sin resolver (hay que volver a preguntar):
 4. Credenciales del sandbox: usuario y clave, y si el hotel de prueba es `SANDBOX-PMS`.
 5. Cuál es nuestro código de PMS definitivo para producción (después de las pruebas).
 
+### Más respuestas (7/11, grupo de WhatsApp)
+- Cobro: si en la OTA figura como **un tipo de habitación con 7 unidades de inventario**, lo cobran como **un hotel** (USD 10). Falta saber qué pasa con Airbnb, donde cada cabaña es un aviso.
+- Sandbox: se puede probar con código de socio `sample-pms` y basic auth (usuario y clave los pasó Aswin por WhatsApp; **no van en el repo**, van como secrets `AIOSELL_USER` y `AIOSELL_PASSWORD`).
+- Cobro del servicio: en dólares, mensual, trimestral o anual, con tarjeta o netbanking (no se habló de PayPal).
+- Un "Yes" a la pregunta 3 de Gabi (confirmar a cuál se refería).
+- Sigue sin respuesta: en qué sentido va cada autenticación (la que ellos mandan a nuestra URL), si el hotel de prueba es `SANDBOX-PMS` y el código de PMS definitivo.
+
 Consecuencias para el código:
 - **Reservas que ya existen en Loomi**: como Aiosell manda las futuras al conectar, llegarán como `book` reservas que Loomi ya tiene (cargadas a mano o traídas por iCal como "Reserva Airbnb").
   Antes de crear, el receptor tiene que buscar en esa unidad una reserva no cancelada con las mismas fechas y el mismo canal, y atarla (como hace `icalCore`) en vez de duplicar. Falta programarlo.
