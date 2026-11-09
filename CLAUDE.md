@@ -165,7 +165,11 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   arma 365 días con `channelSendBodies` (disponibilidad siempre; precios y estadía mínima solo si `channelManager.rates.send`, con `percent`),
   manda solo lo que cambió (huellas en `tenants/{uid}/sync/aiosell.sent`) y todo una vez por día. Tarifa por unidad: `units[pid].rateplanCode`.
   Credenciales en `sistema/aiosell` {user, password, pms, baseUrl} (sin reglas = sin acceso desde la app). Todo se maneja con
-  `npm run aiosell -- conectar|ver|desconectar|credenciales|precios|enviar` en `server-sync/` (Cloud Shell). Falta: pantalla en la app.
+  `npm run aiosell -- conectar|ver|desconectar|credenciales|precios|enviar` en `server-sync/` (Cloud Shell), o desde el Panel de clientes:
+  cada cliente tiene "Channel manager (Aiosell)" (`components/admin/ChannelManagerAdmin.tsx` + `lib/channelAdmin.ts`) que llama a
+  `functions/api/channel/admin.js` (verifica que el token sea de la administración con mail verificado y escribe con la cuenta de servicio:
+  así no hizo falta tocar reglas). Credenciales de Aiosell siguen por Cloud Shell. Pruebas del Panel en `scripts/probar-aiosell-admin.ts`
+  (Firestore simulado compartido: `scripts/fakeFirestore.ts`). Falta: que el dueño vea su conexión dentro de la app.
 
 ## Verificar antes de subir
 1. `npx tsc --noEmit`

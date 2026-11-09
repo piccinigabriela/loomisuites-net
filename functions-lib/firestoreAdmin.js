@@ -110,11 +110,12 @@ export async function getDoc(token, path, fetchImpl = fetch, mask = null) {
 export const where = (field, value, op = 'EQUAL') => ({ fieldFilter: { field: { fieldPath: field }, op, value: toValue(value) } });
 
 /**
- * Consulta una colección. parentPath: documento padre ("tenants/{uid}") o '' para la raíz.
+ * Consulta una colección. parentPath: documento padre ("tenants/{uid}") o '' para la raíz. orderBy: {field, desc} (opcional).
  * Devuelve [{ id, ...campos }].
  */
-export async function runQuery(token, parentPath, collectionId, filters, fetchImpl = fetch, limit = 200) {
+export async function runQuery(token, parentPath, collectionId, filters, fetchImpl = fetch, limit = 200, orderBy = null) {
   const structuredQuery = { from: [{ collectionId }], limit };
+  if (orderBy) structuredQuery.orderBy = [{ field: { fieldPath: orderBy.field }, direction: orderBy.desc ? 'DESCENDING' : 'ASCENDING' }];
   if (filters.length === 1) structuredQuery.where = filters[0];
   else if (filters.length > 1) structuredQuery.where = { compositeFilter: { op: 'AND', filters } };
   const url = parentPath ? `${BASE}/${parentPath}:runQuery` : `${BASE}:runQuery`;

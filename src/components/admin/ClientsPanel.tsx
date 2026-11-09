@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ClientRow, ClientState, activateClient, fetchClients, helpMailto, saveClientNote, saveClientWebDesigns, suspendClient } from '../../lib/adminClients';
 import { SPECIAL_THEMES } from '../../lib/publicSite';
+import { ChannelManagerAdmin } from './ChannelManagerAdmin';
 import { BillingConfig, DEFAULT_BILLING, PaymentNotice, fetchPendingNotices, formatArs, formatUsd, markNoticeHandled, saveBillingConfig, subscribeToBilling } from '../../lib/billing';
 
 interface Props {
@@ -274,6 +275,8 @@ export const ClientsPanel: React.FC<Props> = ({ onClose, loader = fetchClients }
                         })}
                       </div>
                     </div>
+
+                    <ChannelManagerAdmin uid={r.uid} />
 
                     <label className="flex flex-col gap-1.5 text-[15px] font-bold">
                       Nota privada (por ejemplo: pagó por transferencia el 12/11)
