@@ -169,7 +169,9 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   cada cliente tiene "Channel manager (Aiosell)" (`components/admin/ChannelManagerAdmin.tsx` + `lib/channelAdmin.ts`) que llama a
   `functions/api/channel/admin.js` (verifica que el token sea de la administración con mail verificado y escribe con la cuenta de servicio:
   así no hizo falta tocar reglas). Credenciales de Aiosell siguen por Cloud Shell. Pruebas del Panel en `scripts/probar-aiosell-admin.ts`
-  (Firestore simulado compartido: `scripts/fakeFirestore.ts`). Falta: que el dueño vea su conexión dentro de la app.
+  (Firestore simulado compartido: `scripts/fakeFirestore.ts`). El dueño ve "Conexión directa con las plataformas" arriba de Unidades
+  (`components/common/ChannelConnectionCard.tsx`, solo si `channelManager.enabled` y hay `hotelCode`): unidades conectadas, lo último que llegó
+  (channelLog) y si se mandan los precios (`saveChannelRatesDoc`, solo toca `channelManager.rates`). Hacia el cliente nunca se nombra a Aiosell.
 
 ## Verificar antes de subir
 1. `npx tsc --noEmit`

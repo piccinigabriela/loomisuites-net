@@ -47,6 +47,8 @@ export interface TenantDoc {
   pricing?: PricingSettings;
   /** Checklist de limpieza propio (ver src/lib/cleaningChecklist.ts) */
   cleaningChecklist?: import('./cleaningChecklist').CleaningChecklistSettings;
+  /** Conexión directa con las plataformas (channel manager). La escribe la administración; el dueño solo cambia `rates`. */
+  channelManager?: import('./aiosell').ChannelManagerSettings;
   templateOverrides?: import('../types').TemplateOverrides;
   /** Tu Web (ver src/lib/publicSite.ts) */
   webSite?: import('./publicSite').WebSiteSettings;
@@ -365,6 +367,15 @@ export async function saveCleaningChecklistDoc(uid: string, settings: import('./
   if (!uid || !db) return;
   await updateDoc(doc(db, 'tenants', uid), {
     cleaningChecklist: JSON.parse(JSON.stringify(settings)),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/** El dueño elige si se mandan los precios de Tarifas a las plataformas (y con qué ajuste). Solo toca channelManager.rates. */
+export async function saveChannelRatesDoc(uid: string, rates: { send: boolean; percent: number }): Promise<void> {
+  if (!uid || !db) return;
+  await updateDoc(doc(db, 'tenants', uid), {
+    'channelManager.rates': { send: rates.send === true, percent: Math.max(-50, Math.min(100, Number(rates.percent) || 0)) },
     updatedAt: serverTimestamp(),
   });
 }

@@ -98,6 +98,7 @@ import { buildStaffArrivals, StaffArrivalsDoc } from './lib/staffArrivals';
 import { useBackLayer } from './hooks/useBackLayer';
 import { normalizePricing, type PricingSettings } from './lib/pricing';
 import { accountLabel, isStaffLoginEmail, makeStaffAlias } from './lib/staffUsers';
+import { ChannelConnectionCard } from './components/common/ChannelConnectionCard';
 import { CheckInNoteModal } from './components/common/CheckInNote';
 import { normalizeOrigins } from './lib/origins';
 import { StaffLoginScreen } from './components/auth/StaffLoginScreen';
@@ -3237,6 +3238,9 @@ export default function App() {
                 />
               )}
 
+              {demoTab === 'properties' && isApp && !isStaff && tenantDoc?.channelManager?.enabled && tenantDoc.channelManager.hotelCode && (
+                <ChannelConnectionCard uid={tenantUid} cm={tenantDoc.channelManager} properties={demoState.properties || []} />
+              )}
               {demoTab === 'properties' && (
                 <DemoProperties
                   demoState={demoState}
