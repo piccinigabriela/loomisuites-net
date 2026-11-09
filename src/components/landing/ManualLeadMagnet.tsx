@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Check, Download, Loader2 } from 'lucide-react';
 
-type ManualId = 'hospitalidad' | 'fotografia';
+type ManualId = 'hospitalidad' | 'fotografia' | 'sintacc';
 
 const MANUALS: Record<
   ManualId,
@@ -25,14 +25,24 @@ const MANUALS: Record<
     fileName: 'En-su-mejor-dia-Loomi-Suite.pdf',
     bullets: ['Luz, preparación y las tomas que no pueden faltar', 'Checklists para imprimir y llevar a la sesión'],
   },
+  sintacc: {
+    title: 'Sin gluten, sin lactosa',
+    subtitle: 'Huéspedes que vuelven: por qué conviene recibir a viajeros celíacos e intolerantes a la lactosa, y cómo hacerlo bien.',
+    cover: '/manual-sin-tacc-portada.jpg',
+    alt: 'Portada del manual Sin gluten, sin lactosa de Loomi Suite',
+    pdf: '/manual-sin-tacc-loomi-suite.pdf',
+    fileName: 'Sin-gluten-sin-lactosa-Loomi-Suite.pdf',
+    bullets: ['Qué tener en la alacena y cómo evitar la contaminación cruzada', 'Las tres formas de ofrecerlo y cómo hacerlo saber'],
+  },
 };
 
-const ORDER: ManualId[] = ['hospitalidad', 'fotografia'];
+const ORDER: ManualId[] = ['hospitalidad', 'fotografia', 'sintacc'];
 
 /**
  * Gancho de la landing: los manuales gratis a cambio de nombre y email.
  * Guarda el contacto en "leads" (type: 'manual'), avisa por Web3Forms y deja descargar los PDF.
- * Links directos: loomisuite.net/#manual y loomisuite.net/manual (?m=fotos destaca el de fotografía).
+ * Links directos: loomisuite.net/#manual y loomisuite.net/manual (?m=fotos destaca el de fotografía; ?m=sintacc, el de sin gluten y sin lactosa:
+ * es el premio de la encuesta de relevamiento por WhatsApp).
  */
 export const ManualLeadMagnet: React.FC = () => {
   const [name, setName] = useState('');
@@ -45,14 +55,16 @@ export const ManualLeadMagnet: React.FC = () => {
 
   useEffect(() => {
     try {
-      if (new URLSearchParams(window.location.search).get('m') === 'fotos') setFirst('fotografia');
+      const q = new URLSearchParams(window.location.search).get('m');
+      if (q === 'fotos') setFirst('fotografia');
+      else if (q === 'sintacc') setFirst('sintacc');
     } catch {}
     if (window.location.hash === '#manual') {
       setTimeout(() => document.getElementById('manual')?.scrollIntoView({ behavior: 'smooth' }), 400);
     }
   }, []);
 
-  const order = first === 'fotografia' ? ['fotografia', 'hospitalidad'] as ManualId[] : ORDER;
+  const order: ManualId[] = [first, ...ORDER.filter((id) => id !== first)];
 
   const download = (id: ManualId) => {
     const m = MANUALS[id];
@@ -83,7 +95,7 @@ export const ManualLeadMagnet: React.FC = () => {
           fullName: name.trim(),
           email: cleanEmail,
           phone: phone.trim(),
-          planOrTopic: 'Manuales gratis (hospitalidad y fotografía)',
+          planOrTopic: 'Manuales gratis (hospitalidad, fotografía y sin gluten / sin lactosa)',
           source: window.location.pathname === '/' ? 'landing' : window.location.pathname + window.location.search,
           createdAt: serverTimestamp(),
         });
@@ -114,11 +126,11 @@ export const ManualLeadMagnet: React.FC = () => {
     <section id="manual" className="scroll-mt-24 max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14 w-full">
       <div className="rounded-3xl bg-[#18181B] border border-white/10 p-6 sm:p-10 space-y-8">
         <div className="space-y-3 max-w-2xl">
-          <span className="inline-block text-xs font-bold tracking-widest uppercase text-[#FF8A4C]">Regalo · 2 manuales en PDF</span>
+          <span className="inline-block text-xs font-bold tracking-widest uppercase text-[#FF8A4C]">Regalo · 3 manuales en PDF</span>
           <h2 className="text-2xl sm:text-3xl font-semibold text-[#EFECE5] tracking-tight font-['Outfit',sans-serif]">
             Manuales gratis para anfitriones
           </h2>
-          <p className="text-base text-[#EFECE5] leading-relaxed">Dejá tu nombre y tu email y descargá los dos.</p>
+          <p className="text-base text-[#EFECE5] leading-relaxed">Dejá tu nombre y tu email y descargá los tres.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

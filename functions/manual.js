@@ -13,16 +13,22 @@ const MANUALS = {
     desc: 'Fotos que hacen que te reserven, con el celular o con cámara. Manual gratis de Loomi Suite.',
     img: '/manual-fotografia-portada.jpg',
   },
+  sintacc: {
+    title: 'Sin gluten, sin lactosa: huéspedes que vuelven — Manual gratis',
+    desc: 'Por qué conviene recibir a viajeros celíacos e intolerantes a la lactosa, qué tener y cómo cuidarlos. Manual gratis de Loomi Suite.',
+    img: '/manual-sin-tacc-portada.jpg',
+  },
 };
 
 export async function onRequest({ request, env }) {
   const res = await env.ASSETS.fetch(new Request(new URL('/', request.url), request));
   if (request.method !== 'GET' || !(res.headers.get('content-type') || '').includes('text/html')) return res;
   const url = new URL(request.url);
-  const m = url.searchParams.get('m') === 'fotos' ? MANUALS.fotos : MANUALS.hospitalidad;
+  const key = url.searchParams.get('m');
+  const m = MANUALS[key === 'fotos' || key === 'sintacc' ? key : 'hospitalidad'];
   const TITLE = m.title;
   const DESC = m.desc;
-  const page = url.origin + '/manual' + (m === MANUALS.fotos ? '?m=fotos' : '');
+  const page = url.origin + '/manual' + (m === MANUALS.hospitalidad ? '' : '?m=' + key);
   const img = url.origin + m.img;
   const set = (v) => ({ element(el) { el.setAttribute('content', v); } });
   const out = new HTMLRewriter()

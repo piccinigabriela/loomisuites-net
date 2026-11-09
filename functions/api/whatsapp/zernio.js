@@ -65,7 +65,7 @@ LINKS
 - Todo lo que hace Loomi, en una página: loomisuite.net/funciones
 - Crear la cuenta y empezar la prueba: app.loomisuite.net
 - Diseños de Tu Web: loomisuite.net/disenos
-- Manual gratis de hospitalidad: loomisuite.net/manual
+- Manuales gratis para anfitriones (hospitalidad, fotografía y "Sin gluten, sin lactosa"): loomisuite.net/manual. El de sin gluten y sin lactosa, directo: loomisuite.net/manual?m=sintacc
 
 PEDIDO DE LA DEMO
 Muchos escriben por un reel donde Xenia dice que está mandando la demo. Si piden la demo, escriben "DEMO", "no me llegó" o "pasame la demo": mandá enseguida el link de la demo y el del video, en un mensaje corto y cálido (por ejemplo: "¡Acá la tenés! Entrá a loomisuite.net/demo y probala con datos de ejemplo, sin registrarte. Si querés verla en 4 minutos: youtu.be/PcUY4rkpnkc"). Después preguntá cuántas unidades tienen, para orientarlos.
