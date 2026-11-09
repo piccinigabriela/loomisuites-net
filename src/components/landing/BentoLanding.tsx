@@ -199,13 +199,13 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
               <h2 className="text-base font-bold text-slate-900 dark:text-zinc-100">
                 Gestión centralizada y sin sorpresas
               </h2>
-              <p className="text-xs text-slate-800 dark:text-zinc-300 leading-relaxed font-normal">
-                Tus calendarios sincronizados, tus cobros al día y el control total de tu complejo en una sola pantalla.
+              <p className="text-sm text-slate-800 dark:text-zinc-200 leading-relaxed font-normal italic">
+                "En el mostrador aprendimos que todo lo que se olvida vuelve como una sorpresa no muy agradable. Loomi se acuerda por vos."
               </p>
             </div>
 
             <div className="pt-3.5 border-t border-gray-100 dark:border-white/5 flex items-center justify-between text-xs text-slate-700 dark:text-zinc-400 font-medium">
-              <span>Tranquilidad para el anfitrión</span>
+              <span>30 años de hotelería detrás</span>
               <span className="text-slate-900 dark:text-gray-200 font-semibold group-hover:text-[#E67E22] transition-colors flex items-center gap-1">
                 Ver detalle <ChevronRight className="w-3.5 h-3.5" />
               </span>
