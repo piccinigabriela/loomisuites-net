@@ -204,8 +204,8 @@ export const LeadModal: React.FC<LeadModalProps> = ({
                     onChange={(e) => setPropertiesCount(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-[#48372b] bg-zinc-50 dark:bg-[#121110] text-zinc-900 dark:text-zinc-100 focus:outline-hidden focus:border-[#c46d45] text-sm"
                   >
-                    <option value="plan-loomi">Plan Loomi: hasta 4 unidades (USD 25 / mes)</option>
-                    <option value="plan-suite">Plan Loomi Suite: de 5 a 20 unidades (USD 45 / mes, promo USD 35)</option>
+                    <option value="plan-loomi">Plan Loomi: por calendario (USD 35 / mes, promo USD 25)</option>
+                    <option value="plan-suite">Plan Loomi Suite: con channel manager, próximamente (USD 45 / mes, promo USD 35, más USD 6 por unidad)</option>
                     <option value="personalizado">Más de 20 unidades (Plan a medida)</option>
                   </select>
                 </div>

@@ -66,12 +66,12 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
     {
       id: 'plan-simple',
       name: 'Loomi',
-      tag: 'Hasta 4 unidades',
-      usd: 25,
-      promo: '',
+      tag: 'Por calendario',
+      usd: 35,
+      promo: 'Promo fin de año: USD 25 para siempre si creás tu cuenta antes del 31/12',
       highlight: false,
-      badge: 'PLAN LOOMI • HASTA 4 UNIDADES',
-      description: 'Todo Loomi para complejos chicos, con los calendarios de Airbnb y Booking conectados por iCal.',
+      badge: 'PLAN LOOMI • POR CALENDARIO',
+      description: 'Todo Loomi, hasta 20 unidades, con los calendarios de Airbnb y Booking conectados por iCal.',
       features: [
         'Calendario, reservas, cobros e informes',
         'Limpieza con checklist y guía del huésped',
@@ -83,17 +83,17 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
     {
       id: 'plan-suite',
       name: 'Loomi Suite',
-      tag: 'De 5 a 20 unidades',
+      tag: 'Con channel manager',
       usd: 45,
       promo: 'Promo fin de año: USD 35 para siempre si creás tu cuenta antes del 31/12',
       highlight: true,
-      badge: 'LOOMI SUITE • DE 5 A 20 UNIDADES',
-      description: 'Para complejos más grandes. Incluye el channel manager (conexión directa con Airbnb y Booking) apenas esté disponible, sin aumento.',
+      badge: 'LOOMI SUITE • CON CHANNEL MANAGER',
+      description: 'Todo Loomi con conexión directa con Airbnb y Booking. Más USD 6 por unidad conectada. Próximamente.',
       features: [
         'Todo lo del Plan Loomi',
-        'De 5 a 20 unidades, precio fijo por todo el complejo',
-        'Channel manager: Airbnb y Booking al instante, apenas esté disponible',
-        'Sin aumento cuando llegue el channel manager',
+        'Reservas al instante, sin esperar el calendario',
+        'Disponibilidad y precios que se mandan solos a las plataformas',
+        'Más USD 6 por unidad conectada',
       ],
     },
   ];
@@ -463,7 +463,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
             <div className="my-auto py-2 space-y-1">
               <div className="flex items-baseline gap-1.5">
                 <span className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
-                  USD 25
+                  USD 35
                 </span>
                 <span className="text-xs text-slate-700 dark:text-zinc-400 font-medium">
                   /mes
@@ -473,7 +473,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 Loomi • Loomi Suite
               </h3>
               <p className="text-[11px] text-slate-800 dark:text-zinc-300 font-normal leading-relaxed">
-                Sin comisiones por reserva. Loomi Suite: USD 45, o USD 35 para siempre si te sumás antes del 31/12.
+                Sin comisiones por reserva. Promo fin de año: USD 25 para siempre si te sumás antes del 31/12. Con channel manager: Loomi Suite, próximamente.
               </p>
             </div>
 

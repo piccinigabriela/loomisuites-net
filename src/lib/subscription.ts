@@ -5,7 +5,7 @@ import type { User } from 'firebase/auth';
 export interface SubscriptionDoc {
   status?: string;
   activeUntil?: any;
-  /** 'propietario' = Loomi (hasta 4 unidades) o 'complejo' = Loomi Suite (de 5 a 20, con channel manager). Se carga a mano al activar. */
+  /** 'propietario' = Loomi (por calendario) o 'complejo' = Loomi Suite (con channel manager). Se carga a mano al activar. */
   plan?: 'propietario' | 'complejo';
   /** Diseños especiales de Tu Web habilitados (de pago) */
   webDesigns?: string[];

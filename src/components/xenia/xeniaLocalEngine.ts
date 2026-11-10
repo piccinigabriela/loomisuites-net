@@ -776,10 +776,10 @@ ${pendingPayments.length > 0 ? `⚠️ **Cobros y Saldos Pendientes:** Tenés ${
 
 Dos planes por mes, en dólares, sin comisiones por reserva:
 
-1. **Loomi:** **USD 25 por mes.** Hasta 4 unidades, con Airbnb y Booking por iCal.
-2. **Loomi Suite:** **USD 45 por mes.** De 5 a 20 unidades, con el channel manager incluido apenas esté disponible.
+1. **Loomi:** **USD 35 por mes.** Todo Loomi, hasta 20 unidades, con Airbnb y Booking por iCal.
+2. **Loomi Suite:** **USD 45 por mes**, más **USD 6 por unidad conectada**. Todo Loomi con channel manager: reservas al instante. Próximamente.
 
-**Promo fin de año:** si creás tu cuenta antes del 31 de diciembre, Loomi Suite te queda en **USD 35 por mes para siempre**.
+**Promo fin de año:** si creás tu cuenta antes del 31 de diciembre, Loomi te queda en **USD 25** y Loomi Suite en **USD 35** por mes, **para siempre**.
 
 La prueba gratis dura **7 días**.
 

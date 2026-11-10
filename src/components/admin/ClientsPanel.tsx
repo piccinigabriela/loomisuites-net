@@ -231,8 +231,8 @@ export const ClientsPanel: React.FC<Props> = ({ onClose, loader = fetchClients }
                       <label className="flex flex-col gap-1.5 text-[15px] font-bold">
                         Plan
                         <select value={plan} onChange={(e) => setPlan(e.target.value as 'propietario' | 'complejo')} className="min-h-[44px] rounded-xl border border-stone-400 dark:border-zinc-500 bg-white dark:bg-zinc-800 px-3 text-[15px] font-semibold text-stone-900 dark:text-stone-50">
-                          <option value="propietario">Loomi (hasta 4 unidades)</option>
-                          <option value="complejo">Loomi Suite (de 5 a 20 unidades)</option>
+                          <option value="propietario">Loomi (por calendario)</option>
+                          <option value="complejo">Loomi Suite (con channel manager)</option>
                         </select>
                       </label>
                       <label className="flex flex-col gap-1.5 text-[15px] font-bold">

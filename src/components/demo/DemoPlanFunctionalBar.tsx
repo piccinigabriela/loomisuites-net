@@ -268,11 +268,11 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                       Plan Propietario • Loomi
                     </span>
                     <span className="text-xs font-mono font-bold text-[#E67E22]">
-                      USD 25 / mes
+                      USD 35 / mes · promo USD 25
                     </span>
                   </div>
                   <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 max-w-2xl leading-relaxed font-medium">
-                    <strong>Hasta 4 unidades:</strong> todo Loomi (calendario, reservas, limpieza, guía, Tu Web y Xenia), con Airbnb y Booking por iCal.
+                    <strong>Por calendario:</strong> todo Loomi (calendario, reservas, limpieza, guía, Tu Web y Xenia), hasta 20 unidades, con Airbnb y Booking por iCal. Promo fin de año: USD 25 para siempre si creás tu cuenta antes del 31/12.
                   </p>
                 </div>
 
@@ -334,7 +334,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                     </span>
                   </div>
                   <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 max-w-2xl leading-relaxed font-medium">
-                    <strong>De 5 a 20 unidades:</strong> todo Loomi, más el channel manager apenas esté disponible. Promo fin de año: USD 35 para siempre si creás tu cuenta antes del 31/12.
+                    <strong>Con channel manager (próximamente):</strong> todo Loomi, con reservas al instante, más USD 6 por unidad conectada. Promo fin de año: USD 35 para siempre si creás tu cuenta antes del 31/12.
                   </p>
                 </div>
 
