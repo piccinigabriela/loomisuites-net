@@ -58,6 +58,11 @@ Sin resolver (hay que volver a preguntar):
 4. Credenciales del sandbox: usuario y clave, y si el hotel de prueba es `SANDBOX-PMS`.
 5. Cuál es nuestro código de PMS definitivo para producción (después de las pruebas).
 
+### Respaldo con iCal (decisión de Gabi, 10/11)
+Los clientes con channel manager dejan cargados en Loomi los links de calendario (iCal) de Airbnb y Booking: si Aiosell falla
+(soporte lun a vie de 2 a 10 hs de Argentina), las reservas igual entran. No hay duplicados: el iCal ata las del canal y el receptor
+ata las del iCal. Lo que no hace falta es pegar el calendario de Loomi en Airbnb o Booking: la disponibilidad la manda Aiosell.
+
 ### Extras de Aiosell (lista que pasó Gabi el 10/11)
 - Usuario adicional: USD 5 por usuario por mes (usuarios del panel de Aiosell, no de Loomi: los clientes no entran a Aiosell).
 - Marca blanca: USD 12 por mes (sin cargo para socios). Alta: USD 15 una vez (sin cargo para socios).
