@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Check, Download, Loader2 } from 'lucide-react';
+import { track } from '../../lib/track';
 
 type ManualId = 'hospitalidad' | 'fotografia' | 'sintacc';
 
@@ -68,6 +69,7 @@ export const ManualLeadMagnet: React.FC = () => {
 
   const download = (id: ManualId) => {
     const m = MANUALS[id];
+    track(`manual-descarga-${id}`, `Descargó el manual: ${m.title}`);
     const a = document.createElement('a');
     a.href = m.pdf;
     a.download = m.fileName;
@@ -117,6 +119,7 @@ export const ManualLeadMagnet: React.FC = () => {
     await Promise.race([Promise.all(tasks), new Promise((r) => setTimeout(r, 2500))]);
     setSending(false);
     setDone(true);
+    track('manual-pedido', 'Dejó sus datos para los manuales');
   };
 
   const input =

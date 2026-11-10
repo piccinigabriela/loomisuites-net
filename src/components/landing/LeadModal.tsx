@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { track } from '../../lib/track';
 import { X, CheckCircle2, MessageSquare, Building, Sparkles, Send, PhoneCall, Mail } from 'lucide-react';
 
 interface LeadModalProps {
@@ -40,6 +41,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
     const url = `https://api.whatsapp.com/send?phone=${SALES_WHATSAPP_PHONE}&text=${encodeURIComponent(message)}`;
     setWhatsappUrl(url);
     setSubmitted(true);
+    track('contacto-enviado', 'Completó el formulario de contacto');
 
     // Save lead record in Firestore Cloud Database
     // Firebase se carga recién acá, para que la landing no lo descargue de entrada

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, Suspense } from 'react';
+import { track } from './lib/track';
 import { withAdSource } from './lib/adSource';
 import { Navbar } from './components/landing/Navbar';
 import { BentoLanding } from './components/landing/BentoLanding';
@@ -32,13 +33,16 @@ export const LandingRoot: React.FC = () => {
   }, [theme]);
 
   const openDemo = (tab?: string) => {
+    track('click-demo', 'Tocó probar la demo');
     window.location.href = tab ? `/demo?tab=${encodeURIComponent(tab)}` : '/demo';
   };
   const openContact = (plan?: string) => {
+    track('click-contacto', 'Abrió el formulario de contacto');
     setLeadPlan(plan);
     setLeadOpen(true);
   };
   const openLogin = () => {
+    track('click-ingresar', 'Fue a crear cuenta o ingresar');
     window.location.href = withAdSource('https://app.loomisuite.net');
   };
 

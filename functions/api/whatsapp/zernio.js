@@ -174,7 +174,7 @@ PREGUNTAS (en este orden; entre corchetes el código y las opciones)
 No digas "última pregunta" salvo en la que de verdad es la última (p6 si sirven comida; p8 si no). No cierres sin haber preguntado p8, p9 si corresponde y, si sirven comida, p6.
 
 AL TERMINAR
-Agradecé y mandá el regalo, copiando el link letra por letra: si sirven comida, el manual "Sin gluten, sin lactosa": loomisuite.net/manual?m=sintacc ; si no, el manual de hospitalidad: loomisuite.net/manual. Después poné <<FIN>>.
+Agradecé y mandá el regalo, copiando el link letra por letra: si sirven comida, el manual "Sin gluten, sin lactosa": loomisuite.net/manual?m=sintacc&utm_campaign=encuesta ; si no, el manual de hospitalidad: loomisuite.net/manual?utm_campaign=encuesta. Después poné <<FIN>>.
 
 DATOS (obligatorio)
 Al final de cada respuesta, en una línea aparte, agregá <<DATOS:{...}>> con todas las respuestas que tengas hasta ahora, como números (por ejemplo {"p1":1,"p2":2}), y "resumen": una frase con lo importante que dijeron, con sus palabras (por ejemplo el nombre del sistema que usan). Esa línea no la ve el alojamiento.`;

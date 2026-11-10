@@ -78,6 +78,8 @@
           if (/[?&]mode=app\b/.test(location.search)) return;
           window.goatcounter = {
             path: function (p) {
+              // utm_* (de dónde vino: encuesta, anuncio) va a "Campaigns", no a la ruta
+              p = p.replace(/([?&])utm_[a-z]+=[^&]*&?/gi, '$1').replace(/[?&]$/, '');
               return /^\/(guia|guide|precheckin)(\/|$)/i.test(p) ? '/' + p.split('/')[1].toLowerCase() : p;
             }
           };
