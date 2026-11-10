@@ -87,7 +87,8 @@ export const ManualLeadMagnet: React.FC = () => {
       return;
     }
     setSending(true);
-    const nowEsAr = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+    // En 24 horas: en algunos navegadores "es-AR" sale con 12 horas y sin a. m./p. m. ("07:12" a las 19:12)
+    const nowEsAr = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hourCycle: 'h23' });
     const tasks: Promise<unknown>[] = [];
     tasks.push(
       Promise.all([import('../../lib/firebase'), import('firebase/firestore')]).then(([{ db }, { addDoc, collection, serverTimestamp }]) => {
