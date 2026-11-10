@@ -143,6 +143,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
 - Manuales gratis (loomisuite.net/manual, `ManualLeadMagnet.tsx`; vista previa en `functions/manual.js`): hospitalidad, fotografía (`?m=fotos`) y
   "Sin gluten, sin lactosa" (`?m=sintacc`, 9/11; PDF y portada en `public/manual-sin-tacc-*`, armado desde un HTML con Chrome; es el premio de la
   encuesta de relevamiento por WhatsApp del CRM de prospectos). Si se suma uno: `MANUALS`, `ORDER`, el texto "Regalo · N manuales" y `functions/manual.js`.
+  Desde la encuesta de Xenia (10/11): el link lleva `utm_campaign=encuesta&r={últimos 8 dígitos del WhatsApp}`; con eso la página descarga directo, sin
+  formulario, avisa por Web3Forms y marca el prospecto en el CRM (RPC `crm_manual_descargado`: nota + `encuesta.manual_at`). Eventos GoatCounter en `lib/track.ts`.
 
 - Video tutorial (YouTube, oculto): `components/common/TutorialVideo.tsx` (`TUTORIAL_VIDEO_ID`; vacío = no se muestra). Botón en la bienvenida de la demo,
   el panel "Cómo funciona" y la landing. Cerradura con código (10/11, nivel 1, sin conexión con marcas): se prende por unidad (`smartLock.enabled`, Unidades → Ingreso);

@@ -455,6 +455,9 @@ async function handleSurvey(env, event, accountId, conversationId, incoming, his
     .replace(/^#+\s*/gm, '')
     .replace(/\bloomi\s?s[a-z]{2,7}\.n[a-z]{1,2}\b/gi, 'loomisuite.net')
     .trim();
+  // Link del manual con r = últimos 8 dígitos de su WhatsApp: la página avisa en el CRM quién lo descargó
+  const ref = senderPhone(event).slice(-8);
+  if (ref) reply = reply.replace(/(utm_campaign=encuesta)(?!&r=)/g, `$1&r=${ref}`);
   if (!reply) {
     await xlog(env, event, 'respuesta-vacia', raw.slice(0, 200));
     return;

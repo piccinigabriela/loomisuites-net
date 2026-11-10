@@ -53,12 +53,21 @@ export const ManualLeadMagnet: React.FC = () => {
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
   const [first, setFirst] = useState<ManualId>('hospitalidad');
+  // 10/11: quien llega con el link de la encuesta de Xenia (utm_campaign=encuesta) descarga directo, sin formulario: ya conocemos sus datos.
+  // r = últimos 8 dígitos de su WhatsApp, para avisar en el CRM qué prospecto lo bajó.
+  const [survey, setSurvey] = useState<{ on: boolean; ref: string }>({ on: false, ref: '' });
+  const [notified, setNotified] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     try {
-      const q = new URLSearchParams(window.location.search).get('m');
+      const params = new URLSearchParams(window.location.search);
+      const q = params.get('m');
       if (q === 'fotos') setFirst('fotografia');
       else if (q === 'sintacc') setFirst('sintacc');
+      if (params.get('utm_campaign') === 'encuesta') {
+        setSurvey({ on: true, ref: (params.get('r') || '').replace(/\D/g, '').slice(-8) });
+        setDone(true);
+      }
     } catch {}
     if (window.location.hash === '#manual') {
       setTimeout(() => document.getElementById('manual')?.scrollIntoView({ behavior: 'smooth' }), 400);
@@ -70,6 +79,31 @@ export const ManualLeadMagnet: React.FC = () => {
   const download = (id: ManualId) => {
     const m = MANUALS[id];
     track(`manual-descarga-${id}`, `Descargó el manual: ${m.title}`);
+    if (survey.on && !notified[id]) {
+      setNotified((n) => ({ ...n, [id]: true }));
+      // Aviso por mail y nota en el CRM de prospectos (Supabase; la función solo marca prospectos de la encuesta, una vez)
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: '4451c78e-3861-41c1-8c94-f977bbd0c979',
+          subject: `Descargó el manual desde la encuesta: ${m.title}`,
+          from_name: 'Loomi Suite',
+          message: `Alguien de la encuesta de WhatsApp descargó "${m.title}"${survey.ref ? ` (WhatsApp terminado en ${survey.ref})` : ''}. Buscalo en el CRM por esos números.`,
+        }),
+      }).catch(() => {});
+      if (survey.ref) {
+        fetch('https://vnfgitgadadjjjciftsa.supabase.co/rest/v1/rpc/crm_manual_descargado', {
+          method: 'POST',
+          headers: {
+            apikey: 'sb_publishable_IKbP0ieyJfrtdguY39N7wg_RMjN_CxH',
+            authorization: 'Bearer sb_publishable_IKbP0ieyJfrtdguY39N7wg_RMjN_CxH',
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({ p_ref: survey.ref, p_manual: m.title }),
+        }).catch(() => {});
+      }
+    }
     const a = document.createElement('a');
     a.href = m.pdf;
     a.download = m.fileName;
@@ -177,7 +211,7 @@ export const ManualLeadMagnet: React.FC = () => {
 
         {done ? (
           <p className="text-lg font-semibold text-[#EFECE5]">
-            ¡Listo, {name.trim().split(' ')[0]}! Tocá "Descargar" en cada manual.
+            {survey.on ? '¡Gracias por participar de la encuesta! Tocá "Descargar" en el manual que quieras.' : `¡Listo, ${name.trim().split(' ')[0]}! Tocá "Descargar" en cada manual.`}
           </p>
         ) : (
           <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl">
