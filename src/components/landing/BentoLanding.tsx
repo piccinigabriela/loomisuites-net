@@ -42,7 +42,7 @@ type ModuleKey =
   | 'onboarding'
   | 'metrics';
 
-/** Casos de uso reales (10/11, con permiso de Gabi para nombres y fotos). Wood Cabin todavía se está pasando a Loomi. */
+/** Casos de uso reales (10/11, con permiso de Gabi para nombres y fotos). */
 const USE_CASES: Array<{ name: string; place: string; status: string; line: string; uses: string[]; photo?: string; photoAlt?: string }> = [
   {
     name: 'Apartamentos Catalinas',
@@ -60,7 +60,7 @@ const USE_CASES: Array<{ name: string; place: string; status: string; line: stri
   {
     name: 'Wood Cabin Iguazú',
     place: 'Puerto Iguazú, Misiones',
-    status: 'Se está pasando a Loomi',
+    status: 'Usa Loomi todos los días',
     line: 'Cabañas en la selva, con Airbnb y Booking y un equipo que cambia con los voluntarios.',
     uses: [
       'Airbnb y Booking en un solo calendario',
