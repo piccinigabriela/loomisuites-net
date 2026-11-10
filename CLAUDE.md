@@ -37,7 +37,7 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   (Claude responde `<<SILENCIO>>` y no se manda nada; 6/11, le había contestado al bot de Aiosell). Audios: pide que escriban. Secrets: `ZERNIO_API_KEY`, `ZERNIO_WEBHOOK_SECRET`.
   Para apagarla: desactivar el webhook en Zernio.
   Encuesta por charla (10/11): si el chat lo empezó Gabi con la plantilla de la encuesta sin TACC del CRM ("relevando… celíacos", `isSurveyOpener`),
-  Xenia la sigue (`surveyState`, `buildSurveyPrompt`, `handleSurvey`): una pregunta por mensaje (p1–p8 del CRM), entiende palabras, manda el manual
+  Xenia la sigue (`surveyState`, `buildSurveyPrompt`, `handleSurvey`): una pregunta por mensaje (p1–p9 del CRM; no cierra sin p8, p9 y p6 si corresponden: `missingSurvey`), entiende palabras, manda el manual
   al final y guarda en el CRM de prospectos (Supabase vnfgitgadadjjjciftsa, RPC `crm_xenia_encuesta` con la clave publicable + secret
   `CRM_XENIA_SECRET`; la clave vive en `crm_private`, sin políticas). Si no encuentra el teléfono en `crm_leads`, lo deja en `crm_survey_inbox`.
   Gabi escribe a mano en ese chat, <<EQUIPO>> (preguntan otra cosa) o <<FIN>>: Xenia deja el chat (marca invisible END U+2060). Pruebas: `npm run probar:encuesta`.

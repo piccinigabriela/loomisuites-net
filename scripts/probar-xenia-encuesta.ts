@@ -66,7 +66,7 @@ prueba('un chat que no es de encuesta no entra', () => {
 });
 
 prueba('lee los datos y las marcas de la respuesta de Claude', () => {
-  const r = parseSurveyReply('¡Genial! ¿Y sin lactosa?\n<<DATOS:{"p1":1,"p2":2,"p9":3,"p3":"x","resumen":"Desayuno incluido, sin TACC envasado"}>>');
+  const r = parseSurveyReply('¡Genial! ¿Y sin lactosa?\n<<DATOS:{"p1":1,"p2":2,"p10":3,"p3":"x","resumen":"Desayuno incluido, sin TACC envasado"}>>');
   assert.equal(r.text, '¡Genial! ¿Y sin lactosa?');
   assert.deepEqual(r.answers, { p1: 1, p2: 2 });
   assert.equal(r.summary, 'Desayuno incluido, sin TACC envasado');
@@ -92,7 +92,8 @@ prueba('bienvenidas automáticas de WhatsApp Business: no se contestan', () => {
 });
 
 prueba('no cierra sin preguntar el sistema y, si sirven comida, la guía', () => {
-  assert.deepEqual(missingSurvey({ p1: 1, p2: 3, p3: 1, p4: 2, p5: 2, p7: 2 }), ['p8', 'p6']);
+  assert.deepEqual(missingSurvey({ p1: 1, p2: 3, p3: 1, p4: 2, p5: 2, p7: 2 }), ['p8', 'p9', 'p6']);
+  assert.deepEqual(missingSurvey({ p1: 1, p7: 3, p8: 2, p6: 1 }), [], 'si ya tienen pre check-in, no va la 9');
   assert.deepEqual(missingSurvey({ p1: 4 }), ['p8']);
   assert.deepEqual(missingSurvey({ p1: 4, p8: 1 }), []);
   assert.deepEqual(missingSurvey({ p1: 2, p8: 2, p6: 1 }), []);

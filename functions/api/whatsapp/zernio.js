@@ -168,9 +168,10 @@ PREGUNTAS (en este orden; entre corchetes el código y las opciones)
 [p4] ¿Se los piden los huéspedes? 1 nunca · 2 a veces · 3 seguido
 [p5] ¿Lo cuentan en su web o en sus avisos? 1 sí · 2 no
 [p7] ¿Cómo se enteran de que un huésped es celíaco o intolerante? 1 recién cuando llega · 2 les avisa por mensaje · 3 lo pregunta su sistema de reservas antes de llegar (pre check-in)
+[p9] (solo si p7 es 1 o 2) ¿Les serviría que el huésped les avise de su alimentación antes de llegar, con un formulario de pre check-in? 1 sí · 2 no
 [p8] ¿Llevan las reservas con algún sistema, o con cuaderno, Excel o el calendario de Airbnb o Booking? 1 sin sistema · 2 con un sistema de gestión
 [p6] (solo si sirven comida) ¿Les gustaría aparecer gratis en una guía de alojamientos aptos para celíacos e intolerantes a la lactosa? 1 sí · 2 no
-No digas "última pregunta" salvo en la que de verdad es la última (p6 si sirven comida; p8 si no). No cierres sin haber preguntado p8 y, si sirven comida, p6.
+No digas "última pregunta" salvo en la que de verdad es la última (p6 si sirven comida; p8 si no). No cierres sin haber preguntado p8, p9 si corresponde y, si sirven comida, p6.
 
 AL TERMINAR
 Agradecé y mandá el regalo, copiando el link letra por letra: si sirven comida, el manual "Sin gluten, sin lactosa": loomisuite.net/manual?m=sintacc ; si no, el manual de hospitalidad: loomisuite.net/manual. Después poné <<FIN>>.
@@ -202,11 +203,12 @@ export function isAutoReply(text) {
   return n >= 2 || (n >= 1 && /automatic/.test(t));
 }
 
-/** Preguntas que faltan antes de cerrar: siempre p8 (sistema); si sirven comida (p1 = 1 o 2), también p6 (guía) */
+/** Preguntas que faltan antes de cerrar: siempre p8 (sistema); si se enteran tarde (p7 = 1 o 2), p9 (pre check-in); si sirven comida, p6 (guía) */
 export function missingSurvey(answers) {
   const a = answers || {};
   const out = [];
   if (!a.p8) out.push('p8');
+  if ((a.p7 === 1 || a.p7 === 2) && !a.p9) out.push('p9');
   if ((a.p1 === 1 || a.p1 === 2) && !a.p6) out.push('p6');
   return out;
 }
@@ -232,7 +234,7 @@ export function parseSurveyReply(text) {
   let summary = '';
   if (data && typeof data === 'object') {
     for (const [k, v] of Object.entries(data)) {
-      if (/^p[1-8]$/.test(k) && Number.isInteger(Number(v)) && Number(v) >= 1 && Number(v) <= 4) answers[k] = Number(v);
+      if (/^p[1-9]$/.test(k) && Number.isInteger(Number(v)) && Number(v) >= 1 && Number(v) <= 4) answers[k] = Number(v);
     }
     summary = String(data.resumen || data.summary || '').slice(0, 600);
   }
