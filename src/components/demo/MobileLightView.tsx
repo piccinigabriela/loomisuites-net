@@ -39,7 +39,7 @@ import { PaymentSettingsSheet } from './mobile/PaymentSettingsSheet';
 import {
   availableMethods,
   composePaymentMessage,
-  PAY_METHOD_LABEL,
+  payMethodLabel,
   type PayMethod,
   type PaymentSettings,
 } from './mobile/paymentMessage';
@@ -743,7 +743,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                 {payMethodsAvailable.length === 0 ? (
                   <div className="space-y-2">
                     <p className="text-xs font-bold text-stone-900 dark:text-gray-100">
-                      Todavía no cargaste datos de cobro (CBU, alias, Mercado Pago, PayPal o Payoneer).
+                      Todavía no cargaste datos de cobro (CBU, alias, Mercado Pago, PayPal, Payoneer u otro link).
                     </p>
                     <button
                       onClick={() => setPaySheetOpen(true)}
@@ -773,7 +773,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
                             }`}
                           >
                             {on ? '✓ ' : ''}
-                            {PAY_METHOD_LABEL[m]}
+                            {payMethodLabel(m, paymentSettings)}
                           </button>
                         );
                       })}

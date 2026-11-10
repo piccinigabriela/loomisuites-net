@@ -724,6 +724,28 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
               </div>
 
               <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-100 mb-1">Otro link de pago: nombre</label>
+                <input
+                  type="text"
+                  placeholder="Ej: dLocal Go, Ualá Bis, MODO, tu banco"
+                  value={formData.directBookingSettings.otherPayName || ''}
+                  onChange={(e) => handleBookingSettingsChange('otherPayName', e.target.value)}
+                  className="w-full text-xs p-2.5 rounded-xl border border-zinc-300 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 dark:border-zinc-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-100 mb-1">Otro link de pago: link</label>
+                <input
+                  type="url"
+                  placeholder="Pegá el link de pago"
+                  value={formData.directBookingSettings.otherPayLink || ''}
+                  onChange={(e) => handleBookingSettingsChange('otherPayLink', e.target.value)}
+                  className="w-full text-xs p-2.5 rounded-xl border border-zinc-300 font-mono bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 dark:border-zinc-600"
+                />
+              </div>
+
+              <div>
                 <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-100 mb-1">
                   Porcentaje de Seña Requerido (%)
                 </label>

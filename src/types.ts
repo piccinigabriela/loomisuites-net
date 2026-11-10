@@ -260,6 +260,8 @@ export interface WelcomeGuideData {
     mercadoPagoLink?: string; // Link de cobro o checkout de Mercado Pago del complejo
     paypalLink?: string; // Link de PayPal / PayPal.me del complejo
     payoneerLink?: string; // Link de pago / solicitud de pago de Payoneer del complejo
+    otherPayName?: string; // Otro medio con link propio (dLocal Go, Ualá Bis, MODO, el banco…): nombre que ve el huésped
+    otherPayLink?: string; // …y su link
     directDiscountPercent: number;
   };
 }

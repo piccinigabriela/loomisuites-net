@@ -98,8 +98,8 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Selector compartido `components/common/ChannelSelect.tsx` (alta "+ Nuevo origen…" y cambio de comisión) en Nueva reserva y en la ficha.
   Informes → Ingresos por canal los muestra en su fila (`channelReport(..., origins)`). Las comisiones de Airbnb/Booking/Vrbo siguen fijas.
 
-- Pedir pago (10/11): sin pasarela, Loomi no toca la plata. Datos de cobro del dueño en `welcomeGuide.directBookingSettings` (alias, CBU, su link de
-  Mercado Pago, PayPal, Payoneer; no van a la guía pública). Modo celular: `MobileLightView` + `mobile/PaymentSettingsSheet.tsx`. Compu: botón
+- Pedir pago (10/11): sin pasarela, Loomi no toca la plata. Datos de cobro del dueño en `welcomeGuide.directBookingSettings` (alias, CBU, sus links de
+  Mercado Pago, PayPal, Payoneer y "otro link" con nombre propio: `otherPayName` + `otherPayLink`, ej. dLocal Go; no van a la guía pública). Modo celular: `MobileLightView` + `mobile/PaymentSettingsSheet.tsx`. Compu: botón
   "Pedir pago" en Pagos y Saldo de la ficha (`components/common/PaymentRequest.tsx`; no en reservas de Airbnb); si es directa, sin pagos y Tu Web
   tiene seña, ofrece "Seña X%" o "Total". Mensaje: `composePaymentMessage` (`concept: 'seña' | 'saldo'`). Solo el dueño cambia los datos.
 

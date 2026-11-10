@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { MessageCircle } from 'lucide-react';
 import {
-  PAY_METHOD_LABEL,
+  payMethodLabel,
   availableMethods,
   composePaymentMessage,
   type PayMethod,
@@ -73,7 +73,7 @@ export const PaymentRequest: React.FC<{
       {available.length === 0 ? (
         <>
           <p className="text-[13px] font-bold text-stone-900 dark:text-stone-50">
-            Todavía no cargaste tus datos de cobro (alias o CBU, tu link de Mercado Pago, PayPal o Payoneer).
+            Todavía no cargaste tus datos de cobro (alias o CBU, o tus links de Mercado Pago, PayPal, Payoneer u otro).
           </p>
           {onSaveSettings ? (
             <button
@@ -115,7 +115,7 @@ export const PaymentRequest: React.FC<{
                   className={chip(on)}
                 >
                   {on ? '✓ ' : ''}
-                  {PAY_METHOD_LABEL[m]}
+                  {payMethodLabel(m, settings)}
                 </button>
               );
             })}

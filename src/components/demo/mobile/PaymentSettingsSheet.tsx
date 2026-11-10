@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { cbuWarning, type PaymentSettings } from './paymentMessage';
 
-type Fields = Pick<PaymentSettings, 'bankAlias' | 'cbu' | 'bankName' | 'accountHolder' | 'mercadoPagoLink' | 'paypalLink' | 'payoneerLink'>;
+type Fields = Pick<PaymentSettings, 'bankAlias' | 'cbu' | 'bankName' | 'accountHolder' | 'mercadoPagoLink' | 'paypalLink' | 'payoneerLink' | 'otherPayName' | 'otherPayLink'>;
 
 interface PaymentSettingsSheetProps {
   settings?: Partial<PaymentSettings>;
@@ -22,6 +22,8 @@ export const PaymentSettingsSheet: React.FC<PaymentSettingsSheetProps> = ({ sett
     mercadoPagoLink: settings?.mercadoPagoLink || '',
     paypalLink: settings?.paypalLink || '',
     payoneerLink: settings?.payoneerLink || '',
+    otherPayName: settings?.otherPayName || '',
+    otherPayLink: settings?.otherPayLink || '',
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -42,6 +44,8 @@ export const PaymentSettingsSheet: React.FC<PaymentSettingsSheetProps> = ({ sett
         mercadoPagoLink: trim(f.mercadoPagoLink),
         paypalLink: trim(f.paypalLink),
         payoneerLink: trim(f.payoneerLink),
+        otherPayName: trim(f.otherPayName),
+        otherPayLink: trim(f.otherPayLink),
       });
       onClose();
     } catch {
@@ -131,6 +135,12 @@ export const PaymentSettingsSheet: React.FC<PaymentSettingsSheetProps> = ({ sett
         {renderField({ id: 'pay-mp', label: '💳 Mercado Pago (link de cobro)', k: 'mercadoPagoLink', type: 'url', mono: true, placeholder: 'https://link.mercadopago.com.ar/...' })}
         {renderField({ id: 'pay-paypal', label: '🅿️ PayPal (link PayPal.me)', k: 'paypalLink', type: 'url', mono: true, placeholder: 'https://paypal.me/...' })}
         {renderField({ id: 'pay-payoneer', label: '🌐 Payoneer (link de pago)', k: 'payoneerLink', type: 'url', mono: true, placeholder: 'Pegá el link que te genera Payoneer' })}
+
+        <div className="space-y-3 p-3 rounded-2xl border-2 border-stone-300 dark:border-zinc-600">
+          <h4 className="text-sm font-extrabold">🔗 Otro link de pago</h4>
+          {renderField({ id: 'pay-other-name', label: 'Nombre', k: 'otherPayName', placeholder: 'Ej: dLocal Go, Ualá Bis, MODO, tu banco' })}
+          {renderField({ id: 'pay-other-link', label: 'Link', k: 'otherPayLink', type: 'url', mono: true, placeholder: 'Pegá el link de pago' })}
+        </div>
 
         {error && (
           <p role="alert" className="text-sm font-bold text-red-800 dark:text-red-300">
