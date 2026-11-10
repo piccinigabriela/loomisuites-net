@@ -45,7 +45,7 @@ type ModuleKey =
 /** Casos de uso reales (10/11, con permiso de Gabi para nombres y fotos). Wood Cabin todavía se está pasando a Loomi. */
 const USE_CASES: Array<{ name: string; place: string; status: string; line: string; uses: string[]; photo?: string; photoAlt?: string }> = [
   {
-    name: 'Catalinas',
+    name: 'Apartamentos Catalinas',
     place: 'Buenos Aires',
     status: 'Usa Loomi todos los días',
     line: 'Cuatro departamentos temporarios administrados para su propietario.',
@@ -54,6 +54,8 @@ const USE_CASES: Array<{ name: string; place: string; status: string; line: stri
       'Limpieza con checklist y guía para cada huésped',
       'Informe mensual al propietario con la comisión de administración descontada',
     ],
+    photo: '/casos/catalinas.jpg',
+    photoAlt: 'Puerto Madero de noche, cerca de los departamentos de Catalinas',
   },
   {
     name: 'Wood Cabin Iguazú',
