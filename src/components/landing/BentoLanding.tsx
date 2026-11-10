@@ -42,6 +42,34 @@ type ModuleKey =
   | 'onboarding'
   | 'metrics';
 
+/** Casos de uso reales (10/11, con permiso de Gabi para nombres y fotos). Wood Cabin todavía se está pasando a Loomi. */
+const USE_CASES: Array<{ name: string; place: string; status: string; line: string; uses: string[]; photo?: string; photoAlt?: string }> = [
+  {
+    name: 'Catalinas',
+    place: 'Buenos Aires',
+    status: 'Usa Loomi todos los días desde octubre de 2026',
+    line: 'Cuatro departamentos temporarios administrados para su propietario.',
+    uses: [
+      'Reservas de Airbnb sincronizadas por calendario',
+      'Limpieza con checklist y guía para cada huésped',
+      'Informe mensual al propietario con la comisión de administración descontada',
+    ],
+  },
+  {
+    name: 'Wood Cabin Iguazú',
+    place: 'Puerto Iguazú, Misiones',
+    status: 'Se está pasando a Loomi',
+    line: 'Cabañas en la selva, con Airbnb y Booking y un equipo que cambia con los voluntarios.',
+    uses: [
+      'Airbnb y Booking en un solo calendario',
+      'Limpieza organizada para un equipo que rota',
+      'El encargado lo maneja desde el celular',
+    ],
+    photo: '/cabanas/cabana-terraza.jpg',
+    photoAlt: 'Cabaña de Wood Cabin Iguazú con terraza en la selva',
+  },
+];
+
 export const BentoLanding: React.FC<BentoLandingProps> = ({
   onOpenDemo,
   onOpenContact,
@@ -516,6 +544,40 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
           </div>
 
         </div>
+
+        {/* ========================================================================= */}
+        {/* ROW 4: CASOS DE USO (10/11)                                                */}
+        {/* ========================================================================= */}
+        <section aria-labelledby="casos-titulo" className="space-y-3 pt-2">
+          <h2 id="casos-titulo" className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-700 dark:text-zinc-400 px-1">
+            Quiénes usan Loomi
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 items-start">
+            {USE_CASES.map((c) => (
+              <article key={c.name} className={`rounded-3xl overflow-hidden flex flex-col ${cardBaseStyle}`}>
+                {c.photo && (
+                  <img src={c.photo} alt={c.photoAlt} loading="lazy" className="w-full h-44 sm:h-52 object-cover" />
+                )}
+                <div className="p-5 sm:p-6 flex flex-col gap-2.5">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">{c.name}</h3>
+                    <span className="text-xs font-semibold text-slate-800 dark:text-zinc-300">{c.place}</span>
+                  </div>
+                  <p className="text-sm font-semibold text-[#AD5410] dark:text-[#F0A46F]">{c.status}</p>
+                  <p className="text-sm text-slate-800 dark:text-zinc-200 leading-relaxed">{c.line}</p>
+                  <ul className="space-y-1.5 pt-1">
+                    {c.uses.map((u) => (
+                      <li key={u} className="flex items-start gap-1.5 text-sm text-slate-800 dark:text-zinc-200">
+                        <Check className="w-4 h-4 text-[#AD5410] dark:text-[#E67E22] shrink-0 mt-0.5" />
+                        <span>{u}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
 
       </div>
 
