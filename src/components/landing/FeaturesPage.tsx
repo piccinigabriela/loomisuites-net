@@ -4,6 +4,7 @@
  * (y los precios, si cambian: también están en la landing y en Xenia).
  */
 import React, { useEffect } from 'react';
+import { NO_TE_PASA } from '../../lib/noTePasa';
 import {
   ArrowRight,
   Ban,
@@ -138,7 +139,6 @@ const BLOCKS: Block[] = [
 const NOT_YET = [
   'No emite facturas.',
   'No cobra online: la seña y los pagos se hacen por transferencia o como acuerdes con tu huésped.',
-  'No tiene channel manager instantáneo: la conexión con los portales es por iCal (está en desarrollo).',
   'No trabaja con cerraduras inteligentes: funciona con llaves comunes.',
 ];
 
@@ -246,6 +246,19 @@ export const FeaturesPage: React.FC = () => {
                 </li>
               ))}
             </ul>
+          </div>
+        </section>
+
+        <section className="mt-16 rounded-3xl border border-white/10 p-6 sm:p-8">
+          <h2 className="text-2xl font-bold text-white">Lo que no te va a pasar con Loomi</h2>
+          <p className="mt-2 text-base text-stone-200">Lo que más miedo da cuando cambiás de sistema.</p>
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
+            {NO_TE_PASA.map(([t, d]) => (
+              <div key={t}>
+                <p className="text-lg font-bold text-white">{t}</p>
+                <p className="mt-1 text-base leading-relaxed text-stone-100">{d}</p>
+              </div>
+            ))}
           </div>
         </section>
 

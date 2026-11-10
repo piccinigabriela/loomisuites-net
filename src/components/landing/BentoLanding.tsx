@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TutorialVideoButton } from '../common/TutorialVideo';
+import { NO_TE_PASA } from '../../lib/noTePasa';
 import {
   Play,
   Sparkles,
@@ -834,7 +835,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                     06 / PLANES FIJOS POR COMPLEJO ENTERO
                   </span>
                   <h2 className="text-2xl font-light text-gray-900 dark:text-white">
-                    Tarifas transparentes <span className="font-semibold">sin costo por habitación</span>
+                    Tarifas transparentes <span className="font-semibold">sin comisión por reserva</span>
                   </h2>
                 </div>
 
@@ -875,6 +876,18 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                       </div>
                     </div>
                   ))}
+                </div>
+
+                <div className="rounded-2xl border border-gray-100 dark:border-white/5 p-4 space-y-3">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Lo que no te va a pasar con Loomi</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    {NO_TE_PASA.map(([t, d]) => (
+                      <div key={t} className="space-y-0.5">
+                        <p className="font-semibold text-gray-900 dark:text-white">{t}</p>
+                        <p className="text-slate-800 dark:text-zinc-300 font-medium leading-relaxed">{d}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="space-y-3 text-xs">

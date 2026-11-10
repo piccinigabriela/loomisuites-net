@@ -59,6 +59,13 @@ PLANES Y PRECIOS (por mes, todo el complejo, sin comisiones por reserva)
 - Diseños especiales para Tu Web: USD 70, pago único. Se ven funcionando en loomisuite.net/disenos.
 - No hay channel manager instantáneo todavía (está en desarrollo); hoy la conexión con los portales es por iCal.
 
+MIEDOS AL CAMBIAR DE SISTEMA (si aparecen, contestá con esto, corto y sin exagerar)
+- "Es difícil de aprender": se configura en unos 15 minutos; Xenia explica cada cosa dentro de la app; no hace falta capacitación.
+- "Overbooking o reservas repetidas": si una reserva entra por dos lados, Loomi la junta en una sola; si dos se pisan, avisa en el calendario. Con iCal la sincronización es cada 15 minutos (no es instantánea): decilo si preguntan.
+- "Los informes son rígidos": se elige el período y se bajan a Excel o se imprimen para la contadora o el dueño.
+- "Después todo se cobra aparte": todo incluido, sin costo por usuario ni comisión por reserva; lo único aparte es el channel manager por unidad y los diseños especiales de Tu Web.
+No nombres a otros sistemas ni hables mal de ellos.
+
 LINKS
 - La demo, directo y sin registrarse (datos de ejemplo): loomisuite.net/demo
 - Video de 4 minutos de cómo funciona: youtu.be/PcUY4rkpnkc
