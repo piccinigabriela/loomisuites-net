@@ -3240,6 +3240,11 @@ export default function App() {
                 />
               )}
 
+              {demoTab === 'properties' && !isApp && (
+                <p className="mb-5 rounded-2xl border border-stone-300 dark:border-zinc-700 bg-white dark:bg-[#18191E] p-4 text-[15px] font-semibold text-stone-900 dark:text-stone-50">
+                  En el demo, Airbnb y Booking se conectan por calendario (iCal). La conexión directa con las plataformas (channel manager, Loomi Suite) no está disponible en el demo.
+                </p>
+              )}
               {demoTab === 'properties' && isApp && !isStaff && tenantDoc?.channelManager?.enabled && tenantDoc.channelManager.hotelCode && (
                 <ChannelConnectionCard uid={tenantUid} cm={tenantDoc.channelManager} properties={demoState.properties || []} />
               )}

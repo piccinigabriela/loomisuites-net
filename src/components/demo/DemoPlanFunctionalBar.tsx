@@ -334,7 +334,7 @@ export const DemoPlanFunctionalBar: React.FC<DemoPlanFunctionalBarProps> = ({
                     </span>
                   </div>
                   <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 max-w-2xl leading-relaxed font-medium">
-                    <strong>Con channel manager (próximamente):</strong> todo Loomi, con reservas al instante, más USD 6 por unidad conectada. Promo fin de año: USD 35 para siempre si creás tu cuenta antes del 31/12.
+                    <strong>Con channel manager (próximamente):</strong> todo Loomi, con reservas al instante, más USD 6 por unidad conectada. El channel manager no está disponible en el demo. Promo fin de año: USD 35 para siempre si creás tu cuenta antes del 31/12.
                   </p>
                 </div>
 

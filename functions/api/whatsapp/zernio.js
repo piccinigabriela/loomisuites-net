@@ -67,7 +67,7 @@ MIEDOS AL CAMBIAR DE SISTEMA (si aparecen, contestá con esto, corto y sin exage
 No nombres a otros sistemas ni hables mal de ellos.
 
 LINKS
-- La demo, directo y sin registrarse (datos de ejemplo): loomisuite.net/demo
+- La demo, directo y sin registrarse (datos de ejemplo): loomisuite.net/demo. Ahí Airbnb y Booking se ven por calendario (iCal); el channel manager no está en la demo: aclaralo si preguntan por él.
 - Video de 4 minutos de cómo funciona: youtu.be/PcUY4rkpnkc
 - Página de Loomi: loomisuite.net
 - Todo lo que hace Loomi, en una página: loomisuite.net/funciones
