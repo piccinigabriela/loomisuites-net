@@ -33,6 +33,7 @@ import {
   MessageCircle,
   Receipt,
   Copy,
+  CreditCard,
 } from 'lucide-react';
 import {
   Reservation,
@@ -60,6 +61,9 @@ import { guestNoteFor, previousStays } from '../../lib/guests';
 import { GuestNoteBox } from '../guests/GuestNote';
 import { ChannelSelect } from '../common/ChannelSelect';
 import { channelLabel, channelRate, channelValue, decodeChannel } from '../../lib/origins';
+import { PaymentRequest } from '../common/PaymentRequest';
+import type { PaymentSettings } from './mobile/paymentMessage';
+import { depositAmount } from '../../lib/publicSite';
 
 interface ReservationDetailModalProps {
   reservation: Reservation | null;
@@ -83,6 +87,12 @@ interface ReservationDetailModalProps {
   onSaveOrigins?: (list: ReservationOrigin[]) => void;
   /** Guarda la nota del huésped en esta reserva (se recuerda en las próximas de la misma persona) */
   onSaveGuestNote?: (resId: string, text: string) => Promise<void> | void;
+  /** Datos de cobro del dueño (alias, CBU, links) para "Pedir pago" */
+  paymentSettings?: Partial<PaymentSettings>;
+  /** Solo el dueño los cambia */
+  onSavePaymentSettings?: (fields: Partial<PaymentSettings>) => Promise<void> | void;
+  /** % de seña de Tu Web (0 = sin seña) */
+  depositPercent?: number;
 }
 
 export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
@@ -105,7 +115,12 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
   origins = [],
   onSaveOrigins,
   onSaveGuestNote,
+  paymentSettings,
+  onSavePaymentSettings,
+  depositPercent = 0,
 }) => {
+  const [askPayOpen, setAskPayOpen] = useState(false);
+  useEffect(() => setAskPayOpen(false), [reservation?.id]);
   const [editOrigin, setEditOrigin] = useState<string | undefined>(undefined);
   // Mode toggle
   const [isEditing, setIsEditing] = useState(false);
@@ -1223,6 +1238,18 @@ ${paymentsListStr}
                         Pagos y Saldo
                       </h4>
                     </div>
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                    {saldo > 0 && reservation.status !== 'cancelled' && reservation.platform !== 'airbnb' && (
+                      <button
+                        type="button"
+                        onClick={() => setAskPayOpen((v) => !v)}
+                        aria-expanded={askPayOpen}
+                        className="px-3 py-1.5 rounded-xl bg-[#A8480F] text-white dark:bg-[#FFB27F] dark:text-stone-900 font-bold text-[12px] flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <CreditCard className="w-3.5 h-3.5" />
+                        <span>{askPayOpen ? 'Cerrar' : 'Pedir pago'}</span>
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={handleSendStatement}
@@ -1232,7 +1259,25 @@ ${paymentsListStr}
                       <Send className="w-3 h-3 text-emerald-600" />
                       <span>Enviar estado de cuenta</span>
                     </button>
+                    </div>
                   </div>
+
+                  {askPayOpen && saldo > 0 && reservation.platform !== 'airbnb' && (
+                    <PaymentRequest
+                      reservationId={reservation.id}
+                      guestName={reservation.guestName}
+                      guestPhone={reservation.guestPhone}
+                      complexName={complexName || ''}
+                      unitName={property?.name || ''}
+                      dates={`${formatDisplayDate(reservation.checkIn)} al ${formatDisplayDate(reservation.checkOut)}`}
+                      balance={saldo}
+                      deposit={totalPaidSettlement <= 0 && reservation.platform === 'direct' ? depositAmount(reservation.totalAmount, depositPercent) : 0}
+                      depositPercent={depositPercent}
+                      format={(n) => formatCurrency(n, settlementCurrency)}
+                      settings={paymentSettings}
+                      onSaveSettings={onSavePaymentSettings}
+                    />
+                  )}
 
                   {/* Summary Bar */}
                   <div className="grid grid-cols-3 gap-2 bg-stone-50 dark:bg-zinc-800/60 p-3 rounded-xl border border-stone-200/60 dark:border-zinc-700 text-center">

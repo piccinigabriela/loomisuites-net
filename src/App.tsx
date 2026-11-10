@@ -81,7 +81,7 @@ import { syncCalendars } from './lib/icalSync';
 import { DesktopMoreMenu } from './components/demo/DesktopMoreMenu';
 import { DesktopAreasBar, DesktopCrumb, buildNavGroups, useTopNavEnabled } from './components/demo/DesktopNav';
 import { findConflicts, getDateStringInTimeZone, getLocalDateString, SyncResult } from './lib/icalCore';
-import { allowedTheme, buildPublicSite, buildSiteBusy, directDiscountPercent, siteUrl, stableJson, visibleUnits } from './lib/publicSite';
+import { allowedTheme, buildPublicSite, buildSiteBusy, depositPercent, directDiscountPercent, siteUrl, stableJson, visibleUnits } from './lib/publicSite';
 import { publishSite, publishSiteBusy } from './lib/publicSiteStore';
 import {
   AccessInfo,
@@ -3561,6 +3561,9 @@ export default function App() {
         currencySettings={demoState.currencySettings}
         precheckin={liveSelectedReservation ? precheckins[liveSelectedReservation.id] : undefined}
         complexName={demoState.welcomeGuide?.propertyName || ''}
+        paymentSettings={demoState.welcomeGuide?.directBookingSettings}
+        onSavePaymentSettings={isStaff ? undefined : handleSavePaymentSettings}
+        depositPercent={isApp ? (webSite ? depositPercent(webSite) : 0) : 30}
       />
       )}
 

@@ -41,12 +41,13 @@ export function composePaymentMessage(opts: {
   balanceText?: string;
   methods: PayMethod[];
   settings?: Partial<PaymentSettings>;
+  /** 'seña' cambia la frase del monto ("la seña es de…"); por defecto es el saldo */
+  concept?: 'saldo' | 'seña';
 }): string {
-  const { guestFirstName, complexName, unitName, dates, balanceText, methods, settings } = opts;
+  const { guestFirstName, complexName, unitName, dates, balanceText, methods, settings, concept = 'saldo' } = opts;
   const s = settings || {};
-  const head = `¡Hola ${guestFirstName}! Te escribo de ${complexName}. Por tu reserva en ${unitName} del ${dates}${
-    balanceText ? `, queda un saldo de ${balanceText}` : ''
-  }.`;
+  const amountPart = balanceText ? (concept === 'seña' ? `, la seña es de ${balanceText}` : `, queda un saldo de ${balanceText}`) : '';
+  const head = `¡Hola ${guestFirstName}! Te escribo de ${complexName}. Por tu reserva en ${unitName} del ${dates}${amountPart}.`;
 
   if (methods.length === 0) return `${head} ¿Te paso los datos para pagar?`;
 
@@ -64,7 +65,7 @@ export function composePaymentMessage(opts: {
   if (methods.includes('paypal') && clean(s.paypalLink)) blocks.push(`🅿️ PayPal:\n${normalizeLink(s.paypalLink)}`);
   if (methods.includes('payoneer') && clean(s.payoneerLink)) blocks.push(`🌐 Payoneer:\n${normalizeLink(s.payoneerLink)}`);
 
-  return `${head}\n\nPodés pagarlo así:\n\n${blocks.join('\n\n')}\n\nCuando lo hagas, mandame el comprobante por acá. ¡Gracias!`;
+  return `${head}\n\nPodés ${concept === 'seña' ? 'pagarla' : 'pagarlo'} así:\n\n${blocks.join('\n\n')}\n\nCuando lo hagas, mandame el comprobante por acá. ¡Gracias!`;
 }
 
 /** Aviso (no bloqueante) si lo que parece un CBU no tiene 22 dígitos. */
