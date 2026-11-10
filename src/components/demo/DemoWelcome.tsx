@@ -81,8 +81,8 @@ export const DemoWelcome: React.FC<Props> = ({ onClose }) => {
             <strong className="font-bold">Restablecer demo</strong>.
           </li>
           <li>
-            <strong className="font-bold">Airbnb y Booking:</strong> en el demo se conectan por calendario (iCal). El channel manager, con reservas al instante,
-            no está disponible en el demo.
+            <strong className="font-bold">Airbnb y Booking:</strong> en el demo no se ve la sincronización funcionando, porque no hay calendarios reales
+            conectados. Para probarla con los tuyos está la <strong className="font-bold">prueba gratis de 7 días</strong>.
           </li>
           <li>
             <strong className="font-bold">¿Querés saber más?</strong> El botón <strong className="font-bold">Cómo funciona</strong>, arriba a la derecha, explica cada parte y los planes.
