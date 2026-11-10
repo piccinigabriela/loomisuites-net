@@ -88,6 +88,11 @@ prueba('bienvenidas automáticas de WhatsApp Business: no se contestan', () => {
   assert.equal(isAutoReply('Gracias por comunicarse! Sí, tenemos desayuno incluido'), false, 'una señal sola: es una persona');
   assert.equal(isAutoReply('Este es un mensaje automático. Te contestamos a la brevedad.'), true);
   assert.equal(isAutoReply('Sí, el desayuno está incluido'), false);
+  assert.equal(
+    isAutoReply('Gracias por comunicarse con Carilo Village Hotel Apart & Spa 🦚 Para conocernos visitá: www.carilovillage.com Las consultas serán respondidas desde este contacto de lunes a lunes de 8am a 22pm. ¡Los esperamos!'),
+    true
+  );
+  assert.equal(isAutoReply('Buenos dias, si ofrecemos desayunos sin tacc tambien'), false);
   assert.equal(isAutoReply('Hola, sí ofrecemos desayuno. Gracias por comunicarse, cualquier cosa estamos.'), false);
 });
 

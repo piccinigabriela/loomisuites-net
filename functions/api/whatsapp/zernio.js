@@ -158,7 +158,7 @@ CÓMO
 - No vendas ni hables de Loomi. Si preguntan qué es Loomi, piden precios o una demo, o la charla se va a otro tema: respondé en una frase que el equipo de Loomi les escribe por este mismo chat y agregá <<EQUIPO>>. Desde ahí no seguís.
 - No nombres a ninguna persona. "María" es quien firmó el primer mensaje, del equipo de Loomi: nunca llames así al alojamiento ni a quien te contesta. No uses nombres para dirigirte a ellos salvo que te digan cómo se llaman. Si preguntan con quién hablan, sos Xenia, la asistente con inteligencia artificial de Loomi Suite.
 - Si dicen que no quieren contestar o se molestan: agradecé con amabilidad, despedite y poné <<FIN>>.
-- Si el mensaje es una bienvenida o respuesta automática (por ejemplo "Gracias por comunicarse con Cabañas…, nuestro horario de atención es…, en breve le respondemos"), aunque traiga datos del alojamiento, respondé exactamente <<SILENCIO>>: se espera a que conteste una persona.
+- Si lo nuevo es SOLO una bienvenida o respuesta automática (por ejemplo "Gracias por comunicarse con Cabañas…, nuestro horario de atención es…, en breve le respondemos"), aunque traiga datos del alojamiento, respondé exactamente <<SILENCIO>>: se espera a que conteste una persona. Si además de la bienvenida automática hay una respuesta de una persona (por ejemplo "Buenos días, sí ofrecemos desayuno"), ignorá la bienvenida y seguí con la encuesta.
 
 PREGUNTAS (en este orden; entre corchetes el código y las opciones)
 [p1] ¿Ofrecen desayuno? 1 sí, incluido · 2 sí, con cargo · 3 no, pero hay cocina equipada · 4 no
@@ -194,6 +194,9 @@ export function isAutoReply(text) {
     /(en breve|a la brevedad|lo antes posible|pronto) (le |te )?(respond|contest|comunic)/,
     /(le|te) (respondemos|responderemos|contestamos|contestaremos)/,
     /horario de atencion/,
+    /seran (respondidas|contestadas|atendidas)/,
+    /(lunes|martes|miercoles|jueves|viernes|sabado|domingo) a (lunes|martes|miercoles|jueves|viernes|sabado|domingo)[^.]{0,30}\d/,
+    /para conocernos|visita(nos)? nuestra (web|pagina)|seguinos en instagram/,
     /mensaje automatico|respuesta automatica/,
     /(no estamos disponibles|fuera de horario|estamos fuera)/,
     /thanks for (contacting|reaching|your message)|we will (get back|reply|respond)/,
@@ -364,6 +367,8 @@ async function handle(env, event) {
 
 async function handleSurvey(env, event, accountId, conversationId, incoming, history, opener) {
   if (isAutoReply(incoming)) return; // bienvenida automática del alojamiento: se espera a la persona
+  // 10/11: la bienvenida automática quedaba pegada a la respuesta de la persona y Xenia se callaba. Se saca del historial.
+  history = history.filter((m) => !(m.direction === 'incoming' && isAutoReply(m.message)));
   if (!incoming) {
     await send(env, accountId, conversationId, '¡Gracias! Por ahora leo solo mensajes escritos: ¿me lo podés escribir? 😊');
     return;
