@@ -140,7 +140,10 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   encuesta de relevamiento por WhatsApp del CRM de prospectos). Si se suma uno: `MANUALS`, `ORDER`, el texto "Regalo · N manuales" y `functions/manual.js`.
 
 - Video tutorial (YouTube, oculto): `components/common/TutorialVideo.tsx` (`TUTORIAL_VIDEO_ID`; vacío = no se muestra). Botón en la bienvenida de la demo,
-  el panel "Cómo funciona" y la landing. Las cerraduras inteligentes están ocultas (Loomi funciona con llaves comunes; el campo `smartLock` sigue en los datos).
+  el panel "Cómo funciona" y la landing. Cerradura con código (10/11, nivel 1, sin conexión con marcas): se prende por unidad (`smartLock.enabled`, Unidades → Ingreso);
+  la reserva lleva `pinCode` (ficha: "Código de la cerradura", cargar o "Generar uno"); va en Mensajes con `{{codigo_acceso}}` o se suma solo
+  al final de los mensajes de llegada (los que llevan la guía o cómo ingresar). No va a la guía pública, a Limpieza ni a Xenia. Nivel 2 (crear el
+  código solo con TTLock, Tuya o igloohome) solo si varios clientes tienen la misma marca.
 
 - Todo lo que hace Loomi: loomisuite.net/funciones (`components/landing/FeaturesPage.tsx`, página liviana; links en el menú y el pie de la landing,
   y Xenia en WhatsApp la manda). Si se suma, cambia o se saca una función, o cambian los precios, actualizarla.

@@ -40,6 +40,7 @@ const TEMPLATE_VARS: Array<[string, string]> = [
   ['Hora de salida', '{{hora_checkout}}'],
   ['Link a la guía', '{{link_guia_digital}}'],
   ['Cómo ingresar', '{{instrucciones_ingreso}}'],
+  ['Código de la puerta', '{{codigo_acceso}}'],
   ['Link de reseña', '{{link_resena_google}}'],
 ];
 
@@ -279,6 +280,18 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
       content = content.replace(/\{\{instrucciones_ingreso\}\}/gi, arrivalText);
     } else {
       content = content.replace(/^.*\{\{instrucciones_ingreso\}\}.*(\n|$)/gim, '');
+    }
+
+    // Código de la cerradura (10/11): solo si la unidad tiene cerradura con código y la reserva lo tiene.
+    // Con {{codigo_acceso}} va donde lo puso el anfitrión; si no, en los mensajes de llegada (los que llevan la guía o cómo ingresar) se suma al final.
+    const pin = selectedProperty.smartLock?.enabled ? (selectedReservation.pinCode || '').trim() : '';
+    const pinLabel = msgLang === 'en' ? 'Door code' : msgLang === 'pt' ? 'Código da porta' : 'Código de la puerta';
+    const rawTpl = selectedTemplate.content;
+    if (pin) {
+      if (/\{\{codigo_acceso\}\}/i.test(rawTpl)) content = content.replace(/\{\{codigo_acceso\}\}/gi, pin);
+      else if (!/\{codigo_cerradura\}/i.test(rawTpl) && /link_guia|instrucciones_ingreso/i.test(rawTpl)) content = `${content.trimEnd()}\n\n🔑 ${pinLabel}: ${pin}`;
+    } else {
+      content = content.replace(/^.*\{\{codigo_acceso\}\}.*(\n|$)/gim, '');
     }
 
     // Link de reseña en Google (si no está cargado, se quita esa línea del mensaje)

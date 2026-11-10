@@ -511,6 +511,20 @@ export const DemoProperties: React.FC<DemoPropertiesProps> = ({
                 </div>
               </Section>
 
+              <Section title="Ingreso" hint="Si la puerta tiene cerradura con teclado, cada reserva lleva su código y va en el mensaje de bienvenida.">
+                <label className="flex items-center gap-3 text-[15px] font-semibold cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={!!activeProperty.smartLock?.enabled}
+                    onChange={(e) =>
+                      setActiveProperty({ ...activeProperty, smartLock: { brand: activeProperty.smartLock?.brand || '', enabled: e.target.checked } })
+                    }
+                    className="w-5 h-5 accent-[#A94F12]"
+                  />
+                  Esta unidad tiene cerradura con código
+                </label>
+              </Section>
+
               <Section title="Foto">
                 <div className="flex items-center gap-4">
                   <div className="relative w-28 h-20 shrink-0 rounded-xl overflow-hidden bg-stone-100 dark:bg-zinc-800 flex items-center justify-center">

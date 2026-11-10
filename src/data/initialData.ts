@@ -140,7 +140,7 @@ export const INITIAL_PROPERTIES: Property[] = [
     reviewsCount: 104,
     status: 'active',
     syncStatus: { airbnb: true, booking: true, vrbo: false },
-    smartLock: { enabled: false, brand: '' },
+    smartLock: { enabled: true, brand: '' },
     wifiNetwork: 'Iguazu_PaloRosa_WiFi',
     wifiPassword: 'IguazuDemo2026',
   },

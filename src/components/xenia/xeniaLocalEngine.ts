@@ -807,7 +807,9 @@ La prueba gratis dura **7 días**.
 
 Loomi funciona con la llave de siempre: no hace falta ninguna cerradura especial.
 
-Cargá **cómo es el ingreso** en Reservas → **Tu Web y Guía → 3. Ajustes & Edición de Datos** (por ejemplo "Anunciate en la casa de al lado, ahí te dan las llaves"). Aparece destacado en la guía del huésped y se agrega a los mensajes de confirmación y del día de llegada.`;
+Cargá **cómo es el ingreso** en Reservas → **Tu Web y Guía → 3. Ajustes & Edición de Datos** (por ejemplo "Anunciate en la casa de al lado, ahí te dan las llaves"). Aparece destacado en la guía del huésped y se agrega a los mensajes de confirmación y del día de llegada.
+
+**¿Cerradura con teclado?** En **Unidades**, editá la unidad y tildá **"Esta unidad tiene cerradura con código"** (en Ingreso). Después, en la ficha de cada reserva cargás el **código de la cerradura** (o tocás "Generar uno") y va solo en el mensaje de bienvenida. El código lo cargás vos en la cerradura: Loomi no se conecta con las marcas.`;
   }
 
   // 5. LIMPIEZA Y MUCAMAS

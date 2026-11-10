@@ -20,7 +20,7 @@ const FEATURES: Array<[string, string]> = [
 
 const FAQ: Array<[string, string]> = [
   ['¿Reemplaza a Airbnb o Booking.com?', 'No. Seguís recibiendo reservas en esos portales; Loomi Suite sincroniza los calendarios por iCal (cada 15 minutos) para evitar reservas dobles y las muestra juntas.'],
-  ['¿Necesito cerraduras inteligentes?', 'No. Funciona con la llave de siempre; la forma de ingresar se explica en la guía digital del huésped.'],
+  ['¿Necesito cerraduras inteligentes?', 'No. Funciona con la llave de siempre; la forma de ingresar se explica en la guía digital del huésped. Si la puerta tiene cerradura con teclado, cada reserva puede llevar su código y va en el mensaje de bienvenida.'],
   ['¿Cuánto tarda pasar a Loomi?', 'Unidades y tarifas, unos 15 minutos. Las reservas de Airbnb y Booking entran solas en cuanto pegás los links de calendario, y las que tengas en Excel u otro sistema se importan desde un archivo. Si preferís, te las cargamos nosotros sin costo. No hace falta capacitación: dentro de la app, Xenia te explica cómo hacer cada cosa.'],
   ['¿Qué diferencia a Loomi Suite de otros sistemas todo en uno?', 'Está hecho para complejos chicos: se configura en unos 15 minutos y Xenia explica cada cosa dentro de la app, sin capacitación. Si una reserva entra por dos lados la junta en una sola y avisa si dos se pisan. Los informes se eligen por período y se bajan a Excel o se imprimen. Todo incluido, sin costo por usuario ni comisión por reserva; lo único aparte es el channel manager por unidad y los diseños especiales de Tu Web.'],
   ['¿Cuánto dura la prueba?', '7 días gratis desde que se crea la cuenta en app.loomisuite.net. La demo con datos de ejemplo se puede usar sin registrarse.'],

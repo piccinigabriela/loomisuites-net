@@ -139,7 +139,7 @@ const BLOCKS: Block[] = [
 const NOT_YET = [
   'No emite facturas.',
   'No cobra online: la seña y los pagos se hacen por transferencia o como acuerdes con tu huésped.',
-  'No trabaja con cerraduras inteligentes: funciona con llaves comunes.',
+  'No se conecta con cerraduras inteligentes: funciona con llaves comunes, y si tenés cerradura con teclado, cargás el código de cada reserva y va en el mensaje de bienvenida.',
 ];
 
 const CTA: React.FC = () => (

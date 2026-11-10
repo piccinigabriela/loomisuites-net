@@ -120,7 +120,11 @@ export const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
   depositPercent = 0,
 }) => {
   const [askPayOpen, setAskPayOpen] = useState(false);
-  useEffect(() => setAskPayOpen(false), [reservation?.id]);
+  const [quickPin, setQuickPin] = useState('');
+  useEffect(() => {
+    setAskPayOpen(false);
+    setQuickPin('');
+  }, [reservation?.id]);
   const [editOrigin, setEditOrigin] = useState<string | undefined>(undefined);
   // Mode toggle
   const [isEditing, setIsEditing] = useState(false);
@@ -488,8 +492,14 @@ ${paymentsListStr}
     properties.find((p) => p.id === (isEditing ? editPropertyId : reservation.propertyId)) ||
     property;
 
-  // Cerraduras inteligentes: opción oculta por ahora (Loomi funciona con llaves comunes). Para volver a mostrarla: activeProperty?.smartLock?.enabled
-  const isSmartLockEnabled = false;
+  // Cerradura con código (10/11): se prende por unidad (Unidades → Ingreso). El código va en la reserva (pinCode) y en el mensaje de bienvenida.
+  // No va a la guía pública. Limpieza no lo ve.
+  const isSmartLockEnabled = !!activeProperty?.smartLock?.enabled && userRole !== 'housekeeping';
+  const saveQuickPin = (pin: string) => {
+    if (!onUpdateReservation) return;
+    onUpdateReservation({ ...reservation, pinCode: pin.trim() });
+    setQuickPin('');
+  };
 
   const getAddonIcon = (category: string) => {
     switch (category) {
@@ -821,7 +831,7 @@ ${paymentsListStr}
                   <div className="flex items-center justify-between">
                     <label className="font-bold text-blue-900 dark:text-blue-200 flex items-center gap-1.5">
                       <KeyRound className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                      <span>PIN de Cerradura Inteligente</span>
+                      <span>Código de la cerradura</span>
                     </label>
                     <button
                       type="button"
@@ -829,7 +839,7 @@ ${paymentsListStr}
                       className="text-[11px] font-semibold text-blue-700 dark:text-blue-300 hover:underline cursor-pointer flex items-center gap-1"
                     >
                       <RotateCcw className="w-3 h-3" />
-                      <span>Generar PIN nuevo</span>
+                      <span>Generar uno</span>
                     </button>
                   </div>
                   <input
@@ -1138,23 +1148,52 @@ ${paymentsListStr}
                 </div>
               </div>
 
-              {/* Smart Lock PIN Box */}
-              {isSmartLockEnabled && (
-                <div className="bg-white dark:bg-[#1A1B20] border border-gray-100 dark:border-zinc-800 rounded-2xl p-4 flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
+              {/* Código de la cerradura (si la unidad tiene cerradura con teclado) */}
+              {isSmartLockEnabled && reservation.status !== 'cancelled' && (
+                <div className="bg-white dark:bg-[#1A1B20] border-2 border-stone-200 dark:border-zinc-700 rounded-2xl p-4 flex flex-col gap-2.5">
                   <div className="flex items-center gap-2.5">
-                    <KeyRound className="w-5 h-5 text-[#D86F35]" />
-                    <div>
-                      <span className="text-xs font-bold text-gray-900 dark:text-gray-100 block">
-                        PIN de Cerradura Inteligente
+                    <KeyRound className="w-5 h-5 text-[#A94F12] dark:text-[#F0A46F]" />
+                    <span className="text-[14px] font-bold text-stone-900 dark:text-stone-50">Código de la cerradura</span>
+                    {reservation.pinCode && (
+                      <span className="ml-auto text-[18px] font-bold font-mono tracking-widest bg-stone-100 dark:bg-zinc-800 text-stone-900 dark:text-stone-50 px-3 py-1 rounded-xl">
+                        {reservation.pinCode}
                       </span>
-                      <span className="text-[11px] text-gray-400">
-                        Válido exclusivamente durante la estadía
-                      </span>
-                    </div>
+                    )}
                   </div>
-                  <span className="text-sm font-bold font-mono bg-[#EDE8E1] px-3 py-1 rounded-xl text-gray-800">
-                    {reservation.pinCode}
-                  </span>
+                  {reservation.pinCode ? (
+                    <p className="text-[13px] font-semibold text-stone-800 dark:text-stone-200">
+                      Va en el mensaje de bienvenida. Acordate de cargarlo en la cerradura y borrarlo cuando se vayan.
+                    </p>
+                  ) : onUpdateReservation ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={quickPin}
+                        onChange={(e) => setQuickPin(e.target.value)}
+                        placeholder="Ej: 4829"
+                        aria-label="Código de la cerradura"
+                        className="w-32 min-h-[40px] rounded-xl border-2 border-stone-400 dark:border-zinc-500 bg-white dark:bg-zinc-800 px-3 text-[16px] font-bold font-mono tracking-widest text-stone-900 dark:text-stone-50"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setQuickPin(Math.floor(1000 + Math.random() * 9000).toString())}
+                        className="min-h-[40px] px-3 rounded-xl border-2 border-stone-400 dark:border-zinc-500 text-[13px] font-bold text-stone-900 dark:text-stone-50 cursor-pointer"
+                      >
+                        Generar uno
+                      </button>
+                      <button
+                        type="button"
+                        disabled={!quickPin.trim()}
+                        onClick={() => saveQuickPin(quickPin)}
+                        className="min-h-[40px] px-4 rounded-xl bg-[#A8480F] text-white dark:bg-[#FFB27F] dark:text-stone-900 text-[13px] font-bold cursor-pointer disabled:opacity-50"
+                      >
+                        Guardar
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-[13px] font-semibold text-stone-800 dark:text-stone-200">Todavía no tiene código.</p>
+                  )}
                 </div>
               )}
 
