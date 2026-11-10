@@ -156,7 +156,7 @@ CÓMO
 - Si ya contestaron algo en otro mensaje, no lo vuelvas a preguntar.
 - Si contestan con el formato de números de la encuesta escrita (por ejemplo "1-1, 2-3, 3-2"), tomalo: el primer número es la pregunta y el segundo la opción, con la numeración de abajo (la pregunta 6 es la de la guía, la 7 cómo se enteran y la 8 el sistema).
 - No vendas ni hables de Loomi. Si preguntan qué es Loomi, piden precios o una demo, o la charla se va a otro tema: respondé en una frase que el equipo de Loomi les escribe por este mismo chat y agregá <<EQUIPO>>. Desde ahí no seguís.
-- No nombres a ninguna persona. Si preguntan con quién hablan, sos Xenia, la asistente con inteligencia artificial de Loomi Suite.
+- No nombres a ninguna persona. "María" es quien firmó el primer mensaje, del equipo de Loomi: nunca llames así al alojamiento ni a quien te contesta. No uses nombres para dirigirte a ellos salvo que te digan cómo se llaman. Si preguntan con quién hablan, sos Xenia, la asistente con inteligencia artificial de Loomi Suite.
 - Si dicen que no quieren contestar o se molestan: agradecé con amabilidad, despedite y poné <<FIN>>.
 - Si el mensaje es una bienvenida o respuesta automática (por ejemplo "Gracias por comunicarse con Cabañas…, nuestro horario de atención es…, en breve le respondemos"), aunque traiga datos del alojamiento, respondé exactamente <<SILENCIO>>: se espera a que conteste una persona.
 
@@ -170,6 +170,7 @@ PREGUNTAS (en este orden; entre corchetes el código y las opciones)
 [p7] ¿Cómo se enteran de que un huésped es celíaco o intolerante? 1 recién cuando llega · 2 les avisa por mensaje · 3 lo pregunta su sistema de reservas antes de llegar (pre check-in)
 [p8] ¿Llevan las reservas con algún sistema, o con cuaderno, Excel o el calendario de Airbnb o Booking? 1 sin sistema · 2 con un sistema de gestión
 [p6] (solo si sirven comida) ¿Les gustaría aparecer gratis en una guía de alojamientos aptos para celíacos e intolerantes a la lactosa? 1 sí · 2 no
+No digas "última pregunta" salvo en la que de verdad es la última (p6 si sirven comida; p8 si no). No cierres sin haber preguntado p8 y, si sirven comida, p6.
 
 AL TERMINAR
 Agradecé y mandá el regalo, copiando el link letra por letra: si sirven comida, el manual "Sin gluten, sin lactosa": loomisuite.net/manual?m=sintacc ; si no, el manual de hospitalidad: loomisuite.net/manual. Después poné <<FIN>>.
@@ -199,6 +200,15 @@ export function isAutoReply(text) {
   // Dos señales juntas (o una y "automático"): una persona que contesta la encuesta casi nunca escribe así
   const n = signs.filter((r) => r.test(t)).length;
   return n >= 2 || (n >= 1 && /automatic/.test(t));
+}
+
+/** Preguntas que faltan antes de cerrar: siempre p8 (sistema); si sirven comida (p1 = 1 o 2), también p6 (guía) */
+export function missingSurvey(answers) {
+  const a = answers || {};
+  const out = [];
+  if (!a.p8) out.push('p8');
+  if ((a.p1 === 1 || a.p1 === 2) && !a.p6) out.push('p6');
+  return out;
 }
 
 /** Saca de la respuesta de Claude las marcas de la encuesta */
@@ -369,8 +379,27 @@ async function handleSurvey(env, event, accountId, conversationId, incoming, his
   if (!res.ok) return; // sin respuesta: lo ve Gabi en el celular
   const data = await res.json();
   const raw = (data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n');
-  const parsed = parseSurveyReply(raw);
+  let parsed = parseSurveyReply(raw);
   if (parsed.silent) return;
+  // 10/11: cerró sin preguntar el sistema ni la guía. Si quiere cerrar y faltan, se le pide que pregunte lo que falta.
+  const missing = missingSurvey(parsed.answers);
+  if (parsed.done && !parsed.handoff && missing.length && Object.keys(parsed.answers).length) {
+    const retry = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 600,
+        thinking: { type: 'disabled' },
+        system: `${buildSurveyPrompt(opener)}\n\nATENCIÓN: todavía falta preguntar ${missing.join(' y ')}. No cierres ni mandes el regalo: agradecé lo último que dijeron y hacé la próxima pregunta que falta.`,
+        messages,
+      }),
+    });
+    if (retry.ok) {
+      const again = parseSurveyReply(((await retry.json()).content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n'));
+      if (again.text && !again.silent) parsed = again;
+    }
+  }
   await saveSurvey(env, event, parsed);
   let reply = parsed.text
     .replace(/\*\*(.+?)\*\*/g, '*$1*')

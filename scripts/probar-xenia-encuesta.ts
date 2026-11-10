@@ -4,7 +4,7 @@
  * Se corre con: npm run probar:encuesta
  */
 import assert from 'node:assert/strict';
-import { isAutoReply, isSurveyOpener, parseSurveyReply, senderPhone, surveyState, startedByHuman } from '../functions/api/whatsapp/zernio.js';
+import { isAutoReply, isSurveyOpener, missingSurvey, parseSurveyReply, senderPhone, surveyState, startedByHuman } from '../functions/api/whatsapp/zernio.js';
 
 const MARK = '​';
 const END = '⁠';
@@ -89,6 +89,13 @@ prueba('bienvenidas automáticas de WhatsApp Business: no se contestan', () => {
   assert.equal(isAutoReply('Este es un mensaje automático. Te contestamos a la brevedad.'), true);
   assert.equal(isAutoReply('Sí, el desayuno está incluido'), false);
   assert.equal(isAutoReply('Hola, sí ofrecemos desayuno. Gracias por comunicarse, cualquier cosa estamos.'), false);
+});
+
+prueba('no cierra sin preguntar el sistema y, si sirven comida, la guía', () => {
+  assert.deepEqual(missingSurvey({ p1: 1, p2: 3, p3: 1, p4: 2, p5: 2, p7: 2 }), ['p8', 'p6']);
+  assert.deepEqual(missingSurvey({ p1: 4 }), ['p8']);
+  assert.deepEqual(missingSurvey({ p1: 4, p8: 1 }), []);
+  assert.deepEqual(missingSurvey({ p1: 2, p8: 2, p6: 1 }), []);
 });
 
 prueba('teléfono de quien escribe', () => {
