@@ -41,6 +41,15 @@ prueba('chat de encuesta: Xenia sigue mientras Gabi no escriba otra cosa', () =>
   assert.equal(startedByHuman(h), true, 'para el resto de los chats empezados por Gabi, Xenia sigue callada');
 });
 
+prueba('un número que ya había chateado antes: cuenta desde el último mensaje de encuesta', () => {
+  const h = [ellos('Hola, quiero la demo'), xenia('¡Acá la tenés!'), gabi('Gracias por escribir'), gabi(opener), ellos('sí')];
+  const s = surveyState(h);
+  assert.equal(s.survey, true);
+  assert.equal(s.takenOver, false);
+  assert.equal(s.ended, false);
+  assert.deepEqual(s.after.map((m: any) => m.message), ['sí']);
+});
+
 prueba('si Gabi escribe a mano después, Xenia deja ese chat', () => {
   const s = surveyState([gabi(opener), ellos('sí'), gabi('¡Hola! Te llamo en un rato')]);
   assert.equal(s.takenOver, true);

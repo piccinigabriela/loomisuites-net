@@ -122,15 +122,25 @@ export function startedByHuman(msgs) {
 /** El primer mensaje de la encuesta sin TACC (plantilla del CRM): "relevando/relevamiento … celíacos" */
 export const isSurveyOpener = (text) => /relev(ando|amiento)/i.test(String(text || '')) && /cel[ií]ac/i.test(String(text || ''));
 
-/** Estado de la encuesta por charla en este chat */
+/**
+ * Estado de la encuesta por charla en este chat. Cuenta desde el ÚLTIMO mensaje de encuesta que mandó Gabi a mano
+ * (10/11: con un número que ya había chateado antes con Loomi, el primer mensaje del historial no era la encuesta y Xenia no seguía).
+ */
 export function surveyState(msgs) {
   const list = msgs.filter((m) => String(m.message || '').trim());
-  const first = list[0];
-  if (!first || !isHuman(first) || !isSurveyOpener(first.message)) return { survey: false };
-  const rest = list.slice(1);
+  let idx = -1;
+  for (let i = list.length - 1; i >= 0; i--) {
+    if (isHuman(list[i]) && isSurveyOpener(list[i].message)) {
+      idx = i;
+      break;
+    }
+  }
+  if (idx < 0) return { survey: false };
+  const rest = list.slice(idx + 1);
   return {
     survey: true,
-    opener: String(first.message || '').replace(new RegExp(`[${MARK}${END}]`, 'g'), '').trim(),
+    opener: String(list[idx].message || '').replace(new RegExp(`[${MARK}${END}]`, 'g'), '').trim(),
+    after: rest,
     takenOver: rest.some((m) => isHuman(m)),
     ended: rest.some((m) => m.direction !== 'incoming' && String(m.message || '').includes(END)),
   };
@@ -281,7 +291,7 @@ async function handle(env, event) {
   if (sv.survey) {
     // Encuesta por charla: la sigue Xenia salvo que Gabi haya escrito a mano después, la hayan pasado al equipo o ya terminó
     if (sv.takenOver || sv.ended) return;
-    await handleSurvey(env, event, accountId, conversationId, incoming, history, sv.opener);
+    await handleSurvey(env, event, accountId, conversationId, incoming, sv.after, sv.opener);
     return;
   }
   if (humanRecently(history) || startedByHuman(history)) return;
