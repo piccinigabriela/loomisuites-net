@@ -84,7 +84,8 @@ prueba('bienvenidas automáticas de WhatsApp Business: no se contestan', () => {
     isAutoReply('🌲🌳🌊 Gracias por comunicarse con Cabañas Bosque y Mar, ubicado a 2 cuadras del mar 🏖️ y a 3 del Centro Comercial. Contamos con cabañas de 2 y 3 ambientes. Nuestro horario de atención es de 9 hs a 21 hs. En breve le respondemos.😊'),
     true
   );
-  assert.equal(isAutoReply('Hola! Gracias por tu mensaje, en breve te respondemos'), false, 'corto y sin "automático": puede ser una persona');
+  assert.equal(isAutoReply('Hola! Gracias por tu mensaje, en breve te respondemos'), true, 'saludo automático corto');
+  assert.equal(isAutoReply('Gracias por comunicarse! Sí, tenemos desayuno incluido'), false, 'una señal sola: es una persona');
   assert.equal(isAutoReply('Este es un mensaje automático. Te contestamos a la brevedad.'), true);
   assert.equal(isAutoReply('Sí, el desayuno está incluido'), false);
   assert.equal(isAutoReply('Hola, sí ofrecemos desayuno. Gracias por comunicarse, cualquier cosa estamos.'), false);
