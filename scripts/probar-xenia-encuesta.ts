@@ -4,7 +4,7 @@
  * Se corre con: npm run probar:encuesta
  */
 import assert from 'node:assert/strict';
-import { isSurveyOpener, parseSurveyReply, senderPhone, surveyState, startedByHuman } from '../functions/api/whatsapp/zernio.js';
+import { isAutoReply, isSurveyOpener, parseSurveyReply, senderPhone, surveyState, startedByHuman } from '../functions/api/whatsapp/zernio.js';
 
 const MARK = '​';
 const END = '⁠';
@@ -77,6 +77,17 @@ prueba('lee los datos y las marcas de la respuesta de Claude', () => {
   assert.equal(parseSurveyReply('Te escribe el equipo por acá. <<EQUIPO>>').handoff, true);
   assert.equal(parseSurveyReply('<<SILENCIO>>').silent, true);
   assert.deepEqual(parseSurveyReply('Hola <<DATOS:{roto}>>').answers, {});
+});
+
+prueba('bienvenidas automáticas de WhatsApp Business: no se contestan', () => {
+  assert.equal(
+    isAutoReply('🌲🌳🌊 Gracias por comunicarse con Cabañas Bosque y Mar, ubicado a 2 cuadras del mar 🏖️ y a 3 del Centro Comercial. Contamos con cabañas de 2 y 3 ambientes. Nuestro horario de atención es de 9 hs a 21 hs. En breve le respondemos.😊'),
+    true
+  );
+  assert.equal(isAutoReply('Hola! Gracias por tu mensaje, en breve te respondemos'), false, 'corto y sin "automático": puede ser una persona');
+  assert.equal(isAutoReply('Este es un mensaje automático. Te contestamos a la brevedad.'), true);
+  assert.equal(isAutoReply('Sí, el desayuno está incluido'), false);
+  assert.equal(isAutoReply('Hola, sí ofrecemos desayuno. Gracias por comunicarse, cualquier cosa estamos.'), false);
 });
 
 prueba('teléfono de quien escribe', () => {

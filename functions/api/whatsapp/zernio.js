@@ -158,7 +158,7 @@ CÓMO
 - No vendas ni hables de Loomi. Si preguntan qué es Loomi, piden precios o una demo, o la charla se va a otro tema: respondé en una frase que el equipo de Loomi les escribe por este mismo chat y agregá <<EQUIPO>>. Desde ahí no seguís.
 - No nombres a ninguna persona. Si preguntan con quién hablan, sos Xenia, la asistente con inteligencia artificial de Loomi Suite.
 - Si dicen que no quieren contestar o se molestan: agradecé con amabilidad, despedite y poné <<FIN>>.
-- Si el mensaje es una respuesta automática o un bot ("gracias por comunicarte, te responderemos a la brevedad"), respondé exactamente <<SILENCIO>>.
+- Si el mensaje es una bienvenida o respuesta automática (por ejemplo "Gracias por comunicarse con Cabañas…, nuestro horario de atención es…, en breve le respondemos"), aunque traiga datos del alojamiento, respondé exactamente <<SILENCIO>>: se espera a que conteste una persona.
 
 PREGUNTAS (en este orden; entre corchetes el código y las opciones)
 [p1] ¿Ofrecen desayuno? 1 sí, incluido · 2 sí, con cargo · 3 no, pero hay cocina equipada · 4 no
@@ -176,6 +176,29 @@ Agradecé y mandá el regalo, copiando el link letra por letra: si sirven comida
 
 DATOS (obligatorio)
 Al final de cada respuesta, en una línea aparte, agregá <<DATOS:{...}>> con todas las respuestas que tengas hasta ahora, como números (por ejemplo {"p1":1,"p2":2}), y "resumen": una frase con lo importante que dijeron, con sus palabras (por ejemplo el nombre del sistema que usan). Esa línea no la ve el alojamiento.`;
+}
+
+/**
+ * ¿Es la bienvenida automática de WhatsApp Business del alojamiento? (10/11: "Gracias por comunicarse con Cabañas…
+ * Nuestro horario de atención es… En breve le respondemos"). A eso no se contesta: se espera a que escriba una persona.
+ */
+export function isAutoReply(text) {
+  const t = String(text || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+  const signs = [
+    /gracias por (comunicarse|comunicarte|contactarse|contactarte|contactarnos|escribirnos|tu mensaje|su mensaje|su consulta|tu consulta)/,
+    /(en breve|a la brevedad|lo antes posible|pronto) (le |te )?(respond|contest|comunic)/,
+    /(le|te) (respondemos|responderemos|contestamos|contestaremos)/,
+    /horario de atencion/,
+    /mensaje automatico|respuesta automatica/,
+    /(no estamos disponibles|fuera de horario|estamos fuera)/,
+    /thanks for (contacting|reaching|your message)|we will (get back|reply|respond)/,
+  ];
+  // Dos señales juntas (o una y "automático"): una persona que contesta la encuesta casi nunca escribe así
+  const n = signs.filter((r) => r.test(t)).length;
+  return n >= 2 || (n >= 1 && /automatic/.test(t));
 }
 
 /** Saca de la respuesta de Claude las marcas de la encuesta */
@@ -328,6 +351,7 @@ async function handle(env, event) {
 }
 
 async function handleSurvey(env, event, accountId, conversationId, incoming, history, opener) {
+  if (isAutoReply(incoming)) return; // bienvenida automática del alojamiento: se espera a la persona
   if (!incoming) {
     await send(env, accountId, conversationId, '¡Gracias! Por ahora leo solo mensajes escritos: ¿me lo podés escribir? 😊');
     return;
