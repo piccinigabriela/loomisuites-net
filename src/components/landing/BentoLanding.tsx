@@ -893,7 +893,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
                 <div className="space-y-3 text-xs">
                   {[
                     ['¿El precio es en pesos o en dólares?', 'El precio es en dólares. Lo pagás en pesos por transferencia, al dólar MEP del día, o en dólares por Payoneer con 10% de descuento.'],
-                    ['¿Loomi emite facturas de AFIP / ARCA?', 'No. Loomi organiza reservas, cobros y equipo. Si facturás, seguís usando tu facturador de siempre.'],
+                    ['¿Loomi emite facturas de AFIP / ARCA?', 'No. Loomi organiza reservas, cobros y equipo. Pero en cada reserva te deja los datos para facturar listos para copiar y pegar en el facturador de ARCA o en el que uses.'],
                     ['¿Cuánto tarda pasar a Loomi?', 'Unidades y tarifas, unos 15 minutos. Las reservas de Airbnb y Booking entran solas en cuanto pegás los links de calendario, y las que tengas en Excel u otro sistema se importan desde un archivo. Si preferís, te las cargamos nosotros sin costo. No hace falta capacitación: dentro de la app, Xenia te explica cómo hacer cada cosa.'],
                     ['¿Cuántos usuarios incluye?', 'Los dos planes incluyen las cuentas que necesite tu equipo: recepción, limpieza y administración, sin costo por usuario.'],
                     ['¿Cómo es el soporte?', 'Por WhatsApp, de 8 a 22 hs (hora de Argentina), con una persona real que conoce el sistema.'],

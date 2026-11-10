@@ -62,6 +62,7 @@ import { GuestNoteBox } from '../guests/GuestNote';
 import { ChannelSelect } from '../common/ChannelSelect';
 import { channelLabel, channelRate, channelValue, decodeChannel } from '../../lib/origins';
 import { PaymentRequest } from '../common/PaymentRequest';
+import { InvoiceData } from '../common/InvoiceData';
 import type { PaymentSettings } from './mobile/paymentMessage';
 import { depositAmount } from '../../lib/publicSite';
 
@@ -1533,6 +1534,17 @@ ${paymentsListStr}
                     </div>
                   )}
                 </div>
+              )}
+
+              {/* Datos para facturar: Loomi no factura, deja los datos listos para copiar */}
+              {userRole !== 'housekeeping' && !isEmployeeMode && reservation.status !== 'cancelled' && (
+                <InvoiceData
+                  reservation={reservation}
+                  unitName={property?.name || ''}
+                  precheckin={precheckin}
+                  paid={totalPaidSettlement}
+                  currency={settlementCurrency}
+                />
               )}
 
               {/* Action triggers */}

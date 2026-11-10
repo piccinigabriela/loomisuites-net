@@ -205,7 +205,8 @@ más las líneas de atribución que indique la sesión. Después `git push origi
   con la fecha de alta, `planPriceUsd` en `billing.ts`). No hay plan Signature.
   Los precios base salen de `config/billing` (Panel → Cobro y precios); la promo está en el código. Se pagan por transferencia en pesos al dólar MEP del día (redondeado a $100) o por Payoneer en dólares con 10% de descuento. Sin IPC, Mercado Pago ni PayPal por ahora.
 - Diseños especiales de Tu Web: pago único de USD 70 cada uno (23/10), se cobra a mano y se habilita en el Panel; los tiene quien los quiere.
-- Una moneda de liquidación por complejo. AFIP no interesa.
+- Una moneda de liquidación por complejo. Loomi no factura (10/11: por ahora solo se recomienda un facturador); en la ficha, "Datos para facturar"
+  (`components/common/InvoiceData.tsx`) deja nombre, documento del pre check-in, concepto, período e importe para copiar y pegar.
 - "Tu Web": consulta de disponibilidad + precio + pedido por WhatsApp (sin cobro ni confirmación automática: con iCal cada
   15 min habría riesgo de doble reserva). Probada con Catalinas el 23/10: la landing ya no dice "próximamente".
 - Textos de la landing: honestos con iCal (no es instantáneo) y WhatsApp (mensajes listos, se envían con un toque).

@@ -137,7 +137,7 @@ const BLOCKS: Block[] = [
 ];
 
 const NOT_YET = [
-  'No emite facturas.',
+  'No emite facturas: en cada reserva te deja los datos listos para copiar y pegar en el facturador de ARCA o en el que uses.',
   'No cobra por vos: el huésped te paga directo, por transferencia o con tu propio link de Mercado Pago, PayPal o Payoneer, que Loomi pone en el mensaje. Sin pasarela ni comisión.',
   'No se conecta con cerraduras inteligentes: funciona con llaves comunes, y si tenés cerradura con teclado, cargás el código de cada reserva y va en el mensaje de bienvenida.',
 ];

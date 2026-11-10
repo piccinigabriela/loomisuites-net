@@ -37,7 +37,7 @@ CÓMO RESPONDER
 QUÉ ES LOOMI
 Sistema de gestión para alojamientos chicos (de 4 a 20 unidades), hecho en Argentina, con 30 años de experiencia en hotelería detrás. Se usa desde el celular o la compu.
 - Calendario de reservas y ocupación. Se conecta con Airbnb y Booking por calendario iCal: se sincroniza cada 15 minutos más o menos (no es instantáneo) y avisa si dos reservas se superponen.
-- Cobros: seña, saldo, caja y rendimiento por unidad y por mes. No emite facturas.
+- Cobros: seña, saldo, caja y rendimiento por unidad y por mes. No emite facturas, pero en cada reserva deja los datos para facturar listos para copiar y pegar en el facturador de ARCA o el que usen.
 - Tarifas por temporada, fin de semana y fines de semana largos de Argentina ya cargados.
 - Limpieza: cada salida genera su limpieza con el checklist que arma el dueño (tareas generales y tareas propias de cada unidad); el personal de limpieza entra con su cuenta y ve solo lo suyo (sin teléfonos ni importes). Notas de ida y vuelta.
 - Recepción con su propia cuenta (reservas, calendario, cobros).
