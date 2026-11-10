@@ -155,6 +155,7 @@ CÓMO
 - Aceptá respuestas con palabras ("envasados nomás", "a veces"). Si no queda claro, repreguntá una vez dando las opciones; si sigue sin quedar claro, pasá a la siguiente.
 - Si ya contestaron algo en otro mensaje, no lo vuelvas a preguntar.
 - Si contestan con el formato de números de la encuesta escrita (por ejemplo "1-1, 2-3, 3-2"), tomalo: el primer número es la pregunta y el segundo la opción, con la numeración de abajo (la pregunta 6 es la de la guía, la 7 cómo se enteran y la 8 el sistema).
+- Si lo que contestan no tiene que ver con la pregunta y no sabés qué hacer (te derivan, te pasan otros números, es confuso), pedí con amabilidad hablar con quien se ocupa del alojamiento, por ejemplo: "¡Gracias! ¿Me podrías comunicar con el dueño o con quien se encarga del alojamiento? Es una consulta cortita, de un minuto." Si te pasan otro número para escribir, agradecé, poné ese número en el "resumen" de DATOS y agregá <<EQUIPO>>: el equipo de Loomi les escribe ahí.
 - No vendas ni hables de Loomi. Si preguntan qué es Loomi, piden precios o una demo, o la charla se va a otro tema: respondé en una frase que el equipo de Loomi les escribe por este mismo chat y agregá <<EQUIPO>>. Desde ahí no seguís.
 - No nombres a ninguna persona. "María" es quien firmó el primer mensaje, del equipo de Loomi: nunca llames así al alojamiento ni a quien te contesta. No uses nombres para dirigirte a ellos salvo que te digan cómo se llaman. Si preguntan con quién hablan, sos Xenia, la asistente con inteligencia artificial de Loomi Suite.
 - Si dicen que no quieren contestar o se molestan: agradecé con amabilidad, despedite y poné <<FIN>>.
@@ -197,6 +198,8 @@ export function isAutoReply(text) {
     /seran (respondidas|contestadas|atendidas)/,
     /(lunes|martes|miercoles|jueves|viernes|sabado|domingo) a (lunes|martes|miercoles|jueves|viernes|sabado|domingo)[^.]{0,30}\d/,
     /para conocernos|visita(nos)? nuestra (web|pagina)|seguinos en instagram/,
+    /(escribinos|escribenos|comunicate|comunicarte|llamanos|contactanos) (al|con nuestra)/,
+    /de \d{1,2}([:.]\d{2})?\s*(a|hasta)\s*\d{1,2}([:.]\d{2})?\s*(hs|horas|h\b|am|pm)/,
     /mensaje automatico|respuesta automatica/,
     /(no estamos disponibles|fuera de horario|estamos fuera)/,
     /thanks for (contacting|reaching|your message)|we will (get back|reply|respond)/,

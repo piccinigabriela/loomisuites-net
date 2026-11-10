@@ -93,6 +93,11 @@ prueba('bienvenidas automáticas de WhatsApp Business: no se contestan', () => {
     true
   );
   assert.equal(isAutoReply('Buenos dias, si ofrecemos desayunos sin tacc tambien'), false);
+  assert.equal(
+    isAutoReply('¡Hola! 👋 Gracias por comunicarte con *GROW* Si estás alojado y necesitas ayuda escribinos al: 👉🏻 2255601371 de 8:00 a 20:00hs Desde las 20:00 hs en adelante podés comunicarte con nuestra guardia al: 1136882242 Para averiguar por estadías: 1131794028 Muchas gracias 🛎️'),
+    true
+  );
+  assert.equal(isAutoReply('Sí, desayuno incluido de 8 a 11 hs'), false, 'un horario solo no alcanza');
   assert.equal(isAutoReply('Hola, sí ofrecemos desayuno. Gracias por comunicarse, cualquier cosa estamos.'), false);
 });
 
