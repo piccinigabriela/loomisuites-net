@@ -58,6 +58,14 @@ Sin resolver (hay que volver a preguntar):
 4. Credenciales del sandbox: usuario y clave, y si el hotel de prueba es `SANDBOX-PMS`.
 5. Cuál es nuestro código de PMS definitivo para producción (después de las pruebas).
 
+### Extras de Aiosell (lista que pasó Gabi el 10/11)
+- Usuario adicional: USD 5 por usuario por mes (usuarios del panel de Aiosell, no de Loomi: los clientes no entran a Aiosell).
+- Marca blanca: USD 12 por mes (sin cargo para socios). Alta: USD 15 una vez (sin cargo para socios).
+- Precios dinámicos (RMS): USD 5 por aviso o habitación. No hace falta: los precios salen de Tarifas de Loomi.
+- Publicación en OTA: USD 100 por propiedad (armar el aviso). No hace falta: los clientes ya están publicados.
+- Motor de reservas con Google: USD 15 una vez + USD 10 por propiedad. No hace falta: Loomi tiene Tu Web.
+- Cobro (10/11): cabaña con aviso propio = alquiler temporario, USD 5; tipo de habitación con varias unidades = hotel, USD 10 por complejo.
+
 ### Más respuestas (7/11, grupo de WhatsApp)
 - Cobro: si en la OTA figura como **un tipo de habitación con 7 unidades de inventario**, lo cobran como **un hotel** (USD 10). Falta saber qué pasa con Airbnb, donde cada cabaña es un aviso.
 - Sandbox: se puede probar con código de socio `sample-pms` y basic auth (usuario y clave los pasó Aswin por WhatsApp; **no van en el repo**, van como secrets `AIOSELL_USER` y `AIOSELL_PASSWORD`).
