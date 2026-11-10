@@ -47,7 +47,7 @@ const USE_CASES: Array<{ name: string; place: string; status: string; line: stri
   {
     name: 'Catalinas',
     place: 'Buenos Aires',
-    status: 'Usa Loomi todos los días desde octubre de 2026',
+    status: 'Usa Loomi todos los días',
     line: 'Cuatro departamentos temporarios administrados para su propietario.',
     uses: [
       'Reservas de Airbnb sincronizadas por calendario',
