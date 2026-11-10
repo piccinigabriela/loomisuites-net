@@ -36,6 +36,11 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   en las últimas 12 h (lo de Xenia lleva una marca invisible al final), ni en uno que empezó Gabi (`startedByHuman`), ni a proveedores, publicidad o bots
   (Claude responde `<<SILENCIO>>` y no se manda nada; 6/11, le había contestado al bot de Aiosell). Audios: pide que escriban. Secrets: `ZERNIO_API_KEY`, `ZERNIO_WEBHOOK_SECRET`.
   Para apagarla: desactivar el webhook en Zernio.
+  Encuesta por charla (10/11): si el chat lo empezó Gabi con la plantilla de la encuesta sin TACC del CRM ("relevando… celíacos", `isSurveyOpener`),
+  Xenia la sigue (`surveyState`, `buildSurveyPrompt`, `handleSurvey`): una pregunta por mensaje (p1–p8 del CRM), entiende palabras, manda el manual
+  al final y guarda en el CRM de prospectos (Supabase vnfgitgadadjjjciftsa, RPC `crm_xenia_encuesta` con la clave publicable + secret
+  `CRM_XENIA_SECRET`; la clave vive en `crm_private`, sin políticas). Si no encuentra el teléfono en `crm_leads`, lo deja en `crm_survey_inbox`.
+  Gabi escribe a mano en ese chat, <<EQUIPO>> (preguntan otra cosa) o <<FIN>>: Xenia deja el chat (marca invisible END U+2060). Pruebas: `npm run probar:encuesta`.
 - Xenia para huéspedes (guía y Tu Web): `functions/api/xenia/huesped.js` (POST `/api/xenia/huesped`). El navegador manda solo la pregunta;
   la información la lee el servidor de `publicGuides/{uid}` o `publicSites/{slug}` con una cuenta de servicio (`functions-lib/firestoreAdmin.js`,
   secret `FIREBASE_SERVICE_ACCOUNT` = JSON de la clave, rol "Usuario de Cloud Datastore"; las cuentas de servicio no pasan por App Check).

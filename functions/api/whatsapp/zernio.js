@@ -8,7 +8,13 @@
  *   3. si es un audio o una imagen sin texto, pide que escriban,
  *   4. si no, le pide la respuesta a Claude con la información de Loomi y la manda por Zernio.
  *
- * Variables en Cloudflare Pages (Secrets): ANTHROPIC_API_KEY, ZERNIO_API_KEY, ZERNIO_WEBHOOK_SECRET.
+ * Encuesta por charla (10/11): si el chat lo empezó Gabi con el mensaje de la encuesta sin TACC (plantilla del CRM, "relevando… celíacos"),
+ * Xenia sigue la charla: una pregunta por mensaje, entiende respuestas con palabras y guarda lo que contestan en el CRM de prospectos
+ * (Supabase, función crm_xenia_encuesta, por teléfono). Si Gabi escribe a mano en ese chat, si preguntan otra cosa (<<EQUIPO>>)
+ * o cuando termina (<<FIN>>), Xenia deja de contestar en ese chat (marca invisible END en su último mensaje).
+ *
+ * Variables en Cloudflare Pages (Secrets): ANTHROPIC_API_KEY, ZERNIO_API_KEY, ZERNIO_WEBHOOK_SECRET y CRM_XENIA_SECRET
+ * (clave para guardar la encuesta en el CRM; sin ella la charla sigue igual pero no se guarda).
  * Para apagar a Xenia sin tocar código: desactivar el webhook en Zernio (Webhooks).
  */
 const ZERNIO = 'https://zernio.com/api/v1';
@@ -16,6 +22,11 @@ const MODEL = 'claude-haiku-5-5';
 const QUIET_HOURS = 12;
 // Marca invisible al final de lo que manda Xenia: así se distingue de lo que escribe Gabi desde la app
 const MARK = '​';
+// Marca invisible de "Xenia ya no sigue en este chat" (encuesta terminada o pasada al equipo); va antes de MARK
+const END = '⁠';
+// CRM de prospectos (Supabase de CheckInn). La clave publicable es pública; lo que protege es CRM_XENIA_SECRET.
+const CRM_URL = 'https://vnfgitgadadjjjciftsa.supabase.co';
+const CRM_KEY = 'sb_publishable_IKbP0ieyJfrtdguY39N7wg_RMjN_CxH';
 
 const ok = () => new Response('ok', { status: 200 });
 
@@ -85,7 +96,7 @@ Cuando tenga sentido, invitá a probar la demo o a crear la cuenta de prueba. No
 export function toClaudeMessages(msgs) {
   const out = [];
   for (const m of msgs) {
-    const text = String(m.message || '').replace(new RegExp(MARK, 'g'), '').trim();
+    const text = String(m.message || '').replace(new RegExp(`[${MARK}${END}]`, 'g'), '').trim();
     if (!text) continue;
     const role = m.direction === 'incoming' ? 'user' : 'assistant';
     if (!out.length && role !== 'user') continue;
@@ -106,6 +117,114 @@ const isHuman = (m) => {
 export function startedByHuman(msgs) {
   const first = msgs.find((m) => String(m.message || '').trim());
   return Boolean(first && isHuman(first));
+}
+
+/** El primer mensaje de la encuesta sin TACC (plantilla del CRM): "relevando/relevamiento … celíacos" */
+export const isSurveyOpener = (text) => /relev(ando|amiento)/i.test(String(text || '')) && /cel[ií]ac/i.test(String(text || ''));
+
+/** Estado de la encuesta por charla en este chat */
+export function surveyState(msgs) {
+  const list = msgs.filter((m) => String(m.message || '').trim());
+  const first = list[0];
+  if (!first || !isHuman(first) || !isSurveyOpener(first.message)) return { survey: false };
+  const rest = list.slice(1);
+  return {
+    survey: true,
+    opener: String(first.message || '').replace(new RegExp(`[${MARK}${END}]`, 'g'), '').trim(),
+    takenOver: rest.some((m) => isHuman(m)),
+    ended: rest.some((m) => m.direction !== 'incoming' && String(m.message || '').includes(END)),
+  };
+}
+
+export function buildSurveyPrompt(opener) {
+  return `Sos Xenia, del equipo de Loomi Suite. Estás haciendo por WhatsApp un relevamiento corto de alojamientos aptos para celíacos e intolerantes a la lactosa. El primer mensaje ya lo mandó el equipo: "${String(opener || '').slice(0, 600)}". Ahora seguís vos la charla.
+
+CÓMO
+- Una sola pregunta por mensaje, corta y cálida, en español rioplatense con voseo (o en el idioma en que te escriban). Una o dos frases, sin listas ni títulos.
+- Antes de la pregunta, agradecé o comentá en pocas palabras lo que contestaron, sin exagerar.
+- Aceptá respuestas con palabras ("envasados nomás", "a veces"). Si no queda claro, repreguntá una vez dando las opciones; si sigue sin quedar claro, pasá a la siguiente.
+- Si ya contestaron algo en otro mensaje, no lo vuelvas a preguntar.
+- Si contestan con el formato de números de la encuesta escrita (por ejemplo "1-1, 2-3, 3-2"), tomalo: el primer número es la pregunta y el segundo la opción, con la numeración de abajo (la pregunta 6 es la de la guía, la 7 cómo se enteran y la 8 el sistema).
+- No vendas ni hables de Loomi. Si preguntan qué es Loomi, piden precios o una demo, o la charla se va a otro tema: respondé en una frase que el equipo de Loomi les escribe por este mismo chat y agregá <<EQUIPO>>. Desde ahí no seguís.
+- No nombres a ninguna persona. Si preguntan con quién hablan, sos Xenia, la asistente con inteligencia artificial de Loomi Suite.
+- Si dicen que no quieren contestar o se molestan: agradecé con amabilidad, despedite y poné <<FIN>>.
+- Si el mensaje es una respuesta automática o un bot ("gracias por comunicarte, te responderemos a la brevedad"), respondé exactamente <<SILENCIO>>.
+
+PREGUNTAS (en este orden; entre corchetes el código y las opciones)
+[p1] ¿Ofrecen desayuno? 1 sí, incluido · 2 sí, con cargo · 3 no, pero hay cocina equipada · 4 no
+  Si p1 es 3 o 4 (no sirven comida): preguntá solo [p8] y terminá.
+[p2] ¿Tienen opciones sin TACC? 1 no · 2 productos envasados · 3 los preparan en la cocina, con cuidados · 4 cocina 100 % sin gluten
+[p3] ¿Y sin lactosa? 1 no · 2 a pedido · 3 siempre
+[p4] ¿Se los piden los huéspedes? 1 nunca · 2 a veces · 3 seguido
+[p5] ¿Lo cuentan en su web o en sus avisos? 1 sí · 2 no
+[p7] ¿Cómo se enteran de que un huésped es celíaco o intolerante? 1 recién cuando llega · 2 les avisa por mensaje · 3 lo pregunta su sistema de reservas antes de llegar (pre check-in)
+[p8] ¿Llevan las reservas con algún sistema, o con cuaderno, Excel o el calendario de Airbnb o Booking? 1 sin sistema · 2 con un sistema de gestión
+[p6] (solo si sirven comida) ¿Les gustaría aparecer gratis en una guía de alojamientos aptos para celíacos e intolerantes a la lactosa? 1 sí · 2 no
+
+AL TERMINAR
+Agradecé y mandá el regalo, copiando el link letra por letra: si sirven comida, el manual "Sin gluten, sin lactosa": loomisuite.net/manual?m=sintacc ; si no, el manual de hospitalidad: loomisuite.net/manual. Después poné <<FIN>>.
+
+DATOS (obligatorio)
+Al final de cada respuesta, en una línea aparte, agregá <<DATOS:{...}>> con todas las respuestas que tengas hasta ahora, como números (por ejemplo {"p1":1,"p2":2}), y "resumen": una frase con lo importante que dijeron, con sus palabras (por ejemplo el nombre del sistema que usan). Esa línea no la ve el alojamiento.`;
+}
+
+/** Saca de la respuesta de Claude las marcas de la encuesta */
+export function parseSurveyReply(text) {
+  let t = String(text || '');
+  let data = null;
+  const m = /<<\s*DATOS\s*:\s*(\{[\s\S]*?\})\s*>>/i.exec(t);
+  if (m) {
+    try {
+      data = JSON.parse(m[1]);
+    } catch {
+      data = null;
+    }
+    t = t.replace(m[0], '');
+  }
+  const done = /<<\s*FIN\s*>>/i.test(t);
+  const handoff = /<<\s*EQUIPO\s*>>/i.test(t);
+  const silent = /<<\s*SILENCIO\s*>>/i.test(t);
+  t = t.replace(/<<\s*(FIN|EQUIPO|SILENCIO)\s*>>/gi, '').replace(/<<[^>]*>>/g, '').trim();
+  const answers = {};
+  let summary = '';
+  if (data && typeof data === 'object') {
+    for (const [k, v] of Object.entries(data)) {
+      if (/^p[1-8]$/.test(k) && Number.isInteger(Number(v)) && Number(v) >= 1 && Number(v) <= 4) answers[k] = Number(v);
+    }
+    summary = String(data.resumen || data.summary || '').slice(0, 600);
+  }
+  return { text: t, answers, summary, done, handoff, silent };
+}
+
+/** Teléfono de quien escribe (Zernio: message.sender.phoneNumber; si no, lo que haya) */
+export function senderPhone(event) {
+  const s = event?.message?.sender || {};
+  const cands = [s.phoneNumber, s.id, event?.conversation?.participantId, event?.conversation?.participantPhone, event?.contact?.phone];
+  for (const c of cands) {
+    const d = String(c || '').replace(/\D/g, '');
+    if (d.length >= 8) return d;
+  }
+  return '';
+}
+
+async function saveSurvey(env, event, parsed) {
+  if (!env.CRM_XENIA_SECRET) return;
+  const phone = senderPhone(event);
+  if (!phone || (!Object.keys(parsed.answers).length && !parsed.done)) return;
+  try {
+    await fetch(`${CRM_URL}/rest/v1/rpc/crm_xenia_encuesta`, {
+      method: 'POST',
+      headers: { apikey: CRM_KEY, authorization: `Bearer ${CRM_KEY}`, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        p_secret: env.CRM_XENIA_SECRET,
+        p_phone: phone,
+        p_name: String(event?.message?.sender?.name || '').slice(0, 120) || null,
+        p_answers: parsed.answers,
+        p_done: parsed.done,
+        p_summary: parsed.summary || '',
+      }),
+    });
+  } catch {}
 }
 
 /** ¿Gabi escribió a mano en este chat hace poco? (mensajes salientes sin la marca de Xenia) */
@@ -155,9 +274,16 @@ async function handle(env, event) {
   // Últimos mensajes del chat (para el contexto y para saber si Gabi está atendiendo)
   let history = [];
   try {
-    const r = await zernio(env, `/inbox/conversations/${encodeURIComponent(conversationId)}/messages?accountId=${encodeURIComponent(accountId)}&limit=20&sortOrder=desc`);
+    const r = await zernio(env, `/inbox/conversations/${encodeURIComponent(conversationId)}/messages?accountId=${encodeURIComponent(accountId)}&limit=40&sortOrder=desc`);
     if (r.ok) history = ((await r.json()).messages || []).slice().reverse();
   } catch {}
+  const sv = surveyState(history);
+  if (sv.survey) {
+    // Encuesta por charla: la sigue Xenia salvo que Gabi haya escrito a mano después, la hayan pasado al equipo o ya terminó
+    if (sv.takenOver || sv.ended) return;
+    await handleSurvey(env, event, accountId, conversationId, incoming, history, sv.opener);
+    return;
+  }
   if (humanRecently(history) || startedByHuman(history)) return;
 
   if (!incoming) {
@@ -189,6 +315,38 @@ async function handle(env, event) {
     .trim();
   if (!reply || /<<\s*SILENCIO\s*>>/i.test(reply)) return; // proveedores, publicidad o bots: lo ve Gabi en el celular
   await send(env, accountId, conversationId, reply.slice(0, 3500));
+}
+
+async function handleSurvey(env, event, accountId, conversationId, incoming, history, opener) {
+  if (!incoming) {
+    await send(env, accountId, conversationId, '¡Gracias! Por ahora leo solo mensajes escritos: ¿me lo podés escribir? 😊');
+    return;
+  }
+  const messages = toClaudeMessages(history);
+  const last = messages[messages.length - 1];
+  if (!last) messages.push({ role: 'user', content: incoming.slice(0, 1500) });
+  else if (!last.content.includes(incoming.slice(0, 200))) last.content += `\n${incoming.slice(0, 1500)}`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({ model: MODEL, max_tokens: 600, thinking: { type: 'disabled' }, system: buildSurveyPrompt(opener), messages }),
+  });
+  if (!res.ok) return; // sin respuesta: lo ve Gabi en el celular
+  const data = await res.json();
+  const raw = (data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n');
+  const parsed = parseSurveyReply(raw);
+  if (parsed.silent) return;
+  await saveSurvey(env, event, parsed);
+  let reply = parsed.text
+    .replace(/\*\*(.+?)\*\*/g, '*$1*')
+    .replace(/^#+\s*/gm, '')
+    .replace(/\bloomi\s?s[a-z]{2,7}\.n[a-z]{1,2}\b/gi, 'loomisuite.net')
+    .trim();
+  if (!reply) return;
+  // Terminó o la pasó al equipo: la marca END hace que Xenia no siga en este chat
+  if (parsed.done || parsed.handoff) reply += END;
+  await send(env, accountId, conversationId, reply.slice(0, 1500));
 }
 
 export async function onRequestPost({ request, env, waitUntil }) {
