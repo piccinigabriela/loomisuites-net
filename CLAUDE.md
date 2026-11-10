@@ -40,7 +40,7 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Xenia la sigue (`surveyState`, `buildSurveyPrompt`, `handleSurvey`): una pregunta por mensaje (p1–p9 del CRM; no cierra sin p8, p9 y p6 si corresponden: `missingSurvey`), entiende palabras, manda el manual
   al final y guarda en el CRM de prospectos (Supabase vnfgitgadadjjjciftsa, RPC `crm_xenia_encuesta` con la clave publicable + secret
   `CRM_XENIA_SECRET`; la clave vive en `crm_private`, sin políticas). Si no encuentra el teléfono en `crm_leads`, lo deja en `crm_survey_inbox`.
-  Gabi escribe a mano en ese chat, <<EQUIPO>> (preguntan otra cosa) o <<FIN>>: Xenia deja el chat (marca invisible END U+2060). Pruebas: `npm run probar:encuesta`.
+  Gabi escribe a mano en ese chat, <<EQUIPO>> (preguntan otra cosa) o <<FIN>>: Xenia deja el chat (marca invisible END U+2060). Registro de lo que hace (ok, silencio, automático, errores de Claude o de envío) en `crm_xenia_log` (30 días). Claude con reintentos (`callClaude`). Pruebas: `npm run probar:encuesta`.
 - Xenia para huéspedes (guía y Tu Web): `functions/api/xenia/huesped.js` (POST `/api/xenia/huesped`). El navegador manda solo la pregunta;
   la información la lee el servidor de `publicGuides/{uid}` o `publicSites/{slug}` con una cuenta de servicio (`functions-lib/firestoreAdmin.js`,
   secret `FIREBASE_SERVICE_ACCOUNT` = JSON de la clave, rol "Usuario de Cloud Datastore"; las cuentas de servicio no pasan por App Check).

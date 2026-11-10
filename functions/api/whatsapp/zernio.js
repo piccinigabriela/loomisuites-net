@@ -258,6 +258,37 @@ export function senderPhone(event) {
   return '';
 }
 
+/** Registro corto de lo que hace Xenia en las encuestas (CRM: crm_xenia_log, 30 días), para entender por qué calló o falló */
+async function xlog(env, event, kind, detail = '') {
+  if (!env.CRM_XENIA_SECRET) return;
+  try {
+    await fetch(`${CRM_URL}/rest/v1/rpc/crm_xenia_log_add`, {
+      method: 'POST',
+      headers: { apikey: CRM_KEY, authorization: `Bearer ${CRM_KEY}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ p_secret: env.CRM_XENIA_SECRET, p_phone: senderPhone(event), p_kind: kind, p_detail: String(detail).slice(0, 500) }),
+    });
+  } catch {}
+}
+
+/** Claude con reintentos (10/11: con varias charlas a la vez puede responder 429/529 "ocupado" y Xenia quedaba callada) */
+async function callClaude(env, body) {
+  let last = null;
+  for (const wait of [0, 1500, 4000]) {
+    if (wait) await new Promise((r) => setTimeout(r, wait));
+    try {
+      last = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify(body),
+      });
+      if (last.ok || ![429, 500, 502, 503, 504, 529].includes(last.status)) return last;
+    } catch {
+      last = null;
+    }
+  }
+  return last;
+}
+
 async function saveSurvey(env, event, parsed) {
   if (!env.CRM_XENIA_SECRET) return;
   const phone = senderPhone(event);
@@ -310,7 +341,7 @@ async function zernio(env, path, init = {}) {
 }
 
 async function send(env, accountId, conversationId, text) {
-  await zernio(env, `/inbox/conversations/${encodeURIComponent(conversationId)}/messages`, {
+  return zernio(env, `/inbox/conversations/${encodeURIComponent(conversationId)}/messages`, {
     method: 'POST',
     body: JSON.stringify({ accountId, message: `${text}${MARK}` }),
   });
@@ -331,7 +362,10 @@ async function handle(env, event) {
   const sv = surveyState(history);
   if (sv.survey) {
     // Encuesta por charla: la sigue Xenia salvo que Gabi haya escrito a mano después, la hayan pasado al equipo o ya terminó
-    if (sv.takenOver || sv.ended) return;
+    if (sv.takenOver || sv.ended) {
+      await xlog(env, event, sv.takenOver ? 'callada-escribio-gabi' : 'callada-terminada', incoming.slice(0, 80));
+      return;
+    }
     await handleSurvey(env, event, accountId, conversationId, incoming, sv.after, sv.opener);
     return;
   }
@@ -369,7 +403,10 @@ async function handle(env, event) {
 }
 
 async function handleSurvey(env, event, accountId, conversationId, incoming, history, opener) {
-  if (isAutoReply(incoming)) return; // bienvenida automática del alojamiento: se espera a la persona
+  if (isAutoReply(incoming)) {
+    await xlog(env, event, 'automatico', incoming.slice(0, 120)); // bienvenida automática del alojamiento: se espera a la persona
+    return;
+  }
   // 10/11: la bienvenida automática quedaba pegada a la respuesta de la persona y Xenia se callaba. Se saca del historial.
   history = history.filter((m) => !(m.direction === 'incoming' && isAutoReply(m.message)));
   if (!incoming) {
@@ -381,31 +418,33 @@ async function handleSurvey(env, event, accountId, conversationId, incoming, his
   if (!last) messages.push({ role: 'user', content: incoming.slice(0, 1500) });
   else if (!last.content.includes(incoming.slice(0, 200))) last.content += `\n${incoming.slice(0, 1500)}`;
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: MODEL, max_tokens: 600, thinking: { type: 'disabled' }, system: buildSurveyPrompt(opener), messages }),
-  });
-  if (!res.ok) return; // sin respuesta: lo ve Gabi en el celular
+  const res = await callClaude(env, { model: MODEL, max_tokens: 600, thinking: { type: 'disabled' }, system: buildSurveyPrompt(opener), messages });
+  if (!res || !res.ok) {
+    let why = res ? `HTTP ${res.status}` : 'sin conexión';
+    try {
+      if (res) why += ` ${(await res.text()).slice(0, 200)}`;
+    } catch {}
+    await xlog(env, event, 'error-claude', why); // sin respuesta: lo ve Gabi en el celular
+    return;
+  }
   const data = await res.json();
   const raw = (data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n');
   let parsed = parseSurveyReply(raw);
-  if (parsed.silent) return;
+  if (parsed.silent) {
+    await xlog(env, event, 'silencio', `ante: ${incoming.slice(0, 120)}`);
+    return;
+  }
   // 10/11: cerró sin preguntar el sistema ni la guía. Si quiere cerrar y faltan, se le pide que pregunte lo que falta.
   const missing = missingSurvey(parsed.answers);
   if (parsed.done && !parsed.handoff && missing.length && Object.keys(parsed.answers).length) {
-    const retry = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 600,
-        thinking: { type: 'disabled' },
-        system: `${buildSurveyPrompt(opener)}\n\nATENCIÓN: todavía falta preguntar ${missing.join(' y ')}. No cierres ni mandes el regalo: agradecé lo último que dijeron y hacé la próxima pregunta que falta.`,
-        messages,
-      }),
+    const retry = await callClaude(env, {
+      model: MODEL,
+      max_tokens: 600,
+      thinking: { type: 'disabled' },
+      system: `${buildSurveyPrompt(opener)}\n\nATENCIÓN: todavía falta preguntar ${missing.join(' y ')}. No cierres ni mandes el regalo: agradecé lo último que dijeron y hacé la próxima pregunta que falta.`,
+      messages,
     });
-    if (retry.ok) {
+    if (retry && retry.ok) {
       const again = parseSurveyReply(((await retry.json()).content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n'));
       if (again.text && !again.silent) parsed = again;
     }
@@ -416,10 +455,18 @@ async function handleSurvey(env, event, accountId, conversationId, incoming, his
     .replace(/^#+\s*/gm, '')
     .replace(/\bloomi\s?s[a-z]{2,7}\.n[a-z]{1,2}\b/gi, 'loomisuite.net')
     .trim();
-  if (!reply) return;
+  if (!reply) {
+    await xlog(env, event, 'respuesta-vacia', raw.slice(0, 200));
+    return;
+  }
   // Terminó o la pasó al equipo: la marca END hace que Xenia no siga en este chat
   if (parsed.done || parsed.handoff) reply += END;
-  await send(env, accountId, conversationId, reply.slice(0, 1500));
+  const sent = await send(env, accountId, conversationId, reply.slice(0, 1500)).catch(() => null);
+  if (!sent || !sent.ok) {
+    await xlog(env, event, 'error-envio', sent ? `HTTP ${sent.status}` : 'sin conexión');
+    return;
+  }
+  await xlog(env, event, parsed.done ? 'fin' : parsed.handoff ? 'equipo' : 'ok', `ante: ${incoming.slice(0, 60)} → ${reply.slice(0, 80)}`);
 }
 
 export async function onRequestPost({ request, env, waitUntil }) {
