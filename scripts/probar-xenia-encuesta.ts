@@ -4,7 +4,7 @@
  * Se corre con: npm run probar:encuesta
  */
 import assert from 'node:assert/strict';
-import { isAutoReply, isSurveyOpener, missingSurvey, parseSurveyReply, senderPhone, surveyState, startedByHuman } from '../functions/api/whatsapp/zernio.js';
+import { arHour, isAutoReply, isSurveyOpener, needsNudge, missingSurvey, parseSurveyReply, senderPhone, surveyState, startedByHuman } from '../functions/api/whatsapp/zernio.js';
 
 const MARK = '​';
 const END = '⁠';
@@ -107,6 +107,22 @@ prueba('no cierra sin preguntar el sistema y, si sirven comida, la guía', () =>
   assert.deepEqual(missingSurvey({ p1: 4 }), ['p8']);
   assert.deepEqual(missingSurvey({ p1: 4, p8: 1 }), []);
   assert.deepEqual(missingSurvey({ p1: 2, p8: 2, p6: 1 }), []);
+});
+
+prueba('bienvenida con botones ("[Unsupported message]"): es automática', () => {
+  assert.equal(isAutoReply('[Unsupported message]'), true);
+});
+
+prueba('recordatorio: solo si después de la encuesta llegaron cosas automáticas y nadie más escribió', () => {
+  const auto = ellos('Gracias por comunicarte con Cabañas X. En breve te respondemos');
+  assert.equal(needsNudge(surveyState([gabi(opener), auto])), true);
+  assert.equal(needsNudge(surveyState([gabi(opener), auto, ellos('[Unsupported message]')])), true);
+  assert.equal(needsNudge(surveyState([gabi(opener)])), false, 'sin respuesta automática no hay ventana de 24 h');
+  assert.equal(needsNudge(surveyState([gabi(opener), auto, ellos('sí, incluido'), xenia('¡Bárbaro! ¿Y sin TACC?')])), false, 'ya contestó una persona');
+  assert.equal(needsNudge(surveyState([gabi(opener), auto, gabi('Hola, ¿me atienden?')])), false, 'escribió Gabi');
+  assert.equal(needsNudge(surveyState([gabi(opener), auto, xenia('Hola de nuevo 😊 ¿Me podría responder una persona?')])), false, 'ya se mandó');
+  assert.equal(arHour(Date.parse('2026-11-11T12:00:00Z')), 9);
+  assert.equal(arHour(Date.parse('2026-11-11T23:30:00Z')), 20);
 });
 
 prueba('teléfono de quien escribe', () => {

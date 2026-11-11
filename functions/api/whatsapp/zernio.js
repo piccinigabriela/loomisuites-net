@@ -13,6 +13,10 @@
  * (Supabase, función crm_xenia_encuesta, por teléfono). Si Gabi escribe a mano en ese chat, si preguntan otra cosa (<<EQUIPO>>)
  * o cuando termina (<<FIN>>), Xenia deja de contestar en ese chat (marca invisible END en su último mensaje).
  *
+ * Recordatorio (11/11): si el alojamiento solo mandó una respuesta automática (o algo que WhatsApp no deja leer, como botones),
+ * Xenia lo anota (crm_xenia_pendiente) y, 3 horas después y de 9 a 20 h, insiste una sola vez pidiendo que conteste una persona
+ * (`runNudges`, lo dispara Supabase cada 15 min por /api/whatsapp/recordatorio). Si ya contestó alguien o escribió Gabi, no lo manda.
+ *
  * Variables en Cloudflare Pages (Secrets): ANTHROPIC_API_KEY, ZERNIO_API_KEY, ZERNIO_WEBHOOK_SECRET y CRM_XENIA_SECRET
  * (clave para guardar la encuesta en el CRM; sin ella la charla sigue igual pero no se guarda).
  * Para apagar a Xenia sin tocar código: desactivar el webhook en Zernio (Webhooks).
@@ -186,6 +190,8 @@ Al final de cada respuesta, en una línea aparte, agregá <<DATOS:{...}>> con to
  * Nuestro horario de atención es… En breve le respondemos"). A eso no se contesta: se espera a que escriba una persona.
  */
 export function isAutoReply(text) {
+  // 11/11: bienvenidas con botones o catálogo llegan así; Xenia contestaba "no pude leer tu mensaje" a un robot
+  if (/^\s*\[unsupported message\]\s*$/i.test(String(text || ''))) return true;
   const t = String(text || '')
     .toLowerCase()
     .normalize('NFD')
@@ -208,6 +214,20 @@ export function isAutoReply(text) {
   const n = signs.filter((r) => r.test(t)).length;
   return n >= 2 || (n >= 1 && /automatic/.test(t));
 }
+
+/**
+ * ¿Hay que insistir? Después del mensaje de la encuesta solo llegaron cosas automáticas (Xenia no contestó nada
+ * porque eran bienvenidas o robots) y nadie de Loomi volvió a escribir.
+ */
+export function needsNudge(sv) {
+  return !!sv && sv.survey && !sv.takenOver && !sv.ended && sv.after.length > 0 && sv.after.every((m) => m.direction === 'incoming');
+}
+
+export const NUDGE_TEXT =
+  'Hola de nuevo 😊 ¿Me podría responder una persona del alojamiento? Es una consulta corta para una guía de alojamientos aptos para celíacos: ¿ofrecen desayuno a sus huéspedes?';
+
+/** Hora de Argentina (UTC−3, sin horario de verano) */
+export const arHour = (nowMs) => new Date(nowMs - 3 * 3600 * 1000).getUTCHours();
 
 /** Preguntas que faltan antes de cerrar: siempre p8 (sistema); si se enteran tarde (p7 = 1 o 2), p9 (pre check-in); si sirven comida, p6 (guía) */
 export function missingSurvey(answers) {
@@ -287,6 +307,56 @@ async function callClaude(env, body) {
     }
   }
   return last;
+}
+
+async function crmRpc(env, fn, args) {
+  return fetch(`${CRM_URL}/rest/v1/rpc/${fn}`, {
+    method: 'POST',
+    headers: { apikey: CRM_KEY, authorization: `Bearer ${CRM_KEY}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ p_secret: env.CRM_XENIA_SECRET, ...args }),
+  });
+}
+
+/** Anota el chat para el recordatorio (una sola vez por teléfono; runNudges decide si corresponde) */
+async function markPending(env, event, accountId, conversationId) {
+  const phone = senderPhone(event);
+  if (!env.CRM_XENIA_SECRET || !phone) return;
+  try {
+    await crmRpc(env, 'crm_xenia_pendiente', { p_phone: phone, p_account: accountId, p_conversation: conversationId });
+  } catch {}
+}
+
+/**
+ * Recordatorio de la encuesta: lo llama /api/whatsapp/recordatorio cada 15 minutos. De 9 a 20 h (Argentina) toma los chats
+ * anotados hace más de 3 horas y, si sigue sin contestar nadie, manda NUDGE_TEXT una vez.
+ */
+export async function runNudges(env, nowMs = Date.now()) {
+  const h = arHour(nowMs);
+  if (h < 9 || h >= 20) return { skipped: 'fuera de horario' };
+  const r = await crmRpc(env, 'crm_xenia_vencidos', {});
+  if (!r.ok) return { error: `CRM ${r.status}` };
+  const rows = await r.json();
+  const out = [];
+  for (const row of rows || []) {
+    let status = 'salteado';
+    try {
+      const hr = await zernio(env, `/inbox/conversations/${encodeURIComponent(row.conversation_id)}/messages?accountId=${encodeURIComponent(row.account_id)}&limit=40&sortOrder=desc`);
+      if (!hr.ok) status = `error-historial ${hr.status}`;
+      else {
+        const history = ((await hr.json()).messages || []).slice().reverse();
+        if (needsNudge(surveyState(history))) {
+          const sent = await send(env, row.account_id, row.conversation_id, NUDGE_TEXT);
+          status = sent.ok ? 'enviado' : `error-envio ${sent.status}`;
+        }
+      }
+    } catch (e) {
+      status = 'error';
+    }
+    await crmRpc(env, 'crm_xenia_recordado', { p_phone: row.phone, p_status: status }).catch(() => null);
+    await crmRpc(env, 'crm_xenia_log_add', { p_phone: row.phone, p_kind: 'recordatorio', p_detail: status }).catch(() => null);
+    out.push(status);
+  }
+  return { done: out };
 }
 
 async function saveSurvey(env, event, parsed) {
@@ -405,6 +475,7 @@ async function handle(env, event) {
 async function handleSurvey(env, event, accountId, conversationId, incoming, history, opener) {
   if (isAutoReply(incoming)) {
     await xlog(env, event, 'automatico', incoming.slice(0, 120)); // bienvenida automática del alojamiento: se espera a la persona
+    await markPending(env, event, accountId, conversationId);
     return;
   }
   // 10/11: la bienvenida automática quedaba pegada a la respuesta de la persona y Xenia se callaba. Se saca del historial.
@@ -432,6 +503,7 @@ async function handleSurvey(env, event, accountId, conversationId, incoming, his
   let parsed = parseSurveyReply(raw);
   if (parsed.silent) {
     await xlog(env, event, 'silencio', `ante: ${incoming.slice(0, 120)}`);
+    await markPending(env, event, accountId, conversationId);
     return;
   }
   // 10/11: cerró sin preguntar el sistema ni la guía. Si quiere cerrar y faltan, se le pide que pregunte lo que falta.
