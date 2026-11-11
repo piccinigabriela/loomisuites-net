@@ -44,7 +44,7 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   Recordatorio (11/11): si solo llegó una respuesta automática (o "[Unsupported message]", bienvenidas con botones), Xenia anota el chat
   (`crm_xenia_pendiente`, tabla `crm_xenia_pending`, uno por teléfono) y a las 3 h, de 9 a 20 h, manda una vez `NUDGE_TEXT` pidiendo que responda
   una persona (`runNudges`; `needsNudge`: nadie de Loomi escribió y no contestó una persona). Lo dispara Supabase cada 15 min (pg_cron
-  `xenia-recordatorio` + pg_net → POST `/api/whatsapp/recordatorio` con `x-xenia-secret`). Apagar: `select cron.unschedule('xenia-recordatorio');`. Claude con reintentos (`callClaude`). Pruebas: `npm run probar:encuesta`.
+  `xenia-recordatorio` + pg_net → POST `app.loomisuite.net/api/whatsapp/recordatorio` con `x-xenia-secret`; en el dominio sin app. daba 405). Apagar: `select cron.unschedule('xenia-recordatorio');`. Claude con reintentos (`callClaude`). Pruebas: `npm run probar:encuesta`.
 - Xenia para huéspedes (guía y Tu Web): `functions/api/xenia/huesped.js` (POST `/api/xenia/huesped`). El navegador manda solo la pregunta;
   la información la lee el servidor de `publicGuides/{uid}` o `publicSites/{slug}` con una cuenta de servicio (`functions-lib/firestoreAdmin.js`,
   secret `FIREBASE_SERVICE_ACCOUNT` = JSON de la clave, rol "Usuario de Cloud Datastore"; las cuentas de servicio no pasan por App Check).
