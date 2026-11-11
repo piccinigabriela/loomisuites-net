@@ -223,7 +223,7 @@ export const FeaturesPage: React.FC = () => {
               <div className="flex items-baseline justify-between gap-4">
                 <div>
                   <p className="text-lg font-bold text-white">Loomi Suite</p>
-                  <p className="text-base text-stone-200">Todo Loomi con channel manager (próximamente), más USD 6 por unidad conectada</p>
+                  <p className="text-base text-stone-200">Todo Loomi con channel manager (próximamente), más USD 6 por unidad conectada. Se conecta al contratarlo; en la prueba gratis, por iCal</p>
                 </div>
                 <p className="text-2xl font-bold text-white tabular-nums shrink-0">USD 45</p>
               </div>

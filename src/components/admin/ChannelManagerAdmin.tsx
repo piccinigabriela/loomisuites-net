@@ -27,6 +27,7 @@ export const ChannelManagerAdmin: React.FC<{ uid: string }> = ({ uid }) => {
   const [err, setErr] = useState('');
   const [confirmReal, setConfirmReal] = useState(false);
   const [confirmOff, setConfirmOff] = useState(false);
+  const [ownAccount, setOwnAccount] = useState(false);
 
   const load = async () => {
     setLoadError('');
@@ -39,6 +40,7 @@ export const ChannelManagerAdmin: React.FC<{ uid: string }> = ({ uid }) => {
       setUnits(cm?.units || {});
       setSendRates(cm?.rates?.send === true);
       setPercent(String(cm?.rates?.percent ?? 0));
+      setOwnAccount(cm?.ownAccount === true);
     } catch (e: any) {
       setLoadError(e?.message || 'No se pudo leer el estado.');
     }
@@ -51,6 +53,12 @@ export const ChannelManagerAdmin: React.FC<{ uid: string }> = ({ uid }) => {
 
   const connected = !!(state?.channelManager?.enabled && state?.hotel);
   const wasReal = state?.hotel?.mode === 'real';
+  const paid = state?.pay === 'paga';
+  const PAY_TEXT: Record<string, string> = {
+    prueba: 'Está en la prueba gratis.',
+    loomi: 'Paga el plan Loomi, no Loomi Suite.',
+    vencido: 'El abono está vencido.',
+  };
 
   const setUnit = (id: string, patch: Partial<ChannelUnitSetting>) => setUnits((u) => ({ ...u, [id]: { ...u[id], ...patch } }));
 
@@ -63,7 +71,7 @@ export const ChannelManagerAdmin: React.FC<{ uid: string }> = ({ uid }) => {
     setErr('');
     setMsg('');
     try {
-      const r = await saveChannelSettings({ uid, hotelCode: hotelCode.trim(), mode, units, rates: { send: sendRates, percent: Number(percent) || 0 } });
+      const r = await saveChannelSettings({ uid, hotelCode: hotelCode.trim(), mode, units, rates: { send: sendRates, percent: Number(percent) || 0 }, cuentaPropia: ownAccount });
       setMsg(r.message);
       setConfirmReal(false);
       await load();
@@ -124,6 +132,21 @@ export const ChannelManagerAdmin: React.FC<{ uid: string }> = ({ uid }) => {
         </p>
       )}
       {!state && !loadError && <p className="text-[15px] font-semibold">Cargando…</p>}
+
+      {state && !paid && (
+        <div className="rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-950 dark:text-amber-50 p-4 flex flex-col gap-2">
+          <p className="text-[15px] font-bold">
+            {PAY_TEXT[state.pay] || ''}{' '}
+            {connected && !state.channelManager?.ownAccount
+              ? 'Sigue conectado: si no va a pagar Loomi Suite, desconectalo acá y dalo de baja en Aiosell para no pagar esa propiedad.'
+              : 'No des de alta la propiedad en Aiosell hasta que pague Loomi Suite: Aiosell cobra desde el alta. Mientras tanto, que use iCal.'}
+          </p>
+          <label className="flex items-center gap-2 text-[15px] font-bold cursor-pointer">
+            <input type="checkbox" checked={ownAccount} onChange={(e) => setOwnAccount(e.target.checked)} className="w-5 h-5" />
+            Es una cuenta propia (se conecta sin abono)
+          </label>
+        </div>
+      )}
 
       {state && (
         <>

@@ -17,7 +17,11 @@ export interface ChannelAdminState {
     since?: string;
     units?: Record<string, ChannelUnitSetting>;
     rates?: { send?: boolean; percent?: number };
+    /** Cuenta propia de la administración: se conecta sin abono */
+    ownAccount?: boolean;
   } | null;
+  /** Abono: solo 'paga' (Loomi Suite activo) puede conectar un hotel real */
+  pay: 'paga' | 'loomi' | 'vencido' | 'prueba';
   /** Modo del hotel en channelHotels (null = no hay hotel conectado a esta cuenta) */
   hotel: { mode: 'real' | 'prueba' } | null;
   units: Array<{ id: string; name: string }>;
@@ -31,6 +35,8 @@ export interface ChannelSaveInput {
   mode: 'real' | 'prueba';
   units: Record<string, ChannelUnitSetting>;
   rates: { send: boolean; percent: number };
+  /** Cuenta propia (Catalinas, deptos del retiro): se conecta aunque no tenga Loomi Suite pago */
+  cuentaPropia: boolean;
 }
 
 async function call<T>(action: string, body: Record<string, unknown>): Promise<T> {

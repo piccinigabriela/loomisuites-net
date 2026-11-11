@@ -28,6 +28,8 @@ export interface ClientRow {
   unitCount: number | null;
   /** Creó la cuenta hace más de 24 h, está en prueba y no cargó unidades: conviene escribirle */
   needsHelp: boolean;
+  /** Tiene el channel manager conectado sin pagar Loomi Suite (y no es cuenta propia): Aiosell cobra igual, hay que darlo de baja */
+  channelUnpaid: boolean;
 }
 
 /** Cuenta nueva que se trabó: más de 24 h, en prueba y sin unidades */
@@ -94,6 +96,11 @@ export async function fetchClients(graceDays = 0): Promise<ClientRow[]> {
       webDesigns: Array.isArray(sub?.webDesigns) ? sub!.webDesigns.filter((x: unknown) => typeof x === 'string') : [],
       unitCount: typeof data.unitCount === 'number' ? data.unitCount : null,
       needsHelp: needsHelp(state, createdAt, typeof data.unitCount === 'number' ? data.unitCount : null, now),
+      channelUnpaid:
+        data.channelManager?.enabled === true &&
+        data.channelManager?.ownAccount !== true &&
+        !/sandbox/i.test(String(data.channelManager?.hotelCode || '')) &&
+        !(state === 'active' && sub?.plan === 'complejo'),
     });
   });
   // Primero lo que necesita atención: vencidos, pruebas por terminar, activos

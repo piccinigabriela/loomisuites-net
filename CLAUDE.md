@@ -187,6 +187,9 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   (Firestore simulado compartido: `scripts/fakeFirestore.ts`). El dueño ve "Conexión directa con las plataformas" arriba de Unidades
   (`components/common/ChannelConnectionCard.tsx`, solo si `channelManager.enabled` y hay `hotelCode`): unidades conectadas, lo último que llegó
   (channelLog) y si se mandan los precios (`saveChannelRatesDoc`, solo toca `channelManager.rates`). Hacia el cliente nunca se nombra a Aiosell.
+  Solo clientes que pagan (11/11; Aiosell cobra por propiedad dada de alta): `admin.js` no conecta un hotel real si la cuenta no tiene Loomi Suite
+  activo y sin vencer (`suiteStatus`); salvo sandbox o cuenta propia (`channelManager.ownAccount`). En la prueba gratis, iCal. El Panel marca
+  "Channel manager sin Loomi Suite pago" (`channelUnpaid` en `lib/adminClients.ts`) para desconectar y dar de baja en Aiosell.
 
 ## Verificar antes de subir
 1. `npx tsc --noEmit`

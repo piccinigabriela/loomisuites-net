@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict';
 // JS de Cloudflare sin tipos
 // @ts-nocheck -- pruebas sobre JS sin tipos
-import { cleanSave, handleAdmin, isAdminToken } from '../functions/api/channel/admin.js';
+import { cleanSave, handleAdmin, isAdminToken, suiteStatus } from '../functions/api/channel/admin.js';
 import { fakeFirestore } from './fakeFirestore';
 
 let pasadas = 0;
@@ -24,7 +24,8 @@ const prueba = (nombre: string, fn: () => void | Promise<void>) =>
   });
 
 const UID = 'UIDprueba12345';
-const base = () => ({
+const base = (sub: any = { status: 'active', plan: 'complejo' }) => ({
+  ...(sub ? { [`subscriptions/${UID}`]: sub } : {}),
   [`tenants/${UID}`]: { complexName: 'deptos del retiro' },
   [`tenants/${UID}/properties/pA`]: { name: 'depto A' },
   [`tenants/${UID}/properties/pB`]: { name: 'depto B' },
@@ -112,6 +113,38 @@ prueba('get trae los últimos avisos, del más nuevo al más viejo', async () =>
   const r = await handleAdmin('get', { uid: UID }, { token: 't', fetchImpl: fs.fetchImpl });
   assert.deepEqual(r.body.log.map((l: any) => l.action), ['cancel', 'book']);
   assert.equal(r.body.sync.lastAction, 'cancel');
+});
+
+prueba('estado del abono para el channel manager', () => {
+  assert.equal(suiteStatus(null, NOW), 'prueba');
+  assert.equal(suiteStatus({ status: 'trial' }, NOW), 'prueba');
+  assert.equal(suiteStatus({ status: 'suspended' }, NOW), 'vencido');
+  assert.equal(suiteStatus({ status: 'active', plan: 'propietario' }, NOW), 'loomi');
+  assert.equal(suiteStatus({ status: 'active', plan: 'complejo', activeUntil: '2026-12-09T00:00:00Z' }, NOW), 'paga');
+  assert.equal(suiteStatus({ status: 'active', plan: 'complejo', activeUntil: '2026-11-01T00:00:00Z' }, NOW), 'vencido');
+});
+
+prueba('en la prueba gratis no se conecta un hotel real (Aiosell cobra por propiedad)', async () => {
+  const fs = fakeFirestore(base(null));
+  const deps = { token: 't', fetchImpl: fs.fetchImpl, nowIso: NOW };
+  let r = await handleAdmin('save', { uid: UID, hotelCode: 'h1', mode: 'prueba', units: { pA: { roomCode: 'a' } } }, deps);
+  assert.equal(r.status, 402);
+  assert.match(r.body.error, /prueba gratis/);
+  assert.equal(fs.docs.has('channelHotels/h1'), false);
+  assert.equal((await handleAdmin('get', { uid: UID }, deps)).body.pay, 'prueba');
+  r = await handleAdmin('save', { uid: UID, hotelCode: 'sandbox-pms', mode: 'prueba', units: { pA: { roomCode: 'executive' } } }, deps);
+  assert.equal(r.status, 200, 'el hotel de prueba de Aiosell no cuesta: se puede');
+  r = await handleAdmin('save', { uid: UID, hotelCode: 'h1', mode: 'real', units: { pA: { roomCode: 'a' } }, cuentaPropia: true }, deps);
+  assert.equal(r.status, 200, 'cuenta propia: se conecta sin abono');
+  assert.equal((fs.docs.get(`tenants/${UID}`) as any).channelManager.ownAccount, true);
+});
+
+prueba('plan Loomi (no Suite) o vencido: tampoco', async () => {
+  for (const sub of [{ status: 'active', plan: 'propietario' }, { status: 'active', plan: 'complejo', activeUntil: '2026-10-01T00:00:00Z' }]) {
+    const fs = fakeFirestore(base(sub));
+    const r = await handleAdmin('save', { uid: UID, hotelCode: 'h1', units: { pA: { roomCode: 'a' } } }, { token: 't', fetchImpl: fs.fetchImpl, nowIso: NOW });
+    assert.equal(r.status, 402);
+  }
 });
 
 prueba('cuenta inválida o inexistente', async () => {

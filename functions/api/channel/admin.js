@@ -7,6 +7,9 @@
  * - Lee y escribe con la cuenta de servicio (FIREBASE_SERVICE_ACCOUNT): channelHotels/{hotelCode} no tiene reglas
  *   (nadie lo toca desde la app) y la administración no puede escribir tenants/{uid} por reglas.
  * - Acciones: get (estado de una cuenta), save (conectar o cambiar), disconnect.
+ * - Solo clientes que pagan (11/11): Aiosell cobra por propiedad dada de alta, así que no se conecta un hotel real a una cuenta
+ *   en prueba gratis. Hace falta subscriptions/{uid} con status 'active', plan 'complejo' y sin vencer. Excepciones: el hotel
+ *   de prueba de Aiosell (sandbox) y las cuentas propias de la administración (Catalinas, deptos del retiro: `cuentaPropia`).
  */
 import { commit, docName, getAccessToken, getDoc, readServiceAccount, runQuery, toValue } from '../../../functions-lib/firestoreAdmin.js';
 
@@ -35,6 +38,20 @@ export async function isAdminToken(idToken, fetchImpl = fetch) {
     return false;
   }
 }
+
+/** Estado del abono para el channel manager: 'paga' (Loomi Suite activo), 'loomi' (activo, pero plan Loomi), 'vencido' o 'prueba'. */
+export function suiteStatus(sub, nowIso) {
+  if (!sub || sub.status !== 'active') return sub && sub.status === 'suspended' ? 'vencido' : 'prueba';
+  const until = sub.activeUntil ? Date.parse(sub.activeUntil) : NaN;
+  if (!Number.isNaN(until) && until < Date.parse(nowIso)) return 'vencido';
+  return sub.plan === 'complejo' ? 'paga' : 'loomi';
+}
+
+const NOT_PAID = {
+  prueba: 'Esta cuenta está en la prueba gratis: el channel manager se conecta recién cuando paga Loomi Suite (Aiosell cobra por propiedad).',
+  loomi: 'Esta cuenta paga el plan Loomi, no Loomi Suite. Cambiale el plan a Loomi Suite en el Panel cuando pague la diferencia.',
+  vencido: 'El abono de esta cuenta está vencido. Conectá el channel manager cuando renueve Loomi Suite.',
+};
 
 const fieldsOf = (obj) => Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined).map(([k, v]) => [k, toValue(v)]));
 
@@ -68,6 +85,8 @@ export async function handleAdmin(action, body, { token, fetchImpl = fetch, nowI
   const tenant = await getDoc(token, tenantPath, fetchImpl, ['channelManager', 'complexName']);
   if (!tenant) return { status: 404, body: { error: 'No existe esa cuenta' } };
   const cm = tenant.channelManager || null;
+  const sub = await getDoc(token, `subscriptions/${uid}`, fetchImpl, ['status', 'activeUntil', 'plan']);
+  const pay = suiteStatus(sub, nowIso);
 
   if (action === 'get') {
     const [props, log, sync, hotel] = await Promise.all([
@@ -80,6 +99,7 @@ export async function handleAdmin(action, body, { token, fetchImpl = fetch, nowI
       status: 200,
       body: {
         channelManager: cm,
+        pay,
         hotel: hotel && hotel.uid === uid ? { mode: hotel.mode === 'real' ? 'real' : 'prueba' } : null,
         units: props
           .map((p) => ({ id: p.id, name: String(p.name || p.id) }))
@@ -95,6 +115,8 @@ export async function handleAdmin(action, body, { token, fetchImpl = fetch, nowI
     const c = cleanSave(body, new Set(props.map((p) => p.id)));
     if (!c.ok) return { status: 400, body: { error: c.error } };
     const v = c.value;
+    const ownAccount = body.cuentaPropia === true;
+    if (pay !== 'paga' && !ownAccount && !/sandbox/i.test(v.hotelCode)) return { status: 402, body: { error: NOT_PAID[pay] } };
     const other = await getDoc(token, `channelHotels/${v.hotelCode}`, fetchImpl);
     if (other && other.uid && other.uid !== uid) return { status: 409, body: { error: `El hotel ${v.hotelCode} ya está conectado a otra cuenta.` } };
     if (v.mode === 'real' && /sandbox/i.test(v.hotelCode)) {
@@ -118,6 +140,7 @@ export async function handleAdmin(action, body, { token, fetchImpl = fetch, nowI
       since: (cm && cm.hotelCode === v.hotelCode && cm.since) || nowIso,
       units: v.units,
       rates: v.rates,
+      ...(ownAccount ? { ownAccount: true } : {}),
     };
     writes.push({
       update: { name: docName(tenantPath), fields: fieldsOf({ channelManager }) },

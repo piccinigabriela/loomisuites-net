@@ -119,7 +119,7 @@ export const BentoLanding: React.FC<BentoLandingProps> = ({
       promo: 'Promo fin de año: USD 35 para siempre si creás tu cuenta antes del 31/12',
       highlight: true,
       badge: 'LOOMI SUITE • CON CHANNEL MANAGER',
-      description: 'Todo Loomi con conexión directa con Airbnb y Booking. Más USD 6 por unidad conectada. Próximamente.',
+      description: 'Todo Loomi con conexión directa con Airbnb y Booking. Más USD 6 por unidad conectada. Se conecta al contratarlo (en la prueba gratis, por iCal). Próximamente.',
       features: [
         'Todo lo del Plan Loomi',
         'Reservas al instante, sin esperar el calendario',

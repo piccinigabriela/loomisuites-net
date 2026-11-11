@@ -127,6 +127,14 @@ Esquema decidido (Gabi, 5/11): cada complejo = 1 "hotel" en Aiosell (`hotelCode`
 - Loomi manda un solo precio por noche y por unidad (el de `quoteStay`) y la estadía mínima. Nada de precios por cantidad de huéspedes
   ni gestión de tarifas: quien la quiera contrata el revenue manager de Aiosell aparte.
 
+## Solo clientes que pagan (11/11)
+
+- Aiosell cobra por propiedad desde que la da de alta. Por eso el channel manager se conecta recién cuando el cliente paga Loomi Suite;
+  en la prueba gratis de 7 días usa iCal. Orden: el cliente paga → se activa Loomi Suite en el Panel → recién ahí se pide el alta en Aiosell → se conecta.
+- El Panel no deja conectar un hotel real sin `subscriptions/{uid}` activo, con plan 'complejo' y sin vencer (`suiteStatus` en
+  `functions/api/channel/admin.js`). Excepciones: el hotel de prueba (sandbox) y las cuentas propias (casilla "Es una cuenta propia" → `channelManager.ownAccount`).
+- Si un cliente conectado deja de pagar o baja a Loomi, la lista del Panel lo marca ("Channel manager sin Loomi Suite pago"): desconectarlo y darlo de baja en Aiosell.
+
 ## Para preguntar a Aiosell (técnico) — mandadas el 6/11; las respuestas están arriba
 
 1. Autenticación: ¿cómo firmamos lo que les mandamos y cómo firman ellos lo que nos mandan (clave en el encabezado, usuario y clave)?

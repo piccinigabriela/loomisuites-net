@@ -207,7 +207,7 @@ export const MyPlanView: React.FC<Props> = ({ uid, email, complexName, subscript
                 <span className="block text-sm font-semibold text-stone-800 dark:text-stone-200">
                   {id === 'propietario'
                     ? `Todo Loomi, hasta ${PLAN_UNITS.propietario} unidades, con los calendarios de Airbnb y Booking por iCal`
-                    : `Todo Loomi, con channel manager: reservas al instante. Más USD ${CHANNEL_UNIT_USD} por unidad conectada${channelReady ? '' : ' (próximamente)'}`}
+                    : `Todo Loomi, con channel manager: reservas al instante. Más USD ${CHANNEL_UNIT_USD} por unidad conectada. Se conecta después del pago${channelReady ? '' : ' (próximamente)'}`}
                 </span>
                 <span className="block mt-2 text-xl font-bold text-stone-900 dark:text-white tabular-nums">
                   {formatUsd(planPriceUsd(billing, id, promo))} / mes

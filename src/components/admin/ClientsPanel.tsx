@@ -211,6 +211,7 @@ export const ClientsPanel: React.FC<Props> = ({ onClose, loader = fetchClients }
                     <span className="text-[14px] font-medium text-stone-800 dark:text-stone-100">{detail(r)}</span>
                     {notices.some((n) => n.uid === r.uid) && <span className="text-[14px] font-bold text-emerald-800 dark:text-emerald-300">Avisó que pagó</span>}
                     {r.needsHelp && <span className="text-[14px] font-bold text-amber-800 dark:text-amber-300">Sin unidades: ofrecele ayuda</span>}
+                    {r.channelUnpaid && <span className="text-[14px] font-bold text-rose-800 dark:text-rose-300">Channel manager sin Loomi Suite pago</span>}
                   </span>
                 </button>
 
