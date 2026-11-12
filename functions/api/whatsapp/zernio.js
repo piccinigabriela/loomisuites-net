@@ -14,7 +14,7 @@
  * o cuando termina (<<FIN>>), Xenia deja de contestar en ese chat (marca invisible END en su último mensaje).
  *
  * Recordatorio (11/11): si el alojamiento solo mandó una respuesta automática (o algo que WhatsApp no deja leer, como botones),
- * Xenia lo anota (crm_xenia_pendiente) y, 3 horas después y de 9 a 20 h, insiste una sola vez pidiendo que conteste una persona
+ * Xenia lo anota (crm_xenia_pendiente) y, 3 horas después y de 15 a 20 h (a la mañana tienen check-outs y limpiezas; a la tarde están más tranquilos), insiste una sola vez pidiendo que conteste una persona
  * (`runNudges`, lo dispara Supabase cada 15 min por /api/whatsapp/recordatorio). Si ya contestó alguien o escribió Gabi, no lo manda.
  *
  * Variables en Cloudflare Pages (Secrets): ANTHROPIC_API_KEY, ZERNIO_API_KEY, ZERNIO_WEBHOOK_SECRET y CRM_XENIA_SECRET
@@ -327,12 +327,12 @@ async function markPending(env, event, accountId, conversationId) {
 }
 
 /**
- * Recordatorio de la encuesta: lo llama /api/whatsapp/recordatorio cada 15 minutos. De 9 a 20 h (Argentina) toma los chats
+ * Recordatorio de la encuesta: lo llama /api/whatsapp/recordatorio cada 15 minutos. De 15 a 20 h (Argentina) toma los chats
  * anotados hace más de 3 horas y, si sigue sin contestar nadie, manda NUDGE_TEXT una vez.
  */
 export async function runNudges(env, nowMs = Date.now()) {
   const h = arHour(nowMs);
-  if (h < 9 || h >= 20) return { skipped: 'fuera de horario' };
+  if (h < 15 || h >= 20) return { skipped: 'fuera de horario' };
   const r = await crmRpc(env, 'crm_xenia_vencidos', {});
   if (!r.ok) return { error: `CRM ${r.status}` };
   const rows = await r.json();

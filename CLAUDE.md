@@ -42,7 +42,7 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   `CRM_XENIA_SECRET`; la clave vive en `crm_private`, sin políticas). Si no encuentra el teléfono en `crm_leads`, lo deja en `crm_survey_inbox`.
   Gabi escribe a mano en ese chat, <<EQUIPO>> (preguntan otra cosa) o <<FIN>>: Xenia deja el chat (marca invisible END U+2060). Registro de lo que hace (ok, silencio, automático, errores de Claude o de envío) en `crm_xenia_log` (30 días).
   Recordatorio (11/11): si solo llegó una respuesta automática (o "[Unsupported message]", bienvenidas con botones), Xenia anota el chat
-  (`crm_xenia_pendiente`, tabla `crm_xenia_pending`, uno por teléfono) y a las 3 h, de 9 a 20 h, manda una vez `NUDGE_TEXT` pidiendo que responda
+  (`crm_xenia_pendiente`, tabla `crm_xenia_pending`, uno por teléfono) y a las 3 h, de 15 a 20 h (a la tarde están tranquilos; si llega a la noche, sale al día siguiente a las 15), manda una vez `NUDGE_TEXT` pidiendo que responda
   una persona (`runNudges`; `needsNudge`: nadie de Loomi escribió y no contestó una persona). Lo dispara Supabase cada 15 min (pg_cron
   `xenia-recordatorio` + pg_net → POST `app.loomisuite.net/api/whatsapp/recordatorio` con `x-xenia-secret`; en el dominio sin app. daba 405). Apagar: `select cron.unschedule('xenia-recordatorio');`. Claude con reintentos (`callClaude`). Pruebas: `npm run probar:encuesta`.
 - Xenia para huéspedes (guía y Tu Web): `functions/api/xenia/huesped.js` (POST `/api/xenia/huesped`). El navegador manda solo la pregunta;
