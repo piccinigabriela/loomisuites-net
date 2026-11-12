@@ -1,0 +1,18 @@
+const {open}=require('./lib.cjs');const {cut}=require('./cut.cjs');
+(async()=>{const r=await open({url:'/demo?tab=overview'});const p=r.page;
+await r.start(); await r.wait(1200);
+await r.moveTo(p.getByText('Llegan hoy').first());await r.wait(800);
+await r.click(p.getByRole('button',{name:'Registrar ingreso'}),{after:1400});
+await r.moveTo(p.getByText(/Pedir DNI/).first(),{dx:-120});await r.wait(2500);
+r.mark('b');
+await r.click(p.getByText('Cambiar la nota'),{after:700});
+const ta=p.locator('textarea').last();
+await r.click(ta,{after:200});await p.keyboard.press('End');await p.keyboard.press('Control+End');
+await p.keyboard.type(' Ofrecer el desayuno del día siguiente.',{delay:50});await r.wait(500);
+await r.click(p.getByRole('button',{name:'Guardar nota'}),{after:1200});
+r.mark('c');
+await r.moveTo(p.getByText(/Ofrecer el desayuno/).first(),{dx:-100});await r.wait(1500);
+await r.click(p.getByRole('button',{name:/Listo, dar el ingreso/}),{after:2200});
+await r.moveTo(p.getByText('Alojados ahora').first());await r.wait(1500);
+const m=await r.stop('videos-out/r08.app.mp4');console.log(m);
+console.log(JSON.stringify(cut('videos-out/r08.app.mp4',[0,m.b,m.c],'videos-out/Loomi_nota-de-checkin')));})();

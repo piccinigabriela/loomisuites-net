@@ -1,0 +1,18 @@
+const {open}=require('./lib.cjs');const {cut}=require('./cut.cjs');
+(async()=>{const r=await open({url:'/demo?tab=guests'});const p=r.page;
+await r.start(); await r.wait(900);
+await r.moveTo(p.getByText('Valeria Benítez').first());await r.wait(900);
+await r.scroll(500,{steps:40});await r.wait(500);
+await r.click(p.getByRole('button',{name:/Volvieron/}),{after:1600});
+await r.moveTo(p.getByText(/Vino 2 veces/).first());await r.wait(1200);
+r.mark('b');
+await r.click(p.getByRole('button',{name:/Todos/}),{after:700});
+await r.click(p.getByRole('button',{name:'Nota'}).nth(3),{after:600});
+await r.type(p.getByPlaceholder(/viene con su perro/),'Viaja con bicicletas. Prefiere planta baja.',{delay:45});
+await r.click(p.getByRole('button',{name:'Guardar'}).first(),{after:1400});
+r.mark('c');
+await r.click(p.getByRole('button',{name:/Para invitar a volver/}),{after:1200});
+await r.moveTo(p.getByText(/Última vez/).first());await r.wait(1500);
+await r.moveTo(p.getByText('Invitar a volver',{exact:true}).last());await r.wait(3500);
+const m=await r.stop('videos-out/r04.app.mp4');console.log(m);
+console.log(cut('videos-out/r04.app.mp4',[0,m.b,m.c],'videos-out/Loomi_huespedes'));})();

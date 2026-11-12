@@ -1,0 +1,16 @@
+const {open}=require('./lib.cjs');const {cut}=require('./cut.cjs');
+(async()=>{const r=await open({url:'/demo?tab=overview'});const p=r.page;
+await r.start(); r.mark('a'); await r.wait(700);
+await r.click(p.getByText('Claire Dupont').first(),{after:1100});
+const btn=p.getByRole('button',{name:/Datos para facturar/});
+await r.scrollTo(btn,{block:'center',ms:1300});
+await r.click(btn,{after:900}); r.mark('b');
+await r.scrollTo(p.getByText('Copiá cada dato').first(),{block:'start',ms:1100});
+await r.moveTo(p.getByText('Consumidor final').first());await r.wait(700);
+await r.click(p.getByRole('button',{name:'Copiar Concepto'}),{after:1100});
+await r.click(p.getByRole('button',{name:/Copiar Importe total/}),{after:900});
+r.mark('c');
+await r.click(p.getByRole('button',{name:'Copiar todo'}),{after:900});
+await r.wait(2500);
+const m=await r.stop('videos-out/r03.app.mp4');console.log(m);
+console.log(cut('videos-out/r03.app.mp4',[0,m.b,m.c],'videos-out/Loomi_datos-para-facturar'));})();
