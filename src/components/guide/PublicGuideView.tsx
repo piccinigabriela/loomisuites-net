@@ -94,7 +94,11 @@ export const PublicGuideView: React.FC = () => {
   if (matchedUnit) {
     if (matchedUnit.wifiNetwork) mergedGuide.wifiNetwork = matchedUnit.wifiNetwork;
     if (matchedUnit.wifiPassword) mergedGuide.wifiPassword = matchedUnit.wifiPassword;
-    if (matchedUnit.address) mergedGuide.locationAddress = matchedUnit.address;
+    // Unidad con dirección propia (ej. un depto a la vuelta): el GPS va a esa dirección, no al link de Maps del complejo
+    if (matchedUnit.address && matchedUnit.address.trim() !== (guide.locationAddress || '').trim()) {
+      mergedGuide.locationAddress = matchedUnit.address;
+      mergedGuide.googleMapsUrl = '';
+    }
   }
 
   const reservationParam = searchParams.get('res') || '';
