@@ -28,6 +28,7 @@ const ellos = (message: string) => ({ direction: 'incoming', message });
 prueba('reconoce el primer mensaje de la encuesta (nueva y vieja)', () => {
   assert.equal(isSurveyOpener(opener), true);
   assert.equal(isSurveyOpener('Relevamiento: alojamientos aptos para celíacos e intolerantes a la lactosa en Argentina.'), true);
+  assert.equal(isSurveyOpener('Hola, ¿cómo están? Estamos armando el Mapa sin gluten. ¿Sirven comida a sus huéspedes?'), true, 'la del Mapa sin gluten');
   assert.equal(isSurveyOpener('Hola, ¿cuánto pagás por tu sistema de gestión?'), false);
 });
 
@@ -66,14 +67,15 @@ prueba('un chat que no es de encuesta no entra', () => {
 });
 
 prueba('lee los datos y las marcas de la respuesta de Claude', () => {
-  const r = parseSurveyReply('¡Genial! ¿Y sin lactosa?\n<<DATOS:{"p1":1,"p2":2,"p10":3,"p3":"x","resumen":"Desayuno incluido, sin TACC envasado"}>>');
-  assert.equal(r.text, '¡Genial! ¿Y sin lactosa?');
-  assert.deepEqual(r.answers, { p1: 1, p2: 2 });
-  assert.equal(r.summary, 'Desayuno incluido, sin TACC envasado');
+  const r = parseSurveyReply('¡Genial! ¿Las unidades tienen cocina?\n<<DATOS:{"comida":"no","p2":2,"categoria":"inventada","mapa":"Sí","resumen":"No sirven comida"}>>');
+  assert.equal(r.text, '¡Genial! ¿Las unidades tienen cocina?');
+  assert.deepEqual(r.answers, { comida: 'no', mapa: 'si' }, 'solo las claves nuevas y válidas');
+  assert.equal(r.summary, 'No sirven comida');
   assert.equal(r.done, false);
-  const f = parseSurveyReply('¡Gracias! Te dejo el manual: loomisuite.net/manual?m=sintacc <<FIN>>\n<<DATOS:{"p1":2,"p8":2,"resumen":"Usan Pxsol"}>>');
+  const f = parseSurveyReply('¡Gracias! Mirá cómo es una ficha: mapasingluten.app/sumate <<FIN>>\n<<DATOS:{"comida":"si","sin_gluten":"Envasados en el desayuno","categoria":"envasados","sin_lactosa":"no","mapa":"si","resumen":"Envasados"}>>');
   assert.equal(f.done, true);
-  assert.equal(f.text, '¡Gracias! Te dejo el manual: loomisuite.net/manual?m=sintacc');
+  assert.equal(f.text, '¡Gracias! Mirá cómo es una ficha: mapasingluten.app/sumate');
+  assert.deepEqual(f.answers, { comida: 'si', sin_gluten: 'Envasados en el desayuno', categoria: 'envasados', sin_lactosa: 'no', mapa: 'si' });
   assert.equal(parseSurveyReply('Te escribe el equipo por acá. <<EQUIPO>>').handoff, true);
   assert.equal(parseSurveyReply('<<SILENCIO>>').silent, true);
   assert.deepEqual(parseSurveyReply('Hola <<DATOS:{roto}>>').answers, {});
@@ -101,12 +103,12 @@ prueba('bienvenidas automáticas de WhatsApp Business: no se contestan', () => {
   assert.equal(isAutoReply('Hola, sí ofrecemos desayuno. Gracias por comunicarse, cualquier cosa estamos.'), false);
 });
 
-prueba('no cierra sin preguntar el sistema y, si sirven comida, la guía', () => {
-  assert.deepEqual(missingSurvey({ p1: 1, p2: 3, p3: 1, p4: 2, p5: 2, p7: 2 }), ['p8', 'p9', 'p6']);
-  assert.deepEqual(missingSurvey({ p1: 1, p7: 3, p8: 2, p6: 1 }), [], 'si ya tienen pre check-in, no va la 9');
-  assert.deepEqual(missingSurvey({ p1: 4 }), ['p8']);
-  assert.deepEqual(missingSurvey({ p1: 4, p8: 1 }), []);
-  assert.deepEqual(missingSurvey({ p1: 2, p8: 2, p6: 1 }), []);
+prueba('no cierra sin el permiso ni lo que corresponde según comida y cocina', () => {
+  assert.deepEqual(missingSurvey({ comida: 'si' }), ['sin_gluten', 'mapa']);
+  assert.deepEqual(missingSurvey({ comida: 'no' }), ['cocina', 'mapa']);
+  assert.deepEqual(missingSurvey({ comida: 'no', cocina: 'si' }), ['compras', 'sin_gluten', 'mapa']);
+  assert.deepEqual(missingSurvey({ comida: 'no', cocina: 'no' }), ['mapa'], 'sin comida ni cocina: directo al permiso');
+  assert.deepEqual(missingSurvey({ comida: 'si', sin_gluten: 'envasados', mapa: 'no' }), []);
 });
 
 prueba('bienvenida con botones ("[Unsupported message]"): es automática', () => {

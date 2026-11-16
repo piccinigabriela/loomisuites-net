@@ -8,7 +8,8 @@
  *   3. si es un audio o una imagen sin texto, pide que escriban,
  *   4. si no, le pide la respuesta a Claude con la información de Loomi y la manda por Zernio.
  *
- * Encuesta por charla (10/11): si el chat lo empezó Gabi con el mensaje de la encuesta sin TACC (plantilla del CRM, "relevando… celíacos"),
+ * Encuesta por charla (10/11; desde el 16/11 es la del Mapa sin gluten, más corta: comida, cocina, dónde compran, qué ofrecen sin gluten
+ * y el permiso para aparecer): si el chat lo empezó Gabi con el mensaje de la encuesta (plantilla del CRM, "relevando… celíacos" o "Mapa sin gluten"),
  * Xenia sigue la charla: una pregunta por mensaje, entiende respuestas con palabras y guarda lo que contestan en el CRM de prospectos
  * (Supabase, función crm_xenia_encuesta, por teléfono). Si Gabi escribe a mano en ese chat, si preguntan otra cosa (<<EQUIPO>>)
  * o cuando termina (<<FIN>>), Xenia deja de contestar en ese chat (marca invisible END en su último mensaje).
@@ -123,8 +124,11 @@ export function startedByHuman(msgs) {
   return Boolean(first && isHuman(first));
 }
 
-/** El primer mensaje de la encuesta sin TACC (plantilla del CRM): "relevando/relevamiento … celíacos" */
-export const isSurveyOpener = (text) => /relev(ando|amiento)/i.test(String(text || '')) && /cel[ií]ac/i.test(String(text || ''));
+/** El primer mensaje de la encuesta (plantilla del CRM): "relevando/relevamiento … celíacos" o "Mapa sin gluten" */
+export const isSurveyOpener = (text) => {
+  const t = String(text || '');
+  return (/relev(ando|amiento)/i.test(t) && /cel[ií]ac/i.test(t)) || /mapa sin gluten/i.test(t);
+};
 
 /**
  * Estado de la encuesta por charla en este chat. Cuenta desde el ÚLTIMO mensaje de encuesta que mandó Gabi a mano
@@ -151,38 +155,36 @@ export function surveyState(msgs) {
 }
 
 export function buildSurveyPrompt(opener) {
-  return `Sos Xenia, del equipo de Loomi Suite. Estás haciendo por WhatsApp un relevamiento corto de alojamientos aptos para celíacos e intolerantes a la lactosa. El primer mensaje ya lo mandó el equipo: "${String(opener || '').slice(0, 600)}". Ahora seguís vos la charla.
+  return `Sos Xenia, del equipo de Loomi Suite. Estás haciendo por WhatsApp una encuesta muy corta para el Mapa sin gluten: un mapa gratuito para que viajeros celíacos encuentren dónde alojarse. El primer mensaje ya lo mandó el equipo: "${String(opener || '').slice(0, 600)}". Ahora seguís vos la charla.
 
 CÓMO
 - Una sola pregunta por mensaje, corta y cálida, en español rioplatense con voseo (o en el idioma en que te escriban). Una o dos frases, sin listas ni títulos.
 - Antes de la pregunta, agradecé o comentá en pocas palabras lo que contestaron, sin exagerar.
-- Aceptá respuestas con palabras ("envasados nomás", "a veces"). Si no queda claro, repreguntá una vez dando las opciones; si sigue sin quedar claro, pasá a la siguiente.
-- Si ya contestaron algo en otro mensaje, no lo vuelvas a preguntar.
-- Si contestan con el formato de números de la encuesta escrita (por ejemplo "1-1, 2-3, 3-2"), tomalo: el primer número es la pregunta y el segundo la opción, con la numeración de abajo (la pregunta 6 es la de la guía, la 7 cómo se enteran y la 8 el sistema).
-- Si lo que contestan no tiene que ver con la pregunta y no sabés qué hacer (te derivan, te pasan otros números, es confuso), pedí con amabilidad hablar con quien se ocupa del alojamiento, por ejemplo: "¡Gracias! ¿Me podrías comunicar con el dueño o con quien se encarga del alojamiento? Es una consulta cortita, de un minuto." Si te pasan otro número para escribir, agradecé, poné ese número en el "resumen" de DATOS y agregá <<EQUIPO>>: el equipo de Loomi les escribe ahí.
-- No vendas ni hables de Loomi. Si preguntan qué es Loomi, piden precios o una demo, o la charla se va a otro tema: respondé en una frase que el equipo de Loomi les escribe por este mismo chat y agregá <<EQUIPO>>. Desde ahí no seguís.
-- No nombres a ninguna persona. "María" es quien firmó el primer mensaje, del equipo de Loomi: nunca llames así al alojamiento ni a quien te contesta. No uses nombres para dirigirte a ellos salvo que te digan cómo se llaman. Si preguntan con quién hablan, sos Xenia, la asistente con inteligencia artificial de Loomi Suite.
+- Aceptá respuestas con palabras ("envasados nomás", "tenemos cocina"). Si no queda claro, repreguntá una vez; si sigue sin quedar claro, pasá a la siguiente.
+- Si ya contestaron algo en otro mensaje (aunque sea antes de que lo preguntes), no lo vuelvas a preguntar.
+- Si lo que contestan no tiene que ver con la pregunta y no sabés qué hacer (te derivan, te pasan otros números, es confuso), pedí con amabilidad hablar con quien se ocupa del alojamiento, por ejemplo: "¡Gracias! ¿Me podrías comunicar con el dueño o con quien se encarga del alojamiento? Es una consulta cortita, de un minuto." Si te pasan otro número para escribir, agradecé, poné ese número en el "resumen" de DATOS y agregá <<EQUIPO>>: el equipo les escribe ahí.
+- No vendas ni hables de Loomi. Si preguntan qué es el Mapa sin gluten, explicalo en una frase y seguí. Si preguntan por Loomi, piden precios o una demo, o la charla se va a otro tema: respondé en una frase que el equipo les escribe por este mismo chat y agregá <<EQUIPO>>. Desde ahí no seguís.
+- No nombres a ninguna persona. "María" es quien firmó el primer mensaje, del equipo: nunca llames así al alojamiento ni a quien te contesta. Si preguntan con quién hablan, sos Xenia, la asistente con inteligencia artificial del equipo de Loomi Suite.
+- No prometas nada sobre la ficha (que va a salir, cuándo, en qué lugar): eso lo ven en el link del final.
 - Si dicen que no quieren contestar o se molestan: agradecé con amabilidad, despedite y poné <<FIN>>.
-- Si lo nuevo es SOLO una bienvenida o respuesta automática (por ejemplo "Gracias por comunicarse con Cabañas…, nuestro horario de atención es…, en breve le respondemos"), aunque traiga datos del alojamiento, respondé exactamente <<SILENCIO>>: se espera a que conteste una persona. Si además de la bienvenida automática hay una respuesta de una persona (por ejemplo "Buenos días, sí ofrecemos desayuno"), ignorá la bienvenida y seguí con la encuesta.
+- Si lo nuevo es SOLO una bienvenida o respuesta automática (por ejemplo "Gracias por comunicarse con Cabañas…, nuestro horario de atención es…, en breve le respondemos"), aunque traiga datos del alojamiento, respondé exactamente <<SILENCIO>>: se espera a que conteste una persona. Si además de la bienvenida automática hay una respuesta de una persona, ignorá la bienvenida y seguí.
 
-PREGUNTAS (en este orden; entre corchetes el código y las opciones)
-[p1] ¿Ofrecen desayuno? 1 sí, incluido · 2 sí, con cargo · 3 no, pero hay cocina equipada · 4 no
-  Si p1 es 3 o 4 (no sirven comida): preguntá solo [p8] y terminá.
-[p2] ¿Tienen opciones sin TACC? 1 no · 2 productos envasados · 3 los preparan en la cocina, con cuidados · 4 cocina 100 % sin gluten
-[p3] ¿Y sin lactosa? 1 no · 2 a pedido · 3 siempre
-[p4] ¿Se los piden los huéspedes? 1 nunca · 2 a veces · 3 seguido
-[p5] ¿Lo cuentan en su web o en sus avisos? 1 sí · 2 no
-[p7] ¿Cómo se enteran de que un huésped es celíaco o intolerante? 1 recién cuando llega · 2 les avisa por mensaje · 3 lo pregunta su sistema de reservas antes de llegar (pre check-in)
-[p9] (solo si p7 es 1 o 2) ¿Les serviría que el huésped les avise de su alimentación antes de llegar, con un formulario de pre check-in? 1 sí · 2 no
-[p8] ¿Llevan las reservas con algún sistema, o con cuaderno, Excel o el calendario de Airbnb o Booking? 1 sin sistema · 2 con un sistema de gestión
-[p6] (solo si sirven comida) ¿Les gustaría aparecer gratis en una guía de alojamientos aptos para celíacos e intolerantes a la lactosa? 1 sí · 2 no
-No digas "última pregunta" salvo en la que de verdad es la última (p6 si sirven comida; p8 si no). No cierres sin haber preguntado p8, p9 si corresponde y, si sirven comida, p6.
+PREGUNTAS (en este orden; entre corchetes el dato que guardás)
+1. [comida] ¿Sirven comida a los huéspedes? (desayuno o comidas) → "si" o "no". Si el primer mensaje preguntó por el desayuno, tomá esa respuesta como esta.
+2. [cocina] Solo si NO sirven comida: ¿las unidades tienen cocina equipada? → "si" o "no".
+3. [compras] Solo si NO sirven comida y SÍ tienen cocina: ¿dónde compran sus huéspedes productos sin TACC y a cuántos kilómetros? → texto corto con lo que digan (lugar y distancia).
+4. [sin_gluten] Si sirven comida o tienen cocina: ¿ofrecen opciones sin gluten o sin lactosa? Contanos cómo. → texto con sus palabras. Con eso completá también:
+   [categoria] "envasados" (solo productos envasados) · "cocina_con_cuidados" (preparan sin gluten en su cocina, con cuidados) · "cocina_sin_gluten" (cocina 100 % sin gluten) · "solo_cocina" (no sirven comida; el huésped cocina) · "ninguna" (no ofrecen nada sin gluten).
+   [sin_lactosa] "si" si ofrecen algo sin lactosa, "no" si dicen que no. Si no lo mencionan, no lo pongas.
+5. [mapa] ¿Quieren aparecer gratis en el Mapa sin gluten? → "si" o "no". Es el permiso para publicarlos: si la respuesta es dudosa ("puede ser", "después vemos"), repreguntá una vez; si sigue dudosa, guardá "no".
+Si NO sirven comida y NO tienen cocina, pasá directo a la 5.
+No digas "última pregunta" salvo en la 5. No cierres sin haber preguntado la 5.
 
 AL TERMINAR
-Agradecé y mandá el regalo, copiando el link letra por letra: si sirven comida, el manual "Sin gluten, sin lactosa": loomisuite.net/manual?m=sintacc&utm_campaign=encuesta ; si no, el manual de hospitalidad: loomisuite.net/manual?utm_campaign=encuesta. Después poné <<FIN>>.
+Agradecé y mandá este link para que vean cómo es una ficha y las condiciones, copiándolo letra por letra: mapasingluten.app/sumate . Si dijeron que no a la 5, agradecé igual y mandá el link por si cambian de idea. Después poné <<FIN>>.
 
 DATOS (obligatorio)
-Al final de cada respuesta, en una línea aparte, agregá <<DATOS:{...}>> con todas las respuestas que tengas hasta ahora, como números (por ejemplo {"p1":1,"p2":2}), y "resumen": una frase con lo importante que dijeron, con sus palabras (por ejemplo el nombre del sistema que usan). Esa línea no la ve el alojamiento.`;
+Al final de cada respuesta, en una línea aparte, agregá <<DATOS:{...}>> con todo lo que tengas hasta ahora, con las claves de arriba (por ejemplo {"comida":"no","cocina":"si","compras":"Dietética Sol, en el centro, a 3 km"}), y "resumen": una frase con lo importante que dijeron, con sus palabras. Esa línea no la ve el alojamiento.`;
 }
 
 /**
@@ -224,20 +226,26 @@ export function needsNudge(sv) {
 }
 
 export const NUDGE_TEXT =
-  'Hola de nuevo 😊 ¿Me podría responder una persona del alojamiento? Es una consulta corta para una guía de alojamientos aptos para celíacos: ¿ofrecen desayuno a sus huéspedes?';
+  'Hola de nuevo 😊 ¿Me podría responder una persona del alojamiento? Es una consulta corta para el Mapa sin gluten, un mapa gratuito para viajeros celíacos: ¿sirven comida a sus huéspedes?';
 
 /** Hora de Argentina (UTC−3, sin horario de verano) */
 export const arHour = (nowMs) => new Date(nowMs - 3 * 3600 * 1000).getUTCHours();
 
-/** Preguntas que faltan antes de cerrar: siempre p8 (sistema); si se enteran tarde (p7 = 1 o 2), p9 (pre check-in); si sirven comida, p6 (guía) */
+/**
+ * Preguntas que faltan antes de cerrar (encuesta del Mapa sin gluten, 16/11): siempre el permiso (mapa); si no sirven comida, si
+ * tienen cocina; con cocina, dónde compran; si sirven comida o tienen cocina, qué ofrecen sin gluten.
+ */
 export function missingSurvey(answers) {
   const a = answers || {};
   const out = [];
-  if (!a.p8) out.push('p8');
-  if ((a.p7 === 1 || a.p7 === 2) && !a.p9) out.push('p9');
-  if ((a.p1 === 1 || a.p1 === 2) && !a.p6) out.push('p6');
+  if (a.comida === 'no' && !a.cocina) out.push('cocina');
+  if (a.comida === 'no' && a.cocina === 'si' && !a.compras) out.push('compras');
+  if ((a.comida === 'si' || a.cocina === 'si') && !a.sin_gluten) out.push('sin_gluten');
+  if (!a.mapa) out.push('mapa');
   return out;
 }
+
+export const SURVEY_CATEGORIES = ['envasados', 'cocina_con_cuidados', 'cocina_sin_gluten', 'solo_cocina', 'ninguna'];
 
 /** Saca de la respuesta de Claude las marcas de la encuesta */
 export function parseSurveyReply(text) {
@@ -259,8 +267,19 @@ export function parseSurveyReply(text) {
   const answers = {};
   let summary = '';
   if (data && typeof data === 'object') {
+    const yesNo = (v) => {
+      const x = String(v ?? '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return v === true || x === 'si' || x === 'true' ? 'si' : v === false || x === 'no' || x === 'false' ? 'no' : '';
+    };
     for (const [k, v] of Object.entries(data)) {
-      if (/^p[1-9]$/.test(k) && Number.isInteger(Number(v)) && Number(v) >= 1 && Number(v) <= 4) answers[k] = Number(v);
+      if (['comida', 'cocina', 'mapa', 'sin_lactosa'].includes(k)) {
+        const yn = yesNo(v);
+        if (yn) answers[k] = yn;
+      } else if ((k === 'compras' || k === 'sin_gluten') && String(v ?? '').trim()) {
+        answers[k] = String(v).trim().slice(0, 500);
+      } else if (k === 'categoria' && SURVEY_CATEGORIES.includes(String(v))) {
+        answers[k] = String(v);
+      }
     }
     summary = String(data.resumen || data.summary || '').slice(0, 600);
   }
@@ -508,12 +527,12 @@ async function handleSurvey(env, event, accountId, conversationId, incoming, his
   }
   // 10/11: cerró sin preguntar el sistema ni la guía. Si quiere cerrar y faltan, se le pide que pregunte lo que falta.
   const missing = missingSurvey(parsed.answers);
-  if (parsed.done && !parsed.handoff && missing.length && Object.keys(parsed.answers).length) {
+  if (parsed.done && !parsed.handoff && missing.length && parsed.answers.comida) {
     const retry = await callClaude(env, {
       model: MODEL,
       max_tokens: 600,
       thinking: { type: 'disabled' },
-      system: `${buildSurveyPrompt(opener)}\n\nATENCIÓN: todavía falta preguntar ${missing.join(' y ')}. No cierres ni mandes el regalo: agradecé lo último que dijeron y hacé la próxima pregunta que falta.`,
+      system: `${buildSurveyPrompt(opener)}\n\nATENCIÓN: todavía falta preguntar ${missing.map((k) => `[${k}]`).join(' y ')}. No cierres ni mandes el link: agradecé lo último que dijeron y hacé la próxima pregunta que falta.`,
       messages,
     });
     if (retry && retry.ok) {
