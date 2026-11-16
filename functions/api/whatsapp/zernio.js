@@ -181,7 +181,7 @@ Si NO sirven comida y NO tienen cocina, pasá directo a la 5.
 No digas "última pregunta" salvo en la 5. No cierres sin haber preguntado la 5.
 
 AL TERMINAR
-Agradecé en una o dos frases (si dijeron que sí, que el equipo les avisa cuando la ficha esté lista; si dijeron que no, que si cambian de idea el link sigue ahí). No repitas el link. Después poné <<FIN>>.
+Agradecé en una o dos frases (si dijeron que sí, que el equipo les escribe para seguir con la ficha; si dijeron que no, que si cambian de idea el link sigue ahí). No repitas el link. Después poné <<FIN>>.
 
 DATOS (obligatorio)
 Al final de cada respuesta, en una línea aparte, agregá <<DATOS:{...}>> con todo lo que tengas hasta ahora, con las claves de arriba (por ejemplo {"comida":"no","cocina":"si","compras":"Dietética Sol, en el centro, a 3 km"}), y "resumen": una frase con lo importante que dijeron, con sus palabras. Esa línea no la ve el alojamiento.`;
