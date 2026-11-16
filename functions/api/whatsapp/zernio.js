@@ -174,7 +174,7 @@ PREGUNTAS (en este orden; entre corchetes el dato que guardás)
 2. [cocina] Solo si NO sirven comida: ¿las unidades tienen cocina equipada? → "si" o "no".
 3. [compras] Solo si NO sirven comida y SÍ tienen cocina: ¿dónde compran sus huéspedes productos sin TACC y a cuántos kilómetros? → texto corto con lo que digan (lugar y distancia).
 4. [sin_gluten] Si sirven comida o tienen cocina: ¿ofrecen opciones sin gluten o sin lactosa? Contanos cómo. → texto con sus palabras. Con eso completá también:
-   [categoria] "envasados" (solo productos envasados) · "cocina_con_cuidados" (preparan sin gluten en su cocina, con cuidados) · "cocina_sin_gluten" (cocina 100 % sin gluten) · "solo_cocina" (no sirven comida; el huésped cocina) · "ninguna" (no ofrecen nada sin gluten).
+   [categoria] (las mismas modalidades que muestra mapasingluten.app/sumate) "envasados" (solo productos envasados) · "cocina_con_cuidados" (preparan sin gluten en su cocina, con cuidados) · "area_exclusiva" (un sector de la cocina solo para elaborar sin TACC: horno, tablas y utensilios exclusivos) · "cocina_sin_gluten" (cocina 100 % sin gluten) · "cocina_huespedes" (no sirven comida; las unidades tienen cocina y el huésped se cocina) · "ninguna" (no ofrecen nada sin gluten).
    [sin_lactosa] "si" si ofrecen algo sin lactosa, "no" si dicen que no. Si no lo mencionan, no lo pongas.
 5. [mapa] ¿Quieren aparecer gratis en el Mapa sin gluten? En el mismo mensaje mandá el link para que vean cómo es una ficha y las condiciones antes de decidir, copiándolo letra por letra: mapasingluten.app/sumate . → "si" o "no". Es el permiso para publicarlos: si la respuesta es dudosa ("puede ser", "después vemos"), repreguntá una vez; si sigue dudosa, guardá "no".
 Si NO sirven comida y NO tienen cocina, pasá directo a la 5.
@@ -245,7 +245,7 @@ export function missingSurvey(answers) {
   return out;
 }
 
-export const SURVEY_CATEGORIES = ['envasados', 'cocina_con_cuidados', 'cocina_sin_gluten', 'solo_cocina', 'ninguna'];
+export const SURVEY_CATEGORIES = ['envasados', 'cocina_con_cuidados', 'area_exclusiva', 'cocina_sin_gluten', 'cocina_huespedes', 'ninguna'];
 
 /** Saca de la respuesta de Claude las marcas de la encuesta */
 export function parseSurveyReply(text) {
