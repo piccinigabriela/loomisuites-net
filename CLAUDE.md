@@ -40,7 +40,7 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   de la encuesta del CRM ("relevando… celíacos" o "Mapa sin gluten", `isSurveyOpener`), Xenia la sigue (`surveyState`, `buildSurveyPrompt`, `handleSurvey`):
   una pregunta por mensaje — comida (si/no) → si no: cocina (si/no) → con cocina: compras (dónde y a cuántos km) → si comida o cocina: sin_gluten
   (texto) + categoria (`SURVEY_CATEGORIES`) + sin_lactosa → mapa (si/no: el permiso para publicarlos, con `mapa_at`). No cierra sin lo que falta
-  (`missingSurvey`). Al final manda mapasingluten.app/sumate. Las claves viejas p1–p9 (hasta el 15/11) siguen en los leads que ya contestaron. Guarda en el CRM de prospectos (Supabase vnfgitgadadjjjciftsa, RPC `crm_xenia_encuesta` con la clave publicable + secret
+  (`missingSurvey`). El link mapasingluten.app/sumate va junto con la pregunta del permiso, para que vean la ficha antes de decidir. Las claves viejas p1–p9 (hasta el 15/11) siguen en los leads que ya contestaron. Guarda en el CRM de prospectos (Supabase vnfgitgadadjjjciftsa, RPC `crm_xenia_encuesta` con la clave publicable + secret
   `CRM_XENIA_SECRET`; la clave vive en `crm_private`, sin políticas). Si no encuentra el teléfono en `crm_leads`, lo deja en `crm_survey_inbox`.
   Gabi escribe a mano en ese chat, <<EQUIPO>> (preguntan otra cosa) o <<FIN>>: Xenia deja el chat (marca invisible END U+2060). Registro de lo que hace (ok, silencio, automático, errores de Claude o de envío) en `crm_xenia_log` (30 días).
   Recordatorio (11/11): si solo llegó una respuesta automática (o "[Unsupported message]", bienvenidas con botones), Xenia anota el chat
