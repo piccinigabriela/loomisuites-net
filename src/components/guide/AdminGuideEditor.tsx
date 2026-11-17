@@ -384,6 +384,23 @@ export const AdminGuideEditor: React.FC<AdminGuideEditorProps> = ({
               </div>
 
               <div className="mt-4">
+                <label htmlFor="guide-esim-link" className="block text-xs font-bold text-zinc-700 dark:text-zinc-100 mb-1">
+                  Link de eSIM (afiliado)
+                </label>
+                <p className="text-[11px] text-zinc-700 dark:text-zinc-200 mb-1.5">
+                  Pegá tu link de afiliado de eSIM. Si lo cargás, la bienvenida muestra "Datos móviles / Mobile data" con el botón "Ver planes", y el mensaje de llegada lo menciona (en Airbnb, sin el link: remite a la guía). Si lo dejás vacío, no aparece.
+                </p>
+                <input
+                  id="guide-esim-link"
+                  type="url"
+                  value={formData.esimLink || ''}
+                  onChange={(e) => handleGeneralChange('esimLink', e.target.value)}
+                  placeholder="https://www.esim-hub.com/es/destinations?ref=..."
+                  className="w-full text-xs p-2.5 rounded-xl border border-zinc-300 focus:border-rose-500 focus:outline-hidden bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-400 dark:border-zinc-600"
+                />
+              </div>
+
+              <div className="mt-4">
                 <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-100 mb-1">
                   Aviso Especial o Mensaje de Bienvenida del Día
                 </label>

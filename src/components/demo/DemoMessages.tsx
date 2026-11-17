@@ -19,6 +19,7 @@ import { copyToClipboard } from '../../utils/clipboard';
 import { WebTemplatesManager } from '../WebTemplatesManager';
 import { GuestWelcomeCard } from '../GuestWelcomeCard';
 import { isAppMode } from '../../lib/appMode';
+import { esimMessageLine } from '../../lib/esim';
 
 interface DemoMessagesProps {
   demoState: DemoState;
@@ -42,6 +43,7 @@ const TEMPLATE_VARS: Array<[string, string]> = [
   ['Cómo ingresar', '{{instrucciones_ingreso}}'],
   ['Código de la puerta', '{{codigo_acceso}}'],
   ['Link de reseña', '{{link_resena_google}}'],
+  ['Datos móviles (eSIM)', '{{datos_moviles}}'],
 ];
 
 type FilterScope = 'upcoming' | 'today' | 'next7' | 'all';
@@ -292,6 +294,16 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
       else if (!/\{codigo_cerradura\}/i.test(rawTpl) && /link_guia|instrucciones_ingreso/i.test(rawTpl)) content = `${content.trimEnd()}\n\n🔑 ${pinLabel}: ${pin}`;
     } else {
       content = content.replace(/^.*\{\{codigo_acceso\}\}.*(\n|$)/gim, '');
+    }
+
+    // Datos móviles con eSIM (17/11): con {{datos_moviles}} va donde lo puso el anfitrión; si no, en los mensajes de llegada
+    // (los que llevan la guía) se suma al final. En Airbnb no se pueden mandar links: solo remite a la guía.
+    const esimLine = esimMessageLine(demoState.welcomeGuide?.esimLink, msgLang, selectedReservation.platform === 'airbnb');
+    if (esimLine) {
+      if (/\{\{datos_moviles\}\}/i.test(rawTpl)) content = content.replace(/\{\{datos_moviles\}\}/gi, esimLine);
+      else if (/link_guia/i.test(rawTpl)) content = `${content.trimEnd()}\n\n${esimLine}`;
+    } else {
+      content = content.replace(/^.*\{\{datos_moviles\}\}.*(\n|$)/gim, '');
     }
 
     // Link de reseña en Google (si no está cargado, se quita esa línea del mensaje)

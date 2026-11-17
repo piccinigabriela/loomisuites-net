@@ -158,6 +158,10 @@ Gabi usa Loomi con su propio complejo (Catalinas, unidades A–D). Hay datos rea
   al final de los mensajes de llegada (los que llevan la guía o cómo ingresar). No va a la guía pública, a Limpieza ni a Xenia. Nivel 2 (crear el
   código solo con TTLock, Tuya o igloohome) solo si varios clientes tienen la misma marca.
 
+- Datos móviles con eSIM (17/11): `welcomeGuide.esimLink` (link de afiliado de cada anfitrión, en Tu Web y Guía → Ajustes). Si está, la bienvenida
+  muestra "Datos móviles / Mobile data" (texto es + en y "Ver planes" / "See plans"; si el link tiene /es/, el botón en inglés va sin /es/) y los mensajes
+  con la guía suman una línea (o donde esté `{{datos_moviles}}`). En reservas de Airbnb, sin link: remite a la guía. Lógica en `src/lib/esim.ts`.
+
 - Todo lo que hace Loomi: loomisuite.net/funciones (`components/landing/FeaturesPage.tsx`, página liviana; links en el menú y el pie de la landing,
   y Xenia en WhatsApp la manda). Si se suma, cambia o se saca una función, o cambian los precios, actualizarla.
 

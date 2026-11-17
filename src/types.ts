@@ -240,6 +240,8 @@ export interface WelcomeGuideData {
   arrivalInstructionsEn?: string;
   /** Link para dejar reseña en Google (se usa en el mensaje de despedida) */
   googleReviewUrl?: string;
+  /** Link de eSIM de afiliado del anfitrión: si está, la bienvenida muestra "Datos móviles" (src/lib/esim.ts) */
+  esimLink?: string;
   transportation: TransportationItem[];
   attractions: AttractionItem[];
   dining: DiningItem[];

@@ -36,6 +36,7 @@ import { AgendaTab, AgendaView } from './mobile/AgendaTab';
 import { formatShortDateRange } from './mobile/helpers';
 import { isOverdue } from '../../lib/reminders';
 import { PaymentSettingsSheet } from './mobile/PaymentSettingsSheet';
+import { esimMessageLine } from '../../lib/esim';
 import {
   availableMethods,
   composePaymentMessage,
@@ -284,7 +285,7 @@ export const MobileLightView: React.FC<MobileLightViewProps> = ({
   }, [selectedGuestAction?.id]);
 
   const welcomeMessageText = selectedGuestAction
-    ? `¡Hola, ${selectedGuestAction.guestName.split(' ')[0]}! 🌲 Te confirmamos que tu reserva para la unidad ${selectedActionProperty?.name || 'tu cabaña'} está registrada con éxito desde el ${formatDisplayDate(selectedGuestAction.checkIn)} hasta el ${formatDisplayDate(selectedGuestAction.checkOut)}.\n${selectedActionProperty?.smartLock?.enabled && selectedGuestAction.pinCode ? `🔑 Código de la puerta: ${selectedGuestAction.pinCode}\n` : ''}Para que tu llegada sea fácil, te compartimos tu guía digital: cómo llegar, Wi-Fi, horarios y contacto.\n🔗 ${guideLink}\n¡Estamos felices de recibirte! Cualquier duda, estamos a un toque de distancia por acá.`
+    ? `¡Hola, ${selectedGuestAction.guestName.split(' ')[0]}! 🌲 Te confirmamos que tu reserva para la unidad ${selectedActionProperty?.name || 'tu cabaña'} está registrada con éxito desde el ${formatDisplayDate(selectedGuestAction.checkIn)} hasta el ${formatDisplayDate(selectedGuestAction.checkOut)}.\n${selectedActionProperty?.smartLock?.enabled && selectedGuestAction.pinCode ? `🔑 Código de la puerta: ${selectedGuestAction.pinCode}\n` : ''}Para que tu llegada sea fácil, te compartimos tu guía digital: cómo llegar, Wi-Fi, horarios y contacto.\n🔗 ${guideLink}\n${(() => { const l = esimMessageLine(demoState.welcomeGuide?.esimLink, 'es', selectedGuestAction.platform === 'airbnb'); return l ? `${l}\n` : ''; })()}¡Estamos felices de recibirte! Cualquier duda, estamos a un toque de distancia por acá.`
     : '';
 
   const wifiMessageText = selectedGuestAction

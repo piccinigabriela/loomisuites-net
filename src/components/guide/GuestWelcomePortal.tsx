@@ -39,9 +39,11 @@ import {
   Palette,
   CheckCircle2,
   ArrowLeft,
+  Smartphone,
 } from 'lucide-react';
 import { WelcomeGuideData, AttractionItem, DiningItem } from '../../types';
 import { isAppMode } from '../../lib/appMode';
+import { ESIM_TEXT, esimLinks } from '../../lib/esim';
 import { getGuideHours, withHs } from '../../data/initialData';
 
 export type PortalTheme =
@@ -700,6 +702,40 @@ export const GuestWelcomePortal: React.FC<GuestWelcomePortalProps> = ({
                 </div>
               )}
             </div>
+
+            {/* Datos móviles (17/11): solo si el anfitrión cargó su link de eSIM */}
+            {(() => {
+              const esim = esimLinks(guideData.esimLink);
+              if (!esim) return null;
+              const same = esim.es === esim.en;
+              const btn = `inline-flex items-center justify-center gap-1.5 min-h-[40px] px-4 rounded-xl text-xs font-bold ${theme.btnPrimary}`;
+              return (
+                <div className={`mt-3 p-3.5 rounded-2xl border space-y-2.5 ${theme.cardBg}`}>
+                  <div className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider ${theme.accentText}`}>
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>{ESIM_TEXT.titleEs} / {ESIM_TEXT.titleEn}</span>
+                  </div>
+                  <p className="text-xs leading-relaxed">{ESIM_TEXT.es}</p>
+                  <p lang="en" className="text-xs leading-relaxed">{ESIM_TEXT.en}</p>
+                  <div className="flex flex-wrap gap-2 pt-0.5">
+                    {same ? (
+                      <a href={esim.es} target="_blank" rel="noopener noreferrer sponsored" className={btn}>
+                        Ver planes / See plans <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    ) : (
+                      <>
+                        <a href={esim.es} target="_blank" rel="noopener noreferrer sponsored" className={btn}>
+                          Ver planes <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                        <a href={esim.en} target="_blank" rel="noopener noreferrer sponsored" lang="en" className={btn}>
+                          See plans <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
