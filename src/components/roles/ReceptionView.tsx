@@ -724,6 +724,7 @@ export const ReceptionView: React.FC<ReceptionViewProps> = ({
                     : `https://loomisuite.net/guia/${selectedResForCard.propertyId}`
                 }
                 hostPhone={demoState.welcomeGuide?.hostPhone || ''}
+                esimLink={demoState.welcomeGuide?.esimLink || ''}
               />
             </div>
 

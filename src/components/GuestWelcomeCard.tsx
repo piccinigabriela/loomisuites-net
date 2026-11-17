@@ -9,8 +9,10 @@ import {
   Check,
   ExternalLink,
   MessageCircle,
-  Clock
+  Clock,
+  Smartphone
 } from 'lucide-react';
+import { ESIM_TEXT, esimLinks } from '../lib/esim';
 
 export interface GuestWelcomeCardProps {
   guestName?: string;
@@ -24,6 +26,8 @@ export interface GuestWelcomeCardProps {
   address?: string;
   guideUrl?: string;
   hostPhone?: string; // Número de WhatsApp con prefijo internacional, ej: "5491155550100"
+  /** Link de eSIM del anfitrión (welcomeGuide.esimLink): si está, se muestra "Datos móviles" */
+  esimLink?: string;
 }
 
 export const GuestWelcomeCard: React.FC<GuestWelcomeCardProps> = ({
@@ -37,8 +41,10 @@ export const GuestWelcomeCard: React.FC<GuestWelcomeCardProps> = ({
   wifiPassword = "(a confirmar)",
   address = "(a confirmar)",
   guideUrl = "https://loomisuite.net/guia/cab-lapacho",
-  hostPhone = ""
+  hostPhone = "",
+  esimLink = ""
 }) => {
+  const esim = esimLinks(esimLink);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const copyToClipboard = (text: string, key: string) => {
@@ -195,6 +201,34 @@ export const GuestWelcomeCard: React.FC<GuestWelcomeCardProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Datos móviles (17/11): solo si el anfitrión cargó su link de eSIM */}
+          {esim && (
+            <div className="p-3.5 rounded-2xl bg-[#FCFAF8] border border-stone-100 space-y-2 text-xs">
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-stone-600 font-medium">
+                <Smartphone className="w-3.5 h-3.5 text-[#C55A1B]" />
+                <span>{ESIM_TEXT.titleEs} / {ESIM_TEXT.titleEn}</span>
+              </div>
+              <p className="text-stone-700 font-normal leading-relaxed">{ESIM_TEXT.es}</p>
+              <p lang="en" className="text-stone-700 font-normal leading-relaxed">{ESIM_TEXT.en}</p>
+              <div className="flex flex-wrap gap-2 pt-0.5">
+                {esim.es === esim.en ? (
+                  <a href={esim.es} target="_blank" rel="noopener noreferrer sponsored" className="inline-flex items-center gap-1.5 py-2 px-3 rounded-xl text-xs font-normal text-white bg-stone-900 hover:bg-stone-800">
+                    Ver planes / See plans <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                ) : (
+                  <>
+                    <a href={esim.es} target="_blank" rel="noopener noreferrer sponsored" className="inline-flex items-center gap-1.5 py-2 px-3 rounded-xl text-xs font-normal text-white bg-stone-900 hover:bg-stone-800">
+                      Ver planes <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                    <a href={esim.en} target="_blank" rel="noopener noreferrer sponsored" lang="en" className="inline-flex items-center gap-1.5 py-2 px-3 rounded-xl text-xs font-normal text-white bg-stone-900 hover:bg-stone-800">
+                      See plans <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Acciones de Contacto y Guía Digital */}
           <div className="space-y-2 pt-1">

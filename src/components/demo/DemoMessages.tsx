@@ -548,6 +548,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
             address={selectedProperty?.address ? `${selectedProperty.address}` : '(a confirmar)'}
             guideUrl={buildGuideUrl()}
             hostPhone={demoState.welcomeGuide?.hostPhone || ''}
+            esimLink={demoState.welcomeGuide?.esimLink || ''}
           />
         </div>
       )}
@@ -943,6 +944,7 @@ export const DemoMessages: React.FC<DemoMessagesProps> = ({ demoState, uid, targ
                     address={selectedProperty?.address ? `${selectedProperty.address}` : '(a confirmar)'}
                     guideUrl={buildGuideUrl()}
                     hostPhone={demoState.welcomeGuide?.hostPhone || ''}
+                    esimLink={demoState.welcomeGuide?.esimLink || ''}
                   />
                 </div>
               ) : (
